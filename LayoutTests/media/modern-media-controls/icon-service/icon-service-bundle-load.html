@@ -13,24 +13,29 @@ description("Verifies that media-control button icons load from the WebCore fram
 
 const video = document.querySelector("video");
 
-video.addEventListener("canplaythrough", async () => {
-    await UIHelper.animationFrame();
+function buttonsWithCommittedIcon(mediaControls)
+{
+    return Array.from(mediaControls.querySelectorAll("button")).filter((button) => {
+        const picture = button.querySelector("picture");
+        if (!picture)
+            return false;
+        const match = window.getComputedStyle(picture).maskImage.match(/url\("?([^"\s)]+)"?\)/);
+        return match && match[1].startsWith("blob:");
+    });
+}
 
+video.addEventListener("canplaythrough", async () => {
     const shadowRoot = internals.shadowRoot(video);
     const mediaControls = shadowRoot.lastChild;
-    const buttons = Array.from(mediaControls.querySelectorAll("button"));
+
+    const maximumFrames = 120;
+    await UIHelper.waitForCondition(() => buttonsWithCommittedIcon(mediaControls).length > 0, maximumFrames);
 
     window.buttonsChecked = 0;
     window.buttonsWithEmptyIcon = 0;
-    for (const button of buttons) {
+    for (const button of buttonsWithCommittedIcon(mediaControls)) {
         const picture = button.querySelector("picture");
-        if (!picture)
-            continue;
-
-        const maskImage = window.getComputedStyle(picture).maskImage;
-        const match = maskImage.match(/url\("?([^"\s)]+)"?\)/);
-        if (!match || !match[1].startsWith("blob:"))
-            continue;
+        const match = window.getComputedStyle(picture).maskImage.match(/url\("?([^"\s)]+)"?\)/);
 
         const response = await fetch(match[1]);
         const blob = await response.blob();
