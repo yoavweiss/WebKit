@@ -580,7 +580,7 @@
                     "workernames": ["gtk-linux-bot-7"]
                   },
                   {
-                    "name": "GTK-Linux-64-bit-Release-Perf-Tests", "factory": "DownloadAndPerfTestFactory",
+                    "name": "GTK-Linux-64-bit-Release-Perf", "factory": "DownloadAndPerfTestFactory",
                     "platform": "gtk-perf", "configuration": "release", "architectures": ["x86_64"],
                     "workernames": ["gtk-linux-bot-8"]
                   },
@@ -949,7 +949,7 @@
                     "builderNames": ["GTK-Linux-64-bit-Release-WebDriver-Tests"]
                   },
                   { "type": "Triggerable", "name": "gtk-linux-64-release-perf-tests",
-                    "builderNames": ["GTK-Linux-64-bit-Release-Perf-Tests"]
+                    "builderNames": ["GTK-Linux-64-bit-Release-Perf"]
                   },
                   { "type": "Triggerable", "name": "gtk-linux-64-release-tests-mvt",
                     "builderNames": ["GTK-Linux-64-bit-Release-MVT-Tests"]

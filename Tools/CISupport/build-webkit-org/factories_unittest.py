@@ -1103,7 +1103,7 @@ class TestExpectedBuildSteps(unittest.TestCase):
             'compile-webkit',
             'trigger'
         ],
-        'GTK-Linux-64-bit-Release-Perf-Tests': [
+        'GTK-Linux-64-bit-Release-Perf': [
             'configure-build',
             'configuration',
             'clean-and-update-working-directory',
