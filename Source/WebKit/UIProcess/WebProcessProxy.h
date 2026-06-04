@@ -321,6 +321,7 @@ public:
     VisibleWebPageToken visiblePageToken() const;
 
     void addPreviouslyApprovedFileURL(const URL&);
+    void addPreviouslyApprovedFileURLsFromFrameStateTree(const FrameState&);
     bool wasPreviouslyApprovedFileURL(const URL&) const;
 
     void updateTextCheckerState();

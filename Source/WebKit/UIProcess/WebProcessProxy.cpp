@@ -51,6 +51,7 @@
 #include "RemotePageProxy.h"
 #include "RemoteWorkerType.h"
 #include "ServiceWorkerNotificationHandler.h"
+#include "SessionState.h"
 #include "SpeechRecognitionPermissionRequest.h"
 #include "SpeechRecognitionRemoteRealtimeMediaSourceManager.h"
 #include "SpeechRecognitionRemoteRealtimeMediaSourceManagerMessages.h"
@@ -1556,6 +1557,18 @@ void WebProcessProxy::addPreviouslyApprovedFileURL(const URL& url)
     auto fileSystemPath = url.fileSystemPath();
     if (!fileSystemPath.isEmpty())
         m_previouslyApprovedFilePaths.add(fileSystemPath);
+}
+
+void WebProcessProxy::addPreviouslyApprovedFileURLsFromFrameStateTree(const FrameState& frameState)
+{
+    URL url { frameState.urlString };
+    if (url.protocolIsFile())
+        addPreviouslyApprovedFileURL(url);
+    URL originalURL { frameState.originalURLString };
+    if (originalURL.protocolIsFile())
+        addPreviouslyApprovedFileURL(originalURL);
+    for (auto& child : frameState.children)
+        addPreviouslyApprovedFileURLsFromFrameStateTree(child.get());
 }
 
 bool WebProcessProxy::wasPreviouslyApprovedFileURL(const URL& url) const
