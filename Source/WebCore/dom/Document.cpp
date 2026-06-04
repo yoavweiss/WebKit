@@ -3284,7 +3284,7 @@ bool Document::updateLayoutIfDimensionsOutOfDate(Element& element, OptionSet<Dim
         // Check our containing block chain. If anything in the chain needs a layout, then require a full layout.
         for (CheckedPtr currentRenderer = renderer; currentRenderer && !currentRenderer->isRenderView(); currentRenderer = currentRenderer->container()) {
 
-            if (!currentRenderer->style().containerType().isNormal()) {
+            if (currentRenderer->style().containerType().hasSizeContainment()) {
                 requireFullLayout = true;
                 break;
             }

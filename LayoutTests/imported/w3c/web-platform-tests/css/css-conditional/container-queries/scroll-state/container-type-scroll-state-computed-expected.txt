@@ -1,5 +1,5 @@
 
-FAIL Property container-type value 'scroll-state' assert_equals: expected "scroll-state" but got "normal"
-FAIL Property container-type value 'scroll-state size' assert_equals: expected "size scroll-state" but got "normal"
-FAIL Property container-type value 'inline-size scroll-state' assert_equals: expected "inline-size scroll-state" but got "normal"
+PASS Property container-type value 'scroll-state'
+PASS Property container-type value 'scroll-state size'
+PASS Property container-type value 'inline-size scroll-state'
 

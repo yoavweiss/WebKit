@@ -158,7 +158,7 @@ static inline bool hasValidStyleForProperty(Element& element, CSSPropertyID prop
 
     auto isQueryContainer = [&](Element& element) {
         auto* style = element.renderStyle();
-        return style && !style->containerType().isNormal();
+        return style && style->containerType().hasSizeContainment();
     };
 
     if (isQueryContainer(element))

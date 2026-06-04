@@ -2826,7 +2826,8 @@ bool RenderElement::hasEligibleContainmentForSizeQuery() const
         return shouldApplySizeContainment();
     if (type.hasInlineSize())
         return shouldApplyInlineSizeContainment();
-    if (type.isNormal())
+    // `scroll-state` (without a size axis) establishes no size containment, same as `normal`.
+    if (type.isNormal() || type.hasScrollState())
         return true;
     ASSERT_NOT_REACHED();
     return false;

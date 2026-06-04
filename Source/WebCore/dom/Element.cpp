@@ -4792,7 +4792,7 @@ const RenderStyle* Element::resolveComputedStyle(ResolveComputedStyleMode mode)
     // FIXME: This is not as efficient as it could be. For example if an ancestor has a non-inherited style change but
     // the styles are otherwise clean we would not need to re-resolve descendants.
     for (auto& element : elementsRequiringComputedStyle | std::views::reverse) {
-        if (computedStyle && !computedStyle->containerType().isNormal() && mode != ResolveComputedStyleMode::Editability) {
+        if (computedStyle && computedStyle->containerType().hasSizeContainment() && mode != ResolveComputedStyleMode::Editability) {
             // If we find a query container we need to bail out and do full style update to resolve it.
             if (document->updateStyleIfNeeded())
                 return this->computedStyle();
