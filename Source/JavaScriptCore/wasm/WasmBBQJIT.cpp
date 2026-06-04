@@ -4874,11 +4874,11 @@ void BBQJIT::emitIndirectTailCall(const char* opcode, const Value& callee, GPRRe
 #if CPU(ARM64)
                 m_jit.addLeftShift64(callableFunctionBuffer, calleeIndexLocation.asGPR(), TrustedImm32(getLSBSet(sizeof(FuncRefTable::Function))), importableFunction);
 #elif CPU(ARM)
-                m_jit.lshift32(calleeIndexLocation.asGPR(), TrustedImm32(getLSBSet(sizeof(FuncRefTable::Function))), importableFunction);
-                m_jit.addPtr(callableFunctionBuffer, importableFunction);
+                m_jit.lshiftPtr(TrustedImm32(getLSBSet(sizeof(FuncRefTable::Function))), calleeIndexLocation.asGPR());
+                m_jit.addPtr(callableFunctionBuffer, calleeIndexLocation.asGPR(), importableFunction);
 #else
-                m_jit.lshift64(calleeIndexLocation.asGPR(), TrustedImm32(getLSBSet(sizeof(FuncRefTable::Function))), importableFunction);
-                m_jit.addPtr(callableFunctionBuffer, importableFunction);
+                m_jit.lshiftPtr(TrustedImm32(getLSBSet(sizeof(FuncRefTable::Function))), calleeIndexLocation.asGPR());
+                m_jit.addPtr(callableFunctionBuffer, calleeIndexLocation.asGPR(), importableFunction);
 #endif
             } else {
                 m_jit.move(TrustedImmPtr(sizeof(FuncRefTable::Function)), importableFunction);

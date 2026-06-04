@@ -1146,21 +1146,23 @@ static ALWAYS_INLINE UGPRPair prepareCallIndirectImpl(JSWebAssemblyInstance* ins
         function = &table->function(*functionIndex);
     }
 
-    if (!function->m_function.rtt) [[unlikely]]
+    if (!function->rtt) [[unlikely]]
         IPINT_THROW(Wasm::ExceptionType::BadSignature);
 
-    if (!function->m_function.rtt->isSubRTT(rtt)) [[unlikely]]
+    if (!function->rtt->isSubRTT(rtt)) [[unlikely]]
         IPINT_THROW(Wasm::ExceptionType::BadSignature);
 
-    auto boxedCallee = function->m_function.boxedCallee.encodedBits();
+    auto boxedCallee = function->boxedCallee.encodedBits();
+    Wasm::FunctionSpaceIndex savedFunctionIndex = *functionIndex;
     Register* calleeReturn = std::bit_cast<Register*>(functionIndex);
     *calleeReturn = boxedCallee;
 
     Register& functionInfoSlot = calleeReturn[1];
-    if (function->m_function.isJS())
-        functionInfoSlot = reinterpret_cast<uintptr_t>(uncheckedDowncast<WebAssemblyFunctionBase>(function->m_value.get())->callLinkInfo());
-    else {
-        auto* targetInstance = function->m_function.targetInstance.get();
+    if (function->isJS()) {
+        Wasm::FuncRefTable* funcTable = instance->table(tableIndex)->asFuncrefTable();
+        functionInfoSlot = reinterpret_cast<uintptr_t>(funcTable->get(savedFunctionIndex)->callLinkInfo());
+    } else {
+        auto* targetInstance = function->targetInstance.get();
         functionInfoSlot = targetInstance;
         if (instance != targetInstance)
             callProfile.observeCrossInstanceCall();
@@ -1168,10 +1170,10 @@ static ALWAYS_INLINE UGPRPair prepareCallIndirectImpl(JSWebAssemblyInstance* ins
             callProfile.observeCallIndirect(boxedCallee);
     }
 
-    IPINT_HANDLE_STEP_INTO_CALL(instance->vm(), function->m_function.boxedCallee, function->m_function.targetInstance.get());
+    IPINT_HANDLE_STEP_INTO_CALL(instance->vm(), function->boxedCallee, function->targetInstance.get());
 
-    auto callTarget = *function->m_function.entrypointLoadLocation;
-    WASM_CALL_RETURN(function->m_function.targetInstance.get(), callTarget);
+    auto callTarget = *function->entrypointLoadLocation;
+    WASM_CALL_RETURN(function->targetInstance.get(), callTarget);
 }
 
 static ALWAYS_INLINE UGPRPair prepareCallRefImpl(JSWebAssemblyInstance* instance, CallFrame* callFrame, uint32_t callProfileIndex, IPIntStackEntry* sp)

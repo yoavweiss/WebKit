@@ -187,10 +187,10 @@ namespace JSC::B3 {
     macro(VM_exception, VM::exceptionOffset(), Mutability::Mutable) \
     macro(WatchpointSet_state, WatchpointSet::offsetOfState(), Mutability::Mutable) \
     macro(WasmFuncRefTable_functions, Wasm::FuncRefTable::offsetOfFunctions(), Mutability::Mutable) \
-    macro(WasmFuncRefTableFunction_boxedCallee, Wasm::FuncRefTable::Function::offsetOfFunction() + Wasm::WasmToWasmImportableFunction::offsetOfBoxedCallee(), Mutability::Mutable) \
-    macro(WasmFuncRefTableFunction_entrypointLoadLocation, Wasm::FuncRefTable::Function::offsetOfFunction() + Wasm::WasmToWasmImportableFunction::offsetOfEntrypointLoadLocation(), Mutability::Mutable) \
-    macro(WasmFuncRefTableFunction_rtt, Wasm::FuncRefTable::Function::offsetOfFunction() + Wasm::WasmToWasmImportableFunction::offsetOfRTT(), Mutability::Mutable) \
-    macro(WasmFuncRefTableFunction_targetInstance, Wasm::FuncRefTable::Function::offsetOfFunction() + Wasm::WasmToWasmImportableFunction::offsetOfTargetInstance(), Mutability::Mutable) \
+    macro(WasmFuncRefTableFunction_boxedCallee, Wasm::FuncRefTable::Function::offsetOfBoxedCallee(), Mutability::Mutable) \
+    macro(WasmFuncRefTableFunction_entrypointLoadLocation, Wasm::FuncRefTable::Function::offsetOfEntrypointLoadLocation(), Mutability::Mutable) \
+    macro(WasmFuncRefTableFunction_rtt, Wasm::FuncRefTable::Function::offsetOfRTT(), Mutability::Mutable) \
+    macro(WasmFuncRefTableFunction_targetInstance, Wasm::FuncRefTable::Function::offsetOfTargetInstance(), Mutability::Mutable) \
     macro(WasmGlobal_value, Wasm::Global::offsetOfValue(), Mutability::Mutable) \
     macro(WasmGlobal_owner, Wasm::Global::offsetOfOwner(), Mutability::Immutable) \
     macro(WasmGlobalValue_owner, Wasm::Global::Value::offsetOfOwner(), Mutability::Immutable) \
