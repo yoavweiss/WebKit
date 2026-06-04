@@ -324,8 +324,6 @@ private:
     size_t m_bytesTransferredOverNetwork { 0 };
 #endif
 
-    unsigned m_retrievedDerivedDataCount { 0 };
-
     WebCore::Timer m_bufferingTimer;
     RefPtr<NetworkCache::Cache> m_cache;
     WebCore::SharedBufferBuilder m_bufferedDataForCache;

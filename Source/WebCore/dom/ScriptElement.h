@@ -157,7 +157,6 @@ private:
     bool m_hasRelevantLoadEventsListener : 1 { false };
     ScriptType m_scriptType : bitWidthOfScriptType { ScriptType::Classic };
     AtomString m_characterEncoding;
-    AtomString m_fallbackCharacterEncoding;
     RefPtr<LoadableScript> m_loadableScript;
 
     // https://html.spec.whatwg.org/multipage/scripting.html#preparation-time-document

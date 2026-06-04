@@ -43,7 +43,6 @@ namespace WebCore {
 
 class Document;
 class HTMLCanvasElement;
-class Image;
 
 class CanvasCaptureMediaStreamTrack final : public MediaStreamTrack {
     WTF_MAKE_TZONE_ALLOCATED(CanvasCaptureMediaStreamTrack);
@@ -100,7 +99,6 @@ private:
         Timer m_captureCanvasTimer;
         std::optional<RealtimeMediaSourceSettings> m_currentSettings;
         WeakPtr<HTMLCanvasElement, WeakPtrImplWithEventTargetData> m_canvas;
-        RefPtr<Image> m_currentImage;
 #if USE(GSTREAMER)
         GRefPtr<GstClock> m_clock;
 #endif

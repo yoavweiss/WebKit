@@ -222,8 +222,6 @@ private:
     using SSRC = unsigned;
     HashMap<SSRC, RefPtr<GStreamerIncomingTrackProcessor>> m_trackProcessors;
 
-    Vector<String> m_pendingIncomingMediaStreamIDs;
-
     bool m_shouldIgnoreNegotiationNeededSignal { false };
 
     Vector<RefPtr<MediaStreamTrackPrivate>> m_pendingIncomingTracks;

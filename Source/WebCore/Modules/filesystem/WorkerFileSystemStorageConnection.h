@@ -98,7 +98,6 @@ private:
     HashMap<CallbackIdentifier, StringCallback> m_stringCallbacks;
     HashMap<CallbackIdentifier, ResolveGlobalIdentifierCallback> m_resolveGlobalIdentifierCallbacks;
     HashMap<CallbackIdentifier, StreamCallback> m_streamCallbacks;
-    HashMap<FileSystemSyncAccessHandleIdentifier, Function<void()>> m_accessHandleInvalidationHandlers;
     HashMap<FileSystemSyncAccessHandleIdentifier, WeakPtr<FileSystemSyncAccessHandle>> m_syncAccessHandles;
 };
 

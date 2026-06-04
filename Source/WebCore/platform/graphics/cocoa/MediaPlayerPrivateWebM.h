@@ -349,7 +349,6 @@ private:
     bool NODELETE isEnabledVideoTrackID(TrackID) const;
     bool NODELETE hasSelectedVideo() const;
     std::optional<TrackID> m_enabledVideoTrackID WTF_GUARDED_BY_CAPABILITY(runningQueue());
-    std::atomic<uint32_t> m_abortCalled { 0 };
     size_t m_contentLength WTF_GUARDED_BY_CAPABILITY(mainThread) { 0 };
     size_t m_contentReceived WTF_GUARDED_BY_CAPABILITY(mainThread) { 0 };
     uint32_t m_pendingAppends WTF_GUARDED_BY_CAPABILITY(runningQueue()) { 0 };
