@@ -1338,8 +1338,11 @@ Ref<WebPageProxy> WebProcessPool::createWebPage(PageClient& pageClient, Ref<API:
 
     RefPtr relatedPage = pageConfiguration->relatedPage();
     bool siteIsolationEnabled = protect(pageConfiguration->preferences())->siteIsolationEnabled();
-    if (siteIsolationEnabled)
-        protect(pageConfiguration->preferences())->setUseUIProcessForBackForwardItemLoading(true);
+    if (siteIsolationEnabled) {
+        Ref<WebPreferences> preferences = pageConfiguration->preferences();
+        preferences->setUseUIProcessForBackForwardItemLoading(true);
+        preferences->setMultiProcessBackForwardCacheEnabled(true);
+    }
     RefPtr preferredBrowsingContextGroup = pageConfiguration->preferredBrowsingContextGroup();
     RefPtr preferredFrameProcess = preferredBrowsingContextGroup ? preferredBrowsingContextGroup->processForSite(pageConfiguration->openedSite()) : nullptr;
     if (auto& openerInfo = pageConfiguration->openerInfo(); openerInfo && siteIsolationEnabled) {

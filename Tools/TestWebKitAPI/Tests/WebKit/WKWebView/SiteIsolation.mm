@@ -273,6 +273,16 @@ static void enableSiteIsolation(WKWebViewConfiguration *configuration)
     enableFeature(configuration, @"SiteIsolationEnabled");
 }
 
+// WKPreferences._usesPageCache is macOS-only, so disable BFCache via the
+// cross-platform _WKProcessPoolConfiguration.pageCacheEnabled property
+// instead (sets the process pool's BFCache capacity to 0).
+static RetainPtr<WKProcessPool> processPoolWithBackForwardCacheDisabled()
+{
+    RetainPtr poolConfiguration = adoptNS([[_WKProcessPoolConfiguration alloc] init]);
+    poolConfiguration.get().pageCacheEnabled = NO;
+    return adoptNS([[WKProcessPool alloc] _initWithConfiguration:poolConfiguration.get()]);
+}
+
 static std::pair<RetainPtr<TestWKWebView>, RetainPtr<TestNavigationDelegate>> siteIsolatedViewAndDelegate(RetainPtr<WKWebViewConfiguration> configuration, CGRect rect, bool enable)
 {
     RetainPtr navigationDelegate = adoptNS([TestNavigationDelegate new]);
@@ -318,6 +328,9 @@ static std::pair<RetainPtr<TestWKWebView>, RetainPtr<TestNavigationDelegate>> si
         RetainPtr processPoolConfiguration = adoptNS([[_WKProcessPoolConfiguration alloc] init]);
         processPoolConfiguration.get().usesWebProcessCache = YES;
         processPoolConfiguration.get().prewarmsProcessesAutomatically = YES;
+        // These tests assert WebProcessCache process-reuse semantics; disable BFCache so it
+        // does not compete with WebProcessCache for the cached processes' lifetime.
+        processPoolConfiguration.get().pageCacheEnabled = NO;
         RetainPtr processPool = adoptNS([[WKProcessPool alloc] _initWithConfiguration:processPoolConfiguration.get()]);
         [configuration setProcessPool:processPool.get()];
     }
@@ -1210,7 +1223,11 @@ TEST(SiteIsolation, PostMessageWithMessagePorts)
         { "/example2"_s, { example2HTML } },
         { "/webkit2"_s, { webkit2HTML } }
     }, HTTPServer::Protocol::HttpsProxy);
-    auto [webView, navigationDelegate] = siteIsolatedViewAndDelegate(server);
+    // This test exercises MessagePort delivery across site-isolated processes, not BFCache.
+    // Disable BFCache so the same-site navigation does not cache the page holding the port.
+    auto *configuration = server.httpsProxyConfiguration();
+    configuration.processPool = processPoolWithBackForwardCacheDisabled().get();
+    auto [webView, navigationDelegate] = siteIsolatedViewAndDelegate(configuration);
 
     [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://example.com/example"]]];
     [navigationDelegate waitForDidFinishNavigation];
@@ -1796,7 +1813,11 @@ TEST(SiteIsolation, IframeRedirectCrossSite)
     checkFrameTreesInProcesses(webView.get(), {
         { "https://example.com"_s,
             { { "https://example.com"_s } }
-        }
+        },
+        // example1 is BFCached on the same-site nav to example2; the apple.com
+        // iframe process stays alive as a suspended cached iframe and surfaces
+        // here as a remote tree (remote main with one remote child).
+        { RemoteFrame, { { RemoteFrame } } }
     });
 }
 
@@ -1915,11 +1936,15 @@ TEST(SiteIsolation, NavigationWithIFrames)
 
     [webView goBack];
     [navigationDelegate waitForDidFinishNavigation];
-    [navigationDelegate waitForDidFinishLoadInSubframe];
-    checkFrameTreesInProcesses(webView.get(), {
+    Vector<ExpectedFrameTree> expectedAfterGoBack = {
         { "https://domain1.com"_s, { { RemoteFrame } } },
         { RemoteFrame, { { "https://domain2.com"_s } } }
-    });
+    };
+    // BFCache restore does not fire didFinishLoad in the subframe, so spin
+    // until the cross-process tree is fully reconstructed.
+    while (!frameTreesMatch(frameTrees(webView.get()).get(), Vector<ExpectedFrameTree> { expectedAfterGoBack }))
+        TestWebKitAPI::Util::spinRunLoop();
+    checkFrameTreesInProcesses(webView.get(), WTF::move(expectedAfterGoBack));
 }
 
 TEST(SiteIsolation, RemoveFrames)
@@ -2495,7 +2520,13 @@ TEST(SiteIsolation, ShutDownFrameProcessesAfterNavigation)
         { "/apple"_s, { "hello"_s } }
     }, HTTPServer::Protocol::HttpsProxy);
 
-    auto [webView, navigationDelegate] = siteIsolatedViewAndDelegate(server);
+    // The test verifies that the iframe process is torn down on cross-site
+    // navigation. With BFCache the iframe page would be kept alive as a
+    // suspended cached iframe, so disable BFCache to keep the original
+    // shutdown semantics under test.
+    auto *configuration = server.httpsProxyConfiguration();
+    configuration.processPool = processPoolWithBackForwardCacheDisabled().get();
+    auto [webView, navigationDelegate] = siteIsolatedViewAndDelegate(configuration);
 
     [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://example.com/example"]]];
     [navigationDelegate waitForDidFinishNavigation];
@@ -2509,6 +2540,35 @@ TEST(SiteIsolation, ShutDownFrameProcessesAfterNavigation)
     [navigationDelegate waitForDidFinishNavigation];
     checkFrameTreesInProcesses(webView.get(), { { "https://apple.com"_s } });
 
+    while (processStillRunning(iframePID))
+        Util::spinRunLoop();
+}
+
+TEST(SiteIsolation, ShutDownFrameProcessesAfterNavigationBFCacheEnabled)
+{
+    HTTPServer server({
+        { "/example"_s, { "<iframe src='https://webkit.org/webkit'></iframe>"_s } },
+        { "/webkit"_s, { "hello"_s } },
+        { "/apple"_s, { "hello"_s } }
+    }, HTTPServer::Protocol::HttpsProxy);
+
+    // With BFCache enabled (the default when Site Isolation is active), the
+    // suspended iframe process is kept alive until the BFCache entry is
+    // evicted. Verify that clearing the cache releases the process.
+    auto [webView, navigationDelegate] = siteIsolatedViewAndDelegate(server);
+
+    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://example.com/example"]]];
+    [navigationDelegate waitForDidFinishNavigation];
+    pid_t iframePID = findFramePID(frameTrees(webView.get()).get(), FrameType::Remote);
+
+    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://apple.com/apple"]]];
+    [navigationDelegate waitForDidFinishNavigation];
+
+    // BFCache keeps the iframe process alive after navigation.
+    EXPECT_TRUE(processStillRunning(iframePID));
+
+    // Evicting the BFCache entry must release the suspended iframe process.
+    [webView _clearBackForwardCache];
     while (processStillRunning(iframePID))
         Util::spinRunLoop();
 }
@@ -3432,7 +3492,10 @@ TEST(SiteIsolation, DrawAfterNavigateToDomainAgain)
     [webView evaluateJavaScript:@"window.location = 'https://c.com/c'" completionHandler:nil];
     [navigationDelegate waitForDidFinishNavigation];
     checkFrameTreesInProcesses(webView.get(), {
-        { "https://c.com"_s }
+        { "https://c.com"_s },
+        // a.com is BFCached; the b.com iframe process stays alive as a
+        // suspended cached iframe and surfaces here as a remote tree.
+        { RemoteFrame }
     });
 
     [webView evaluateJavaScript:@"window.location = 'https://a.com/a'" completionHandler:nil];
@@ -4157,21 +4220,20 @@ TEST(SiteIsolation, GoBackToPageWithIframe)
     auto [webView, navigationDelegate] = siteIsolatedViewAndDelegate(server);
 
     [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://a.com/a"]]];
-    [navigationDelegate waitForDidFinishNavigation];
+    [navigationDelegate waitForDidFinishNavigationAndLoadInSubframe];
 
     [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://b.com/b"]]];
     [navigationDelegate waitForDidFinishNavigation];
 
     [webView goBack];
     [navigationDelegate waitForDidFinishNavigation];
-    [navigationDelegate waitForDidFinishLoadInSubframe];
-    checkFrameTreesInProcesses(webView.get(), {
-        { "https://a.com"_s,
-            { { RemoteFrame } }
-        }, { RemoteFrame,
-            { { "https://frame.com"_s } }
-        },
-    });
+    Vector<ExpectedFrameTree> expectedAfterGoBack = {
+        { "https://a.com"_s, { { RemoteFrame } } },
+        { RemoteFrame, { { "https://frame.com"_s } } },
+    };
+    while (!frameTreesMatch(frameTrees(webView.get()).get(), Vector<ExpectedFrameTree> { expectedAfterGoBack }))
+        TestWebKitAPI::Util::spinRunLoop();
+    checkFrameTreesInProcesses(webView.get(), WTF::move(expectedAfterGoBack));
 }
 
 TEST(SiteIsolation, GoBackToPageWithIframeBFCache)
@@ -4193,9 +4255,7 @@ TEST(SiteIsolation, GoBackToPageWithIframeBFCache)
         { "/b"_s, { ""_s } },
         { "/frame"_s, { ""_s } }
     }, HTTPServer::Protocol::HttpsProxy);
-    auto *configuration = server.httpsProxyConfiguration();
-    enableFeature(configuration, @"MultiProcessBackForwardCacheEnabled");
-    auto [webView, navigationDelegate] = siteIsolatedViewAndDelegate(configuration);
+    auto [webView, navigationDelegate] = siteIsolatedViewAndDelegate(server);
 
     [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://a.com/a"]]];
     [navigationDelegate waitForDidFinishNavigationAndLoadInSubframe];
@@ -4878,6 +4938,10 @@ TEST(SiteIsolation, ProcessReuse)
 
     RetainPtr processPoolConfiguration = adoptNS([[_WKProcessPoolConfiguration alloc] init]);
     processPoolConfiguration.get().usesWebProcessCache = YES;
+    // The test is about WebProcessCache-driven process reuse; turning off
+    // BFCache keeps cached WebPages from inflating countWebPages and
+    // confusing the reuse assertions.
+    processPoolConfiguration.get().pageCacheEnabled = NO;
     RetainPtr processPool = adoptNS([[WKProcessPool alloc] _initWithConfiguration:processPoolConfiguration.get()]);
     RetainPtr webViewConfiguration = server.httpsProxyConfiguration();
     [webViewConfiguration setProcessPool:processPool.get()];
@@ -4897,6 +4961,47 @@ TEST(SiteIsolation, ProcessReuse)
     [navigationDelegate waitForDidFinishNavigation];
     [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://apple.com/example"]]];
     [navigationDelegate waitForDidFinishNavigation];
+    EXPECT_EQ(countWebPages(webView), 2u);
+}
+
+TEST(SiteIsolation, ProcessReuseWithBFCache)
+{
+    HTTPServer server({
+        { "/example"_s, { "<iframe src='https://webkit.org/iframe' id='onlyiframe'></iframe>"_s } },
+        { "/iframe"_s, { "hi"_s } },
+        { "/iframe_with_alert"_s, { "<script>alert('loaded')</script>"_s } }
+    }, HTTPServer::Protocol::HttpsProxy);
+
+    // Same as ProcessReuse but with BFCache enabled. BFCache keeps suspended
+    // WebPages alive during back/forward navigation, so countWebPages can
+    // temporarily exceed 2. After evicting the BFCache the count must drop
+    // back to 2, confirming that WebProcessCache reuse still works correctly.
+    RetainPtr processPoolConfiguration = adoptNS([[_WKProcessPoolConfiguration alloc] init]);
+    processPoolConfiguration.get().usesWebProcessCache = YES;
+    RetainPtr processPool = adoptNS([[WKProcessPool alloc] _initWithConfiguration:processPoolConfiguration.get()]);
+    RetainPtr webViewConfiguration = server.httpsProxyConfiguration();
+    [webViewConfiguration setProcessPool:processPool.get()];
+
+    auto [webView, navigationDelegate] = siteIsolatedViewAndDelegate(webViewConfiguration.get());
+    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://example.com/example"]]];
+    [navigationDelegate waitForDidFinishNavigation];
+
+    [webView objectByEvaluatingJavaScript:@"var frame = document.getElementById('onlyiframe'); frame.parentNode.removeChild(frame);1"];
+    [webView evaluateJavaScript:@"var iframe = document.createElement('iframe');iframe.src = 'https://webkit.org/iframe_with_alert';document.body.appendChild(iframe)" completionHandler:nil];
+    EXPECT_WK_STREQ([webView _test_waitForAlert], "loaded");
+
+    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://example.org/example"]]];
+    [navigationDelegate waitForDidFinishNavigation];
+    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://webkit.org/example"]]];
+    [navigationDelegate waitForDidFinishNavigation];
+    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://apple.com/example"]]];
+    [navigationDelegate waitForDidFinishNavigation];
+
+    // Evict BFCache entries so that suspended pages from prior navigations
+    // are released before checking the final WebPage count.
+    [webView _clearBackForwardCache];
+    while (countWebPages(webView) != 2u)
+        Util::spinRunLoop();
     EXPECT_EQ(countWebPages(webView), 2u);
 }
 
@@ -8761,7 +8866,6 @@ TEST(SiteIsolation, MultiProcessBFCacheIframeProcessSurvival)
     }, HTTPServer::Protocol::HttpsProxy);
 
     auto *configuration = server.httpsProxyConfiguration();
-    enableFeature(configuration, @"MultiProcessBackForwardCacheEnabled");
     auto [webView, navigationDelegate] = siteIsolatedViewAndDelegate(configuration);
 
     [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://a.com/a"]]];
@@ -8837,7 +8941,6 @@ TEST(SiteIsolation, MultiProcessBFCacheOpenerSkipsBFCache)
     }, HTTPServer::Protocol::HttpsProxy);
 
     auto *configuration = server.httpsProxyConfiguration();
-    enableFeature(configuration, @"MultiProcessBackForwardCacheEnabled");
     auto [webView, navigationDelegate] = siteIsolatedViewAndDelegate(configuration);
 
     RetainPtr uiDelegate = adoptNS([TestUIDelegate new]);
@@ -8972,7 +9075,6 @@ TEST(SiteIsolation, MultiProcessBFCacheSameSiteCaching)
     }, HTTPServer::Protocol::HttpsProxy);
 
     auto *configuration = server.httpsProxyConfiguration();
-    enableFeature(configuration, @"MultiProcessBackForwardCacheEnabled");
     auto [webView, navigationDelegate] = siteIsolatedViewAndDelegate(configuration);
 
     [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://a.com/a1"]]];
@@ -9003,7 +9105,6 @@ TEST(SiteIsolation, MultiProcessBFCacheSameSiteWithCrossSiteIframe)
     }, HTTPServer::Protocol::HttpsProxy);
 
     auto *configuration = server.httpsProxyConfiguration();
-    enableFeature(configuration, @"MultiProcessBackForwardCacheEnabled");
     auto [webView, navigationDelegate] = siteIsolatedViewAndDelegate(configuration);
 
     [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://a.com/a1"]]];
@@ -9052,7 +9153,6 @@ TEST(SiteIsolation, MultiProcessBFCacheSameSiteWithCrossSiteIframeMultipleCycles
     }, HTTPServer::Protocol::HttpsProxy);
 
     auto *configuration = server.httpsProxyConfiguration();
-    enableFeature(configuration, @"MultiProcessBackForwardCacheEnabled");
     auto [webView, navigationDelegate] = siteIsolatedViewAndDelegate(configuration);
 
     [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://a.com/a1"]]];
@@ -9113,7 +9213,6 @@ TEST(SiteIsolation, MultiProcessBFCacheSameSiteWithDifferentCrossSiteIframes)
     }, HTTPServer::Protocol::HttpsProxy);
 
     auto *configuration = server.httpsProxyConfiguration();
-    enableFeature(configuration, @"MultiProcessBackForwardCacheEnabled");
     auto [webView, navigationDelegate] = siteIsolatedViewAndDelegate(configuration);
 
     [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://a.com/a1"]]];
@@ -9186,7 +9285,6 @@ TEST(SiteIsolation, MultiProcessBFCacheGoForwardSimple)
     }, HTTPServer::Protocol::HttpsProxy);
 
     auto *configuration = server.httpsProxyConfiguration();
-    enableFeature(configuration, @"MultiProcessBackForwardCacheEnabled");
     auto [webView, navigationDelegate] = siteIsolatedViewAndDelegate(configuration);
 
     [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://a.com/a"]]];
@@ -9227,7 +9325,6 @@ TEST(SiteIsolation, MultiProcessBFCacheGoForward)
     }, HTTPServer::Protocol::HttpsProxy);
 
     auto *configuration = server.httpsProxyConfiguration();
-    enableFeature(configuration, @"MultiProcessBackForwardCacheEnabled");
     auto [webView, navigationDelegate] = siteIsolatedViewAndDelegate(configuration);
 
     // Step 1: Load A (a.com) with cross-site iframe (b.com).
@@ -9282,7 +9379,6 @@ TEST(SiteIsolation, MultiProcessBFCacheSameSiteNavAfterRestore)
     }, HTTPServer::Protocol::HttpsProxy);
 
     auto *configuration = server.httpsProxyConfiguration();
-    enableFeature(configuration, @"MultiProcessBackForwardCacheEnabled");
     auto [webView, navigationDelegate] = siteIsolatedViewAndDelegate(configuration);
 
     [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://a.com/a1"]]];
