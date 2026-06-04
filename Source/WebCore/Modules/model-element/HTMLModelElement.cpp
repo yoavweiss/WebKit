@@ -144,7 +144,7 @@ HTMLModelElement::HTMLModelElement(const QualifiedName& tagName, Document& docum
 #endif
 #if HAVE(SUPPORT_HDR_DISPLAY) && ENABLE(PIXEL_FORMAT_RGBA16F)
     , m_screenPropertiesChangedObserver(ScreenPropertiesChangedObserver::create([weakThis = WeakPtr { *this }](PlatformDisplayID displayID) {
-        RefPtr protectedThis = weakThis.get();
+        RefPtr protectedThis { weakThis };
         if (!protectedThis)
             return;
         auto platformScreen = PlatformScreen::singleton();
@@ -422,7 +422,7 @@ void HTMLModelElement::didFinishLoading(ModelPlayer& modelPlayer)
             renderer->updateFromElement();
 
         if (oldPlayer) {
-            if (RefPtr provider = m_modelPlayerProvider.get())
+            if (RefPtr provider = m_modelPlayerProvider)
                 provider->deleteModelPlayer(*oldPlayer);
         }
 
@@ -659,7 +659,7 @@ void HTMLModelElement::createModelPlayer()
 #if ENABLE(GPU_PROCESS_MODEL)
     RefPtr<ModelPlayer> modelPlayer;
 #endif
-    if (RefPtr modelPlayerProvider = m_modelPlayerProvider.get()) {
+    if (RefPtr modelPlayerProvider = m_modelPlayerProvider) {
         modelPlayer = modelPlayerProvider->createModelPlayer(*this);
 #if ENABLE(GPU_PROCESS_MODEL)
         if (routingToPending)
@@ -720,7 +720,7 @@ void HTMLModelElement::deleteModelPlayer()
         if (modelPlayerProvider && modelPlayer)
             modelPlayerProvider->deleteModelPlayer(*modelPlayer);
 
-        RefPtr protectedThis = weakThis.get();
+        RefPtr protectedThis { weakThis };
         if (protectedThis)
             protectedThis->m_modelPlayer = nullptr;
     };
@@ -739,7 +739,7 @@ void HTMLModelElement::deletePendingModelPlayer()
     RefPtr pendingPlayer = std::exchange(m_pendingModelPlayer, nullptr);
     if (!pendingPlayer)
         return;
-    if (RefPtr provider = m_modelPlayerProvider.get())
+    if (RefPtr provider = m_modelPlayerProvider)
         provider->deleteModelPlayer(*pendingPlayer);
 #endif
 }
@@ -798,7 +798,7 @@ void HTMLModelElement::reloadModelPlayer()
 #if ENABLE(MODEL_PROCESS)
     if (!m_modelPlayerProvider)
         m_modelPlayerProvider = document().page()->modelPlayerProvider();
-    if (RefPtr modelPlayerProvider = m_modelPlayerProvider.get()) {
+    if (RefPtr modelPlayerProvider = m_modelPlayerProvider) {
         modelPlayer = modelPlayerProvider->createModelPlayer(*this);
         m_modelPlayer = modelPlayer.copyRef();
     }
@@ -1675,7 +1675,7 @@ void HTMLModelElement::ensureImmersivePresentation(CompletionHandler<void(Except
 {
     setDetachedForImmersive(true);
     ensureModelPlayer([weakThis = WeakPtr { *this }, completion = WTF::move(completion)](auto result) mutable {
-        RefPtr protectedThis = weakThis.get();
+        RefPtr protectedThis { weakThis };
         if (!protectedThis)
             return completion(Exception { ExceptionCode::AbortError });
 
@@ -1693,7 +1693,7 @@ void HTMLModelElement::ensureImmersivePresentation(CompletionHandler<void(Except
         }
 
         modelPlayer->ensureImmersivePresentation([weakThis, completion = WTF::move(completion)](auto contextID) mutable {
-            RefPtr protectedThis = weakThis.get();
+            RefPtr protectedThis { weakThis };
             if (!protectedThis)
                 return completion(Exception { ExceptionCode::AbortError });
 
@@ -1719,7 +1719,7 @@ void HTMLModelElement::exitImmersivePresentation(CompletionHandler<void()>&& com
 
     auto generation = m_immersiveDetachGeneration;
     modelPlayer->exitImmersivePresentation([weakThis = WeakPtr { *this }, generation, completion = WTF::move(completion)] mutable {
-        RefPtr protectedThis = weakThis.get();
+        RefPtr protectedThis { weakThis };
         if (!protectedThis)
             return completion();
 

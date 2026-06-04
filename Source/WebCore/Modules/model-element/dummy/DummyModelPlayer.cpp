@@ -48,7 +48,7 @@ DummyModelPlayer::~DummyModelPlayer() = default;
 
 void DummyModelPlayer::load(Model& model, LayoutSize)
 {
-    if (RefPtr client = m_client.get())
+    if (RefPtr client = m_client)
         client->didFailLoading(*this, ResourceError { errorDomainWebKitInternal, 0, model.url(), "Trying to load model via DummyModelPlayer"_s });
 }
 
