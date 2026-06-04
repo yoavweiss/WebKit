@@ -2875,7 +2875,7 @@ FloatRect RenderLayerCompositor::insetClipLayerRect() const
 {
     Ref frameView = m_renderView.frameView();
 
-    auto insetClipLayerRect = LocalFrameView::insetClipLayerRect(frameView->scrollPosition(), frameView->obscuredContentInsets(), frameView->sizeForVisibleContent());
+    auto insetClipLayerRect = LocalFrameView::insetClipLayerRect(frameView->scrollPosition(), frameView->totalContentsSize(), frameView->obscuredContentInsets(), frameView->sizeForVisibleContent());
     insetClipLayerRect.move(frameView->insetForLeftScrollbarSpace(), 0);
     return insetClipLayerRect;
 }

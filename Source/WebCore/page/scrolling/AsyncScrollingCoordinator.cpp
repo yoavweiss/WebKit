@@ -910,7 +910,7 @@ void AsyncScrollingCoordinator::reconcileScrollingState(LocalFrameView& frameVie
 
     FloatRect insetClipLayerRect;
     if (insetClipLayer) {
-        insetClipLayerRect = LocalFrameView::insetClipLayerRect(scrollPosition, obscuredContentInsets, frameView.sizeForVisibleContent());
+        insetClipLayerRect = LocalFrameView::insetClipLayerRect(scrollPosition, frameView.totalContentsSize(), obscuredContentInsets, frameView.sizeForVisibleContent());
         insetClipLayerRect.move(frameView.insetForLeftScrollbarSpace(), 0);
         insetClipLayer->setSize(insetClipLayerRect.size());
     }

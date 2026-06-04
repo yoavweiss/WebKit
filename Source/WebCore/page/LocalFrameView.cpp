@@ -2670,7 +2670,7 @@ std::pair<FixedContainerEdges, WeakElementEdges> LocalFrameView::fixedContainerE
     return { WTF::move(edges), WTF::move(containers) };
 }
 
-FloatRect LocalFrameView::insetClipLayerRect(const FloatPoint& scrollPosition, const FloatBoxExtent& obscuredContentInset, const FloatSize& sizeForVisibleContent)
+FloatRect LocalFrameView::insetClipLayerRect(const FloatPoint& scrollPosition, const FloatSize& totalContentsSize, const FloatBoxExtent& obscuredContentInset, const FloatSize& sizeForVisibleContent)
 {
     auto computeOffset = [](float scrollAmount, float insetAmount) {
         if (!insetAmount)
@@ -2690,14 +2690,26 @@ FloatRect LocalFrameView::insetClipLayerRect(const FloatPoint& scrollPosition, c
     if (obscuredContentInset.top())
         adjustedSize.setHeight(std::max(0.f, adjustedSize.height() - position.y()));
 
-    if (obscuredContentInset.bottom())
-        adjustedSize.setHeight(std::max(0.f, adjustedSize.height() - obscuredContentInset.bottom()));
+    if (obscuredContentInset.bottom()) {
+        float visibleContentTop = std::max(0.f, scrollPosition.y());
+        float visibleContentBottom = visibleContentTop + sizeForVisibleContent.height();
+        // How much of the visible content rect eats into the bottom obscured content inset area.
+        float obscuredInsetOverlap = std::max(0.f, visibleContentBottom - (obscuredContentInset.top() + totalContentsSize.height()));
+
+        adjustedSize.setHeight(std::max(0.f, adjustedSize.height() - obscuredInsetOverlap));
+    }
 
     if (obscuredContentInset.left())
         adjustedSize.setWidth(std::max(0.f, adjustedSize.width() - position.x()));
 
-    if (obscuredContentInset.right())
-        adjustedSize.setWidth(std::max(0.f, adjustedSize.width() - obscuredContentInset.right()));
+    if (obscuredContentInset.right()) {
+        float visibleContentLeft = std::max(0.f, scrollPosition.x());
+        float visibleContentRight = visibleContentLeft + sizeForVisibleContent.width();
+        // How much of the visible content rect eats into the right obscured content inset area.
+        float obscureInsetOverlap = std::max(0.f, visibleContentRight - (obscuredContentInset.left() + totalContentsSize.width()));
+
+        adjustedSize.setWidth(std::max(0.f, adjustedSize.width() - obscureInsetOverlap));
+    }
 
     return { position, adjustedSize };
 }
