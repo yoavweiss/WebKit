@@ -183,14 +183,14 @@ LayoutUnit LegacyRenderSVGRoot::computeReplacedLogicalHeight(std::optional<Layou
         return containingBlock()->availableLogicalHeight(AvailableLogicalHeightType::IncludeMarginBorderPadding);
 
     // For intrinsic sizing keywords (e.g. max-content), when the SVG has no intrinsic height
-    // but has an intrinsic ratio (from viewBox), compute the height using the width and the
+    // but has an intrinsic ratio (from viewBox), compute the height from the used width and the
     // aspect ratio.
     if (style().logicalHeight().isIntrinsic()) {
         Ref element = svgSVGElement();
         if (!element->hasIntrinsicHeight()) {
             FloatSize viewBoxSize = element->currentViewBoxRect().size();
             if (!viewBoxSize.isEmpty()) {
-                float width = element->hasIntrinsicWidth() ? element->intrinsicWidth() : legacySVGRootDefaultWidth;
+                float width = element->hasIntrinsicWidth() ? element->intrinsicWidth() : (estimatedUsedWidth ? estimatedUsedWidth.value() : contentBoxLogicalWidth()).toFloat();
                 double ratio = viewBoxSize.height() / viewBoxSize.width();
                 return computeReplacedLogicalHeightRespectingMinMaxHeight(LayoutUnit(width * ratio));
             }
