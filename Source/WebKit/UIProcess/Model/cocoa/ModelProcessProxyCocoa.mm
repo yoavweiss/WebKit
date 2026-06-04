@@ -26,16 +26,21 @@
 #include "config.h"
 #include "ModelProcessProxy.h"
 
-#if PLATFORM(VISION) && ENABLE(GPU_PROCESS) && ENABLE(MODEL_PROCESS)
+#if ENABLE(MODEL_PROCESS)
+
+#include "ModelProcessCreationParameters.h"
+
+#if PLATFORM(VISION) && ENABLE(GPU_PROCESS) && HAVE(CORE_RE)
 
 #include "GPUProcessProxy.h"
-#include "ModelProcessCreationParameters.h"
 #include "RunningBoardServicesSPI.h"
 #include "SharedFileHandle.h"
 #include "SharedPreferencesForWebProcess.h"
 #include "WebProcessProxy.h"
 
 #define MESSAGE_CHECK(assertion) MESSAGE_CHECK_BASE(assertion, connection())
+
+#endif
 
 namespace WebKit {
 
@@ -54,6 +59,7 @@ void ModelProcessProxy::updateModelProcessCreationParameters(ModelProcessCreatio
         parameters.debugEntityMemoryLimit = [value integerValue];
 }
 
+#if PLATFORM(VISION) && ENABLE(GPU_PROCESS) && ENABLE(MODEL_PROCESS) && HAVE(CORE_RE)
 void ModelProcessProxy::requestSharedSimulationConnection(WebCore::ProcessIdentifier webProcessIdentifier, CompletionHandler<void(std::optional<IPC::SharedFileHandle>)>&& completionHandler)
 {
     auto webProcessProxy = WebProcessProxy::processForIdentifier(webProcessIdentifier);
@@ -82,9 +88,11 @@ void ModelProcessProxy::requestSharedSimulationConnection(WebCore::ProcessIdenti
     GPUProcessProxy::getOrCreate()->requestSharedSimulationConnection(process.auditToken, WTF::move(completionHandler));
 }
 
+#undef MESSAGE_CHECK
+#endif
+
 }
 
-#undef MESSAGE_CHECK
 
-#endif
+#endif // ENABLE(MODEL_PROCESS)
 

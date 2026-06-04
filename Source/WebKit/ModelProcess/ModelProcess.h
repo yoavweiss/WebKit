@@ -78,7 +78,7 @@ public:
 
     const String& applicationVisibleName() const LIFETIME_BOUND { return m_applicationVisibleName; }
 
-#if PLATFORM(VISION) && ENABLE(GPU_PROCESS)
+#if PLATFORM(VISION) && ENABLE(GPU_PROCESS) && HAVE(CORE_RE)
     void requestSharedSimulationConnection(WebCore::ProcessIdentifier, CompletionHandler<void(std::optional<IPC::SharedFileHandle>)>&&);
 #endif
     std::optional<int> debugEntityMemoryLimit() const { return m_debugEntityMemoryLimit; }

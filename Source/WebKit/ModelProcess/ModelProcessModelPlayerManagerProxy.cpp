@@ -78,7 +78,11 @@ void ModelProcessModelPlayerManagerProxy::createModelPlayer(WebCore::ModelPlayer
 void ModelProcessModelPlayerManagerProxy::deleteModelPlayer(WebCore::ModelPlayerIdentifier identifier)
 {
     ASSERT(RunLoop::isMain());
-    MESSAGE_CHECK(m_proxies.contains(identifier));
+
+    // The unload model timer (ModelProcess) can race the model element suspension (WebProcess).
+    // So the model player might already be gone.
+    if (!m_proxies.contains(identifier))
+        return;
 
     if (auto proxy = m_proxies.take(identifier))
         proxy->invalidate();

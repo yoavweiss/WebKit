@@ -1628,6 +1628,14 @@
 #define HAVE_CONTENT_SWIPE_GESTURE_RECOGNIZER 1
 #endif
 
+#if !defined(HAVE_CORE_RE)
+#if __has_include(<CoreRE/CoreRE.h>)
+#define HAVE_CORE_RE 1
+#else
+#define HAVE_CORE_RE 0
+#endif
+#endif
+
 #if PLATFORM(VISION) && __has_include(<CoreRE/CoreRE_SPI_WebKit.h>)
 #define HAVE_RE_STEREO_CONTENT_SUPPORT RE_FEATURE_EMBEDDED_STEREO_CONTENT_COMPONENT
 #else

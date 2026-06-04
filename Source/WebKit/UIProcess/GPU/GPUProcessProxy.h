@@ -164,9 +164,14 @@ public:
 #endif
 
 #if PLATFORM(VISION) && ENABLE(MODEL_PROCESS)
+#if HAVE(CORE_RE)
     void requestSharedSimulationConnection(audit_token_t, CompletionHandler<void(std::optional<IPC::SharedFileHandle>)>&&);
+#endif
+
+#if HAVE(TASK_IDENTITY_TOKEN)
     void createMemoryAttributionIDForTask(WebCore::ProcessIdentity, CompletionHandler<void(const std::optional<String>&)>&&);
     void unregisterMemoryAttributionID(const String&, CompletionHandler<void()>&&);
+#endif
 #endif
 
 #if PLATFORM(COCOA)

@@ -29,10 +29,45 @@
 #if ENABLE(MODEL_PROCESS)
 
 #include "Connection.h"
+#include "CoreRESPI.h"
 #include "LayerHostingContext.h"
 #include "MessageReceiver.h"
 #include "SharedPreferencesForWebProcess.h"
-#include <CoreRE/CoreRE.h>
+#if HAVE(CORE_RE)
+#include <WebKitAdditions/REModelLoaderClient.h>
+#include <WebKitAdditions/REPtr.h>
+#else
+#include <wtf/RefCounted.h>
+#include <wtf/RetainPtr.h>
+#include <wtf/WeakPtr.h>
+
+OBJC_CLASS WKRKEntity;
+
+namespace WebCore {
+
+class ResourceError;
+
+class REModelLoader : public RefCounted<REModelLoader> {
+public:
+    virtual ~REModelLoader() = default;
+    virtual void cancel() = 0;
+};
+
+class REModel : public RefCounted<REModel> {
+public:
+    virtual ~REModel() = default;
+    virtual RetainPtr<WKRKEntity> rootRKEntity() const { return nil; }
+};
+
+class REModelLoaderClient : public CanMakeWeakPtr<REModelLoaderClient> {
+public:
+    virtual ~REModelLoaderClient() = default;
+    virtual void didFinishLoading(REModelLoader&, Ref<REModel>) = 0;
+    virtual void didFailLoading(REModelLoader&, const ResourceError&) = 0;
+};
+
+}
+#endif
 #include <WebCore/Color.h>
 #include <WebCore/LayerHostingContextIdentifier.h>
 #include <WebCore/ModelPlayer.h>
@@ -40,8 +75,6 @@
 #include <WebCore/ModelPlayerIdentifier.h>
 #include <WebCore/StageModeOperations.h>
 #include <WebCore/TransformationMatrix.h>
-#include <WebKitAdditions/REPtr.h>
-#include <WebKitAdditions/REModelLoaderClient.h>
 #include <simd/simd.h>
 #include <wtf/RefPtr.h>
 #include <wtf/RunLoop.h>
@@ -174,9 +207,11 @@ private:
     RetainPtr<WKModelProcessModelLayer> m_layer;
     RefPtr<WebCore::REModelLoader> m_loader;
     RetainPtr<WKRKEntity> m_modelRKEntity;
+#if HAVE(CORE_RE)
     REPtr<RESceneRef> m_scene;
     REPtr<REEntityRef> m_hostingEntity;
     REPtr<REEntityRef> m_containerEntity;
+#endif
     RetainPtr<WKModelProcessModelPlayerProxyObjCAdapter> m_objCAdapter;
 
     simd_float3 m_originalBoundingBoxCenter { simd_make_float3(0, 0, 0) };

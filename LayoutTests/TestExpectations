@@ -7912,7 +7912,7 @@ imported/w3c/web-platform-tests/svg/painting/reftests/text-shadow-02.html [ Imag
 imported/w3c/web-platform-tests/svg/painting/reftests/text-shadow-03.html [ ImageOnlyFailure ]
 
 # framework is missing for test to run
-webkit.org/b/299496 model-element/gpup-model-element.html [ Skip ]
+webkit.org/b/299496 model-element/gpup/gpup-model-element.html [ Skip ]
 
 imported/w3c/web-platform-tests/css/css-pseudo/before-as-flex-container.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-pseudo/svg-text-selection-fill-only.html [ ImageOnlyFailure ]

@@ -2248,7 +2248,7 @@ TEST(DragAndDropTests, CanStartDragOnModel)
     EXPECT_WK_STREQ("com.pixar.universal-scene-description-mobile", [registeredTypes firstObject]);
 }
 
-#if ENABLE(MODEL_PROCESS)
+#if ENABLE(MODEL_PROCESS) && USE(APPLE_INTERNAL_SDK)
 TEST(DragAndDropTests, CheckModelDragPreview)
 {
     RetainPtr configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
