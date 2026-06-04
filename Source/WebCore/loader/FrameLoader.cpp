@@ -541,8 +541,13 @@ void FrameLoader::changeLocation(FrameLoadRequest&& frameRequest, Event* trigger
     if (frameRequest.frameName().isEmpty())
         frameRequest.setFrameName(frame->document()->baseTarget());
 
-    if (RefPtr document = frame->document())
-        protect(document->contentSecurityPolicy())->upgradeInsecureRequestIfNeeded(frameRequest.resourceRequest(), ContentSecurityPolicy::InsecureRequestType::Navigation);
+    if (CheckedPtr requesterCSP = frameRequest.requester().contentSecurityPolicy())
+        requesterCSP->upgradeInsecureRequestIfNeeded(frameRequest.resourceRequest(), ContentSecurityPolicy::InsecureRequestType::Navigation);
+
+    if (RefPtr document = frame->document()) {
+        if (document->contentSecurityPolicy() != frameRequest.requester().contentSecurityPolicy())
+            protect(document->contentSecurityPolicy())->upgradeInsecureRequestIfNeeded(frameRequest.resourceRequest(), ContentSecurityPolicy::InsecureRequestType::Navigation);
+    }
 
     loadFrameRequest(WTF::move(frameRequest), triggeringEvent, { }, WTF::move(privateClickMeasurement));
 }

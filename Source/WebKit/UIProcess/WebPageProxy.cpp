@@ -5491,8 +5491,17 @@ void WebPageProxy::receivedNavigationActionPolicyDecision(WebProcessProxy& proce
     // Apply CSP upgrade-insecure-requests before computing Site. Only needed for remote-frame
     // navigations. Same-process navigations are already upgraded in the WebProcess.
     if (&processInitiatingNavigation != &frame.process()) {
-        auto& upgradeSet = frame.cspOriginsThatUpgradeInsecureNavigations();
-        if (upgradeSet.contains(WebCore::SecurityOriginData::fromURL(navigation.currentRequest().url())))
+        auto urlOrigin = WebCore::SecurityOriginData::fromURL(navigation.currentRequest().url());
+
+        bool shouldUpgrade = frame.cspOriginsThatUpgradeInsecureNavigations().contains(urlOrigin);
+        if (!shouldUpgrade) {
+            if (const auto& originatingFrameInfo = navigation.originatingFrameInfo()) {
+                if (RefPtr originatingFrame = WebFrameProxy::webFrame(originatingFrameInfo->frameID))
+                    shouldUpgrade = originatingFrame->cspOriginsThatUpgradeInsecureNavigations().contains(urlOrigin);
+            }
+        }
+
+        if (shouldUpgrade)
             navigation.upgradeCurrentInsecureRequest();
     }
 
