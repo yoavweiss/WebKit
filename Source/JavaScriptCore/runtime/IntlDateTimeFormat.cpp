@@ -41,7 +41,7 @@
 #include "TemporalPlainMonthDay.h"
 #include "TemporalPlainTime.h"
 #include "TemporalPlainYearMonth.h"
-// FIXME #include "TemporalZonedDateTime.h"
+#include "TemporalZonedDateTime.h"
 #include <unicode/ucal.h>
 #include <unicode/udatpg.h>
 #include <unicode/uenum.h>
@@ -733,7 +733,7 @@ String IntlDateTimeFormat::buildSkeleton(Weekday weekday, Era era, Year year, Mo
 }
 
 // https://tc39.es/proposal-temporal/#sec-initializedatetimeformat
-void IntlDateTimeFormat::initializeDateTimeFormat(JSGlobalObject* globalObject, JSValue locales, JSValue originalOptions, RequiredComponent required, Defaults defaults)
+void IntlDateTimeFormat::initializeDateTimeFormat(JSGlobalObject* globalObject, JSValue locales, JSValue originalOptions, RequiredComponent required, Defaults defaults, StringView toLocaleStringTimeZone)
 {
     VM& vm = globalObject->vm();
     auto scope = DECLARE_THROW_SCOPE(vm);
@@ -825,6 +825,15 @@ void IntlDateTimeFormat::initializeDateTimeFormat(JSGlobalObject* globalObject, 
     if (options) {
         tzValue = options->get(globalObject, vm.propertyNames->timeZone);
         RETURN_IF_EXCEPTION(scope, void());
+    }
+    if (!toLocaleStringTimeZone.isNull()) {
+        // Per spec CreateDateTimeFormat with toLocaleStringTimeZone: if the caller also set
+        // options.timeZone, throw TypeError — the ZDT's timezone is always used.
+        if (!tzValue.isUndefined()) [[unlikely]] {
+            throwTypeError(globalObject, scope, "ZonedDateTime.toLocaleString does not accept a timeZone option; the ZonedDateTime's time zone is used"_s);
+            return;
+        }
+        tzValue = jsString(vm, toLocaleStringTimeZone);
     }
     TimeZone tz;
     String tzForResolvedOptions;
@@ -1008,17 +1017,29 @@ void IntlDateTimeFormat::initializeDateTimeFormat(JSGlobalObject* globalObject, 
                 needDefaults = false;
         }
 
-        if (needDefaults && (defaults == Defaults::Date || defaults == Defaults::All)) {
+        // Save the user's skeleton before defaults are injected; computeGetDateTimeFormat
+        // uses this to know exactly which fields the user explicitly set.
+        String userSkeletonStr = buildSkeleton(weekday, era, year, month, day, hour12, hourCycle, hour, dayPeriod, minute, second, fractionalSecondDigits, timeZoneName);
+        impl->m_userSkeleton = Vector<char16_t, 32>(StringView(userSkeletonStr).upconvertedCharacters().span());
+
+        if (needDefaults && (defaults == Defaults::Date || defaults == Defaults::All || defaults == Defaults::ZonedDateTime)) {
             year = Year::Numeric;
             month = Month::Numeric;
             day = Day::Numeric;
         }
 
-        if (needDefaults && (defaults == Defaults::Time || defaults == Defaults::All)) {
+        if (needDefaults && (defaults == Defaults::Time || defaults == Defaults::All || defaults == Defaults::ZonedDateTime)) {
             hour = Hour::Numeric;
             minute = Minute::Numeric;
             second = Second::Numeric;
         }
+
+        // https://tc39.es/proposal-temporal/#sec-getdatetimeformat step 17c:
+        // defaults=~zoned-date-time~ → inject timeZoneName="short" if absent and needDefaults.
+        // (Spec targets [[TemporalInstantFormat]]; we inject into m_dateFormat instead since
+        // ZonedDateTime.toLocaleString calls format(double) which uses m_dateFormat directly.)
+        if (needDefaults && defaults == Defaults::ZonedDateTime && timeZoneName == TimeZoneName::None)
+            timeZoneName = TimeZoneName::Short;
 
         String skeleton = buildSkeleton(weekday, era, year, month, day, hour12, hourCycle, hour, dayPeriod, minute, second, fractionalSecondDigits, timeZoneName);
         UErrorCode status = U_ZERO_ERROR;
@@ -1987,14 +2008,6 @@ static constexpr bool isPlain(IntlDateTimeFormat::TemporalFieldKind kind)
         && kind != IntlDateTimeFormat::TemporalFieldKind::ZonedDateTime;
 }
 
-// UTS#35 timezone display skeleton characters (z=short name, O=GMT offset, v=generic location).
-// Plain Temporal types (PlainDate, PlainTime, etc.) have no timezone — these chars must be
-// excluded when filtering patterns for them. Instant keeps them.
-static constexpr bool isTimeZoneChar(char16_t ch)
-{
-    return ch == 'z' || ch == 'O' || ch == 'v';
-}
-
 // UTS#35 skeleton chars (https://unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table)
 // mapped to ECMA-402 DateTimeFormat properties (https://tc39.es/ecma402/#table-datetimeformat-components):
 //   E/c -> weekday
@@ -2017,6 +2030,16 @@ static constexpr TemporalFieldSet dateTimeFields = [] {
     return s;
 }();
 
+// requiredOptions per GetDateTimeFormat steps 1-5 — excludes era (not in spec's requiredOptions).
+static constexpr TemporalFieldSet dateRequiredFields = makeTemporalFieldSet("EcyMLd"); // weekday, year, month, day
+static constexpr TemporalFieldSet yearMonthRequiredFields = makeTemporalFieldSet("yML"); // year, month
+static constexpr TemporalFieldSet dateTimeRequiredFields = [] {
+    auto s = dateRequiredFields;
+    s |= timeFields;
+    return s;
+}();
+
+// allowedOptions for AdjustDateTimeStyleFormat — broader than requiredOptions, includes era.
 static const TemporalFieldSet& allowedFieldsForKind(IntlDateTimeFormat::TemporalFieldKind kind)
 {
     static constexpr TemporalFieldSet emptyFields;
@@ -2036,14 +2059,35 @@ static const TemporalFieldSet& allowedFieldsForKind(IntlDateTimeFormat::Temporal
     }
 }
 
+// requiredOptions for GetDateTimeFormat — which user-set fields satisfy the type's requirement.
+static const TemporalFieldSet& requiredFieldsForKind(IntlDateTimeFormat::TemporalFieldKind kind)
+{
+    static constexpr TemporalFieldSet emptyFields;
+    switch (kind) {
+    case IntlDateTimeFormat::TemporalFieldKind::PlainDate:
+        return dateRequiredFields;
+    case IntlDateTimeFormat::TemporalFieldKind::PlainDateTime:
+    case IntlDateTimeFormat::TemporalFieldKind::Instant:
+        return dateTimeRequiredFields;
+    case IntlDateTimeFormat::TemporalFieldKind::PlainTime:
+        return timeFields;
+    case IntlDateTimeFormat::TemporalFieldKind::PlainYearMonth:
+        return yearMonthRequiredFields;
+    case IntlDateTimeFormat::TemporalFieldKind::PlainMonthDay:
+        return monthDayFields;
+    default:
+        return emptyFields;
+    }
+}
+
 // Lazily computes and caches the [[TemporalXxxFormat]] slot for the given Temporal type.
 // Returns a non-owning pointer — no clone needed since JS is single-threaded (no re-entrance).
 // The spec computes these eagerly in CreateDateTimeFormat; we do it on demand and cache.
 UDateFormat* IntlDateTimeFormat::getTemporalFormatter(VM& vm, TemporalFieldKind kind) const
 {
     ASSERT(kind != TemporalFieldKind::None && kind != TemporalFieldKind::ZonedDateTime);
-    // Instant with dateStyle/timeStyle: computeAdjustDateTimeStyleFormat step 3 returns baseFormat
-    // as-is (no pattern change, no timezone change). Reuse m_dateFormat directly — no clone needed.
+    // Instant with dateStyle/timeStyle: the base formatter already has the correct
+    // style and timezone — reuse m_dateFormat directly, no clone or pattern change needed.
     if (kind == TemporalFieldKind::Instant
         && (m_impl->m_dateStyle != DateTimeStyle::None || m_impl->m_timeStyle != DateTimeStyle::None))
         return m_impl->m_dateFormat.get();
@@ -2093,7 +2137,7 @@ std::unique_ptr<UDateFormat, IntlDateTimeFormat::UDateFormatDeleter> IntlDateTim
         return computeAdjustDateTimeStyleFormat(kind, skeleton);
     }
     // CreateDateTimeFormat -> GetDateTimeFormat.
-    return computeGetDateTimeFormat(kind, skeleton);
+    return computeGetDateTimeFormat(kind);
 }
 
 
@@ -2106,25 +2150,23 @@ std::unique_ptr<UDateFormat, IntlDateTimeFormat::UDateFormatDeleter> IntlDateTim
     auto allowed = allowedFieldsForKind(kind);
     bool plain = isPlain(kind);
 
-    // Steps 1-2: for plain types, scan for conflicting fields (not in allowedOptions).
-    // Timezone chars excluded — plain types have no timezone concept.
-    // For Instant, all fields are allowed -> skip, anyConflictingFields stays false.
+    // Steps 1-2: AdjustDateTimeStyleFormat conflict check. Timezone chars (z/O/v) correspond
+    // to [[timeZoneName]] in the format record — plain types never include timeZoneName in
+    // allowedOptions, so they correctly conflict and step 3 is not taken.
     Vector<char16_t, 32> filteredSkeleton;
     bool anyConflictingFields = false;
     if (plain) {
         for (auto ch : skeleton) {
-            if (ch >= 128 || isTimeZoneChar(ch))
+            if (ch >= 128)
                 continue;
             if (allowed.get(ch))
                 filteredSkeleton.append(ch);
             else
-                anyConflictingFields = true;
+                anyConflictingFields = true; // includes timezone chars: not in plain types' allowedOptions
         }
     }
 
-    // Step 3: no conflicting fields — return baseFormat directly.
-    // For Instant: baseFormat already carries the correct timezone from construction.
-    // For plain types: baseFormat with GMT substituted for timezone-unaware epoch math.
+    // Step 3: no conflicting fields — return baseFormat with GMT for plain types.
     if (!anyConflictingFields) {
         auto tempFormat = std::unique_ptr<UDateFormat, UDateFormatDeleter>(udat_clone(m_impl->m_dateFormat.get(), &status));
         if (U_FAILURE(status))
@@ -2146,7 +2188,7 @@ std::unique_ptr<UDateFormat, IntlDateTimeFormat::UDateFormatDeleter> IntlDateTim
     if (filteredSkeleton.isEmpty())
         return nullptr;
 
-    // Steps 7-8: BestFitFormatMatcher(formatOptions, formats) -> udatpg_getBestPatternWithOptions.
+    // Steps 7-8: BestFitFormatMatcher(formatOptions, formats).
     String generatorLocale = m_impl->m_dataLocale;
     if (!generatorLocale.contains("calendar"_s) && !m_impl->m_calendar.isEmpty())
         generatorLocale = makeString(generatorLocale, generatorLocale.contains('@') ? ";calendar="_s : "@calendar="_s, m_impl->m_calendar);
@@ -2177,89 +2219,122 @@ std::unique_ptr<UDateFormat, IntlDateTimeFormat::UDateFormatDeleter> IntlDateTim
 }
 
 // https://tc39.es/proposal-temporal/#sec-getdatetimeformat
-std::unique_ptr<UDateFormat, IntlDateTimeFormat::UDateFormatDeleter> IntlDateTimeFormat::computeGetDateTimeFormat(TemporalFieldKind kind, const Vector<char16_t, 32>& skeleton) const
+std::unique_ptr<UDateFormat, IntlDateTimeFormat::UDateFormatDeleter> IntlDateTimeFormat::computeGetDateTimeFormat(TemporalFieldKind kind) const
 {
     ASSERT(kind != TemporalFieldKind::ZonedDateTime);
     UErrorCode status = U_ZERO_ERROR;
 
-    // Steps 1-10: requiredOptions/defaultOptions are encoded in `kind`; allowedFieldsForKind = requiredOptions, switch below = defaultOptions.
-    auto allowed = allowedFieldsForKind(kind);
+    // Steps 1-5: requiredOptions — the set of option property names that satisfy this type's
+    //            format requirement. Era is excluded per spec (not listed in requiredOptions).
+    auto requiredOptions = requiredFieldsForKind(kind);
+    // Steps 6-10: defaultOptions — injected in step 17b below, one switch case per type.
 
-    // Steps 11-12: inherit=~all~ only for Instant;
-    //              all plain types use inherit=~relevant~.
+    // Steps 11-12: Determine inherit mode and initialise formatOptions.
+    // The spec uses inherit=~all~ for Instant (format includes all user options as-is)
+    // and inherit=~relevant~ for all plain types (only type-relevant fields are inherited).
     bool inheritAll = kind == TemporalFieldKind::Instant;
 
+    // Steps 11-19 shortcut for Instant when the user set at least one date/time option:
+    // inherit=~all~ → formatOptions = copy of options → step 13 sets anyPresent=true →
+    // step 15 needDefaults=true but step 16 immediately sets it false (a required field is
+    // present) → steps 18-19 BestFitFormatMatcher on those same options → result == m_dateFormat.
+    // m_dateFormat was already built from the full user options in initializeDateTimeFormat,
+    // so we can return a clone directly without rebuilding the pattern.
     if (m_impl->m_anyPresent && inheritAll) {
-        // Step 11: formatOptions = copy of options. Step 14: anyPresent=true.
-        // Step 16: needDefaults=false. Steps 18-19: BestFitFormatMatcher = main formatter.
         auto tempFormat = std::unique_ptr<UDateFormat, UDateFormatDeleter>(udat_clone(m_impl->m_dateFormat.get(), &status));
         if (U_FAILURE(status))
             return nullptr;
         return tempFormat;
     }
 
-    // Steps 13-16: build filteredSkeleton (our formatOptions), check needDefaults.
-    Vector<char16_t, 32> filteredSkeleton;
-    for (auto ch : skeleton) {
-        if (ch < 128 && allowed.get(ch) && !isTimeZoneChar(ch))
-            filteredSkeleton.append(ch);
+    // Step 12 (inherit=~relevant~): start from an empty record and copy only type-relevant fields.
+    //   • era ('G'): copy if required ∈ {~date~, ~year-month~, ~any~}, i.e., if 'G' is in
+    //     allowedFieldsForKind(kind). Era is copied from m_userSkeleton when the user set it.
+    //   • hourCycle: spec says copy to formatOptions here, but we apply it as a post-processing
+    //     step via replaceHourCycleInPattern after BestFitFormatMatcher (steps 18-19), which
+    //     is observably equivalent because ICU's pattern generator respects hour-field length.
+    Vector<char16_t, 32> formatOptions;
+    if (!inheritAll && allowedFieldsForKind(kind).get('G')) {
+        if (m_impl->m_userSkeleton.contains(u'G'))
+            formatOptions.append(u'G');
     }
 
-    if (m_impl->m_anyPresent) {
-        // Step 17a: inherit=~relevant~, anyPresent=true — return null if no required fields.
-        if (filteredSkeleton.isEmpty())
-            return nullptr;
-        // Required fields present: fall through to BestFitFormatMatcher (needDefaults=false).
-    }
-    bool needDefaults = filteredSkeleton.isEmpty();
+    // Steps 13-14: anyPresent — whether the user set any date/time option.
+    //              Pre-computed as m_anyPresent in initializeDateTimeFormat.
 
+    // Step 15: needDefaults = true.
+    bool needDefaults = true;
+
+    // Step 16: For each prop of requiredOptions: if options.[[prop]] is not undefined →
+    //          add it to formatOptions and set needDefaults = false.
+    //          m_userSkeleton represents "options.[[prop]] is not undefined" for each char.
+    for (auto ch : m_impl->m_userSkeleton) {
+        if (ch < 128 && requiredOptions.get(ch)) {
+            formatOptions.append(ch);
+            needDefaults = false;
+        }
+    }
+
+    // Step 17: If needDefaults:
     if (needDefaults) {
-        // Step 17b: inject defaultOptions for this Temporal type.
+        // Step 17a: If anyPresent && inherit=~relevant~ → return null.
+        //           (The user set some option but none matching this type's required fields —
+        //            the base formatter is not appropriate for this Temporal type.)
+        if (m_impl->m_anyPresent && !inheritAll)
+            return nullptr;
+
+        // Step 17b: Inject defaultOptions — the canonical fields for this type.
+        //           These correspond to steps 6-10 (defaultOptions per 'defaults' parameter).
         char16_t hourChar = hourCharForCycle(m_impl->m_hourCycle);
         switch (kind) {
         case TemporalFieldKind::Instant: {
-            // defaultOptions = {year,month,day,hour,minute,second} (step 10).
-            filteredSkeleton = skeleton;
-            bool hasTzField = false;
-            for (auto ch : filteredSkeleton) {
-                if (isTimeZoneChar(ch))
-                    hasTzField = true;
-            }
+            // defaults=~all~ → defaultOptions = {year,month,day,hour,minute,second}.
+            // Start from m_userSkeleton to preserve any user-set timezone field,
+            // then append any missing default fields.
+            formatOptions = m_impl->m_userSkeleton;
             TemporalFieldSet existingChars;
-            for (auto ch : filteredSkeleton) {
+            for (auto ch : formatOptions) {
                 if (ch < 128)
                     existingChars.set(ch);
             }
             for (auto c : { u'y', u'M', u'd', u'j', u'm', u's' }) {
                 if (!existingChars.get(c))
-                    filteredSkeleton.append(c);
+                    formatOptions.append(c);
             }
-            // Step 17c: defaults=~zoned-date-time~ -> inject timeZoneName="short" if absent.
-            if (!hasTzField)
-                filteredSkeleton.append('z');
             break;
         }
         case TemporalFieldKind::PlainTime:
-            filteredSkeleton.appendList({ hourChar, u'm', u's' });
+            // defaults=~time~ → defaultOptions = {hour,minute,second}.
+            formatOptions.appendList({ hourChar, u'm', u's' });
             break;
         case TemporalFieldKind::PlainDate:
-            filteredSkeleton.appendList({ u'y', u'M', u'd' });
+            // defaults=~date~ → defaultOptions = {year,month,day}.
+            formatOptions.appendList({ u'y', u'M', u'd' });
             break;
         case TemporalFieldKind::PlainDateTime:
-            filteredSkeleton.appendList({ u'y', u'M', u'd', hourChar, u'm', u's' });
+            // defaults=~all~ → defaultOptions = {year,month,day,hour,minute,second}.
+            formatOptions.appendList({ u'y', u'M', u'd', hourChar, u'm', u's' });
             break;
         case TemporalFieldKind::PlainYearMonth:
-            filteredSkeleton.appendList({ u'y', u'M' });
+            // defaults=~year-month~ → defaultOptions = {year,month}.
+            formatOptions.appendList({ u'y', u'M' });
             break;
         case TemporalFieldKind::PlainMonthDay:
-            filteredSkeleton.appendList({ u'M', u'd' });
+            // defaults=~month-day~ → defaultOptions = {month,day}.
+            formatOptions.appendList({ u'M', u'd' });
             break;
         default:
-            return nullptr;
+            RELEASE_ASSERT_NOT_REACHED(); // ZonedDateTime is guarded by the ASSERT at function entry.
         }
+
+        // Step 17c: defaults=~zoned-date-time~ → inject timeZoneName="short" if absent.
+        // Not implemented here — handled in initializeDateTimeFormat via Defaults::ZonedDateTime,
+        // which injects timeZoneName=Short directly into m_dateFormat before this path runs.
     }
 
     // Steps 18-19: BestFitFormatMatcher(formatOptions, formats).
+    // We always use best-fit (spec also allows basicFormatMatcher but best-fit is the default).
+    // The hourCycle field from step 12 is applied post-pattern via replaceHourCycleInPattern.
     String generatorLocale = m_impl->m_dataLocale;
     if (!generatorLocale.contains("calendar"_s) && !m_impl->m_calendar.isEmpty())
         generatorLocale = makeString(generatorLocale, generatorLocale.contains('@') ? ";calendar="_s : "@calendar="_s, m_impl->m_calendar);
@@ -2268,14 +2343,17 @@ std::unique_ptr<UDateFormat, IntlDateTimeFormat::UDateFormatDeleter> IntlDateTim
         return nullptr;
     Vector<char16_t, 32> bestPattern;
     status = callBufferProducingFunction(udatpg_getBestPatternWithOptions, generator.get(),
-        filteredSkeleton.span().data(), filteredSkeleton.size(),
+        formatOptions.span().data(), formatOptions.size(),
         UDATPG_MATCH_HOUR_FIELD_LENGTH, bestPattern);
     if (U_FAILURE(status) || bestPattern.isEmpty())
         return nullptr;
     if (m_impl->m_hourCycle != HourCycle::None)
         replaceHourCycleInPattern(bestPattern, m_impl->m_hourCycle);
 
-    // Step 20: return bestFormat. Plain types use GMT (epoch at noon UTC, no timezone offset).
+    // Step 20: Return bestFormat.
+    // Clone the base formatter (inheriting locale, calendar, number system, timezone) and
+    // apply the best-fit pattern. Plain types (no timezone concept) override the calendar's
+    // timezone to GMT so that epoch-millisecond inputs format at the correct wall-clock time.
     auto tempFormat = std::unique_ptr<UDateFormat, UDateFormatDeleter>(udat_clone(m_impl->m_dateFormat.get(), &status));
     if (U_FAILURE(status))
         return nullptr;

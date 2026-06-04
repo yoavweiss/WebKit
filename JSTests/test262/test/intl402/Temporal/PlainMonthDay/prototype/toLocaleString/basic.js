@@ -30,6 +30,7 @@ info: |
     5. Return result.
 features: [Temporal]
 locale: [en-US, de-AT]
+features: [Temporal]
 ---*/
 
 function findPart(parts, expectedType) {

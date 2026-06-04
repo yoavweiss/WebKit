@@ -2242,6 +2242,49 @@ static void testCalendarFieldsFunctions()
     CalendarFieldsIn emptyPartial;
     auto rWithEmpty = plainYearMonthWith(id("iso8601"_s), { 2025, 3, 1 }, emptyPartial, TemporalOverflow::Constrain);
     TCHECK_TRUE(!rWithEmpty.has_value(), "plainYearMonthWith: empty partial -> TypeError (temporal_rs: fields.is_empty())");
+
+    // --- plainDateWith ---
+    // temporal_rs: basic_date_with — ISO override year/month/monthCode/day
+
+    // override day only (ISO)
+    CalendarFieldsIn partialDay;
+    partialDay.day = 20;
+    auto rDW1 = plainDateWith(id("iso8601"_s), { 2025, 3, 14 }, partialDay, TemporalOverflow::Constrain);
+    TCHECK_TRUE(rDW1.has_value() && rDW1->isoDate.year() == 2025 && rDW1->isoDate.month() == 3 && rDW1->isoDate.day() == 20, "plainDateWith: override day -> 2025-03-20");
+
+    // override month only (ISO)
+    CalendarFieldsIn partialMonthOnly;
+    partialMonthOnly.month = 7;
+    auto rDW2 = plainDateWith(id("iso8601"_s), { 2025, 3, 14 }, partialMonthOnly, TemporalOverflow::Constrain);
+    TCHECK_TRUE(rDW2.has_value() && rDW2->isoDate.year() == 2025 && rDW2->isoDate.month() == 7 && rDW2->isoDate.day() == 14, "plainDateWith: override month -> 2025-07-14");
+
+    // override year only (ISO)
+    CalendarFieldsIn partialYearOnly;
+    partialYearOnly.year = 2000;
+    auto rDW3 = plainDateWith(id("iso8601"_s), { 2025, 3, 14 }, partialYearOnly, TemporalOverflow::Constrain);
+    TCHECK_TRUE(rDW3.has_value() && rDW3->isoDate.year() == 2000 && rDW3->isoDate.month() == 3 && rDW3->isoDate.day() == 14, "plainDateWith: override year -> 2000-03-14");
+
+    // Japanese: era+eraYear override (Showa 50 = 1975)
+    CalendarFieldsIn partialEra;
+    partialEra.era = "showa"_s;
+    partialEra.eraYear = 50;
+    auto rDW4 = plainDateWith(id("japanese"_s), { 1970, 1, 1 }, partialEra, TemporalOverflow::Constrain);
+    TCHECK_TRUE(rDW4.has_value() && rDW4->isoDate.year() == 1975 && rDW4->isoDate.month() == 1, "plainDateWith: japanese era+eraYear -> 1975-01-01");
+
+    // Japanese: month change suppresses inherited era — NonISOFieldKeysToIgnore spec NOTE.
+    // Showa 64 Jan 7 = 1989-01-07. Heisei started Jan 8 1989. month→6 re-derives to Heisei 1.
+    CalendarFieldsIn partialMonth6;
+    partialMonth6.month = 6;
+    auto rDW5 = plainDateWith(id("japanese"_s), { 1989, 1, 7 }, partialMonth6, TemporalOverflow::Constrain);
+    TCHECK_TRUE(rDW5.has_value() && rDW5->isoDate.year() == 1989 && rDW5->isoDate.month() == 6, "plainDateWith: japanese month change re-derives era -> 1989-06");
+
+    // era+eraYear+year inconsistent → RangeError
+    CalendarFieldsIn partialConflict;
+    partialConflict.era = "showa"_s;
+    partialConflict.eraYear = 50;
+    partialConflict.year = 2000;
+    auto rDW6 = plainDateWith(id("japanese"_s), { 1970, 1, 1 }, partialConflict, TemporalOverflow::Constrain);
+    TCHECK_TRUE(!rDW6.has_value() && rDW6.error().kind == TemporalErrorKind::RangeError, "plainDateWith: inconsistent year+era+eraYear -> RangeError");
 }
 
 static void testCalendarDateFromFields()
@@ -2255,20 +2298,20 @@ static void testCalendarDateFromFields()
     TCHECK_TRUE(r.has_value() && r->year() == 2024 && r->month() == 3 && r->day() == 15, "gregory: year+month+day");
 
     // --- Era + eraYear ---
-    // Gregory ce era
-    auto rEra = calendarDateFromFields(id("gregory"_s), 0, 3, 15, StringView("ce"_s), 2024, std::nullopt, TemporalOverflow::Reject);
+    // Gregory ce era — year=nullopt: no user-provided year, consistency check skipped
+    auto rEra = calendarDateFromFields(id("gregory"_s), std::nullopt, 3, 15, StringView("ce"_s), 2024, std::nullopt, TemporalOverflow::Reject);
     TCHECK_TRUE(rEra.has_value() && rEra->year() == 2024 && rEra->month() == 3 && rEra->day() == 15, "gregory: ce+eraYear");
 
-    // Gregory bce era: eraYear 1 = ISO year 0
-    auto rBce = calendarDateFromFields(id("gregory"_s), 0, 1, 1, StringView("bce"_s), 1, std::nullopt, TemporalOverflow::Reject);
+    // Gregory bce era: eraYear 1 = ISO year 0 — year=nullopt (user didn't provide year)
+    auto rBce = calendarDateFromFields(id("gregory"_s), std::nullopt, 1, 1, StringView("bce"_s), 1, std::nullopt, TemporalOverflow::Reject);
     TCHECK_TRUE(rBce.has_value() && !rBce->year(), "gregory: bce eraYear 1 = ISO 0");
 
-    // Japanese: modern era (reiwa year 6 = 2024)
-    auto rJp = calendarDateFromFields(id("japanese"_s), 0, 1, 1, StringView("reiwa"_s), 6, std::nullopt, TemporalOverflow::Reject);
+    // Japanese: modern era (reiwa year 6 = 2024) — year=nullopt
+    auto rJp = calendarDateFromFields(id("japanese"_s), std::nullopt, 1, 1, StringView("reiwa"_s), 6, std::nullopt, TemporalOverflow::Reject);
     TCHECK_TRUE(rJp.has_value() && rJp->year() == 2024, "japanese: reiwa 6 = 2024");
 
-    // Japanese: pre-1868 "ce" era bypasses ICU
-    auto rJpCe = calendarDateFromFields(id("japanese"_s), 0, 6, 15, StringView("ce"_s), 1600, std::nullopt, TemporalOverflow::Reject);
+    // Japanese: pre-1868 "ce" era bypasses ICU — year=nullopt
+    auto rJpCe = calendarDateFromFields(id("japanese"_s), std::nullopt, 6, 15, StringView("ce"_s), 1600, std::nullopt, TemporalOverflow::Reject);
     TCHECK_TRUE(rJpCe.has_value() && rJpCe->year() == 1600 && rJpCe->month() == 6 && rJpCe->day() == 15, "japanese: ce 1600 bypass");
 
     // ROC: positive year (roc era)

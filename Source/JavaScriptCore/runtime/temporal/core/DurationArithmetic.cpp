@@ -585,10 +585,10 @@ static TemporalResult<std::optional<NudgeWindow>> computeNudgeWindow(
     ASSERT(sign != -1 || (r1 <= 0 && r1 > r2));
 
     // Step 7: If r1=0, startEpochNs = originEpochNs.
-    // Step 8: Else, start = CalendarDateAdd (8.a); then steps 8.b (CombineISODateAndTimeRecord) +
-    //         8.c/8.d (GetUTCEpochNanoseconds or GetEpochNanosecondsFor) fused into epochNanosecondsForDateAndTime.
+    // Steps 7-8: startEpochNs. Use originEpochNs only when startDuration is entirely zero;
+    // otherwise compute via CalendarDateAdd (fix for https://github.com/tc39/proposal-temporal/issues/3316).
     Int128 startEpochNs;
-    if (!r1)
+    if (!startDuration.years() && !startDuration.months() && !startDuration.weeks() && !startDuration.days())
         startEpochNs = originEpochNs;
     else {
         auto startResult = TemporalCore::calendarDateAdd(calendarId, isoDate, startDuration, TemporalOverflow::Constrain);

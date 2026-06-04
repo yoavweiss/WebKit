@@ -221,6 +221,8 @@ $(PROJECT_DIR)/runtime/TemporalPlainYearMonthConstructor.cpp
 $(PROJECT_DIR)/runtime/TemporalPlainYearMonthPrototype.cpp
 $(PROJECT_DIR)/runtime/TemporalTimeZoneConstructor.cpp
 $(PROJECT_DIR)/runtime/TemporalTimeZonePrototype.cpp
+$(PROJECT_DIR)/runtime/TemporalZonedDateTimeConstructor.cpp
+$(PROJECT_DIR)/runtime/TemporalZonedDateTimePrototype.cpp
 $(PROJECT_DIR)/ucd/CaseFolding.txt
 $(PROJECT_DIR)/ucd/DerivedBinaryProperties.txt
 $(PROJECT_DIR)/ucd/DerivedCoreProperties.txt

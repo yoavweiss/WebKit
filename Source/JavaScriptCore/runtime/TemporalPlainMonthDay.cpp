@@ -147,7 +147,7 @@ TemporalPlainMonthDay* TemporalPlainMonthDay::from(JSGlobalObject* globalObject,
         // Step 2.c: PrepareCalendarFields(calendar, item, {year,month,monthCode,day}, {}, {}).
         // (Steps 2.b-c fused into readCalendarFieldsFromObject.)
         CalendarID calendarId = iso8601CalendarID();
-        auto fields = readCalendarFieldsFromObject(globalObject, asObject(itemValue), calendarId, FieldSetType::MonthDay);
+        auto fields = readCalendarFieldsFromObject<FieldSetType::MonthDay>(globalObject, asObject(itemValue), calendarId);
         RETURN_IF_EXCEPTION(scope, { });
 
         // Steps 2.d-e: GetOptionsObject + GetTemporalOverflowOption (after fields per spec).
@@ -288,7 +288,7 @@ ISO8601::PlainDate TemporalPlainMonthDay::with(JSGlobalObject* globalObject, JSO
     // Step 6: PrepareCalendarFields(calendar, temporalMonthDayLike, {year,month,monthCode,day}, {}, ~partial~).
     // Fields read BEFORE options per spec. skipCalendarRead=true since step 3 ensures no calendar property.
     CalendarID outCalendarId = calID;
-    auto partialFields = readCalendarFieldsFromObject(globalObject, temporalMonthDayLike, outCalendarId, FieldSetType::MonthDay, /* skipCalendarRead */ true);
+    auto partialFields = readCalendarFieldsFromObject<FieldSetType::MonthDay, CalendarRead::Skip>(globalObject, temporalMonthDayLike, outCalendarId);
     RETURN_IF_EXCEPTION(scope, { });
     if (!partialFields.day && !partialFields.month && !partialFields.monthCode
         && !partialFields.year && !partialFields.era && !partialFields.eraYear) [[unlikely]] {

@@ -51,9 +51,9 @@
 #include "TemporalPlainYearMonth.h"
 #include "TemporalPlainYearMonthConstructor.h"
 #include "TemporalPlainYearMonthPrototype.h"
-// FIXME: Add TemporalZonedDateTime.h
-// FIXME: Add TemporalZonedDateTimeConstructor.h
-// FIXME: Add TemporalZonedDateTimePrototype.h
+#include "TemporalZonedDateTime.h"
+#include "TemporalZonedDateTimeConstructor.h"
+#include "TemporalZonedDateTimePrototype.h"
 #include <wtf/Int128.h>
 #include <wtf/text/MakeString.h>
 #include <wtf/unicode/CharacterNames.h>
@@ -120,7 +120,12 @@ static JSValue createPlainYearMonthConstructor(VM& vm, JSObject* object)
     return TemporalPlainYearMonthConstructor::create(vm, TemporalPlainYearMonthConstructor::createStructure(vm, globalObject, globalObject->functionPrototype()), uncheckedDowncast<TemporalPlainYearMonthPrototype>(globalObject->plainYearMonthStructure()->storedPrototypeObject()));
 }
 
-// FIXME: Add createZonedDateTimeConstructor when TemporalZonedDateTime is implemented
+static JSValue createZonedDateTimeConstructor(VM& vm, JSObject* object)
+{
+    TemporalObject* temporalObject = uncheckedDowncast<TemporalObject>(object);
+    auto* globalObject = temporalObject->realm();
+    return TemporalZonedDateTimeConstructor::create(vm, TemporalZonedDateTimeConstructor::createStructure(vm, globalObject, globalObject->functionPrototype()), uncheckedDowncast<TemporalZonedDateTimePrototype>(globalObject->zonedDateTimeStructure()->storedPrototypeObject()));
+}
 
 } // namespace JSC
 
@@ -138,6 +143,7 @@ namespace JSC {
   PlainTime      createPlainTimeConstructor      DontEnum|PropertyCallback
   PlainMonthDay  createPlainMonthDayConstructor  DontEnum|PropertyCallback
   PlainYearMonth createPlainYearMonthConstructor DontEnum|PropertyCallback
+  ZonedDateTime  createZonedDateTimeConstructor  DontEnum|PropertyCallback
 @end
 */
 
@@ -580,18 +586,18 @@ String toTemporalCalendarName(JSGlobalObject* globalObject, JSObject* options)
 }
 
 // https://tc39.es/proposal-temporal/#sec-temporal-totemporalcalendaridentifier
-String toTemporalCalendarIdentifier(JSGlobalObject* globalObject, JSValue calendarLike)
+CalendarID toTemporalCalendarIdentifier(JSGlobalObject* globalObject, JSValue calendarLike)
 {
     VM& vm = globalObject->vm();
     auto scope = DECLARE_THROW_SCOPE(vm);
 
     if (calendarLike.isString()) {
         auto calendarString = calendarLike.toWTFString(globalObject);
-        RETURN_IF_EXCEPTION(scope, { });
+        RETURN_IF_EXCEPTION(scope, iso8601CalendarID());
 
-        // Fast path: direct calendar ID (case-insensitive).
+        // Fast path: direct calendar ID (case-insensitive). isBuiltinCalendar handles legacy aliases.
         if (auto calendarId = isBuiltinCalendar(calendarString))
-            return intlAvailableCalendars()[*calendarId];
+            return *calendarId;
 
         // Try parsing as a temporal date string to extract the [u-ca=...] annotation.
         // Try Date, then YearMonth, then MonthDay (YearMonth before MonthDay to avoid asserting on "2020-01").
@@ -606,23 +612,23 @@ String toTemporalCalendarIdentifier(JSGlobalObject* globalObject, JSValue calend
             auto parsedTime = ISO8601::parseCalendarTime(calendarString);
             if (!parsedTime) [[unlikely]] {
                 throwRangeError(globalObject, scope, makeString("invalid calendar identifier: "_s, calendarString));
-                return { };
+                return iso8601CalendarID();
             }
             auto& calAnnotation = std::get<2>(parsedTime.value());
             if (!calAnnotation)
-                return "iso8601"_s;
+                return iso8601CalendarID();
             if (auto calendarId = isBuiltinCalendar(StringView(*calAnnotation)))
-                return intlAvailableCalendars()[*calendarId];
+                return *calendarId;
             throwRangeError(globalObject, scope, makeString("invalid calendar identifier: "_s, StringView(*calAnnotation)));
-            return { };
+            return iso8601CalendarID();
         }
         auto& calendarAnnotation = std::get<3>(parsed.value());
         if (!calendarAnnotation)
-            return "iso8601"_s;
+            return iso8601CalendarID();
         if (auto calendarId = isBuiltinCalendar(StringView(*calendarAnnotation)))
-            return intlAvailableCalendars()[*calendarId];
+            return *calendarId;
         throwRangeError(globalObject, scope, makeString("invalid calendar identifier: "_s, StringView(*calendarAnnotation)));
-        return { };
+        return iso8601CalendarID();
     }
 
     // Fast path: read [[Calendar]] from Temporal date-like objects without invoking
@@ -630,18 +636,19 @@ String toTemporalCalendarIdentifier(JSGlobalObject* globalObject, JSValue calend
     if (calendarLike.isObject()) {
         JSObject* obj = asObject(calendarLike);
         if (obj->inherits<TemporalPlainDate>())
-            return uncheckedDowncast<TemporalPlainDate>(obj)->calendarIDAsString();
+            return uncheckedDowncast<TemporalPlainDate>(obj)->calendarID();
         if (obj->inherits<TemporalPlainDateTime>())
-            return uncheckedDowncast<TemporalPlainDateTime>(obj)->calendarIDAsString();
+            return uncheckedDowncast<TemporalPlainDateTime>(obj)->calendarID();
         if (obj->inherits<TemporalPlainYearMonth>())
-            return uncheckedDowncast<TemporalPlainYearMonth>(obj)->calendarIDAsString();
+            return uncheckedDowncast<TemporalPlainYearMonth>(obj)->calendarID();
         if (obj->inherits<TemporalPlainMonthDay>())
-            return uncheckedDowncast<TemporalPlainMonthDay>(obj)->calendarIDAsString();
-        // FIXME: Also handle TemporalZonedDateTime here
+            return uncheckedDowncast<TemporalPlainMonthDay>(obj)->calendarID();
+        if (obj->inherits<TemporalZonedDateTime>())
+            return uncheckedDowncast<TemporalZonedDateTime>(obj)->calendarID();
     }
 
     throwTypeError(globalObject, scope, "calendar argument must be a string or a Temporal date-like object"_s);
-    return { };
+    return iso8601CalendarID();
 }
 
 // https://tc39.es/proposal-temporal/#sec-temporal-totemporaldisambiguation
@@ -675,8 +682,7 @@ void rejectObjectWithCalendarOrTimeZone(JSGlobalObject* globalObject, JSObject* 
         || object->inherits<TemporalPlainTime>()
         || object->inherits<TemporalPlainMonthDay>()
         || object->inherits<TemporalPlainYearMonth>()
-        // FIXME: Also check TemporalZonedDateTime here
-        ) {
+        || object->inherits<TemporalZonedDateTime>()) {
         throwTypeError(globalObject, scope, "argument object must not have calendar or timeZone property"_s);
         return;
     }
@@ -694,6 +700,44 @@ void rejectObjectWithCalendarOrTimeZone(JSGlobalObject* globalObject, JSObject* 
         throwTypeError(globalObject, scope, "argument object must not have timeZone property"_s);
         return;
     }
+}
+
+// https://tc39.es/proposal-temporal/#sec-temporal-totemporaltimezoneidentifier
+std::optional<TemporalTimeZoneRecord> toTemporalTimeZoneIdentifier(JSGlobalObject* globalObject, JSValue item)
+{
+    VM& vm = globalObject->vm();
+    auto scope = DECLARE_THROW_SCOPE(vm);
+
+    // Step 1: If item has [[InitializedTemporalZonedDateTime]], return its [[TimeZone]].
+    if (auto* zdt = dynamicDowncast<TemporalZonedDateTime>(item))
+        return TemporalTimeZoneRecord { zdt->timeZone(), String(zdt->timeZoneId()) };
+
+    // Step 2: If item is not a String, throw TypeError.
+    if (!item.isString()) [[unlikely]] {
+        throwTypeError(globalObject, scope, "time zone must be a string or ZonedDateTime"_s);
+        return std::nullopt;
+    }
+    String tzString = asString(item)->value(globalObject);
+    RETURN_IF_EXCEPTION(scope, std::nullopt);
+
+    // Step 3: Let parseResult be ? ParseTimeZoneIdentifier(item).
+    auto parsed = ISO8601::parseTemporalTimeZoneIdentifier(tzString);
+    if (!parsed) [[unlikely]] {
+        throwRangeError(globalObject, scope, makeString("'"_s, ellipsizeAt(100, tzString), "' is not a valid time zone identifier"_s));
+        return std::nullopt;
+    }
+
+    // Step 4: Named timezone → identifierRecord.[[Identifier]] (case-normalized, alias-preserving).
+    // Step 5: Offset timezone → FormatOffsetTimeZoneIdentifier → canonical "+HH:MM".
+    String identifier;
+    if (!tzString.isEmpty() && (tzString[0] == '+' || tzString[0] == '-'))
+        identifier = ISO8601::formatTimeZoneOffsetString(parsed->utcOffsetNanoseconds());
+    else if (auto namedTz = intlAvailableNamedTimeZone(tzString))
+        identifier = namedTz->identifier;
+    else
+        identifier = parsed->toString();
+
+    return TemporalTimeZoneRecord { *parsed, WTF::move(identifier) };
 }
 
 void throwTemporalError(JSGlobalObject* globalObject, ThrowScope& scope, const TemporalError& error)

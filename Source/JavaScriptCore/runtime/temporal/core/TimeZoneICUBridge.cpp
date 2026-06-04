@@ -122,6 +122,8 @@ TemporalResult<int64_t> getOffsetNanosecondsFor(const TimeZone& timeZone, ISO860
 
     // 3. Return GetNamedTimeZoneOffsetNanoseconds(parseResult.[[Name]], epochNs).
     // NOTE: Implemented via ICU4C: UCAL_ZONE_OFFSET + UCAL_DST_OFFSET.
+    // FIXME: openCalendarForTimeZone (ucal_open/ucal_close) is called per getter; a TimeZoneID→UCalendar
+    //        cache on VM would eliminate this overhead for named timezones.
     auto calendar = openCalendarForTimeZone(timeZone);
     if (!calendar)
         return makeUnexpected(rangeError("Failed to open ICU calendar for time zone"_s));

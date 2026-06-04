@@ -41,7 +41,9 @@ namespace JSC {
 
 std::optional<CalendarID> JS_EXPORT_PRIVATE isBuiltinCalendar(StringView);
 
-ISO8601::PlainDate isoDateFromFields(JSGlobalObject*, TemporalDateFormat, int32_t, unsigned, unsigned, std::optional<ParsedMonthCode>, TemporalOverflow, CalendarID = iso8601CalendarID());
+std::optional<ParsedMonthCode> parseMonthCode(JSGlobalObject*, JSValue argument);
+
+ISO8601::PlainDate isoDateFromFields(JSGlobalObject*, TemporalDateFormat, int32_t, uint32_t, uint32_t, std::optional<ParsedMonthCode>, TemporalOverflow, CalendarID = iso8601CalendarID());
 
 template<DifferenceOperation>
 ISO8601::Duration differenceTemporalPlainYearMonth(JSGlobalObject*, const ISO8601::PlainYearMonth&, const ISO8601::PlainYearMonth&, unsigned, TemporalUnit, TemporalUnit, RoundingMode, CalendarID = iso8601CalendarID());
@@ -52,6 +54,40 @@ ISO8601::PlainDate calendarDateAdd(JSGlobalObject*, CalendarID, const ISO8601::P
 ISO8601::Duration calendarDateUntil(CalendarID, const ISO8601::PlainDate&, const ISO8601::PlainDate&, TemporalUnit);
 
 enum class FieldSetType { Date, YearMonth, MonthDay };
-TemporalCore::CalendarFieldsIn JS_EXPORT_PRIVATE readCalendarFieldsFromObject(JSGlobalObject*, JSObject* bag, CalendarID& outCalendarId, FieldSetType = FieldSetType::Date, bool skipCalendarRead = false);
+enum class CalendarRead { Read, Skip };
+template<FieldSetType type = FieldSetType::Date, CalendarRead calendarRead = CalendarRead::Read>
+TemporalCore::CalendarFieldsIn readCalendarFieldsFromObject(JSGlobalObject*, JSObject* bag, CalendarID& outCalendarId);
+
+// Fields read from a ZonedDateTime property bag (from() or with()).
+struct ZonedDateTimeFields {
+    // Calendar date fields (from PrepareCalendarFields).
+    TemporalCore::CalendarFieldsIn dateFields;
+    // Time fields — ZDT-specific, read in alphabetical order interleaved.
+    // Stored as optional so with() can distinguish "not provided" from "provided as 0".
+    std::optional<double> hour;
+    std::optional<double> minute;
+    std::optional<double> second;
+    std::optional<double> millisecond;
+    std::optional<double> microsecond;
+    std::optional<double> nanosecond;
+    // ZDT-specific fields — resolved in readZonedDateTimeFieldsFromObject per spec.
+    std::optional<int64_t> offsetNs; // parsed from the "offset" string property
+    TimeZone timeZone; // resolved TimeZone handle (Full mode only)
+    String timeZoneId; // canonical timezone ID string (Full mode only)
+    // Presence flags (needed for with() partial validation).
+    bool dayPresent { false };
+    bool monthPresent { false };
+    bool monthCodePresent { false };
+    bool yearPresent { false };
+    bool anyFieldSet { false }; // true if at least one field was present (for with())
+};
+
+enum class ZonedDateTimeFieldMode {
+    Full, // from(): timeZone is the only required field (spec requiredFieldNames = «time-zone»)
+    Partial, // with(): all fields optional, anyFieldSet is tracked (~partial~ mode)
+};
+
+template<ZonedDateTimeFieldMode mode = ZonedDateTimeFieldMode::Full, CalendarRead calendarRead = CalendarRead::Read>
+ZonedDateTimeFields readZonedDateTimeFieldsFromObject(JSGlobalObject*, JSObject* bag, CalendarID& outCalendarId);
 
 } // namespace JSC

@@ -38,6 +38,7 @@
 #include "TemporalPlainMonthDay.h"
 #include "TemporalPlainTime.h"
 #include "TemporalPlainYearMonth.h"
+#include "TemporalZonedDateTime.h"
 #include <wtf/DateMath.h>
 
 namespace JSC {
@@ -97,13 +98,13 @@ using DateTimeValueRecord = IntlDateTimeFormat::DateTimeValueRecord;
 
 bool IntlDateTimeFormat::isTemporalObject(JSValue x)
 {
-    // FIXME: || dynamicDowncast<TemporalZonedDateTime>(x)
     return dynamicDowncast<TemporalInstant>(x)
         || dynamicDowncast<TemporalPlainDate>(x)
         || dynamicDowncast<TemporalPlainDateTime>(x)
         || dynamicDowncast<TemporalPlainTime>(x)
         || dynamicDowncast<TemporalPlainYearMonth>(x)
-        || dynamicDowncast<TemporalPlainMonthDay>(x);
+        || dynamicDowncast<TemporalPlainMonthDay>(x)
+        || dynamicDowncast<TemporalZonedDateTime>(x);
 }
 
 // https://tc39.es/proposal-temporal/#sec-temporal-sametemporaltype
@@ -120,7 +121,7 @@ bool IntlDateTimeFormat::sameTemporalType(JSValue x, JSValue y)
     CHECK(TemporalPlainTime)
     CHECK(TemporalPlainYearMonth)
     CHECK(TemporalPlainMonthDay)
-    // FIXME: CHECK(TemporalZonedDateTime)
+    CHECK(TemporalZonedDateTime)
 #undef CHECK
     return true;
 }
@@ -225,12 +226,11 @@ IntlDateTimeFormat::DateTimeValueRecord IntlDateTimeFormat::handleDateTimeValue(
     if (auto* instant = dynamicDowncast<TemporalInstant>(x))
         return { static_cast<double>(instant->exactTime().epochMilliseconds()), Kind::Instant };
 
-    // FIXME
     // Step 8: Assert ZonedDateTime -> throw TypeError.
-    // if (dynamicDowncast<TemporalZonedDateTime>(x)) [[unlikely]] {
-    //     throwTypeError(globalObject, scope, "Temporal.ZonedDateTime is not supported in Intl.DateTimeFormat; use toLocaleString() or convert to PlainDateTime first"_s);
-    //     return { };
-    // }
+    if (dynamicDowncast<TemporalZonedDateTime>(x)) [[unlikely]] {
+        throwTypeError(globalObject, scope, "Temporal.ZonedDateTime is not supported in Intl.DateTimeFormat; use toLocaleString() or convert to PlainDateTime first"_s);
+        return { };
+    }
 
     // Step 1 (HandleDateTimeOthers): x is a Number — TimeClip.
     // https://tc39.es/proposal-temporal/#sec-temporal-handledatetimeothers

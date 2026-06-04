@@ -37,141 +37,6 @@ test/built-ins/Proxy/construct/arguments-realm.js:
 test/built-ins/Proxy/construct/trap-is-not-callable-realm.js:
   default: 'Test262Error: Expected a TypeError but got a different error constructor with the same name'
   strict mode: 'Test262Error: Expected a TypeError but got a different error constructor with the same name'
-test/built-ins/Temporal/Duration/compare/blank-duration.js:
-  default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(1n, \"UTC\")')"
-  strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(1n, \"UTC\")')"
-test/built-ins/Temporal/Duration/compare/exhaustive.js:
-  default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, \"UTC\")')"
-  strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, \"UTC\")')"
-test/built-ins/Temporal/Duration/compare/relativeto-propertybag-optional-properties.js:
-  default: 'RangeError: relativeTo with timeZone (ZonedDateTime) is not yet implemented'
-  strict mode: 'RangeError: relativeTo with timeZone (ZonedDateTime) is not yet implemented'
-test/built-ins/Temporal/Duration/compare/relativeto-propertybag-timezone-string.js:
-  default: 'RangeError: relativeTo with timeZone (ZonedDateTime) is not yet implemented'
-  strict mode: 'RangeError: relativeTo with timeZone (ZonedDateTime) is not yet implemented'
-test/built-ins/Temporal/Duration/compare/relativeto-string-limits.js:
-  default: 'RangeError: relativeTo as ZonedDateTime string is not yet implemented'
-  strict mode: 'RangeError: relativeTo as ZonedDateTime string is not yet implemented'
-test/built-ins/Temporal/Duration/compare/relativeto-string.js:
-  default: 'RangeError: relativeTo as ZonedDateTime string is not yet implemented'
-  strict mode: 'RangeError: relativeTo as ZonedDateTime string is not yet implemented'
-test/built-ins/Temporal/Duration/compare/throws-when-target-zoned-date-time-outside-valid-limits.js:
-  default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(864n * 10n**19n, \"UTC\")')"
-  strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(864n * 10n**19n, \"UTC\")')"
-test/built-ins/Temporal/Duration/prototype/round/blank-duration.js:
-  default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(1n, \"UTC\")')"
-  strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(1n, \"UTC\")')"
-test/built-ins/Temporal/Duration/prototype/round/case-where-relativeto-affects-rounding-mode-half-even.js:
-  default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, \"UTC\")')"
-  strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, \"UTC\")')"
-test/built-ins/Temporal/Duration/prototype/round/exact-multiple-of-larger-unit-plaindate.js:
-  default: 'Test262Error: P31D weeks..months ceil: weeks result: Expected SameValue(«1», «0») to be true'
-  strict mode: 'Test262Error: P31D weeks..months ceil: weeks result: Expected SameValue(«1», «0») to be true'
-test/built-ins/Temporal/Duration/prototype/round/exact-multiple-of-larger-unit-zoned.js:
-  default: "TypeError: undefined is not an object (evaluating 'Temporal.ZonedDateTime.from')"
-  strict mode: "TypeError: undefined is not an object (evaluating 'Temporal.ZonedDateTime.from')"
-test/built-ins/Temporal/Duration/prototype/round/next-day-out-of-range.js:
-  default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(86400_0000_0000_000_000_000n, \"UTC\")')"
-  strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(86400_0000_0000_000_000_000n, \"UTC\")')"
-test/built-ins/Temporal/Duration/prototype/round/relativeto-date-limits.js:
-  default: 'RangeError: relativeTo as ZonedDateTime string is not yet implemented'
-  strict mode: 'RangeError: relativeTo as ZonedDateTime string is not yet implemented'
-test/built-ins/Temporal/Duration/prototype/round/relativeto-days-24-hours-relative-to-zoned-date-time.js:
-  default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(1_000_000_000_000_000_000n, \"+04:30\")')"
-  strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(1_000_000_000_000_000_000n, \"+04:30\")')"
-test/built-ins/Temporal/Duration/prototype/round/relativeto-largestunit-smallestunit-combinations.js:
-  default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(63072000_000_000_000n /* = 1972-01-01T00Z */, \"UTC\")')"
-  strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(63072000_000_000_000n /* = 1972-01-01T00Z */, \"UTC\")')"
-test/built-ins/Temporal/Duration/prototype/round/relativeto-propertybag-optional-properties.js:
-  default: 'RangeError: relativeTo with timeZone (ZonedDateTime) is not yet implemented'
-  strict mode: 'RangeError: relativeTo with timeZone (ZonedDateTime) is not yet implemented'
-test/built-ins/Temporal/Duration/prototype/round/relativeto-string-limits.js:
-  default: 'RangeError: relativeTo as ZonedDateTime string is not yet implemented'
-  strict mode: 'RangeError: relativeTo as ZonedDateTime string is not yet implemented'
-test/built-ins/Temporal/Duration/prototype/round/relativeto-string.js:
-  default: 'RangeError: relativeTo as ZonedDateTime string is not yet implemented'
-  strict mode: 'RangeError: relativeTo as ZonedDateTime string is not yet implemented'
-test/built-ins/Temporal/Duration/prototype/round/relativeto-zoneddatetime-large-time-component-out-of-range.js:
-  default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, \"UTC\")')"
-  strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, \"UTC\")')"
-test/built-ins/Temporal/Duration/prototype/round/rounding-increment-relativeto.js:
-  default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, \"UTC\")')"
-  strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, \"UTC\")')"
-test/built-ins/Temporal/Duration/prototype/round/rounding-increments.js:
-  default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, \"UTC\")')"
-  strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, \"UTC\")')"
-test/built-ins/Temporal/Duration/prototype/round/rounding-is-noop.js:
-  default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, \"UTC\", \"iso8601\")')"
-  strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, \"UTC\", \"iso8601\")')"
-test/built-ins/Temporal/Duration/prototype/round/roundingincrement-days-large.js:
-  default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, \"UTC\")')"
-  strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, \"UTC\")')"
-test/built-ins/Temporal/Duration/prototype/round/zero-duration.js:
-  default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, 'UTC')')"
-  strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, 'UTC')')"
-test/built-ins/Temporal/Duration/prototype/total/blank-duration.js:
-  default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(1n, \"UTC\")')"
-  strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(1n, \"UTC\")')"
-test/built-ins/Temporal/Duration/prototype/total/no-dst-day-length.js:
-  default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(1_000_000_000_000_000_000n, \"+04:30\")')"
-  strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(1_000_000_000_000_000_000n, \"+04:30\")')"
-test/built-ins/Temporal/Duration/prototype/total/relativeto-date-limits.js:
-  default: 'RangeError: relativeTo as ZonedDateTime string is not yet implemented'
-  strict mode: 'RangeError: relativeTo as ZonedDateTime string is not yet implemented'
-test/built-ins/Temporal/Duration/prototype/total/relativeto-propertybag-optional-properties.js:
-  default: 'RangeError: relativeTo with timeZone (ZonedDateTime) is not yet implemented'
-  strict mode: 'RangeError: relativeTo with timeZone (ZonedDateTime) is not yet implemented'
-test/built-ins/Temporal/Duration/prototype/total/relativeto-string-limits.js:
-  default: 'RangeError: relativeTo as ZonedDateTime string is not yet implemented'
-  strict mode: 'RangeError: relativeTo as ZonedDateTime string is not yet implemented'
-test/built-ins/Temporal/Duration/prototype/total/relativeto-string.js:
-  default: 'RangeError: relativeTo as ZonedDateTime string is not yet implemented'
-  strict mode: 'RangeError: relativeTo as ZonedDateTime string is not yet implemented'
-test/built-ins/Temporal/Duration/prototype/total/relativeto-total-of-each-unit.js:
-  default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(63072000_000_000_000n /* = 1972-01-01T00Z */, \"UTC\")')"
-  strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(63072000_000_000_000n /* = 1972-01-01T00Z */, \"UTC\")')"
-test/built-ins/Temporal/Duration/prototype/total/relativeto-zoneddatetime-large-time-component-out-of-range.js:
-  default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, \"UTC\")')"
-  strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, \"UTC\")')"
-test/built-ins/Temporal/Duration/prototype/total/throws-if-date-time-invalid-with-zoneddatetime-relative.js:
-  default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(864n * 10n**19n - 1n, \"UTC\")')"
-  strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(864n * 10n**19n - 1n, \"UTC\")')"
-test/built-ins/Temporal/Duration/prototype/total/throws-if-target-nanoseconds-outside-valid-limits.js:
-  default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(864n * 10n**19n, \"UTC\")')"
-  strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(864n * 10n**19n, \"UTC\")')"
-test/built-ins/Temporal/Duration/prototype/total/zero-duration.js:
-  default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, 'UTC')')"
-  strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, 'UTC')')"
-test/built-ins/Temporal/PlainDate/from/order-of-operations.js:
-  default: 'Test262Error: Actual [get options.overflow, get options.overflow.toString, call options.overflow.toString, get fields.calendar, get fields.day, get fields.day.valueOf, call fields.day.valueOf, get fields.month, get fields.month.valueOf, call fields.month.valueOf, get fields.monthCode, get fields.monthCode.toString, call fields.monthCode.toString, get fields.year, get fields.year.valueOf, call fields.year.valueOf] and expected [get fields.calendar, get fields.day, get fields.day.valueOf, call fields.day.valueOf, get fields.month, get fields.month.valueOf, call fields.month.valueOf, get fields.monthCode, get fields.monthCode.toString, call fields.monthCode.toString, get fields.year, get fields.year.valueOf, call fields.year.valueOf, get options.overflow, get options.overflow.toString, call options.overflow.toString] should have the same contents. order of operations'
-  strict mode: 'Test262Error: Actual [get options.overflow, get options.overflow.toString, call options.overflow.toString, get fields.calendar, get fields.day, get fields.day.valueOf, call fields.day.valueOf, get fields.month, get fields.month.valueOf, call fields.month.valueOf, get fields.monthCode, get fields.monthCode.toString, call fields.monthCode.toString, get fields.year, get fields.year.valueOf, call fields.year.valueOf] and expected [get fields.calendar, get fields.day, get fields.day.valueOf, call fields.day.valueOf, get fields.month, get fields.month.valueOf, call fields.month.valueOf, get fields.monthCode, get fields.monthCode.toString, call fields.monthCode.toString, get fields.year, get fields.year.valueOf, call fields.year.valueOf, get options.overflow, get options.overflow.toString, call options.overflow.toString] should have the same contents. order of operations'
-test/built-ins/Temporal/PlainDate/prototype/since/exact-multiple-of-larger-unit.js:
-  default: 'Test262Error: P1M weeks..months ceil: weeks result: Expected SameValue(«1», «0») to be true'
-  strict mode: 'Test262Error: P1M weeks..months ceil: weeks result: Expected SameValue(«1», «0») to be true'
-test/built-ins/Temporal/PlainDate/prototype/until/exact-multiple-of-larger-unit.js:
-  default: 'Test262Error: P1M weeks..months ceil: weeks result: Expected SameValue(«1», «0») to be true'
-  strict mode: 'Test262Error: P1M weeks..months ceil: weeks result: Expected SameValue(«1», «0») to be true'
-test/built-ins/Temporal/PlainDateTime/from/order-of-operations.js:
-  default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, \"UTC\")')"
-  strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, \"UTC\")')"
-test/built-ins/Temporal/PlainTime/from/observable-get-overflow-argument-string-invalid.js:
-  default: 'Test262Error: Actual [get overflow, get overflow.toString, call overflow.toString] and expected [] should have the same contents. options read after ISO string parsing'
-  strict mode: 'Test262Error: Actual [get overflow, get overflow.toString, call overflow.toString] and expected [] should have the same contents. options read after ISO string parsing'
-test/built-ins/Temporal/PlainTime/from/options-wrong-type.js:
-  default: 'Test262Error: Invalid string processed before throwing TypeError Expected a RangeError but got a TypeError'
-  strict mode: 'Test262Error: Invalid string processed before throwing TypeError Expected a RangeError but got a TypeError'
-test/built-ins/Temporal/PlainTime/from/order-of-operations.js:
-  default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, \"UTC\")')"
-  strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, \"UTC\")')"
-test/built-ins/Temporal/PlainYearMonth/prototype/since/exact-multiple-of-larger-unit.js:
-  default: 'Test262Error: P1Y months..years ceil: months result: Expected SameValue(«2», «0») to be true'
-  strict mode: 'Test262Error: P1Y months..years ceil: months result: Expected SameValue(«2», «0») to be true'
-test/built-ins/Temporal/PlainYearMonth/prototype/until/exact-multiple-of-larger-unit.js:
-  default: 'Test262Error: P1Y months..years ceil: months result: Expected SameValue(«2», «0») to be true'
-  strict mode: 'Test262Error: P1Y months..years ceil: months result: Expected SameValue(«2», «0») to be true'
-test/built-ins/Temporal/getOwnPropertyNames.js:
-  default: 'Test262Error: ZonedDateTime'
-  strict mode: 'Test262Error: ZonedDateTime'
 test/built-ins/TypedArray/prototype/slice/speciesctor-return-same-buffer-with-offset.js:
   default: 'Test262Error: Actual [20, 30, 40, 60] and expected [20, 20, 20, 60] should have the same contents.  (Testing with Float64Array and makePassthrough.)'
   strict mode: 'Test262Error: Actual [20, 30, 40, 60] and expected [20, 20, 20, 60] should have the same contents.  (Testing with Float64Array and makePassthrough.)'
@@ -187,42 +52,9 @@ test/built-ins/Uint8Array/prototype/setFromBase64/trailing-garbage-empty.js:
 test/built-ins/Uint8Array/prototype/setFromBase64/trailing-garbage.js:
   default: 'SyntaxError: Uint8Array.prototype.setFromBase64 requires a valid base64 string'
   strict mode: 'SyntaxError: Uint8Array.prototype.setFromBase64 requires a valid base64 string'
-test/intl402/DateTimeFormat/prototype/format/temporal-objects-format-with-era.js:
-  default: 'Test262Error: toLocaleString on an Instant with era option should return the same results as toLocaleString on the same Date with the same options Expected SameValue(«"12/31/1969 A, 4:00:00 PM PST"», «"12/31/1969 A, 4:00:00 PM"») to be true'
-  strict mode: 'Test262Error: toLocaleString on an Instant with era option should return the same results as toLocaleString on the same Date with the same options Expected SameValue(«"12/31/1969 A, 4:00:00 PM PST"», «"12/31/1969 A, 4:00:00 PM"») to be true'
-test/intl402/DateTimeFormat/prototype/format/temporal-plaintime-formatting-datetime-style.js:
-  default: 'Test262Error: dateStyle = full, timeStyle = full Expected SameValue(«"12:34:56 AM"», «"12:34:56 AM Greenwich Mean Time"») to be true'
-  strict mode: 'Test262Error: dateStyle = full, timeStyle = full Expected SameValue(«"12:34:56 AM"», «"12:34:56 AM Greenwich Mean Time"») to be true'
-test/intl402/DateTimeFormat/prototype/format/temporal-zoneddatetime-not-supported.js:
-  default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, timeZone)')"
-  strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, timeZone)')"
-test/intl402/DateTimeFormat/prototype/formatRange/fails-on-distinct-temporal-types.js:
-  default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, 'America/Kentucky/Louisville')')"
-  strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, 'America/Kentucky/Louisville')')"
-test/intl402/DateTimeFormat/prototype/formatRange/temporal-zoneddatetime-not-supported.js:
-  default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, timeZone)')"
-  strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, timeZone)')"
-test/intl402/DateTimeFormat/prototype/formatRange/to-datetime-formattable-with-different-arg-kinds.js:
-  default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, \"UTC\")')"
-  strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, \"UTC\")')"
-test/intl402/DateTimeFormat/prototype/formatRangeToParts/fails-on-distinct-temporal-types.js:
-  default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, 'America/Kentucky/Louisville')')"
-  strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, 'America/Kentucky/Louisville')')"
-test/intl402/DateTimeFormat/prototype/formatRangeToParts/temporal-zoneddatetime-not-supported.js:
-  default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, timeZone)')"
-  strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, timeZone)')"
-test/intl402/DateTimeFormat/prototype/formatRangeToParts/to-datetime-formattable-with-different-arg-kinds.js:
-  default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, \"UTC\")')"
-  strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, \"UTC\")')"
-test/intl402/DateTimeFormat/prototype/formatToParts/temporal-zoneddatetime-not-supported.js:
-  default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, timeZone)')"
-  strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, timeZone)')"
 test/intl402/FallbackSymbol/per-realm.js:
   default: 'Test262Error: %Intl%.[[FallbackSymbol]] should be different per-realm Expected SameValue(«Symbol(IntlLegacyConstructedSymbol)», «Symbol(IntlLegacyConstructedSymbol)») to be false'
   strict mode: 'Test262Error: %Intl%.[[FallbackSymbol]] should be different per-realm Expected SameValue(«Symbol(IntlLegacyConstructedSymbol)», «Symbol(IntlLegacyConstructedSymbol)») to be false'
-test/intl402/Locale/extensions-grandfathered.js:
-  default: 'Test262Error: Expected SameValue(«"fr-Cyrl-FR-gaulish-u-nu-latn"», «"fr-Cyrl-FR-u-nu-latn"») to be true'
-  strict mode: 'Test262Error: Expected SameValue(«"fr-Cyrl-FR-gaulish-u-nu-latn"», «"fr-Cyrl-FR-u-nu-latn"») to be true'
 test/intl402/NumberFormat/prototype/format/unit-ja-JP.js:
   default: 'Test262Error: Expected SameValue(«"時速-987キロメートル"», «"時速 -987 キロメートル"») to be true'
   strict mode: 'Test262Error: Expected SameValue(«"時速-987キロメートル"», «"時速 -987 キロメートル"») to be true'
@@ -244,60 +76,6 @@ test/intl402/PluralRules/constructor-option-read-order.js:
 test/intl402/PluralRules/constructor-options-throwing-getters.js:
   default: 'Test262Error: Exception from compactDisplay getter should be propagated Expected a CustomError to be thrown but no exception was thrown at all'
   strict mode: 'Test262Error: Exception from compactDisplay getter should be propagated Expected a CustomError to be thrown but no exception was thrown at all'
-test/intl402/Temporal/Duration/compare/relativeto-sub-minute-offset.js:
-  default: 'RangeError: relativeTo as ZonedDateTime string is not yet implemented'
-  strict mode: 'RangeError: relativeTo as ZonedDateTime string is not yet implemented'
-test/intl402/Temporal/Duration/compare/twenty-five-hour-day.js:
-  default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(941184000_000_000_000n, \"America/Vancouver\")')"
-  strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(941184000_000_000_000n, \"America/Vancouver\")')"
-test/intl402/Temporal/Duration/prototype/round/adjust-rounded-duration-days.js:
-  default: "TypeError: undefined is not an object (evaluating 'Temporal.ZonedDateTime.from')"
-  strict mode: "TypeError: undefined is not an object (evaluating 'Temporal.ZonedDateTime.from')"
-test/intl402/Temporal/Duration/prototype/round/dst-balancing-result.js:
-  default: 'Error: Temporal.PlainDateTime.prototype.toZonedDateTime is not yet implemented'
-  strict mode: 'Error: Temporal.PlainDateTime.prototype.toZonedDateTime is not yet implemented'
-test/intl402/Temporal/Duration/prototype/round/dst-rounding-result.js:
-  default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime("
-  strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime("
-test/intl402/Temporal/Duration/prototype/round/relativeto-dst-back-transition.js:
-  default: "TypeError: undefined is not an object (evaluating 'Temporal.ZonedDateTime.from')"
-  strict mode: "TypeError: undefined is not an object (evaluating 'Temporal.ZonedDateTime.from')"
-test/intl402/Temporal/Duration/prototype/round/relativeto-sub-minute-offset.js:
-  default: 'RangeError: relativeTo as ZonedDateTime string is not yet implemented'
-  strict mode: 'RangeError: relativeTo as ZonedDateTime string is not yet implemented'
-test/intl402/Temporal/Duration/prototype/round/rounding-increment-relativeto.js:
-  default: "TypeError: undefined is not an object (evaluating 'Temporal.ZonedDateTime.from')"
-  strict mode: "TypeError: undefined is not an object (evaluating 'Temporal.ZonedDateTime.from')"
-test/intl402/Temporal/Duration/prototype/round/rounding-with-largestunit.js:
-  default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, \"UTC\")')"
-  strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime(0n, \"UTC\")')"
-test/intl402/Temporal/Duration/prototype/total/dst-balancing-result.js:
-  default: 'Error: Temporal.PlainDateTime.prototype.toZonedDateTime is not yet implemented'
-  strict mode: 'Error: Temporal.PlainDateTime.prototype.toZonedDateTime is not yet implemented'
-test/intl402/Temporal/Duration/prototype/total/dst-day-length.js:
-  default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime("
-  strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime("
-test/intl402/Temporal/Duration/prototype/total/dst-rounding-result.js:
-  default: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime("
-  strict mode: "TypeError: undefined is not a constructor (evaluating 'new Temporal.ZonedDateTime("
-test/intl402/Temporal/Duration/prototype/total/relativeto-dst-back-transition.js:
-  default: "TypeError: undefined is not an object (evaluating 'Temporal.ZonedDateTime.from')"
-  strict mode: "TypeError: undefined is not an object (evaluating 'Temporal.ZonedDateTime.from')"
-test/intl402/Temporal/Duration/prototype/total/relativeto-sub-minute-offset.js:
-  default: 'RangeError: relativeTo as ZonedDateTime string is not yet implemented'
-  strict mode: 'RangeError: relativeTo as ZonedDateTime string is not yet implemented'
-test/intl402/Temporal/Instant/prototype/toLocaleString/default-includes-time-not-time-zone-name.js:
-  default: 'Test262Error: Instant formatted with no options 12/26/2024, 11:46:40 AM UTC should not include time zone name'
-  strict mode: 'Test262Error: Instant formatted with no options 12/26/2024, 11:46:40 AM UTC should not include time zone name'
-test/intl402/Temporal/Instant/prototype/toLocaleString/era.js:
-  default: 'Test262Error: toLocaleString on an Instant with era option should return the same results as toLocaleString on the same Date with the same options Expected SameValue(«"12/31/1969 A, 4:00:00 PM PST"», «"12/31/1969 A, 4:00:00 PM"») to be true'
-  strict mode: 'Test262Error: toLocaleString on an Instant with era option should return the same results as toLocaleString on the same Date with the same options Expected SameValue(«"12/31/1969 A, 4:00:00 PM PST"», «"12/31/1969 A, 4:00:00 PM"») to be true'
-test/intl402/Temporal/Instant/prototype/toLocaleString/option-timezonename-short.js:
-  default: 'Test262Error: expected "11/18/1976, 9:23:30 AM EST" to be shorter than "11/18/1976, 9:23:30 AM EST".'
-  strict mode: 'Test262Error: expected "11/18/1976, 9:23:30 AM EST" to be shorter than "11/18/1976, 9:23:30 AM EST".'
-test/intl402/Temporal/Instant/prototype/toLocaleString/respect-timezone-after-formatting-plaindatetime.js:
-  default: 'Test262Error: Expected SameValue(«"12/31/1969 A, 4:00:00 PM PST"», «"12/31/1969 A, 4:00:00 PM"») to be true'
-  strict mode: 'Test262Error: Expected SameValue(«"12/31/1969 A, 4:00:00 PM PST"», «"12/31/1969 A, 4:00:00 PM"») to be true'
 test/language/destructuring/binding/keyed-destructuring-property-reference-target-evaluation-order-with-bindings.js:
   default: 'Test262Error: Actual [binding::source, binding::sourceKey, sourceKey, get source, binding::defaultValue, binding::varTarget] and expected [binding::source, binding::sourceKey, sourceKey, binding::varTarget, get source, binding::defaultValue] should have the same contents. '
 test/language/eval-code/direct/arrow-fn-body-cntns-arguments-func-decl-arrow-func-declare-arguments-assign-incl-def-param-arrow-arguments.js:
@@ -402,9 +180,6 @@ test/language/statements/with/set-mutable-binding-idref-compound-assign-with-pro
 test/staging/sm/ArrayBuffer/slice-species.js:
   default: 'Test262Error: Expected SameValue(«function ArrayBuffer() {'
   strict mode: 'Test262Error: Expected SameValue(«function ArrayBuffer() {'
-test/staging/sm/Date/to-temporal-instant.js:
-  default: 'TypeError: Temporal.Instant.prototype.toZonedDateTimeISO is not yet implemented'
-  strict mode: 'TypeError: Temporal.Instant.prototype.toZonedDateTimeISO is not yet implemented'
 test/staging/sm/Date/two-digit-years.js:
   default: 'Test262Error: Expected SameValue(«NaN», «957164400000») to be true'
   strict mode: 'Test262Error: Expected SameValue(«NaN», «957164400000») to be true'

@@ -1686,19 +1686,25 @@ String monthCode(uint32_t month)
     return makeString('M', pad('0', 2, month));
 }
 
-// https://tc39.es/proposal-temporal/#sec-temporal-parsemonthcode
+// Parses the MonthCode grammar from https://tc39.es/proposal-temporal/#sec-temporal-parsemonthcode:
+//   MonthCode :::
+//       M00L
+//       M0 NonZeroDigit L?
+//       M NonZeroDigit DecimalDigit L?
 std::optional<ParsedMonthCode> parseMonthCode(StringView monthCode)
 {
-    // Allow leap month marker (e.g. "M05L"), even though it doesn't apply to ISO8601 calendar
-    if (monthCode.length() < 3 || monthCode.length() > 4 || !monthCode.startsWith('M') || !isASCIIDigit(monthCode[2]))
+    if (monthCode.length() < 3 || monthCode.length() > 4
+        || !monthCode.startsWith('M')
+        || !isASCIIDigit(monthCode[1]) || !isASCIIDigit(monthCode[2]))
+        return { };
+    if (monthCode.length() == 4 && monthCode[3] != 'L')
+        return { };
+    // M00 is only valid as M00L — bare `M00` matches none of the three grammar alternatives.
+    if (monthCode[1] == '0' && monthCode[2] == '0' && monthCode.length() == 3)
         return { };
 
-    // 4th code unit must be 'L' because the month code is valid
     auto isLeapMonth = monthCode.length() == 4;
-
-    uint8_t monthNumber = monthCode[2] - '0';
-    monthNumber += (monthCode[1] - '0') * 10;
-
+    uint8_t monthNumber = (monthCode[1] - '0') * 10 + (monthCode[2] - '0');
     return ParsedMonthCode { monthNumber, isLeapMonth };
 }
 

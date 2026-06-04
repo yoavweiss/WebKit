@@ -82,4 +82,6 @@ private:
     ISO8601::ExactTime m_exactTime;
 };
 
+JS_EXPORT_PRIVATE std::optional<ISO8601::ExactTime> bigIntValueToExactTime(JSGlobalObject*, JSValue bigIntValue, ASCIILiteral typeName);
+
 } // namespace JSC

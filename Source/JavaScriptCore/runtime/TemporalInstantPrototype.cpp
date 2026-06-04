@@ -32,7 +32,7 @@
 #include "JSCInlines.h"
 #include "TemporalInstant.h"
 #include "TemporalObject.h"
-// FIXME: #include "TemporalZonedDateTime.h"
+#include "TemporalZonedDateTime.h"
 #include <wtf/text/MakeString.h>
 
 namespace JSC {
@@ -308,12 +308,20 @@ JSC_DEFINE_HOST_FUNCTION(temporalInstantPrototypeFuncValueOf, (JSGlobalObject* g
 }
 
 // https://tc39.es/proposal-temporal/#sec-temporal.instant.prototype.tozoneddatetimeiso
-// FIXME: ZonedDateTime
-JSC_DEFINE_HOST_FUNCTION(temporalInstantPrototypeFuncToZonedDateTimeISO, (JSGlobalObject* globalObject, CallFrame*))
+JSC_DEFINE_HOST_FUNCTION(temporalInstantPrototypeFuncToZonedDateTimeISO, (JSGlobalObject* globalObject, CallFrame* callFrame))
 {
     VM& vm = globalObject->vm();
     auto scope = DECLARE_THROW_SCOPE(vm);
-    return throwVMTypeError(globalObject, scope, "Temporal.Instant.prototype.toZonedDateTimeISO is not yet implemented"_s);
+
+    TemporalInstant* instant = dynamicDowncast<TemporalInstant>(callFrame->thisValue());
+    if (!instant) [[unlikely]]
+        return throwVMTypeError(globalObject, scope, "Temporal.Instant.prototype.toZonedDateTimeISO called on value that's not an Instant"_s);
+
+    // Step 3: Let timeZone be ? ToTemporalTimeZoneIdentifier(timeZoneIdentifier).
+    auto tzRecord = toTemporalTimeZoneIdentifier(globalObject, callFrame->argument(0));
+    RETURN_IF_EXCEPTION(scope, { });
+    ASSERT(tzRecord);
+    RELEASE_AND_RETURN(scope, JSValue::encode(TemporalZonedDateTime::create(vm, globalObject->zonedDateTimeStructure(), instant->exactTime(), tzRecord->timeZone, WTF::move(tzRecord->identifier), iso8601CalendarID())));
 }
 
 // https://tc39.es/proposal-temporal/#sec-temporal.instant.prototype.epochmilliseconds

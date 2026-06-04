@@ -40,7 +40,7 @@
 #include "TemporalDuration.h"
 #include "TemporalObject.h"
 #include "TemporalTimeZone.h"
-// FIXME: #include "TemporalZonedDateTime.h"
+#include "TemporalZonedDateTime.h"
 #include "TimeZoneICUBridge.h"
 
 #include <wtf/text/MakeString.h>
@@ -87,19 +87,31 @@ TemporalInstant* TemporalInstant::tryCreateIfValid(JSGlobalObject* globalObject,
     VM& vm = globalObject->vm();
     auto scope = DECLARE_THROW_SCOPE(vm);
 
-    JSValue epochNanoseconds = value.toBigInt(globalObject);
+    JSValue bigIntValue = value.toBigInt(globalObject);
     RETURN_IF_EXCEPTION(scope, nullptr);
 
+    auto exactTime = bigIntValueToExactTime(globalObject, bigIntValue, "Temporal.Instant"_s);
+    RETURN_IF_EXCEPTION(scope, nullptr);
+    if (!exactTime)
+        return nullptr;
+    return create(vm, structure ? structure : globalObject->instantStructure(), *exactTime);
+}
+
+std::optional<ISO8601::ExactTime> bigIntValueToExactTime(JSGlobalObject* globalObject, JSValue bigIntValue, ASCIILiteral typeName)
+{
+    VM& vm = globalObject->vm();
+    auto scope = DECLARE_THROW_SCOPE(vm);
+
 #if USE(BIGINT32)
-    if (epochNanoseconds.isBigInt32()) {
-        int32_t total = epochNanoseconds.bigInt32AsInt32();
-        ISO8601::ExactTime exactTime { total };
+    if (bigIntValue.isBigInt32()) {
+        // BigInt32 values (≤ 2^30) are always within the valid epoch-ns range.
+        ISO8601::ExactTime exactTime { Int128 { bigIntValue.bigInt32AsInt32() } };
         ASSERT(exactTime.isValid());
-        return create(vm, structure ? structure : globalObject->instantStructure(), exactTime);
+        return exactTime;
     }
 #endif
 
-    JSBigInt* bigint = asHeapBigInt(epochNanoseconds);
+    JSBigInt* bigint = asHeapBigInt(bigIntValue);
     bool bigIntTooLong = false;
     Int128 total;
     if constexpr (sizeof(JSBigInt::Digit) == 4) {
@@ -110,8 +122,7 @@ TemporalInstant* TemporalInstant::tryCreateIfValid(JSGlobalObject* globalObject,
         bigIntTooLong = bigint->length() > 3;
     } else {
         ASSERT(sizeof(JSBigInt::Digit) == 8);
-        // Handle maxint128 < abs(bigint) <= maxuint128 explicitly, otherwise
-        // the int128 arithmetic below is undefined
+        // Guard: abs(bigint) in (2^127, 2^128] would overflow Int128 arithmetic.
         if (bigint->length() > 1 && (bigint->digit(1) & 0x8000'0000'0000'0000)) {
             total = 0;
             bigIntTooLong = true;
@@ -127,15 +138,13 @@ TemporalInstant* TemporalInstant::tryCreateIfValid(JSGlobalObject* globalObject,
     if (bigIntTooLong || !exactTime.isValid()) {
         String argAsString = bigint->toString(globalObject, 10);
         if (scope.exception()) {
-            TRY_CLEAR_EXCEPTION(scope, nullptr);
+            TRY_CLEAR_EXCEPTION(scope, std::nullopt);
             argAsString = "The given number of"_s;
         }
-
-        throwRangeError(globalObject, scope, makeString(ellipsizeAt(100, argAsString), " epoch nanoseconds is outside of the supported range for Temporal.Instant"_s));
-        return nullptr;
+        throwRangeError(globalObject, scope, makeString(ellipsizeAt(100, argAsString), " epoch nanoseconds is outside of the supported range for "_s, typeName));
+        return std::nullopt;
     }
-
-    return create(vm, structure ? structure : globalObject->instantStructure(), exactTime);
+    return exactTime;
 }
 
 // ToTemporalInstant ( item )
@@ -156,9 +165,8 @@ TemporalInstant* TemporalInstant::toInstant(JSGlobalObject* globalObject, JSValu
         return uncheckedDowncast<TemporalInstant>(itemValue);
 
     // Step 3: If item has [[InitializedTemporalZonedDateTime]], return CreateTemporalInstant(item.[[EpochNanoseconds]]).
-    // FIXME:
-    // if (itemValue.inherits<TemporalZonedDateTime>())
-    //     return TemporalInstant::create(vm, globalObject->instantStructure(), uncheckedDowncast<TemporalZonedDateTime>(itemValue)->exactTime());
+    if (itemValue.inherits<TemporalZonedDateTime>())
+        return TemporalInstant::create(vm, globalObject->instantStructure(), uncheckedDowncast<TemporalZonedDateTime>(itemValue)->exactTime());
 
     // Step 4: Let string be ? ToString(item).
     String string = itemValue.toWTFString(globalObject);

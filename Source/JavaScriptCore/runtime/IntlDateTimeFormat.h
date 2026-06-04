@@ -78,10 +78,10 @@ public:
     DECLARE_VISIT_CHILDREN;
 
     enum class RequiredComponent : uint8_t { Date, Time, Any };
-    enum class Defaults : uint8_t { Date, Time, All };
+    enum class Defaults : uint8_t { Date, Time, All, ZonedDateTime };
     enum class HourCycle : uint8_t { None, H11, H12, H23, H24 };
 
-    void initializeDateTimeFormat(JSGlobalObject*, JSValue locales, JSValue options, RequiredComponent, Defaults);
+    void initializeDateTimeFormat(JSGlobalObject*, JSValue locales, JSValue options, RequiredComponent, Defaults, StringView toLocaleStringTimeZone = { });
     // https://tc39.es/proposal-temporal/#sec-temporal-handledatetimevalue dispatches to:
     //   None          -> HandleDateTimeOthers          -> [[DateTimeFormat]]
     //   Instant       -> HandleDateTimeTemporalInstant -> [[TemporalInstantFormat]]
@@ -90,11 +90,10 @@ public:
     //   PlainTime     -> HandleDateTimeTemporalTime    -> [[TemporalPlainTimeFormat]]
     //   PlainYearMonth-> HandleDateTimeTemporalYearMonth->[[TemporalPlainYearMonthFormat]]
     //   PlainMonthDay -> HandleDateTimeTemporalMonthDay-> [[TemporalPlainMonthDayFormat]]
-    //   ZonedDateTime -> spec throws TypeError; we handle it as a special case
+    //   ZonedDateTime -> spec throws TypeError (use toLocaleString() or convert to PlainDateTime first)
     enum class TemporalFieldKind : uint8_t {
         None = 0, // Non-Temporal (legacy Date)
         Instant, // Temporal.Instant — all fields, formatter's timezone
-        // FIXME: ZonedDateTime support not yet
         ZonedDateTime, // Temporal.ZonedDateTime — all fields + timezone name
         PlainDate, // Date fields only, GMT
         PlainDateTime, // Date + time fields, GMT
@@ -150,7 +149,7 @@ public:
     UDateFormat* getTemporalFormatter(VM&, TemporalFieldKind) const; // Non-owning; no clone needed (single-threaded JS).
     std::unique_ptr<UDateFormat, UDateFormatDeleter> computeTemporalFormatter(TemporalFieldKind) const;
     std::unique_ptr<UDateFormat, UDateFormatDeleter> computeAdjustDateTimeStyleFormat(TemporalFieldKind, const Vector<char16_t, 32>& skeleton) const;
-    std::unique_ptr<UDateFormat, UDateFormatDeleter> computeGetDateTimeFormat(TemporalFieldKind, const Vector<char16_t, 32>& skeleton) const;
+    std::unique_ptr<UDateFormat, UDateFormatDeleter> computeGetDateTimeFormat(TemporalFieldKind) const;
     std::unique_ptr<UDateIntervalFormat, UDateIntervalFormatDeleter> createTemporalIntervalFormat(UDateFormat*, TemporalFieldKind, UErrorCode&) const;
 
     struct DateRangePreamble {
@@ -257,6 +256,7 @@ public:
     IntlDateTimeFormat::DateTimeStyle m_dateStyle { IntlDateTimeFormat::DateTimeStyle::None };
     IntlDateTimeFormat::DateTimeStyle m_timeStyle { IntlDateTimeFormat::DateTimeStyle::None };
     bool m_anyPresent { false };
+    Vector<char16_t, 32> m_userSkeleton; // user's explicit options as skeleton, before defaults injection; used by computeGetDateTimeFormat
     std::unique_ptr<UDateFormat, UDateFormatDeleter> m_dateFormat;
     mutable std::unique_ptr<IntlDateTimeFormatTemporalFormatterCache> m_temporalFormatterCache;
 

@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include <JavaScriptCore/IntlObject.h>
+#include <JavaScriptCore/JSCTimeZone.h>
 #include <JavaScriptCore/JSObject.h>
 #include <JavaScriptCore/TemporalCoreTypes.h>
 #include <JavaScriptCore/TemporalEnums.h>
@@ -113,7 +115,7 @@ void rejectObjectWithCalendarOrTimeZone(JSGlobalObject*, JSObject*);
 TemporalOverflow toTemporalOverflow(JSGlobalObject*, JSObject*);
 TemporalOverflow toTemporalOverflow(JSGlobalObject*, JSValue);
 String toTemporalCalendarName(JSGlobalObject*, JSObject*);
-String toTemporalCalendarIdentifier(JSGlobalObject*, JSValue);
+CalendarID toTemporalCalendarIdentifier(JSGlobalObject*, JSValue);
 TemporalDisambiguation toTemporalDisambiguation(JSGlobalObject*, JSObject*);
 TemporalOffsetDisambiguation toTemporalOffset(JSGlobalObject*, JSObject*, TemporalOffsetDisambiguation fallback);
 
@@ -129,5 +131,11 @@ enum class TemporalAnyProperties : bool {
 };
 
 void throwTemporalError(JSGlobalObject*, ThrowScope&, const TemporalError&);
+
+struct TemporalTimeZoneRecord {
+    TimeZone timeZone;
+    String identifier; // canonical: case-normalized alias or FormatOffsetTimeZoneIdentifier
+};
+std::optional<TemporalTimeZoneRecord> toTemporalTimeZoneIdentifier(JSGlobalObject*, JSValue);
 
 } // namespace JSC

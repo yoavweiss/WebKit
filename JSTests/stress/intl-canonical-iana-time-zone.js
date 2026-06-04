@@ -90,21 +90,20 @@ for (const tz of legacy) {
 // Temporal.ZonedDateTime uses the same hashmap-backed TimeZoneID lookup as Intl, so
 // legacy aliases must also be accepted there. ZonedDateTime.prototype.equals() uses
 // TimeZoneEquals internally, which recognises legacy ↔ primary as the same timezone.
-// FIXME: ZonedDateTime — test via Temporal.ZonedDateTime once implemented.
-// if (typeof Temporal !== "undefined") {
-//     const pairs = [
-//         ["Asia/Calcutta",          "Asia/Kolkata"],
-//         ["America/Buenos_Aires",   "America/Argentina/Buenos_Aires"],
-//         ["Europe/Kiev",            "Europe/Kyiv"],
-//         ["Asia/Katmandu",          "Asia/Kathmandu"],
-//         ["US/Pacific",             "America/Los_Angeles"],
-//         ["GB",                     "Europe/London"],
-//         ["Brazil/East",            "America/Sao_Paulo"],
-//         ["UCT",                    "UTC"],
-//         ["Etc/UTC",                "UTC"],
-//         ["Zulu",                   "UTC"],
-//     ];
-//     for (const [legacy, primary] of pairs) {
-//         shouldBeTrue(new Temporal.ZonedDateTime(0n, legacy).equals(new Temporal.ZonedDateTime(0n, primary)));
-//     }
-// }
+if (typeof Temporal !== "undefined") {
+    const pairs = [
+        ["Asia/Calcutta",          "Asia/Kolkata"],
+        ["America/Buenos_Aires",   "America/Argentina/Buenos_Aires"],
+        ["Europe/Kiev",            "Europe/Kyiv"],
+        ["Asia/Katmandu",          "Asia/Kathmandu"],
+        ["US/Pacific",             "America/Los_Angeles"],
+        ["GB",                     "Europe/London"],
+        ["Brazil/East",            "America/Sao_Paulo"],
+        ["UCT",                    "UTC"],
+        ["Etc/UTC",                "UTC"],
+        ["Zulu",                   "UTC"],
+    ];
+    for (const [legacy, primary] of pairs) {
+        shouldBeTrue(new Temporal.ZonedDateTime(0n, legacy).equals(new Temporal.ZonedDateTime(0n, primary)));
+    }
+}

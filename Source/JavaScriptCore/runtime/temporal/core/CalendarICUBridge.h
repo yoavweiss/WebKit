@@ -126,7 +126,7 @@ int32_t ecmaReferenceYear(CalendarID, uint8_t monthNumber, bool isLeapMonth, uin
 
 int32_t JS_EXPORT_PRIVATE lunarCalendarExtendedYearFor1972(CalendarID);
 
-TemporalResult<ISO8601::PlainDate> JS_EXPORT_PRIVATE calendarDateFromFields(CalendarID, int32_t year, uint8_t month, uint8_t day, std::optional<StringView> era, std::optional<int32_t> eraYear, std::optional<ParsedMonthCode>, TemporalOverflow);
+TemporalResult<ISO8601::PlainDate> JS_EXPORT_PRIVATE calendarDateFromFields(CalendarID, std::optional<int32_t> year, uint8_t month, uint8_t day, std::optional<StringView> era, std::optional<int32_t> eraYear, std::optional<ParsedMonthCode>, TemporalOverflow);
 
 } // namespace TemporalCore
 } // namespace JSC

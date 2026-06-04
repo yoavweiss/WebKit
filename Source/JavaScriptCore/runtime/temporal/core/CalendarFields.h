@@ -67,6 +67,8 @@ TemporalResult<ResolvedCalendarDate> JS_EXPORT_PRIVATE monthDayFromFields(Calend
 
 TemporalResult<ResolvedCalendarDate> JS_EXPORT_PRIVATE plainYearMonthWith(CalendarID, const ISO8601::PlainDate& currentISODate, const CalendarFieldsIn& partialFields, TemporalOverflow);
 
+TemporalResult<ResolvedCalendarDate> JS_EXPORT_PRIVATE plainDateWith(CalendarID, const ISO8601::PlainDate& currentISODate, const CalendarFieldsIn& partialFields, TemporalOverflow);
+
 TemporalResult<ISO8601::Duration> JS_EXPORT_PRIVATE differenceYearMonth(CalendarID, const ISO8601::PlainDate& thisISODate, const ISO8601::PlainDate& otherISODate, TemporalUnit largestUnit);
 
 TemporalResult<ResolvedCalendarDate> JS_EXPORT_PRIVATE plainYearMonthAdd(CalendarID, const ISO8601::PlainDate& currentISODate, const ISO8601::Duration&, TemporalOverflow);
