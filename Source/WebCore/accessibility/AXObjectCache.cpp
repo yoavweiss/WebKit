@@ -479,9 +479,18 @@ AXObjectCache::~AXObjectCache()
     m_selectedTextRangeTimer.stop();
     m_updateTreeSnapshotTimer.stop();
 
-    if (auto tree = AXIsolatedTree::treeForFrameID(m_frameID))
-        tree->setPageActivityState({ });
-    AXIsolatedTree::removeTreeForFrameID(m_frameID);
+    RefPtr existingTree = AXIsolatedTree::treeForFrameID(m_frameID);
+    if (existingTree) {
+        existingTree->setPageActivityState({ });
+        if (existingTree->treeID() == treeID()) {
+            // Only remove the tree if it belongs to this cache. During cross-document navigation, a new
+            // AXObjectCache may have already been created for the same frameID and stored a fresh tree in
+            // treeFrameCache. We must not wipe the new cache's tree when the previous cache is finally
+            // destructed. Without this guard, the new cache's AXLocalFrame parent loses its tree mapping
+            // and AXIsolatedObject::crossFrameChildObject returns null, breaking iframe access in ITM.
+            AXIsolatedTree::removeTreeForFrameID(m_frameID);
+        }
+    }
 #endif
 
     AXTreeStore::remove(m_id);
