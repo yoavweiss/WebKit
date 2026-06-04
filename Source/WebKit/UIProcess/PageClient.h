@@ -190,6 +190,7 @@ enum class TapHandlingResult : uint8_t;
 
 class ContextMenuContextData;
 class DrawingAreaProxy;
+class LayerHostingVisibilityPropagator;
 class NativeWebGestureEvent;
 class NativeWebKeyboardEvent;
 class NativeWebMouseEvent;
@@ -455,6 +456,9 @@ public:
 #endif
     virtual RetainPtr<UIView> createVisibilityPropagationView() { return nullptr; }
     virtual void removeVisibilityPropagationView(UIView *) { }
+#if ENABLE(ENDOWMENT_BASED_APPLICATION_STATE_TRACKING)
+    virtual RefPtr<LayerHostingVisibilityPropagator> createLayerHostingVisibilityPropagator() { return nullptr; }
+#endif
 #endif // HAVE(VISIBILITY_PROPAGATION_VIEW)
 
 #if ENABLE(GPU_PROCESS)

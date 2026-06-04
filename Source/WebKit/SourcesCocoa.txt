@@ -581,6 +581,7 @@ UIProcess/ios/fullscreen/WKFullScreenWindowControllerIOS.mm @nonARC
 UIProcess/ios/CompactContextMenuPresenter.mm @nonARC
 UIProcess/ios/DragDropInteractionState.mm @nonARC
 UIProcess/ios/GestureRecognizerConsistencyEnforcer.mm @nonARC
+UIProcess/ios/LayerHostingVisibilityPropagator.mm @nonARC
 UIProcess/ios/PageClientImplIOS.mm @nonARC
 UIProcess/ios/PointerTouchCompatibilitySimulator.mm @nonARC
 UIProcess/ios/ProcessStateMonitor.mm @nonARC

@@ -2030,6 +2030,7 @@
 		A1A4FE5A18DCE9FA00B5EA8A /* _WKDownload.h in Headers */ = {isa = PBXBuildFile; fileRef = A1A4FE5718DCE9FA00B5EA8A /* _WKDownload.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		A1A4FE5C18DCE9FA00B5EA8A /* _WKDownloadInternal.h in Headers */ = {isa = PBXBuildFile; fileRef = A1A4FE5918DCE9FA00B5EA8A /* _WKDownloadInternal.h */; };
 		A1A4FE6118DD54A400B5EA8A /* _WKDownloadDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = A1A4FE6018DD54A400B5EA8A /* _WKDownloadDelegate.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		A1A55D8D2FCE64B5007EA84E /* LayerHostingVisibilityPropagator.h in Headers */ = {isa = PBXBuildFile; fileRef = A1A55D8B2FCE63AD007EA84E /* LayerHostingVisibilityPropagator.h */; };
 		A1AE0EC32B166439008A2563 /* ExtensionCapabilityGranter.h in Headers */ = {isa = PBXBuildFile; fileRef = A1AE0EC12B1663D4008A2563 /* ExtensionCapabilityGranter.h */; };
 		A1B849362F3D9F02004256A1 /* PlaybackSessionInterfaceAVKit.h in Headers */ = {isa = PBXBuildFile; fileRef = A1B849322F3D9F02004256A1 /* PlaybackSessionInterfaceAVKit.h */; };
 		A1B849372F3D9F02004256A1 /* VideoPresentationInterfaceAVKit.h in Headers */ = {isa = PBXBuildFile; fileRef = A1B849342F3D9F02004256A1 /* VideoPresentationInterfaceAVKit.h */; };
@@ -7771,6 +7772,8 @@
 		A1A4FE5918DCE9FA00B5EA8A /* _WKDownloadInternal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = _WKDownloadInternal.h; sourceTree = "<group>"; };
 		A1A4FE6018DD54A400B5EA8A /* _WKDownloadDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = _WKDownloadDelegate.h; sourceTree = "<group>"; };
 		A1A53A0F2E943B3E002BAD2D /* AVKit_SPI.swiftinterface */ = {isa = PBXFileReference; lastKnownFileType = text; path = AVKit_SPI.swiftinterface; sourceTree = "<group>"; };
+		A1A55D8B2FCE63AD007EA84E /* LayerHostingVisibilityPropagator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LayerHostingVisibilityPropagator.h; sourceTree = "<group>"; };
+		A1A55D8C2FCE63AD007EA84E /* LayerHostingVisibilityPropagator.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = LayerHostingVisibilityPropagator.mm; sourceTree = "<group>"; };
 		A1AC99A92ECF0E350011617C /* MediaPlaybackTargetSerialized.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MediaPlaybackTargetSerialized.h; sourceTree = "<group>"; };
 		A1AC99AA2ECF0E350011617C /* MediaPlaybackTargetSerialized.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MediaPlaybackTargetSerialized.cpp; sourceTree = "<group>"; };
 		A1AE0EC12B1663D4008A2563 /* ExtensionCapabilityGranter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ExtensionCapabilityGranter.h; sourceTree = "<group>"; };
@@ -12530,6 +12533,8 @@
 				F496A4301F58A272004C1757 /* DragDropInteractionState.mm */,
 				F4CF1E9B25E40DCC000F9D73 /* GestureRecognizerConsistencyEnforcer.h */,
 				F4CF1E9C25E40DCC000F9D73 /* GestureRecognizerConsistencyEnforcer.mm */,
+				A1A55D8B2FCE63AD007EA84E /* LayerHostingVisibilityPropagator.h */,
+				A1A55D8C2FCE63AD007EA84E /* LayerHostingVisibilityPropagator.mm */,
 				0FCB4E3618BBE044000FCFC9 /* PageClientImplIOS.h */,
 				0FCB4E3718BBE044000FCFC9 /* PageClientImplIOS.mm */,
 				F41145632CD6F4B7004CDBD1 /* PointerTouchCompatibilitySimulator.h */,
@@ -18449,6 +18454,7 @@
 				51E9049A27BCB9D400929E7E /* LaunchServicesSPI.h in Headers */,
 				BCE0937814FB128C001138D9 /* LayerHostingContext.h in Headers */,
 				515A0C552E8284CF00D0B56C /* LayerHostingContextManager.h in Headers */,
+				A1A55D8D2FCE64B5007EA84E /* LayerHostingVisibilityPropagator.h in Headers */,
 				1A92DC1112F8BA460017AF65 /* LayerTreeContext.h in Headers */,
 				44E936FD2447C2D8009FA3E3 /* LegacyCustomProtocolID.h in Headers */,
 				5C1427181C23F8B700D41183 /* LegacyCustomProtocolManager.h in Headers */,
