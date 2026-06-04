@@ -1158,7 +1158,6 @@ webkit.org/b/315568 imported/w3c/web-platform-tests/css/css-fonts/font-synthesis
 webkit.org/b/315568 imported/w3c/web-platform-tests/css/css-fonts/font-variation-settings-descriptor-01.html [ ImageOnlyFailure ]
 webkit.org/b/315568 imported/w3c/web-platform-tests/css/css-fonts/font-variation-settings-descriptor-03.html [ ImageOnlyFailure ]
 webkit.org/b/315568 imported/w3c/web-platform-tests/css/css-fonts/font-variation-settings-descriptor-04.html [ ImageOnlyFailure ]
-webkit.org/b/315568 imported/w3c/web-platform-tests/css/css-fonts/synthetic-bold-out-of-capabilities-range.html [ ImageOnlyFailure ]
 webkit.org/b/315568 imported/w3c/web-platform-tests/css/css-fonts/synthetic-oblique-out-of-capabilities-range.html [ ImageOnlyFailure ]
 webkit.org/b/315568 imported/w3c/web-platform-tests/css/css-fonts/variations/variable-avar2-warp.html [ ImageOnlyFailure ]
 webkit.org/b/315568 imported/w3c/web-platform-tests/css/css-fonts/variations/variable-gpos-avar2.html [ ImageOnlyFailure ]

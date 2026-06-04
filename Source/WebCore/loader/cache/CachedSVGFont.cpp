@@ -59,17 +59,17 @@ CachedSVGFont::CachedSVGFont(CachedResourceRequest&& request, CachedSVGFont& res
 
 CachedSVGFont::~CachedSVGFont() = default;
 
-RefPtr<Font> CachedSVGFont::createFont(const FontDescription& fontDescription, bool syntheticBold, bool syntheticItalic, const FontCreationContext& fontCreationContext)
+RefPtr<Font> CachedSVGFont::createFont(const FontDescription& fontDescription, bool syntheticItalic, const FontCreationContext& fontCreationContext)
 {
     ASSERT(firstFontFace());
-    return CachedFont::createFont(fontDescription, syntheticBold, syntheticItalic, fontCreationContext);
+    return CachedFont::createFont(fontDescription, syntheticItalic, fontCreationContext);
 }
 
-FontPlatformData CachedSVGFont::platformDataFromCustomData(const FontDescription& fontDescription, bool bold, bool italic, const FontCreationContext& fontCreationContext)
+FontPlatformData CachedSVGFont::platformDataFromCustomData(const FontDescription& fontDescription, bool italic, const FontCreationContext& fontCreationContext)
 {
     if (m_externalSVGDocument)
-        return FontPlatformData(fontDescription.computedSize(), bold, italic); // FIXME: Why are we creating a bogus font here?
-    return CachedFont::platformDataFromCustomData(fontDescription, bold, italic, fontCreationContext);
+        return FontPlatformData(fontDescription.computedSize(), false, italic); // FIXME: Why are we creating a bogus font here?
+    return CachedFont::platformDataFromCustomData(fontDescription, italic, fontCreationContext);
 }
 
 bool CachedSVGFont::ensureCustomFontData()

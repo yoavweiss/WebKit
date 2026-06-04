@@ -220,7 +220,7 @@ RefPtr<Font> CSSFontFaceSource::font(const FontDescription& fontDescription, boo
         if (m_immediateSource) {
             if (!m_immediateFontCustomPlatformData)
                 return nullptr;
-            return Font::create(CachedFont::platformDataFromCustomData(Ref { *m_immediateFontCustomPlatformData }, fontDescription, syntheticBold, syntheticItalic, fontCreationContext), Font::Origin::Remote);
+            return Font::create(CachedFont::platformDataFromCustomData(Ref { *m_immediateFontCustomPlatformData }, fontDescription, syntheticItalic, fontCreationContext), Font::Origin::Remote);
         }
 
         // We're local. Just return a Font from the normal cache.
@@ -238,7 +238,7 @@ RefPtr<Font> CSSFontFaceSource::font(const FontDescription& fontDescription, boo
         ASSERT_UNUSED(success, success);
 
         ASSERT(status() == Status::Success);
-        auto result = m_fontRequest->createFont(fontDescription, syntheticBold, syntheticItalic, fontCreationContext);
+        auto result = m_fontRequest->createFont(fontDescription, syntheticItalic, fontCreationContext);
         ASSERT(result);
         return result;
     }
@@ -250,7 +250,7 @@ RefPtr<Font> CSSFontFaceSource::font(const FontDescription& fontDescription, boo
         return nullptr;
     if (!m_inDocumentCustomPlatformData)
         return nullptr;
-    return Font::create(Ref { *m_inDocumentCustomPlatformData }->fontPlatformData(fontDescription, syntheticBold, syntheticItalic, fontCreationContext), Font::Origin::Remote);
+    return Font::create(Ref { *m_inDocumentCustomPlatformData }->fontPlatformData(fontDescription, syntheticItalic, fontCreationContext), Font::Origin::Remote);
 }
 
 bool CSSFontFaceSource::isSVGFontFaceSource() const

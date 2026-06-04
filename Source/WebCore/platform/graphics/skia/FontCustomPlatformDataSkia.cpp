@@ -44,11 +44,12 @@ FontCustomPlatformData::FontCustomPlatformData(sk_sp<SkTypeface>&& typeface, Fon
 
 FontCustomPlatformData::~FontCustomPlatformData() = default;
 
-FontPlatformData FontCustomPlatformData::fontPlatformData(const FontDescription& description, bool bold, bool italic, const FontCreationContext& fontCreationContext)
+FontPlatformData FontCustomPlatformData::fontPlatformData(const FontDescription& description, bool italic, const FontCreationContext& fontCreationContext)
 {
     sk_sp<SkTypeface> typeface = m_typeface;
 
     auto defaultValues = defaultFontVariationValues(*typeface);
+    bool hasWeightVariationAxis = defaultValues.contains({ { 'w', 'g', 'h', 't' } });
     if (!defaultValues.isEmpty()) {
         Vector<SkFontArguments::VariationPosition::Coordinate> variationsToBeApplied;
         auto applyVariation = [&](const FontTag& tag, float value) {
@@ -95,7 +96,8 @@ FontPlatformData FontCustomPlatformData::fontPlatformData(const FontDescription&
 
     auto size = description.adjustedSizeForFontFace(fontCreationContext.sizeAdjust());
     auto features = FontCache::computeFeatures(description, fontCreationContext);
-    FontPlatformData platformData(WTF::move(typeface), size, bold, italic, description.orientation(), description.widthVariant(), description.textRenderingMode(), WTF::move(features), this);
+
+    FontPlatformData platformData(WTF::move(typeface), size, computeSyntheticBold(hasWeightVariationAxis, description, fontCreationContext), italic, description.orientation(), description.widthVariant(), description.textRenderingMode(), WTF::move(features), this);
     platformData.updateSizeWithFontSizeAdjust(description.fontSizeAdjust(), description.computedSize());
     return platformData;
 }

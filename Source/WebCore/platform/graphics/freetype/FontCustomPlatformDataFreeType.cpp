@@ -80,7 +80,7 @@ static RefPtr<FcPattern> defaultFontconfigOptions()
     return adoptRef(FcPatternDuplicate(pattern));
 }
 
-FontPlatformData FontCustomPlatformData::fontPlatformData(const FontDescription& description, bool bold, bool italic, const FontCreationContext& fontCreationContext)
+FontPlatformData FontCustomPlatformData::fontPlatformData(const FontDescription& description, bool italic, const FontCreationContext& fontCreationContext)
 {
     auto* freeTypeFace = static_cast<FT_Face>(cairo_font_face_get_user_data(m_fontFace.get(), &freeTypeFaceKey));
     ASSERT(freeTypeFace);
@@ -99,13 +99,17 @@ FontPlatformData FontCustomPlatformData::fontPlatformData(const FontDescription&
 
 #if ENABLE(VARIATION_FONTS)
     auto variants = buildVariationSettings(freeTypeFace, description, fontCreationContext);
-    if (!variants.isEmpty()) {
+    if (!variants.isEmpty())
         FcPatternAddString(pattern.get(), FC_FONT_VARIATIONS, reinterpret_cast<const FcChar8*>(variants.utf8().data()));
-    }
+    auto defaultValues = defaultVariationValues(freeTypeFace, ShouldLocalizeAxisNames::No);
+    bool hasWeightVariationAxis = defaultValues.contains({ { 'w', 'g', 'h', 't' } });
+#else
+    bool hasWeightVariationAxis = false;
 #endif
+    bool syntheticBold = computeSyntheticBold(hasWeightVariationAxis, description, fontCreationContext);
 
     auto size = description.adjustedSizeForFontFace(fontCreationContext.sizeAdjust());
-    FontPlatformData platformData(m_fontFace.get(), WTF::move(pattern), size, freeTypeFace->face_flags & FT_FACE_FLAG_FIXED_WIDTH, bold, italic, description.orientation());
+    FontPlatformData platformData(m_fontFace.get(), WTF::move(pattern), size, freeTypeFace->face_flags & FT_FACE_FLAG_FIXED_WIDTH, syntheticBold, italic, description.orientation());
 
     platformData.updateSizeWithFontSizeAdjust(description.fontSizeAdjust(), description.computedSize());
     return platformData;
