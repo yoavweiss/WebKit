@@ -112,6 +112,11 @@
 // Same idea for attributedSubstring. attributedSubstringPollRange.location == NSNotFound
 // disables the poll. The returned plain text is appended to polledAttributedSubstrings.
 @property (nonatomic) NSRange attributedSubstringPollRange;
+// Controls the handled value returned by the completion handler. Defaults to YES (IM consumed
+// the key). Set to NO to simulate a commit-only action where the IM fires insertText: as a
+// side effect of committing a prior composition but does not consume the key itself
+// (e.g. Korean 2-Set pressing space to commit a syllable).
+@property (nonatomic) BOOL handledByIM;
 @end
 
 @implementation MockTextInputContextAction
@@ -123,6 +128,7 @@
         _selectedRange = selectedRange;
         _replacementRange = replacementRange;
         _attributedSubstringPollRange = NSMakeRange(NSNotFound, 0);
+        _handledByIM = YES;
     }
     return self;
 }
@@ -133,6 +139,7 @@
         _insertedText = insertedText;
         _replacementRange = replacementRange;
         _attributedSubstringPollRange = NSMakeRange(NSNotFound, 0);
+        _handledByIM = YES;
     }
     return self;
 }
@@ -180,7 +187,7 @@
                     [_polledAttributedSubstrings addObject:string.string ?: @""];
                 }];
             }
-            completionHandler(!!lastItem);
+            completionHandler(lastItem.handledByIM);
         });
     }];
 }
@@ -813,6 +820,70 @@ TEST(WKWebViewMacEditingTests, ModelessInputMethodStagingToleratesExternalSetMar
         EXPECT_EQ(1u, [ranges[1] rangeValue].location);
         EXPECT_EQ(0u, [ranges[1] rangeValue].length);
     }
+}
+
+TEST(WKWebViewMacEditingTests, ModelessInputMethodCommitOnDelimiterInsertsCommittedTextAndDelimiter)
+{
+    // Simulates the Korean 2-Set (두벌식) behavior when a delimiter key (space) is pressed
+    // during a modeless composition. The IM fires insertText: to commit the in-progress
+    // syllable but returns handled=NO — the space was not consumed, just triggered the commit.
+    // WebKit must run the keyboard-layout pass for the space key and append its insertText:" "
+    // so both the committed Korean syllable and the space end up in the document.
+    //
+    // Sequence:
+    //   't' → insertText:"ㅅ"                    (IM starts composition, returns handled=YES)
+    //   'm' → insertText:"스" rep=(0,1)           (IM extends, returns handled=YES)
+    //  ' ' → insertText:"스" rep=(0,1)            (IM commits same syllable, returns handled=NO)
+    //       + keyboard layout → insertText:" "   (space must be appended)
+    //
+    // Without the fix, the handled=NO path still had hasInsertText=true (because the commit
+    // insertText: was queued), which blocked the layout pass — only "스" was inserted, not "스 ".
+    RetainPtr configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
+    for (_WKFeature *feature in WKPreferences._features) {
+        NSString *key = feature.key;
+        if ([key isEqualToString:@"InputMethodUsesCorrectKeyEventOrder"])
+            [[configuration preferences] _setEnabled:YES forFeature:feature];
+    }
+
+    RetainPtr webView = adoptNS([[TestWebViewWithMockTextInputContext alloc] initWithFrame:NSMakeRect(0, 0, 400, 400) configuration:configuration.get()]);
+
+    // 't': IM inserts "ㅅ", returns handled=YES (composing key).
+    RetainPtr action1 = adoptNS([[MockTextInputContextAction alloc] initWithInsertText:@"ㅅ" replacementRange:NSMakeRange(NSNotFound, 0)]);
+
+    // 'm': IM extends to "스", returns handled=YES (composing key).
+    RetainPtr action2 = adoptNS([[MockTextInputContextAction alloc] initWithInsertText:@"스" replacementRange:NSMakeRange(0, 1)]);
+
+    // ' ': IM commits "스" (replacing the in-progress char), returns handled=NO — the space
+    // itself was not consumed by the IM. The keyboard layout must insert the space.
+    RetainPtr action3 = adoptNS([[MockTextInputContextAction alloc] initWithInsertText:@"스" replacementRange:NSMakeRange(0, 1)]);
+    [action3 setHandledByIM:NO];
+
+    [webView _web_superInputContext].actions = [@[action1.get(), action2.get(), action3.get()].mutableCopy autorelease];
+
+    // collectKeyboardLayoutCommandsForEvent is called for every key whose completion ends with
+    // handled=NO — that includes the forced-to-NO composing keys ('t', 'm') as well as the
+    // naturally-NO commit key (space). The layout action is consumed for each even though the
+    // composing-key results are discarded (imHandled=YES suppresses appending). Three layout
+    // actions are needed: two no-op Korean chars for 't'/'m', then the space for ' '.
+    [webView _web_superInputContext].layoutActions = [@[
+        [[[MockTextInputContextAction alloc] initWithInsertText:@"ㅅ" replacementRange:NSMakeRange(NSNotFound, 0)] autorelease],
+        [[[MockTextInputContextAction alloc] initWithInsertText:@"ㅡ" replacementRange:NSMakeRange(NSNotFound, 0)] autorelease],
+        [[[MockTextInputContextAction alloc] initWithInsertText:@" " replacementRange:NSMakeRange(NSNotFound, 0)] autorelease],
+    ].mutableCopy autorelease];
+
+    [webView synchronouslyLoadHTMLString:@"<input type='text' id='q'>"];
+    [webView stringByEvaluatingJavaScript:@"document.getElementById('q').focus();"];
+    [webView waitForNextPresentationUpdate];
+    [webView removeFromSuperview];
+    [webView typeCharacter:'t'];
+    Util::runFor(1_s);
+    [webView typeCharacter:'m'];
+    Util::runFor(1_s);
+    [webView typeCharacter:' '];
+    Util::runFor(1_s);
+
+    // "스 " — Korean syllable followed by a space. Without the fix only "스" is inserted.
+    EXPECT_STREQ("스 ", [webView stringByEvaluatingJavaScript:@"document.getElementById('q').value"].UTF8String);
 }
 
 TEST(WKWebViewMacEditingTests, ConcurrentInputMethodKeyDownsScopeQueueingPerKey)
