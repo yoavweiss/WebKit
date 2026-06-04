@@ -71,11 +71,11 @@ public:
     std::pair<Vector<Ref<WebFrameProxy>>, Vector<Ref<WebProcessProxy>>> takeForRestoration();
 
     bool referencesIframeProcess(WebCore::ProcessIdentifier) const;
+    HashSet<Ref<WebProcessProxy>> iframeProcesses() const;
 
 private:
     WebBackForwardCacheEntry(WebBackForwardCache&, WebCore::BackForwardItemIdentifier, WebCore::BackForwardFrameItemIdentifier, WebCore::ProcessIdentifier, RefPtr<SuspendedPageProxy>&&);
 
-    HashSet<Ref<WebProcessProxy>> iframeProcesses() const;
     HashSet<Ref<WebProcessProxy>> allProcesses() const;
 
     void expirationTimerFired();

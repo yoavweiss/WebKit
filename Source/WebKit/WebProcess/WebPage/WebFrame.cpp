@@ -341,6 +341,7 @@ FrameTreeNodeData WebFrame::frameTreeData() const
 {
     FrameTreeNodeData data {
         info(),
+        { },
         { }
     };
 

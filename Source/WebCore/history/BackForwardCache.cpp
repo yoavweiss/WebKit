@@ -658,6 +658,17 @@ CachedPage* BackForwardCache::get(HistoryItem& item, Page* page)
     });
 }
 
+CachedPage* BackForwardCache::get(BackForwardFrameItemIdentifier identifier)
+{
+    auto it = m_cachedPageMap.find(identifier);
+    if (it == m_cachedPageMap.end())
+        return nullptr;
+    auto* cachedPage = std::get_if<UniqueRef<CachedPage>>(&it->value);
+    if (!cachedPage || (*cachedPage)->hasExpired())
+        return nullptr;
+    return cachedPage->ptr();
+}
+
 // Notify the LocalFrameLoaderClient before tearing down so the WebKit layer
 // can mirror the eviction to UIProcess (DidEvictBackForwardItem). Only fires
 // for entries that have a bound itemID (set via the addIfCacheable itemID
