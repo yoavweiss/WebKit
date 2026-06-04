@@ -7203,7 +7203,7 @@ void WebPageProxy::getFrameTreesForBackForwardItem(int relativeIndex, Completion
         Vector<FrameTreeNodeData> m_data;
     };
 
-    RefPtr item = backForwardList().itemAtDeltaFromCurrentIndex(relativeIndex);
+    RefPtr item = backForwardListWrapper().itemAtDeltaFromCurrentIndex(relativeIndex);
     RefPtr entry = item ? item->backForwardCacheEntry() : nullptr;
     if (!entry)
         return completionHandler({ });
