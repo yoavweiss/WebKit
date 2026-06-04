@@ -59,7 +59,7 @@ static WKWebProcessPlugInBrowserContextController *globalBrowserContextControlle
     [world allowJSHandleCreation];
 }
 
-static JSValueRef javaScriptFunction(JSContextRef context, JSObjectRef, JSObjectRef thisObject, size_t argumentCount, const JSValueRef arguments[], JSValueRef* exception)
+static JSValueRef javaScriptFunction(JSContextRef context, JSObjectRef, JSObjectRef, size_t argumentCount, const JSValueRef arguments[], JSValueRef*)
 {
     if (argumentCount == 1) {
         JSContext *jsContext = [JSContext contextWithJSGlobalContextRef:JSContextGetGlobalContext(context)];
