@@ -2247,3 +2247,142 @@ TEST(WebpagePreferences, LoadHTMLString)
     [webView loadHTMLString:html baseURL:nil];
     EXPECT_WK_STREQ([webView _test_waitForAlert], "false");
 }
+
+TEST(WebpagePreferences, GlobalPrivacyControlNavigatorAPI)
+{
+    RetainPtr webView = adoptNS([TestWKWebView new]);
+    RetainPtr navigationDelegate = adoptNS([TestNavigationDelegate new]);
+
+    __block BOOL nextNavigationGPC = YES;
+    navigationDelegate.get().decidePolicyForNavigationActionWithPreferences = ^(WKNavigationAction *action, WKWebpagePreferences *preferences, void (^decisionHandler)(WKNavigationActionPolicy, WKWebpagePreferences *)) {
+        [preferences _setGlobalPrivacyControlEnabled:nextNavigationGPC];
+        decisionHandler(WKNavigationActionPolicyAllow, preferences);
+    };
+    [webView setNavigationDelegate:navigationDelegate.get()];
+
+    NSString *html = @"<script>alert(String(navigator.globalPrivacyControl))</script>";
+    [webView loadHTMLString:html baseURL:nil];
+    EXPECT_WK_STREQ([webView _test_waitForAlert], "true");
+
+    nextNavigationGPC = NO;
+    [webView loadHTMLString:html baseURL:nil];
+    EXPECT_WK_STREQ([webView _test_waitForAlert], "false");
+}
+
+TEST(WebpagePreferences, GlobalPrivacyControlRequestHeader)
+{
+    using namespace TestWebKitAPI;
+
+    bool sawMainResourceRequest { false };
+    bool sawSubresourceRequest { false };
+    bool sawNoOverrideRequest { false };
+    HTTPServer server(HTTPServer::UseCoroutines::Yes, [&] (Connection connection) -> ConnectionTask { while (true) {
+        auto request = co_await connection.awaitableReceiveHTTPRequest();
+        auto path = HTTPServer::parsePath(request);
+        bool hasGPCHeader = !!strnstr(request.span().data(), "\r\nSec-GPC: 1\r\n", request.size());
+        if (path == "/main"_s) {
+            EXPECT_TRUE(hasGPCHeader);
+            sawMainResourceRequest = true;
+            co_await connection.awaitableSend(HTTPResponse("<script>fetch('/sub').then(() => {});</script>"_s).serialize());
+            continue;
+        }
+        if (path == "/sub"_s) {
+            EXPECT_TRUE(hasGPCHeader);
+            sawSubresourceRequest = true;
+            co_await connection.awaitableSend(HTTPResponse(""_s).serialize());
+            continue;
+        }
+        if (path == "/no-override"_s) {
+            EXPECT_FALSE(hasGPCHeader);
+            sawNoOverrideRequest = true;
+            co_await connection.awaitableSend(HTTPResponse(""_s).serialize());
+            continue;
+        }
+        EXPECT_FALSE(true);
+    } });
+
+    RetainPtr webView = adoptNS([TestWKWebView new]);
+    RetainPtr delegate = adoptNS([TestNavigationDelegate new]);
+    webView.get().navigationDelegate = delegate.get();
+
+    delegate.get().decidePolicyForNavigationActionWithPreferences = ^(WKNavigationAction *, WKWebpagePreferences *preferences, void (^completionHandler)(WKNavigationActionPolicy, WKWebpagePreferences *)) {
+        [preferences _setGlobalPrivacyControlEnabled:YES];
+        completionHandler(WKNavigationActionPolicyAllow, preferences);
+    };
+    [webView loadRequest:server.requestWithLocalhost("/main"_s)];
+    Util::run(&sawSubresourceRequest);
+    EXPECT_TRUE(sawMainResourceRequest);
+
+    RetainPtr defaultWebView = adoptNS([TestWKWebView new]);
+    [defaultWebView loadRequest:server.requestWithLocalhost("/no-override"_s)];
+    Util::run(&sawNoOverrideRequest);
+}
+
+TEST(WebpagePreferences, GlobalPrivacyControlNavigatorAPIInSubframe)
+{
+    using namespace TestWebKitAPI;
+
+    HTTPServer server({
+        { "/main.html"_s, { "<iframe src='/sub.html'></iframe>"_s } },
+        { "/sub.html"_s, { "<script>alert(String(navigator.globalPrivacyControl))</script>"_s } },
+    }, HTTPServer::Protocol::Http);
+
+    RetainPtr webView = adoptNS([TestWKWebView new]);
+    RetainPtr delegate = adoptNS([TestNavigationDelegate new]);
+    delegate.get().decidePolicyForNavigationActionWithPreferences = ^(WKNavigationAction *action, WKWebpagePreferences *preferences, void (^completionHandler)(WKNavigationActionPolicy, WKWebpagePreferences *)) {
+        if (action.targetFrame.mainFrame)
+            [preferences _setGlobalPrivacyControlEnabled:YES];
+        completionHandler(WKNavigationActionPolicyAllow, preferences);
+    };
+    [webView setNavigationDelegate:delegate.get()];
+
+    [webView loadRequest:server.requestWithLocalhost("/main.html"_s)];
+    EXPECT_WK_STREQ([webView _test_waitForAlert], "true");
+}
+
+TEST(WebpagePreferences, GlobalPrivacyControlRequestHeaderInSubframe)
+{
+    using namespace TestWebKitAPI;
+
+    bool sawMainResourceRequest { false };
+    bool sawSubframeMainResourceRequest { false };
+    bool sawSubframeSubresourceRequest { false };
+    HTTPServer server(HTTPServer::UseCoroutines::Yes, [&] (Connection connection) -> ConnectionTask { while (true) {
+        auto request = co_await connection.awaitableReceiveHTTPRequest();
+        auto path = HTTPServer::parsePath(request);
+        bool hasGPCHeader = !!strnstr(request.span().data(), "\r\nSec-GPC: 1\r\n", request.size());
+        if (path == "/main"_s) {
+            EXPECT_TRUE(hasGPCHeader);
+            sawMainResourceRequest = true;
+            co_await connection.awaitableSend(HTTPResponse("<iframe src='/subframe'></iframe>"_s).serialize());
+            continue;
+        }
+        if (path == "/subframe"_s) {
+            EXPECT_TRUE(hasGPCHeader);
+            sawSubframeMainResourceRequest = true;
+            co_await connection.awaitableSend(HTTPResponse("<script>fetch('/subframe-subresource').then(() => {});</script>"_s).serialize());
+            continue;
+        }
+        if (path == "/subframe-subresource"_s) {
+            EXPECT_TRUE(hasGPCHeader);
+            sawSubframeSubresourceRequest = true;
+            co_await connection.awaitableSend(HTTPResponse(""_s).serialize());
+            continue;
+        }
+        EXPECT_FALSE(true);
+    } });
+
+    RetainPtr webView = adoptNS([TestWKWebView new]);
+    RetainPtr delegate = adoptNS([TestNavigationDelegate new]);
+    webView.get().navigationDelegate = delegate.get();
+
+    delegate.get().decidePolicyForNavigationActionWithPreferences = ^(WKNavigationAction *action, WKWebpagePreferences *preferences, void (^completionHandler)(WKNavigationActionPolicy, WKWebpagePreferences *)) {
+        if (action.targetFrame.mainFrame)
+            [preferences _setGlobalPrivacyControlEnabled:YES];
+        completionHandler(WKNavigationActionPolicyAllow, preferences);
+    };
+    [webView loadRequest:server.requestWithLocalhost("/main"_s)];
+    Util::run(&sawSubframeSubresourceRequest);
+    EXPECT_TRUE(sawMainResourceRequest);
+    EXPECT_TRUE(sawSubframeMainResourceRequest);
+}

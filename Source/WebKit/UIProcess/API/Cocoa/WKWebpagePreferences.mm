@@ -555,6 +555,16 @@ ALLOW_DEPRECATED_IMPLEMENTATIONS_END
     return _websitePolicies->allowPrivacyProxy();
 }
 
+- (void)_setGlobalPrivacyControlEnabled:(BOOL)enabled
+{
+    _websitePolicies->setGlobalPrivacyControlEnabled(enabled);
+}
+
+- (BOOL)_globalPrivacyControlEnabled
+{
+    return protect(*_websitePolicies)->globalPrivacyControlEnabled().value_or(false);
+}
+
 - (_WKWebsiteColorSchemePreference)_colorSchemePreference
 {
     switch (_websitePolicies->colorSchemePreference()) {
