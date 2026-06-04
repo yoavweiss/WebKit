@@ -1301,7 +1301,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		5325BDDE21DFF4F800A0DEE1 /* Run Sublaunch Script */ = {
+		5325BDDE21DFF4F800A0DEE1 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1310,7 +1310,6 @@
 			);
 			inputPaths = (
 			);
-			name = "Run Sublaunch Script";
 			outputFileListPaths = (
 			);
 			outputPaths = (

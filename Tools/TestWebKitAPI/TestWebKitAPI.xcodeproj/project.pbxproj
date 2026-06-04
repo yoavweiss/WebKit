@@ -2244,9 +2244,8 @@
 				"",
 			);
 		};
-		537CF84722EFD65000C6EBB3 /* Run Sublaunch Script */ = {
+		537CF84722EFD65000C6EBB3 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
-			name = "Run Sublaunch Script";
 			shellPath = /bin/sh;
 			shellScript = (
 				"eval \"${WK_SUBLAUNCH_SCRIPT_PARAMETERS[@]}\"",
@@ -2268,7 +2267,7 @@
 				"",
 			);
 		};
-		5C9D921C22D7DA33008E9266 /* Generate Unified Sources */ = {
+		5C9D921C22D7DA33008E9266 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			inputPaths = (
 				"$(SRCROOT)/Scripts/generate-unified-sources.sh",
@@ -2276,7 +2275,6 @@
 				"$(SRCROOT)/SourcesCocoa.txt",
 				"$(BUILT_PRODUCTS_DIR)/usr/local/include/wtf/Scripts/generate-unified-source-bundles.py",
 			);
-			name = "Generate Unified Sources";
 			outputFileListPaths = (
 				"$(SRCROOT)/UnifiedSources-output.xcfilelist",
 			);

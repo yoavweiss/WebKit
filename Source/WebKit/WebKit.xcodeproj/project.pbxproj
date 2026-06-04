@@ -20735,14 +20735,12 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
-				"$(SRCROOT)/Scripts/update-info-plist-for-runningboard.sh",
 				"$(BUILT_PRODUCTS_DIR)/$(INFOPLIST_PATH)",
 			);
 			name = "Update Info.plist for RunningBoard management";
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(BUILT_PRODUCTS_DIR)/$(INFOPLIST_PATH)",
 				"$(DERIVED_FILE_DIR)/update-info-plist-for-runningboard.stamp",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -20757,14 +20755,12 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
-				"$(SRCROOT)/Scripts/update-info-plist-for-runningboard.sh",
 				"$(BUILT_PRODUCTS_DIR)/$(INFOPLIST_PATH)",
 			);
 			name = "Update Info.plist for RunningBoard management";
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(BUILT_PRODUCTS_DIR)/$(INFOPLIST_PATH)",
 				"$(DERIVED_FILE_DIR)/update-info-plist-for-runningboard.stamp",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -20779,14 +20775,12 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
-				"$(SRCROOT)/Scripts/update-info-plist-for-runningboard.sh",
 				"$(BUILT_PRODUCTS_DIR)/$(INFOPLIST_PATH)",
 			);
 			name = "Update Info.plist for RunningBoard management";
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(BUILT_PRODUCTS_DIR)/$(INFOPLIST_PATH)",
 				"$(DERIVED_FILE_DIR)/update-info-plist-for-runningboard.stamp",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -20801,14 +20795,12 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
-				"$(SRCROOT)/Scripts/update-info-plist-for-runningboard.sh",
 				"$(BUILT_PRODUCTS_DIR)/$(INFOPLIST_PATH)",
 			);
 			name = "Update Info.plist for RunningBoard management";
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(BUILT_PRODUCTS_DIR)/$(INFOPLIST_PATH)",
 				"$(DERIVED_FILE_DIR)/update-info-plist-for-runningboard.stamp",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -20821,7 +20813,6 @@
 			files = (
 			);
 			inputPaths = (
-				"$(SRCROOT)/Scripts/copy-webcontent-resources-to-private-headers.sh",
 				"$(WK_PROCESSED_XCENT_FILE)",
 				"$(BUILT_PRODUCTS_DIR)/$(INFOPLIST_PATH)",
 				"$(SRCROOT)/Resources/WebContentProcess.xib",
@@ -20996,14 +20987,12 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
-				"$(SRCROOT)/Scripts/update-info-plist-for-runningboard.sh",
 				"$(BUILT_PRODUCTS_DIR)/$(INFOPLIST_PATH)",
 			);
 			name = "Update Info.plist for RunningBoard management";
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(BUILT_PRODUCTS_DIR)/$(INFOPLIST_PATH)",
 				"$(DERIVED_FILE_DIR)/update-info-plist-for-runningboard.stamp",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
