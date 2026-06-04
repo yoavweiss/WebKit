@@ -2180,6 +2180,8 @@ bool RenderGrid::isSubgrid(Style::GridTrackSizingDirection direction) const
     // https://drafts.csswg.org/css-grid-2/#subgrid-listing
     if (establishesIndependentFormattingContextIgnoringDisplayType(style()))
         return false;
+    if (isExcludedFromNormalLayout())
+        return false;
     if (!style().gridTemplateList(direction).subgrid)
         return false;
     auto* renderGrid = dynamicDowncast<RenderGrid>(parent());
