@@ -294,7 +294,7 @@ void ProvisionalPageProxy::initializeWebPage(RefPtr<API::WebsitePolicies>&& webs
             websitePolicies ? std::optional(websitePolicies->dataForProcess(process)) : std::nullopt
         };
         creationParameters.provisionalFrameCreationParameters = mainFrame->provisionalFrameCreationParameters(
-            page->mainFrame() ? std::optional(page->mainFrame()->frameID()) : std::nullopt,
+            page->mainFrame() && !m_shouldReuseMainFrame ? std::optional(page->mainFrame()->frameID()) : std::nullopt,
             std::nullopt,
             m_request.url().isAboutBlank() ? CommitTiming::Immediately : CommitTiming::WaitForLoad
         );
