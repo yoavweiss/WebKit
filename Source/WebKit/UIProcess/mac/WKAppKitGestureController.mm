@@ -1517,6 +1517,10 @@ static inline bool isSamePair(NSGestureRecognizer *a, NSGestureRecognizer *b, NS
 
 @end
 
+#if __has_include(<WebKitAdditions/WKAppKitGestureControllerAdditionsAfter.mm>)
+#import <WebKitAdditions/WKAppKitGestureControllerAdditionsAfter.mm>
+#endif
+
 #undef WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG
 
 #endif // HAVE(APPKIT_GESTURES_SUPPORT)
