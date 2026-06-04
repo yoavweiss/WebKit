@@ -742,6 +742,79 @@ TEST(WKWebViewMacEditingTests, ModelessInputMethodStagingReportsPostKeystrokeCur
     }
 }
 
+TEST(WKWebViewMacEditingTests, ModelessInputMethodStagingToleratesExternalSetMarkedText)
+{
+    // Simulates the 3-keystroke Korean 2-Set (\ub450\ubc8c\uc2dd) sequence that inserts "\uc15b" (\u3145+\u3155+\u3137):
+    //   't' \u2192 insertText:"\u3145"
+    //   'u' \u2192 insertText:"\uc154" replacementRange:(0,1)      [replaces \u3145 with \u3145+\u3155=\uc154]
+    //   'e' \u2192 setMarkedText:"\uc15b" selectedRange:{0,1} replacementRange:{0,1}
+    //         (simulates an inline prediction or Touch Bar setMarkedText firing while the Korean
+    //          IME's handleEventByInputMethod: XPC is in flight)
+    //
+    // The poll after 'e''s setMarkedText exercises the bug path. Because no composition exists in
+    // the web process yet (modeless insertText was used for the first two keys), compositionRange.location
+    // is notFound (SIZE_MAX). The original code computed:
+    //   compositionRange.location + stagedSelectedRange.location = SIZE_MAX + 0 \u2192 overflow \u2192 NSNotFound
+    // The Korean 2-Set IME interprets NSNotFound as "can't determine cursor" and abandons modeless
+    // mode; the sequence then produces "\uc154\u3137" instead of "\uc15b" in Mail (where _markedTextInputEnabled=YES
+    // enables inline predictions that trigger the spurious setMarkedText).
+    //
+    // Fix: when compositionRange.location is notFound, fall through to the unstaged cursor
+    // (editingRangeResult), preventing the overflow and returning the correct cursor position (1).
+    RetainPtr configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
+    for (_WKFeature *feature in WKPreferences._features) {
+        NSString *key = feature.key;
+        if ([key isEqualToString:@"InputMethodUsesCorrectKeyEventOrder"])
+            [[configuration preferences] _setEnabled:YES forFeature:feature];
+    }
+
+    RetainPtr webView = adoptNS([[TestWebViewWithMockTextInputContext alloc] initWithFrame:NSMakeRect(0, 0, 400, 400) configuration:configuration.get()]);
+
+    // Key 1 ('t' \u2192 \u3145): insertText:"\u3145" with no replacement.
+    RetainPtr action1 = adoptNS([[MockTextInputContextAction alloc] initWithInsertText:@"\u3145" replacementRange:NSMakeRange(NSNotFound, 0)]);
+
+    // Key 2 ('u' \u2192 \uc154): insertText:"\uc154" replacing the committed "\u3145" at position (0,1).
+    // pollSelectedRange verifies the staged cursor advance is correct (1, not 2).
+    RetainPtr action2 = adoptNS([[MockTextInputContextAction alloc] initWithInsertText:@"\uc154" replacementRange:NSMakeRange(0, 1)]);
+    [action2 setPollSelectedRangeAfterAction:YES];
+
+    // Key 3 ('e'): an external setMarkedText fires (simulating inline predictions landing while
+    // m_collectedKeypressCommands is non-empty for this keydown). pollSelectedRange fires after
+    // the setMarkedText is queued. At that point compositionRange.location is notFound because the
+    // web process still has no composition \u2014 only committed "\uc154" from the modeless insertText.
+    // The fix returns editingRangeResult (1), NOT SIZE_MAX + 0 (overflow).
+    RetainPtr action3 = adoptNS([[MockTextInputContextAction alloc] initWithMarkedText:@"\uc15b" selectedRange:NSMakeRange(0, 1) replacementRange:NSMakeRange(0, 1)]);
+    [action3 setPollSelectedRangeAfterAction:YES];
+
+    [webView _web_superInputContext].actions = [@[action1.get(), action2.get(), action3.get()].mutableCopy autorelease];
+    [webView _web_superInputContext].polledSelectedRanges = [NSMutableArray array];
+
+    [webView synchronouslyLoadHTMLString:@"<input type='text' id='q'>"];
+    [webView stringByEvaluatingJavaScript:@"document.getElementById('q').focus();"];
+    [webView waitForNextPresentationUpdate];
+    [webView removeFromSuperview];
+    [webView typeCharacter:'t'];
+    Util::runFor(1_s);
+    [webView typeCharacter:'u'];
+    Util::runFor(1_s);
+    [webView typeCharacter:'e'];
+    Util::runFor(1_s);
+
+    NSArray<NSValue *> *ranges = [webView _web_superInputContext].polledSelectedRanges;
+    EXPECT_EQ(2u, ranges.count);
+    if (ranges.count >= 1) {
+        EXPECT_EQ(1u, [ranges[0] rangeValue].location);
+        EXPECT_EQ(0u, [ranges[0] rangeValue].length);
+    }
+    if (ranges.count >= 2) {
+        // Without the overflow fix: compositionRange.location (SIZE_MAX) + stagedSelectedRange.location (0)
+        // = SIZE_MAX, which is NSNotFound \u2014 the Korean IME interprets this as "unknown cursor" and
+        // abandons modeless mode. With the fix, the code falls through to editingRangeResult = 1.
+        EXPECT_EQ(1u, [ranges[1] rangeValue].location);
+        EXPECT_EQ(0u, [ranges[1] rangeValue].length);
+    }
+}
+
 TEST(WKWebViewMacEditingTests, ConcurrentInputMethodKeyDownsScopeQueueingPerKey)
 {
     RetainPtr configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
