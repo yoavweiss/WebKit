@@ -1418,6 +1418,15 @@ window.UIHelper = class UIHelper {
         return new Promise(resolve => testRunner.runUIScript(script, resolve));
     }
 
+    static insertAutofillSuggestion(username, password) {
+        const escapedUsername = JSON.stringify(String(username));
+        const escapedPassword = JSON.stringify(String(password));
+        const script = `uiController.insertAutofillSuggestion(${escapedUsername}, ${escapedPassword}, () => {
+            uiController.uiScriptComplete("");
+        });`;
+        return new Promise(resolve => testRunner.runUIScript(script, resolve));
+    }
+
     static isShowingDataListSuggestions()
     {
         return new Promise(resolve => {
