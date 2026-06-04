@@ -85,6 +85,11 @@ TemporalZonedDateTime::TemporalZonedDateTime(VM& vm, Structure* structure, ISO86
 {
 }
 
+void TemporalZonedDateTime::destroy(JSCell* cell)
+{
+    SUPPRESS_MEMORY_UNSAFE_CAST static_cast<TemporalZonedDateTime*>(cell)->TemporalZonedDateTime::~TemporalZonedDateTime();
+}
+
 // https://tc39.es/proposal-temporal/#sec-temporal-getoffsetnanosecondsfor
 std::optional<int64_t> TemporalZonedDateTime::getOffsetNanoseconds(JSGlobalObject* globalObject) const
 {
