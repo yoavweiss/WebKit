@@ -3083,7 +3083,7 @@ template<typename SizeType> LayoutUnit RenderBox::computeLogicalWidthUsingGeneri
         logicalWidthResult = std::min(logicalWidthResult, shrinkLogicalWidthToAvoidFloats(marginStart, marginEnd, containingBlock));
 
     if constexpr (std::same_as<SizeType, Style::PreferredSize> || std::same_as<SizeType, Style::FlexBasis>) {
-        if (sizesPreferredLogicalWidthToFitContent())
+        if (sizesLogicalWidthToFitContent())
             return std::max(minContentLogicalWidthContribution(), std::min(maxContentLogicalWidthContribution(), logicalWidthResult));
     }
     return logicalWidthResult;
@@ -3120,7 +3120,7 @@ bool RenderBox::isStretchingColumnFlexItem() const
     return false;
 }
 
-bool RenderBox::sizesPreferredLogicalWidthToFitContent() const
+bool RenderBox::sizesLogicalWidthToFitContent() const
 {
     // Marquees in WinIE are like a mixture of blocks and inline-blocks.  They size as though they're blocks,
     // but they allow text to sit on the same line as the marquee.
@@ -4000,12 +4000,6 @@ std::optional<LayoutUnit> RenderBox::computePercentageLogicalHeight(const Style:
     return computePercentageLogicalHeightGeneric(logicalHeight, updateDescendants);
 }
 
-bool RenderBox::shouldComputePreferredLogicalWidthsFromStyle() const
-{
-    auto fixedLogicalWidth = overridingLogicalWidthForFlexBasisComputation().value_or(style().logicalWidth()).tryFixed();
-    return fixedLogicalWidth && fixedLogicalWidth->isPositiveOrZero() && !(isDeprecatedFlexItem() && !static_cast<int>(fixedLogicalWidth->resolveZoom(style().usedZoomForLength())));
-}
-
 void RenderBox::computeIntrinsicLogicalWidthContributions()
 {
     ASSERT(hasInvalidContentLogicalWidths());
@@ -4025,7 +4019,12 @@ void RenderBox::constrainIntrinsicLogicalWidthsByMinMax(LayoutUnit& minIntrinsic
             return adjustContentBoxLogicalWidthForBoxSizing(*fixedMaxLogicalWidth);
 
         if (maxLogicalWidth.isMinContent()) {
-            if (!shouldComputePreferredLogicalWidthsFromStyle())
+            // max-width: min-content normally resolves to the content-based min-content size,
+            // but a box with its own fixed inline width derives the size from that width instead.
+            // (A zero-width deprecated flex item still flexes, so its 0 is not a usable fixed width.)
+            auto fixedLogicalWidth = overridingLogicalWidthForFlexBasisComputation().value_or(style().logicalWidth()).tryFixed();
+            bool hasFixedLogicalWidth = fixedLogicalWidth && fixedLogicalWidth->isPositiveOrZero() && !(isDeprecatedFlexItem() && !static_cast<int>(fixedLogicalWidth->resolveZoom(style().usedZoomForLength())));
+            if (!hasFixedLogicalWidth)
                 return minIntrinsicLogicalWidth;
 
             return computeSizingKeywordLogicalWidthUsing(maxLogicalWidth, contentBoxLogicalWidth(), { });

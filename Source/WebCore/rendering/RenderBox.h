@@ -402,7 +402,7 @@ public:
 
     // Whether or not the element shrinks to its intrinsic width (rather than filling the width
     // of a containing block).  HTML4 buttons, <select>s, <input>s, legends, and floating/compact elements do this.
-    bool sizesPreferredLogicalWidthToFitContent() const;
+    bool sizesLogicalWidthToFitContent() const;
 
     inline bool hasStretchedLogicalHeight(StretchingMode = StretchingMode::Normal) const;
     inline bool hasStretchedLogicalWidth(StretchingMode = StretchingMode::Normal) const;
@@ -767,7 +767,6 @@ private:
     // These values are used in shrink-to-fit layout systems.
     // These include tables, positioned objects, floats and flexible boxes.
     virtual void computeIntrinsicLogicalWidthContributions();
-    bool NODELETE shouldComputePreferredLogicalWidthsFromStyle() const;
 
     LayoutRect frameRectForStickyPositioning() const override { return frameRect(); }
 

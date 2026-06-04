@@ -525,7 +525,7 @@ std::optional<ScrollbarUpdateScope> RenderBlock::updateScrollInfoAfterLayout()
 
 void RenderBlock::relayoutRenderBlockForScrollbarChange(RenderBlock& block)
 {
-    if (block.sizesPreferredLogicalWidthToFitContent())
+    if (block.sizesLogicalWidthToFitContent())
         block.invalidateContentLogicalWidths();
     block.setNeedsLayout(MarkingBehavior::MarkOnlyThis);
     auto scope = LayoutScope { block, InOverflowRelayout::Yes };
@@ -554,7 +554,7 @@ static EnumSet<LogicalBoxAxis> sizesAffectedByScrollbarsForSubtreeRoot(const Ren
 
     auto& style = renderBlock.style();
     auto& computedLogicalWidth = style.logicalWidth();
-    if (!computedLogicalWidth.isFixed() && (computedLogicalWidth.isIntrinsic() || computedLogicalWidth.isMinIntrinsic() || renderBlock.sizesPreferredLogicalWidthToFitContent()))
+    if (!computedLogicalWidth.isFixed() && (computedLogicalWidth.isIntrinsic() || computedLogicalWidth.isMinIntrinsic() || renderBlock.sizesLogicalWidthToFitContent()))
         sizesAffected.add(LogicalBoxAxis::Inline);
 
     auto& computedLogicalHeight = style.logicalHeight();
