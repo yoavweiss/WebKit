@@ -25,12 +25,12 @@
 
 #import "config.h"
 
-#import "HTTPServer.h"
-#import "PlatformUtilities.h"
-#import "TestNavigationDelegate.h"
-#import "TestUIDelegate.h"
-#import "TestWKWebView.h"
-#import "Utilities.h"
+#import "Helpers/PlatformUtilities.h"
+#import "Helpers/Utilities.h"
+#import "Helpers/cocoa/HTTPServer.h"
+#import "Helpers/cocoa/TestNavigationDelegate.h"
+#import "Helpers/cocoa/TestUIDelegate.h"
+#import "Helpers/cocoa/TestWKWebView.h"
 #import <WebKit/WKPreferencesPrivate.h>
 #import <WebKit/WKProcessPoolPrivate.h>
 #import <WebKit/WKWebViewPrivate.h>
