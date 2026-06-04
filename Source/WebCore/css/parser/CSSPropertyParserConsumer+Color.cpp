@@ -567,13 +567,6 @@ static std::optional<CSS::ColorMix::Component> consumeColorMixComponent(CSSParse
     };
 }
 
-static bool NODELETE hasNonCalculatedZeroPercentage(const CSS::ColorMix::Component& mixComponent)
-{
-    if (auto percentage = mixComponent.percentage)
-        return percentage->isKnownZero();
-    return false;
-}
-
 static std::optional<CSS::Color> consumeColorMixFunction(CSSParserTokenRange& range, ColorParserState& state)
 {
     // color-mix() = color-mix( <color-interpolation-method>? , [ <color> && <percentage [0,100]>? ]# )
@@ -603,13 +596,6 @@ static std::optional<CSS::Color> consumeColorMixFunction(CSSParserTokenRange& ra
 
     if (!args.atEnd())
         return std::nullopt;
-
-    if (std::ranges::all_of(components, hasNonCalculatedZeroPercentage)) {
-        // This eagerly marks the parse as invalid if all percentage components are non-calc
-        // and equal to 0. This doesn't seem to be required by the spec, but is currently
-        // required by WPT. See https://github.com/w3c/csswg-drafts/issues/13996.
-        return std::nullopt;
-    }
 
     return CSS::Color {
         CSS::ColorMix {

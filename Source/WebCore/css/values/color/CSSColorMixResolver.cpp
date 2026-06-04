@@ -100,23 +100,42 @@ static NormalizedColorMixComponents normalizedMixPercentages(const Vector<ColorM
     return { WTF::move(normalizedComponents), leftover };
 }
 
-template<typename InterpolationMethod> static WebCore::Color mixColorComponentsUsingColorInterpolationMethod(InterpolationMethod interpolationMethod, double progress, const WebCore::Color& color1, const WebCore::Color& color2)
+template<typename InterpolationMethod>
+static WebCore::Color mixColorComponentsUsingColorInterpolationMethod(InterpolationMethod interpolationMethod, double progress, const WebCore::Color& color1, const WebCore::Color& color2)
 {
     using ColorType = typename InterpolationMethod::ColorType;
 
-    // 1. Both colors are converted to the specified <color-space>. If the specified color space has a smaller gamut than
-    //    the one in which the color to be adjusted is specified, gamut mapping will occur.
     auto convertedColor1 = color1.template toColorTypeLossyCarryingForwardMissing<ColorType>();
     auto convertedColor2 = color2.template toColorTypeLossyCarryingForwardMissing<ColorType>();
 
-    // 2. Colors are then interpolated in the specified color space, as described in CSS Color 4 § 13 Interpolation. [...]
     auto mixedColor = interpolateColorComponents<AlphaPremultiplication::Premultiplied>(interpolationMethod, convertedColor1, 1.0 - progress, convertedColor2, progress).unresolved();
 
+    // `UseColorFunctionSerialization` is set unconditionally due to `color-mix()` serialization
+    // always using the modern serialization formats.
     auto flags = OptionSet { WebCore::Color::Flags::UseColorFunctionSerialization };
     if (color1.isSemantic() || color2.isSemantic())
         flags.add(WebCore::Color::Flags::Semantic);
 
     return { mixedColor, flags };
+}
+
+static WebCore::Color convertToColorMixResultRepresentation(const ColorInterpolationMethod& method, const WebCore::Color& color)
+{
+    return WTF::switchOn(method.colorSpace,
+        [&]<typename MethodColorSpace>(const MethodColorSpace&) -> WebCore::Color {
+            using ColorType = typename MethodColorSpace::ColorType;
+
+            auto convertedColor = color.template toColorTypeLossyCarryingForwardMissing<ColorType>();
+
+            // `UseColorFunctionSerialization` is set unconditionally due to `color-mix()` serialization
+            // always using the modern serialization formats.
+            auto flags = OptionSet { WebCore::Color::Flags::UseColorFunctionSerialization };
+            if (color.isSemantic())
+                flags.add(WebCore::Color::Flags::Semantic);
+
+            return { convertedColor, flags };
+        }
+    );
 }
 
 WebCore::Color mix(const ColorMixResolver& colorMix)
@@ -130,7 +149,7 @@ WebCore::Color mix(const ColorMixResolver& colorMix)
     // 2. If leftover is 100%, return transparent black, converted to the specified interpolation <color-space>.
 
     if (leftover == 100)
-        return WebCore::Color::transparentBlack;
+        return convertToColorMixResultRepresentation(colorMix.colorInterpolationMethod, WebCore::Color::transparentBlack);
 
     // 3. Let alpha mult be 1 - leftover, interpreting leftover as a number between 0 and 1.
     // NOTE: Not calculated until it is used below.
@@ -138,7 +157,7 @@ WebCore::Color mix(const ColorMixResolver& colorMix)
     auto color = [&] -> WebCore::Color {
         // 4. If items is length 1, set color to the color of that sole item, converted to the specified interpolation <color-space>.
         if (items.size() == 1)
-            return items[0].color;
+            return convertToColorMixResultRepresentation(colorMix.colorInterpolationMethod, items[0].color);
 
         // Otherwise:
         //
