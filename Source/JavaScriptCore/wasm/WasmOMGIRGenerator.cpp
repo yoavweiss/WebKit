@@ -1971,6 +1971,8 @@ auto OMGIRGenerator::emitIndirectCall(Value* calleeInstance, Value* calleeCode, 
         unsigned patchArgsIndex = patchpoint->reps().size();
         patchpoint->append(calleeCode, ValueRep(GPRInfo::nonPreservedNonArgumentGPR0));
         patchpoint->append(calleeInstance, ValueRep::SomeRegister);
+        // Cross-instance setup below reloads pinned registers before the tail-call shuffle consumes late inputs.
+        patchpoint->clobberLate(RegisterSet::wasmPinnedRegisters());
         // emitRestoreInstanceFrameIfNeeded needs two scratches. wasmBaseMemoryPointer is
         // always pinned so B3 won't allocate it. wasmBoundsCheckingSizeRegister
         // is only pinned in BoundsChecking mode, so in Signaling mode we need B3 to give us a
