@@ -82,6 +82,12 @@ public:
     void didCreateBackend(std::optional<ImageBufferBackendHandle>);
 
     RemoteGraphicsContextIdentifier contextIdentifier() const { return m_context.identifier(); }
+
+    // Sends single-line strokes that have been buffered on the proxy's graphics
+    // context into the IPC stream. Call before any cross-buffer read of this
+    // image buffer (drawImageBuffer source, clipToImageBuffer source, etc.) so
+    // the GPU process sees the up-to-date contents.
+    void sendPendingDrawsIfNecessary() const { m_context.sendPendingDrawsIfNecessary(); }
 private:
     RemoteImageBufferProxy(Parameters, const WebCore::ImageBufferBackend::Info&, RemoteRenderingBackendProxy&);
 

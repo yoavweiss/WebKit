@@ -141,7 +141,7 @@ public:
     void strokeRect(const WebCore::FloatRect&, float lineWidth);
 #if ENABLE(INLINE_PATH_DATA)
     void strokeLine(const WebCore::PathDataLine&);
-    void strokeLineWithColorAndThickness(const WebCore::PathDataLine&, std::optional<WebCore::PackedColor::RGBA> strokeColor, std::optional<float> strokeThickness);
+    void strokeLinesWithColorAndThickness(std::span<const WebCore::PathDataLineColorThickness>);
     void strokeArc(const WebCore::PathArc&);
     void strokeClosedArc(const WebCore::PathClosedArc&);
     void strokeQuadCurve(const WebCore::PathDataQuadCurve&);

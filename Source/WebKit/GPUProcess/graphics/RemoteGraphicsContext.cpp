@@ -648,13 +648,24 @@ void RemoteGraphicsContext::strokeLine(const PathDataLine& line)
     context().strokeLine(line);
 }
 
-void RemoteGraphicsContext::strokeLineWithColorAndThickness(const PathDataLine& line, std::optional<PackedColor::RGBA> strokeColor, std::optional<float> strokeThickness)
+void RemoteGraphicsContext::strokeLinesWithColorAndThickness(std::span<const PathDataLineColorThickness> lines)
 {
-    if (strokeColor)
-        setStrokePackedColor(*strokeColor);
-    if (strokeThickness)
-        setStrokeThickness(*strokeThickness);
-    strokeLine(line);
+    // Each line carries its stroke color and thickness so the batch is self
+    // describing; only push a state change to the context when it differs from
+    // the previously applied value to avoid redundant CG state changes.
+    std::optional<PackedColor::RGBA> lastColor;
+    std::optional<float> lastThickness;
+    for (const auto& entry : lines) {
+        if (lastColor != entry.color) {
+            setStrokePackedColor(entry.color);
+            lastColor = entry.color;
+        }
+        if (lastThickness != entry.thickness) {
+            setStrokeThickness(std::max(entry.thickness, 0.f));
+            lastThickness = entry.thickness;
+        }
+        context().strokeLine(entry.line);
+    }
 }
 
 void RemoteGraphicsContext::strokeArc(const PathArc& arc)

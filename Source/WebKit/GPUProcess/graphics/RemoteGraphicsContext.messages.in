@@ -115,7 +115,7 @@ messages -> RemoteGraphicsContext Stream {
     StrokeRect(WebCore::FloatRect rect, float lineWidth)
 #if ENABLE(INLINE_PATH_DATA)
     StrokeLine(struct WebCore::PathDataLine line) StreamBatched
-    StrokeLineWithColorAndThickness(struct WebCore::PathDataLine line, std::optional<WebCore::PackedColor::RGBA> strokeColor, std::optional<float> strokeThickness) StreamBatched
+    StrokeLinesWithColorAndThickness(std::span<const WebCore::PathDataLineColorThickness> lines) StreamBatched
     StrokeArc(struct WebCore::PathArc arc) StreamBatched
     StrokeClosedArc(struct WebCore::PathClosedArc closedArc) StreamBatched
     StrokeQuadCurve(struct WebCore::PathDataQuadCurve curve) StreamBatched
