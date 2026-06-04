@@ -5552,6 +5552,12 @@ bool Internals::isPlayerPaused(const HTMLMediaElement& element) const
     return player && player->paused();
 }
 
+double Internals::effectiveRate(const HTMLMediaElement& element) const
+{
+    RefPtr player = element.player();
+    return player ? player->effectiveRate() : 0.0;
+}
+
 void Internals::forceStereoDecoding(HTMLMediaElement& element)
 {
     element.forceStereoDecoding();

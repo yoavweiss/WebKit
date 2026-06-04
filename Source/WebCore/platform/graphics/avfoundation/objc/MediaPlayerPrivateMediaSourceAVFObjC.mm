@@ -668,6 +668,9 @@ void MediaPlayerPrivateMediaSourceAVFObjC::completeSeek(const MediaTime& seekedT
 
     if (hasVideo())
         setHasAvailableVideoFrame(true);
+
+    // Apply any state transition deferred by updateStateFromReadyState() while seeking.
+    updateStateFromReadyState();
 }
 
 bool MediaPlayerPrivateMediaSourceAVFObjC::seeking() const
@@ -1187,6 +1190,9 @@ void MediaPlayerPrivateMediaSourceAVFObjC::setReadyState(MediaPlayer::ReadyState
 void MediaPlayerPrivateMediaSourceAVFObjC::updateStateFromReadyState()
 {
     assertIsMainThread();
+    // Seek owns renderer rate and event sequencing from prepareToSeek through completeSeek.
+    if (seeking())
+        return;
     if (shouldBePlaying()) {
         dispatchToRendererQueue([](auto& renderer) {
             renderer.play();
