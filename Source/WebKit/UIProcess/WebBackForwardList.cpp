@@ -300,7 +300,11 @@ RefPtr<WebBackForwardListItem> WebBackForwardList::forwardItem() const
 
 RefPtr<WebBackForwardListItem> WebBackForwardList::itemAtDeltaFromCurrentIndex(int delta, AllowSkippingBackForwardItems allowSkippingBackForwardItems) const
 {
-    if (!m_currentIndex || (int)*m_currentIndex + delta < 0)
+    if (!m_currentIndex)
+        return nullptr;
+
+    // Do range checks without doing math on delta to avoid overflow.
+    if (delta < 0 && -static_cast<unsigned>(delta) > *m_currentIndex)
         return nullptr;
 
     // API requests to get the current item will always get the current item without any skipping logic.
@@ -897,8 +901,10 @@ void WebBackForwardList::backForwardAllItems(FrameIdentifier frameID, Completion
     }));
 }
 
-void WebBackForwardList::backForwardItemAtIndexForWebContent(int32_t delta, FrameIdentifier frameID, CompletionHandler<void(RefPtr<FrameState>&&)>&& completionHandler)
+void WebBackForwardList::backForwardItemAtIndexForWebContent(IPC::Connection& connection, int32_t delta, FrameIdentifier frameID, CompletionHandler<void(RefPtr<FrameState>&&)>&& completionHandler)
 {
+    MESSAGE_CHECK_COMPLETION_BASE(delta != std::numeric_limits<int32_t>::min(), connection, completionHandler(nullptr));
+
     // FIXME: This should verify that the web process requesting the item hosts the specified frame.
     if (RefPtr item = itemAtDeltaFromCurrentIndex(delta, AllowSkippingBackForwardItems::No)) {
         if (RefPtr frameItem = item->mainFrameItem().childItemForFrameID(frameID))
