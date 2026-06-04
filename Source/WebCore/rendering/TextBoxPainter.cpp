@@ -1403,7 +1403,12 @@ void TextBoxPainter::paintPlatformDocumentMarker(const MarkedText& markedText)
     bounds.moveBy(m_paintRect.location());
 
 #if ENABLE(WRITING_TOOLS)
-    if (markedText.type == MarkedText::Type::WritingToolsTextSuggestion) {
+#if ENABLE(SIMPLIFIED_SUGGESTION_UNDERLINE)
+    constexpr static bool useSimplifiedSuggestionUnderline = true;
+#else
+    constexpr static bool useSimplifiedSuggestionUnderline = false;
+#endif
+    if (!useSimplifiedSuggestionUnderline && markedText.type == MarkedText::Type::WritingToolsTextSuggestion) {
         drawWritingToolsUnderline(m_paintInfo.context(), bounds,  m_renderer->frame().view()->size());
         return;
     }
@@ -1416,6 +1421,9 @@ void TextBoxPainter::paintPlatformDocumentMarker(const MarkedText& markedText)
         case MarkedText::Type::GrammarError:
             return DocumentMarkerLineStyleMode::Grammar;
         case MarkedText::Type::Correction:
+#if ENABLE(WRITING_TOOLS)
+        case MarkedText::Type::WritingToolsTextSuggestion:
+#endif
             return DocumentMarkerLineStyleMode::AutocorrectionReplacement;
         case MarkedText::Type::DictationAlternatives:
             return DocumentMarkerLineStyleMode::DictationAlternatives;
