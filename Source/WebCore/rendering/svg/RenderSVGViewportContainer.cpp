@@ -130,8 +130,6 @@ inline AffineTransform viewBoxToViewTransform(const SVGSVGElement& svgSVGElement
 
 void RenderSVGViewportContainer::updateLayerTransform()
 {
-    ASSERT(hasLayer());
-
     // First update the supplemental layer transform.
     Ref useSVGSVGElement = svgSVGElement();
     auto viewportSize = this->viewportSize();
@@ -144,8 +142,23 @@ void RenderSVGViewportContainer::updateLayerTransform()
             m_supplementalLayerTransform.translate(translation);
 
         // Handle zoom - take effective zoom from outermost <svg> element.
-        if (auto scale = useSVGSVGElement->renderer()->style().usedZoom(); scale != 1) {
-            m_supplementalLayerTransform.scale(scale);
+        CheckedRef svgRoot = downcast<RenderSVGRoot>(*useSVGSVGElement->renderer());
+        if (auto scale = svgRoot->style().usedZoom(); scale != 1) {
+            // The outermost viewport container is positioned at the content box origin
+            // (border + padding offset from the SVG root's border box). In paintLayerByApplyingTransform(),
+            // the layer's positional offset is applied via translateRight AFTER the supplemental transform.
+            // Without compensation, the zoom scale would be applied to this positional offset, causing
+            // the SVG content to be shifted by (zoom - 1) * contentBoxOffset. Wrap the scale with
+            // compensating translations to prevent the positional offset from being scaled.
+            auto contentBoxOffset = svgRoot->contentBoxLocation();
+            if (!contentBoxOffset.isZero()) {
+                auto cbx = contentBoxOffset.x().toFloat();
+                auto cby = contentBoxOffset.y().toFloat();
+                m_supplementalLayerTransform.translate(cbx, cby);
+                m_supplementalLayerTransform.scale(scale);
+                m_supplementalLayerTransform.translate(-cbx, -cby);
+            } else
+                m_supplementalLayerTransform.scale(scale);
             viewportSize.scale(1.0 / scale);
         }
     } else if (!m_viewport.location().isZero())
