@@ -6539,14 +6539,14 @@ static void logTextInteraction(const char* methodName, UIGestureRecognizer *loup
     Ref page = *_page;
     if (RetainPtr autoFillSuggestion = dynamic_objc_cast<UITextAutofillSuggestion>(textSuggestion)) {
         // Maintain binary compatibility with UITextAutofillSuggestion, even when using the ServiceExtensions text input.
-        page->autofillLoginCredentials([autoFillSuggestion username], [autoFillSuggestion password]);
+        page->autofillLoginCredentials(_focusedElementInformation.frameID(), [autoFillSuggestion username], [autoFillSuggestion password]);
         return;
     }
 
 #if USE(BROWSERENGINEKIT)
     if (RetainPtr autoFillSuggestion = dynamic_objc_cast<BEAutoFillTextSuggestion>(textSuggestion)) {
         RetainPtr contents = [autoFillSuggestion contents];
-        page->autofillLoginCredentials([contents objectForKey:UITextContentTypeUsername], [contents objectForKey:UITextContentTypePassword]);
+        page->autofillLoginCredentials(_focusedElementInformation.frameID(), [contents objectForKey:UITextContentTypeUsername], [contents objectForKey:UITextContentTypePassword]);
         return;
     }
 #endif

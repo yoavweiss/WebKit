@@ -1022,12 +1022,12 @@ void WebPageProxy::didReleaseAllTouchPoints()
     m_pendingInputModeChange = std::nullopt;
 }
 
-void WebPageProxy::autofillLoginCredentials(const String& username, const String& password)
+void WebPageProxy::autofillLoginCredentials(std::optional<WebCore::FrameIdentifier> frameID, const String& username, const String& password)
 {
 #if HAVE(WEB_AUTHN_AS_MODERN)
     protect(m_webAuthnCredentialsMessenger)->recordAutofill(username, URL { currentURL() });
 #endif
-    protect(m_legacyMainFrameProcess)->send(Messages::WebPage::AutofillLoginCredentials(username, password), webPageIDInMainFrameProcess());
+    sendToProcessContainingFrame(frameID, Messages::WebPage::AutofillLoginCredentials(username, password));
 }
 
 void WebPageProxy::showInspectorHighlight(const WebCore::InspectorOverlay::Highlight& highlight)
