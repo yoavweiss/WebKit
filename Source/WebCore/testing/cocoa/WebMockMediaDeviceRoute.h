@@ -27,6 +27,9 @@
 
 #if ENABLE(WIRELESS_PLAYBACK_MEDIA_PLAYER)
 
+// FIXME: rdar://178753306
+ALLOW_DEPRECATED_DECLARATIONS_BEGIN
+
 #import <WebKitAdditions/WebMockMediaDeviceRouteAdditions.h>
 
 typedef NS_ENUM(NSInteger, WebMockMediaDeviceRouteErrorCode) {
@@ -52,5 +55,7 @@ extern NSErrorDomain const WebMockMediaDeviceRouteErrorDomain;
 @end
 
 NS_ASSUME_NONNULL_END
+
+ALLOW_DEPRECATED_DECLARATIONS_END
 
 #endif // ENABLE(WIRELESS_PLAYBACK_MEDIA_PLAYER)
