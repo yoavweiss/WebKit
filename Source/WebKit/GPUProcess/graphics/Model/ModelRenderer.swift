@@ -95,8 +95,6 @@ final class Renderer {
             return
         }
 
-        let time = CACurrentMediaTime()
-
         let aspect = Float(texture.width) / Float(texture.height)
         let d = effectiveCameraDistance
         let projection = LowLevelRenderer.Camera.Projection.perspective(

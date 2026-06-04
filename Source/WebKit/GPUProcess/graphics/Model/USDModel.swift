@@ -934,7 +934,7 @@ extension WKBridgeReceiver {
                         var deferredMeshUpdate = DeferredMeshUpdate(identifier: identifier, type: .newMesh, updatedInstances: [])
 
                         let skinMatrices = meshData.deformationData?.skinningData.map { rootSkinMatrices($0) } ?? []
-                        for (partIndex, part) in meshData.parts.enumerated() {
+                        for part in meshData.parts {
                             if part.materialIndex >= meshData.assignedMaterials.count {
                                 fatalError(
                                     "index out of range: material index \(part.materialIndex) while only \(meshData.assignedMaterials.count) were found"

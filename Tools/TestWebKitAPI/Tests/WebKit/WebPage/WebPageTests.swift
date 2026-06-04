@@ -72,15 +72,6 @@ struct WebPageTests {
     func observableProperties() async throws {
         let page = WebPage()
 
-        let html = """
-            <html>
-            <head>
-                <title>Title</title>
-            </head>
-            <body></body>
-            </html>
-            """
-
         #expect(page.url == nil)
         #expect(page.title == "")
         #expect(!page.isLoading)
