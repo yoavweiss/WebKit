@@ -129,6 +129,10 @@ static std::optional<std::pair<PlatformMediaSession::RemoteControlCommandType, P
         argument.fastSeek = actionDetails.fastSeek;
         break;
     case MediaSessionAction::Settrack:
+    case MediaSessionAction::Hangup:
+    case MediaSessionAction::Previousslide:
+    case MediaSessionAction::Nextslide:
+    case MediaSessionAction::Enterpictureinpicture:
         // Not supported at present.
         break;
     case MediaSessionAction::Togglecamera:
@@ -296,6 +300,9 @@ ExceptionOr<void> MediaSession::setActionHandler(MediaSessionAction action, RefP
         document->setShouldListenToVoiceActivity(!!handler);
 #endif
 
+    if (RefPtr document = this->document(); document && !document->settings().mediaSessionExtendedActionsEnabled() && (action == MediaSessionAction::Hangup || action == MediaSessionAction::Previousslide || action == MediaSessionAction::Nextslide || action == MediaSessionAction::Enterpictureinpicture))
+        return Exception { ExceptionCode::TypeError, makeString("Argument 1 ('action') to MediaSession.setActionHandler must be a value other than '"_s, convertEnumerationToString(action), "'"_s) };
+
     RefPtr sessionManager = this->sessionManager();
     if (!sessionManager)
         ERROR_LOG(LOGIDENTIFIER, "NULL session manager");
@@ -334,6 +341,11 @@ ExceptionOr<void> MediaSession::setActionHandler(MediaSessionAction action, RefP
 void MediaSession::callActionHandler(const MediaSessionActionDetails& actionDetails, DOMPromiseDeferred<void>&& promise)
 {
     ALWAYS_LOG(LOGIDENTIFIER);
+
+    if (RefPtr document = this->document(); document && !document->settings().mediaSessionExtendedActionsEnabled() && (actionDetails.action == MediaSessionAction::Hangup || actionDetails.action == MediaSessionAction::Previousslide || actionDetails.action == MediaSessionAction::Nextslide || actionDetails.action == MediaSessionAction::Enterpictureinpicture)) {
+        promise.reject(ExceptionCode::TypeError);
+        return;
+    }
 
     if (!callActionHandler(actionDetails, TriggerGestureIndicator::No)) {
         promise.reject(ExceptionCode::InvalidStateError);

@@ -5410,6 +5410,20 @@ MediaSessionEnabled:
       default: true
   sharedPreferenceForWebProcess: true
 
+MediaSessionExtendedActionsEnabled:
+  type: bool
+  status: testable
+  category: media
+  humanReadableName: "MediaSession extended actions"
+  humanReadableDescription: "Enable MediaSession hangup, previousslide, nextslide, and enterpictureinpicture actions"
+  defaultValue:
+    WebKitLegacy:
+      default: false
+    WebKit:
+      default: false
+    WebCore:
+      default: false
+
 MediaSessionPlaylistEnabled:
   type: bool
   status: mature
