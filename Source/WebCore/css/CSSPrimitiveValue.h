@@ -33,7 +33,6 @@ namespace WebCore {
 class CSSToLengthConversionData;
 class DeprecatedCSSOMPrimitiveValue;
 class FontCascade;
-class RenderStyle;
 class RenderView;
 
 template<typename> class ExceptionOr;

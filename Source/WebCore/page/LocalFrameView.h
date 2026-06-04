@@ -67,7 +67,6 @@ class RenderLayerModelObject;
 class RenderObject;
 class RenderReplaced;
 class RenderScrollbarPart;
-class RenderStyle;
 class RenderView;
 class RenderWidget;
 class ScrollingCoordinator;
@@ -85,7 +84,11 @@ enum class StyleColorOptions : uint8_t;
 enum class TemporarySelectionOption : uint16_t;
 enum class TiledBackingScrollability : uint8_t;
 
-Pagination::Mode NODELETE paginationModeForRenderStyle(const RenderStyle&);
+namespace Style {
+class ComputedStyle;
+}
+
+Pagination::Mode NODELETE paginationModeForRenderStyle(const Style::ComputedStyle&);
 
 enum class LayoutViewportConstraint : bool { Unconstrained, ConstrainedToDocumentRect };
 

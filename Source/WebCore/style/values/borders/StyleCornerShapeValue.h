@@ -27,10 +27,6 @@
 #include <WebCore/StylePrimitiveNumericTypes.h>
 
 namespace WebCore {
-
-class CSSValue;
-class RenderStyle;
-
 namespace Style {
 
 // NOTE: the keyword value "infinity" is represented as the standard double value `std::numeric_limits<double>::infinity()`.

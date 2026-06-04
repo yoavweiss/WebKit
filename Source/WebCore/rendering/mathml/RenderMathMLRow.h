@@ -38,7 +38,7 @@ class RenderMathMLRow : public RenderMathMLBlock {
     WTF_MAKE_TZONE_ALLOCATED(RenderMathMLRow);
     WTF_OVERRIDE_DELETE_FOR_CHECKED_PTR(RenderMathMLRow);
 public:
-    RenderMathMLRow(Type, MathMLRowElement&, RenderStyle&&);
+    RenderMathMLRow(Type, MathMLRowElement&, Style::ComputedStyle&&);
     MathMLRowElement& NODELETE element() const;
     virtual ~RenderMathMLRow();
 

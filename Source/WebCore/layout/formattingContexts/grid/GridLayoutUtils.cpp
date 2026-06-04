@@ -30,10 +30,10 @@
 #include "LayoutIntegrationUtils.h"
 #include "NotImplemented.h"
 #include "PlacedGridItem.h"
-#include "RenderStyle+GettersInlines.h"
+#include "StyleComputedStyle+GettersInlines.h"
+#include "StylePrimitiveNumericTypes+Evaluation.h"
 #include "TrackSizingAlgorithm.h"
 #include "TrackSizingFunctions.h"
-#include <style/values/primitives/StylePrimitiveNumericTypes+Evaluation.h>
 #include <wtf/Range.h>
 
 namespace WebCore {

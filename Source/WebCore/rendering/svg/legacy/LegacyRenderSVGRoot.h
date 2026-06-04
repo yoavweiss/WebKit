@@ -37,7 +37,7 @@ class LegacyRenderSVGRoot final : public RenderReplaced {
     WTF_MAKE_TZONE_ALLOCATED(LegacyRenderSVGRoot);
     WTF_OVERRIDE_DELETE_FOR_CHECKED_PTR(LegacyRenderSVGRoot);
 public:
-    LegacyRenderSVGRoot(SVGSVGElement&, RenderStyle&&);
+    LegacyRenderSVGRoot(SVGSVGElement&, Style::ComputedStyle&&);
     virtual ~LegacyRenderSVGRoot();
 
     SVGSVGElement& NODELETE svgSVGElement() const;
@@ -89,7 +89,7 @@ private:
     void insertedIntoTree() override;
     void willBeRemovedFromTree() override;
 
-    void styleDidChange(Style::Difference, const RenderStyle* oldStyle) override;
+    void styleDidChange(Style::Difference, const Style::ComputedStyle* oldStyle) override;
 
     const AffineTransform& localToParentTransform() const LIFETIME_BOUND override;
 

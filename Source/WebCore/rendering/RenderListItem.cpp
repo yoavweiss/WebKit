@@ -36,9 +36,9 @@
 #include "RenderBoxModelObjectInlines.h"
 #include "RenderElementStyleInlines.h"
 #include "RenderObjectInlines.h"
-#include "RenderStyle+SettersInlines.h"
 #include "RenderTreeBuilder.h"
 #include "RenderView.h"
+#include "StyleComputedStyle+SettersInlines.h"
 #include "UnicodeBidi.h"
 #include <wtf/StackStats.h>
 #include <wtf/StdLibExtras.h>
@@ -50,7 +50,7 @@ using namespace HTMLNames;
 
 WTF_MAKE_TZONE_ALLOCATED_IMPL(RenderListItem);
 
-RenderListItem::RenderListItem(Element& element, RenderStyle&& style)
+RenderListItem::RenderListItem(Element& element, Style::ComputedStyle&& style)
     : RenderBlockFlow(Type::ListItem, element, WTF::move(style))
 {
     ASSERT(isRenderListItem());
@@ -63,16 +63,16 @@ RenderListItem::~RenderListItem()
     ASSERT(!m_marker);
 }
 
-RenderStyle RenderListItem::computeMarkerStyle() const
+Style::ComputedStyle RenderListItem::computeMarkerStyle() const
 {
     if (!is<PseudoElement>(element())) {
         if (auto markerStyle = style().pseudoElementStyle({ PseudoElementType::Marker }))
-            return RenderStyle::clone(*markerStyle);
+            return Style::ComputedStyle::clone(*markerStyle);
     }
 
     // The marker always inherits from the list item, regardless of where it might end
     // up (e.g., in some deeply nested line box). See CSS3 spec.
-    auto markerStyle = RenderStyle::create();
+    auto markerStyle = Style::ComputedStyle::create();
     markerStyle.inheritFrom(style());
 
     // In the case of a ::before or ::after pseudo-element, we manually apply the properties
@@ -287,7 +287,7 @@ void RenderListItem::updateValue()
         m_marker->setNeedsLayoutAndInvalidateContentLogicalWidths();
 }
 
-void RenderListItem::styleDidChange(Style::Difference diff, const RenderStyle* oldStyle)
+void RenderListItem::styleDidChange(Style::Difference diff, const Style::ComputedStyle* oldStyle)
 {
     RenderBlockFlow::styleDidChange(diff, oldStyle);
 

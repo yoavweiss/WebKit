@@ -100,7 +100,6 @@
 #include "RemoteFrame.h"
 #include "RenderLayerCompositor.h"
 #include "RenderObjectInlines.h"
-#include "RenderStyle+GettersInlines.h"
 #include "RenderTableCell.h"
 #include "RenderText.h"
 #include "RenderTextControl.h"
@@ -117,6 +116,7 @@
 #include "SecurityOrigin.h"
 #include "ServiceWorkerGlobalScope.h"
 #include "Settings.h"
+#include "StyleComputedStyle+GettersInlines.h"
 #include "StyleProperties.h"
 #include "StyleScope.h"
 #include "TextNodeTraversal.h"
@@ -1110,7 +1110,7 @@ void LocalFrame::setPageAndTextZoomFactors(float pageZoomFactor, float textZoomF
     m_pageZoomFactor = pageZoomFactor;
     m_textZoomFactor = textZoomFactor;
 
-    // The RenderStyle cached on Document for initial value fallback must be invalidated on
+    // The Style::ComputedStyle cached on Document for initial value fallback must be invalidated on
     // text zoom changes to ensure default font sizes are updated appropriately.
     document->invalidateCachedInitialStyle();
 
@@ -1523,7 +1523,7 @@ void LocalFrame::applyResourceMonitorErrorToIFrameElement(HTMLIFrameElement& ifr
 
 #if ENABLE(DARK_MODE_CSS)
     if (CheckedPtr style = iframeElement.existingComputedStyle())
-        colorScheme = iframeElement.document().resolvedColorScheme(&style->computedStyle());
+        colorScheme = iframeElement.document().resolvedColorScheme(style);
 #endif
 
     iframeElement.setSrcdoc(generateResourceMonitorErrorHTML(colorScheme), SubstituteData::SessionHistoryVisibility::Hidden);
@@ -1628,7 +1628,7 @@ void LocalFrame::showMemoryMonitorError()
 
 #if ENABLE(DARK_MODE_CSS)
     if (CheckedPtr style = iframeElement->existingComputedStyle())
-        colorScheme = document->resolvedColorScheme(&style->computedStyle());
+        colorScheme = document->resolvedColorScheme(style);
 #endif
 
     iframeElement->setSrcdoc(generateFrameMemoryMonitorErrorHTML(colorScheme), SubstituteData::SessionHistoryVisibility::Hidden);

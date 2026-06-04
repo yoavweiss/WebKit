@@ -31,7 +31,7 @@
 
 #import "AXObjectCacheInlines.h"
 #import "FontCascadeInlines.h"
-#import "RenderStyle+GettersInlines.h"
+#import "StyleComputedStyle+GettersInlines.h"
 #import "StyleShadow.h"
 #import "StyleVerticalAlign.h"
 #import "TextIterator.h"
@@ -192,17 +192,17 @@ RetainPtr<NSAttributedString> AccessibilityObject::attributedStringForRange(cons
     return result;
 }
 
-RetainPtr<CTFontRef> fontFrom(const RenderStyle& style)
+RetainPtr<CTFontRef> fontFrom(const Style::ComputedStyle& style)
 {
     return style.fontCascade().primaryFont().ctFont();
 }
 
-Color textColorFrom(const RenderStyle& style)
+Color textColorFrom(const Style::ComputedStyle& style)
 {
     return style.visitedDependentColor();
 }
 
-Color backgroundColorFrom(const RenderStyle& style)
+Color backgroundColorFrom(const Style::ComputedStyle& style)
 {
     return style.visitedDependentBackgroundColor();
 }
@@ -217,7 +217,7 @@ RetainPtr<CTFontRef> AccessibilityObject::font() const
 FontOrientation AccessibilityObject::fontOrientation() const
 {
     if (CheckedPtr style = this->style())
-        return const_cast<RenderStyle*>(style.get())->fontAndGlyphOrientation().first;
+        return const_cast<Style::ComputedStyle*>(style.get())->fontAndGlyphOrientation().first;
     return FontOrientation::Horizontal;
 }
 #endif

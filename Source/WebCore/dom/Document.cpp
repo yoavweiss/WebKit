@@ -259,7 +259,6 @@
 #include "RenderLayoutState.h"
 #include "RenderLineBreak.h"
 #include "RenderObjectInlines.h"
-#include "RenderStyle+SettersInlines.h"
 #include "RenderTreeUpdater.h"
 #include "RenderView.h"
 #include "RenderWidgetInlines.h"
@@ -317,6 +316,7 @@
 #include "StyleAdjuster.h"
 #include "StyleColorOptions.h"
 #include "StyleColorScheme.h"
+#include "StyleComputedStyle+SettersInlines.h"
 #include "StyleFontSizeFunctions.h"
 #include "StyleOriginatedTimelinesController.h"
 #include "StylePrimitiveNumericTypes+Evaluation.h"
@@ -2838,7 +2838,7 @@ void Document::resolveStyle(ResolveStyleType type)
 
             auto documentChanges = m_initialContainingBlockStyle ? Style::determineChanges(newStyle, *m_initialContainingBlockStyle) : Style::Change::Renderer;
             if (documentChanges) {
-                m_initialContainingBlockStyle = RenderStyle::clonePtr(newStyle);
+                m_initialContainingBlockStyle = Style::ComputedStyle::clonePtr(newStyle);
                 // The used style may end up differing from the computed style due to propagation of properties from elements.
                 renderView()->setStyle(WTF::move(newStyle));
             }
@@ -3162,14 +3162,14 @@ auto Document::updateLayout(OptionSet<LayoutOptions> layoutOptions, const Elemen
     return result;
 }
 
-std::unique_ptr<RenderStyle> Document::styleForElementIgnoringPendingStylesheets(Element& element, const RenderStyle* parentStyleArg, const std::optional<Style::PseudoElementIdentifier>& pseudoElementIdentifier)
+std::unique_ptr<Style::ComputedStyle> Document::styleForElementIgnoringPendingStylesheets(Element& element, const Style::ComputedStyle* parentStyleArg, const std::optional<Style::PseudoElementIdentifier>& pseudoElementIdentifier)
 {
     ASSERT(&element.document() == this);
     ASSERT(!element.isPseudoElement() || !pseudoElementIdentifier);
     ASSERT(!pseudoElementIdentifier || parentStyleArg);
     ASSERT(Style::postResolutionCallbacksAreSuspended());
 
-    std::optional<RenderStyle> updatedDocumentStyle;
+    std::optional<Style::ComputedStyle> updatedDocumentStyle;
     CheckedPtr parentStyle = parentStyleArg;
     if (!parentStyle && m_needsFullStyleRebuild && hasLivingRenderTree()) {
         updatedDocumentStyle.emplace(Style::resolveForDocument(*this));
@@ -3363,7 +3363,7 @@ bool Document::updateLayoutIfDimensionsOutOfDate(Element& element, OptionSet<Dim
 bool Document::isPageBoxVisible(int pageIndex)
 {
     updateStyleIfNeeded();
-    std::unique_ptr<RenderStyle> pageStyle(styleScope().resolver().styleForPage(pageIndex));
+    std::unique_ptr<Style::ComputedStyle> pageStyle(styleScope().resolver().styleForPage(pageIndex));
     return pageStyle->usedVisibility() != Visibility::Hidden; // display property doesn't apply to @page.
 }
 
@@ -3442,7 +3442,7 @@ void Document::createRenderTree()
         return;
 
     // FIXME: It would be better if we could pass the resolved document style directly here.
-    m_renderView = createRenderer<RenderView>(*this, RenderStyle::create());
+    m_renderView = createRenderer<RenderView>(*this, Style::ComputedStyle::create());
     auto* renderView = m_renderView.get();
     Node::setRenderer(renderView);
 
@@ -9608,14 +9608,14 @@ Element* eventTargetElementForDocument(Document* document)
 // get(Bounding)ClientRect APIs now returns scaled (=zoomed) rect.
 // The zoom argument will be used to divide the rect, returning an unzoomed rect if passed.
 // https://drafts.csswg.org/css-viewport/#zoom-om
-std::optional<float> Document::zoomForClient(const RenderStyle& style) const
+std::optional<float> Document::zoomForClient(const Style::ComputedStyle& style) const
 {
     if (!settings().getBoundingClientRectZoomedEnabled())
         return style.usedZoom();
     return { };
 }
 
-void Document::convertAbsoluteToClientQuads(Vector<FloatQuad>& quads, const RenderStyle& style)
+void Document::convertAbsoluteToClientQuads(Vector<FloatQuad>& quads, const Style::ComputedStyle& style)
 {
     RefPtr frameView = view();
     if (!frameView)
@@ -9632,7 +9632,7 @@ void Document::convertAbsoluteToClientQuads(Vector<FloatQuad>& quads, const Rend
     }
 }
 
-void Document::convertAbsoluteToClientRects(Vector<FloatRect>& rects, const RenderStyle& style)
+void Document::convertAbsoluteToClientRects(Vector<FloatRect>& rects, const Style::ComputedStyle& style)
 {
     RefPtr frameView = view();
     if (!frameView)
@@ -9649,7 +9649,7 @@ void Document::convertAbsoluteToClientRects(Vector<FloatRect>& rects, const Rend
     }
 }
 
-void Document::convertAbsoluteToClientRect(FloatRect& rect, const RenderStyle& style)
+void Document::convertAbsoluteToClientRect(FloatRect& rect, const Style::ComputedStyle& style)
 {
     RefPtr frameView = view();
     if (!frameView)
@@ -9934,11 +9934,6 @@ OptionSet<ColorScheme> Document::resolvedColorScheme(const Style::ComputedStyle*
 }
 #endif
 
-bool Document::useDarkAppearance(const RenderStyle* style) const
-{
-    return useDarkAppearance(style ? &style->computedStyle() : static_cast<const Style::ComputedStyle*>(nullptr));
-}
-
 bool Document::useDarkAppearance([[maybe_unused]] const Style::ComputedStyle* style) const
 {
 #if ENABLE(DARK_MODE_CSS)
@@ -9976,11 +9971,6 @@ bool Document::useElevatedUserInterfaceLevel() const
     if (auto* documentPage = page())
         return documentPage->useElevatedUserInterfaceLevel();
     return false;
-}
-
-OptionSet<StyleColorOptions> Document::styleColorOptions(const RenderStyle* style) const
-{
-    return styleColorOptions(style ? &style->computedStyle() : static_cast<const Style::ComputedStyle*>(nullptr));
 }
 
 OptionSet<StyleColorOptions> Document::styleColorOptions(const Style::ComputedStyle* style) const
@@ -11385,7 +11375,7 @@ CSSCounterStyleRegistry& Document::counterStyleRegistry()
     return styleScope().counterStyleRegistry();
 }
 
-const RenderStyle& Document::initialStyle() const
+const Style::ComputedStyle& Document::initialStyle() const
 {
     if (!m_cachedInitialStyle) {
         float zoom = 1;
@@ -11395,7 +11385,7 @@ const RenderStyle& Document::initialStyle() const
             zoomForFontDescription = zoom * frame->textZoomFactor();
         }
 
-        m_cachedInitialStyle = RenderStyle::createPtr();
+        m_cachedInitialStyle = Style::ComputedStyle::createPtr();
 
         m_cachedInitialStyle->setZoom(zoom);
         m_cachedInitialStyle->setEvaluationTimeZoomEnabled(settings().evaluationTimeZoomEnabled());

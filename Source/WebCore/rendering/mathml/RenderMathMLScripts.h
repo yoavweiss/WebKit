@@ -39,7 +39,7 @@ class RenderMathMLScripts : public RenderMathMLRow {
     WTF_MAKE_TZONE_ALLOCATED(RenderMathMLScripts);
     WTF_OVERRIDE_DELETE_FOR_CHECKED_PTR(RenderMathMLScripts);
 public:
-    RenderMathMLScripts(Type, MathMLScriptsElement&, RenderStyle&&);
+    RenderMathMLScripts(Type, MathMLScriptsElement&, Style::ComputedStyle&&);
     virtual ~RenderMathMLScripts();
 
     RenderMathMLOperator* unembellishedOperator() const final;

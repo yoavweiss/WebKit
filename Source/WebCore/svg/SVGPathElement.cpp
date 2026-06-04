@@ -28,7 +28,6 @@
 #include "LegacyRenderSVGResource.h"
 #include "MutableStyleProperties.h"
 #include "RenderSVGPath.h"
-#include "RenderStyle+GettersInlines.h"
 #include "SVGDocumentExtensions.h"
 #include "SVGElementTypeHelpers.h"
 #include "SVGMPathElement.h"
@@ -36,6 +35,7 @@
 #include "SVGPathUtilities.h"
 #include "SVGPoint.h"
 #include "Settings.h"
+#include "StyleComputedStyle+GettersInlines.h"
 #include <wtf/TZoneMallocInlines.h>
 #include <wtf/text/MakeString.h>
 
@@ -228,7 +228,7 @@ FloatRect SVGPathElement::getBBox(StyleUpdateStrategy styleUpdateStrategy)
     return { };
 }
 
-RenderPtr<RenderElement> SVGPathElement::createElementRenderer(RenderStyle&& style, const RenderTreePosition&)
+RenderPtr<RenderElement> SVGPathElement::createElementRenderer(Style::ComputedStyle&& style, const RenderTreePosition&)
 {
     if (document().settings().layerBasedSVGEngineEnabled())
         return createRenderer<RenderSVGPath>(*this, WTF::move(style));

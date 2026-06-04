@@ -31,7 +31,7 @@
 #include "JSDOMConvertObject.h"
 #include "JSDOMConvertSequences.h"
 #include "JSDOMConvertStrings.h"
-#include "RenderStyle.h"
+#include "StyleComputedStyle.h"
 
 namespace WebCore {
 

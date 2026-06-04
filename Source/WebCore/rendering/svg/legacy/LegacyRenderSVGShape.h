@@ -58,7 +58,7 @@ public:
         GlobalCoordinateSpace,
         LocalCoordinateSpace
     };
-    LegacyRenderSVGShape(Type, SVGGraphicsElement&, RenderStyle&&);
+    LegacyRenderSVGShape(Type, SVGGraphicsElement&, Style::ComputedStyle&&);
     virtual ~LegacyRenderSVGShape();
 
     inline SVGGraphicsElement& graphicsElement() const;
@@ -138,9 +138,9 @@ private:
     
     std::unique_ptr<Path> createPath() const;
 
-    void fillShape(const RenderStyle&, GraphicsContext&);
-    void strokeShapeInternal(const RenderStyle&, GraphicsContext&);
-    void strokeShape(const RenderStyle&, GraphicsContext&);
+    void fillShape(const Style::ComputedStyle&, GraphicsContext&);
+    void strokeShapeInternal(const Style::ComputedStyle&, GraphicsContext&);
+    void strokeShape(const Style::ComputedStyle&, GraphicsContext&);
     void fillStrokeMarkers(PaintInfo&);
 
     virtual void drawMarkers(PaintInfo&) { }

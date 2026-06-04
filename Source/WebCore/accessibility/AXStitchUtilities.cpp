@@ -35,8 +35,7 @@
 #include "HTMLTableCellElement.h"
 #include "RenderElementInlines.h"
 #include "RenderObjectStyle.h"
-#include "RenderStyle.h"
-#include "RenderStyle+GettersInlines.h"
+#include "StyleComputedStyle+GettersInlines.h"
 #include <wtf/Scope.h>
 
 namespace WebCore {

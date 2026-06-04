@@ -127,12 +127,12 @@ Ref<HTMLVideoElement> HTMLVideoElement::create(Document& document)
     return create(videoTag, document, false);
 }
 
-bool HTMLVideoElement::rendererIsNeeded(const RenderStyle& style)
+bool HTMLVideoElement::rendererIsNeeded(const Style::ComputedStyle& style)
 {
     return HTMLElement::rendererIsNeeded(style); 
 }
 
-RenderPtr<RenderElement> HTMLVideoElement::createElementRenderer(RenderStyle&& style, const RenderTreePosition&)
+RenderPtr<RenderElement> HTMLVideoElement::createElementRenderer(Style::ComputedStyle&& style, const RenderTreePosition&)
 {
     return createRenderer<RenderVideo>(*this, WTF::move(style));
 }

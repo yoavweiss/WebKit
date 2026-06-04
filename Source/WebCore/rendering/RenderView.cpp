@@ -64,13 +64,13 @@
 #include "RenderMultiColumnSpannerPlaceholder.h"
 #include "RenderQuote.h"
 #include "RenderSVGRoot.h"
-#include "RenderStyle+GettersInlines.h"
 #include "RenderTreeBuilder.h"
 #include "RenderWidget.h"
 #include "SVGElementTypeHelpers.h"
 #include "SVGImage.h"
 #include "SVGSVGElement.h"
 #include "Settings.h"
+#include "StyleComputedStyle+GettersInlines.h"
 #include "StyleScope.h"
 #include "TransformState.h"
 #include <wtf/SetForScope.h>
@@ -81,10 +81,10 @@ namespace WebCore {
 
 WTF_MAKE_TZONE_ALLOCATED_IMPL(RenderView);
 
-RenderView::RenderView(Document& document, RenderStyle&& style)
+RenderView::RenderView(Document& document, Style::ComputedStyle&& style)
     : RenderBlockFlow(Type::View, document, WTF::move(style))
     , m_frameView(*document.view())
-    , m_initialContainingBlock(makeUniqueRef<Layout::InitialContainingBlock>(RenderStyle::clone(this->style())))
+    , m_initialContainingBlock(makeUniqueRef<Layout::InitialContainingBlock>(Style::ComputedStyle::clone(this->style())))
     , m_layoutState(makeUniqueRef<Layout::LayoutState>(document, m_initialContainingBlock, Layout::LayoutState::Type::Primary, LayoutIntegration::layoutWithFormattingContextForBox, LayoutIntegration::formattingContextRootLogicalWidthForType, LayoutIntegration::formattingContextRootLogicalHeightForType, LayoutIntegration::layoutWithFormattingContextForBlockInInline))
     , m_selection(*this)
 {
@@ -115,7 +115,7 @@ void RenderView::willBeDestroyed()
     RenderBlockFlow::willBeDestroyed();
 }
 
-void RenderView::styleDidChange(Style::Difference diff, const RenderStyle* oldStyle)
+void RenderView::styleDidChange(Style::Difference diff, const Style::ComputedStyle* oldStyle)
 {
     RenderBlockFlow::styleDidChange(diff, oldStyle);
 
@@ -166,7 +166,7 @@ LayoutUnit RenderView::availableLogicalHeight(AvailableLogicalHeightType) const
     return isHorizontalWritingMode() ? frameView->layoutSize().height() : frameView->layoutSize().width();
 }
 
-bool RenderView::isChildAllowed(const RenderObject& child, const RenderStyle&) const
+bool RenderView::isChildAllowed(const RenderObject& child, const Style::ComputedStyle&) const
 {
     return child.isRenderBox();
 }

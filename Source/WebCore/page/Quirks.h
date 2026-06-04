@@ -50,13 +50,16 @@ class Node;
 class NodeList;
 class PlatformMouseEvent;
 class ResourceRequest;
-class RenderStyle;
 class SecurityOriginData;
 class WeakPtrImplWithEventTargetData;
 
 enum class IsSyntheticClick : bool;
 enum class StorageAccessWasGranted : uint8_t;
 enum class UserAgentType;
+
+namespace Style {
+class ComputedStyle;
+}
 
 class Quirks {
     WTF_MAKE_TZONE_ALLOCATED(Quirks);
@@ -291,7 +294,7 @@ public:
     WEBCORE_EXPORT bool needsPointerTouchCompatibility(const Element&) const;
     WEBCORE_EXPORT bool shouldHideSoftTopScrollEdgeEffectDuringFocus(const Element&) const;
 
-    bool needsClaudeSidebarViewportUnitQuirk(Element&, const RenderStyle&) const;
+    bool needsClaudeSidebarViewportUnitQuirk(Element&, const Style::ComputedStyle&) const;
     WEBCORE_EXPORT bool needsHideSelectionDuringOverflowScrollQuirk() const;
     bool needsChromeOSNavigatorUserAgentQuirk(const Document&) const;
 #endif
@@ -306,7 +309,7 @@ public:
 
     bool shouldReuseLiveRangeForSelectionUpdate() const;
 
-    bool NODELETE needsFacebookStoriesCreationFormQuirk(const Element&, const RenderStyle&) const;
+    bool NODELETE needsFacebookStoriesCreationFormQuirk(const Element&, const Style::ComputedStyle&) const;
 
     bool needsLimitedMatroskaSupport() const;
 
@@ -316,9 +319,9 @@ public:
     WEBCORE_EXPORT bool needsNowPlayingFullscreenSwapQuirk() const;
 
     enum class TikTokOverflowingContentQuirkType : bool { VideoSectionQuirk, CommentsSectionQuirk };
-    std::optional<TikTokOverflowingContentQuirkType> needsTikTokOverflowingContentQuirk(const Element&, const RenderStyle& parentStyle) const;
+    std::optional<TikTokOverflowingContentQuirkType> needsTikTokOverflowingContentQuirk(const Element&, const Style::ComputedStyle& parentStyle) const;
 
-    bool needsInstagramResizingReelsQuirk(const Element&, const RenderStyle& elementStyle, const RenderStyle& parentStyle) const;
+    bool needsInstagramResizingReelsQuirk(const Element&, const Style::ComputedStyle& elementStyle, const Style::ComputedStyle& parentStyle) const;
 
     bool needsWebKitMediaTextTrackDisplayQuirk() const;
 

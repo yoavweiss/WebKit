@@ -34,7 +34,7 @@
 #include "LayoutContext.h"
 #include "LayoutInitialContainingBlock.h"
 #include "PlacedFloats.h"
-#include "RenderStyle+GettersInlines.h"
+#include "StyleComputedStyle+GettersInlines.h"
 #include "TableFormattingConstraints.h"
 #include "TableFormattingState.h"
 #include <wtf/TZoneMallocInlines.h>

@@ -183,7 +183,7 @@ bool FileInputType::allowsShowPickerAcrossFrames()
     return true;
 }
 
-RenderPtr<RenderElement> FileInputType::createInputRenderer(RenderStyle&& style)
+RenderPtr<RenderElement> FileInputType::createInputRenderer(Style::ComputedStyle&& style)
 {
     ASSERT(element());
     // FIXME: https://github.com/llvm/llvm-project/pull/142471 Moving style is not unsafe.

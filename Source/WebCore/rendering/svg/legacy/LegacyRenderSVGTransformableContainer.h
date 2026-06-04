@@ -31,7 +31,7 @@ class LegacyRenderSVGTransformableContainer final : public LegacyRenderSVGContai
     WTF_MAKE_TZONE_ALLOCATED(LegacyRenderSVGTransformableContainer);
     WTF_OVERRIDE_DELETE_FOR_CHECKED_PTR(LegacyRenderSVGTransformableContainer);
 public:
-    LegacyRenderSVGTransformableContainer(SVGGraphicsElement&, RenderStyle&&);
+    LegacyRenderSVGTransformableContainer(SVGGraphicsElement&, Style::ComputedStyle&&);
     virtual ~LegacyRenderSVGTransformableContainer();
 
     const AffineTransform& localToParentTransform() const LIFETIME_BOUND override { return m_localTransform; }

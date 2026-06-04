@@ -45,7 +45,6 @@
 #include "Page.h"
 #include "RenderAncestorIterator.h"
 #include "RenderSVGResourceContainer.h"
-#include "RenderStyle+GettersInlines.h"
 #include "ResolvedStyle.h"
 #include "SVGDocumentExtensions.h"
 #include "SVGElementRareData.h"
@@ -65,6 +64,7 @@
 #include "Settings.h"
 #include "ShadowRoot.h"
 #include "StyleAdjuster.h"
+#include "StyleComputedStyle+GettersInlines.h"
 #include "StyleExtractor.h"
 #include "StyleKeyword+Mappings.h"
 #include "StyleResolver.h"
@@ -635,7 +635,7 @@ void SVGElement::animatorWillBeDeleted(const QualifiedName& attributeName)
     propertyAnimatorFactory().animatorWillBeDeleted(attributeName);
 }
 
-std::optional<Style::UnadjustedStyle> SVGElement::resolveCustomStyle(const Style::ResolutionContext& resolutionContext, const RenderStyle*)
+std::optional<Style::UnadjustedStyle> SVGElement::resolveCustomStyle(const Style::ResolutionContext& resolutionContext, const Style::ComputedStyle*)
 {
     // If the element is in a <use> tree we get the style from the definition tree.
     if (RefPtr styleElement = this->correspondingElement()) {
@@ -667,7 +667,7 @@ void SVGElement::setUseOverrideComputedStyle(bool value)
         m_svgRareData->setUseOverrideComputedStyle(value);
 }
 
-inline const RenderStyle* SVGElementRareData::overrideComputedStyle(Element& element, const RenderStyle* parentStyle)
+inline const Style::ComputedStyle* SVGElementRareData::overrideComputedStyle(Element& element, const Style::ComputedStyle* parentStyle)
 {
     if (!m_useOverrideComputedStyle)
         return nullptr;
@@ -680,12 +680,12 @@ inline const RenderStyle* SVGElementRareData::overrideComputedStyle(Element& ele
     return m_overrideComputedStyle.get();
 }
 
-const RenderStyle* SVGElement::computedStyle(const std::optional<Style::PseudoElementIdentifier>& pseudoElementIdentifier)
+const Style::ComputedStyle* SVGElement::computedStyle(const std::optional<Style::PseudoElementIdentifier>& pseudoElementIdentifier)
 {
     if (!m_svgRareData || !m_svgRareData->useOverrideComputedStyle())
         return Element::computedStyle(pseudoElementIdentifier);
 
-    const RenderStyle* parentStyle = nullptr;
+    const Style::ComputedStyle* parentStyle = nullptr;
     if (auto* parent = parentOrShadowHostElement()) {
         if (auto renderer = parent->renderer())
             parentStyle = &renderer->style();
@@ -844,7 +844,7 @@ String SVGElement::title() const
     return firstTitle ? const_cast<SVGTitleElement&>(*firstTitle).innerText() : String();
 }
 
-bool SVGElement::rendererIsNeeded(const RenderStyle& style)
+bool SVGElement::rendererIsNeeded(const Style::ComputedStyle& style)
 {
     // http://www.w3.org/TR/SVG/extend.html#PrivateData
     // Prevent anything other than SVG renderers from appearing in our render tree

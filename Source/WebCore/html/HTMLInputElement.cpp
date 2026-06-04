@@ -71,7 +71,6 @@
 #include "PseudoClassChangeInvalidation.h"
 #include "RadioInputType.h"
 #include "RenderObjectInlines.h"
-#include "RenderStyle+SettersInlines.h"
 #include "RenderTextControlSingleLine.h"
 #include "RenderTheme.h"
 #include "ResourceLoadObserver.h"
@@ -80,6 +79,7 @@
 #include "Settings.h"
 #include "StepRange.h"
 #include "StyleComputedStyle+InitialInlines.h"
+#include "StyleComputedStyle+SettersInlines.h"
 #include "StyleGradientImage.h"
 #include "TextControlInnerElements.h"
 #include "TextInputType.h"
@@ -929,17 +929,17 @@ void HTMLInputElement::finishParsingChildren()
     }
 }
 
-bool HTMLInputElement::rendererIsNeeded(const RenderStyle& style)
+bool HTMLInputElement::rendererIsNeeded(const Style::ComputedStyle& style)
 {
     return m_inputType->rendererIsNeeded() && HTMLTextFormControlElement::rendererIsNeeded(style);
 }
 
-RenderPtr<RenderElement> HTMLInputElement::createElementRenderer(RenderStyle&& style, const RenderTreePosition&)
+RenderPtr<RenderElement> HTMLInputElement::createElementRenderer(Style::ComputedStyle&& style, const RenderTreePosition&)
 {
     return m_inputType->createInputRenderer(WTF::move(style));
 }
 
-bool HTMLInputElement::isReplaced(const RenderStyle*) const
+bool HTMLInputElement::isReplaced(const Style::ComputedStyle*) const
 {
     return m_inputType && m_inputType->isImageButton();
 }
@@ -2257,7 +2257,7 @@ ExceptionOr<void> HTMLInputElement::setRangeText(StringView replacement, unsigne
     return HTMLTextFormControlElement::setRangeText(replacement, start, end, selectionMode);
 }
 
-bool HTMLInputElement::shouldTruncateText(const RenderStyle& style) const
+bool HTMLInputElement::shouldTruncateText(const Style::ComputedStyle& style) const
 {
     if (!isTextField())
         return false;
@@ -2349,9 +2349,9 @@ static Ref<Style::GradientImage> autoFillStrongPasswordMaskImage()
     );
 }
 
-RenderStyle HTMLInputElement::createInnerTextStyle(const RenderStyle& style)
+Style::ComputedStyle HTMLInputElement::createInnerTextStyle(const Style::ComputedStyle& style)
 {
-    auto textBlockStyle = RenderStyle::create();
+    auto textBlockStyle = Style::ComputedStyle::create();
     textBlockStyle.inheritFrom(style);
     adjustInnerTextStyle(style, textBlockStyle);
 

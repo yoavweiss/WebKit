@@ -26,10 +26,8 @@
 
 #include "GenericMediaQueryEvaluator.h"
 #include "MediaQuery.h"
-#include "RenderStyle.h"
 
 namespace WebCore {
-
 namespace MQ {
 
 class MediaQueryEvaluator : public GenericMediaQueryEvaluator<MediaQueryEvaluator> {
@@ -53,5 +51,5 @@ private:
     EvaluationResult m_staticMediaConditionResult { EvaluationResult::Unknown };
 };
 
-}
-}
+} // namespace MQ
+} // namespace WebCore

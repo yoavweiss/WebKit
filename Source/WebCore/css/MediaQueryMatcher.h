@@ -29,7 +29,6 @@ namespace WebCore {
 
 class Document;
 class MediaQueryList;
-class RenderStyle;
 class WeakPtrImplWithEventTargetData;
 
 namespace MQ {

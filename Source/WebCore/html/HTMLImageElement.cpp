@@ -533,7 +533,7 @@ const AtomString& HTMLImageElement::altText() const
     return attributeWithoutSynchronization(titleAttr);
 }
 
-RenderPtr<RenderElement> HTMLImageElement::createElementRenderer(RenderStyle&& style, const RenderTreePosition&)
+RenderPtr<RenderElement> HTMLImageElement::createElementRenderer(Style::ComputedStyle&& style, const RenderTreePosition&)
 {
     if (style.content().isData())
         return RenderElement::createFor(*this, WTF::move(style));
@@ -541,7 +541,7 @@ RenderPtr<RenderElement> HTMLImageElement::createElementRenderer(RenderStyle&& s
     return createRenderer<RenderImage>(RenderObject::Type::Image, *this, WTF::move(style), nullptr, m_imageDevicePixelRatio);
 }
 
-bool HTMLImageElement::isReplaced(const RenderStyle* style) const
+bool HTMLImageElement::isReplaced(const Style::ComputedStyle* style) const
 {
     return !style || !style->content().isData();
 }

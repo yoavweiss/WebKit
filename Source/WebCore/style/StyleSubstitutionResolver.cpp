@@ -49,10 +49,10 @@
 #include "HTMLSelectElement.h"
 #include "MatchResult.h"
 #include "MutableStyleProperties.h"
-#include "RenderStyle+GettersInlines.h"
-#include "RenderStyle+SettersInlines.h"
 #include "SelectPopoverElement.h"
 #include "StyleBuilder.h"
+#include "StyleComputedStyle+GettersInlines.h"
+#include "StyleComputedStyle+SettersInlines.h"
 #include "StyleCustomProperty.h"
 #include "StyleCustomPropertyRegistry.h"
 #include "StyleLocalPropertyRegistry.h"
@@ -217,7 +217,7 @@ RefPtr<MutableStyleProperties> SubstitutionResolver::resolveAndRegisterDashedFun
         .localPropertyRegistry = &argumentRegistrations
     };
 
-    auto argumentStyles = RenderStyle::createPtr();
+    auto argumentStyles = Style::ComputedStyle::createPtr();
     Builder argumentBuilder(*argumentStyles, WTF::move(builderContext), argumentMatchResult.get());
     argumentBuilder.state().addGuardedFunctionContexts(m_styleBuilder.state());
     for (auto& parameter : parameters)
@@ -328,7 +328,7 @@ bool SubstitutionResolver::substituteDashedFunction(StringView functionName, CSS
         .localPropertyRegistry = &registrations
     };
 
-    auto bodyStyles = RenderStyle::createPtr();
+    auto bodyStyles = Style::ComputedStyle::createPtr();
     Builder bodyBuilder(*bodyStyles, WTF::move(builderContext), bodyMatchResult.get());
     bodyBuilder.state().addGuardedFunctionContexts(m_styleBuilder.state());
 

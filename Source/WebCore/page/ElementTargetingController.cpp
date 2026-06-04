@@ -567,7 +567,7 @@ TargetedElementSelectors ElementTargetingController::selectorsForElement(Element
     });
 }
 
-static inline RectEdges<bool> NODELETE computeOffsetEdges(const RenderStyle& style)
+static inline RectEdges<bool> NODELETE computeOffsetEdges(const Style::ComputedStyle& style)
 {
     return {
         style.top().isSpecified(),

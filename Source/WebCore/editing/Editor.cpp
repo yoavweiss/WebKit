@@ -116,7 +116,6 @@
 #include "RenderInline.h"
 #include "RenderLayer.h"
 #include "RenderObjectStyle.h"
-#include "RenderStyle+GettersInlines.h"
 #include "RenderTextControl.h"
 #include "RenderedDocumentMarker.h"
 #include "RenderedPosition.h"
@@ -131,6 +130,7 @@
 #include "SpellChecker.h"
 #include "SpellingCorrectionCommand.h"
 #include "StaticPasteboard.h"
+#include "StyleComputedStyle+GettersInlines.h"
 #include "StylePropertiesInlines.h"
 #include "StyleTextShadow.h"
 #include "StyleTreeResolver.h"
@@ -4983,7 +4983,7 @@ std::optional<SimpleRange> Editor::adjustedSelectionRange()
 }
 
 // FIXME: This figures out the current style by inserting a <span>!
-const RenderStyle* Editor::styleForSelectionStart(RefPtr<Node>& nodeToRemove)
+const Style::ComputedStyle* Editor::styleForSelectionStart(RefPtr<Node>& nodeToRemove)
 {
     nodeToRemove = nullptr;
 

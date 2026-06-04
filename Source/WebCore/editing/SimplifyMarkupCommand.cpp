@@ -32,7 +32,7 @@
 #include "RenderObjectInlines.h"
 #include "RenderInline.h"
 #include "RenderObject.h"
-#include "RenderStyle.h"
+#include "StyleComputedStyle.h"
 #include "StyleDifference.h"
 
 namespace WebCore {

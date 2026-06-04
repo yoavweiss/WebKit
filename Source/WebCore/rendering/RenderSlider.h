@@ -33,7 +33,7 @@ class RenderSlider final : public RenderFlexibleBox {
 public:
     static const int defaultTrackLength;
 
-    RenderSlider(HTMLInputElement&, RenderStyle&&);
+    RenderSlider(HTMLInputElement&, Style::ComputedStyle&&);
     virtual ~RenderSlider();
 
     HTMLInputElement& NODELETE element() const;

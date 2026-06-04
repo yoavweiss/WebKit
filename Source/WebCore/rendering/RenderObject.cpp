@@ -1994,7 +1994,7 @@ PositionWithAffinity RenderObject::createPositionWithAffinity(const Position& po
     return createPositionWithAffinity(0, Affinity::Downstream);
 }
 
-const RenderStyle& RenderObject::outlineStyleForRepaint() const
+const Style::ComputedStyle& RenderObject::outlineStyleForRepaint() const
 {
     return style();
 }

@@ -765,8 +765,8 @@ protected:
 
     bool isMediaElement() const final { return true; }
 
-    RenderPtr<RenderElement> createElementRenderer(RenderStyle&&, const RenderTreePosition&) override;
-    bool isReplaced(const RenderStyle* = nullptr) const override { return true; }
+    RenderPtr<RenderElement> createElementRenderer(Style::ComputedStyle&&, const RenderTreePosition&) override;
+    bool isReplaced(const Style::ComputedStyle* = nullptr) const override { return true; }
 
     SecurityOriginData documentSecurityOrigin() const final;
 
@@ -824,7 +824,7 @@ private:
     void createMediaPlayer();
 
     bool supportsFocus() const override;
-    bool rendererIsNeeded(const RenderStyle&) override;
+    bool rendererIsNeeded(const Style::ComputedStyle&) override;
     bool childShouldCreateRenderer(const Node&) const override;
     NeedsPostConnectionSteps insertionSteps(InsertionType, ContainerNode&) override;
     void postConnectionSteps() override;

@@ -128,7 +128,6 @@
 #include "RenderListBox.h"
 #include "RenderObjectInlines.h"
 #include "RenderSVGModelObject.h"
-#include "RenderStyle+SettersInlines.h"
 #include "RenderTextControlSingleLine.h"
 #include "RenderTheme.h"
 #include "RenderTreeUpdater.h"
@@ -152,6 +151,7 @@
 #include "SimulatedClick.h"
 #include "SlotAssignment.h"
 #include "StyleableInlines.h"
+#include "StyleComputedStyle+SettersInlines.h"
 #include "StyleInvalidator.h"
 #include "StylePrimitiveNumericTypes+Evaluation.h"
 #include "StyleProperties.h"
@@ -912,7 +912,7 @@ Vector<String> Element::getAttributeNames() const
 
 bool Element::hasFocusableStyle() const
 {
-    auto isFocusableStyle = [](const RenderStyle* style) {
+    auto isFocusableStyle = [](const Style::ComputedStyle* style) {
         return style && style->display().doesGenerateBox()
             && style->visibility() == Visibility::Visible && !style->effectiveInert()
             && (style->usedContentVisibility() != ContentVisibility::Hidden || style->contentVisibility() != ContentVisibility::Visible);
@@ -1448,7 +1448,7 @@ static double NODELETE localZoomForRenderer(const RenderElement& renderer)
 {
     // FIXME: This does the wrong thing if two opposing zooms are in effect and canceled each
     // other out, but the alternative is that we'd have to crawl up the whole render tree every
-    // time (or store an additional bit in the RenderStyle to indicate that a zoom was specified).
+    // time (or store an additional bit in the Style::ComputedStyle to indicate that a zoom was specified).
     double zoomFactor = 1;
     if (renderer.style().usedZoom() != 1) {
         // Need to find the nearest enclosing RenderElement that set up
@@ -2808,7 +2808,7 @@ bool Element::hasDisplayNone() const
     return style && style->display() == Style::DisplayType::None;
 }
 
-void Element::storeDisplayContentsOrNoneStyle(std::unique_ptr<RenderStyle> style)
+void Element::storeDisplayContentsOrNoneStyle(std::unique_ptr<Style::ComputedStyle> style)
 {
     // This is used by RenderTreeUpdater to store the style for Elements with display:{contents|none}.
     // Normally style is held in renderers but display:contents doesn't generate one.
@@ -3042,12 +3042,12 @@ String Element::imageSourceURL() const
     return attributeWithoutSynchronization(srcAttr);
 }
 
-bool Element::rendererIsNeeded(const RenderStyle& style)
+bool Element::rendererIsNeeded(const Style::ComputedStyle& style)
 {
     return style.display().doesGenerateBox();
 }
 
-RenderPtr<RenderElement> Element::createElementRenderer(RenderStyle&& style, const RenderTreePosition&)
+RenderPtr<RenderElement> Element::createElementRenderer(Style::ComputedStyle&& style, const RenderTreePosition&)
 {
     return RenderElement::createFor(*this, WTF::move(style));
 }
@@ -4693,7 +4693,7 @@ static PseudoElement* NODELETE beforeOrAfterPseudoElement(const Element& host, P
     }
 }
 
-const RenderStyle* Element::existingComputedStyle() const
+const Style::ComputedStyle* Element::existingComputedStyle() const
 {
     if (hasRareData()) {
         if (auto* style = elementRareData()->computedStyle())
@@ -4706,12 +4706,12 @@ const RenderStyle* Element::existingComputedStyle() const
     return renderOrDisplayContentsStyle();
 }
 
-const RenderStyle* Element::renderOrDisplayContentsStyle() const
+const Style::ComputedStyle* Element::renderOrDisplayContentsStyle() const
 {
     return renderOrDisplayContentsStyle({ });
 }
 
-const RenderStyle* Element::renderOrDisplayContentsStyle(const std::optional<Style::PseudoElementIdentifier>& pseudoElementIdentifier) const
+const Style::ComputedStyle* Element::renderOrDisplayContentsStyle(const std::optional<Style::PseudoElementIdentifier>& pseudoElementIdentifier) const
 {
     if (pseudoElementIdentifier) {
         if (CheckedPtr style = renderOrDisplayContentsStyle()) {
@@ -4728,7 +4728,7 @@ const RenderStyle* Element::renderOrDisplayContentsStyle(const std::optional<Sty
     return renderStyle();
 }
 
-const RenderStyle* Element::resolveComputedStyle(ResolveComputedStyleMode mode)
+const Style::ComputedStyle* Element::resolveComputedStyle(ResolveComputedStyleMode mode)
 {
     ASSERT(isConnected());
 
@@ -4819,7 +4819,7 @@ const RenderStyle* Element::resolveComputedStyle(ResolveComputedStyleMode mode)
     return computedStyle;
 }
 
-const RenderStyle& Element::resolvePseudoElementStyle(const Style::PseudoElementIdentifier& pseudoElementIdentifier)
+const Style::ComputedStyle& Element::resolvePseudoElementStyle(const Style::PseudoElementIdentifier& pseudoElementIdentifier)
 {
     ASSERT(!isPseudoElement());
 
@@ -4832,18 +4832,18 @@ const RenderStyle& Element::resolvePseudoElementStyle(const Style::PseudoElement
 
     auto style = document->styleForElementIgnoringPendingStylesheets(*this, parentStyle.get(), pseudoElementIdentifier);
     if (!style) {
-        style = RenderStyle::createPtr();
+        style = Style::ComputedStyle::createPtr();
         style->inheritFrom(*parentStyle);
         style->setPseudoElementIdentifier(pseudoElementIdentifier);
     }
 
     CheckedPtr computedStyle = style.get();
-    const_cast<RenderStyle*>(parentStyle.get())->addPseudoElementStyle(WTF::move(style));
+    const_cast<Style::ComputedStyle*>(parentStyle.get())->addPseudoElementStyle(WTF::move(style));
     ASSERT(parentStyle->pseudoElementStyle(pseudoElementIdentifier));
     return *computedStyle.unsafeGet();
 }
 
-const RenderStyle* Element::computedStyle(const std::optional<Style::PseudoElementIdentifier>& pseudoElementIdentifier)
+const Style::ComputedStyle* Element::computedStyle(const std::optional<Style::PseudoElementIdentifier>& pseudoElementIdentifier)
 {
     if (!isConnected())
         return nullptr;
@@ -4868,7 +4868,7 @@ const RenderStyle* Element::computedStyle(const std::optional<Style::PseudoEleme
 }
 
 // FIXME: The caller should be able to just use computedStyle().
-const RenderStyle* Element::computedStyleForEditability()
+const Style::ComputedStyle* Element::computedStyleForEditability()
 {
     if (!isConnected())
         return nullptr;
@@ -5417,14 +5417,14 @@ AnimatableCSSPropertyToTransitionMap& Element::ensureRunningTransitionsByPropert
     return ensureAnimationRareData(pseudoElementIdentifier).runningTransitionsByProperty();
 }
 
-const RenderStyle* Element::lastStyleChangeEventStyle(const std::optional<Style::PseudoElementIdentifier>& pseudoElementIdentifier) const
+const Style::ComputedStyle* Element::lastStyleChangeEventStyle(const std::optional<Style::PseudoElementIdentifier>& pseudoElementIdentifier) const
 {
     if (auto* animationData = animationRareData(pseudoElementIdentifier))
         return animationData->lastStyleChangeEventStyle();
     return nullptr;
 }
 
-void Element::setLastStyleChangeEventStyle(const std::optional<Style::PseudoElementIdentifier>& pseudoElementIdentifier, std::unique_ptr<const RenderStyle>&& style)
+void Element::setLastStyleChangeEventStyle(const std::optional<Style::PseudoElementIdentifier>& pseudoElementIdentifier, std::unique_ptr<const Style::ComputedStyle>&& style)
 {
     if (auto* animationData = animationRareData(pseudoElementIdentifier))
         animationData->setLastStyleChangeEventStyle(WTF::move(style));
@@ -5934,7 +5934,7 @@ void Element::didDetachRenderers()
     ASSERT(hasCustomStyleResolveCallbacks());
 }
 
-std::optional<Style::UnadjustedStyle> Element::resolveCustomStyle(const Style::ResolutionContext&, const RenderStyle*)
+std::optional<Style::UnadjustedStyle> Element::resolveCustomStyle(const Style::ResolutionContext&, const Style::ComputedStyle*)
 {
     ASSERT(hasCustomStyleResolveCallbacks());
     return std::nullopt;

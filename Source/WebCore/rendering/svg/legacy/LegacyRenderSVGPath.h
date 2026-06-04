@@ -33,7 +33,7 @@ class LegacyRenderSVGPath final : public LegacyRenderSVGShape {
     WTF_MAKE_TZONE_ALLOCATED(LegacyRenderSVGPath);
     WTF_OVERRIDE_DELETE_FOR_CHECKED_PTR(LegacyRenderSVGPath);
 public:
-    LegacyRenderSVGPath(SVGGraphicsElement&, RenderStyle&&);
+    LegacyRenderSVGPath(SVGGraphicsElement&, Style::ComputedStyle&&);
     virtual ~LegacyRenderSVGPath();
 
     void drawMarkers(PaintInfo&) final;
@@ -47,7 +47,7 @@ private:
     void strokeShape(GraphicsContext&) const override;
     bool shapeDependentStrokeContains(const FloatPoint&, PointCoordinateSpace = GlobalCoordinateSpace) override;
 
-    void styleDidChange(Style::Difference, const RenderStyle*) final;
+    void styleDidChange(Style::Difference, const Style::ComputedStyle*) final;
 
     bool NODELETE shouldStrokeZeroLengthSubpath() const;
     FloatRect NODELETE zeroLengthSubpathRect(const FloatPoint&, float) const;

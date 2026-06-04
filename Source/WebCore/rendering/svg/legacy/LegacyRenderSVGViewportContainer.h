@@ -32,7 +32,7 @@ class LegacyRenderSVGViewportContainer final : public LegacyRenderSVGContainer {
     WTF_MAKE_TZONE_ALLOCATED(LegacyRenderSVGViewportContainer);
     WTF_OVERRIDE_DELETE_FOR_CHECKED_PTR(LegacyRenderSVGViewportContainer);
 public:
-    LegacyRenderSVGViewportContainer(SVGSVGElement&, RenderStyle&&);
+    LegacyRenderSVGViewportContainer(SVGSVGElement&, Style::ComputedStyle&&);
     virtual ~LegacyRenderSVGViewportContainer();
 
     SVGSVGElement& NODELETE svgSVGElement() const;

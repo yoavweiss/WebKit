@@ -130,7 +130,7 @@ void RenderTreeBuilder::FormControls::updatePseudoElement(PseudoElementType type
     }
 
     if (existingPseudoElement && existingPseudoElement->style().content() == pseudoStyle->content()) {
-        auto pseudoElementStyle = RenderStyle::clone(*pseudoStyle);
+        auto pseudoElementStyle = Style::ComputedStyle::clone(*pseudoStyle);
         existingPseudoElement->setStyle(WTF::move(pseudoElementStyle));
         RenderTreeUpdater::GeneratedContent::updateStyleForContentRenderers(*existingPseudoElement, existingPseudoElement->style());
         return;
@@ -144,7 +144,7 @@ void RenderTreeBuilder::FormControls::updatePseudoElement(PseudoElementType type
     }
 
     Ref document = renderer.document();
-    auto pseudoElementStyle = RenderStyle::clone(*pseudoStyle);
+    auto pseudoElementStyle = Style::ComputedStyle::clone(*pseudoStyle);
 
     RenderPtr<RenderBlockFlow> pseudoElement = createRenderer<RenderBlockFlow>(RenderObject::Type::BlockFlow, document, WTF::move(pseudoElementStyle));
     pseudoElement->initializeStyle();

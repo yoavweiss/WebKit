@@ -61,7 +61,7 @@ private:
     // in the coordinate space of the document of the parent frame.
     std::optional<LayoutRect> m_visibleRectInParent;
 
-    // RenderStyle::usedZoom of the owner renderer of the frame.
+    // Style::ComputedStyle::usedZoom of the owner renderer of the frame.
     float m_usedZoom;
 
     // The offset of the content box of the frame's owner element

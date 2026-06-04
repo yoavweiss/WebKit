@@ -56,7 +56,7 @@ using namespace HTMLNames;
 
 WTF_MAKE_TZONE_ALLOCATED_IMPL(RenderVideo);
 
-RenderVideo::RenderVideo(HTMLVideoElement& element, RenderStyle&& style)
+RenderVideo::RenderVideo(HTMLVideoElement& element, Style::ComputedStyle&& style)
     : RenderMedia(Type::Video, element, WTF::move(style))
 {
     setIntrinsicSize(calculateIntrinsicSize());
@@ -310,7 +310,7 @@ void RenderVideo::layout()
     updatePlayer();
 }
 
-void RenderVideo::styleDidChange(Style::Difference difference, const RenderStyle* oldStyle)
+void RenderVideo::styleDidChange(Style::Difference difference, const Style::ComputedStyle* oldStyle)
 {
     RenderMedia::styleDidChange(difference, oldStyle);
     if (oldStyle && style().objectFit() != oldStyle->objectFit())

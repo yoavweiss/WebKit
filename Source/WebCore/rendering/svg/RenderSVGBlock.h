@@ -33,7 +33,7 @@ public:
     inline SVGGraphicsElement& graphicsElement() const;
 
 protected:
-    RenderSVGBlock(Type, SVGGraphicsElement&, RenderStyle&&);
+    RenderSVGBlock(Type, SVGGraphicsElement&, Style::ComputedStyle&&);
     virtual ~RenderSVGBlock();
 
     void willBeDestroyed() override;
@@ -42,7 +42,7 @@ protected:
 
     void updateFromStyle() override;
     bool needsHasSVGTransformFlags() const override;
-    void styleDidChange(Style::Difference, const RenderStyle* oldStyle) override;
+    void styleDidChange(Style::Difference, const Style::ComputedStyle* oldStyle) override;
 
 private:
     void element() const = delete;

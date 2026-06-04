@@ -36,7 +36,7 @@ class RenderSVGRoot final : public RenderReplaced {
     WTF_MAKE_TZONE_ALLOCATED(RenderSVGRoot);
     WTF_OVERRIDE_DELETE_FOR_CHECKED_PTR(RenderSVGRoot);
 public:
-    RenderSVGRoot(SVGSVGElement&, RenderStyle&&);
+    RenderSVGRoot(SVGSVGElement&, Style::ComputedStyle&&);
     virtual ~RenderSVGRoot();
 
     SVGSVGElement& NODELETE svgSVGElement() const;

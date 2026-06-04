@@ -57,8 +57,6 @@ class LayoutRect;
 class LayoutSize;
 class LayoutUnit;
 class RenderElement;
-class RenderStyle;
-class RenderStyleProperties;
 class ScrollTimeline;
 class TransformationMatrix;
 class ViewTimeline;
@@ -205,6 +203,7 @@ using IntOutsets = RectEdges<int>;
 
 namespace Style {
 class ChangedAnimatablePropertiesFunctions;
+class ComputedStyle;
 class CustomProperty;
 class CustomPropertyData;
 class CustomPropertyRegistry;
@@ -445,7 +444,7 @@ constexpr auto TextDecorationLineBits = 5;
 constexpr auto TextTransformBits = 6;
 constexpr auto PseudoElementTypeBits = 5;
 
-using PseudoElementStyles = HashMap<PseudoElementIdentifier, std::unique_ptr<RenderStyle>>;
+using PseudoElementStyles = HashMap<PseudoElementIdentifier, std::unique_ptr<ComputedStyle>>;
 
 DECLARE_ALLOCATOR_WITH_HEAP_IDENTIFIER(ComputedStyleBase);
 class ComputedStyleBase : public CanMakeCheckedPtr<ComputedStyleBase, WTF::DefaultedOperatorEqual::No, WTF::CheckedPtrDeleteCheckException::Yes> {
@@ -583,8 +582,8 @@ public:
     inline bool hasPseudoStyle(PseudoElementType) const;
     inline void setHasPseudoStyles(EnumSet<PseudoElementType>);
 
-    RenderStyle* NODELETE pseudoElementStyle(const PseudoElementIdentifier&) const;
-    RenderStyle* addPseudoElementStyle(std::unique_ptr<RenderStyle>);
+    Style::ComputedStyle* NODELETE pseudoElementStyle(const PseudoElementIdentifier&) const;
+    Style::ComputedStyle* addPseudoElementStyle(std::unique_ptr<Style::ComputedStyle>);
 
     bool hasPseudoElementStyles() const { return !m_pseudoElementStyles.isEmpty(); }
     const PseudoElementStyles& pseudoElementStyles() const LIFETIME_BOUND { return m_pseudoElementStyles; }
@@ -818,8 +817,6 @@ protected:
     friend class Adjuster;
     friend class ChangedAnimatablePropertiesFunctions;
     friend class DifferenceFunctions;
-    friend class WebCore::RenderStyle;
-    friend class WebCore::RenderStyleProperties;
 
     ComputedStyleBase(ComputedStyleBase&&);
     ComputedStyleBase& operator=(ComputedStyleBase&&);

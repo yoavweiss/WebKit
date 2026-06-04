@@ -43,11 +43,10 @@
 #include "RenderLayer.h"
 #include "RenderLayerCompositor.h"
 #include "RenderObjectInlines.h"
-#include "RenderStyle.h"
-#include "RenderStyle+GettersInlines.h"
-#include "RenderStyle+SettersInlines.h"
 #include "RenderView.h"
 #include "StyleBuilderState.h"
+#include "StyleComputedStyle+GettersInlines.h"
+#include "StyleComputedStyle+SettersInlines.h"
 #include "StyleScope.h"
 #include "StyleableInlines.h"
 #include "WritingMode.h"
@@ -469,7 +468,7 @@ static LayoutRect boxBoundingBoxInContainer(const RenderBoxModelObject& box, con
     return boundingBox;
 }
 
-void AnchorPositionEvaluator::addAnchorFunctionScrollCompensatedAxis(RenderStyle& style, const RenderBox& anchored, const RenderBoxModelObject& anchor, BoxAxis axis)
+void AnchorPositionEvaluator::addAnchorFunctionScrollCompensatedAxis(Style::ComputedStyle& style, const RenderBox& anchored, const RenderBoxModelObject& anchor, BoxAxis axis)
 {
     // https://drafts.csswg.org/css-anchor-position-1/#scroll
     // An absolutely positioned box abspos compensates for scroll in the horizontal or vertical axis if both of the following conditions are true:
@@ -917,7 +916,7 @@ static AnchorSizeDimension NODELETE defaultDimensionForPropertyID(CSSPropertyID 
 }
 
 // Convert anchor size dimension to the physical dimension (width or height).
-static BoxAxis NODELETE anchorSizeDimensionToPhysicalDimension(AnchorSizeDimension dimension, const RenderStyle& style, const RenderStyle& containerStyle)
+static BoxAxis NODELETE anchorSizeDimensionToPhysicalDimension(AnchorSizeDimension dimension, const Style::ComputedStyle& style, const Style::ComputedStyle& containerStyle)
 {
     switch (dimension) {
     case AnchorSizeDimension::Width:
@@ -1222,7 +1221,7 @@ static AnchorsForAnchorName collectAnchorsForAnchorName(const Document& document
     return anchorsForAnchorName;
 }
 
-static AnchorElements findAnchorsForAnchorPositionedElement(const Styleable& anchorPositioned, const RenderStyle& anchorPositionedStyle, const HashSet<ResolvedScopedName>& anchorNames, const AnchorsForAnchorName& anchorsForAnchorName)
+static AnchorElements findAnchorsForAnchorPositionedElement(const Styleable& anchorPositioned, const Style::ComputedStyle& anchorPositionedStyle, const HashSet<ResolvedScopedName>& anchorNames, const AnchorsForAnchorName& anchorsForAnchorName)
 {
     AnchorElements anchorElements;
 
@@ -1353,7 +1352,7 @@ void AnchorPositionEvaluator::updateAnchorPositioningStatesAfterInterleavedLayou
     }
 }
 
-void AnchorPositionEvaluator::updateAnchorPositionedStateForDefaultAnchorAndPositionVisibility(Element& element, const RenderStyle& style, AnchorPositionedStates& states)
+void AnchorPositionEvaluator::updateAnchorPositionedStateForDefaultAnchorAndPositionVisibility(Element& element, const Style::ComputedStyle& style, AnchorPositionedStates& states)
 {
     auto shouldResolveDefaultAnchor = isAnchorPositioned(style);
 
@@ -1409,12 +1408,12 @@ auto AnchorPositionEvaluator::makeAnchorPositionedForAnchorMap(AnchorPositionedT
     return map;
 }
 
-bool AnchorPositionEvaluator::isAnchorPositioned(const RenderStyle& style)
+bool AnchorPositionEvaluator::isAnchorPositioned(const Style::ComputedStyle& style)
 {
     return isStyleTimeAnchorPositioned(style) || isLayoutTimeAnchorPositioned(style);
 }
 
-bool AnchorPositionEvaluator::isStyleTimeAnchorPositioned(const RenderStyle& style)
+bool AnchorPositionEvaluator::isStyleTimeAnchorPositioned(const Style::ComputedStyle& style)
 {
     if (!style.display().doesGenerateBox() || !style.hasOutOfFlowPosition())
         return false;
@@ -1422,7 +1421,7 @@ bool AnchorPositionEvaluator::isStyleTimeAnchorPositioned(const RenderStyle& sty
     return style.usesAnchorFunctions();
 }
 
-bool AnchorPositionEvaluator::isLayoutTimeAnchorPositioned(const RenderStyle& style)
+bool AnchorPositionEvaluator::isLayoutTimeAnchorPositioned(const Style::ComputedStyle& style)
 {
     if (!style.display().doesGenerateBox() || !style.hasOutOfFlowPosition())
         return false;
@@ -1683,7 +1682,7 @@ RefPtr<const Element> AnchorPositionEvaluator::anchorPositionedElementOrPseudoEl
     return element;
 }
 
-bool AnchorPositionEvaluator::isAnchor(const RenderStyle& style)
+bool AnchorPositionEvaluator::isAnchor(const Style::ComputedStyle& style)
 {
     if (!style.anchorNames().isNone())
         return true;
@@ -1691,7 +1690,7 @@ bool AnchorPositionEvaluator::isAnchor(const RenderStyle& style)
     return isImplicitAnchor(style);
 }
 
-bool AnchorPositionEvaluator::isImplicitAnchor(const RenderStyle& style)
+bool AnchorPositionEvaluator::isImplicitAnchor(const Style::ComputedStyle& style)
 {
     // The invoker is an implicit anchor for the popover.
     // https://drafts.csswg.org/css-anchor-position-1/#implicit
@@ -1701,7 +1700,7 @@ bool AnchorPositionEvaluator::isImplicitAnchor(const RenderStyle& style)
     // "The implicit anchor element of a pseudo-element is its originating element, unless otherwise specified."
     // https://drafts.csswg.org/css-anchor-position-1/#implicit
     auto isImplicitAnchorForPseudoElement = [&](PseudoElementType pseudoElementType) {
-        const RenderStyle* pseudoElementStyle = style.pseudoElementStyle({ pseudoElementType });
+        const Style::ComputedStyle* pseudoElementStyle = style.pseudoElementStyle({ pseudoElementType });
         if (!pseudoElementStyle)
             return false;
         // If we have an explicit anchor name then there is no need for an implicit anchor.
@@ -1713,7 +1712,7 @@ bool AnchorPositionEvaluator::isImplicitAnchor(const RenderStyle& style)
     return isImplicitAnchorForPseudoElement(PseudoElementType::Before) || isImplicitAnchorForPseudoElement(PseudoElementType::After);
 }
 
-ScopedName AnchorPositionEvaluator::defaultAnchorName(const RenderStyle& style)
+ScopedName AnchorPositionEvaluator::defaultAnchorName(const Style::ComputedStyle& style)
 {
     if (auto name = style.positionAnchor().tryName())
         return *name;

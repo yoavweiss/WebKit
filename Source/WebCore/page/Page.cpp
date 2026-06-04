@@ -4871,7 +4871,7 @@ void Page::recomputeTextAutoSizingInAllFrames()
                 if (RefPtr element = renderer->element()) {
                     CheckedRef style = renderer->style();
                     if (auto adjustment = Style::Adjuster::adjustmentForTextAutosizing(style, *element)) {
-                        auto newStyle = RenderStyle::clone(style);
+                        auto newStyle = Style::ComputedStyle::clone(style);
                         Style::Adjuster::adjustForTextAutosizing(newStyle, adjustment);
                         renderer->setStyle(WTF::move(newStyle));
                     }

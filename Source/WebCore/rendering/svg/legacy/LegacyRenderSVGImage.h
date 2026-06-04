@@ -36,7 +36,7 @@ class LegacyRenderSVGImage final : public LegacyRenderSVGModelObject {
     WTF_MAKE_TZONE_ALLOCATED(LegacyRenderSVGImage);
     WTF_OVERRIDE_DELETE_FOR_CHECKED_PTR(LegacyRenderSVGImage);
 public:
-    LegacyRenderSVGImage(SVGImageElement&, RenderStyle&&);
+    LegacyRenderSVGImage(SVGImageElement&, Style::ComputedStyle&&);
     virtual ~LegacyRenderSVGImage();
 
     SVGImageElement& NODELETE imageElement() const;

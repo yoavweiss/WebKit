@@ -347,7 +347,7 @@ void InlineBoxPainter::paintBoxShadow(Style::ShadowStyle shadowStyle, const Layo
     backgroundPainter.paintBoxShadow(paintRect, style(), shadowStyle, closedEdges);
 }
 
-const RenderStyle& InlineBoxPainter::style() const
+const Style::ComputedStyle& InlineBoxPainter::style() const
 {
     return m_isFirstLineBox ? renderer().firstLineStyle() : renderer().style();
 }

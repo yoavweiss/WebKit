@@ -57,7 +57,7 @@ namespace WebCore {
 
 WTF_MAKE_TZONE_ALLOCATED_IMPL(RenderGrid);
 
-RenderGrid::RenderGrid(Element& element, RenderStyle&& style)
+RenderGrid::RenderGrid(Element& element, Style::ComputedStyle&& style)
     : RenderBlock(Type::Grid, element, WTF::move(style), { })
     , m_grid(*this)
     , m_trackSizingAlgorithm(this, currentGrid())
@@ -114,7 +114,7 @@ bool RenderGrid::isExtrinsicallySized() const
     return true;
 }
 
-StyleSelfAlignmentData RenderGrid::selfAlignmentForGridItem(const RenderBox& gridItem, LogicalBoxAxis containingAxis, StretchingMode stretchingMode, const RenderStyle* gridStyle) const
+StyleSelfAlignmentData RenderGrid::selfAlignmentForGridItem(const RenderBox& gridItem, LogicalBoxAxis containingAxis, StretchingMode stretchingMode, const Style::ComputedStyle* gridStyle) const
 {
     if (isMasonry(containingAxis))
         return { ItemPosition::Start };
@@ -132,26 +132,26 @@ StyleSelfAlignmentData RenderGrid::selfAlignmentForGridItem(const RenderBox& gri
     return alignment;
 }
 
-bool RenderGrid::selfAlignmentChangedToStretch(LogicalBoxAxis containingAxis, const RenderStyle& oldStyle, const RenderStyle& newStyle, const RenderBox& gridItem) const
+bool RenderGrid::selfAlignmentChangedToStretch(LogicalBoxAxis containingAxis, const Style::ComputedStyle& oldStyle, const Style::ComputedStyle& newStyle, const RenderBox& gridItem) const
 {
     return selfAlignmentForGridItem(gridItem, containingAxis, StretchingMode::Normal, &oldStyle).position() != ItemPosition::Stretch
         && selfAlignmentForGridItem(gridItem, containingAxis, StretchingMode::Normal, &newStyle).position() == ItemPosition::Stretch;
 }
 
-bool RenderGrid::selfAlignmentChangedFromStretch(LogicalBoxAxis containingAxis, const RenderStyle& oldStyle, const RenderStyle& newStyle, const RenderBox& gridItem) const
+bool RenderGrid::selfAlignmentChangedFromStretch(LogicalBoxAxis containingAxis, const Style::ComputedStyle& oldStyle, const Style::ComputedStyle& newStyle, const RenderBox& gridItem) const
 {
     return selfAlignmentForGridItem(gridItem, containingAxis, StretchingMode::Normal, &oldStyle).position() == ItemPosition::Stretch
         && selfAlignmentForGridItem(gridItem, containingAxis, StretchingMode::Normal, &newStyle).position() != ItemPosition::Stretch;
 }
 
-void RenderGrid::styleDidChange(Style::Difference diff, const RenderStyle* oldStyle)
+void RenderGrid::styleDidChange(Style::Difference diff, const Style::ComputedStyle* oldStyle)
 {
     RenderBlock::styleDidChange(diff, oldStyle);
     if (!oldStyle || diff != Style::DifferenceResult::Layout)
         return;
 
     m_intrinsicLogicalHeightsForRowSizingFirstPass.reset();
-    const RenderStyle& newStyle = this->style();
+    const Style::ComputedStyle& newStyle = this->style();
 
     auto hasDifferentTrackSizes = [&newStyle, &oldStyle](Style::GridTrackSizingDirection direction) {
         return newStyle.gridTemplateList(direction).sizes != oldStyle->gridTemplateList(direction).sizes;
@@ -217,7 +217,7 @@ void RenderGrid::styleDidChange(Style::Difference diff, const RenderStyle* oldSt
         setNeedsItemPlacement(subgridDidChange);
 }
 
-SubgridDidChange RenderGrid::subgridDidChange(const RenderStyle& oldStyle) const
+SubgridDidChange RenderGrid::subgridDidChange(const Style::ComputedStyle& oldStyle) const
 {
     if (oldStyle.gridTemplateRows().subgrid != style().gridTemplateRows().subgrid
         || oldStyle.gridTemplateColumns().subgrid != style().gridTemplateColumns().subgrid)
@@ -225,7 +225,7 @@ SubgridDidChange RenderGrid::subgridDidChange(const RenderStyle& oldStyle) const
     return SubgridDidChange::No;
 }
 
-bool RenderGrid::explicitGridDidResize(const RenderStyle& oldStyle) const
+bool RenderGrid::explicitGridDidResize(const Style::ComputedStyle& oldStyle) const
 {
     auto& oldGridTemplateColumns = oldStyle.gridTemplateColumns();
     auto& oldGridTemplateRows = oldStyle.gridTemplateRows();
@@ -242,13 +242,13 @@ bool RenderGrid::explicitGridDidResize(const RenderStyle& oldStyle) const
         || oldGridTemplateAreas.map.rowCount != newGridTemplateAreas.map.rowCount;
 }
 
-bool RenderGrid::namedGridLinesDefinitionDidChange(const RenderStyle& oldStyle) const
+bool RenderGrid::namedGridLinesDefinitionDidChange(const Style::ComputedStyle& oldStyle) const
 {
     return oldStyle.gridTemplateRows().namedLines.map != style().gridTemplateRows().namedLines.map
         || oldStyle.gridTemplateColumns().namedLines.map != style().gridTemplateColumns().namedLines.map;
 }
 
-bool RenderGrid::implicitGridLinesDefinitionDidChange(const RenderStyle& oldStyle) const
+bool RenderGrid::implicitGridLinesDefinitionDidChange(const Style::ComputedStyle& oldStyle) const
 {
     auto& oldGridTemplateAreas = oldStyle.gridTemplateAreas();
     auto& newGridTemplateAreas = style().gridTemplateAreas();
