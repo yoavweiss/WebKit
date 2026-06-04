@@ -273,7 +273,7 @@ JSC_DEFINE_HOST_FUNCTION(promiseConstructorFuncRace, (JSGlobalObject* globalObje
         ASSERT(exception);
         TRY_CLEAR_EXCEPTION(scope, void());
         scope.release();
-        promise->reject(vm, globalObject, exception);
+        promise->reject(vm, exception);
     };
 
     JSValue iterable = callFrame->argument(0);
@@ -296,7 +296,7 @@ JSC_DEFINE_HOST_FUNCTION(promiseConstructorFuncRace, (JSGlobalObject* globalObje
             RETURN_IF_EXCEPTION(scope, void());
             if (constructor == globalObject->promiseConstructor()) [[likely]] {
                 scope.release();
-                nextPromise->performPromiseThenWithInternalMicrotask(vm, globalObject, InternalMicrotask::PromiseRaceResolveJob, promise, promise);
+                nextPromise->performPromiseThenWithInternalMicrotask(vm, InternalMicrotask::PromiseRaceResolveJob, promise, promise);
                 return;
             }
         }
@@ -478,7 +478,7 @@ JSC_DEFINE_HOST_FUNCTION(promiseConstructorFuncAll, (JSGlobalObject* globalObjec
         ASSERT(exception);
         TRY_CLEAR_EXCEPTION(scope, void());
         scope.release();
-        promise->reject(vm, globalObject, exception);
+        promise->reject(vm, exception);
     };
 
     JSArray* values = JSArray::tryCreate(vm, globalObject->arrayStructureForIndexingTypeDuringAllocation(ArrayWithUndecided), 0);
@@ -522,7 +522,7 @@ JSC_DEFINE_HOST_FUNCTION(promiseConstructorFuncAll, (JSGlobalObject* globalObjec
             RETURN_IF_EXCEPTION(scope, void());
             if (constructor == globalObject->promiseConstructor()) [[likely]] {
                 scope.release();
-                nextPromise->performPromiseThenWithInternalMicrotask(vm, globalObject, InternalMicrotask::PromiseAllResolveJob, globalContext, jsNumber(index));
+                nextPromise->performPromiseThenWithInternalMicrotask(vm, InternalMicrotask::PromiseAllResolveJob, globalContext, jsNumber(index));
                 ++index;
                 return;
             }
@@ -811,7 +811,7 @@ JSC_DEFINE_HOST_FUNCTION(promiseConstructorFuncAllSettled, (JSGlobalObject* glob
         ASSERT(exception);
         TRY_CLEAR_EXCEPTION(scope, void());
         scope.release();
-        promise->reject(vm, globalObject, exception);
+        promise->reject(vm, exception);
     };
 
     JSArray* values = JSArray::tryCreate(vm, globalObject->arrayStructureForIndexingTypeDuringAllocation(ArrayWithUndecided), 0);
@@ -854,7 +854,7 @@ JSC_DEFINE_HOST_FUNCTION(promiseConstructorFuncAllSettled, (JSGlobalObject* glob
             RETURN_IF_EXCEPTION(scope, void());
             if (constructor == globalObject->promiseConstructor()) [[likely]] {
                 scope.release();
-                nextPromise->performPromiseThenWithInternalMicrotask(vm, globalObject, InternalMicrotask::PromiseAllSettledResolveJob, globalContext, jsNumber(index));
+                nextPromise->performPromiseThenWithInternalMicrotask(vm, InternalMicrotask::PromiseAllSettledResolveJob, globalContext, jsNumber(index));
                 ++index;
                 return;
             }
@@ -1293,7 +1293,7 @@ JSC_DEFINE_HOST_FUNCTION(promiseConstructorFuncAny, (JSGlobalObject* globalObjec
         ASSERT(exception);
         TRY_CLEAR_EXCEPTION(scope, void());
         scope.release();
-        promise->reject(vm, globalObject, exception);
+        promise->reject(vm, exception);
     };
 
     JSArray* errors = JSArray::tryCreate(vm, globalObject->arrayStructureForIndexingTypeDuringAllocation(ArrayWithUndecided), 0);
@@ -1337,7 +1337,7 @@ JSC_DEFINE_HOST_FUNCTION(promiseConstructorFuncAny, (JSGlobalObject* globalObjec
             RETURN_IF_EXCEPTION(scope, void());
             if (constructor == globalObject->promiseConstructor()) [[likely]] {
                 scope.release();
-                nextPromise->performPromiseThenWithInternalMicrotask(vm, globalObject, InternalMicrotask::PromiseAnyResolveJob, globalContext, jsNumber(index));
+                nextPromise->performPromiseThenWithInternalMicrotask(vm, InternalMicrotask::PromiseAnyResolveJob, globalContext, jsNumber(index));
                 ++index;
                 return;
             }
@@ -1384,7 +1384,7 @@ JSC_DEFINE_HOST_FUNCTION(promiseConstructorFuncAny, (JSGlobalObject* globalObjec
     if (!count) {
         auto* aggregateError = createAggregateError(vm, globalObject->errorStructure(ErrorType::AggregateError), errors, String(), jsUndefined());
         scope.release();
-        promise->reject(vm, globalObject, aggregateError);
+        promise->reject(vm, aggregateError);
         if (scope.exception()) [[unlikely]] {
             callReject();
             return JSValue::encode(promise);
@@ -1424,7 +1424,7 @@ JSC_DEFINE_HOST_FUNCTION(promiseAnyRejectFunction, (JSGlobalObject* globalObject
     if (!count) {
         auto* aggregateError = createAggregateError(vm, globalObject->errorStructure(ErrorType::AggregateError), errors, String(), jsUndefined());
         scope.release();
-        promise->reject(vm, globalObject, aggregateError);
+        promise->reject(vm, aggregateError);
     }
 
     return JSValue::encode(jsUndefined());

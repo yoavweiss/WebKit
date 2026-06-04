@@ -7321,7 +7321,7 @@ sub GenerateCallbackImplementationOperationBody
     push(@$contentRef, "    if (returnedException) {\n");
     if ($codeGenerator->IsPromiseType($operation->type)) {
         push(@$contentRef, "        auto* jsPromise = JSC::JSPromise::create(vm, globalObject.promiseStructure());\n");
-        push(@$contentRef, "        jsPromise->rejectAsHandled(vm, &globalObject, returnedException->value());\n");
+        push(@$contentRef, "        jsPromise->rejectAsHandled(vm, returnedException->value());\n");
         push(@$contentRef, "        return { DOMPromise::create(globalObject, *jsPromise) };\n");
     } elsif ($isForRethrowingHandler) {
         push(@$contentRef, "        auto throwScope = DECLARE_THROW_SCOPE(vm);\n");

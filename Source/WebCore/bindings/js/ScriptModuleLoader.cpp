@@ -344,7 +344,7 @@ JSC::JSPromise* ScriptModuleLoader::importModule(JSC::JSGlobalObject* jsGlobalOb
 
     auto reject = [&](auto& scope) {
         auto* promise = JSC::JSPromise::create(vm, globalObject.promiseStructure());
-        return promise->rejectWithCaughtException(&globalObject, scope);
+        return promise->rejectWithCaughtException(vm, scope);
     };
 
     auto type = fetchParameters ? fetchParameters->type() : JSC::ScriptFetchParameters::Type::JavaScript;

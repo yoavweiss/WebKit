@@ -76,7 +76,7 @@ JSC_DEFINE_HOST_FUNCTION(runWebAssemblyPromisingFunction, (JSGlobalObject* globa
         // An exception was thrown in wasm code
         JSValue exceptionValue = scope.exception()->value();
         TRY_CLEAR_EXCEPTION(scope, { });
-        resultPromise->reject(vm, globalObject, exceptionValue);
+        resultPromise->reject(vm, exceptionValue);
     } else if (!context.completion) [[likely]] {
         // The call returned without suspending, result is the returned value
         resultPromise->resolve(globalObject, vm, result);

@@ -216,7 +216,7 @@ UCPURegister pinballHandlerFulfillFunctionContinue(PinballHandlerContext* contex
         JSValue arg = JSValue::decode(context->arguments[0]);
         resultPromise->resolve(context->globalObject, vm, arg);
     } else {
-        resultPromise->reject(vm, context->globalObject, scope.exception());
+        resultPromise->reject(vm, scope.exception());
         scope.clearException();
     }
 
@@ -255,7 +255,7 @@ void pinballHandlerFinishReject(PinballHandlerContext* context)
         JSValue arg = JSValue::decode(context->arguments[0]);
         resultPromise->resolve(context->globalObject, vm, arg);
     } else {
-        resultPromise->reject(vm, context->globalObject, scope.exception());
+        resultPromise->reject(vm, scope.exception());
         scope.clearException();
     }
 
@@ -272,7 +272,7 @@ void pinballHandlerRejectWithStackOverflow(PinballHandlerContext* context)
     PinballCompletion* pinball = context->pinball;
     JSPromise* resultPromise = pinball->resultPromise();
 
-    resultPromise->reject(vm, context->globalObject, createStackOverflowError(context->globalObject));
+    resultPromise->reject(vm, createStackOverflowError(context->globalObject));
 
     jspiContext.deactivate(vm);
     context->~PinballHandlerContext();

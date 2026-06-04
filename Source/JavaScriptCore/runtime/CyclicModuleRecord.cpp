@@ -417,7 +417,7 @@ JSPromise* CyclicModuleRecord::evaluate(JSGlobalObject* globalObject)
         // 9.c. Assert: module.[[EvaluationError]] and result are the same Completion Record.
         ASSERT(module->evaluationError() == exception->value());
         // 9.d. Perform ! Call(capability.[[Reject]], undefined, « result.[[Value]] »).
-        capability->rejectWithCaughtException(globalObject, scope);
+        capability->rejectWithCaughtException(vm, scope);
     // 10. Else,
     } else {
         // 10.a. Assert: module.[[Status]] is either EVALUATING-ASYNC or EVALUATED.
@@ -430,7 +430,7 @@ JSPromise* CyclicModuleRecord::evaluate(JSGlobalObject* globalObject)
             ASSERT(module->asyncEvaluationOrder().isUnset() || module->asyncEvaluationOrder().isDone());
             // 10.c.ii. NOTE: module.[[AsyncEvaluationOrder]] is DONE if and only if module had already been evaluated and that evaluation was asynchronous.
             // 10.c.iii. Perform ! Call(capability.[[Resolve]], undefined, « undefined »).
-            capability->fulfill(vm, globalObject, jsUndefined());
+            capability->fulfill(vm, jsUndefined());
         }
         // 10.d. Assert: stack is empty.
         ASSERT(stack.isEmpty());
@@ -454,9 +454,9 @@ void CyclicModuleRecord::execute(JSGlobalObject* globalObject, JSPromise* capabi
         if (capability) {
             if (Exception* exception = scope.exception()) {
                 JSModuleLoader::attachErrorInfo(globalObject, exception, wasmModule, wasmModule->moduleKey(), ScriptFetchParameters::WebAssembly, JSModuleLoader::ModuleFailure::Kind::Evaluation);
-                capability->rejectWithCaughtException(globalObject, scope);
+                capability->rejectWithCaughtException(vm, scope);
             } else
-                capability->fulfill(vm, globalObject, result);
+                capability->fulfill(vm, result);
             return;
         }
         RELEASE_AND_RETURN(scope, void());
@@ -490,7 +490,7 @@ void CyclicModuleRecord::executeAsync(JSGlobalObject* globalObject)
     // 7. Let onRejected be CreateBuiltinFunction(rejectedClosure, 0, "", « »).
     // Also handled in JSMicrotask.cpp.
     // 8. Perform PerformPromiseThen(capability.[[Promise]], onFulfilled, onRejected).
-    promise->performPromiseThenWithInternalMicrotask(vm, globalObject, InternalMicrotask::AsyncModuleExecutionDone, nullptr, this);
+    promise->performPromiseThenWithInternalMicrotask(vm, InternalMicrotask::AsyncModuleExecutionDone, nullptr, this);
     // 9. Perform ! module.ExecuteModule(capability).
     execute(globalObject, promise);
     RETURN_IF_EXCEPTION(scope, void());
@@ -577,7 +577,7 @@ void CyclicModuleRecord::asyncExecutionRejected(JSGlobalObject* globalObject, JS
         // 9.a. Assert: module.[[CycleRoot]] and module are the same Module Record.
         ASSERT(cycleRoot() == this);
         // 9.b. Perform ! Call(module.[[TopLevelCapability]].[[Reject]], undefined, « error »).
-        topLevel->reject(vm, globalObject, error);
+        topLevel->reject(vm, error);
     }
     // 10. For each Cyclic Module Record m of module.[[AsyncParentModules]], do
     for (const WriteBarrier<AbstractModuleRecord>& m : asyncParentModules()) {
@@ -617,7 +617,7 @@ void CyclicModuleRecord::asyncExecutionFulfilled(JSGlobalObject* globalObject)
         // 7.a. Assert: module.[[CycleRoot]] and module are the same Module Record.
         ASSERT(cycleRoot() == this);
         // 7.b. Perform ! Call(module.[[TopLevelCapability]].[[Resolve]], undefined, « undefined »).
-        capability->fulfill(vm, globalObject, jsUndefined());
+        capability->fulfill(vm, jsUndefined());
     }
     // 8. Let execList be a new empty List.
     // (Note: it's safe to use a Vector instead of a MarkedArgumentsBuffer here because all the contents are accessed through WriteBarriers starting at `this`.)
@@ -672,7 +672,7 @@ void CyclicModuleRecord::asyncExecutionFulfilled(JSGlobalObject* globalObject)
                     // 12.c.iii.3.a. Assert: m.[[CycleRoot]] and m are the same Module Record.
                     ASSERT(m->cycleRoot() == m);
                     // 12.c.iii.3.b. Perform ! Call(m.[[TopLevelCapability]].[[Resolve]], undefined, « undefined »).
-                    capability->fulfill(vm, globalObject, jsUndefined());
+                    capability->fulfill(vm, jsUndefined());
                 }
             }
         }

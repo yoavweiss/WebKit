@@ -695,7 +695,7 @@ JSC::JSPromise* JSDOMGlobalObject::moduleLoaderFetch(JSC::JSGlobalObject* global
         RELEASE_AND_RETURN(scope, loader->fetch(globalObject, moduleLoader, moduleKey, WTF::move(parameters), WTF::move(scriptFetcher)));
     JSC::JSPromise* promise = JSC::JSPromise::create(vm, globalObject->promiseStructure());
     scope.release();
-    promise->reject(vm, globalObject, jsUndefined());
+    promise->reject(vm, jsUndefined());
     return promise;
 }
 
@@ -716,7 +716,7 @@ JSC::JSPromise* JSDOMGlobalObject::moduleLoaderImportModule(JSC::JSGlobalObject*
         RELEASE_AND_RETURN(scope, loader->importModule(globalObject, moduleLoader, moduleName, WTF::move(parameters), sourceOrigin, deferred));
     JSC::JSPromise* promise = JSC::JSPromise::create(vm, globalObject->promiseStructure());
     scope.release();
-    promise->reject(vm, globalObject, jsUndefined());
+    promise->reject(vm, jsUndefined());
     return promise;
 }
 

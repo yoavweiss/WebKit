@@ -289,7 +289,7 @@ JSC_DEFINE_HOST_FUNCTION(promiseProtoFuncFinally, (JSGlobalObject* globalObject,
         if (promiseSpeciesWatchpointIsValid(vm, promise)) [[likely]] {
             JSPromise* resultPromise = JSPromise::create(vm, globalObject->promiseStructure());
             auto* context = JSPromiseCombinatorsGlobalContext::create(vm, resultPromise, onFinally, jsUndefined());
-            promise->performPromiseThenWithInternalMicrotask(vm, globalObject, InternalMicrotask::PromiseFinallyReactionJob, resultPromise, context);
+            promise->performPromiseThenWithInternalMicrotask(vm, InternalMicrotask::PromiseFinallyReactionJob, resultPromise, context);
             return JSValue::encode(resultPromise);
         }
     }
