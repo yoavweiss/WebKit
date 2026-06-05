@@ -5127,7 +5127,9 @@ void WebPage::adjustSettingsForLockdownMode(Settings& settings, const WebPrefere
     Settings::disableGlobalUnstableFeaturesForModernWebKit();
     settings.disableFeaturesForLockdownMode();
 
-    if (WebPreferences::forcedSiteIsolationAlwaysOnForTesting() && originalSiteIsolationEnabled)
+    // Though SiteIsolationEnabled is still unstable, web process must stay in sync with the UI process
+    // setting to avoid IPC state mismatch.
+    if (originalSiteIsolationEnabled)
         settings.setSiteIsolationEnabled(true);
 
 #if PLATFORM(COCOA)
