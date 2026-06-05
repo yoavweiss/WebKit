@@ -37,14 +37,6 @@
 namespace JSC {
 namespace TemporalCore {
 
-// Shared error messages for ICU failure paths. ICU errors are not user-actionable
-// — they indicate ICU resource exhaustion or internal failure — so the messages
-// are intentionally generic and shared across call sites.
-static constexpr ASCIILiteral icuOpenCalendarFailed = "Failed to open ICU calendar"_s;
-static constexpr ASCIILiteral icuSetCalendarFailed = "Failed to set ICU calendar"_s;
-static constexpr ASCIILiteral icuReadCalendarFailed = "Failed to read calendar fields from ICU"_s;
-static constexpr ASCIILiteral icuCalendarArithmeticFailed = "Failed to perform ICU calendar arithmetic"_s;
-
 CalendarID calendarIDFromString(StringView identifier)
 {
     const auto& calendars = intlAvailableCalendars();

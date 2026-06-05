@@ -37,16 +37,6 @@
 namespace JSC {
 namespace TemporalCore {
 
-// Shared error messages for ICU failure paths in the time-zone bridge. ICU
-// errors are not user-actionable, so the messages are intentionally generic
-// and shared across call sites.
-static constexpr ASCIILiteral icuOpenTimeZoneFailed = "Failed to open ICU calendar for time zone"_s;
-static constexpr ASCIILiteral icuTimeZoneOffsetFailed = "Failed to get time zone offset from ICU"_s;
-static constexpr ASCIILiteral icuSetCalendarFailed = "Failed to set ICU calendar"_s;
-static constexpr ASCIILiteral icuCalendarArithmeticFailed = "Failed to perform ICU calendar arithmetic"_s;
-static constexpr ASCIILiteral icuTransitionFailed = "Failed to get time zone transition date from ICU"_s;
-static constexpr ASCIILiteral epochNanosecondsOutOfRange = "Epoch nanoseconds out of valid Temporal range"_s;
-
 // openCalendarForTimeZone — internal: opens ICU UCalendar for a named (IANA) timezone
 static std::unique_ptr<UCalendar, ICUDeleter<ucal_close>> openCalendarForTimeZone(const TimeZone& timeZone)
 {
