@@ -100,10 +100,10 @@ ExceptionOr<void> MutationObserver::observe(Node& node, const Init& init)
         options.add(OptionType::AttributeFilter);
     }
 
-    if (init.attributes ? init.attributes.value() : options.containsAny({ OptionType::AttributeFilter, OptionType::AttributeOldValue }))
+    if (init.attributes ? init.attributes.value() : (init.attributeOldValue.has_value() || init.attributeFilter.has_value()))
         options.add(OptionType::Attributes);
 
-    if (init.characterData ? init.characterData.value() : options.contains(OptionType::CharacterDataOldValue))
+    if (init.characterData ? init.characterData.value() : init.characterDataOldValue.has_value())
         options.add(OptionType::CharacterData);
 
     if (!validateOptions(options))
