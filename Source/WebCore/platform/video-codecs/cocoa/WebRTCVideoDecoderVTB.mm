@@ -45,6 +45,14 @@ static bool shouldUseFullRange(CMVideoFormatDescriptionRef format)
     return fullRange && CFBooleanGetValue(fullRange.get());
 }
 
+static int bitDepthFromFormat(CMVideoFormatDescriptionRef format)
+{
+    int bitDepth = 8;
+    if (RetainPtr bitsPerComponent = dynamic_cf_cast<CFNumberRef>(PAL::CMFormatDescriptionGetExtension(format, PAL::kCMFormatDescriptionExtension_BitsPerComponent)))
+        CFNumberGetValue(bitsPerComponent.get(), kCFNumberIntType, &bitDepth);
+    return bitDepth;
+}
+
 static RetainPtr<CFDictionaryRef> createPixelBufferAttributes(CMVideoFormatDescriptionRef format)
 {
     static size_t const attributesSize = 3;
@@ -59,8 +67,16 @@ static RetainPtr<CFDictionaryRef> createPixelBufferAttributes(CMVideoFormatDescr
     };
 
     auto ioSurfaceValue = adoptCF(CFDictionaryCreate(kCFAllocatorDefault, nullptr, nullptr, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks));
-    int64_t nv12type = shouldUseFullRange(format) ? kCVPixelFormatType_420YpCbCr8BiPlanarFullRange : kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange;
-    auto pixelFormat = adoptCF(CFNumberCreate(nullptr, kCFNumberLongType, &nv12type));
+    bool isFullRange = shouldUseFullRange(format);
+    int bitDepth = bitDepthFromFormat(format);
+    ASSERT(bitDepth == 8 || bitDepth == 10);
+
+    int64_t pixelFormatType;
+    if (bitDepth > 8)
+        pixelFormatType = isFullRange ? kCVPixelFormatType_420YpCbCr10BiPlanarFullRange : kCVPixelFormatType_420YpCbCr10BiPlanarVideoRange;
+    else
+        pixelFormatType = isFullRange ? kCVPixelFormatType_420YpCbCr8BiPlanarFullRange : kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange;
+    RetainPtr pixelFormat = adoptCF(CFNumberCreate(nullptr, kCFNumberLongType, &pixelFormatType));
     CFTypeRef values[attributesSize] = { kCFBooleanTrue, ioSurfaceValue.get(), pixelFormat.get() };
     return adoptCF(CFDictionaryCreate(kCFAllocatorDefault, keys, values, attributesSize, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks));
 }

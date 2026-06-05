@@ -366,6 +366,10 @@ RetainPtr<CMFormatDescriptionRef> createFormatDescriptionFromTrackInfo(const Tra
     if (videoInfo.colorSpace().fullRange.value_or(false))
         CFDictionaryAddValue(extensions.get(), PAL::kCMFormatDescriptionExtension_FullRangeVideo, kCFBooleanTrue);
 
+    int bitDepth = videoInfo.bitDepth();
+    auto bitsPerComponent = adoptCF(CFNumberCreate(nullptr, kCFNumberIntType, &bitDepth));
+    CFDictionaryAddValue(extensions.get(), PAL::kCMFormatDescriptionExtension_BitsPerComponent, bitsPerComponent.get());
+
     if (videoInfo.colorSpace().primaries) {
         if (RetainPtr cmColorPrimaries = convertToCMColorPrimaries(*videoInfo.colorSpace().primaries))
             CFDictionaryAddValue(extensions.get(), kCVImageBufferColorPrimariesKey, cmColorPrimaries.get());
@@ -746,7 +750,8 @@ PlatformVideoColorSpace computeVideoFrameColorSpace(CVPixelBufferRef pixelBuffer
         matrix = PlatformVideoMatrixCoefficients::Bt470bg;
 
     auto pixelFormat = CVPixelBufferGetPixelFormatType(pixelBuffer);
-    bool isFullRange = pixelFormat != kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange;
+    // FIXME: We should do a more comprehensive check.
+    bool isFullRange = pixelFormat != kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange && pixelFormat != kCVPixelFormatType_420YpCbCr10BiPlanarVideoRange;
 
     return { primaries, transfer, matrix, isFullRange };
 }

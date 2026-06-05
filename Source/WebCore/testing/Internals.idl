@@ -781,6 +781,7 @@ enum ContentsFormat {
     undefined setHasHDRContentForTesting(HTMLImageElement element);
 
     [Conditional=WEB_CODECS] boolean hasPendingActivity(WebCodecsVideoDecoder decoder);
+    [Conditional=WEB_CODECS] boolean is10bitsVideoFrame(WebCodecsVideoFrame frame);
 
     undefined setGridMaxTracksLimit(unsigned long maxTracksLimit);
 

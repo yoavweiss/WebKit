@@ -1358,6 +1358,12 @@ bool Internals::hasPendingActivity(const WebCodecsVideoDecoder& decoder) const
 {
     return decoder.hasPendingActivity();
 }
+
+bool Internals::is10bitsVideoFrame(const WebCodecsVideoFrame& frame) const
+{
+    RefPtr videoFrame = frame.internalFrame();
+    return videoFrame && videoFrame->is10bits();
+}
 #endif
 
 void Internals::setGridMaxTracksLimit(unsigned maxTrackLimit)

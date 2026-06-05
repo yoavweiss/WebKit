@@ -292,6 +292,7 @@ public:
 
 #if ENABLE(WEB_CODECS)
     bool hasPendingActivity(const WebCodecsVideoDecoder&) const;
+    bool is10bitsVideoFrame(const WebCodecsVideoFrame&) const;
 #endif
 
     void NODELETE setGridMaxTracksLimit(unsigned);

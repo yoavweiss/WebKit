@@ -1,0 +1,4 @@
+
+PASS VP9 profile 2 isConfigSupported
+PASS VP9 profile 2 decoded with WebCodecs has BT.2020 and is 10 bits
+
