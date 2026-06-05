@@ -977,12 +977,16 @@ void WebProcessProxy::sendPageCloseMessage(std::optional<WebPageProxyIdentifier>
 
 bool WebProcessProxy::hasCommittedClientOrigin(const WebCore::ClientOrigin& clientOrigin) const
 {
+    if (m_committedClientOrigins.contains(clientOrigin))
+        return true;
+
     if (isRunningWorkers()) {
         if (!m_site)
             return m_committedSites.contains(Site { clientOrigin.topOrigin }) && m_committedSites.contains(Site { clientOrigin.clientOrigin });
         return Site { clientOrigin.topOrigin } == *m_site && Site { clientOrigin.clientOrigin } == *m_site;
     }
-    return m_committedClientOrigins.contains(clientOrigin);
+
+    return false;
 }
 
 void WebProcessProxy::didCommitLoadClientOrigin(WebCore::ClientOrigin&& clientOrigin)
