@@ -316,3 +316,5 @@ webkit.org/b/315685 [ Debug ] TestWebKitAPI.PrivateClickMeasurement.Basic [ Pass
 webkit.org/b/315685 [ Debug ] TestWebKitAPI.PrivateClickMeasurement.DestinationClickFraudPrevention [ Pass Timeout ]
 webkit.org/b/315685 [ Debug ] TestWebKitAPI.PrivateClickMeasurement.EphemeralWithAttributedBundleIdentifier [ Pass Timeout ]
 webkit.org/b/315685 [ Debug ] TestWebKitAPI.PrivateClickMeasurement.ManualAttributionAndConversion [ Pass Timeout ]
+
+webkit.org/b/316420 TestWebKitAPI.HSTS.Preconnect [ Pass Timeout ]
