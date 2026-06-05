@@ -152,13 +152,13 @@ struct JapaneseEra {
     int32_t startYear;
     ASCIILiteral name;
 };
-static constexpr JapaneseEra japaneseEras[] = {
+static constexpr auto japaneseEras = WTF::toArray<JapaneseEra>({
     { 2019, "reiwa"_s },
     { 1989, "heisei"_s },
     { 1926, "showa"_s },
     { 1912, "taisho"_s },
     { 1868, "meiji"_s },
-};
+});
 
 // japaneseEraStartYear — no spec AO, no ICU4X equivalent (ICU4X keys on EraStartDate directly).
 // Bridges ICU4C's UCAL_ERA integer to a Gregorian start year for lookup in japaneseEras[].

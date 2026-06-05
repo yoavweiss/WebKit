@@ -3057,13 +3057,13 @@ JSBigInt::ImplResult JSBigInt::rightShiftByMaximum(JSGlobalObject* globalObject,
 // base-N string representation of a number. To increase accuracy, the array
 // value is the actual value multiplied by 32. To generate this table:
 // for (var i = 0; i <= 36; i++) { print(Math.ceil(Math.log2(i) * 32) + ","); }
-constexpr uint8_t maxBitsPerCharTable[] = {
+constexpr auto maxBitsPerCharTable = WTF::toArray<uint8_t>({
     0,   0,   32,  51,  64,  75,  83,  90,  96, // 0..8
     102, 107, 111, 115, 119, 122, 126, 128,     // 9..16
     131, 134, 136, 139, 141, 143, 145, 147,     // 17..24
     149, 151, 153, 154, 156, 158, 159, 160,     // 25..32
     162, 163, 165, 166,                         // 33..36
-};
+});
 
 static constexpr unsigned bitsPerCharTableShift = 5;
 static constexpr size_t bitsPerCharTableMultiplier = 1u << bitsPerCharTableShift;
