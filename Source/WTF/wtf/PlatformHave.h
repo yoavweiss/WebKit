@@ -139,20 +139,46 @@
 #endif
 
 #if OS(DARWIN)
+#if !defined(HAVE_ERRNO_H)
 #define HAVE_ERRNO_H 1
+#endif
+#if !defined(HAVE_LANGINFO_H)
 #define HAVE_LANGINFO_H 1
+#endif
+#if !defined(HAVE_LOCALTIME_R)
 #define HAVE_LOCALTIME_R 1
+#endif
+#if !defined(HAVE_MMAP)
 #define HAVE_MMAP 1
+#endif
+#if !defined(HAVE_REGEX_H)
 #define HAVE_REGEX_H 1
+#endif
+#if !defined(HAVE_SIGNAL_H)
 #define HAVE_SIGNAL_H 1
+#endif
+#if !defined(HAVE_STAT_BIRTHTIME)
 #define HAVE_STAT_BIRTHTIME 1
+#endif
+#if !defined(HAVE_SYS_PARAM_H)
 #define HAVE_SYS_PARAM_H 1
+#endif
+#if !defined(HAVE_SYS_TIME_H)
 #define HAVE_SYS_TIME_H 1
+#endif
+#if !defined(HAVE_TM_GMTOFF)
 #define HAVE_TM_GMTOFF 1
+#endif
+#if !defined(HAVE_TM_ZONE)
 #define HAVE_TM_ZONE 1
+#endif
+#if !defined(HAVE_TIMEGM)
 #define HAVE_TIMEGM 1
+#endif
+#if !defined(HAVE_PTHREAD_MAIN_NP)
 #define HAVE_PTHREAD_MAIN_NP 1
 #endif
+#endif // OS(DARWIN)
 
 /* watchOS (ARM64_32) must not use int128_t because of wrong behavior. */
 #if (OS(DARWIN) || OS(LINUX)) && CPU(ADDRESS64)
