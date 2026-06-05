@@ -1115,6 +1115,11 @@ static std::optional<PlainDate> NODELETE parseDate(StringParsingBuffer<Character
             splitByHyphen = true;
             buffer.advance();
         }
+    } else {
+        // Per the Temporal grammar, Date and DateSpecYearMonth both require DateYear.
+        // Only DateSpecMonthDay permits the no-year form.
+        if (format != TemporalDateFormat::MonthDay)
+            return std::nullopt;
     }
 
     unsigned month = 0;

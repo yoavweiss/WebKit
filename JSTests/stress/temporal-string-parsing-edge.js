@@ -82,3 +82,40 @@ function shouldThrow(fn, msg) {
     shouldBe(t3.hour, 23, "max time hour");
     shouldBe(t3.nanosecond, 999, "max time ns");
 }
+
+// Regression: short DateMonth/DateDay-prefixed inputs used to dereference
+// past the end of the parsing buffer in ISO8601::parseDate, producing SIGTRAP
+// on hardened builds and OOB reads on unhardened builds. They must throw cleanly.
+{
+    const oobInputs = [
+        "0", "1",                                  // 1-char crashers
+        "01", "02", "03", "04", "05", "06", "07",  // 2-char crashers
+        "08", "09", "10", "11", "12",
+        "010", "011", "012", "013",                // 3-char crashers
+        "120", "121", "122", "123",
+    ];
+    const parsers = [
+        ["PlainDate", s => Temporal.PlainDate.from(s)],
+        ["PlainDateTime", s => Temporal.PlainDateTime.from(s)],
+        ["PlainMonthDay", s => Temporal.PlainMonthDay.from(s)],
+        ["PlainYearMonth", s => Temporal.PlainYearMonth.from(s)],
+        ["Instant", s => Temporal.Instant.from(s)],
+    ];
+    for (const [name, fn] of parsers) {
+        for (const s of oobInputs)
+            shouldThrow(() => fn(s), `${name}.from("${s}") OOB regression`);
+    }
+}
+
+// Per Temporal grammar, Date and DateSpecYearMonth both require a DateYear.
+// Only DateSpecMonthDay permits the no-year (MMDD / MM-DD) form. These inputs
+// previously parsed as year=0000.
+{
+    shouldThrow(() => Temporal.PlainYearMonth.from("0115"), "YM 0115 needs year");
+    shouldThrow(() => Temporal.PlainDate.from("01-15"), "Date 01-15 needs year");
+    // MonthDay accepts the no-year form.
+    const md = Temporal.PlainMonthDay.from("0115");
+    shouldBe(md.toString(), "01-15", "MonthDay 0115");
+    const md2 = Temporal.PlainMonthDay.from("01-15");
+    shouldBe(md2.toString(), "01-15", "MonthDay 01-15");
+}
