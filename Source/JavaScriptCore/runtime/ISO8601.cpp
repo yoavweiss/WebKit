@@ -1114,16 +1114,12 @@ static std::optional<PlainDate> NODELETE parseDate(StringParsingBuffer<Character
         if (*buffer == '-') {
             splitByHyphen = true;
             buffer.advance();
-            if (buffer.lengthRemaining() < 5 && format == TemporalDateFormat::Date)
-                return std::nullopt;
-        } else {
-            if (buffer.lengthRemaining() < 4 && format == TemporalDateFormat::Date)
-                return std::nullopt;
         }
     }
-    // We ensured that buffer has enough length for month and day. We do not need to check length.
 
     unsigned month = 0;
+    if (buffer.lengthRemaining() < 2)
+        return std::nullopt;
     auto firstMonthCharacter = *buffer;
     if (firstMonthCharacter == '0' || firstMonthCharacter == '1') {
         buffer.advance();
@@ -1147,17 +1143,22 @@ static std::optional<PlainDate> NODELETE parseDate(StringParsingBuffer<Character
         return PlainDate(year, month, 1);
     }
 
+    if (buffer.atEnd())
+        return std::nullopt;
+
+    bool consumedDaySeparator = false;
     if (*buffer == '-') {
-        if (splitByHyphen || format != TemporalDateFormat::Date)
+        if (splitByHyphen || format != TemporalDateFormat::Date) {
             buffer.advance();
-        else
+            consumedDaySeparator = true;
+        } else
             return std::nullopt;
     } else if (splitByHyphen)
         return std::nullopt;
 
     unsigned day = 0;
-    auto firstDayCharacter = *buffer;
-    if (firstDayCharacter >= '0' && firstDayCharacter <= '3') {
+    if (buffer.lengthRemaining() >= 2 && *buffer >= '0' && *buffer <= '3') {
+        auto firstDayCharacter = *buffer;
         buffer.advance();
         auto secondDayCharacter = *buffer;
         if (!isASCIIDigit(secondDayCharacter))
@@ -1166,7 +1167,7 @@ static std::optional<PlainDate> NODELETE parseDate(StringParsingBuffer<Character
         if (!day || day > daysInMonth(year, month))
             return std::nullopt;
         buffer.advance();
-    } else if (format != TemporalDateFormat::YearMonth)
+    } else if (consumedDaySeparator || format != TemporalDateFormat::YearMonth)
         return std::nullopt;
 
     // PlainDate represents out-of-range years using outOfRangeYear
