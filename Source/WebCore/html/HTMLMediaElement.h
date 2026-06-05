@@ -312,6 +312,7 @@ public:
     WEBCORE_EXPORT bool ended() const;
     bool NODELETE autoplay() const;
     bool isAutoplaying() const { return m_autoplaying; }
+    bool wasInterruptedForInvisibleAutoplay() const { return m_wasInterruptedForInvisibleAutoplay; }
     bool NODELETE loop() const;
     void setLoop(bool b);
 

@@ -504,6 +504,24 @@ Expected<void, MediaPlaybackDenialExplanation> MediaElementSession::playbackStat
     return { };
 }
 
+static bool autoplayPermittedWhileInvisible(const HTMLMediaElement& element)
+{
+    // If the media element is already playing audibly, allow it to continue even when not visible as
+    // pausing it would be observable by the user. Also allow elements that were previously playing
+    // audibly and got interrupted by becoming invisible to resume (e.g. after unmuting), since the
+    // interruption is what made them paused. However, elements that have not yet started playing
+    // should not autoplay while invisible.
+    if (element.paused() && !element.wasInterruptedForInvisibleAutoplay())
+        return false;
+    if (element.isVideo() && !element.hasAudio())
+        return false;
+    if (element.muted())
+        return false;
+    if (!element.volume())
+        return false;
+    return true;
+}
+
 bool MediaElementSession::autoplayPermitted() const
 {
     RefPtr element = m_element.get();
@@ -519,8 +537,7 @@ bool MediaElementSession::autoplayPermitted() const
     if (!hasBehaviorRestriction(MediaElementSession::InvisibleAutoplayNotPermitted))
         return true;
 
-    // If the media element is audible, allow autoplay even when not visible as pausing it would be observable by the user.
-    if ((!element->isVideo() || element->hasAudio()) && !element->muted() && element->volume())
+    if (autoplayPermittedWhileInvisible(*element))
         return true;
 
     CheckedPtr renderer = element->renderer();
