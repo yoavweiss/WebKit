@@ -523,8 +523,13 @@ void EventHandler::nodeWillBeRemoved(Node& nodeToBeRemoved)
             m_mouseMoveTargetOverride = elementBeingRemoved->parentElementInComposedTree();
     }
 
-    if (nodeToBeRemoved.isShadowIncludingInclusiveAncestorOf(m_lastElementUnderMouse.get()))
-        m_lastElementUnderMouse = nullptr;
+    if (nodeToBeRemoved.isShadowIncludingInclusiveAncestorOf(m_lastElementUnderMouse.get())) {
+        if (&nodeToBeRemoved != m_lastElementUnderMouse.get()) {
+            RefPtr elementBeingRemoved = dynamicDowncast<Element>(nodeToBeRemoved);
+            m_lastElementUnderMouse = elementBeingRemoved ? elementBeingRemoved->parentElementInComposedTree() : nullptr;
+        } else
+            m_lastElementUnderMouse = nullptr;
+    }
 
     if (nodeToBeRemoved.isShadowIncludingInclusiveAncestorOf(m_clickCaptureElement.get()))
         m_clickCaptureElement = nullptr;
