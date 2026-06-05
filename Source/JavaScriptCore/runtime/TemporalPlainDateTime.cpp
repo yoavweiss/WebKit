@@ -169,7 +169,8 @@ static TemporalPlainDateTime* fromImpl(JSGlobalObject* globalObject, JSValue ite
             throwTypeError(globalObject, scope, "day property must be present"_s);
             return { };
         }
-        double day = dayProperty.toIntegerOrInfinity(globalObject);
+        // Spec uses ToPositiveIntegerWithTruncation: rejects NaN/±Inf and any value ≤ 0.
+        double day = dayProperty.toIntegerWithTruncation(globalObject);
         RETURN_IF_EXCEPTION(scope, { });
         if (!(day > 0 && std::isfinite(day))) [[unlikely]] {
             throwRangeError(globalObject, scope, "day property must be positive and finite"_s);
@@ -192,7 +193,7 @@ static TemporalPlainDateTime* fromImpl(JSGlobalObject* globalObject, JSValue ite
             JSValue eraYearProperty = item->get(globalObject, Identifier::fromString(vm, "eraYear"_s));
             RETURN_IF_EXCEPTION(scope, { });
             if (!eraYearProperty.isUndefined()) {
-                double ey = eraYearProperty.toIntegerOrInfinity(globalObject);
+                double ey = eraYearProperty.toIntegerWithTruncation(globalObject);
                 RETURN_IF_EXCEPTION(scope, { });
                 if (!std::isfinite(ey)) [[unlikely]] {
                     throwRangeError(globalObject, scope, "eraYear property must be finite"_s);
@@ -207,7 +208,7 @@ static TemporalPlainDateTime* fromImpl(JSGlobalObject* globalObject, JSValue ite
         auto readTimeField = [&](JSValue val, TemporalUnit unit) {
             if (val.isUndefined())
                 return;
-            double d = val.toIntegerOrInfinity(globalObject);
+            double d = val.toIntegerWithTruncation(globalObject);
             RETURN_IF_EXCEPTION(scope, void());
             if (!std::isfinite(d)) [[unlikely]] {
                 throwRangeError(globalObject, scope, "Temporal time properties must be finite"_s);
@@ -241,7 +242,7 @@ static TemporalPlainDateTime* fromImpl(JSGlobalObject* globalObject, JSValue ite
         RETURN_IF_EXCEPTION(scope, { });
         double month = 0;
         if (!monthProperty.isUndefined()) {
-            month = monthProperty.toIntegerOrInfinity(globalObject);
+            month = monthProperty.toIntegerWithTruncation(globalObject);
             RETURN_IF_EXCEPTION(scope, { });
         }
 
@@ -278,7 +279,7 @@ static TemporalPlainDateTime* fromImpl(JSGlobalObject* globalObject, JSValue ite
             throwTypeError(globalObject, scope, "year property must be present"_s);
             return { };
         }
-        double year = yearProperty.isUndefined() ? 0 : yearProperty.toIntegerOrInfinity(globalObject);
+        double year = yearProperty.isUndefined() ? 0 : yearProperty.toIntegerWithTruncation(globalObject);
         RETURN_IF_EXCEPTION(scope, { });
         if (!std::isfinite(year)) [[unlikely]] {
             throwRangeError(globalObject, scope, "year property must be finite"_s);
@@ -305,6 +306,7 @@ static TemporalPlainDateTime* fromImpl(JSGlobalObject* globalObject, JSValue ite
             ASSERT(otherMonth);
             month = otherMonth->monthNumber;
         } else {
+            // Spec uses ToPositiveIntegerWithTruncation: rejects NaN/±Inf and any value ≤ 0.
             if (!(month > 0 && std::isfinite(month))) [[unlikely]] {
                 throwRangeError(globalObject, scope, "month property must be positive and finite"_s);
                 return { };

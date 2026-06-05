@@ -439,7 +439,7 @@ TemporalPlainDate::mergeDateFields(JSGlobalObject* globalObject, JSObject* tempo
     JSValue dayProperty = temporalDateLike->get(globalObject, vm.propertyNames->day);
     RETURN_IF_EXCEPTION(scope, { });
     if (!dayProperty.isUndefined()) {
-        day = dayProperty.toIntegerOrInfinity(globalObject);
+        day = dayProperty.toIntegerWithTruncation(globalObject);
         RETURN_IF_EXCEPTION(scope, { });
 
         if (day.value() <= 0 || !std::isfinite(day.value())) [[unlikely]] {
@@ -454,7 +454,7 @@ TemporalPlainDate::mergeDateFields(JSGlobalObject* globalObject, JSObject* tempo
     JSValue monthProperty = temporalDateLike->get(globalObject, vm.propertyNames->month);
     RETURN_IF_EXCEPTION(scope, { });
     if (!monthProperty.isUndefined()) {
-        month = monthProperty.toIntegerOrInfinity(globalObject);
+        month = monthProperty.toIntegerWithTruncation(globalObject);
         RETURN_IF_EXCEPTION(scope, { });
 
         if (month.value() <= 0 || !std::isfinite(month.value())) [[unlikely]] {
@@ -479,7 +479,7 @@ TemporalPlainDate::mergeDateFields(JSGlobalObject* globalObject, JSObject* tempo
     JSValue yearProperty = temporalDateLike->get(globalObject, vm.propertyNames->year);
     RETURN_IF_EXCEPTION(scope, { });
     if (!yearProperty.isUndefined()) {
-        year = yearProperty.toIntegerOrInfinity(globalObject);
+        year = yearProperty.toIntegerWithTruncation(globalObject);
         RETURN_IF_EXCEPTION(scope, { });
 
         if (!std::isfinite(year.value())) [[unlikely]] {
@@ -553,7 +553,7 @@ std::optional<int32_t> TemporalPlainDate::toDay(JSGlobalObject* globalObject, JS
     JSValue dayProperty = temporalDateLike->get(globalObject, vm.propertyNames->day);
     RETURN_IF_EXCEPTION(scope, { });
     if (!dayProperty.isUndefined()) {
-        double doubleDay = dayProperty.toIntegerOrInfinity(globalObject);
+        double doubleDay = dayProperty.toIntegerWithTruncation(globalObject);
         RETURN_IF_EXCEPTION(scope, { });
 
         if (!std::isfinite(doubleDay)) [[unlikely]] {
@@ -579,7 +579,7 @@ std::optional<int32_t> TemporalPlainDate::toYear(JSGlobalObject* globalObject, J
     JSValue yearProperty = temporalDateLike->get(globalObject, vm.propertyNames->year);
     RETURN_IF_EXCEPTION(scope, { });
     if (!yearProperty.isUndefined()) {
-        double doubleYear = yearProperty.toIntegerOrInfinity(globalObject);
+        double doubleYear = yearProperty.toIntegerWithTruncation(globalObject);
         RETURN_IF_EXCEPTION(scope, { });
 
         if (!std::isfinite(doubleYear)) [[unlikely]] {
@@ -605,7 +605,7 @@ TemporalPlainDate::toYearMonth(JSGlobalObject* globalObject, JSObject* temporalD
     JSValue monthProperty = temporalDateLike->get(globalObject, vm.propertyNames->month);
     RETURN_IF_EXCEPTION(scope, { });
     if (!monthProperty.isUndefined()) {
-        double doubleMonth = monthProperty.toIntegerOrInfinity(globalObject);
+        double doubleMonth = monthProperty.toIntegerWithTruncation(globalObject);
         RETURN_IF_EXCEPTION(scope, { });
 
         if (!std::isfinite(doubleMonth)) [[unlikely]] {

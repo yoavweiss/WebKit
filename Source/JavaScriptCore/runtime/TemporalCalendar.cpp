@@ -129,7 +129,7 @@ TemporalCore::CalendarFieldsIn readCalendarFieldsFromObject(JSGlobalObject* glob
         JSValue dayProp = bag->get(globalObject, vm.propertyNames->day);
         RETURN_IF_EXCEPTION(scope, fields);
         if (!dayProp.isUndefined()) {
-            double d = dayProp.toIntegerOrInfinity(globalObject);
+            double d = dayProp.toIntegerWithTruncation(globalObject);
             RETURN_IF_EXCEPTION(scope, fields);
             if (!(d > 0 && std::isfinite(d))) [[unlikely]] {
                 throwRangeError(globalObject, scope, "day must be positive and finite"_s);
@@ -150,7 +150,7 @@ TemporalCore::CalendarFieldsIn readCalendarFieldsFromObject(JSGlobalObject* glob
         JSValue eraYearProp = bag->get(globalObject, Identifier::fromString(vm, "eraYear"_s));
         RETURN_IF_EXCEPTION(scope, fields);
         if (!eraYearProp.isUndefined()) {
-            double ey = eraYearProp.toIntegerOrInfinity(globalObject);
+            double ey = eraYearProp.toIntegerWithTruncation(globalObject);
             RETURN_IF_EXCEPTION(scope, fields);
             if (!std::isfinite(ey)) [[unlikely]] {
                 throwRangeError(globalObject, scope, "eraYear must be finite"_s);
@@ -170,7 +170,7 @@ TemporalCore::CalendarFieldsIn readCalendarFieldsFromObject(JSGlobalObject* glob
         JSValue monthProp = bag->get(globalObject, vm.propertyNames->month);
         RETURN_IF_EXCEPTION(scope, fields);
         if (!monthProp.isUndefined()) {
-            double m = monthProp.toIntegerOrInfinity(globalObject);
+            double m = monthProp.toIntegerWithTruncation(globalObject);
             RETURN_IF_EXCEPTION(scope, fields);
             if (!std::isfinite(m) || m < 1) [[unlikely]] {
                 throwRangeError(globalObject, scope, "month must be positive and finite"_s);
@@ -204,7 +204,7 @@ TemporalCore::CalendarFieldsIn readCalendarFieldsFromObject(JSGlobalObject* glob
         JSValue yearProp = bag->get(globalObject, vm.propertyNames->year);
         RETURN_IF_EXCEPTION(scope, fields);
         if (!yearProp.isUndefined()) {
-            double y = yearProp.toIntegerOrInfinity(globalObject);
+            double y = yearProp.toIntegerWithTruncation(globalObject);
             RETURN_IF_EXCEPTION(scope, fields);
             if (!std::isfinite(y)) [[unlikely]] {
                 throwRangeError(globalObject, scope, "year must be finite"_s);
@@ -259,7 +259,7 @@ ZonedDateTimeFields readZonedDateTimeFieldsFromObject(JSGlobalObject* globalObje
         JSValue v = bag->get(globalObject, vm.propertyNames->day);
         RETURN_IF_EXCEPTION(scope, result);
         if (!v.isUndefined()) {
-            double d = v.toIntegerOrInfinity(globalObject);
+            double d = v.toIntegerWithTruncation(globalObject);
             RETURN_IF_EXCEPTION(scope, result);
             if (!(d > 0 && std::isfinite(d))) [[unlikely]] {
                 throwRangeError(globalObject, scope, "day property must be positive and finite"_s);
@@ -284,7 +284,7 @@ ZonedDateTimeFields readZonedDateTimeFieldsFromObject(JSGlobalObject* globalObje
         JSValue eraYearVal = bag->get(globalObject, Identifier::fromString(vm, "eraYear"_s));
         RETURN_IF_EXCEPTION(scope, result);
         if (!eraYearVal.isUndefined()) {
-            double ey = eraYearVal.toIntegerOrInfinity(globalObject);
+            double ey = eraYearVal.toIntegerWithTruncation(globalObject);
             RETURN_IF_EXCEPTION(scope, result);
             if (!std::isfinite(ey)) [[unlikely]] {
                 throwRangeError(globalObject, scope, "eraYear property must be finite"_s);
@@ -306,7 +306,7 @@ ZonedDateTimeFields readZonedDateTimeFieldsFromObject(JSGlobalObject* globalObje
         RETURN_IF_EXCEPTION(scope, void());
         if (v.isUndefined())
             return;
-        double val = v.toIntegerOrInfinity(globalObject);
+        double val = v.toIntegerWithTruncation(globalObject);
         RETURN_IF_EXCEPTION(scope, void());
         if (!std::isfinite(val)) [[unlikely]] {
             throwRangeError(globalObject, scope, "Temporal time properties must be finite"_s);
@@ -331,7 +331,7 @@ ZonedDateTimeFields readZonedDateTimeFieldsFromObject(JSGlobalObject* globalObje
         JSValue v = bag->get(globalObject, vm.propertyNames->month);
         RETURN_IF_EXCEPTION(scope, result);
         if (!v.isUndefined()) {
-            double m = v.toIntegerOrInfinity(globalObject);
+            double m = v.toIntegerWithTruncation(globalObject);
             RETURN_IF_EXCEPTION(scope, result);
             if (!std::isfinite(m) || m <= 0) [[unlikely]] {
                 throwRangeError(globalObject, scope, "month property must be a positive finite integer"_s);
@@ -409,7 +409,7 @@ ZonedDateTimeFields readZonedDateTimeFieldsFromObject(JSGlobalObject* globalObje
         RETURN_IF_EXCEPTION(scope, result);
         if (!v.isUndefined()) {
             // Step 9.c: apply ~to-integer-with-truncation~.
-            double y = v.toIntegerOrInfinity(globalObject);
+            double y = v.toIntegerWithTruncation(globalObject);
             RETURN_IF_EXCEPTION(scope, result);
             if (!std::isfinite(y)) [[unlikely]] {
                 throwRangeError(globalObject, scope, "year property must be finite"_s);

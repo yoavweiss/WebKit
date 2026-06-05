@@ -322,7 +322,7 @@ static RelativeToRecord toRelativeTemporalObject(JSGlobalObject* globalObject, J
         RETURN_IF_EXCEPTION(scope, { });
         double day = 0;
         if (!dayProperty.isUndefined()) {
-            day = dayProperty.toIntegerOrInfinity(globalObject);
+            day = dayProperty.toIntegerWithTruncation(globalObject);
             RETURN_IF_EXCEPTION(scope, { });
             if (!(day > 0 && std::isfinite(day))) [[unlikely]] {
                 throwRangeError(globalObject, scope, "day property must be positive and finite"_s);
@@ -344,7 +344,7 @@ static RelativeToRecord toRelativeTemporalObject(JSGlobalObject* globalObject, J
             JSValue eraYearProperty = obj->get(globalObject, Identifier::fromString(vm, "eraYear"_s));
             RETURN_IF_EXCEPTION(scope, { });
             if (!eraYearProperty.isUndefined()) {
-                double ey = eraYearProperty.toIntegerOrInfinity(globalObject);
+                double ey = eraYearProperty.toIntegerWithTruncation(globalObject);
                 RETURN_IF_EXCEPTION(scope, { });
                 if (!std::isfinite(ey)) [[unlikely]] {
                     throwRangeError(globalObject, scope, "eraYear property must be finite"_s);
@@ -360,7 +360,7 @@ static RelativeToRecord toRelativeTemporalObject(JSGlobalObject* globalObject, J
             RETURN_IF_EXCEPTION(scope, 0);
             if (val.isUndefined())
                 return 0;
-            double d = val.toIntegerOrInfinity(globalObject);
+            double d = val.toIntegerWithTruncation(globalObject);
             RETURN_IF_EXCEPTION(scope, 0);
             if (!std::isfinite(d)) [[unlikely]] {
                 throwRangeError(globalObject, scope, "Temporal time properties must be finite"_s);
@@ -383,7 +383,7 @@ static RelativeToRecord toRelativeTemporalObject(JSGlobalObject* globalObject, J
         RETURN_IF_EXCEPTION(scope, { });
         double month = 0;
         if (!monthProperty.isUndefined()) {
-            month = monthProperty.toIntegerOrInfinity(globalObject);
+            month = monthProperty.toIntegerWithTruncation(globalObject);
             RETURN_IF_EXCEPTION(scope, { });
         }
 
@@ -434,7 +434,7 @@ static RelativeToRecord toRelativeTemporalObject(JSGlobalObject* globalObject, J
         RETURN_IF_EXCEPTION(scope, { });
         double year = 0;
         if (!yearProperty.isUndefined()) {
-            year = yearProperty.toIntegerOrInfinity(globalObject);
+            year = yearProperty.toIntegerWithTruncation(globalObject);
             RETURN_IF_EXCEPTION(scope, { });
             if (!std::isfinite(year)) [[unlikely]] {
                 throwRangeError(globalObject, scope, "year property must be finite"_s);

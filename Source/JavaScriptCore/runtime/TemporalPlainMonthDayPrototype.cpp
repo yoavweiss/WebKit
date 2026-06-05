@@ -208,7 +208,7 @@ JSC_DEFINE_HOST_FUNCTION(temporalPlainMonthDayPrototypeFuncToPlainDate, (JSGloba
         JSValue eraYearValue = asObject(itemValue)->get(globalObject, Identifier::fromString(vm, "eraYear"_s));
         RETURN_IF_EXCEPTION(scope, { });
         if (!eraYearValue.isUndefined()) {
-            double ey = eraYearValue.toIntegerOrInfinity(globalObject);
+            double ey = eraYearValue.toIntegerWithTruncation(globalObject);
             RETURN_IF_EXCEPTION(scope, { });
             if (!std::isfinite(ey)) [[unlikely]]
                 return throwVMRangeError(globalObject, scope, "eraYear property must be finite"_s);

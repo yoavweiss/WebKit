@@ -397,7 +397,7 @@ ISO8601::Duration TemporalPlainTime::toTemporalTimeRecord(JSGlobalObject* global
             continue;
 
         hasRelevantProperty = true;
-        double integer = value.toIntegerOrInfinity(globalObject);
+        double integer = value.toIntegerWithTruncation(globalObject);
         RETURN_IF_EXCEPTION(scope, { });
         if (!std::isfinite(integer)) [[unlikely]] {
             throwRangeError(globalObject, scope, "Temporal time properties must be finite"_s);
@@ -430,7 +430,7 @@ std::array<std::optional<double>, numberOfTemporalPlainTimeUnits> TemporalPlainT
 
         if (!value.isUndefined()) {
             hasAnyFields = true;
-            double doubleValue = value.toIntegerOrInfinity(globalObject);
+            double doubleValue = value.toIntegerWithTruncation(globalObject);
             RETURN_IF_EXCEPTION(scope, { });
             if (!std::isfinite(doubleValue)) [[unlikely]] {
                 throwRangeError(globalObject, scope, "Temporal time properties must be finite"_s);

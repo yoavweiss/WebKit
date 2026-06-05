@@ -258,7 +258,7 @@ JSC_DEFINE_HOST_FUNCTION(temporalPlainDateTimePrototypeFuncWith, (JSGlobalObject
         RETURN_IF_EXCEPTION(scope, 0.0);
         if (v.isUndefined())
             return std::numeric_limits<double>::quiet_NaN();
-        double dv = v.toIntegerOrInfinity(globalObject);
+        double dv = v.toIntegerWithTruncation(globalObject);
         RETURN_IF_EXCEPTION(scope, 0.0);
         if (!std::isfinite(dv)) [[unlikely]] {
             throwRangeError(globalObject, scope, "field value must be finite"_s);
@@ -273,7 +273,7 @@ JSC_DEFINE_HOST_FUNCTION(temporalPlainDateTimePrototypeFuncWith, (JSGlobalObject
         JSValue v = fields->get(globalObject, vm.propertyNames->day);
         RETURN_IF_EXCEPTION(scope, { });
         if (!v.isUndefined()) {
-            double d = v.toIntegerOrInfinity(globalObject);
+            double d = v.toIntegerWithTruncation(globalObject);
             RETURN_IF_EXCEPTION(scope, { });
             if (!(d > 0 && std::isfinite(d))) [[unlikely]]
                 return throwVMRangeError(globalObject, scope, "day must be a positive finite integer"_s);
@@ -294,7 +294,7 @@ JSC_DEFINE_HOST_FUNCTION(temporalPlainDateTimePrototypeFuncWith, (JSGlobalObject
         JSValue eraYearVal = fields->get(globalObject, Identifier::fromString(vm, "eraYear"_s));
         RETURN_IF_EXCEPTION(scope, { });
         if (!eraYearVal.isUndefined()) {
-            double ey = eraYearVal.toIntegerOrInfinity(globalObject);
+            double ey = eraYearVal.toIntegerWithTruncation(globalObject);
             RETURN_IF_EXCEPTION(scope, { });
             if (!std::isfinite(ey)) [[unlikely]]
                 return throwVMRangeError(globalObject, scope, "eraYear must be finite"_s);
@@ -320,7 +320,7 @@ JSC_DEFINE_HOST_FUNCTION(temporalPlainDateTimePrototypeFuncWith, (JSGlobalObject
         JSValue v = fields->get(globalObject, vm.propertyNames->month);
         RETURN_IF_EXCEPTION(scope, { });
         if (!v.isUndefined()) {
-            double m = v.toIntegerOrInfinity(globalObject);
+            double m = v.toIntegerWithTruncation(globalObject);
             RETURN_IF_EXCEPTION(scope, { });
             if (!(m > 0 && std::isfinite(m))) [[unlikely]]
                 return throwVMRangeError(globalObject, scope, "month must be a positive finite integer"_s);
@@ -354,7 +354,7 @@ JSC_DEFINE_HOST_FUNCTION(temporalPlainDateTimePrototypeFuncWith, (JSGlobalObject
         JSValue v = fields->get(globalObject, vm.propertyNames->year);
         RETURN_IF_EXCEPTION(scope, { });
         if (!v.isUndefined()) {
-            double y = v.toIntegerOrInfinity(globalObject);
+            double y = v.toIntegerWithTruncation(globalObject);
             RETURN_IF_EXCEPTION(scope, { });
             if (!std::isfinite(y)) [[unlikely]]
                 return throwVMRangeError(globalObject, scope, "year must be finite"_s);
