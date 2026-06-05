@@ -514,10 +514,9 @@ bool CachedResourceLoader::allowedByContentSecurityPolicy(CachedResource::Type t
         contentSecurityPolicy->setIsReportingToConsoleEnabled(true);
     });
 
-    // All content loaded through embed or object elements goes through object-src: https://www.w3.org/TR/CSP3/#directive-object-src.
-    if (options.loadedFromPluginElement == LoadedFromPluginElement::Yes
-        && !contentSecurityPolicy->allowObjectFromSource(url, document->currentParserSourcePosition(), redirectResponseReceived, preRedirectURL))
-        return false;
+    // Only object-src governs object/embed elements, regardless of resource type (CSP3 §6.1.9).
+    if (options.loadedFromPluginElement == LoadedFromPluginElement::Yes)
+        return contentSecurityPolicy->allowObjectFromSource(url, document->currentParserSourcePosition(), redirectResponseReceived, preRedirectURL);
 
     switch (type) {
 #if ENABLE(XSLT)
