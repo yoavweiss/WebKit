@@ -188,6 +188,8 @@ public:
     bool NODELETE safeBrowsingCheckOngoing();
     void setSafeBrowsingWarning(RefPtr<WebKit::BrowsingWarning>&&);
     RefPtr<WebKit::BrowsingWarning> NODELETE safeBrowsingWarning();
+    void whenSafeBrowsingCheckCompletes(Function<void()>&&);
+    void fireSafeBrowsingCheckCompletionCallbacks();
     void setSafeBrowsingCheckTimedOut() { m_safeBrowsingCheckTimedOut = true; }
     bool safeBrowsingCheckTimedOut() { return m_safeBrowsingCheckTimedOut; }
     bool hadSafeBrowsingWarning() const { return m_hadSafeBrowsingWarning; }
@@ -250,6 +252,7 @@ private:
     MonotonicTime m_requestStart { MonotonicTime::now() };
     RefPtr<WebKit::BrowsingWarning> m_safeBrowsingWarning;
     ListHashSet<size_t> m_ongoingSafeBrowsingChecks;
+    Vector<Function<void()>> m_safeBrowsingCheckCompletionCallbacks;
     RefPtr<WebKit::FrameProcess> m_pendingSharedProcess;
     RefPtr<WebKit::FrameState> m_backForwardFrameState;
 };
