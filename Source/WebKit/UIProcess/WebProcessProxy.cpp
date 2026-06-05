@@ -269,6 +269,11 @@ Vector<WeakPtr<RemotePageProxy>> WebProcessProxy::remotePages() const
     return WTF::copyToVector(m_remotePages);
 }
 
+unsigned WebProcessProxy::remotePageCount() const
+{
+    return m_remotePages.computeSize();
+}
+
 void WebProcessProxy::forWebPagesWithOrigin(PAL::SessionID sessionID, const SecurityOriginData& origin, NOESCAPE const Function<void(WebPageProxy&)>& callback)
 {
     for (Ref page : globalPages()) {
@@ -492,7 +497,7 @@ bool WebProcessProxy::isDummyProcessProxy() const
 void WebProcessProxy::updateRegistrationWithDataStore()
 {
     if (RefPtr dataStore = websiteDataStore()) {
-        if (pageCount() || provisionalPageCount())
+        if (pageCount() || provisionalPageCount() || remotePageCount())
             dataStore->registerProcess(*this);
         else
             dataStore->unregisterProcess(*this);
@@ -565,6 +570,7 @@ void WebProcessProxy::addRemotePageProxy(RemotePageProxy& remotePage)
     ASSERT(!m_isInProcessCache);
     ASSERT(!m_remotePages.contains(remotePage));
     m_remotePages.add(remotePage);
+    updateRegistrationWithDataStore();
     markProcessAsRecentlyUsed();
     initializePreferencesForGPUAndNetworkProcesses(*protect(remotePage.page()));
 }
@@ -575,6 +581,7 @@ void WebProcessProxy::removeRemotePageProxy(RemotePageProxy& remotePage)
         page->processDidBecomeResponsive(*this);
     WEBPROCESSPROXY_RELEASE_LOG(Loading, "removeRemotePageProxy: remotePage=%p", &remotePage);
     m_remotePages.remove(remotePage);
+    updateRegistrationWithDataStore();
     if (m_remotePages.isEmptyIgnoringNullReferences())
         maybeShutDown();
 }

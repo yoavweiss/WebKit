@@ -186,8 +186,6 @@ http/tests/paymentrequest/page-cache-created-payment-response.https.html [ Failu
 http/tests/paymentrequest/page-cache-interactive-payment-request.https.html [ Failure ]
 http/tests/paymentrequest/page-cache-retried-payment-response.https.html [ Failure ]
 http/tests/privateClickMeasurement/store-private-click-measurement-nested.html [ Failure ]
-http/tests/resourceLoadStatistics/exemptDomains/managed-domains-cookieEnabled.html [ Failure ]
-http/tests/resourceLoadStatistics/exemptDomains/third-party-cookie-blocking.html [ Failure ]
 http/tests/resourceLoadStatistics/omit-document-referrer-nested-third-party-iframe-ephemeral.html [ Failure ]
 http/tests/resourceLoadStatistics/omit-document-referrer-third-party-iframe-ephemeral.html [ Failure ]
 http/tests/security/XFrameOptions/x-frame-options-multiple-headers-sameorigin-deny.html [ Failure ]

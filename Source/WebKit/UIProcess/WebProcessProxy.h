@@ -290,6 +290,7 @@ public:
     unsigned visiblePageCount() const { return m_visiblePageCounter.value(); }
 
     Vector<WeakPtr<RemotePageProxy>> remotePages() const;
+    unsigned remotePageCount() const;
 
     void activePagesDomainsForTesting(CompletionHandler<void(Vector<String>&&)>&&); // This is what is reported to ActivityMonitor.
 

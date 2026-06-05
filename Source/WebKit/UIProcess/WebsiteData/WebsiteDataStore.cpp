@@ -355,7 +355,7 @@ NetworkProcessProxy& WebsiteDataStore::networkProcess() const
 
 void WebsiteDataStore::registerProcess(WebProcessProxy& process)
 {
-    ASSERT(process.pageCount() || process.provisionalPageCount());
+    ASSERT(process.pageCount() || process.provisionalPageCount() || process.remotePageCount());
     m_processes.add(process);
 }
 
@@ -363,6 +363,7 @@ void WebsiteDataStore::unregisterProcess(WebProcessProxy& process)
 {
     ASSERT(!process.pageCount());
     ASSERT(!process.provisionalPageCount());
+    ASSERT(!process.remotePageCount());
     m_processes.remove(process);
 }
 
