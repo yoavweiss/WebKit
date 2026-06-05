@@ -1283,6 +1283,7 @@ def headers_for_type(type, for_implementation_file=False):
         'WebCore::Headroom': ['<WebCore/ImageTypes.h>'],
         'WebCore::HighlightRequestOriginatedInApp': ['<WebCore/AppHighlight.h>'],
         'WebCore::HighlightVisibility': ['<WebCore/HighlightVisibility.h>'],
+        'WebCore::IFrameUnloadReason': ['<WebCore/LocalFrameLoaderClient.h>'],
         'WebCore::InterpolationQuality': ['<WebCore/GraphicsTypes.h>'],
         'WebCore::ImageBufferParameters': ['<WebCore/ImageBuffer.h>'],
         'WebCore::ImageDecoderFrameInfo': ['<WebCore/ImageDecoder.h>'],

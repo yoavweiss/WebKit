@@ -255,6 +255,7 @@ enum class ExceptionCode : uint8_t;
 enum class FinalizeRenderingUpdateFlags : uint8_t;
 enum class HasOrShouldIgnoreUserGesture : bool;
 enum class HighlightRequestOriginatedInApp : bool;
+enum class IFrameUnloadReason : bool;
 enum class ImageDecodingError : uint8_t;
 enum class InputMode : uint8_t;
 enum class IsLoggedIn : uint8_t;
@@ -2383,9 +2384,7 @@ private:
     void loadURLInFrame(URL&&, const String& referrer, WebCore::FrameIdentifier);
     void loadDataInFrame(std::span<const uint8_t>, String&& MIMEType, String&& encodingName, URL&& baseURL, WebCore::FrameIdentifier);
 
-#if ENABLE(CONTENT_EXTENSIONS)
-    void applyResourceMonitorUnloadToIFrameElement(WebCore::FrameIdentifier);
-#endif
+    void applyMonitorUnloadToIFrameElement(WebCore::FrameIdentifier, WebCore::IFrameUnloadReason);
 
     void didRemoveBackForwardItem(WebCore::BackForwardFrameItemIdentifier);
     void invalidateBackForwardListCache();

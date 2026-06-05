@@ -491,6 +491,7 @@ struct ResolvedCaptionDisplaySettingsOptions;
 struct TextAnimationData;
 enum class ImageDecodingError : uint8_t;
 enum class ExceptionCode : uint8_t;
+enum class IFrameUnloadReason : bool;
 
 using NodeIdentifier = ObjectIdentifier<NodeIdentifierType>;
 }
@@ -3115,8 +3116,9 @@ private:
 #if ENABLE(CONTENT_EXTENSIONS)
     void contentRuleListNotification(URL&&, WebCore::ContentRuleListResults&&);
     void contentRuleListMatchedRule(WebCore::ContentRuleListMatchedRule&&);
-    void applyResourceMonitorUnloadToFrameOwner(WebCore::FrameIdentifier);
 #endif
+
+    void applyMonitorUnloadToFrameOwner(WebCore::FrameIdentifier, WebCore::IFrameUnloadReason);
 
     // History client
     void didNavigateWithNavigationData(IPC::Connection&, const WebNavigationDataStore&, WebCore::FrameIdentifier);

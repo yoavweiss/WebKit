@@ -299,8 +299,9 @@ private:
 
 #if ENABLE(CONTENT_EXTENSIONS)
     void didExceedNetworkUsageThreshold();
-    void applyResourceMonitorUnloadToOwnerFrame() final;
 #endif
+
+    void applyMonitorUnloadToOwnerFrame(WebCore::IFrameUnloadReason) final;
 
 #if ENABLE(PDF_PLUGIN)
     RefPtr<PluginView> m_pluginView;

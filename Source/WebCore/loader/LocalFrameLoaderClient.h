@@ -109,6 +109,7 @@ enum class FromDownloadAttribute : bool { No , Yes };
 enum class IsSameDocumentNavigation : bool { No, Yes };
 enum class ShouldGoToHistoryItem : uint8_t { No, Yes, ItemUnknown };
 enum class ProcessSwapDisposition : uint8_t;
+enum class IFrameUnloadReason : bool { ResourceMonitor, MemoryMonitor };
 
 struct BackForwardFrameItemIdentifierType;
 using BackForwardFrameItemIdentifier = ProcessQualified<ObjectIdentifier<BackForwardFrameItemIdentifierType>>;
@@ -387,8 +388,9 @@ public:
 
 #if ENABLE(CONTENT_EXTENSIONS)
     virtual void didExceedNetworkUsageThreshold();
-    virtual void applyResourceMonitorUnloadToOwnerFrame();
 #endif
+
+    virtual void applyMonitorUnloadToOwnerFrame(IFrameUnloadReason);
 
     virtual bool shouldSuppressLayoutMilestones() const { return false; }
 

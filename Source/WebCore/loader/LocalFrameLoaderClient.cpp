@@ -54,11 +54,11 @@ void LocalFrameLoaderClient::deref() const
 void LocalFrameLoaderClient::didExceedNetworkUsageThreshold()
 {
 }
+#endif
 
-void LocalFrameLoaderClient::applyResourceMonitorUnloadToOwnerFrame()
+void LocalFrameLoaderClient::applyMonitorUnloadToOwnerFrame(IFrameUnloadReason)
 {
 }
-#endif
 
 // The three notifications below are entry points for the multi-process BFCache
 // coordination on top of WebKit's UIProcess. WebKitLegacy's WebFrameLoaderClient

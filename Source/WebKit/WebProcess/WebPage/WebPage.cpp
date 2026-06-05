@@ -2324,8 +2324,7 @@ void WebPage::loadDataInFrame(std::span<const uint8_t> data, String&& type, Stri
     frame->coreLocalFrame()->loader().load(FrameLoadRequest(*frame->coreLocalFrame(), ResourceRequest(WTF::move(baseURL)), WTF::move(substituteData)));
 }
 
-#if ENABLE(CONTENT_EXTENSIONS)
-void WebPage::applyResourceMonitorUnloadToIFrameElement(FrameIdentifier frameID)
+void WebPage::applyMonitorUnloadToIFrameElement(FrameIdentifier frameID, WebCore::IFrameUnloadReason reason)
 {
     RefPtr frame = WebProcess::singleton().webFrame(frameID);
     if (!frame)
@@ -2344,9 +2343,17 @@ void WebPage::applyResourceMonitorUnloadToIFrameElement(FrameIdentifier frameID)
     if (!iframeElement)
         return;
 
-    LocalFrame::applyResourceMonitorErrorToIFrameElement(*iframeElement);
-}
+    switch (reason) {
+    case WebCore::IFrameUnloadReason::MemoryMonitor:
+        LocalFrame::applyMemoryMonitorErrorToIFrameElement(*iframeElement);
+        return;
+    case WebCore::IFrameUnloadReason::ResourceMonitor:
+#if ENABLE(CONTENT_EXTENSIONS)
+        LocalFrame::applyResourceMonitorErrorToIFrameElement(*iframeElement);
 #endif
+        return;
+    }
+}
 
 #if !PLATFORM(COCOA)
 void WebPage::platformDidReceiveLoadParameters(const LoadParameters& loadParameters)

@@ -9913,8 +9913,9 @@ void WebPageProxy::contentRuleListMatchedRule(WebCore::ContentRuleListMatchedRul
 {
     m_navigationClient->contentRuleListMatchedRule(*this, WTF::move(matchedRule));
 }
+#endif
 
-void WebPageProxy::applyResourceMonitorUnloadToFrameOwner(WebCore::FrameIdentifier frameID)
+void WebPageProxy::applyMonitorUnloadToFrameOwner(WebCore::FrameIdentifier frameID, WebCore::IFrameUnloadReason reason)
 {
     RefPtr frame = WebFrameProxy::webFrame(frameID);
     if (!frame)
@@ -9922,9 +9923,8 @@ void WebPageProxy::applyResourceMonitorUnloadToFrameOwner(WebCore::FrameIdentifi
     RefPtr parent = frame->parentFrame();
     if (!parent)
         return;
-    sendToProcessContainingFrame(parent->frameID(), Messages::WebPage::ApplyResourceMonitorUnloadToIFrameElement(frameID));
+    sendToProcessContainingFrame(parent->frameID(), Messages::WebPage::ApplyMonitorUnloadToIFrameElement(frameID, reason));
 }
-#endif
 
 void WebPageProxy::didNavigateWithNavigationData(IPC::Connection& connection, const WebNavigationDataStore& store, FrameIdentifier frameID)
 {

@@ -2197,15 +2197,15 @@ void WebLocalFrameLoaderClient::didExceedNetworkUsageThreshold()
         WebProcess::singleton().ensureNetworkProcessConnection().connection().sendWithAsyncReply(Messages::NetworkConnectionToWebProcess::ShouldOffloadIFrameForHost(url.host().toStringWithoutCopying()), WTF::move(action), 0);
 }
 
-void WebLocalFrameLoaderClient::applyResourceMonitorUnloadToOwnerFrame()
+#endif
+
+void WebLocalFrameLoaderClient::applyMonitorUnloadToOwnerFrame(WebCore::IFrameUnloadReason reason)
 {
     RefPtr webPage = m_frame->page();
     if (!webPage)
         return;
-    webPage->send(Messages::WebPageProxy::ApplyResourceMonitorUnloadToFrameOwner(m_frame->frameID()));
+    webPage->send(Messages::WebPageProxy::ApplyMonitorUnloadToFrameOwner(m_frame->frameID(), reason));
 }
-
-#endif
 
 void WebLocalFrameLoaderClient::removeStorageAccess()
 {

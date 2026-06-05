@@ -351,6 +351,7 @@ public:
     WEBCORE_EXPORT void reportMixedContentViolation(bool blocked, const URL& target) const final;
     WEBCORE_EXPORT void setScrollingMode(ScrollbarMode);
     WEBCORE_EXPORT void showMemoryMonitorError();
+    WEBCORE_EXPORT static void applyMemoryMonitorErrorToIFrameElement(HTMLIFrameElement&);
 
 #if ENABLE(CONTENT_EXTENSIONS)
     WEBCORE_EXPORT void showResourceMonitoringError();

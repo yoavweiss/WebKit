@@ -209,9 +209,7 @@ messages -> WebPage WantsAsyncDispatchMessage {
     LoadURLInFrame(URL url, String referrer, WebCore::FrameIdentifier frameID)
     LoadDataInFrame(std::span<const uint8_t> data, String MIMEType, String encodingName, URL baseURL, WebCore::FrameIdentifier frameID)
 
-#if ENABLE(CONTENT_EXTENSIONS)
-    ApplyResourceMonitorUnloadToIFrameElement(WebCore::FrameIdentifier frameID)
-#endif
+    ApplyMonitorUnloadToIFrameElement(WebCore::FrameIdentifier frameID, enum:bool WebCore::IFrameUnloadReason reason)
 
     LoadRequest(struct WebKit::LoadParameters loadParameters)
     LoadDidCommitInAnotherProcess(WebCore::FrameIdentifier frameID, std::optional<WebCore::LayerHostingContextIdentifier> layerHostingContextIdentifier, RefPtr<WebCore::DocumentSyncData> topDocumentSyncData)
