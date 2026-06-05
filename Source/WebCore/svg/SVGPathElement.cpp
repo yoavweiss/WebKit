@@ -243,6 +243,12 @@ const SVGPathByteStream& SVGPathElement::pathByteStream() const
                 return pathFunction->parameters.data.byteStream;
             return SVGPathByteStream::empty();
         }
+
+        if (CheckedPtr style = const_cast<SVGPathElement&>(*this).computedStyle()) {
+            if (auto& pathFunction = style->d().tryPath())
+                return pathFunction->parameters.data.byteStream;
+            return SVGPathByteStream::empty();
+        }
     }
 
     return Ref { m_pathSegList }->currentPathByteStream();
