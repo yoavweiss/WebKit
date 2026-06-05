@@ -369,7 +369,7 @@
                   },
                   { "name": "Apple-Tahoe-Debug-WK2-Site-Isolation-Tree-Tests", "factory": "TestAllButJSCFactory",
                   "platform": "mac-tahoe", "configuration": "debug", "architectures": ["x86_64", "arm64"],
-                  "additionalArguments": ["--no-retry-failures", "--additional-header=SiteIsolationEnabled=true", "--additional-expectations=LayoutTests/platform/mac-site-isolation/TestExpectations"],
+                  "additionalArguments": ["--no-retry-failures", "--site-isolation-enabled-by-default"],
                   "workernames": ["bot10011", "bot10012", "bot10013", "bot10014"]
                   },
                   { "name": "Apple-Sequoia-Release-Build", "factory": "BuildFactory",
@@ -385,7 +385,7 @@
                   },
                   { "name": "Apple-Sequoia-Release-WK2-Site-Isolation-Tree-Tests", "factory": "TestLayoutAndAPIOnlyFactory",
                   "platform": "mac-sequoia", "configuration": "release", "architectures": ["x86_64", "arm64"],
-                  "additionalArguments": ["--no-retry-failures", "--additional-header=SiteIsolationEnabled=true", "--additional-expectations=LayoutTests/platform/mac-site-isolation/TestExpectations"],
+                  "additionalArguments": ["--no-retry-failures", "--site-isolation-enabled-by-default"],
                   "workernames": ["bot10005", "bot10006", "bot10007", "bot10008"]
                   },
                   { "name": "Apple-Sequoia-Release-WK1-Tests", "factory": "TestWebKit1AllButJSCFactory",
@@ -472,7 +472,7 @@
                   },
                   { "name": "Apple-iOS-26-Simulator-Release-WK2-Site-Isolation-Tree-Tests", "factory": "TestLayoutAndAPIOnlyFactory",
                   "platform": "ios-simulator-26", "configuration": "release", "architectures": ["x86_64", "arm64"], "device_model": "iphone",
-                  "additionalArguments": ["--no-retry-failures", "--site-isolation", "--child-processes=6"],
+                  "additionalArguments": ["--no-retry-failures", "--site-isolation-enabled-by-default", "--child-processes=6"],
                   "workernames": ["bot2002", "bot2003"]
                   },
                   {

@@ -988,14 +988,14 @@ class TestRunWebKitTests(BuildStepMixinAdditions, unittest.TestCase):
         self.configureStep()
         self.setProperty('fullPlatform', 'mac-highsierra')
         self.setProperty('configuration', 'debug')
-        self.setProperty('additionalArguments', ['--site-isolation'])
+        self.setProperty('additionalArguments', ['--site-isolation-enabled-by-default'])
         self.expectRemoteCommands(
             ExpectShell(
                 workdir='wkdir',
                 timeout=10800,
                 log_environ=False,
                 command=['/bin/bash', '--posix', '-o', 'pipefail', '-c',
-                         f'python3 Tools/Scripts/run-webkit-tests --no-build --no-show-results --no-new-test-results --clobber-old-results --builder-name iOS-14-Simulator-WK2-Tests-EWS --build-number 101 --buildbot-worker ews100 --buildbot-master {CURRENT_HOSTNAME} --exit-after-n-crashes-or-timeouts 300 --exit-after-n-failures 500 --debug --report {RESULTS_WEBKIT_URL} --results-directory layout-test-results --debug-rwt-logging --site-isolation 2>&1 | python3 Tools/Scripts/filter-test-logs layout'],
+                         f'python3 Tools/Scripts/run-webkit-tests --no-build --no-show-results --no-new-test-results --clobber-old-results --builder-name iOS-14-Simulator-WK2-Tests-EWS --build-number 101 --buildbot-worker ews100 --buildbot-master {CURRENT_HOSTNAME} --exit-after-n-crashes-or-timeouts 300 --exit-after-n-failures 500 --debug --report {RESULTS_WEBKIT_URL} --results-directory layout-test-results --debug-rwt-logging --site-isolation-enabled-by-default 2>&1 | python3 Tools/Scripts/filter-test-logs layout'],
                 env={'RESULTS_SERVER_API_KEY': 'test-api-key'}
             ).exit(0)
         )
@@ -1290,8 +1290,8 @@ class TestRunAPITests(BuildStepMixinAdditions, unittest.TestCase):
         return self.successTest('mac', 'mac-highsierra', 'release', expected_command)
 
     def test_success_mac_additional_arguments(self):
-        additional_arguments = ['--no-retry-failures', '--site-isolation']
-        expected_command = f'python3 Tools/Scripts/run-api-tests --timestamps --no-build --json-output={self.jsonFileName} --release --verbose --buildbot-master {CURRENT_HOSTNAME} --builder-name API-Tests --build-number 101 --buildbot-worker bot100 --report https://results.webkit.org --site-isolation'
+        additional_arguments = ['--no-retry-failures', '--site-isolation-enabled-by-default']
+        expected_command = f'python3 Tools/Scripts/run-api-tests --timestamps --no-build --json-output={self.jsonFileName} --release --verbose --buildbot-master {CURRENT_HOSTNAME} --builder-name API-Tests --build-number 101 --buildbot-worker bot100 --report https://results.webkit.org --site-isolation-enabled-by-default'
         return self.successTest('mac', 'mac-highsierra', 'release', expected_command, additional_arguments)
 
     def test_success_gtk(self):

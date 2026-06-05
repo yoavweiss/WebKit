@@ -368,7 +368,7 @@
       "factory": "macOSSiteIsolationFactory", "platform": "mac-sequoia",
       "configuration": "release",
       "triggered_by": ["macos-sequoia-release-build-ews"],
-      "additionalArguments": ["imported/w3c/web-platform-tests", "--additional-header=SiteIsolationEnabled=true", "--additional-expectations=LayoutTests/platform/mac-site-isolation/TestExpectations", "--exclude-tests", "imported/w3c/web-platform-tests/css"],
+      "additionalArguments": ["imported/w3c/web-platform-tests", "--site-isolation-enabled-by-default", "--exclude-tests", "imported/w3c/web-platform-tests/css"],
       "workernames": ["ews2011", "ews2012", "ews2013", "ews2014", "ews2015"]
     },
     {

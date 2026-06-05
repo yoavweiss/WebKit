@@ -929,7 +929,7 @@ class RunWebKitTests(shell.Test, CustomFlagsMixin, ShellMixin):
 
         # Up the timeout limit for site isolation queues to 300
         # FIXME: We should remove the need for these timeouts altogether. (webkit.org/b/303404)
-        if additionalArguments and '--site-isolation' in additionalArguments:
+        if additionalArguments and '--site-isolation-enabled-by-default' in additionalArguments:
             idx = self.command.index('--exit-after-n-crashes-or-timeouts')
             self.command[idx + 1] = '300'
 
@@ -1051,7 +1051,7 @@ class RunWorldLeaksTests(RunWebKitTests):
 
 class RunAPITests(TestWithFailureCount, CustomFlagsMixin, ShellMixin):
     name = "run-api-tests"
-    VALID_ADDITIONAL_ARGUMENTS_LIST = ["--remote-layer-tree", "--use-gpu-process", "--child-processes", "--site-isolation", "--wpe-legacy-api"]
+    VALID_ADDITIONAL_ARGUMENTS_LIST = ["--remote-layer-tree", "--use-gpu-process", "--child-processes", "--site-isolation-enabled-by-default", "--wpe-legacy-api"]
     description = ["api tests running"]
     descriptionDone = ["api-tests"]
     jsonFileName = "api_test_results.json"
