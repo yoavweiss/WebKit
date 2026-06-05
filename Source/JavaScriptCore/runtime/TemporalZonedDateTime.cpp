@@ -76,6 +76,11 @@ Structure* TemporalZonedDateTime::createStructure(VM& vm, JSGlobalObject* global
     return Structure::create(vm, globalObject, prototype, TypeInfo(ObjectType, StructureFlags), info());
 }
 
+TemporalZonedDateTime* TemporalZonedDateTime::withExactTime(JSGlobalObject* globalObject, ISO8601::ExactTime epochNs) const
+{
+    return tryCreate(globalObject, globalObject->zonedDateTimeStructure(), epochNs, m_timeZone, String(m_timeZoneId), m_calendarID);
+}
+
 TemporalZonedDateTime::TemporalZonedDateTime(VM& vm, Structure* structure, ISO8601::ExactTime exactTime, TimeZone timeZone, String&& timeZoneId, CalendarID calendarID)
     : Base(vm, structure)
     , m_exactTime(exactTime)

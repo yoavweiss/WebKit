@@ -71,10 +71,7 @@ public:
 
     static std::optional<ISO8601::ExactTime> getEpochNanosecondsFor(JSGlobalObject*, const TimeZone&, const ISO8601::PlainDate&, const ISO8601::PlainTime&, TemporalDisambiguation);
 
-    TemporalZonedDateTime* withExactTime(JSGlobalObject* globalObject, ISO8601::ExactTime epochNs) const
-    {
-        return tryCreate(globalObject, globalObject->zonedDateTimeStructure(), epochNs, m_timeZone, String(m_timeZoneId), m_calendarID);
-    }
+    TemporalZonedDateTime* withExactTime(JSGlobalObject*, ISO8601::ExactTime epochNs) const;
 
 private:
     TemporalZonedDateTime(VM&, Structure*, ISO8601::ExactTime, TimeZone, String&&, CalendarID);
