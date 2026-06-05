@@ -59,6 +59,8 @@ endif ()
 find_package(ICU 70.1 REQUIRED COMPONENTS data i18n uc)
 find_package(LibXml2 2.8.0 REQUIRED)
 find_package(LibXslt 1.1.13 REQUIRED)
+set(CMAKE_HAVE_PTHREAD_H 1 CACHE INTERNAL "")
+set(CMAKE_HAVE_LIBC_PTHREAD 1 CACHE INTERNAL "")
 find_package(Threads REQUIRED)
 
 # Strip ${SDK}/usr/include from these imported targets; reachable via -isysroot.

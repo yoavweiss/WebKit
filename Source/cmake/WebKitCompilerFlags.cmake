@@ -8,7 +8,9 @@ function(WEBKIT_CHECK_COMPILER_FLAGS _compiler _result)
         # If an equals (=) character is present in a variable name, it will
         # not be cached correctly, and the check will be retried ad nauseam.
         string(REPLACE "=" "__" _cachevar "${_compiler}_COMPILER_SUPPORTS_${_flag}")
-        if (${_compiler} STREQUAL CXX)
+        if (CMAKE_${_compiler}_COMPILER_ID STREQUAL "AppleClang")
+            set(${_cachevar} TRUE)
+        elseif (${_compiler} STREQUAL CXX)
             check_cxx_compiler_flag("${_flag}" "${_cachevar}")
         elseif (${_compiler} STREQUAL C)
             check_c_compiler_flag("${_flag}" "${_cachevar}")
@@ -168,7 +170,7 @@ if (DEVELOPER_MODE AND DEVELOPER_MODE_FATAL_WARNINGS)
         set(FATAL_WARNINGS_FLAG -Werror)
     endif ()
 
-    check_cxx_compiler_flag(${FATAL_WARNINGS_FLAG} CXX_COMPILER_SUPPORTS_WERROR)
+    WEBKIT_CHECK_COMPILER_FLAGS(CXX CXX_COMPILER_SUPPORTS_WERROR ${FATAL_WARNINGS_FLAG})
     if (CXX_COMPILER_SUPPORTS_WERROR)
         set(DEVELOPER_MODE_CXX_FLAGS ${FATAL_WARNINGS_FLAG})
     endif ()
@@ -180,7 +182,7 @@ if (DEVELOPER_MODE OR ARM)
 endif ()
 
 if (COMPILER_IS_GCC_OR_CLANG)
-    if (COMPILER_IS_CLANG OR (DEVELOPER_MODE AND NOT ARM))
+    if (NOT APPLE AND (COMPILER_IS_CLANG OR (DEVELOPER_MODE AND NOT ARM)))
         # Split debug information in ".debug_types" / ".debug_info" sections - this leads
         # to a smaller overall size of the debug information, and avoids linker relocation
         # errors on e.g. aarch64 (relocation R_AARCH64_ABS32 out of range: 4312197985 is not in [-2147483648, 4294967295])
@@ -228,13 +230,16 @@ if (COMPILER_IS_GCC_OR_CLANG)
                                          -Wundef)
 
     # Warnings to be disabled
-    # FIXME: We should probably not be disabling -Wno-maybe-uninitialized?
     WEBKIT_PREPEND_GLOBAL_COMPILER_FLAGS(-Qunused-arguments
-                                         -Wno-maybe-uninitialized
                                          -Wno-parentheses-equality
                                          -Wno-misleading-indentation
                                          -Wno-psabi
                                          -Wno-nullability-completeness)
+
+    if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+        # FIXME: We should probably not be disabling -Wno-maybe-uninitialized?
+        WEBKIT_PREPEND_GLOBAL_COMPILER_FLAGS(-Wno-maybe-uninitialized)
+    endif ()
 
     # FIXME: Remove once Clang 18 does no longer need to be supported for the GTK and WPE ports
     if ((CMAKE_CXX_COMPILER_ID STREQUAL Clang) AND (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19))
@@ -458,7 +463,7 @@ if (COMPILER_IS_GCC_OR_CLANG)
    set(CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES} ${SYSTEM_INCLUDE_DIRS})
 endif ()
 
-if (COMPILER_IS_GCC_OR_CLANG)
+if (COMPILER_IS_GCC_OR_CLANG AND NOT APPLE)
     set(ATOMIC_TEST_SOURCE [=[
 #include <atomic>
 #include <optional>
@@ -586,7 +591,7 @@ int main() {
     cmake_pop_check_state()
 endif ()
 
-if (NOT WTF_PLATFORM_COCOA)
+if (NOT APPLE)
   set(FLOAT16_TEST_SOURCE "
 int main() {
   _Float16 f;

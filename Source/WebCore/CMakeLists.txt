@@ -2211,7 +2211,7 @@ if (ENABLE_XSLT)
     list(APPEND WebCore_LIBRARIES LibXslt::LibXslt)
 endif ()
 
-if (UNIX)
+if (UNIX AND NOT APPLE)
     check_function_exists(shm_open SHM_OPEN_EXISTS)
     if (NOT SHM_OPEN_EXISTS)
         set(CMAKE_REQUIRED_LIBRARIES rt)
