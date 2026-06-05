@@ -868,6 +868,18 @@ bool Quirks::needsGoogleTranslateScrollingQuirk() const
 #endif
 }
 
+// netflix.com rdar://178545839
+bool Quirks::needsNetflixVolumeSliderQuirk() const
+{
+#if PLATFORM(IOS) || PLATFORM(VISION)
+    QUIRKS_EARLY_RETURN_IF_DISABLED_WITH_VALUE(false);
+
+    return m_quirksData.quirkIsEnabled(QuirksData::SiteSpecificQuirk::NeedsNetflixVolumeSliderQuirk);
+#else
+    return false;
+#endif
+}
+
 // play.geforcenow.com https://webkit.org/b/303622
 // FIXME: Remove as soon as nvidia adjusts the site for Safari. https://webkit.org/b/303718
 bool Quirks::needsGeforcenowWarningDisplayNoneQuirk() const
@@ -3620,6 +3632,10 @@ static void handleNetflixQuirks(QuirksData& quirksData, const URL& /* quirksURL 
         QuirksData::SiteSpecificQuirk::NeedsSeekingSupportDisabledQuirk,
 #if PLATFORM(VISION)
         QuirksData::SiteSpecificQuirk::NeedsNowPlayingFullscreenSwapQuirk,
+#endif
+#if PLATFORM(IOS) || PLATFORM(VISION)
+        // netflix.com rdar://178545839
+        QuirksData::SiteSpecificQuirk::NeedsNetflixVolumeSliderQuirk,
 #endif
 #if ENABLE(TOUCH_EVENTS)
         // netflix.com https://bugs.webkit.org/show_bug.cgi?id=304608

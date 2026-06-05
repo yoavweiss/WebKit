@@ -103,6 +103,9 @@ struct QuirksData {
         NeedsGoogleMapsScrollingQuirk,
         NeedsGoogleTranslateScrollingQuirk,
 #endif
+#if PLATFORM(IOS) || PLATFORM(VISION)
+        NeedsNetflixVolumeSliderQuirk,
+#endif
         NeedsGeforcenowWarningDisplayNoneQuirk,
         NeedsExpediaGroupAnimationQuirk,
         NeedsMediaRewriteRangeRequestQuirk,

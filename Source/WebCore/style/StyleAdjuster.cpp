@@ -1029,6 +1029,16 @@ void Adjuster::adjustForSiteSpecificQuirks(Style::ComputedStyle& style) const
         if (is<HTMLBodyElement>(*m_element) && m_element->hasClassName(className))
             style.setUsedTouchAction(CSS::Keyword::Auto { });
     }
+    // netflix.com rdar://178545839
+    if (documentQuirks.needsNetflixVolumeSliderQuirk()) {
+        static MainThreadNeverDestroyed<const QualifiedName> dataUiaAttr(nullAtom(), "data-uia"_s, nullAtom());
+        static MainThreadNeverDestroyed<const AtomString> scrubberValue("scrubber"_s);
+        static MainThreadNeverDestroyed<const AtomString> verticalValue("vertical"_s);
+        if (is<HTMLDivElement>(*m_element)
+            && m_element->attributeWithoutSynchronization(dataUiaAttr) == scrubberValue
+            && m_element->attributeWithoutSynchronization(HTMLNames::aria_orientationAttr) == verticalValue)
+            style.setUsedTouchAction(CSS::Keyword::None { });
+    }
     if (documentQuirks.needsFacebookStoriesCreationFormQuirk(*m_element, style))
         style.setDisplayMaintainingOriginalDisplay(DisplayType::BlockFlex);
 #endif // PLATFORM(IOS_FAMILY)
