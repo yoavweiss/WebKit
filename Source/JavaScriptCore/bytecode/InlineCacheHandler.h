@@ -52,7 +52,7 @@ enum class CacheType : int8_t {
     StringLength,
 };
 
-class CACHE_LINE_ALIGNED InlineCacheHandler : public RefCounted<InlineCacheHandler> {
+class JSC_CACHE_LINE_ALIGNED InlineCacheHandler : public RefCounted<InlineCacheHandler> {
     WTF_MAKE_NONCOPYABLE(InlineCacheHandler);
     WTF_MAKE_TZONE_ALLOCATED(InlineCacheHandler);
     friend class InlineCacheCompiler;
