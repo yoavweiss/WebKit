@@ -578,7 +578,7 @@ compositing/repaint/copy-forward-dirty-region.html [ Pass ImageOnlyFailure ]
 
 webkit.org/b/304405 http/tests/scroll-to-text-fragment/clear-on-new-fragment-navigation.html [ Pass ImageOnlyFailure ]
 
-webkit.org/b/102463 fast/forms/validation-message-appearance.html [ Failure ]
+webkit.org/b/102463 fast/forms/validation-message-appearance.html [ Failure Pass ]
 
 #////////////////////////////////////////////////////////////////////////////////////////
 # 6. SLOW TESTS
