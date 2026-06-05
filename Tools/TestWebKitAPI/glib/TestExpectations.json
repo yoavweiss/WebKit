@@ -420,6 +420,9 @@
         "subtests": {
             "/webkit/WebKitWebView/web-socket-client-side-certificate": {
                 "expected": {"all": {"status": ["CRASH", "TIMEOUT", "FAIL"], "bug": "webkit.org/b/307757"}}
+            },
+            "/webkit/WebKitWebView/web-socket-tls-errors": {
+                "expected": {"all": {"status": ["PASS", "FAIL"], "bug": "webkit.org/b/316365"}}
             }
         }
     },
