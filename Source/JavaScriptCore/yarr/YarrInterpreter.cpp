@@ -1150,7 +1150,7 @@ public:
         while (backTrack->matchAmount) {
             ParenthesesDisjunctionContext* context = backTrack->lastContext;
 
-            JSRegExpResult result = matchDisjunction(term.atom.parenthesesDisjunction, context->getDisjunctionContext(), true);
+            JSRegExpResult result = matchDisjunction(term.atom.parenthesesDisjunction, context->getDisjunctionContext(), /* btrack= */ true);
             if (result == JSRegExpResult::Match)
                 return JSRegExpResult::Match;
 
@@ -1447,23 +1447,9 @@ public:
         }
 
         case QuantifierType::Greedy: {
-            while (backTrack->matchAmount < term.atom.quantityMaxCount) {
-                ParenthesesDisjunctionContext* context = allocParenthesesDisjunctionContext(disjunctionBody, output, term);
-                if (!context) [[unlikely]]
-                    return JSRegExpResult::ErrorNoMemory;
-                JSRegExpResult result = matchNonZeroDisjunction(disjunctionBody, context->getDisjunctionContext());
-                if (result == JSRegExpResult::Match)
-                    appendParenthesesDisjunctionContext(backTrack, context);
-                else {
-                    resetMatches(term, context);
-                    freeParenthesesDisjunctionContext(context);
-
-                    if (result != JSRegExpResult::NoMatch)
-                        return result;
-
-                    break;
-                }
-            }
+            JSRegExpResult result = extendParenthesesContextsToMaxCount(term, backTrack, disjunctionBody);
+            if (result != JSRegExpResult::Match)
+                return result;
 
             if (backTrack->matchAmount) {
                 ParenthesesDisjunctionContext* context = backTrack->lastContext;
@@ -1500,38 +1486,20 @@ public:
         switch (term.atom.quantityType) {
         case QuantifierType::FixedCount: {
             ASSERT(backTrack->matchAmount == term.atom.quantityMaxCount);
+            ASSERT(term.atom.quantityMinCount == term.atom.quantityMaxCount);
 
-            ParenthesesDisjunctionContext* context = nullptr;
             JSRegExpResult result = parenthesesDoBacktrack(term, backTrack);
-
             if (result != JSRegExpResult::Match)
                 return result;
 
-            // While we haven't yet reached our fixed limit,
-            while (backTrack->matchAmount < term.atom.quantityMaxCount) {
-                // Try to do a match, and it it succeeds, add it to the list.
-                context = allocParenthesesDisjunctionContext(disjunctionBody, output, term);
-                if (!context) [[unlikely]]
-                    return JSRegExpResult::ErrorNoMemory;
-                result = matchDisjunction(disjunctionBody, context->getDisjunctionContext());
-
-                if (result == JSRegExpResult::Match)
-                    appendParenthesesDisjunctionContext(backTrack, context);
-                else {
-                    // The match failed; try to find an alternate point to carry on from.
-                    resetMatches(term, context);
-                    freeParenthesesDisjunctionContext(context);
-
-                    if (result != JSRegExpResult::NoMatch)
-                        return result;
-                    JSRegExpResult backtrackResult = parenthesesDoBacktrack(term, backTrack);
-                    if (backtrackResult != JSRegExpResult::Match)
-                        return backtrackResult;
-                }
-            }
+            // For FixedCount min == max, so refilling to min refills to max; the
+            // helper handles the inner content-backtrack-on-failure loop too.
+            result = refillParenthesesContextsToMinCount(term, backTrack, disjunctionBody);
+            if (result != JSRegExpResult::Match)
+                return result;
 
             ASSERT(backTrack->matchAmount == term.atom.quantityMaxCount);
-            context = backTrack->lastContext;
+            ParenthesesDisjunctionContext* context = backTrack->lastContext;
             recordParenthesesMatch(term, context);
             return JSRegExpResult::Match;
         }
@@ -1545,26 +1513,12 @@ public:
             // non-empty; a mandatory iteration (count <= min) may match zero-length, so
             // retry its content allowing an empty match in that case.
             JSRegExpResult result = (backTrack->matchAmount <= term.atom.quantityMinCount)
-                ? matchDisjunction(disjunctionBody, context->getDisjunctionContext(), true)
-                : matchNonZeroDisjunction(disjunctionBody, context->getDisjunctionContext(), true);
+                ? matchDisjunction(disjunctionBody, context->getDisjunctionContext(), /* btrack= */ true)
+                : matchNonZeroDisjunction(disjunctionBody, context->getDisjunctionContext(), /* btrack= */ true);
             if (result == JSRegExpResult::Match) {
-                while (backTrack->matchAmount < term.atom.quantityMaxCount) {
-                    ParenthesesDisjunctionContext* context = allocParenthesesDisjunctionContext(disjunctionBody, output, term);
-                    if (!context) [[unlikely]]
-                        return JSRegExpResult::ErrorNoMemory;
-                    JSRegExpResult parenthesesResult = matchNonZeroDisjunction(disjunctionBody, context->getDisjunctionContext());
-                    if (parenthesesResult == JSRegExpResult::Match)
-                        appendParenthesesDisjunctionContext(backTrack, context);
-                    else {
-                        resetMatches(term, context);
-                        freeParenthesesDisjunctionContext(context);
-
-                        if (parenthesesResult != JSRegExpResult::NoMatch)
-                            return parenthesesResult;
-
-                        break;
-                    }
-                }
+                result = extendParenthesesContextsToMaxCount(term, backTrack, disjunctionBody);
+                if (result != JSRegExpResult::Match)
+                    return result;
             } else {
                 resetMatches(term, context);
                 popParenthesesDisjunctionContext(backTrack);
@@ -1591,6 +1545,11 @@ public:
                     result = refillParenthesesContextsToMinCount(term, backTrack, disjunctionBody);
                     if (result != JSRegExpResult::Match)
                         return result;
+
+                    // And now we should expand the matching up to max count, then we can say Greedy is fully backtracked.
+                    result = extendParenthesesContextsToMaxCount(term, backTrack, disjunctionBody);
+                    if (result != JSRegExpResult::Match)
+                        return result;
                 }
             }
 
@@ -1607,7 +1566,7 @@ public:
                 ParenthesesDisjunctionContext* context = allocParenthesesDisjunctionContext(disjunctionBody, output, term);
                 if (!context) [[unlikely]]
                     return JSRegExpResult::ErrorNoMemory;
-                JSRegExpResult result = matchNonZeroDisjunction(disjunctionBody, context->getDisjunctionContext());
+                JSRegExpResult result = matchNonZeroDisjunction(disjunctionBody, context->getDisjunctionContext(), /* btrack= */ false);
                 if (result == JSRegExpResult::Match) {
                     appendParenthesesDisjunctionContext(backTrack, context);
                     recordParenthesesMatch(term, context);
@@ -1627,8 +1586,8 @@ public:
                 // Mandatory iterations (count <= min) may match zero-length; only extra
                 // iterations must be non-empty (RepeatMatcher).
                 JSRegExpResult result = (backTrack->matchAmount <= term.atom.quantityMinCount)
-                    ? matchDisjunction(disjunctionBody, context->getDisjunctionContext(), true)
-                    : matchNonZeroDisjunction(disjunctionBody, context->getDisjunctionContext(), true);
+                    ? matchDisjunction(disjunctionBody, context->getDisjunctionContext(), /* btrack= */ true)
+                    : matchNonZeroDisjunction(disjunctionBody, context->getDisjunctionContext(), /* btrack= */ true);
                 if (result == JSRegExpResult::Match) {
                     // A successful content backtrack may have left us below the mandatory
                     // minimum (we popped iterations above while searching for an alternative).
@@ -1671,7 +1630,7 @@ public:
             ParenthesesDisjunctionContext* context = allocParenthesesDisjunctionContext(disjunctionBody, output, term);
             if (!context) [[unlikely]]
                 return JSRegExpResult::ErrorNoMemory;
-            JSRegExpResult result = matchDisjunction(disjunctionBody, context->getDisjunctionContext());
+            JSRegExpResult result = matchDisjunction(disjunctionBody, context->getDisjunctionContext(), /* btrack= */ false);
             if (result == JSRegExpResult::Match) {
                 appendParenthesesDisjunctionContext(backTrack, context);
                 continue;
@@ -1683,6 +1642,28 @@ public:
             result = parenthesesDoBacktrack(term, backTrack);
             if (result != JSRegExpResult::Match)
                 return result;
+        }
+        return JSRegExpResult::Match;
+    }
+
+    // Greedy extension appends as many additional iterations as possible up
+    // to quantityMaxCount, each required to match at least one character.
+    JSRegExpResult extendParenthesesContextsToMaxCount(ByteTerm& term, BackTrackInfoParentheses* backTrack, ByteDisjunction* disjunctionBody)
+    {
+        while (backTrack->matchAmount < term.atom.quantityMaxCount) {
+            ParenthesesDisjunctionContext* context = allocParenthesesDisjunctionContext(disjunctionBody, output, term);
+            if (!context) [[unlikely]]
+                return JSRegExpResult::ErrorNoMemory;
+            JSRegExpResult result = matchNonZeroDisjunction(disjunctionBody, context->getDisjunctionContext(), /* btrack= */ false);
+            if (result == JSRegExpResult::Match) {
+                appendParenthesesDisjunctionContext(backTrack, context);
+                continue;
+            }
+            resetMatches(term, context);
+            freeParenthesesDisjunctionContext(context);
+            if (result != JSRegExpResult::NoMatch)
+                return result;
+            break;
         }
         return JSRegExpResult::Match;
     }
@@ -1768,7 +1749,7 @@ public:
     } \
 }
 
-    JSRegExpResult matchDisjunction(ByteDisjunction* disjunction, DisjunctionContext* context, bool btrack = false)
+    JSRegExpResult matchDisjunction(ByteDisjunction* disjunction, DisjunctionContext* context, bool btrack)
     {
         if (!isSafeToRecurse()) [[unlikely]]
             return JSRegExpResult::ErrorNoMemory;
@@ -2220,13 +2201,13 @@ public:
         return JSRegExpResult::ErrorNoMatch;
     }
 
-    JSRegExpResult matchNonZeroDisjunction(ByteDisjunction* disjunction, DisjunctionContext* context, bool btrack = false)
+    JSRegExpResult matchNonZeroDisjunction(ByteDisjunction* disjunction, DisjunctionContext* context, bool btrack)
     {
         JSRegExpResult result = matchDisjunction(disjunction, context, btrack);
 
         if (result == JSRegExpResult::Match) {
             while (context->matchBegin == context->matchEnd) {
-                result = matchDisjunction(disjunction, context, true);
+                result = matchDisjunction(disjunction, context, /* btrack= */ true);
                 if (result != JSRegExpResult::Match)
                     return result;
             }
@@ -2261,7 +2242,7 @@ public:
 
         dataLogLnIf(verbose, "  Interpret input: ", input, "\n  Matching");
 
-        JSRegExpResult result = matchDisjunction(pattern->m_body.get(), context, false);
+        JSRegExpResult result = matchDisjunction(pattern->m_body.get(), context, /* btrack= */ false);
         if (result == JSRegExpResult::Match) {
             output[0] = context->matchBegin;
             output[1] = context->matchEnd;
