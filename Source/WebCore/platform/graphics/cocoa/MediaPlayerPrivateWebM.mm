@@ -377,6 +377,19 @@ void MediaPlayerPrivateWebM::load(MediaStreamPrivate&)
 }
 #endif
 
+void MediaPlayerPrivateWebM::responseReceived(PlatformMediaResource& resource, const ResourceResponse& response)
+{
+    ALWAYS_LOG(LOGIDENTIFIER);
+    addSecurityOrigin(response);
+    m_didPassCORSAccessCheck &= resource.didPassAccessControlCheck();
+}
+
+void MediaPlayerPrivateWebM::redirectReceived(PlatformMediaResource&, const ResourceResponse& response)
+{
+    ALWAYS_LOG(LOGIDENTIFIER);
+    addSecurityOrigin(response);
+}
+
 void MediaPlayerPrivateWebM::dataLengthReceived(size_t length)
 {
     ensureOnMainThread([protectedThis = Ref { *this }, length] {
@@ -584,6 +597,11 @@ std::optional<VideoFrameMetadata> MediaPlayerPrivateWebM::videoFrameMetadata()
 {
     assertIsMainThread();
     return std::exchange(m_videoFrameMetadata, { });
+}
+
+void MediaPlayerPrivateWebM::addSecurityOrigin(const ResourceResponse& response)
+{
+    m_origins.add(SecurityOrigin::create(response.url()));
 }
 
 void MediaPlayerPrivateWebM::seekToTarget(const SeekTarget& target)
@@ -1111,6 +1129,22 @@ String MediaPlayerPrivateWebM::engineDescription() const
 {
     static NeverDestroyed<String> description(MAKE_STATIC_STRING_IMPL("Cocoa WebM Engine"));
     return description;
+}
+
+std::optional<bool> MediaPlayerPrivateWebM::isCrossOrigin(const SecurityOrigin& origin) const
+{
+    if (m_origins.isEmpty())
+        return std::nullopt;
+
+    if (m_didPassCORSAccessCheck)
+        return false;
+
+    for (auto& responseOrigin : m_origins) {
+        if (!origin.isSameOriginAs(responseOrigin))
+            return true;
+    }
+
+    return false;
 }
 
 #if ENABLE(WIRELESS_PLAYBACK_TARGET)
