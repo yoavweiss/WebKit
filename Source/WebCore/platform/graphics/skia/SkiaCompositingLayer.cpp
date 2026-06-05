@@ -428,11 +428,6 @@ bool SkiaCompositingLayer::paint(SkCanvas& canvas, std::optional<Damage>& damage
     context.mode = PaintMode::Paint;
     recursivePaint(canvas, context);
 
-    if (hasDebugIndicators()) {
-        context.mode = PaintMode::DebugIndicators;
-        recursivePaint(canvas, context);
-    }
-
     recursiveCleanUpAfterPaint();
 
 #if ENABLE(DAMAGE_TRACKING)
@@ -480,8 +475,7 @@ void SkiaCompositingLayer::paintSelf(SkCanvas& canvas, PaintContext& context)
 #if ENABLE(DAMAGE_TRACKING)
         collectFrameDamage(canvas, context, transform);
 #endif
-    } else
-        paintDebugIndicators(canvas, context);
+    }
 
     canvas.restore();
 }
@@ -566,8 +560,16 @@ void SkiaCompositingLayer::collectFrameDamage(SkCanvas& canvas, PaintContext& co
 
 #endif
 
-void SkiaCompositingLayer::paintDebugIndicators(SkCanvas& canvas, PaintContext&)
+void SkiaCompositingLayer::paintDebugIndicators(SkCanvas& canvas, PaintContext& context)
 {
+    if (m_size.isEmpty() || !m_visible || !m_contentsVisible || !hasVisualContent())
+        return;
+
+    TransformationMatrix transform(context.accumulatedReplicaTransform);
+    transform.multiply(m_transforms.combined);
+    SkAutoCanvasRestore autoRestore(&canvas, true);
+    canvas.concat(SkM44(transform));
+
     if (m_debugBorder) {
         SkPaint borderPaint;
         borderPaint.setStyle(SkPaint::kStroke_Style);
@@ -613,7 +615,7 @@ void SkiaCompositingLayer::paintDebugIndicators(SkCanvas& canvas, PaintContext&)
         m_repaintCountOverlay.baselineOffset = -textBounds.fTop + padding;
     }
 
-    SkAutoCanvasRestore autoRestore(&canvas, true);
+    SkAutoCanvasRestore overlayRestore(&canvas, true);
     canvas.resetMatrix();
 
     SkPaint backgroundPaint;
@@ -972,12 +974,16 @@ void SkiaCompositingLayer::recursivePaint(SkCanvas& canvas, PaintContext& contex
 
     SetForScope scopedOpacity(context.opacity, context.opacity * opacity());
 
-    if (m_preserves3D) {
+    if (m_preserves3D)
         paintWith3DRenderingContext(canvas, context);
-        return;
-    }
+    else
+        paintWithOpacity(canvas, context);
 
-    paintWithOpacity(canvas, context);
+    // Drawn after the layer's own content, filters and masks have been composited
+    // into the parent, but still in tree order, so layers painted on top (e.g. a
+    // modal) occlude the indicators of the layers they cover.
+    if (context.mode == PaintMode::Paint && hasDebugIndicators())
+        paintDebugIndicators(canvas, context);
 }
 
 void SkiaCompositingLayer::computeOverlapRegions(ComputeOverlapRegionData& data, const TransformationMatrix& accumulatedReplicaTransform, IncludesReplica includesReplica)

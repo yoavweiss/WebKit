@@ -123,9 +123,8 @@ private:
 
     bool computeTransformsAndAnimations(const TransformationMatrix& parentTransform, const TransformationMatrix& futureParentTransform, MonotonicTime);
 
-    enum class PaintMode : uint8_t {
+    enum class PaintMode : bool {
         Paint,
-        DebugIndicators,
     };
 
     struct PaintContext {
