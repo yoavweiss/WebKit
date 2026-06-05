@@ -76,7 +76,7 @@ ISO8601::PlainDate balanceISODate(int32_t year, int32_t month, int64_t day)
     // 3. Return CreateISODateRecord(EpochTimeToEpochYear(ms), EpochTimeToMonthInYear(ms) + 1, EpochTimeToDate(ms)).
     auto [y, m, d] = WTF::yearMonthDayFromDays(static_cast<int32_t>(daysToUse));
     if (!ISO8601::isYearWithinLimits(y)) [[unlikely]]
-        return ISO8601::PlainDate { ISO8601::outOfRangeYear, static_cast<unsigned>(m + 1), static_cast<unsigned>(d) };
+        return ISO8601::PlainDate { ISO8601::outOfRangeYear, 1, 1 };
     return ISO8601::PlainDate { y, static_cast<unsigned>(m + 1), static_cast<unsigned>(d) };
 }
 
