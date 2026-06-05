@@ -2197,7 +2197,7 @@ Result<const Type*> TypeChecker::chooseOverload(ASCIILiteral kind, const SourceS
             } else if (expression)
                 CHECK(setConstantValue(*expression, selectedOverload->result, WTF::move(*result)));
         } else if (auto* validate = overload->validationFunction) {
-            if (auto error = validate(WTF::move(validationArguments)))
+            if (auto error = validate(WTF::move(validationArguments), selectedOverload->parameters))
                 TYPE_ERROR(span, *error);
         }
 

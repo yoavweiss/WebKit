@@ -1244,13 +1244,17 @@ CONSTANT_FUNCTION(Ldexp)
     UNUSED_PARAM(resultType);
     return scalarOrVector([&](const auto& e1, auto& e2) -> ConstantResult {
         if (auto* abstractE1 = std::get_if<double>(&e1)) {
-            auto abstractE2 = std::get<int64_t>(e2);
             constexpr int64_t bias = 1023;
-            if (abstractE2 + bias <= 0)
+            int64_t e2Value;
+            if (auto* abstractE2 = std::get_if<int64_t>(&e2))
+                e2Value = *abstractE2;
+            else
+                e2Value = std::get<int32_t>(e2);
+            if (e2Value + bias <= 0)
                 return { static_cast<double>(0) };
-            if (abstractE2 > bias + 1)
+            if (e2Value > bias + 1)
                 return makeUnexpected(makeString("e2 must be less than or equal to "_s, bias + 1));
-            return { std::ldexp(*abstractE1, abstractE2) };
+            return { std::ldexp(*abstractE1, static_cast<int>(e2Value)) };
         }
 
         auto i32E2 = std::get<int32_t>(e2);
@@ -1787,7 +1791,7 @@ CONSTANT_FUNCTION(Bitcast)
 #undef CONSTANT_FUNCTION
 
 #define VALIDATION_FUNCTION(name) \
-    [[maybe_unused]] static std::optional<String>(validate ## name)(const FixedVector<std::optional<ConstantValue>>& arguments)
+    [[maybe_unused]] static std::optional<String>(validate ## name)(const FixedVector<std::optional<ConstantValue>>& arguments, const FixedVector<const Type*>& parameterTypes)
 
 #define CALL_(__tmp, __variable, __fnName, ...) \
     auto __tmp = constant##__fnName(__VA_ARGS__); \
@@ -1800,6 +1804,7 @@ CONSTANT_FUNCTION(Bitcast)
 
 VALIDATION_FUNCTION(Clamp)
 {
+    UNUSED_PARAM(parameterTypes);
     if (arguments[1] && arguments[2]) {
         CALL(gt, Gt, nullptr, { *arguments[1], *arguments[2] });
         CALL(any, Any, nullptr, { gt });
@@ -1829,6 +1834,7 @@ static bool containsInfinity(const ConstantValue& value)
 
 VALIDATION_FUNCTION(Add)
 {
+    UNUSED_PARAM(parameterTypes);
     if (arguments[0] && arguments[1] && !arguments[0]->isMatrix()) {
         auto result = constantBinaryOperation<Constraints::Number>({ *arguments[0], *arguments[1] }, [&]<typename T>(T left, T right) -> T {
             return left + right;
@@ -1843,6 +1849,7 @@ VALIDATION_FUNCTION(Add)
 
 VALIDATION_FUNCTION(Minus)
 {
+    UNUSED_PARAM(parameterTypes);
     if (arguments.size() == 2 && arguments[0] && arguments[1] && !arguments[0]->isMatrix()) {
         auto result = constantBinaryOperation<Constraints::Number>({ *arguments[0], *arguments[1] }, [&]<typename T>(T left, T right) -> T {
             return left - right;
@@ -1857,6 +1864,7 @@ VALIDATION_FUNCTION(Minus)
 
 VALIDATION_FUNCTION(Multiply)
 {
+    UNUSED_PARAM(parameterTypes);
     if (arguments[0] && arguments[1] && !arguments[0]->isMatrix() && !arguments[1]->isMatrix()) {
         auto result = constantBinaryOperation<Constraints::Number>({ *arguments[0], *arguments[1] }, [&]<typename T>(T left, T right) -> T {
             return left * right;
@@ -1871,6 +1879,7 @@ VALIDATION_FUNCTION(Multiply)
 
 VALIDATION_FUNCTION(Smoothstep)
 {
+    UNUSED_PARAM(parameterTypes);
     if (arguments[0] && arguments[1]) {
         CALL(equal, Equal, nullptr, { *arguments[0], *arguments[1] });
         CALL(any, Any, nullptr, { equal });
@@ -1883,6 +1892,7 @@ VALIDATION_FUNCTION(Smoothstep)
 
 VALIDATION_FUNCTION(Divide)
 {
+    UNUSED_PARAM(parameterTypes);
     if (arguments[0] && arguments[1]) {
         auto result = constantDivide(nullptr, { *arguments[0], *arguments[1] });
         if (!result)
@@ -1900,6 +1910,7 @@ VALIDATION_FUNCTION(Divide)
 
 VALIDATION_FUNCTION(Modulo)
 {
+    UNUSED_PARAM(parameterTypes);
     if (arguments[0] && arguments[1]) {
         auto result = constantModulo(nullptr, { *arguments[0], *arguments[1] });
         if (!result)
@@ -1909,6 +1920,56 @@ VALIDATION_FUNCTION(Modulo)
         if (!result)
             return { result.error() };
     }
+
+    return std::nullopt;
+}
+
+static int32_t ldexpBiasForType(const Type* type)
+{
+    if (auto* vectorType = std::get_if<Types::Vector>(type))
+        type = vectorType->element;
+    if (auto* primitive = std::get_if<Types::Primitive>(type)) {
+        switch (primitive->kind) {
+        case Types::Primitive::F16:
+            return 15;
+        case Types::Primitive::F32:
+            return 127;
+        case Types::Primitive::AbstractFloat:
+        case Types::Primitive::AbstractInt:
+            return 1023;
+        default:
+            break;
+        }
+    }
+    RELEASE_ASSERT_NOT_REACHED();
+}
+
+VALIDATION_FUNCTION(Ldexp)
+{
+    if (!arguments[1])
+        return std::nullopt;
+
+    int32_t bias = ldexpBiasForType(parameterTypes[0]);
+    int32_t maxExponent = bias + 1;
+
+    auto checkScalar = [&](const ConstantValue& value) -> bool {
+        if (auto* i32 = std::get_if<int32_t>(&value))
+            return *i32 > maxExponent;
+        if (auto* abstractInt = std::get_if<int64_t>(&value))
+            return *abstractInt > maxExponent;
+        return false;
+    };
+
+    auto& e2 = *arguments[1];
+    if (auto* vec = std::get_if<ConstantVector>(&e2)) {
+        for (auto& element : vec->elements) {
+            if (checkScalar(element))
+                return { makeString("e2 must be less than or equal to "_s, maxExponent) };
+        }
+        return std::nullopt;
+    }
+    if (checkScalar(e2))
+        return { makeString("e2 must be less than or equal to "_s, maxExponent) };
 
     return std::nullopt;
 }
