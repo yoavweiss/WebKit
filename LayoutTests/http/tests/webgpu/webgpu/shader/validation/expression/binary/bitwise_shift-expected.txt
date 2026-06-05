@@ -923,6 +923,14 @@ PASS :shift_left_concrete:case={"lhs":"4611686018427388000","rhs":"1u","pass":fa
 PASS :shift_left_concrete:case={"lhs":"4611686018427388000","rhs":"1u","pass":false};vectorize=2
 PASS :shift_left_concrete:case={"lhs":"4611686018427388000","rhs":"1u","pass":false};vectorize=3
 PASS :shift_left_concrete:case={"lhs":"4611686018427388000","rhs":"1u","pass":false};vectorize=4
+PASS :shift_left_concrete:case={"lhs":"-1","rhs":"63","pass":true};vectorize="_undef_"
+PASS :shift_left_concrete:case={"lhs":"-1","rhs":"63","pass":true};vectorize=2
+PASS :shift_left_concrete:case={"lhs":"-1","rhs":"63","pass":true};vectorize=3
+PASS :shift_left_concrete:case={"lhs":"-1","rhs":"63","pass":true};vectorize=4
+PASS :shift_left_concrete:case={"lhs":"-1","rhs":"64","pass":false};vectorize="_undef_"
+PASS :shift_left_concrete:case={"lhs":"-1","rhs":"64","pass":false};vectorize=2
+PASS :shift_left_concrete:case={"lhs":"-1","rhs":"64","pass":false};vectorize=3
+PASS :shift_left_concrete:case={"lhs":"-1","rhs":"64","pass":false};vectorize=4
 PASS :shift_right_concrete:case={"lhs":"0u","rhs":"31u","pass":true};vectorize="_undef_"
 PASS :shift_right_concrete:case={"lhs":"0u","rhs":"31u","pass":true};vectorize=2
 PASS :shift_right_concrete:case={"lhs":"0u","rhs":"31u","pass":true};vectorize=3
@@ -975,10 +983,140 @@ PASS :shift_right_concrete:case={"lhs":"1u","rhs":"-1","pass":false};vectorize="
 PASS :shift_right_concrete:case={"lhs":"1u","rhs":"-1","pass":false};vectorize=2
 PASS :shift_right_concrete:case={"lhs":"1u","rhs":"-1","pass":false};vectorize=3
 PASS :shift_right_concrete:case={"lhs":"1u","rhs":"-1","pass":false};vectorize=4
+FAIL :shift_right_concrete:case={"lhs":"1","rhs":"64","pass":true};vectorize="_undef_" assert_unreached:
+  - VALIDATION FAILED: Unexpected compilationInfo 'error' message.
+    4:17: error: shift right value must be less than the bit width of the shifted value, which is 64
+
+    ---- shader ----
+
+    @compute @workgroup_size(1)
+    fn main() {
+        const r = 1 >> 64;
+    }
+
+      at (elided: below max severity)
+  - EXCEPTION: Error: Unexpected validation error occurred: 1 error generated while compiling the shader:
+    4:16: shift right value must be less than the bit width of the shifted value, which is 64
+    attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:466:44
+ Reached unreachable code
+FAIL :shift_right_concrete:case={"lhs":"1","rhs":"64","pass":true};vectorize=2 assert_unreached:
+  - VALIDATION FAILED: Unexpected compilationInfo 'error' message.
+    4:23: error: shift right value must be less than the bit width of the shifted value, which is 64
+
+    ---- shader ----
+
+    @compute @workgroup_size(1)
+    fn main() {
+        const r = vec2(1) >> vec2(64);
+    }
+
+      at (elided: below max severity)
+  - EXCEPTION: Error: Unexpected validation error occurred: 1 error generated while compiling the shader:
+    4:22: shift right value must be less than the bit width of the shifted value, which is 64
+    attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:466:44
+ Reached unreachable code
+FAIL :shift_right_concrete:case={"lhs":"1","rhs":"64","pass":true};vectorize=3 assert_unreached:
+  - VALIDATION FAILED: Unexpected compilationInfo 'error' message.
+    4:23: error: shift right value must be less than the bit width of the shifted value, which is 64
+
+    ---- shader ----
+
+    @compute @workgroup_size(1)
+    fn main() {
+        const r = vec3(1) >> vec3(64);
+    }
+
+      at (elided: below max severity)
+  - EXCEPTION: Error: Unexpected validation error occurred: 1 error generated while compiling the shader:
+    4:22: shift right value must be less than the bit width of the shifted value, which is 64
+    attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:466:44
+ Reached unreachable code
+FAIL :shift_right_concrete:case={"lhs":"1","rhs":"64","pass":true};vectorize=4 assert_unreached:
+  - VALIDATION FAILED: Unexpected compilationInfo 'error' message.
+    4:23: error: shift right value must be less than the bit width of the shifted value, which is 64
+
+    ---- shader ----
+
+    @compute @workgroup_size(1)
+    fn main() {
+        const r = vec4(1) >> vec4(64);
+    }
+
+      at (elided: below max severity)
+  - EXCEPTION: Error: Unexpected validation error occurred: 1 error generated while compiling the shader:
+    4:22: shift right value must be less than the bit width of the shifted value, which is 64
+    attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:466:44
+ Reached unreachable code
+FAIL :shift_right_concrete:case={"lhs":"-1","rhs":"64","pass":true};vectorize="_undef_" assert_unreached:
+  - VALIDATION FAILED: Unexpected compilationInfo 'error' message.
+    4:18: error: shift right value must be less than the bit width of the shifted value, which is 64
+
+    ---- shader ----
+
+    @compute @workgroup_size(1)
+    fn main() {
+        const r = -1 >> 64;
+    }
+
+      at (elided: below max severity)
+  - EXCEPTION: Error: Unexpected validation error occurred: 1 error generated while compiling the shader:
+    4:17: shift right value must be less than the bit width of the shifted value, which is 64
+    attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:466:44
+ Reached unreachable code
+FAIL :shift_right_concrete:case={"lhs":"-1","rhs":"64","pass":true};vectorize=2 assert_unreached:
+  - VALIDATION FAILED: Unexpected compilationInfo 'error' message.
+    4:24: error: shift right value must be less than the bit width of the shifted value, which is 64
+
+    ---- shader ----
+
+    @compute @workgroup_size(1)
+    fn main() {
+        const r = vec2(-1) >> vec2(64);
+    }
+
+      at (elided: below max severity)
+  - EXCEPTION: Error: Unexpected validation error occurred: 1 error generated while compiling the shader:
+    4:23: shift right value must be less than the bit width of the shifted value, which is 64
+    attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:466:44
+ Reached unreachable code
+FAIL :shift_right_concrete:case={"lhs":"-1","rhs":"64","pass":true};vectorize=3 assert_unreached:
+  - VALIDATION FAILED: Unexpected compilationInfo 'error' message.
+    4:24: error: shift right value must be less than the bit width of the shifted value, which is 64
+
+    ---- shader ----
+
+    @compute @workgroup_size(1)
+    fn main() {
+        const r = vec3(-1) >> vec3(64);
+    }
+
+      at (elided: below max severity)
+  - EXCEPTION: Error: Unexpected validation error occurred: 1 error generated while compiling the shader:
+    4:23: shift right value must be less than the bit width of the shifted value, which is 64
+    attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:466:44
+ Reached unreachable code
+FAIL :shift_right_concrete:case={"lhs":"-1","rhs":"64","pass":true};vectorize=4 assert_unreached:
+  - VALIDATION FAILED: Unexpected compilationInfo 'error' message.
+    4:24: error: shift right value must be less than the bit width of the shifted value, which is 64
+
+    ---- shader ----
+
+    @compute @workgroup_size(1)
+    fn main() {
+        const r = vec4(-1) >> vec4(64);
+    }
+
+      at (elided: below max severity)
+  - EXCEPTION: Error: Unexpected validation error occurred: 1 error generated while compiling the shader:
+    4:23: shift right value must be less than the bit width of the shifted value, which is 64
+    attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:466:44
+ Reached unreachable code
 PASS :shift_left_abstract:
 PASS :shift_right_abstract:
-FAIL :partial_eval_errors:op="%3C%3C";type="i32" assert_unreached:
+FAIL :partial_eval_errors:op="%3C%3C";type="i32";vectorize="_undef_" assert_unreached:
   - (in subcase: stage="shader";value=31) INFO: subcase ran
+  - (in subcase: stage="shader";value=32) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: stage="shader";value=32) VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
@@ -989,11 +1127,12 @@ FAIL :partial_eval_errors:op="%3C%3C";type="i32" assert_unreached:
       var v : i32 = 0;
       return v << 32u;
     }
-    expectCompileResult@http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:73:28
-    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/expression/binary/bitwise_shift.spec.js:317:26
-  - (in subcase: stage="shader";value=32) EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:532:28
   - (in subcase: stage="shader";value=32) INFO: subcase ran
+  - (in subcase: stage="shader";value=33) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: stage="shader";value=33) VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
@@ -1004,11 +1143,12 @@ FAIL :partial_eval_errors:op="%3C%3C";type="i32" assert_unreached:
       var v : i32 = 0;
       return v << 33u;
     }
-    expectCompileResult@http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:73:28
-    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/expression/binary/bitwise_shift.spec.js:317:26
-  - (in subcase: stage="shader";value=33) EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:532:28
   - (in subcase: stage="shader";value=33) INFO: subcase ran
+  - (in subcase: stage="shader";value=64) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: stage="shader";value=64) VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
@@ -1020,8 +1160,6 @@ FAIL :partial_eval_errors:op="%3C%3C";type="i32" assert_unreached:
       return v << 64u;
     }
       at (elided: only 2 shown)
-  - (in subcase: stage="shader";value=64) EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: stage="shader";value=64) INFO: subcase ran
   - (in subcase: stage="pipeline";value=31) INFO: subcase ran
   - (in subcase: stage="pipeline";value=32) EXPECTATION FAILED: Expected validation error
@@ -1034,8 +1172,187 @@ FAIL :partial_eval_errors:op="%3C%3C";type="i32" assert_unreached:
       at (elided: below max severity)
   - (in subcase: stage="pipeline";value=64) INFO: subcase ran
  Reached unreachable code
-FAIL :partial_eval_errors:op="%3C%3C";type="u32" assert_unreached:
+FAIL :partial_eval_errors:op="%3C%3C";type="i32";vectorize=2 assert_unreached:
   - (in subcase: stage="shader";value=31) INFO: subcase ran
+  - (in subcase: stage="shader";value=32) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="shader";value=32) VALIDATION FAILED: Missing expected compilationInfo 'error' message.
+
+
+    ---- shader ----
+
+    override o = 0u;
+    fn foo() -> vec2<i32> {
+      var v : vec2<i32> = vec2(0);
+      return v << vec2(32u);
+    }
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:532:28
+  - (in subcase: stage="shader";value=32) INFO: subcase ran
+  - (in subcase: stage="shader";value=33) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="shader";value=33) VALIDATION FAILED: Missing expected compilationInfo 'error' message.
+
+
+    ---- shader ----
+
+    override o = 0u;
+    fn foo() -> vec2<i32> {
+      var v : vec2<i32> = vec2(0);
+      return v << vec2(33u);
+    }
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:532:28
+  - (in subcase: stage="shader";value=33) INFO: subcase ran
+  - (in subcase: stage="shader";value=64) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="shader";value=64) VALIDATION FAILED: Missing expected compilationInfo 'error' message.
+
+
+    ---- shader ----
+
+    override o = 0u;
+    fn foo() -> vec2<i32> {
+      var v : vec2<i32> = vec2(0);
+      return v << vec2(64u);
+    }
+      at (elided: only 2 shown)
+  - (in subcase: stage="shader";value=64) INFO: subcase ran
+  - (in subcase: stage="pipeline";value=31) INFO: subcase ran
+  - (in subcase: stage="pipeline";value=32) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="pipeline";value=32) INFO: subcase ran
+  - (in subcase: stage="pipeline";value=33) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="pipeline";value=33) INFO: subcase ran
+  - (in subcase: stage="pipeline";value=64) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="pipeline";value=64) INFO: subcase ran
+ Reached unreachable code
+FAIL :partial_eval_errors:op="%3C%3C";type="i32";vectorize=3 assert_unreached:
+  - (in subcase: stage="shader";value=31) INFO: subcase ran
+  - (in subcase: stage="shader";value=32) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="shader";value=32) VALIDATION FAILED: Missing expected compilationInfo 'error' message.
+
+
+    ---- shader ----
+
+    override o = 0u;
+    fn foo() -> vec3<i32> {
+      var v : vec3<i32> = vec3(0);
+      return v << vec3(32u);
+    }
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:532:28
+  - (in subcase: stage="shader";value=32) INFO: subcase ran
+  - (in subcase: stage="shader";value=33) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="shader";value=33) VALIDATION FAILED: Missing expected compilationInfo 'error' message.
+
+
+    ---- shader ----
+
+    override o = 0u;
+    fn foo() -> vec3<i32> {
+      var v : vec3<i32> = vec3(0);
+      return v << vec3(33u);
+    }
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:532:28
+  - (in subcase: stage="shader";value=33) INFO: subcase ran
+  - (in subcase: stage="shader";value=64) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="shader";value=64) VALIDATION FAILED: Missing expected compilationInfo 'error' message.
+
+
+    ---- shader ----
+
+    override o = 0u;
+    fn foo() -> vec3<i32> {
+      var v : vec3<i32> = vec3(0);
+      return v << vec3(64u);
+    }
+      at (elided: only 2 shown)
+  - (in subcase: stage="shader";value=64) INFO: subcase ran
+  - (in subcase: stage="pipeline";value=31) INFO: subcase ran
+  - (in subcase: stage="pipeline";value=32) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="pipeline";value=32) INFO: subcase ran
+  - (in subcase: stage="pipeline";value=33) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="pipeline";value=33) INFO: subcase ran
+  - (in subcase: stage="pipeline";value=64) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="pipeline";value=64) INFO: subcase ran
+ Reached unreachable code
+FAIL :partial_eval_errors:op="%3C%3C";type="i32";vectorize=4 assert_unreached:
+  - (in subcase: stage="shader";value=31) INFO: subcase ran
+  - (in subcase: stage="shader";value=32) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="shader";value=32) VALIDATION FAILED: Missing expected compilationInfo 'error' message.
+
+
+    ---- shader ----
+
+    override o = 0u;
+    fn foo() -> vec4<i32> {
+      var v : vec4<i32> = vec4(0);
+      return v << vec4(32u);
+    }
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:532:28
+  - (in subcase: stage="shader";value=32) INFO: subcase ran
+  - (in subcase: stage="shader";value=33) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="shader";value=33) VALIDATION FAILED: Missing expected compilationInfo 'error' message.
+
+
+    ---- shader ----
+
+    override o = 0u;
+    fn foo() -> vec4<i32> {
+      var v : vec4<i32> = vec4(0);
+      return v << vec4(33u);
+    }
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:532:28
+  - (in subcase: stage="shader";value=33) INFO: subcase ran
+  - (in subcase: stage="shader";value=64) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="shader";value=64) VALIDATION FAILED: Missing expected compilationInfo 'error' message.
+
+
+    ---- shader ----
+
+    override o = 0u;
+    fn foo() -> vec4<i32> {
+      var v : vec4<i32> = vec4(0);
+      return v << vec4(64u);
+    }
+      at (elided: only 2 shown)
+  - (in subcase: stage="shader";value=64) INFO: subcase ran
+  - (in subcase: stage="pipeline";value=31) INFO: subcase ran
+  - (in subcase: stage="pipeline";value=32) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="pipeline";value=32) INFO: subcase ran
+  - (in subcase: stage="pipeline";value=33) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="pipeline";value=33) INFO: subcase ran
+  - (in subcase: stage="pipeline";value=64) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="pipeline";value=64) INFO: subcase ran
+ Reached unreachable code
+FAIL :partial_eval_errors:op="%3C%3C";type="u32";vectorize="_undef_" assert_unreached:
+  - (in subcase: stage="shader";value=31) INFO: subcase ran
+  - (in subcase: stage="shader";value=32) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: stage="shader";value=32) VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
@@ -1046,11 +1363,12 @@ FAIL :partial_eval_errors:op="%3C%3C";type="u32" assert_unreached:
       var v : u32 = 0;
       return v << 32u;
     }
-    expectCompileResult@http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:73:28
-    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/expression/binary/bitwise_shift.spec.js:317:26
-  - (in subcase: stage="shader";value=32) EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:532:28
   - (in subcase: stage="shader";value=32) INFO: subcase ran
+  - (in subcase: stage="shader";value=33) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: stage="shader";value=33) VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
@@ -1061,11 +1379,12 @@ FAIL :partial_eval_errors:op="%3C%3C";type="u32" assert_unreached:
       var v : u32 = 0;
       return v << 33u;
     }
-    expectCompileResult@http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:73:28
-    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/expression/binary/bitwise_shift.spec.js:317:26
-  - (in subcase: stage="shader";value=33) EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:532:28
   - (in subcase: stage="shader";value=33) INFO: subcase ran
+  - (in subcase: stage="shader";value=64) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: stage="shader";value=64) VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
@@ -1077,8 +1396,6 @@ FAIL :partial_eval_errors:op="%3C%3C";type="u32" assert_unreached:
       return v << 64u;
     }
       at (elided: only 2 shown)
-  - (in subcase: stage="shader";value=64) EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: stage="shader";value=64) INFO: subcase ran
   - (in subcase: stage="pipeline";value=31) INFO: subcase ran
   - (in subcase: stage="pipeline";value=32) EXPECTATION FAILED: Expected validation error
@@ -1091,51 +1408,53 @@ FAIL :partial_eval_errors:op="%3C%3C";type="u32" assert_unreached:
       at (elided: below max severity)
   - (in subcase: stage="pipeline";value=64) INFO: subcase ran
  Reached unreachable code
-FAIL :partial_eval_errors:op="%3E%3E";type="i32" assert_unreached:
+FAIL :partial_eval_errors:op="%3C%3C";type="u32";vectorize=2 assert_unreached:
   - (in subcase: stage="shader";value=31) INFO: subcase ran
+  - (in subcase: stage="shader";value=32) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: stage="shader";value=32) VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
 
     override o = 0u;
-    fn foo() -> i32 {
-      var v : i32 = 0;
-      return v >> 32u;
+    fn foo() -> vec2<u32> {
+      var v : vec2<u32> = vec2(0);
+      return v << vec2(32u);
     }
-    expectCompileResult@http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:73:28
-    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/expression/binary/bitwise_shift.spec.js:317:26
-  - (in subcase: stage="shader";value=32) EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:532:28
   - (in subcase: stage="shader";value=32) INFO: subcase ran
+  - (in subcase: stage="shader";value=33) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: stage="shader";value=33) VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
 
     override o = 0u;
-    fn foo() -> i32 {
-      var v : i32 = 0;
-      return v >> 33u;
+    fn foo() -> vec2<u32> {
+      var v : vec2<u32> = vec2(0);
+      return v << vec2(33u);
     }
-    expectCompileResult@http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:73:28
-    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/expression/binary/bitwise_shift.spec.js:317:26
-  - (in subcase: stage="shader";value=33) EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:532:28
   - (in subcase: stage="shader";value=33) INFO: subcase ran
+  - (in subcase: stage="shader";value=64) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: stage="shader";value=64) VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
     ---- shader ----
 
     override o = 0u;
-    fn foo() -> i32 {
-      var v : i32 = 0;
-      return v >> 64u;
+    fn foo() -> vec2<u32> {
+      var v : vec2<u32> = vec2(0);
+      return v << vec2(64u);
     }
       at (elided: only 2 shown)
-  - (in subcase: stage="shader";value=64) EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
   - (in subcase: stage="shader";value=64) INFO: subcase ran
   - (in subcase: stage="pipeline";value=31) INFO: subcase ran
   - (in subcase: stage="pipeline";value=32) EXPECTATION FAILED: Expected validation error
@@ -1148,8 +1467,364 @@ FAIL :partial_eval_errors:op="%3E%3E";type="i32" assert_unreached:
       at (elided: below max severity)
   - (in subcase: stage="pipeline";value=64) INFO: subcase ran
  Reached unreachable code
-FAIL :partial_eval_errors:op="%3E%3E";type="u32" assert_unreached:
+FAIL :partial_eval_errors:op="%3C%3C";type="u32";vectorize=3 assert_unreached:
   - (in subcase: stage="shader";value=31) INFO: subcase ran
+  - (in subcase: stage="shader";value=32) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="shader";value=32) VALIDATION FAILED: Missing expected compilationInfo 'error' message.
+
+
+    ---- shader ----
+
+    override o = 0u;
+    fn foo() -> vec3<u32> {
+      var v : vec3<u32> = vec3(0);
+      return v << vec3(32u);
+    }
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:532:28
+  - (in subcase: stage="shader";value=32) INFO: subcase ran
+  - (in subcase: stage="shader";value=33) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="shader";value=33) VALIDATION FAILED: Missing expected compilationInfo 'error' message.
+
+
+    ---- shader ----
+
+    override o = 0u;
+    fn foo() -> vec3<u32> {
+      var v : vec3<u32> = vec3(0);
+      return v << vec3(33u);
+    }
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:532:28
+  - (in subcase: stage="shader";value=33) INFO: subcase ran
+  - (in subcase: stage="shader";value=64) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="shader";value=64) VALIDATION FAILED: Missing expected compilationInfo 'error' message.
+
+
+    ---- shader ----
+
+    override o = 0u;
+    fn foo() -> vec3<u32> {
+      var v : vec3<u32> = vec3(0);
+      return v << vec3(64u);
+    }
+      at (elided: only 2 shown)
+  - (in subcase: stage="shader";value=64) INFO: subcase ran
+  - (in subcase: stage="pipeline";value=31) INFO: subcase ran
+  - (in subcase: stage="pipeline";value=32) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="pipeline";value=32) INFO: subcase ran
+  - (in subcase: stage="pipeline";value=33) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="pipeline";value=33) INFO: subcase ran
+  - (in subcase: stage="pipeline";value=64) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="pipeline";value=64) INFO: subcase ran
+ Reached unreachable code
+FAIL :partial_eval_errors:op="%3C%3C";type="u32";vectorize=4 assert_unreached:
+  - (in subcase: stage="shader";value=31) INFO: subcase ran
+  - (in subcase: stage="shader";value=32) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="shader";value=32) VALIDATION FAILED: Missing expected compilationInfo 'error' message.
+
+
+    ---- shader ----
+
+    override o = 0u;
+    fn foo() -> vec4<u32> {
+      var v : vec4<u32> = vec4(0);
+      return v << vec4(32u);
+    }
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:532:28
+  - (in subcase: stage="shader";value=32) INFO: subcase ran
+  - (in subcase: stage="shader";value=33) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="shader";value=33) VALIDATION FAILED: Missing expected compilationInfo 'error' message.
+
+
+    ---- shader ----
+
+    override o = 0u;
+    fn foo() -> vec4<u32> {
+      var v : vec4<u32> = vec4(0);
+      return v << vec4(33u);
+    }
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:532:28
+  - (in subcase: stage="shader";value=33) INFO: subcase ran
+  - (in subcase: stage="shader";value=64) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="shader";value=64) VALIDATION FAILED: Missing expected compilationInfo 'error' message.
+
+
+    ---- shader ----
+
+    override o = 0u;
+    fn foo() -> vec4<u32> {
+      var v : vec4<u32> = vec4(0);
+      return v << vec4(64u);
+    }
+      at (elided: only 2 shown)
+  - (in subcase: stage="shader";value=64) INFO: subcase ran
+  - (in subcase: stage="pipeline";value=31) INFO: subcase ran
+  - (in subcase: stage="pipeline";value=32) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="pipeline";value=32) INFO: subcase ran
+  - (in subcase: stage="pipeline";value=33) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="pipeline";value=33) INFO: subcase ran
+  - (in subcase: stage="pipeline";value=64) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="pipeline";value=64) INFO: subcase ran
+ Reached unreachable code
+FAIL :partial_eval_errors:op="%3E%3E";type="i32";vectorize="_undef_" assert_unreached:
+  - (in subcase: stage="shader";value=31) INFO: subcase ran
+  - (in subcase: stage="shader";value=32) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="shader";value=32) VALIDATION FAILED: Missing expected compilationInfo 'error' message.
+
+
+    ---- shader ----
+
+    override o = 0u;
+    fn foo() -> i32 {
+      var v : i32 = 0;
+      return v >> 32u;
+    }
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:532:28
+  - (in subcase: stage="shader";value=32) INFO: subcase ran
+  - (in subcase: stage="shader";value=33) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="shader";value=33) VALIDATION FAILED: Missing expected compilationInfo 'error' message.
+
+
+    ---- shader ----
+
+    override o = 0u;
+    fn foo() -> i32 {
+      var v : i32 = 0;
+      return v >> 33u;
+    }
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:532:28
+  - (in subcase: stage="shader";value=33) INFO: subcase ran
+  - (in subcase: stage="shader";value=64) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="shader";value=64) VALIDATION FAILED: Missing expected compilationInfo 'error' message.
+
+
+    ---- shader ----
+
+    override o = 0u;
+    fn foo() -> i32 {
+      var v : i32 = 0;
+      return v >> 64u;
+    }
+      at (elided: only 2 shown)
+  - (in subcase: stage="shader";value=64) INFO: subcase ran
+  - (in subcase: stage="pipeline";value=31) INFO: subcase ran
+  - (in subcase: stage="pipeline";value=32) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="pipeline";value=32) INFO: subcase ran
+  - (in subcase: stage="pipeline";value=33) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="pipeline";value=33) INFO: subcase ran
+  - (in subcase: stage="pipeline";value=64) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="pipeline";value=64) INFO: subcase ran
+ Reached unreachable code
+FAIL :partial_eval_errors:op="%3E%3E";type="i32";vectorize=2 assert_unreached:
+  - (in subcase: stage="shader";value=31) INFO: subcase ran
+  - (in subcase: stage="shader";value=32) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="shader";value=32) VALIDATION FAILED: Missing expected compilationInfo 'error' message.
+
+
+    ---- shader ----
+
+    override o = 0u;
+    fn foo() -> vec2<i32> {
+      var v : vec2<i32> = vec2(0);
+      return v >> vec2(32u);
+    }
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:532:28
+  - (in subcase: stage="shader";value=32) INFO: subcase ran
+  - (in subcase: stage="shader";value=33) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="shader";value=33) VALIDATION FAILED: Missing expected compilationInfo 'error' message.
+
+
+    ---- shader ----
+
+    override o = 0u;
+    fn foo() -> vec2<i32> {
+      var v : vec2<i32> = vec2(0);
+      return v >> vec2(33u);
+    }
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:532:28
+  - (in subcase: stage="shader";value=33) INFO: subcase ran
+  - (in subcase: stage="shader";value=64) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="shader";value=64) VALIDATION FAILED: Missing expected compilationInfo 'error' message.
+
+
+    ---- shader ----
+
+    override o = 0u;
+    fn foo() -> vec2<i32> {
+      var v : vec2<i32> = vec2(0);
+      return v >> vec2(64u);
+    }
+      at (elided: only 2 shown)
+  - (in subcase: stage="shader";value=64) INFO: subcase ran
+  - (in subcase: stage="pipeline";value=31) INFO: subcase ran
+  - (in subcase: stage="pipeline";value=32) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="pipeline";value=32) INFO: subcase ran
+  - (in subcase: stage="pipeline";value=33) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="pipeline";value=33) INFO: subcase ran
+  - (in subcase: stage="pipeline";value=64) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="pipeline";value=64) INFO: subcase ran
+ Reached unreachable code
+FAIL :partial_eval_errors:op="%3E%3E";type="i32";vectorize=3 assert_unreached:
+  - (in subcase: stage="shader";value=31) INFO: subcase ran
+  - (in subcase: stage="shader";value=32) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="shader";value=32) VALIDATION FAILED: Missing expected compilationInfo 'error' message.
+
+
+    ---- shader ----
+
+    override o = 0u;
+    fn foo() -> vec3<i32> {
+      var v : vec3<i32> = vec3(0);
+      return v >> vec3(32u);
+    }
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:532:28
+  - (in subcase: stage="shader";value=32) INFO: subcase ran
+  - (in subcase: stage="shader";value=33) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="shader";value=33) VALIDATION FAILED: Missing expected compilationInfo 'error' message.
+
+
+    ---- shader ----
+
+    override o = 0u;
+    fn foo() -> vec3<i32> {
+      var v : vec3<i32> = vec3(0);
+      return v >> vec3(33u);
+    }
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:532:28
+  - (in subcase: stage="shader";value=33) INFO: subcase ran
+  - (in subcase: stage="shader";value=64) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="shader";value=64) VALIDATION FAILED: Missing expected compilationInfo 'error' message.
+
+
+    ---- shader ----
+
+    override o = 0u;
+    fn foo() -> vec3<i32> {
+      var v : vec3<i32> = vec3(0);
+      return v >> vec3(64u);
+    }
+      at (elided: only 2 shown)
+  - (in subcase: stage="shader";value=64) INFO: subcase ran
+  - (in subcase: stage="pipeline";value=31) INFO: subcase ran
+  - (in subcase: stage="pipeline";value=32) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="pipeline";value=32) INFO: subcase ran
+  - (in subcase: stage="pipeline";value=33) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="pipeline";value=33) INFO: subcase ran
+  - (in subcase: stage="pipeline";value=64) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="pipeline";value=64) INFO: subcase ran
+ Reached unreachable code
+FAIL :partial_eval_errors:op="%3E%3E";type="i32";vectorize=4 assert_unreached:
+  - (in subcase: stage="shader";value=31) INFO: subcase ran
+  - (in subcase: stage="shader";value=32) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="shader";value=32) VALIDATION FAILED: Missing expected compilationInfo 'error' message.
+
+
+    ---- shader ----
+
+    override o = 0u;
+    fn foo() -> vec4<i32> {
+      var v : vec4<i32> = vec4(0);
+      return v >> vec4(32u);
+    }
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:532:28
+  - (in subcase: stage="shader";value=32) INFO: subcase ran
+  - (in subcase: stage="shader";value=33) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="shader";value=33) VALIDATION FAILED: Missing expected compilationInfo 'error' message.
+
+
+    ---- shader ----
+
+    override o = 0u;
+    fn foo() -> vec4<i32> {
+      var v : vec4<i32> = vec4(0);
+      return v >> vec4(33u);
+    }
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:532:28
+  - (in subcase: stage="shader";value=33) INFO: subcase ran
+  - (in subcase: stage="shader";value=64) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="shader";value=64) VALIDATION FAILED: Missing expected compilationInfo 'error' message.
+
+
+    ---- shader ----
+
+    override o = 0u;
+    fn foo() -> vec4<i32> {
+      var v : vec4<i32> = vec4(0);
+      return v >> vec4(64u);
+    }
+      at (elided: only 2 shown)
+  - (in subcase: stage="shader";value=64) INFO: subcase ran
+  - (in subcase: stage="pipeline";value=31) INFO: subcase ran
+  - (in subcase: stage="pipeline";value=32) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="pipeline";value=32) INFO: subcase ran
+  - (in subcase: stage="pipeline";value=33) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="pipeline";value=33) INFO: subcase ran
+  - (in subcase: stage="pipeline";value=64) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="pipeline";value=64) INFO: subcase ran
+ Reached unreachable code
+FAIL :partial_eval_errors:op="%3E%3E";type="u32";vectorize="_undef_" assert_unreached:
+  - (in subcase: stage="shader";value=31) INFO: subcase ran
+  - (in subcase: stage="shader";value=32) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: stage="shader";value=32) VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
@@ -1160,11 +1835,12 @@ FAIL :partial_eval_errors:op="%3E%3E";type="u32" assert_unreached:
       var v : u32 = 0;
       return v >> 32u;
     }
-    expectCompileResult@http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:73:28
-    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/expression/binary/bitwise_shift.spec.js:317:26
-  - (in subcase: stage="shader";value=32) EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:532:28
   - (in subcase: stage="shader";value=32) INFO: subcase ran
+  - (in subcase: stage="shader";value=33) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: stage="shader";value=33) VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
@@ -1175,11 +1851,12 @@ FAIL :partial_eval_errors:op="%3E%3E";type="u32" assert_unreached:
       var v : u32 = 0;
       return v >> 33u;
     }
-    expectCompileResult@http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:73:28
-    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/expression/binary/bitwise_shift.spec.js:317:26
-  - (in subcase: stage="shader";value=33) EXPECTATION FAILED: Expected validation error
-      at (elided: below max severity)
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:532:28
   - (in subcase: stage="shader";value=33) INFO: subcase ran
+  - (in subcase: stage="shader";value=64) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
   - (in subcase: stage="shader";value=64) VALIDATION FAILED: Missing expected compilationInfo 'error' message.
 
 
@@ -1191,8 +1868,183 @@ FAIL :partial_eval_errors:op="%3E%3E";type="u32" assert_unreached:
       return v >> 64u;
     }
       at (elided: only 2 shown)
+  - (in subcase: stage="shader";value=64) INFO: subcase ran
+  - (in subcase: stage="pipeline";value=31) INFO: subcase ran
+  - (in subcase: stage="pipeline";value=32) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="pipeline";value=32) INFO: subcase ran
+  - (in subcase: stage="pipeline";value=33) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="pipeline";value=33) INFO: subcase ran
+  - (in subcase: stage="pipeline";value=64) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="pipeline";value=64) INFO: subcase ran
+ Reached unreachable code
+FAIL :partial_eval_errors:op="%3E%3E";type="u32";vectorize=2 assert_unreached:
+  - (in subcase: stage="shader";value=31) INFO: subcase ran
+  - (in subcase: stage="shader";value=32) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="shader";value=32) VALIDATION FAILED: Missing expected compilationInfo 'error' message.
+
+
+    ---- shader ----
+
+    override o = 0u;
+    fn foo() -> vec2<u32> {
+      var v : vec2<u32> = vec2(0);
+      return v >> vec2(32u);
+    }
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:532:28
+  - (in subcase: stage="shader";value=32) INFO: subcase ran
+  - (in subcase: stage="shader";value=33) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="shader";value=33) VALIDATION FAILED: Missing expected compilationInfo 'error' message.
+
+
+    ---- shader ----
+
+    override o = 0u;
+    fn foo() -> vec2<u32> {
+      var v : vec2<u32> = vec2(0);
+      return v >> vec2(33u);
+    }
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:532:28
+  - (in subcase: stage="shader";value=33) INFO: subcase ran
   - (in subcase: stage="shader";value=64) EXPECTATION FAILED: Expected validation error
       at (elided: below max severity)
+  - (in subcase: stage="shader";value=64) VALIDATION FAILED: Missing expected compilationInfo 'error' message.
+
+
+    ---- shader ----
+
+    override o = 0u;
+    fn foo() -> vec2<u32> {
+      var v : vec2<u32> = vec2(0);
+      return v >> vec2(64u);
+    }
+      at (elided: only 2 shown)
+  - (in subcase: stage="shader";value=64) INFO: subcase ran
+  - (in subcase: stage="pipeline";value=31) INFO: subcase ran
+  - (in subcase: stage="pipeline";value=32) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="pipeline";value=32) INFO: subcase ran
+  - (in subcase: stage="pipeline";value=33) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="pipeline";value=33) INFO: subcase ran
+  - (in subcase: stage="pipeline";value=64) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="pipeline";value=64) INFO: subcase ran
+ Reached unreachable code
+FAIL :partial_eval_errors:op="%3E%3E";type="u32";vectorize=3 assert_unreached:
+  - (in subcase: stage="shader";value=31) INFO: subcase ran
+  - (in subcase: stage="shader";value=32) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="shader";value=32) VALIDATION FAILED: Missing expected compilationInfo 'error' message.
+
+
+    ---- shader ----
+
+    override o = 0u;
+    fn foo() -> vec3<u32> {
+      var v : vec3<u32> = vec3(0);
+      return v >> vec3(32u);
+    }
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:532:28
+  - (in subcase: stage="shader";value=32) INFO: subcase ran
+  - (in subcase: stage="shader";value=33) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="shader";value=33) VALIDATION FAILED: Missing expected compilationInfo 'error' message.
+
+
+    ---- shader ----
+
+    override o = 0u;
+    fn foo() -> vec3<u32> {
+      var v : vec3<u32> = vec3(0);
+      return v >> vec3(33u);
+    }
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:532:28
+  - (in subcase: stage="shader";value=33) INFO: subcase ran
+  - (in subcase: stage="shader";value=64) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="shader";value=64) VALIDATION FAILED: Missing expected compilationInfo 'error' message.
+
+
+    ---- shader ----
+
+    override o = 0u;
+    fn foo() -> vec3<u32> {
+      var v : vec3<u32> = vec3(0);
+      return v >> vec3(64u);
+    }
+      at (elided: only 2 shown)
+  - (in subcase: stage="shader";value=64) INFO: subcase ran
+  - (in subcase: stage="pipeline";value=31) INFO: subcase ran
+  - (in subcase: stage="pipeline";value=32) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="pipeline";value=32) INFO: subcase ran
+  - (in subcase: stage="pipeline";value=33) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="pipeline";value=33) INFO: subcase ran
+  - (in subcase: stage="pipeline";value=64) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="pipeline";value=64) INFO: subcase ran
+ Reached unreachable code
+FAIL :partial_eval_errors:op="%3E%3E";type="u32";vectorize=4 assert_unreached:
+  - (in subcase: stage="shader";value=31) INFO: subcase ran
+  - (in subcase: stage="shader";value=32) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="shader";value=32) VALIDATION FAILED: Missing expected compilationInfo 'error' message.
+
+
+    ---- shader ----
+
+    override o = 0u;
+    fn foo() -> vec4<u32> {
+      var v : vec4<u32> = vec4(0);
+      return v >> vec4(32u);
+    }
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:532:28
+  - (in subcase: stage="shader";value=32) INFO: subcase ran
+  - (in subcase: stage="shader";value=33) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="shader";value=33) VALIDATION FAILED: Missing expected compilationInfo 'error' message.
+
+
+    ---- shader ----
+
+    override o = 0u;
+    fn foo() -> vec4<u32> {
+      var v : vec4<u32> = vec4(0);
+      return v >> vec4(33u);
+    }
+    @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:91:30
+    async finalize@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:128:16
+    async runTest@http://127.0.0.1:8000/webgpu/common/internal/test_group.js:532:28
+  - (in subcase: stage="shader";value=33) INFO: subcase ran
+  - (in subcase: stage="shader";value=64) EXPECTATION FAILED: Expected validation error
+      at (elided: below max severity)
+  - (in subcase: stage="shader";value=64) VALIDATION FAILED: Missing expected compilationInfo 'error' message.
+
+
+    ---- shader ----
+
+    override o = 0u;
+    fn foo() -> vec4<u32> {
+      var v : vec4<u32> = vec4(0);
+      return v >> vec4(64u);
+    }
+      at (elided: only 2 shown)
   - (in subcase: stage="shader";value=64) INFO: subcase ran
   - (in subcase: stage="pipeline";value=31) INFO: subcase ran
   - (in subcase: stage="pipeline";value=32) EXPECTATION FAILED: Expected validation error
