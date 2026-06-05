@@ -725,8 +725,6 @@ platform/network/ios/NetworkStateNotifierIOS.mm @nonARC
 platform/network/ios/WebCoreURLResponseIOS.mm @nonARC
 platform/network/mac/NetworkStateNotifierMac.cpp
 platform/text/cf/HyphenationCF.cpp
-platform/text/cocoa/CoreTextChineseCompositionEngine.cpp
-platform/text/cocoa/CoreTextCompositionEngine.cpp
 platform/text/cocoa/LocaleCocoa.mm @nonARC
 platform/text/cocoa/LocalizedDateCache.mm @nonARC
 platform/text/cocoa/TextBoundaries.mm @nonARC
