@@ -218,8 +218,6 @@ OBJECT_LUT_HEADERS = \
     TemporalPlainTimePrototype.lut.h \
     TemporalPlainYearMonthConstructor.lut.h \
     TemporalPlainYearMonthPrototype.lut.h \
-    TemporalTimeZoneConstructor.lut.h \
-    TemporalTimeZonePrototype.lut.h \
     TemporalZonedDateTimeConstructor.lut.h \
     TemporalZonedDateTimePrototype.lut.h \
     WebAssemblyArrayConstructor.lut.h \

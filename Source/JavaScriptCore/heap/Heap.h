@@ -284,7 +284,6 @@ class Heap;
     v(temporalPlainDateSpace, cellHeapCellType, TemporalPlainDate) \
     v(temporalPlainDateTimeSpace, cellHeapCellType, TemporalPlainDateTime) \
     v(temporalPlainTimeSpace, cellHeapCellType, TemporalPlainTime) \
-    v(temporalTimeZoneSpace, temporalTimeZoneHeapCellType, TemporalTimeZone) \
     v(temporalZonedDateTimeSpace, temporalZonedDateTimeHeapCellType, TemporalZonedDateTime) \
     v(uint8ArraySpace, cellHeapCellType, JSUint8Array) \
     v(uint8ClampedArraySpace, cellHeapCellType, JSUint8ClampedArray) \
@@ -1088,7 +1087,6 @@ public:
     IsoHeapCellType intlSegmentIteratorHeapCellType;
     IsoHeapCellType intlSegmenterHeapCellType;
     IsoHeapCellType intlSegmentsHeapCellType;
-    IsoHeapCellType temporalTimeZoneHeapCellType;
     IsoHeapCellType temporalZonedDateTimeHeapCellType;
 #if ENABLE(WEBASSEMBLY)
     IsoHeapCellType webAssemblyExceptionHeapCellType;

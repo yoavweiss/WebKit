@@ -262,14 +262,11 @@ ISO8601::PlainTime TemporalPlainTime::round(JSGlobalObject* globalObject, JSValu
     auto roundingMode = temporalRoundingMode(globalObject, options, RoundingMode::HalfExpand);
     RETURN_IF_EXCEPTION(scope, { });
     if (!smallest) {
-        auto smallestMaybeAuto = getTemporalUnitValuedOption(globalObject, options, vm.propertyNames->smallestUnit);
+        auto smallestMaybeAuto = temporalUnitValued(globalObject, options, vm.propertyNames->smallestUnit, TemporalUnitDefault::Required);
         RETURN_IF_EXCEPTION(scope, { });
-        ASSERT(std::holds_alternative<std::optional<TemporalUnit>>(smallestMaybeAuto));
+        validateTemporalUnitValue(globalObject, smallestMaybeAuto, UnitGroup::Time, AllowedUnit::None, "smallestUnit"_s);
+        RETURN_IF_EXCEPTION(scope, { });
         smallest = std::get<std::optional<TemporalUnit>>(smallestMaybeAuto);
-    }
-    if (!smallest) [[unlikely]] {
-        throwRangeError(globalObject, scope, "smallestUnit is required for rounding"_s);
-        return { };
     }
     auto smallestUnit = smallest.value();
     validateTemporalUnitValue(globalObject, smallestUnit, UnitGroup::Time, AllowedUnit::None, "smallestUnit"_s);
@@ -288,6 +285,8 @@ String TemporalPlainTime::toString(JSGlobalObject* globalObject, JSValue options
     VM& vm = globalObject->vm();
     auto scope = DECLARE_THROW_SCOPE(vm);
 
+    // Steps 1-2: branding check done by the caller.
+
     // Step 3: Let resolvedOptions be ?GetOptionsObject(options).
     JSObject* options = intlGetOptionsObject(globalObject, optionsValue);
     RETURN_IF_EXCEPTION(scope, { });
@@ -295,7 +294,7 @@ String TemporalPlainTime::toString(JSGlobalObject* globalObject, JSValue options
     if (!options)
         return toString();
 
-    // Steps 4-6: Read options alphabetically — fractionalSecondDigits, roundingMode, smallestUnit.
+    // Step 4: NOTE: The following steps read options in alphabetical order.
     // Step 5: Let digits be ?GetTemporalFractionalSecondDigitsOption(resolvedOptions).
     auto digits = temporalFractionalSecondDigits(globalObject, options);
     RETURN_IF_EXCEPTION(scope, { });
@@ -305,77 +304,33 @@ String TemporalPlainTime::toString(JSGlobalObject* globalObject, JSValue options
     RETURN_IF_EXCEPTION(scope, { });
 
     // Step 7: Let smallestUnit be ?GetTemporalUnitValuedOption(resolvedOptions, "smallestUnit", ~unset~).
-    auto smallestUnitResult = getTemporalUnitValuedOption(globalObject, options, vm.propertyNames->smallestUnit);
+    auto smallestUnitResult = temporalUnitValued(globalObject, options, vm.propertyNames->smallestUnit);
     RETURN_IF_EXCEPTION(scope, { });
 
-    // Steps 8-9: ValidateTemporalUnitValue(smallestUnit, ~time~) — reject non-time or ~hour~.
-    // Validate + compute precision.
-    std::optional<TemporalUnit> smallestUnit;
-    if (std::holds_alternative<TemporalAuto>(smallestUnitResult)) [[unlikely]] {
-        throwRangeError(globalObject, scope, "smallestUnit \"auto\" is not valid for toString"_s);
+    // Step 8: Perform ? ValidateTemporalUnitValue(smallestUnit, ~time~).
+    validateTemporalUnitValue(globalObject, smallestUnitResult, UnitGroup::Time, AllowedUnit::None, "smallestUnit"_s);
+    RETURN_IF_EXCEPTION(scope, { });
+    std::optional<TemporalUnit> smallestUnit = std::get<std::optional<TemporalUnit>>(smallestUnitResult);
+    // Step 9: If smallestUnit is ~hour~, throw a RangeError exception.
+    if (smallestUnit == TemporalUnit::Hour) [[unlikely]] {
+        throwRangeError(globalObject, scope, "smallestUnit cannot be \"hour\" for PlainTime.toString"_s);
         return { };
-    }
-    smallestUnit = std::get<std::optional<TemporalUnit>>(smallestUnitResult);
-    if (smallestUnit) {
-        auto disallowed = { TemporalUnit::Year, TemporalUnit::Month, TemporalUnit::Week, TemporalUnit::Day, TemporalUnit::Hour };
-        if (std::ranges::find(disallowed, *smallestUnit) != disallowed.end()) [[unlikely]] {
-            throwRangeError(globalObject, scope, "smallestUnit is a disallowed unit"_s);
-            return { };
-        }
     }
 
     // Step 10: Let precision be ToSecondsStringPrecisionRecord(smallestUnit, digits).
-    PrecisionData data;
-    if (smallestUnit) {
-        switch (*smallestUnit) {
-        case TemporalUnit::Minute:
-            data = { { Precision::Minute, 0 }, TemporalUnit::Minute, 1 };
-            break;
-        case TemporalUnit::Second:
-            data = { { Precision::Fixed, 0 }, TemporalUnit::Second, 1 };
-            break;
-        case TemporalUnit::Millisecond:
-            data = { { Precision::Fixed, 3 }, TemporalUnit::Millisecond, 1 };
-            break;
-        case TemporalUnit::Microsecond:
-            data = { { Precision::Fixed, 6 }, TemporalUnit::Microsecond, 1 };
-            break;
-        case TemporalUnit::Nanosecond:
-            data = { { Precision::Fixed, 9 }, TemporalUnit::Nanosecond, 1 };
-            break;
-        default:
-            RELEASE_ASSERT_NOT_REACHED();
-        }
-    } else if (!digits)
-        data = { { Precision::Auto, 0 }, TemporalUnit::Nanosecond, 1 };
-    else {
-        auto pow10 = [](unsigned n) -> unsigned {
-            unsigned r = 1;
-            for (unsigned i = 0; i < n; i++)
-                r *= 10;
-            return r;
-        };
-        unsigned d = digits.value();
-        if (!d)
-            data = { { Precision::Fixed, 0 }, TemporalUnit::Second, 1 };
-        else if (d <= 3)
-            data = { { Precision::Fixed, d }, TemporalUnit::Millisecond, pow10(3 - d) };
-        else if (d <= 6)
-            data = { { Precision::Fixed, d }, TemporalUnit::Microsecond, pow10(6 - d) };
-        else
-            data = { { Precision::Fixed, d }, TemporalUnit::Nanosecond, pow10(9 - d) };
-    }
+    auto data = toSecondsStringPrecisionRecord(smallestUnit, digits);
 
-    // No need to make a new object if we were given explicit defaults.
+    // No need to round if given explicit defaults (steps 11-12 are no-ops when precision=auto, roundingMode=trunc).
     if (std::get<0>(data.precision) == Precision::Auto && roundingMode == RoundingMode::Trunc)
         return toString();
 
     // Step 11: Let roundResult be RoundTime(plainTime.[[Time]], precision.[[Increment]], precision.[[Unit]], roundingMode).
+    // Step 12: Return TimeRecordToString(roundResult, precision.[[Precision]]).
+    // roundTime() is RoundTime — returns ISO8601::Duration (our Time Record, which has [[Days]] per spec).
+    // toPlainTime() extracts the clock fields, equivalent to TimeRecordToString ignoring [[Days]].
     auto duration = roundTime(m_plainTime, data.increment, data.unit, roundingMode, std::nullopt);
     auto plainTime = toPlainTime(globalObject, duration);
     RETURN_IF_EXCEPTION(scope, { });
-
-    // Step 12: Return TimeRecordToString(roundResult, precision.[[Precision]]).
     return ISO8601::temporalTimeToString(plainTime, data.precision);
 }
 
@@ -703,7 +658,12 @@ ISO8601::Duration TemporalPlainTime::differenceTemporalPlainTime(DifferenceOpera
     auto d = ISO8601::roundTimeDuration(globalObject, timeDuration, increment, smallestUnit, roundingMode);
     RETURN_IF_EXCEPTION(scope, { });
     auto duration = ISO8601::InternalDuration::combineDateAndTimeDuration(ISO8601::Duration(), d);
-    return TemporalDuration::temporalDurationFromInternal(duration, largestUnit);
+    auto durResult = TemporalDuration::temporalDurationFromInternal(duration, largestUnit);
+    if (!durResult) [[unlikely]] {
+        throwTemporalError(globalObject, scope, durResult.error());
+        return { };
+    }
+    return *durResult;
 }
 
 // https://tc39.es/proposal-temporal/#sec-temporal.plaintime.prototype.until

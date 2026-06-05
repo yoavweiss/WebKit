@@ -306,7 +306,6 @@ public:
     LazyProperty<JSGlobalObject, Structure> m_plainMonthDayStructure;
     LazyProperty<JSGlobalObject, Structure> m_plainTimeStructure;
     LazyProperty<JSGlobalObject, Structure> m_plainYearMonthStructure;
-    LazyProperty<JSGlobalObject, Structure> m_timeZoneStructure;
     LazyProperty<JSGlobalObject, Structure> m_zonedDateTimeStructure;
 
     WriteBarrier<NullGetterFunction> m_nullGetterFunction;
@@ -1040,7 +1039,6 @@ public:
     Structure* plainMonthDayStructure() { return m_plainMonthDayStructure.get(this); }
     Structure* plainTimeStructure() { return m_plainTimeStructure.get(this); }
     Structure* plainYearMonthStructure() { return m_plainYearMonthStructure.get(this); }
-    Structure* timeZoneStructure() { return m_timeZoneStructure.get(this); }
     Structure* zonedDateTimeStructure() { return m_zonedDateTimeStructure.get(this); }
 
     JS_EXPORT_PRIVATE void setInspectable(bool);

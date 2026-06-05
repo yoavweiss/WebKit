@@ -214,7 +214,6 @@ ISO8601::PlainTime plainTimeFromSubdayNs(Int128 ns)
 
 // totalTimeDuration — temporal_rs: TimeDuration::total (src/builtins/core/duration/normalized.rs)
 // https://tc39.es/proposal-temporal/#sec-temporal-totaltimeduration
-// Returns the total time portion of a duration as a fractional count of the given unit.
 double totalTimeDuration(Int128 timeDuration, TemporalUnit unit)
 {
     Int128 unitLength = lengthInNanoseconds(unit);
@@ -236,7 +235,7 @@ ISO8601::InternalDuration toInternalDuration(ISO8601::Duration d)
 
 // temporalDurationFromInternal — temporal_rs: Duration::from_internal (src/builtins/core/duration.rs)
 // Converts an InternalDuration back to a Duration given largestUnit.
-ISO8601::Duration temporalDurationFromInternal(ISO8601::InternalDuration internalDuration, TemporalUnit largestUnit)
+TemporalResult<ISO8601::Duration> temporalDurationFromInternal(ISO8601::InternalDuration internalDuration, TemporalUnit largestUnit)
 {
     int64_t days = 0;
     int64_t hours = 0;
@@ -314,7 +313,7 @@ ISO8601::Duration temporalDurationFromInternal(ISO8601::InternalDuration interna
     // Int128 values not exactly representable round past nanosecondsLimit → isValidDuration rejects.
     // milliseconds uses doubleToInt64Saturating because Int128 → double can still exceed int64_t
     // (e.g. largestUnit=millisecond, out-of-range input: ms ≈ 9e21 > INT64_MAX ≈ 9.2e18).
-    return ISO8601::Duration { internalDuration.dateDuration().years(),
+    ISO8601::Duration result { internalDuration.dateDuration().years(),
         internalDuration.dateDuration().months(),
         internalDuration.dateDuration().weeks(),
         static_cast<int64_t>(internalDuration.dateDuration().days() + days * sign),
@@ -322,6 +321,10 @@ ISO8601::Duration temporalDurationFromInternal(ISO8601::InternalDuration interna
         ISO8601::Duration::doubleToInt64Saturating(static_cast<double>(milliseconds)),
         Int128(static_cast<double>(microseconds)),
         Int128(static_cast<double>(nanoseconds)) };
+    // CreateTemporalDuration step: If IsValidDuration is false, return error.
+    if (!ISO8601::isValidDuration(result))
+        return makeUnexpected(rangeError("Duration is outside the representable range"_s));
+    return result;
 }
 
 // add24HourDaysToTimeDuration — temporal_rs: TimeDuration::add_days (src/builtins/core/duration/normalized.rs)
@@ -334,6 +337,17 @@ TemporalResult<Int128> add24HourDaysToTimeDuration(Int128 d, double days)
     if (absInt128(result) > ISO8601::InternalDuration::maxTimeDuration)
         return makeUnexpected(TemporalError { TemporalErrorKind::RangeError, "Total time in duration is out of range"_s });
     return Int128(result);
+}
+
+// toInternalDurationRecord — temporal_rs: InternalDurationRecord::from_duration (src/builtins/core/duration/normalized.rs)
+// https://tc39.es/proposal-temporal/#sec-temporal-tointernaldurationrecord
+// Keeps days in [[Date]] and converts only time fields (hours..nanoseconds) to [[Time]] nanoseconds.
+ISO8601::InternalDuration toInternalDurationRecord(ISO8601::Duration d)
+{
+    auto timeDuration = timeDurationFromComponents(d.hours(), d.minutes(), d.seconds(),
+        d.milliseconds(), static_cast<double>(d.microseconds()), static_cast<double>(d.nanoseconds()));
+    ISO8601::Duration dateDuration(d.years(), d.months(), d.weeks(), d.days(), 0, 0, 0, 0, Int128(0), Int128(0));
+    return ISO8601::InternalDuration::combineDateAndTimeDuration(dateDuration, timeDuration);
 }
 
 // toInternalDurationRecordWith24HourDays — temporal_rs: InternalDurationRecord::from_duration_with_24_hour_days (src/builtins/core/duration/normalized.rs)

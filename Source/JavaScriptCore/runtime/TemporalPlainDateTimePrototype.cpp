@@ -923,10 +923,9 @@ JSC_DEFINE_HOST_FUNCTION(temporalPlainDateTimePrototypeFuncSince, (JSGlobalObjec
     auto* other = TemporalPlainDateTime::from(globalObject, callFrame->argument(0), jsUndefined());
     RETURN_IF_EXCEPTION(scope, { });
 
-    // Steps 4-5: GetDifferenceSettings; negate roundingMode for since.
-    auto [smallestUnit, largestUnit, roundingMode, increment] = extractDifferenceOptions(globalObject, callFrame->argument(1), UnitGroup::DateTime, TemporalUnit::Nanosecond, TemporalUnit::Day);
+    // Steps 4-5: GetDifferenceSettings(~since~, ...).
+    auto [smallestUnit, largestUnit, roundingMode, increment] = extractDifferenceOptions(globalObject, callFrame->argument(1), UnitGroup::DateTime, TemporalUnit::Nanosecond, TemporalUnit::Day, DifferenceOperation::Since);
     RETURN_IF_EXCEPTION(scope, { });
-    roundingMode = TemporalCore::negateTemporalRoundingMode(roundingMode);
 
     // Steps 6-9: DifferenceISODateTime + CreateTemporalDuration.
     auto result = plainDateTime->differenceTemporalPlainDateTime(globalObject, DifferenceOperation::Since, other, smallestUnit, largestUnit, roundingMode, increment);

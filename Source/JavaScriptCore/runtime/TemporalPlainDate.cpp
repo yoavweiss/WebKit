@@ -189,9 +189,7 @@ String TemporalPlainDate::toString(JSGlobalObject* globalObject, JSValue options
     if (!options)
         return toString();
 
-    String calOpt = intlStringOption(globalObject, options, Identifier::fromString(vm, "calendarName"_s),
-        { "auto"_s, "always"_s, "never"_s, "critical"_s },
-        "calendarName must be \"auto\", \"always\", \"never\", or \"critical\""_s, "auto"_s);
+    String calOpt = temporalShowCalendarName(globalObject, options);
     RETURN_IF_EXCEPTION(scope, { });
 
     auto base = ISO8601::temporalDateToString(m_plainDate);
@@ -735,7 +733,12 @@ ISO8601::Duration TemporalPlainDate::differenceTemporalPlainDate(JSGlobalObject*
             return { };
         }
     }
-    auto result = TemporalDuration::temporalDurationFromInternal(duration, TemporalUnit::Day);
+    auto durResult = TemporalDuration::temporalDurationFromInternal(duration, TemporalUnit::Day);
+    if (!durResult) [[unlikely]] {
+        throwTemporalError(globalObject, scope, durResult.error());
+        return { };
+    }
+    ISO8601::Duration result = *durResult;
     if (op == DifferenceOperation::Since)
         result = -result;
     return result;
@@ -762,10 +765,9 @@ ISO8601::Duration TemporalPlainDate::since(JSGlobalObject* globalObject, Tempora
     VM& vm = globalObject->vm();
     auto scope = DECLARE_THROW_SCOPE(vm);
 
-    // Steps 3-4: GetDifferenceSettings; negate roundingMode for since.
-    auto [smallestUnit, largestUnit, roundingMode, increment] = extractDifferenceOptions(globalObject, optionsValue, UnitGroup::Date, TemporalUnit::Day, TemporalUnit::Day);
+    // Steps 3-4: GetDifferenceSettings(~since~, ...).
+    auto [smallestUnit, largestUnit, roundingMode, increment] = extractDifferenceOptions(globalObject, optionsValue, UnitGroup::Date, TemporalUnit::Day, TemporalUnit::Day, DifferenceOperation::Since);
     RETURN_IF_EXCEPTION(scope, { });
-    roundingMode = TemporalCore::negateTemporalRoundingMode(roundingMode);
 
     // Steps 5-9: DifferenceTemporalPlainDate.
     RELEASE_AND_RETURN(scope, differenceTemporalPlainDate(globalObject,

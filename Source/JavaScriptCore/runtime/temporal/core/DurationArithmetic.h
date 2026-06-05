@@ -96,9 +96,11 @@ ISO8601::PlainTime JS_EXPORT_PRIVATE plainTimeFromSubdayNs(Int128 ns);
 
 double JS_EXPORT_PRIVATE totalTimeDuration(Int128, TemporalUnit);
 
-ISO8601::Duration JS_EXPORT_PRIVATE temporalDurationFromInternal(ISO8601::InternalDuration, TemporalUnit largestUnit);
+TemporalResult<ISO8601::Duration> JS_EXPORT_PRIVATE temporalDurationFromInternal(ISO8601::InternalDuration, TemporalUnit largestUnit);
 
 ISO8601::InternalDuration JS_EXPORT_PRIVATE toInternalDuration(ISO8601::Duration);
+
+ISO8601::InternalDuration JS_EXPORT_PRIVATE toInternalDurationRecord(ISO8601::Duration);
 
 TemporalResult<Int128> JS_EXPORT_PRIVATE add24HourDaysToTimeDuration(Int128 timeDuration, double days);
 

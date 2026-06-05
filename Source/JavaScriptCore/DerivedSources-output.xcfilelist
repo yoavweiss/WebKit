@@ -84,8 +84,6 @@ $(BUILT_PRODUCTS_DIR)/DerivedSources/JavaScriptCore/TemporalPlainTimeConstructor
 $(BUILT_PRODUCTS_DIR)/DerivedSources/JavaScriptCore/TemporalPlainTimePrototype.lut.h
 $(BUILT_PRODUCTS_DIR)/DerivedSources/JavaScriptCore/TemporalPlainYearMonthConstructor.lut.h
 $(BUILT_PRODUCTS_DIR)/DerivedSources/JavaScriptCore/TemporalPlainYearMonthPrototype.lut.h
-$(BUILT_PRODUCTS_DIR)/DerivedSources/JavaScriptCore/TemporalTimeZoneConstructor.lut.h
-$(BUILT_PRODUCTS_DIR)/DerivedSources/JavaScriptCore/TemporalTimeZonePrototype.lut.h
 $(BUILT_PRODUCTS_DIR)/DerivedSources/JavaScriptCore/TemporalZonedDateTimeConstructor.lut.h
 $(BUILT_PRODUCTS_DIR)/DerivedSources/JavaScriptCore/TemporalZonedDateTimePrototype.lut.h
 $(BUILT_PRODUCTS_DIR)/DerivedSources/JavaScriptCore/UnicodePatternTables.h

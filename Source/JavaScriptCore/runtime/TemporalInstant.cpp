@@ -39,7 +39,6 @@
 #include "StructureCreateInlines.h"
 #include "TemporalDuration.h"
 #include "TemporalObject.h"
-#include "TemporalTimeZone.h"
 #include "TemporalZonedDateTime.h"
 #include "TimeZoneICUBridge.h"
 
@@ -268,7 +267,12 @@ ISO8601::Duration TemporalInstant::difference(JSGlobalObject* globalObject, Temp
     RETURN_IF_EXCEPTION(scope, { });
 
     // Step 5: Return CreateTemporalDuration from the balanced result.
-    return TemporalDuration::temporalDurationFromInternal(internalDuration, largestUnit);
+    auto durResult = TemporalDuration::temporalDurationFromInternal(internalDuration, largestUnit);
+    if (!durResult) [[unlikely]] {
+        throwTemporalError(globalObject, scope, durResult.error());
+        return { };
+    }
+    return *durResult;
 }
 
 // https://tc39.es/proposal-temporal/#sec-temporal.instant.prototype.round
@@ -277,51 +281,65 @@ ISO8601::ExactTime TemporalInstant::round(JSGlobalObject* globalObject, JSValue 
     VM& vm = globalObject->vm();
     auto scope = DECLARE_THROW_SCOPE(vm);
 
+    // Steps 1-2: branding check done by the caller (temporalInstantPrototypeFuncRound).
+
+    // Step 3: If roundTo is undefined, throw a TypeError exception.
+    if (optionsValue.isUndefined()) [[unlikely]] {
+        throwTypeError(globalObject, scope, "Temporal.Instant.prototype.round requires a roundTo option"_s);
+        return { };
+    }
+
     JSObject* options = nullptr;
     std::optional<TemporalUnit> smallest;
+
     if (optionsValue.isString()) {
+        // Step 4: Let paramString be roundTo. Set roundTo to OrdinaryObjectCreate(null).
+        //         Perform ! CreateDataPropertyOrThrow(roundTo, "smallestUnit", paramString).
+        // NOTE: We skip the object wrapper and parse the unit directly as an optimisation.
         auto string = optionsValue.toWTFString(globalObject);
         RETURN_IF_EXCEPTION(scope, { });
-
         smallest = temporalUnitType(string);
         if (!smallest) [[unlikely]] {
             throwRangeError(globalObject, scope, "smallestUnit is an invalid Temporal unit"_s);
             return { };
         }
-
-        if (smallest.value() <= TemporalUnit::Day) [[unlikely]] {
-            throwRangeError(globalObject, scope, "smallestUnit is a disallowed unit"_s);
-            return { };
-        }
     } else {
+        // Step 5: Set roundTo to ? GetOptionsObject(roundTo).
         options = intlGetOptionsObject(globalObject, optionsValue);
         RETURN_IF_EXCEPTION(scope, { });
     }
 
+    // Step 6: NOTE: The following steps read options in alphabetical order.
+    // Step 7: Let roundingIncrement be ? GetRoundingIncrementOption(roundTo).
     double roundingIncrement = temporalRoundingIncrement(globalObject, options);
     RETURN_IF_EXCEPTION(scope, { });
+    // Step 8: Let roundingMode be ? GetRoundingModeOption(roundTo, ~half-expand~).
     RoundingMode roundingMode = temporalRoundingMode(globalObject, options, RoundingMode::HalfExpand);
     RETURN_IF_EXCEPTION(scope, { });
 
     if (!smallest) {
-        auto smallestUnitMaybeAuto = getTemporalUnitValuedOption(globalObject, options, vm.propertyNames->smallestUnit);
-        ASSERT(std::holds_alternative<std::optional<TemporalUnit>>(smallestUnitMaybeAuto));
+        // Step 9: Let smallestUnit be ? GetTemporalUnitValuedOption(roundTo, "smallestUnit", ~required~).
+        auto smallestUnitMaybeAuto = temporalUnitValued(globalObject, options, vm.propertyNames->smallestUnit, TemporalUnitDefault::Required);
+        RETURN_IF_EXCEPTION(scope, { });
+        // Step 10: Perform ? ValidateTemporalUnitValue(smallestUnit, ~time~).
+        validateTemporalUnitValue(globalObject, smallestUnitMaybeAuto, UnitGroup::Time, AllowedUnit::None, "smallestUnit"_s);
+        RETURN_IF_EXCEPTION(scope, { });
         smallest = std::get<std::optional<TemporalUnit>>(smallestUnitMaybeAuto);
+    } else {
+        // Step 10 (string path): Perform ? ValidateTemporalUnitValue(smallestUnit, ~time~).
+        validateTemporalUnitValue(globalObject, smallest.value(), UnitGroup::Time, AllowedUnit::None, "smallestUnit"_s);
         RETURN_IF_EXCEPTION(scope, { });
     }
 
-    if (!smallest) [[unlikely]] {
-        throwRangeError(globalObject, scope, "Cannot round without a smallestUnit option"_s);
-        return { };
-    }
-
     TemporalUnit smallestUnit = smallest.value();
-    validateTemporalUnitValue(globalObject, smallestUnit, UnitGroup::Time, AllowedUnit::None, "smallestUnit"_s);
-    RETURN_IF_EXCEPTION(scope, { });
 
+    // Steps 11-16: Let maximum be the per-unit maximum rounding increment.
+    // Step 17: Perform ? ValidateTemporalRoundingIncrement(roundingIncrement, maximum, true).
     validateTemporalRoundingIncrement(globalObject, roundingIncrement, TemporalCore::maximumInstantIncrement(smallestUnit), Inclusivity::Inclusive);
     RETURN_IF_EXCEPTION(scope, { });
 
+    // Step 18: Let roundedNs be RoundTemporalInstant(instant.[[EpochNanoseconds]], roundingIncrement, smallestUnit, roundingMode).
+    // Step 19: Return ! CreateTemporalInstant(roundedNs).
     RELEASE_AND_RETURN(scope, exactTime().round(globalObject, roundingIncrement, smallestUnit, roundingMode));
 }
 
@@ -332,130 +350,86 @@ String TemporalInstant::toString(JSGlobalObject* globalObject, JSValue optionsVa
     VM& vm = globalObject->vm();
     auto scope = DECLARE_THROW_SCOPE(vm);
 
+    // Steps 1-2: branding check done by the caller (temporalInstantPrototypeFuncToString).
+
+    // Step 3: Let resolvedOptions be ? GetOptionsObject(options).
     JSObject* options = intlGetOptionsObject(globalObject, optionsValue);
     RETURN_IF_EXCEPTION(scope, { });
 
     if (!options)
         return toString();
 
-    // Read options in spec order: fractionalSecondDigits, roundingMode, smallestUnit, timeZone.
+    // Step 4: NOTE: The following steps read options and perform independent validation
+    //         in alphabetical order.
+    // Step 5: Let digits be ? GetTemporalFractionalSecondDigitsOption(resolvedOptions).
     auto digits = temporalFractionalSecondDigits(globalObject, options);
     RETURN_IF_EXCEPTION(scope, { });
 
+    // Step 6: Let roundingMode be ? GetRoundingModeOption(resolvedOptions, ~trunc~).
     RoundingMode roundingMode = temporalRoundingMode(globalObject, options, RoundingMode::Trunc);
     RETURN_IF_EXCEPTION(scope, { });
 
-    auto smallestUnitResult = getTemporalUnitValuedOption(globalObject, options, vm.propertyNames->smallestUnit);
+    // Step 7: Let smallestUnit be ? GetTemporalUnitValuedOption(resolvedOptions, "smallestUnit", ~unset~).
+    auto smallestUnitResult = temporalUnitValued(globalObject, options, vm.propertyNames->smallestUnit);
     RETURN_IF_EXCEPTION(scope, { });
 
-    JSObject* timeZone = nullptr;
+    // Step 8: Let timeZone be ? Get(resolvedOptions, "timeZone").
     JSValue timeZoneValue = options->get(globalObject, vm.propertyNames->timeZone);
     RETURN_IF_EXCEPTION(scope, { });
-    if (!timeZoneValue.isUndefined()) {
-        if (!timeZoneValue.isString()) [[unlikely]] {
-            throwTypeError(globalObject, scope, "timeZone option must be a string"_s);
-            return { };
-        }
-        timeZone = TemporalTimeZone::from(globalObject, timeZoneValue);
-        RETURN_IF_EXCEPTION(scope, { });
-    }
 
-    std::optional<TemporalUnit> smallestUnit;
-    if (std::holds_alternative<TemporalAuto>(smallestUnitResult)) [[unlikely]] {
-        throwRangeError(globalObject, scope, "smallestUnit \"auto\" is not valid for toString"_s);
+    // Step 9: Perform ? ValidateTemporalUnitValue(smallestUnit, ~time~).
+    validateTemporalUnitValue(globalObject, smallestUnitResult, UnitGroup::Time, AllowedUnit::None, "smallestUnit"_s);
+    RETURN_IF_EXCEPTION(scope, { });
+    auto smallestUnit = std::get<std::optional<TemporalUnit>>(smallestUnitResult);
+    // Step 10: If smallestUnit is ~hour~, throw a RangeError exception.
+    if (smallestUnit == TemporalUnit::Hour) [[unlikely]] {
+        throwRangeError(globalObject, scope, "smallestUnit cannot be \"hour\" for Instant.toString"_s);
         return { };
     }
-    smallestUnit = std::get<std::optional<TemporalUnit>>(smallestUnitResult);
-    if (smallestUnit) {
-        auto disallowed = { TemporalUnit::Year, TemporalUnit::Month, TemporalUnit::Week, TemporalUnit::Day, TemporalUnit::Hour };
-        if (std::ranges::find(disallowed, *smallestUnit) != disallowed.end()) [[unlikely]] {
-            throwRangeError(globalObject, scope, "smallestUnit is a disallowed unit"_s);
-            return { };
-        }
+
+    // Step 11: If timeZone is not undefined, set timeZone to ? ToTemporalTimeZoneIdentifier(timeZone).
+    std::optional<TimeZone> timeZone;
+    if (!timeZoneValue.isUndefined()) {
+        auto tzRecord = toTemporalTimeZoneIdentifier(globalObject, timeZoneValue);
+        RETURN_IF_EXCEPTION(scope, { });
+        ASSERT(tzRecord);
+        timeZone = tzRecord->timeZone;
     }
 
-    PrecisionData data;
-    if (smallestUnit) {
-        switch (*smallestUnit) {
-        case TemporalUnit::Minute:
-            data = { { Precision::Minute, 0 }, TemporalUnit::Minute, 1 };
-            break;
-        case TemporalUnit::Second:
-            data = { { Precision::Fixed, 0 }, TemporalUnit::Second, 1 };
-            break;
-        case TemporalUnit::Millisecond:
-            data = { { Precision::Fixed, 3 }, TemporalUnit::Millisecond, 1 };
-            break;
-        case TemporalUnit::Microsecond:
-            data = { { Precision::Fixed, 6 }, TemporalUnit::Microsecond, 1 };
-            break;
-        case TemporalUnit::Nanosecond:
-            data = { { Precision::Fixed, 9 }, TemporalUnit::Nanosecond, 1 };
-            break;
-        default:
-            RELEASE_ASSERT_NOT_REACHED();
-        }
-    } else if (!digits)
-        data = { { Precision::Auto, 0 }, TemporalUnit::Nanosecond, 1 };
-    else {
-        auto pow10 = [](unsigned n) -> unsigned {
-            unsigned r = 1;
-            for (unsigned i = 0; i < n; i++)
-                r *= 10;
-            return r;
-        };
-        unsigned d = digits.value();
-        if (!d)
-            data = { { Precision::Fixed, 0 }, TemporalUnit::Second, 1 };
-        else if (d <= 3)
-            data = { { Precision::Fixed, d }, TemporalUnit::Millisecond, pow10(3 - d) };
-        else if (d <= 6)
-            data = { { Precision::Fixed, d }, TemporalUnit::Microsecond, pow10(6 - d) };
-        else
-            data = { { Precision::Fixed, d }, TemporalUnit::Nanosecond, pow10(9 - d) };
-    }
+    // Step 12: Let precision be ToSecondsStringPrecisionRecord(smallestUnit, digits).
+    auto data = toSecondsStringPrecisionRecord(smallestUnit, digits);
 
-    // No need to make a new object if we were given explicit defaults.
-    if (std::get<0>(data.precision) == Precision::Auto && roundingMode == RoundingMode::Trunc) {
+    // Steps 13-15: RoundTemporalInstant + CreateTemporalInstant + TemporalInstantToString.
+    // Precision::Auto means increment=1 ns — a no-op for any mode; skip steps 13-14.
+    if (std::get<0>(data.precision) == Precision::Auto) {
         std::optional<int64_t> offsetNs;
         if (timeZone) {
-            auto* tz = dynamicDowncast<TemporalTimeZone>(timeZone);
-            if (tz) {
-                auto offsetResult = TemporalCore::getOffsetNanosecondsFor(tz->timeZone(), exactTime());
-                if (!offsetResult) [[unlikely]] {
-                    throwRangeError(globalObject, scope, offsetResult.error().message);
-                    return { };
-                }
-                offsetNs = *offsetResult;
-            }
-        }
-        return TemporalCore::instantToString(exactTime(), offsetNs, data);
-    }
-
-    auto newExactTime = exactTime().round(globalObject, data.increment, data.unit, roundingMode);
-    RETURN_IF_EXCEPTION(scope, { });
-
-    // FIXME: Missing, relies on TimeZone:
-    // 1. Let roundedInstant be ! CreateTemporalInstant(roundedNs).
-    // ...
-    // 1. If _outputTimeZone_ is *undefined*, then
-    //   1. Set _outputTimeZone_ to ! CreateTemporalTimeZone(*"UTC"*).
-    // 1. Let _isoCalendar_ be ! GetISO8601Calendar().
-    // 1. Let _dateTime_ be ? BuiltinTimeZoneGetPlainDateTimeFor(_outputTimeZone_, _instant_, _isoCalendar_).
-    JSObject* outputTimeZone = timeZone;
-    std::optional<int64_t> outputOffsetNs;
-    if (outputTimeZone) {
-        auto* tz = dynamicDowncast<TemporalTimeZone>(outputTimeZone);
-        if (tz) {
-            auto offsetResult = TemporalCore::getOffsetNanosecondsFor(tz->timeZone(), newExactTime);
+            auto offsetResult = TemporalCore::getOffsetNanosecondsFor(*timeZone, exactTime());
             if (!offsetResult) [[unlikely]] {
                 throwRangeError(globalObject, scope, offsetResult.error().message);
                 return { };
             }
-            outputOffsetNs = *offsetResult;
+            offsetNs = *offsetResult;
         }
+        return TemporalCore::instantToString(exactTime(), offsetNs, data);
     }
 
+    // Step 13: Let roundedNs be RoundTemporalInstant(instant.[[EpochNanoseconds]], precision.[[Increment]], precision.[[Unit]], roundingMode).
+    auto newExactTime = exactTime().round(globalObject, data.increment, data.unit, roundingMode);
+    RETURN_IF_EXCEPTION(scope, { });
+
+    // Step 14: Let roundedInstant be ! CreateTemporalInstant(roundedNs).
+    // Step 15: Return TemporalInstantToString(roundedInstant, timeZone, precision.[[Precision]]).
+    // Pass newExactTime directly — elides the CreateTemporalInstant allocation.
+    std::optional<int64_t> outputOffsetNs;
+    if (timeZone) {
+        auto offsetResult = TemporalCore::getOffsetNanosecondsFor(*timeZone, newExactTime);
+        if (!offsetResult) [[unlikely]] {
+            throwRangeError(globalObject, scope, offsetResult.error().message);
+            return { };
+        }
+        outputOffsetNs = *offsetResult;
+    }
     return TemporalCore::instantToString(newExactTime, outputOffsetNs, data);
 }
 

@@ -343,11 +343,8 @@ static EncodedJSValue differenceTemporalZonedDateTime(JSGlobalObject* globalObje
 
     // Steps 3-4: GetOptionsObject + GetDifferenceSettings(op, options, ~datetime~, «», ~nanosecond~, ~hour~).
     auto [smallestUnit, largestUnit, roundingMode, increment] = extractDifferenceOptions(
-        globalObject, optionsArg, UnitGroup::DateTime, TemporalUnit::Nanosecond, TemporalUnit::Hour);
+        globalObject, optionsArg, UnitGroup::DateTime, TemporalUnit::Nanosecond, TemporalUnit::Hour, op);
     RETURN_IF_EXCEPTION(scope, { });
-    // For ~since~, negate direction-sensitive rounding modes before computing, then negate result.
-    if (op == DifferenceOperation::Since)
-        roundingMode = TemporalCore::negateTemporalRoundingMode(roundingMode);
 
     // Step 5: If TemporalUnitCategory(largestUnit) is ~time~, use DifferenceInstant fast path.
     // We skip this optimization — differenceZonedDateTimeWithRounding handles both branches correctly.
@@ -373,7 +370,12 @@ static EncodedJSValue differenceTemporalZonedDateTime(JSGlobalObject* globalObje
     // The spec always uses ~hour~ here; for time-category largestUnit (skipped fast path),
     // durationLargestUnit = largestUnit which matches the fast path's TemporalDurationFromInternal(dur, largestUnit).
     TemporalUnit durationLargestUnit = (largestUnit <= TemporalUnit::Day) ? TemporalUnit::Hour : largestUnit;
-    auto result = TemporalCore::temporalDurationFromInternal(*coreResult, durationLargestUnit);
+    auto durResult = TemporalCore::temporalDurationFromInternal(*coreResult, durationLargestUnit);
+    if (!durResult) [[unlikely]] {
+        throwTemporalError(globalObject, scope, durResult.error());
+        return { };
+    }
+    ISO8601::Duration result = *durResult;
     // Step 11: For ~since~, negate the result.
     if (op == DifferenceOperation::Since)
         result = -result;
@@ -439,24 +441,20 @@ JSC_DEFINE_HOST_FUNCTION(temporalZonedDateTimePrototypeFuncRound, (JSGlobalObjec
         return throwVMTypeError(globalObject, scope, "Temporal.ZonedDateTime.prototype.round requires a smallestUnit option string or options object"_s);
 
     // Step 6: NOTE — read options in alphabetical order.
-    // Steps 7-9: roundingIncrement, roundingMode, smallestUnit.
+    // Step 7: Let roundingIncrement be ? GetRoundingIncrementOption(roundTo).
     auto roundingIncrement = temporalRoundingIncrement(globalObject, options);
     RETURN_IF_EXCEPTION(scope, { });
+    // Step 8: Let roundingMode be ? GetRoundingModeOption(roundTo, ~half-expand~).
     RoundingMode roundingMode = temporalRoundingMode(globalObject, options, RoundingMode::HalfExpand);
     RETURN_IF_EXCEPTION(scope, { });
-    auto smallestUnitMaybeAuto = getTemporalUnitValuedOption(globalObject, options, vm.propertyNames->smallestUnit);
+    // Step 9: Let smallestUnit be ? GetTemporalUnitValuedOption(roundTo, "smallestUnit", ~required~).
+    auto smallestUnitMaybeAuto = temporalUnitValued(globalObject, options, vm.propertyNames->smallestUnit, TemporalUnitDefault::Required);
     RETURN_IF_EXCEPTION(scope, { });
-    ASSERT(std::holds_alternative<std::optional<TemporalUnit>>(smallestUnitMaybeAuto));
+    // Step 10: Perform ? ValidateTemporalUnitValue(smallestUnit, ~time~, « ~day~ »).
+    validateTemporalUnitValue(globalObject, smallestUnitMaybeAuto, UnitGroup::Time, AllowedUnit::Day, "smallestUnit"_s);
+    RETURN_IF_EXCEPTION(scope, { });
     auto smallestOpt = std::get<std::optional<TemporalUnit>>(smallestUnitMaybeAuto);
-
-    // Step 10: ValidateTemporalUnitValue(smallestUnit, ~time~, « ~day~ »). ~required~ → error if absent.
-    if (!smallestOpt) [[unlikely]] {
-        throwRangeError(globalObject, scope, "ZonedDateTime.round requires a smallestUnit option"_s);
-        return { };
-    }
     TemporalUnit smallestUnit = smallestOpt.value();
-    validateTemporalUnitValue(globalObject, smallestUnit, UnitGroup::Time, AllowedUnit::Day, "smallestUnit"_s);
-    RETURN_IF_EXCEPTION(scope, { });
 
     // Steps 11-13: Compute maximum increment and ValidateTemporalRoundingIncrement.
     if (smallestUnit == TemporalUnit::Day)
@@ -935,52 +933,73 @@ JSC_DEFINE_HOST_FUNCTION(temporalZonedDateTimePrototypeFuncToPlainDateTime, (JSG
     RELEASE_AND_RETURN(scope, JSValue::encode(TemporalPlainDateTime::create(vm, globalObject->plainDateTimeStructure(), WTF::move(date), WTF::move(time), zdt->calendarID())));
 }
 
-// temporal_rs: ZonedDateTime::to_ixdtf_string_with_provider
 // https://tc39.es/proposal-temporal/#sec-temporal-temporalzoneddatetimetostring
-static String zonedDateTimeToString(JSGlobalObject* globalObject, const TemporalZonedDateTime* zdt, const PrecisionData& precision, bool showOffset, bool showBracket, bool showCalendar)
+static String temporalZonedDateTimeToString(JSGlobalObject* globalObject, const TemporalZonedDateTime* zdt,
+    const PrecisionData& precision, RoundingMode roundingMode,
+    StringView showOffset, // ~auto~ | ~never~
+    StringView showTimeZone, // ~auto~ | ~never~ | ~critical~
+    StringView showCalendar, // ~auto~ | ~always~ | ~never~ | ~critical~
+    CalendarID calendarID)
 {
     VM& vm = globalObject->vm();
     auto scope = DECLARE_THROW_SCOPE(vm);
 
-    ISO8601::PlainDate date;
-    ISO8601::PlainTime time;
-    zdt->getLocalDateAndTime(globalObject, date, time);
-    RETURN_IF_EXCEPTION(scope, { });
+    // Step 1: Round epoch nanoseconds (RoundTemporalInstant).
+    Int128 epochNs = zdt->exactTime().epochNanoseconds();
+    Int128 incrementNs = static_cast<Int128>(lengthInNanoseconds(precision.unit)) * static_cast<Int128>(static_cast<int64_t>(precision.increment));
+    if (incrementNs > 0)
+        epochNs = TemporalCore::roundNumberToIncrementAsIfPositive(epochNs, incrementNs, roundingMode);
+    ISO8601::ExactTime roundedExact(epochNs);
 
-    auto offsetOpt = zdt->getOffsetNanoseconds(globalObject);
-    RETURN_IF_EXCEPTION(scope, { });
-    ASSERT(offsetOpt);
-
-    // Apply rounding if needed.
-    if (std::get<0>(precision.precision) != Precision::Auto || precision.unit != TemporalUnit::Nanosecond) {
-        auto roundedDuration = TemporalPlainTime::roundTime(time, precision.increment, precision.unit, RoundingMode::Trunc, std::nullopt);
-        // Handle day overflow from rounding.
-        double extraDays = roundedDuration.days();
-        time = TemporalPlainTime::toPlainTime(globalObject, roundedDuration);
-        RETURN_IF_EXCEPTION(scope, { });
-        if (extraDays) {
-            // Use WTF epoch-day arithmetic to correctly handle month-end overflow.
-            int32_t daysEpoch = WTF::daysFromYearMonth(date.year(), date.month() - 1) + (date.day() - 1) + static_cast<int>(extraDays);
-            auto [newYear, newMonth, newDay] = WTF::yearMonthDayFromDays(daysEpoch);
-            // yearMonthDayFromDays returns month 0-indexed.
-            date = ISO8601::PlainDate(newYear, static_cast<uint8_t>(newMonth + 1), static_cast<uint8_t>(newDay));
-        }
+    // Step 2: GetOffsetNanosecondsFor(outputTimeZone, roundedEpochNs).
+    auto offsetOpt = TemporalCore::getOffsetNanosecondsFor(zdt->timeZone(), roundedExact);
+    if (!offsetOpt) [[unlikely]] {
+        throwRangeError(globalObject, scope, offsetOpt.error().message);
+        return { };
     }
 
+    // Step 3: GetISODateTimeFor(outputTimeZone, roundedEpochNs) — derive local date/time.
+    ISO8601::PlainDate date;
+    ISO8601::PlainTime time;
+    TemporalCore::exactTimeToLocalDateAndTime(roundedExact, *offsetOpt, date, time);
+
+    // Step 4: ISODateTimeToString(isoDateTime, calendar, precision, ~never~).
     StringBuilder sb;
     sb.append(ISO8601::temporalDateTimeToString(date, time, precision.precision));
-    if (showOffset)
-        sb.append(ISO8601::formatTimeZoneOffsetString(*offsetOpt));
-    if (showBracket) {
+
+    // Step 5: If showOffset is not ~never~, FormatDateTimeUTCOffsetRounded(offsetNs).
+    if (showOffset != "never"_s) {
+        int64_t offsetNs = *offsetOpt;
+        int64_t offsetMinutes = offsetNs / 60'000'000'000;
+        int64_t remainder = offsetNs % 60'000'000'000;
+        if (remainder > 30'000'000'000 || (remainder == 30'000'000'000 && offsetNs > 0))
+            offsetMinutes++;
+        else if (remainder < -30'000'000'000 || (remainder == -30'000'000'000 && offsetNs < 0))
+            offsetMinutes--;
+        sb.append(ISO8601::formatTimeZoneOffsetString(offsetMinutes * 60'000'000'000));
+    }
+
+    // Step 6: If showTimeZone is not ~never~, append [!?timeZoneId].
+    if (showTimeZone != "never"_s) {
         sb.append('[');
+        if (showTimeZone == "critical"_s)
+            sb.append('!');
         sb.append(zdt->timeZoneId());
         sb.append(']');
     }
-    if (showCalendar && !TemporalCore::calendarIsISO(zdt->calendarID())) {
-        sb.append("[u-ca="_s);
+
+    // Step 7: If showCalendar warrants it, append [!?u-ca=calendarId].
+    bool appendCalendar = showCalendar == "always"_s || showCalendar == "critical"_s
+        || (showCalendar == "auto"_s && !TemporalCore::calendarIsISO(calendarID));
+    if (appendCalendar) {
+        sb.append('[');
+        if (showCalendar == "critical"_s)
+            sb.append('!');
+        sb.append("u-ca="_s);
         sb.append(zdt->calendarId());
         sb.append(']');
     }
+
     return sb.toString();
 }
 
@@ -999,7 +1018,7 @@ JSC_DEFINE_HOST_FUNCTION(temporalZonedDateTimePrototypeFuncToJSON, (JSGlobalObje
 
     // Step 3: Return TemporalZonedDateTimeToString(zonedDateTime, ~auto~, ~auto~, ~auto~, ~auto~).
     PrecisionData precision { { Precision::Auto, 0 }, TemporalUnit::Nanosecond, 1 };
-    String result = zonedDateTimeToString(globalObject, zdt, precision, /* showOffset */ true, /* showBracket */ true, /* showCalendar */ true);
+    String result = temporalZonedDateTimeToString(globalObject, zdt, precision, RoundingMode::Trunc, /* showOffset */ "auto"_s, /* showTimeZone */ "auto"_s, /* showCalendar */ "auto"_s, zdt->calendarID());
     RETURN_IF_EXCEPTION(scope, { });
     return JSValue::encode(jsString(vm, WTF::move(result)));
 }
@@ -1020,36 +1039,21 @@ JSC_DEFINE_HOST_FUNCTION(temporalZonedDateTimePrototypeFuncToString, (JSGlobalOb
     JSObject* options = intlGetOptionsObject(globalObject, callFrame->argument(0));
     RETURN_IF_EXCEPTION(scope, { });
 
-    // Steps 5-10: Read options in alphabetical order per spec NOTE (step 4).
-    // Step 5: showCalendar = ? GetTemporalShowCalendarNameOption(resolvedOptions).
-    bool showCalendar = !TemporalCore::calendarIsISO(zdt->calendarID());
-    bool calendarCritical = false;
-    if (options) {
-        String calOpt = intlStringOption(globalObject, options, Identifier::fromString(vm, "calendarName"_s),
-            { "auto"_s, "always"_s, "never"_s, "critical"_s }, "calendarName must be \"auto\", \"always\", \"never\", or \"critical\""_s, "auto"_s);
-        RETURN_IF_EXCEPTION(scope, { });
-        if (calOpt == "always"_s)
-            showCalendar = true;
-        else if (calOpt == "critical"_s) {
-            showCalendar = true;
-            calendarCritical = true;
-        } else if (calOpt == "never"_s)
-            showCalendar = false;
-        // "auto": showCalendar already set from the iso8601 check above.
-    }
+    // Step 4: NOTE: The following steps read options in alphabetical order.
+    // Step 5: Let showCalendar be ? GetTemporalShowCalendarNameOption(resolvedOptions).
+    String calendarOpt = options ? temporalShowCalendarName(globalObject, options) : "auto"_s;
+    RETURN_IF_EXCEPTION(scope, { });
 
     // Step 6: fractionalSecondDigits (read before smallestUnit per spec alphabetical order).
     auto digits = temporalFractionalSecondDigits(globalObject, options);
     RETURN_IF_EXCEPTION(scope, { });
 
-    // Step 7: offset — "auto" (default) | "never"
-    bool showOffset = true;
+    // Step 7: Let showOffset be ? GetTemporalShowOffsetOption(resolvedOptions).
+    String offsetOpt = "auto"_s;
     if (options) {
-        String offsetOpt = intlStringOption(globalObject, options, vm.propertyNames->offset,
+        offsetOpt = intlStringOption(globalObject, options, vm.propertyNames->offset,
             { "auto"_s, "never"_s }, "offset must be \"auto\" or \"never\""_s, "auto"_s);
         RETURN_IF_EXCEPTION(scope, { });
-        if (offsetOpt == "never"_s)
-            showOffset = false;
     }
 
     // Step 8: roundingMode
@@ -1057,131 +1061,35 @@ JSC_DEFINE_HOST_FUNCTION(temporalZonedDateTimePrototypeFuncToString, (JSGlobalOb
     RETURN_IF_EXCEPTION(scope, { });
 
     // Step 9: smallestUnit (read only, validate later)
-    auto smallestUnitResult = getTemporalUnitValuedOption(globalObject, options, vm.propertyNames->smallestUnit);
+    auto smallestUnitResult = temporalUnitValued(globalObject, options, vm.propertyNames->smallestUnit);
     RETURN_IF_EXCEPTION(scope, { });
 
-    // Step 10: timeZoneName — "auto" (default) | "never" | "critical"
-    bool showBracket = true;
-    bool tzNameCritical = false;
+    // Step 10: Let showTimeZone be ? GetTemporalShowTimeZoneNameOption(resolvedOptions).
+    String tzNameOpt = "auto"_s;
     if (options) {
-        String tzNameOpt = intlStringOption(globalObject, options, Identifier::fromString(vm, "timeZoneName"_s),
+        tzNameOpt = intlStringOption(globalObject, options, Identifier::fromString(vm, "timeZoneName"_s),
             { "auto"_s, "never"_s, "critical"_s }, "timeZoneName must be \"auto\", \"never\", or \"critical\""_s, "auto"_s);
         RETURN_IF_EXCEPTION(scope, { });
-        if (tzNameOpt == "never"_s)
-            showBracket = false;
-        else if (tzNameOpt == "critical"_s)
-            tzNameCritical = true;
     }
 
-    // Steps 11-12: ValidateTemporalUnitValue(smallestUnit, time) + reject hour.
-    std::optional<TemporalUnit> smallestUnit;
-    if (std::holds_alternative<TemporalAuto>(smallestUnitResult)) {
-        throwRangeError(globalObject, scope, "smallestUnit \"auto\" is not valid for toString"_s);
+    // Step 11: Perform ? ValidateTemporalUnitValue(smallestUnit, ~time~).
+    validateTemporalUnitValue(globalObject, smallestUnitResult, UnitGroup::Time, AllowedUnit::None, "smallestUnit"_s);
+    RETURN_IF_EXCEPTION(scope, { });
+    std::optional<TemporalUnit> smallestUnit = std::get<std::optional<TemporalUnit>>(smallestUnitResult);
+    // Step 12: If smallestUnit is ~hour~, throw a RangeError exception.
+    if (smallestUnit == TemporalUnit::Hour) [[unlikely]] {
+        throwRangeError(globalObject, scope, "smallestUnit cannot be \"hour\" for ZonedDateTime.toString"_s);
         return { };
     }
-    smallestUnit = std::get<std::optional<TemporalUnit>>(smallestUnitResult);
-    if (smallestUnit) {
-        auto disallowed = { TemporalUnit::Year, TemporalUnit::Month, TemporalUnit::Week, TemporalUnit::Day, TemporalUnit::Hour };
-        if (std::ranges::find(disallowed, *smallestUnit) != disallowed.end()) {
-            throwRangeError(globalObject, scope, "smallestUnit is a disallowed unit"_s);
-            return { };
-        }
-    }
 
-    // Step 13: ToSecondsStringPrecisionRecord(smallestUnit, digits).
-    PrecisionData precision;
-    if (smallestUnit) {
-        switch (*smallestUnit) {
-        case TemporalUnit::Minute:
-            precision = { { Precision::Minute, 0 }, TemporalUnit::Minute, 1 };
-            break;
-        case TemporalUnit::Second:
-            precision = { { Precision::Fixed, 0 }, TemporalUnit::Second, 1 };
-            break;
-        case TemporalUnit::Millisecond:
-            precision = { { Precision::Fixed, 3 }, TemporalUnit::Millisecond, 1 };
-            break;
-        case TemporalUnit::Microsecond:
-            precision = { { Precision::Fixed, 6 }, TemporalUnit::Microsecond, 1 };
-            break;
-        case TemporalUnit::Nanosecond:
-            precision = { { Precision::Fixed, 9 }, TemporalUnit::Nanosecond, 1 };
-            break;
-        default:
-            RELEASE_ASSERT_NOT_REACHED();
-        }
-    } else if (!digits)
-        precision = { { Precision::Auto, 0 }, TemporalUnit::Nanosecond, 1 };
-    else {
-        auto pow10 = [](unsigned n) -> unsigned {
-            unsigned r = 1;
-            for (unsigned i = 0; i < n; i++)
-                r *= 10;
-            return r;
-        };
-        unsigned d = digits.value();
-        if (!d)
-            precision = { { Precision::Fixed, 0 }, TemporalUnit::Second, 1 };
-        else if (d <= 3)
-            precision = { { Precision::Fixed, d }, TemporalUnit::Millisecond, pow10(3 - d) };
-        else if (d <= 6)
-            precision = { { Precision::Fixed, d }, TemporalUnit::Microsecond, pow10(6 - d) };
-        else
-            precision = { { Precision::Fixed, d }, TemporalUnit::Nanosecond, pow10(9 - d) };
-    }
+    // Step 13: Let precision be ToSecondsStringPrecisionRecord(smallestUnit, digits).
+    auto precision = toSecondsStringPrecisionRecord(smallestUnit, digits);
 
-    // Step 14: Return TemporalZonedDateTimeToString(zonedDateTime, precision, ...). (inlined)
-    // temporal_rs: round epoch nanoseconds first, then recompute offset + local datetime.
-    Int128 epochNs = zdt->exactTime().epochNanoseconds();
-    {
-        Int128 incrementNs = static_cast<Int128>(lengthInNanoseconds(precision.unit)) * static_cast<Int128>(static_cast<int64_t>(precision.increment));
-        if (incrementNs > 0)
-            epochNs = TemporalCore::roundNumberToIncrementAsIfPositive(epochNs, incrementNs, roundingMode);
-    }
-    ISO8601::ExactTime roundedExact(epochNs);
-
-    // Recompute local date/time and offset from the rounded epoch.
-    auto roundedOffsetOpt = TemporalCore::getOffsetNanosecondsFor(zdt->timeZone(), roundedExact);
-    if (!roundedOffsetOpt) [[unlikely]] {
-        throwRangeError(globalObject, scope, roundedOffsetOpt.error().message);
-        return { };
-    }
-    ISO8601::PlainDate date;
-    ISO8601::PlainTime time;
-    TemporalCore::exactTimeToLocalDateAndTime(roundedExact, *roundedOffsetOpt, date, time);
-    int64_t offsetNsForFormat = *roundedOffsetOpt;
-
-    StringBuilder sb;
-    sb.append(ISO8601::temporalDateTimeToString(date, time, precision.precision));
-    if (showOffset) {
-        // Spec: FormatDateTimeUTCOffsetRounded — round offset to ±HH:MM (no sub-minute).
-        int64_t offsetNs = offsetNsForFormat;
-        // Round to nearest minute (toward zero for negative, away from zero for positive).
-        int64_t offsetMinutes = offsetNs / 60'000'000'000;
-        int64_t remainder = offsetNs % 60'000'000'000;
-        if (remainder > 30'000'000'000 || (remainder == 30'000'000'000 && offsetNs > 0))
-            offsetMinutes++;
-        else if (remainder < -30'000'000'000 || (remainder == -30'000'000'000 && offsetNs < 0))
-            offsetMinutes--;
-        sb.append(ISO8601::formatTimeZoneOffsetString(offsetMinutes * 60'000'000'000));
-    }
-    if (showBracket) {
-        sb.append('[');
-        if (tzNameCritical)
-            sb.append('!');
-        sb.append(zdt->timeZoneId());
-        sb.append(']');
-    }
-    if (showCalendar) {
-        sb.append('[');
-        if (calendarCritical)
-            sb.append('!');
-        sb.append("u-ca="_s);
-        sb.append(zdt->calendarId());
-        sb.append(']');
-    }
-
-    return JSValue::encode(jsString(vm, sb.toString()));
+    // Step 14: Return TemporalZonedDateTimeToString(zonedDateTime, precision, showCalendar, showTimeZone, showOffset, ...).
+    String result = temporalZonedDateTimeToString(globalObject, zdt, precision, roundingMode,
+        offsetOpt, tzNameOpt, calendarOpt, zdt->calendarID());
+    RETURN_IF_EXCEPTION(scope, { });
+    return JSValue::encode(jsString(vm, WTF::move(result)));
 }
 
 // https://tc39.es/proposal-temporal/#sup-temporal.zoneddatetime.prototype.tolocalestring

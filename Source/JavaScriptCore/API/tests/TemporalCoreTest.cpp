@@ -829,11 +829,15 @@ static void testTemporalDurationFromInternal()
     // 4 days as time nanoseconds -> largestUnit=Day yields 4 days, 0 hours
     Int128 fourDays = Int128(4LL) * Int128(86400000000000LL);
     auto internal = ISO8601::InternalDuration::combineDateAndTimeDuration(ISO8601::Duration(), fourDays);
-    auto result = temporalDurationFromInternal(internal, TemporalUnit::Day);
+    auto resultOrError = temporalDurationFromInternal(internal, TemporalUnit::Day);
+    TCHECK_TRUE(resultOrError.has_value(), "fromInternal: valid duration");
+    auto& result = *resultOrError;
     TCHECK_EQ(static_cast<int64_t>(result.days()), 4LL, "fromInternal: 4d days");
     TCHECK_EQ(static_cast<int64_t>(result.hours()), 0LL, "fromInternal: 4d hours=0");
     // largestUnit=Hour: 4 days = 96 hours, 0 days
-    auto result2 = temporalDurationFromInternal(internal, TemporalUnit::Hour);
+    auto result2OrError = temporalDurationFromInternal(internal, TemporalUnit::Hour);
+    TCHECK_TRUE(result2OrError.has_value(), "fromInternal: valid duration 2");
+    auto& result2 = *result2OrError;
     TCHECK_EQ(static_cast<int64_t>(result2.hours()), 96LL, "fromInternal: 96h");
     TCHECK_EQ(static_cast<int64_t>(result2.days()), 0LL, "fromInternal: 96h days=0");
 }

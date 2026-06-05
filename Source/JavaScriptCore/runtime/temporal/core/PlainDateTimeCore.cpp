@@ -49,15 +49,18 @@ int32_t compareISODateTime(ISO8601::PlainDate d1, ISO8601::PlainTime t1, ISO8601
 
 // DifferencePlainDateTimeWithRounding — temporal_rs: PlainDateTime::diff inner path
 // https://tc39.es/proposal-temporal/#sec-temporal-differenceplaindatetimewithrounding
-static TemporalResult<ISO8601::InternalDuration> differencePlainDateTimeWithRounding(
+TemporalResult<ISO8601::InternalDuration> differencePlainDateTimeWithRounding(
     ISO8601::PlainDate thisDate, ISO8601::PlainTime thisTime,
     ISO8601::PlainDate otherDate, ISO8601::PlainTime otherTime,
     CalendarID calendarId,
     TemporalUnit largestUnit, TemporalUnit smallestUnit,
     RoundingMode roundingMode, double increment)
 {
-    // Step 1: If CompareISODateTime = 0, return zero. (caller already checked, but guard here too)
-    // Step 2: ISODateTimeWithinLimits check.
+    // Step 1: If CompareISODateTime(isoDateTime1, isoDateTime2) = 0, return zero InternalDuration.
+    if (thisDate == otherDate && thisTime == otherTime)
+        return ISO8601::InternalDuration();
+
+    // Step 2: If ISODateTimeWithinLimits is false for either endpoint, throw a RangeError.
     if (!ISO8601::isDateTimeWithinLimits(thisDate.year(), thisDate.month(), thisDate.day(), thisTime.hour(), thisTime.minute(), thisTime.second(), thisTime.millisecond(), thisTime.microsecond(), thisTime.nanosecond())
         || !ISO8601::isDateTimeWithinLimits(otherDate.year(), otherDate.month(), otherDate.day(), otherTime.hour(), otherTime.minute(), otherTime.second(), otherTime.millisecond(), otherTime.microsecond(), otherTime.nanosecond()))
         return makeUnexpected(rangeError("date-time is outside the representable range for Temporal"_s));
@@ -133,9 +136,11 @@ TemporalResult<ISO8601::Duration> differenceTemporalPlainDateTime(
 
     // Step 7: result = TemporalDurationFromInternal(internalDuration, largestUnit).
     auto result = temporalDurationFromInternal(*internalDuration, largestUnit);
+    if (!result)
+        return makeUnexpected(result.error());
     // Step 8: If operation is since, set result to CreateNegatedTemporalDuration(result).
     if (op == DifferenceOperation::Since)
-        result = -result;
+        *result = -*result;
     // Step 9: Return result.
     return result;
 }

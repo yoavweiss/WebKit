@@ -1122,12 +1122,9 @@ runtime/TemporalPlainTimePrototype.cpp
 runtime/TemporalPlainYearMonth.cpp
 runtime/TemporalPlainYearMonthConstructor.cpp
 runtime/TemporalPlainYearMonthPrototype.cpp
-runtime/TemporalTimeZone.cpp
-runtime/TemporalTimeZoneConstructor.cpp
 runtime/TemporalZonedDateTime.cpp
 runtime/TemporalZonedDateTimeConstructor.cpp
 runtime/TemporalZonedDateTimePrototype.cpp
-runtime/TemporalTimeZonePrototype.cpp
 runtime/TestRunnerUtils.cpp
 runtime/ThrowScope.cpp
 runtime/TypeLocationCache.cpp

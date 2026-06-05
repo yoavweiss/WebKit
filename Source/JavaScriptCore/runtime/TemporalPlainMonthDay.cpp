@@ -89,7 +89,7 @@ String TemporalPlainMonthDay::toString(JSGlobalObject* globalObject, JSValue opt
     if (!options)
         return toString();
 
-    String calendarName = toTemporalCalendarName(globalObject, options);
+    String calendarName = temporalShowCalendarName(globalObject, options);
     RETURN_IF_EXCEPTION(scope, { });
 
     return ISO8601::temporalMonthDayToString(m_plainMonthDay, calendarName, m_calendarID);

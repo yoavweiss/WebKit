@@ -280,8 +280,6 @@
 #include "TemporalPlainTimePrototype.h"
 #include "TemporalPlainYearMonth.h"
 #include "TemporalPlainYearMonthPrototype.h"
-#include "TemporalTimeZone.h"
-#include "TemporalTimeZonePrototype.h"
 #include "TemporalZonedDateTime.h"
 #include "TemporalZonedDateTimePrototype.h"
 #include "TopExceptionScope.h"
@@ -1820,13 +1818,6 @@ capitalName ## Constructor* lowerName ## Constructor = featureFlag ? capitalName
                 init.set(TemporalPlainYearMonth::createStructure(init.vm, globalObject, plainYearMonthPrototype));
             });
 
-        m_timeZoneStructure.initLater(
-            [] (const Initializer<Structure>& init) {
-                JSGlobalObject* globalObject = init.owner;
-                TemporalTimeZonePrototype* timeZonePrototype = TemporalTimeZonePrototype::create(init.vm, globalObject, TemporalTimeZonePrototype::createStructure(init.vm, globalObject, globalObject->objectPrototype()));
-                init.set(TemporalTimeZone::createStructure(init.vm, globalObject, timeZonePrototype));
-            });
-
         m_zonedDateTimeStructure.initLater(
             [] (const Initializer<Structure>& init) {
                 auto* globalObject = init.owner;
@@ -3018,7 +3009,6 @@ void JSGlobalObject::visitChildrenImpl(JSCell* cell, Visitor& visitor)
     thisObject->m_plainMonthDayStructure.visit(visitor);
     thisObject->m_plainTimeStructure.visit(visitor);
     thisObject->m_plainYearMonthStructure.visit(visitor);
-    thisObject->m_timeZoneStructure.visit(visitor);
     thisObject->m_zonedDateTimeStructure.visit(visitor);
 
     visitor.append(thisObject->m_nullGetterFunction);

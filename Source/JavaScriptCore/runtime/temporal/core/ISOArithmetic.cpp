@@ -319,8 +319,6 @@ ISO8601::InternalDuration diffISODateTime(const ISO8601::PlainDate& d1, const IS
 
 // RoundTime steps 1–6 (quantity only) — temporal_rs: IsoTime::round (src/iso.rs)
 // https://tc39.es/proposal-temporal/#sec-temporal-roundtime
-// Returns {quantity, baseOffset} in ns; caller does RoundNumberToIncrement + BalanceTime in Int128
-// to avoid double precision loss. Day unit omitted — caller handles overflow via nsPerDay bounds.
 static std::pair<Int128, Int128> roundTime(const ISO8601::PlainTime& t, TemporalUnit unit)
 {
     using ET = ISO8601::ExactTime;
@@ -331,23 +329,24 @@ static std::pair<Int128, Int128> roundTime(const ISO8601::PlainTime& t, Temporal
     const Int128 lUs = Int128(t.microsecond());
     const Int128 lNs = Int128(t.nanosecond());
     switch (unit) {
+    // Step 1: If unit is ~day~ or ~hour~, quantity = full time from midnight in nanoseconds.
+    case TemporalUnit::Day:
     case TemporalUnit::Hour:
-        // Step 1: quantity = full time from midnight in ns.
         return { lH * ET::nsPerHour + lMi * ET::nsPerMinute + lS * ET::nsPerSecond + lMs * ET::nsPerMillisecond + lUs * ET::nsPerMicrosecond + lNs, 0 };
+    // Step 2: If unit is ~minute~, quantity = time within the current hour.
     case TemporalUnit::Minute:
-        // Step 2: quantity = minute-relative; baseOffset = hours.
         return { lMi * ET::nsPerMinute + lS * ET::nsPerSecond + lMs * ET::nsPerMillisecond + lUs * ET::nsPerMicrosecond + lNs, lH * ET::nsPerHour };
+    // Step 3: If unit is ~second~, quantity = time within the current minute.
     case TemporalUnit::Second:
-        // Step 3: quantity = second-relative; baseOffset = hours+minutes.
         return { lS * ET::nsPerSecond + lMs * ET::nsPerMillisecond + lUs * ET::nsPerMicrosecond + lNs, lH * ET::nsPerHour + lMi * ET::nsPerMinute };
+    // Step 4: If unit is ~millisecond~, quantity = time within the current second.
     case TemporalUnit::Millisecond:
-        // Step 4: quantity = ms-relative; baseOffset = hours+minutes+seconds.
         return { lMs * ET::nsPerMillisecond + lUs * ET::nsPerMicrosecond + lNs, lH * ET::nsPerHour + lMi * ET::nsPerMinute + lS * ET::nsPerSecond };
+    // Step 5: If unit is ~microsecond~, quantity = time within the current millisecond.
     case TemporalUnit::Microsecond:
-        // Step 5: quantity = us-relative; baseOffset = hours+minutes+seconds+ms.
         return { lUs * ET::nsPerMicrosecond + lNs, lH * ET::nsPerHour + lMi * ET::nsPerMinute + lS * ET::nsPerSecond + lMs * ET::nsPerMillisecond };
-    default: // Nanosecond
-        // Step 6: Assert unit is nanosecond. quantity = ns; baseOffset = everything else.
+    // Step 6: Assert unit is ~nanosecond~. quantity = nanosecond value.
+    default:
         return { lNs, lH * ET::nsPerHour + lMi * ET::nsPerMinute + lS * ET::nsPerSecond + lMs * ET::nsPerMillisecond + lUs * ET::nsPerMicrosecond };
     }
 }

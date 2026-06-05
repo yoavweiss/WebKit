@@ -130,8 +130,6 @@ set(JavaScriptCore_OBJECT_LUT_SOURCES
     runtime/TemporalPlainTimePrototype.cpp
     runtime/TemporalPlainYearMonthConstructor.cpp
     runtime/TemporalPlainYearMonthPrototype.cpp
-    runtime/TemporalTimeZoneConstructor.cpp
-    runtime/TemporalTimeZonePrototype.cpp
     runtime/TemporalZonedDateTimeConstructor.cpp
     runtime/TemporalZonedDateTimePrototype.cpp
 
@@ -1450,12 +1448,9 @@ set(JavaScriptCore_PRIVATE_FRAMEWORK_HEADERS
     runtime/TemporalPlainYearMonth.h
     runtime/TemporalPlainYearMonthConstructor.h
     runtime/TemporalPlainYearMonthPrototype.h
-    runtime/TemporalTimeZone.h
-    runtime/TemporalTimeZoneConstructor.h
     runtime/TemporalZonedDateTime.h
     runtime/TemporalZonedDateTimeConstructor.h
     runtime/TemporalZonedDateTimePrototype.h
-    runtime/TemporalTimeZonePrototype.h
     runtime/TestRunnerUtils.h
     runtime/ThrowScope.h
     runtime/ToNativeFromValue.h

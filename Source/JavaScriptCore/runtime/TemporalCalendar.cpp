@@ -612,7 +612,12 @@ ISO8601::Duration differenceTemporalPlainYearMonth(JSGlobalObject* globalObject,
             return { };
         }
     }
-    auto result = TemporalDuration::temporalDurationFromInternal(duration, TemporalUnit::Day);
+    auto durResult = TemporalDuration::temporalDurationFromInternal(duration, TemporalUnit::Day);
+    if (!durResult) [[unlikely]] {
+        throwTemporalError(globalObject, scope, durResult.error());
+        return { };
+    }
+    ISO8601::Duration result = *durResult;
     if (op == DifferenceOperation::Since)
         result = -result;
     return result;
