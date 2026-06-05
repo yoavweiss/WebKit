@@ -145,14 +145,16 @@ macro(WEBKIT_OPTION_BEGIN)
         set(ENABLE_UNIFIED_BUILDS_DEFAULT ON)
     endif ()
 
-    # Default the Swift demo URI scheme on for GTK/WPE, but only when the toolchain
-    # can build it: Clang (not GCC) with a new-enough Swift. Otherwise it stays off;
+    # Default the Swift prototype features on for GTK/WPE, but only when the toolchain
+    # can build it: Clang (not GCC) with a new-enough Swift. Otherwise they stay off;
     # an explicit -D against such a toolchain is rejected in WEBKIT_OPTION_END.
     set(ENABLE_SWIFT_DEMO_URI_SCHEME_DEFAULT OFF)
+    set(ENABLE_BACK_FORWARD_LIST_SWIFT_DEFAULT OFF)
     if ((PORT STREQUAL "GTK" OR PORT STREQUAL "WPE") AND COMPILER_IS_CLANG)
         _WEBKIT_DETECT_SWIFT_CXX_INTEROP_SUPPORT(_swift_interop_ok)
         if (_swift_interop_ok)
             set(ENABLE_SWIFT_DEMO_URI_SCHEME_DEFAULT ON)
+            set(ENABLE_BACK_FORWARD_LIST_SWIFT_DEFAULT ON)
         endif ()
     endif ()
 
@@ -183,7 +185,7 @@ macro(WEBKIT_OPTION_BEGIN)
     WEBKIT_OPTION_DEFINE(ENABLE_AUTOCAPITALIZE "Toggle autocapitalize support" PRIVATE OFF)
     WEBKIT_OPTION_DEFINE(ENABLE_AV1 "Toggle AV1 codec support" PRIVATE OFF)
     WEBKIT_OPTION_DEFINE(ENABLE_AVF_CAPTIONS "Toggle AVFoundation caption support" PRIVATE OFF)
-    WEBKIT_OPTION_DEFINE(ENABLE_BACK_FORWARD_LIST_SWIFT "Toggle Swift back forward list" PRIVATE OFF)
+    WEBKIT_OPTION_DEFINE(ENABLE_BACK_FORWARD_LIST_SWIFT "Toggle Swift back forward list" PRIVATE ${ENABLE_BACK_FORWARD_LIST_SWIFT_DEFAULT})
     WEBKIT_OPTION_DEFINE(ENABLE_BREAKPAD "Toggle breakpad minidump support." PRIVATE OFF)
     WEBKIT_OPTION_DEFINE(ENABLE_BUBBLEWRAP_SANDBOX "Toggle Bubblewrap sandboxing support" PRIVATE OFF)
     WEBKIT_OPTION_DEFINE(ENABLE_CACHE_PARTITIONING "Toggle cache partitioning support" PRIVATE OFF)
