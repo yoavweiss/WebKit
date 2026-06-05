@@ -749,6 +749,13 @@ MediaTime AudioVideoRendererRemote::currentTime() const
 
 void AudioVideoRendererRemote::notifyTimeReachedAndStall(const MediaTime& time, Function<void(const MediaTime&)>&& callback)
 {
+    auto now = currentTime();
+    if (time <= now) {
+        ALWAYS_LOG(LOGIDENTIFIER, "boundary ", time, " is behind currentTime ", now, "; stalling and firing callback immediately");
+        stall();
+        callback(time);
+        return;
+    }
     {
         Locker locker { m_lock };
         m_stallCap = time;

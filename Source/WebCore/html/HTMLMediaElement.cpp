@@ -5931,6 +5931,17 @@ void HTMLMediaElement::mediaPlayerTimeChanged()
     MediaTime dur = durationMediaTime();
     double playbackRate = requestedPlaybackRate();
 
+    // Reaching the end of the available data only counts as end-of-media once
+    // playback is allowed to end. For a normal (finite) resource that is always the
+    // case; for Media Source it holds only once the MediaSource has transitioned to
+    // 'ended' (via endOfStream()) — until then, reaching the buffered end is a stall
+    // (surfaced as 'waiting'), not 'ended'.
+    bool canReachEnd = true;
+#if ENABLE(MEDIA_SOURCE)
+    if (m_mediaSource)
+        canReachEnd = m_mediaSource->isEnded();
+#endif
+
     // When the current playback position reaches the end of the media resource then the user agent must follow these steps:
     if ((dur || (!dur && !now)) && dur.isValid() && !dur.isPositiveInfinite() && !dur.isNegativeInfinite()) {
 
@@ -5946,7 +5957,7 @@ void HTMLMediaElement::mediaPlayerTimeChanged()
 
                 seekInternal(MediaTime::zeroTime());
             }
-        } else if ((now <= MediaTime::zeroTime() && playbackRate < 0) || (now >= dur && playbackRate > 0)) {
+        } else if ((now <= MediaTime::zeroTime() && playbackRate < 0) || (now >= dur && playbackRate > 0 && canReachEnd)) {
 
             ALWAYS_LOG(LOGIDENTIFIER, "current time (", now, ") is greater then duration (", dur, ") or <= 0, pausing");
 

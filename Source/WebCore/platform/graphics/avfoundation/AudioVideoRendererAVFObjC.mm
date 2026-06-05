@@ -522,6 +522,14 @@ void AudioVideoRendererAVFObjC::stall()
 void AudioVideoRendererAVFObjC::notifyTimeReachedAndStall(const MediaTime& timeBoundary, Function<void(const MediaTime&)>&& callback)
 {
     cancelTimeReachedAction();
+
+    if (timeBoundary <= currentTime()) {
+        ALWAYS_LOG(LOGIDENTIFIER, "boundary ", timeBoundary, " is behind currentTime ", currentTime(), "; stalling and firing callback immediately");
+        stall();
+        callback(timeBoundary);
+        return;
+    }
+
     RetainPtr<NSArray> times = @[[NSValue valueWithCMTime:PAL::toCMTime(timeBoundary)]];
 
     auto logSiteIdentifier = LOGIDENTIFIER;
