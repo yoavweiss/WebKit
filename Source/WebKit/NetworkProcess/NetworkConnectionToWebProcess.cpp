@@ -1779,11 +1779,6 @@ void NetworkConnectionToWebProcess::dropNonSerializableInProcessCache(WebCore::P
         connection->m_connection->send(Messages::NetworkProcessConnection::DropNonSerializableInProcessCache(identifier), 0);
 }
 
-void NetworkConnectionToWebProcess::setCORSDisablingPatterns(WebCore::PageIdentifier pageIdentifier, Vector<String>&& patterns)
-{
-    m_networkProcess->setCORSDisablingPatterns(*this, pageIdentifier, WTF::move(patterns));
-}
-
 void NetworkConnectionToWebProcess::setResourceLoadSchedulingMode(WebCore::PageIdentifier pageIdentifier, WebCore::LoadSchedulingMode mode)
 {
     CheckedPtr session = networkSession();

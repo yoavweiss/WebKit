@@ -333,6 +333,8 @@ void NetworkProcessProxy::getNetworkProcessConnection(WebProcessProxy& webProces
     for (Ref page : webProcessProxy.mainPages()) {
         if (page->configuration().shouldRelaxThirdPartyCookieBlocking() == ShouldRelaxThirdPartyCookieBlocking::Yes)
             parameters.pagesWithRelaxedThirdPartyCookieBlocking.append(page->identifier());
+        if (!page->corsDisablingPatterns().isEmpty())
+            parameters.corsDisablingPatternsPerPage.add(page->webPageIDInMainFrameProcess(), page->corsDisablingPatterns());
     }
     auto& cookiesData = webProcessProxy.allowedFirstPartiesForCookiesData();
     parameters.loadedWebArchive = cookiesData.first;

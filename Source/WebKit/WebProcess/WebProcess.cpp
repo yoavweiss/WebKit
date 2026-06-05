@@ -1406,11 +1406,6 @@ NetworkProcessConnection& WebProcess::ensureNetworkProcessConnection()
                 m_networkProcessConnection->connection().send(Messages::NetworkConnectionToWebProcess::UpdateActivePages(std::exchange(m_pendingDisplayName, String()), { }, *auditToken), 0);
         }
 #endif
-        // This can be called during a WebPage's constructor, so wait until after the constructor returns to touch the WebPage.
-        RunLoop::mainSingleton().dispatch([this, protectedThis = Ref { *this }] {
-            for (auto& webPage : m_pageMap.values())
-                webPage->synchronizeCORSDisablingPatternsWithNetworkProcess();
-        });
     }
 
     return *m_networkProcessConnection;
