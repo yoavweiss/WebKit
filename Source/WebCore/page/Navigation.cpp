@@ -1231,8 +1231,7 @@ Navigation::DispatchResult Navigation::innerDispatchNavigateEvent(NavigationNavi
     }
 
     // Enforce rate limiting to prevent excessive navigation requests.
-    // Only check for script-initiated navigations (those with an API method tracker).
-    if (ongoingAPIMethodTracker && !m_rateLimiter.navigationAllowed()) {
+    if (!m_rateLimiter.navigationAllowed()) {
         // Log a warning once per window when the limit is reached.
         if (!m_rateLimiter.wasReported()) {
             m_rateLimiter.markReported();
@@ -1240,11 +1239,13 @@ Navigation::DispatchResult Navigation::innerDispatchNavigateEvent(NavigationNavi
                 document->addConsoleMessage(MessageSource::JS, MessageLevel::Warning, "Excessive navigation attempts blocked."_s);
         }
 
-        // Reject the promises and clean up.
-        auto exception = Exception { ExceptionCode::QuotaExceededError, "Navigation rate limit exceeded"_s };
-        protect(ongoingAPIMethodTracker->committedPromise())->reject(exception);
-        protect(ongoingAPIMethodTracker->finishedPromise())->reject(exception);
-        cleanupAPIMethodTracker(ongoingAPIMethodTracker.get());
+        if (ongoingAPIMethodTracker) {
+            // Reject the promises and clean up.
+            auto exception = Exception { ExceptionCode::QuotaExceededError, "Navigation rate limit exceeded"_s };
+            protect(ongoingAPIMethodTracker->committedPromise())->reject(exception);
+            protect(ongoingAPIMethodTracker->finishedPromise())->reject(exception);
+            cleanupAPIMethodTracker(ongoingAPIMethodTracker.get());
+        }
 
         return DispatchResult::Aborted;
     }
