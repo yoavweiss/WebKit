@@ -895,11 +895,6 @@ public:
 
     WebScreenOrientationManagerProxy* screenOrientationManager() { return m_screenOrientationManager.get(); }
 
-#if ENABLE(VIDEO) || ENABLE(WEB_AUDIO)
-    void addRemoteMediaSessionManager(WebCore::PageIdentifier);
-    void removeRemoteMediaSessionManager(WebCore::PageIdentifier);
-#endif
-
 #if PLATFORM(IOS_FAMILY)
     bool allowsMediaDocumentInlinePlayback() const;
     void setAllowsMediaDocumentInlinePlayback(bool);
@@ -2974,6 +2969,10 @@ public:
 
 #if PLATFORM(IOS_FAMILY) && ENABLE(DEVICE_ORIENTATION)
     RefPtr<WebDeviceOrientationUpdateProviderProxy> NODELETE webDeviceOrientationUpdateProviderProxy();
+#endif
+
+#if ENABLE(VIDEO) || ENABLE(WEB_AUDIO)
+    RemoteMediaSessionManagerProxy* NODELETE remoteMediaSessionManagerProxy();
 #endif
 
     friend class TextExtractionAssertionScope;

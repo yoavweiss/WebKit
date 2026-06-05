@@ -927,27 +927,14 @@ WebPage::WebPage(PageIdentifier pageID, WebPageCreationParameters&& parameters)
     }
 
 #if ENABLE(VIDEO) || ENABLE(WEB_AUDIO)
-    if (parameters.store.getBoolValueForKey(WebPreferencesKey::remoteMediaSessionManagerEnabledKey()) || parameters.store.getBoolValueForKey(WebPreferencesKey::siteIsolationSharedProcessEnabledKey())) {
+    if (parameters.store.getBoolValueForKey(WebPreferencesKey::remoteMediaSessionManagerEnabledKey()) || parameters.store.getBoolValueForKey(WebPreferencesKey::siteIsolationEnabledKey())) {
         pageConfiguration.mediaSessionManagerFactory = [weakThis = WeakPtr { *this }](PageIdentifier) -> RefPtr<MediaSessionManagerInterface> {
 
             RefPtr protectedThis = weakThis.get();
             if (!protectedThis)
                 return nullptr;
 
-            // FIXME: This is often null with site isolation enabled. It seems like this is not what was intended.
-            RefPtr topDocument = protectedThis->localTopDocument();
-            if (!topDocument)
-                return nullptr;
-
-            RefPtr topCorePage = topDocument->page();
-            if (!topCorePage)
-                return nullptr;
-
-            RefPtr topWebPage = WebPage::fromCorePage(*topCorePage);
-            if (!topWebPage)
-                return nullptr;
-
-            RefPtr<PlatformMediaSessionManager> manager = RemoteMediaSessionManager::create(*topWebPage, *protectedThis);
+            RefPtr<PlatformMediaSessionManager> manager = RemoteMediaSessionManager::create(*protectedThis);
             manager->resetRestrictions();
 
             return manager;
