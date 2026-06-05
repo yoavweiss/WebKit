@@ -4041,6 +4041,11 @@ void RenderBox::constrainIntrinsicLogicalWidthsByMinMax(LayoutUnit& minIntrinsic
         if (minLogicalWidth.isMaxContent())
             return maxIntrinsicLogicalWidth;
 
+        // A min-content minimum floors the contribution at the box's own min-content size,
+        // so a smaller max-width cannot clamp it below that (min wins over max).
+        if (minLogicalWidth.isMinContent())
+            return minIntrinsicLogicalWidth;
+
         return { };
     }();
 
