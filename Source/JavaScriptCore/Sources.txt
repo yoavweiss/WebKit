@@ -51,12 +51,12 @@ assembler/CPU.cpp
 assembler/JITOperationList.cpp
 assembler/LinkBuffer.cpp
 assembler/MacroAssembler.cpp
-assembler/MacroAssemblerARM64.cpp @no-unify
-assembler/MacroAssemblerARMv7.cpp @no-unify
+assembler/MacroAssemblerARM64.cpp @no-unify-when(bundle<=8)
+assembler/MacroAssemblerARMv7.cpp @no-unify-when(bundle<=8)
 assembler/MacroAssemblerCodeRef.cpp
 assembler/MacroAssemblerPrinter.cpp
-assembler/MacroAssemblerRISCV64.cpp @no-unify
-assembler/MacroAssemblerX86_64.cpp @no-unify
+assembler/MacroAssemblerRISCV64.cpp @no-unify-when(bundle<=8)
+assembler/MacroAssemblerX86_64.cpp @no-unify-when(bundle<=8)
 assembler/PerfLog.cpp
 assembler/Printer.cpp
 assembler/ProbeContext.cpp
@@ -438,10 +438,9 @@ dfg/DFGSSACalculator.cpp
 dfg/DFGSSAConversionPhase.cpp
 dfg/DFGSSALoweringPhase.cpp
 dfg/DFGSnippetParams.cpp
-// These files take a long time to compile so we do them individually.
-dfg/DFGSpeculativeJIT.cpp @no-unify
-dfg/DFGSpeculativeJIT32_64.cpp @no-unify
-dfg/DFGSpeculativeJIT64.cpp @no-unify
+dfg/DFGSpeculativeJIT.cpp @no-unify-when(bundle<=8) @cost:9
+dfg/DFGSpeculativeJIT32_64.cpp @no-unify-when(bundle<=8)
+dfg/DFGSpeculativeJIT64.cpp @no-unify-when(bundle<=8) @cost:4
 dfg/DFGStackLayoutPhase.cpp
 dfg/DFGStaticExecutionCountEstimationPhase.cpp
 dfg/DFGStoreBarrierClusteringPhase.cpp
@@ -476,7 +475,7 @@ disassembler/RISCV64Disassembler.cpp
 disassembler/X86Disassembler.cpp
 
 disassembler/ARM64/A64DOpcode.cpp
-disassembler/ARM64/Binja.c @no-unify
+disassembler/ARM64/Binja.c @no-unify // C source; cannot bundle with C++.
 
 disassembler/zydis/Zydis.c
 
@@ -500,8 +499,7 @@ ftl/FTLJITFinalizer.cpp
 ftl/FTLLazySlowPath.cpp
 ftl/FTLLink.cpp
 ftl/FTLLocation.cpp
-// This file takes a long time to compile so we do it individually.
-ftl/FTLLowerDFGToB3.cpp @no-unify
+ftl/FTLLowerDFGToB3.cpp @no-unify-when(bundle<=8) @cost:10
 ftl/FTLOSREntry.cpp
 ftl/FTLOSRExit.cpp
 ftl/FTLOSRExitCompiler.cpp
@@ -719,7 +717,7 @@ parser/LexerUnicodeProperties.cpp
 parser/ModuleAnalyzer.cpp
 parser/Nodes.cpp
 parser/NodesAnalyzeModule.cpp
-parser/Parser.cpp @no-unify
+parser/Parser.cpp @no-unify-when(bundle<=8) @cost:4
 parser/ParserArena.cpp
 parser/SourceProvider.cpp
 parser/SourceProviderCache.cpp
@@ -985,10 +983,10 @@ runtime/JSTypedArrayConstructors.cpp
 runtime/JSTypedArrayPrototypes.cpp
 runtime/JSTypedArrayViewConstructor.cpp
 runtime/JSTypedArrayViewPrototype.cpp
-runtime/JSTypedArrayViewPrototypeFunctions1.cpp @no-unify
-runtime/JSTypedArrayViewPrototypeFunctions2.cpp @no-unify
-runtime/JSTypedArrayViewPrototypeFunctions3.cpp @no-unify
-runtime/JSTypedArrayViewPrototypeFunctions4.cpp @no-unify
+runtime/JSTypedArrayViewPrototypeFunctions1.cpp @no-unify-when(bundle<=8) @cost:4
+runtime/JSTypedArrayViewPrototypeFunctions2.cpp @no-unify-when(bundle<=8) @cost:4
+runtime/JSTypedArrayViewPrototypeFunctions3.cpp @no-unify-when(bundle<=8) @cost:3
+runtime/JSTypedArrayViewPrototypeFunctions4.cpp @no-unify-when(bundle<=8) @cost:3
 runtime/JSTypedArrays.cpp
 runtime/JSWeakMap.cpp
 runtime/JSWeakObjectRef.cpp
@@ -1182,8 +1180,8 @@ tools/VMInspector.cpp
 wasm/WasmAddressType.cpp
 wasm/WasmOMGIRGenerator.cpp
 wasm/WasmBBQDisassembler.cpp
-wasm/WasmBBQJIT.cpp @no-unify
-wasm/WasmBBQJIT64.cpp @no-unify
+wasm/WasmBBQJIT.cpp @no-unify-when(bundle<=8) @cost:5
+wasm/WasmBBQJIT64.cpp @no-unify-when(bundle<=8) @cost:3
 wasm/WasmBBQPlan.cpp
 wasm/WasmBinding.cpp
 wasm/WasmBranchHintsSectionParser.cpp
@@ -1205,7 +1203,7 @@ wasm/WasmInliningDecision.cpp
 wasm/WasmInstanceAnchor.cpp
 wasm/WasmIPIntGenerator.cpp
 wasm/WasmIPIntPlan.cpp
-wasm/WasmIPIntSlowPaths.cpp @no-unify
+wasm/WasmIPIntSlowPaths.cpp @no-unify-when(bundle<=8)
 wasm/WasmMachineThreads.cpp
 wasm/WasmMemory.cpp
 wasm/WasmMemoryInformation.cpp
@@ -1237,8 +1235,7 @@ wasm/WasmWorklist.cpp
 wasm/js/JSToWasm.cpp
 wasm/js/JSToWasm.h
 wasm/js/JSWebAssembly.cpp
-// FIXME: Remove this @no-unify when clang-AS-debug builds stops crashing in register allocation.
-wasm/js/JSWebAssemblyArray.cpp @no-unify
+wasm/js/JSWebAssemblyArray.cpp @no-unify-when(bundle<=8)
 wasm/js/JSWebAssemblyCompileError.cpp
 wasm/js/JSWebAssemblyException.cpp
 wasm/js/JSWebAssemblyGlobal.cpp

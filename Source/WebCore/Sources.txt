@@ -388,7 +388,7 @@ Modules/streams/ReadableStreamDefaultReader.cpp
 Modules/streams/ReadableStreamReadRequest.cpp
 Modules/streams/ReadableStreamToSharedBufferSink.cpp
 Modules/streams/ReadableStreamSource.cpp
-Modules/streams/StreamPipeToUtilities.cpp @no-unify
+Modules/streams/StreamPipeToUtilities.cpp @no-unify-when(bundle<=8) @cost:3
 Modules/streams/StreamTeeUtilities.cpp
 Modules/streams/StreamTransferUtilities.cpp
 Modules/streams/TransformStream.cpp
@@ -695,7 +695,7 @@ bindings/js/JSCanvasRenderingContext2DCustom.cpp
 bindings/js/JSCustomElementInterface.cpp
 bindings/js/JSCustomElementRegistryCustom.cpp
 bindings/js/JSCustomEventCustom.cpp
-bindings/js/JSDOMBindingFacade.cpp @no-unify
+bindings/js/JSDOMBindingFacade.cpp @no-unify-when(bundle<=8) @cost:4
 bindings/js/JSDOMBindingSecurity.cpp
 bindings/js/JSDOMBuiltinConstructorBase.cpp
 bindings/js/JSDOMConstructorBase.cpp
@@ -1310,7 +1310,7 @@ dom/DocumentOrShadowRootFullscreen.cpp
 dom/DocumentParser.cpp
 dom/DocumentSharedObjectPool.cpp
 dom/DocumentStorageAccess.cpp
-dom/DocumentTouch.cpp @no-unify
+dom/DocumentTouch.cpp @no-unify-when(bundle<=8)
 dom/DocumentType.cpp
 dom/DragEvent.cpp
 dom/Element.cpp @header:RenderStyleGetters
@@ -1442,9 +1442,9 @@ dom/TextEvent.cpp
 dom/TextNodeTraversal.cpp
 dom/ToggleEvent.cpp
 dom/ToggleEventTask.cpp
-dom/Touch.cpp @no-unify
-dom/TouchEvent.cpp @no-unify
-dom/TouchList.cpp @no-unify
+dom/Touch.cpp @no-unify-when(bundle<=8)
+dom/TouchEvent.cpp @no-unify-when(bundle<=8)
+dom/TouchList.cpp @no-unify-when(bundle<=8)
 dom/TransformSourceLibxslt.cpp
 dom/Traversal.cpp
 dom/TreeScope.cpp
@@ -2080,7 +2080,7 @@ loader/CrossOriginEmbedderPolicy.cpp
 loader/CrossOriginOpenerPolicy.cpp
 loader/CrossOriginPreflightChecker.cpp
 loader/CrossOriginPreflightResultCache.cpp
-loader/CustomHeaderFields.cpp @no-unify
+loader/CustomHeaderFields.cpp @no-unify-when(bundle<=8)
 loader/DefaultResourceLoadPriority.cpp
 loader/DocumentLoader.cpp
 loader/DocumentThreadableLoader.cpp
@@ -2481,7 +2481,7 @@ platform/WebCoreMainThread.cpp
 platform/WebCorePersistentCoders.cpp
 platform/Widget.cpp
 platform/animation/AcceleratedEffect.cpp @cost:3
-platform/animation/AcceleratedEffectStack.cpp @no-unify
+platform/animation/AcceleratedEffectStack.cpp @no-unify-when(bundle<=8)
 platform/animation/AcceleratedEffectValues.cpp @header:RenderStyleGetters
 platform/animation/AcceleratedTimeline.cpp
 platform/animation/TimingFunction.cpp
@@ -4121,7 +4121,7 @@ JSDOMStringList.cpp
 JSDOMStringMap.cpp
 JSDOMTokenList.cpp
 JSDOMURL.cpp
-JSDOMWindow.cpp @no-unify
+JSDOMWindow.cpp @no-unify-when(bundle<=8) @cost:44
 JSDataCue.cpp
 JSDataTransfer.cpp
 JSDataTransferItem.cpp

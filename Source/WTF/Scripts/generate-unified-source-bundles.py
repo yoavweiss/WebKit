@@ -78,6 +78,12 @@ class SourceFile:
                 attribute = attribute.strip()
                 if attribute == 'no-unify':
                     self.unifiable = False
+                elif attribute.startswith('no-unify-when('):
+                    m = re.fullmatch(r'no-unify-when\(bundle<=(\d+)\)', attribute)
+                    if not m:
+                        raise RuntimeError("malformed attribute: @" + attribute)
+                    if args.max_bundle_size <= int(m.group(1)):
+                        self.unifiable = False
                 elif attribute == 'nonARC':
                     self._non_arc = True
                 elif attribute.startswith('header:'):

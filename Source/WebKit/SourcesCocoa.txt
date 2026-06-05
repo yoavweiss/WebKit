@@ -74,7 +74,7 @@ GPUProcess/cocoa/GPUProcessCocoa.mm @nonARC
 GPUProcess/graphics/Model/MeshImpl.cpp
 GPUProcess/graphics/Model/WebKitMesh.mm
 GPUProcess/graphics/RemoteGraphicsContextGLCocoa.cpp
-GPUProcess/graphics/ScopedRenderingResourcesRequestCocoa.mm @nonARC @no-unify
+GPUProcess/graphics/ScopedRenderingResourcesRequestCocoa.mm @nonARC @no-unify-when(bundle<=8)
 GPUProcess/ios/GPUProcessIOS.mm @nonARC
 GPUProcess/mac/GPUProcessMac.mm @nonARC
 GPUProcess/mac/LocalAudioSessionRoutingArbitrator.cpp
@@ -83,7 +83,7 @@ GPUProcess/media/RemoteImageDecoderAVFProxy.cpp
 GPUProcess/media/cocoa/VideoReceiverEndpointManager.mm @nonARC
 GPUProcess/media/cocoa/RemoteMediaPlayerProxyCocoa.mm @nonARC
 GPUProcess/media/ios/RemoteMediaSessionHelperProxy.cpp
-GPUProcess/webrtc/LibWebRTCCodecsProxy.mm @nonARC @no-unify
+GPUProcess/webrtc/LibWebRTCCodecsProxy.mm @nonARC @no-unify // Includes libwebrtc headers with macro pollution.
 GPUProcess/webrtc/RemoteAudioMediaStreamTrackRendererInternalUnitManager.cpp
 GPUProcess/webrtc/RemoteSampleBufferDisplayLayer.mm @nonARC
 GPUProcess/webrtc/UserMediaCaptureManagerProxy.cpp @cost:3
@@ -98,7 +98,7 @@ Platform/classifier/cocoa/TextExtractionFilter.mm @nonARC
 Platform/classifier/cocoa/ResourceLoadStatisticsClassifierCocoa.cpp
 Platform/classifier/ResourceLoadStatisticsClassifier.cpp
 
-Platform/cocoa/AssertionCapability.mm @nonARC @no-unify
+Platform/cocoa/AssertionCapability.mm @nonARC @no-unify-when(bundle<=8)
 Platform/cocoa/ExtensionCapabilityGrant.mm @nonARC
 Platform/cocoa/MediaCapability.mm @nonARC
 Platform/cocoa/MediaPlaybackTargetContextSerialized.mm @nonARC
@@ -106,7 +106,7 @@ Platform/cocoa/MediaPlaybackTargetSerialized.cpp
 Platform/cocoa/PaymentAuthorizationPresenter.mm @nonARC
 Platform/cocoa/PaymentAuthorizationViewController.mm @nonARC
 Platform/cocoa/WKPaymentAuthorizationDelegate.mm @nonARC
-Platform/cocoa/WebKitAdditions.mm @nonARC @no-unify
+Platform/cocoa/WebKitAdditions.mm @nonARC @no-unify // #includes opaque WebKitAdditions sources.
 Platform/cocoa/WebPrivacyHelpers.mm @nonARC
 
 Platform/ios/PaymentAuthorizationController.mm @nonARC
@@ -194,7 +194,7 @@ Shared/Cocoa/SandboxExtensionCocoa.mm @nonARC
 Shared/Cocoa/SandboxInitialiationParametersCocoa.mm @nonARC
 Shared/Cocoa/SandboxUtilities.mm @nonARC
 Shared/Cocoa/SharedCARingBuffer.cpp
-Shared/Cocoa/TCCSoftLink.mm @nonARC @no-unify
+Shared/Cocoa/TCCSoftLink.mm @nonARC @no-unify // SOFT_LINK_*_FOR_SOURCE defines non-inline symbols.
 Shared/Cocoa/WebErrorsCocoa.mm @nonARC
 Shared/Cocoa/WebKit2InitializeCocoa.mm @nonARC
 Shared/Cocoa/WKNSArray.mm @nonARC
@@ -288,7 +288,7 @@ UIProcess/API/Cocoa/_WKAutomationSessionConfiguration.mm @nonARC
 UIProcess/API/Cocoa/_WKAutomationSessionTesting.mm @nonARC
 UIProcess/API/Cocoa/_WKContentRuleListAction.mm @nonARC
 UIProcess/API/Cocoa/_WKContextMenuElementInfo.mm @nonARC
-UIProcess/API/Cocoa/_WKCustomHeaderFields.mm @nonARC @no-unify
+UIProcess/API/Cocoa/_WKCustomHeaderFields.mm @nonARC @no-unify-when(bundle<=8)
 UIProcess/API/Cocoa/_WKDataTask.mm @nonARC
 UIProcess/API/Cocoa/_WKDownload.mm @nonARC
 UIProcess/API/Cocoa/_WKElementAction.mm @nonARC
@@ -477,7 +477,7 @@ UIProcess/Cocoa/UserMediaPermissionRequestProxyCocoa.mm @nonARC
 UIProcess/Cocoa/VideoPresentationManagerProxy.mm @nonARC
 UIProcess/Cocoa/ViewSnapshotStoreCocoa.mm @nonARC
 UIProcess/Cocoa/WebGeolocationManagerProxyCocoa.cpp
-UIProcess/Cocoa/WebKitSwiftSoftLink.mm @nonARC @no-unify
+UIProcess/Cocoa/WebKitSwiftSoftLink.mm @nonARC @no-unify // SOFT_LINK_*_FOR_SOURCE defines non-inline symbols.
 UIProcess/Cocoa/WebPagePreferencesLockdownModeObserver.mm @nonARC
 UIProcess/Cocoa/WebPageProxyCocoa.mm @nonARC @cost:12
 UIProcess/Cocoa/WebPasteboardProxyCocoa.mm @nonARC @cost:5
@@ -703,15 +703,15 @@ UIProcess/RemoteLayerTree/RemoteScrollingTree.cpp @cost:3
 UIProcess/RemoteLayerTree/RemoteProgressBasedTimeline.cpp
 UIProcess/RemoteLayerTree/RemoteProgressBasedTimelineRegistry.cpp @cost:3
 
-UIProcess/WebAuthentication/Cocoa/AuthenticationServicesCoreSoftLink.mm @nonARC @no-unify
+UIProcess/WebAuthentication/Cocoa/AuthenticationServicesCoreSoftLink.mm @nonARC @no-unify // SOFT_LINK_*_FOR_SOURCE defines non-inline symbols.
 UIProcess/WebAuthentication/Cocoa/AuthenticatorPresenterCoordinator.mm @nonARC
 UIProcess/WebAuthentication/Cocoa/CcidConnection.mm @nonARC
 UIProcess/WebAuthentication/Cocoa/CcidService.mm @nonARC
-UIProcess/WebAuthentication/Cocoa/LocalAuthenticationSoftLink.mm @nonARC @no-unify
+UIProcess/WebAuthentication/Cocoa/LocalAuthenticationSoftLink.mm @nonARC @no-unify // SOFT_LINK_*_FOR_SOURCE defines non-inline symbols.
 UIProcess/WebAuthentication/Cocoa/LocalAuthenticator.mm @nonARC
 UIProcess/WebAuthentication/Cocoa/LocalConnection.mm @nonARC
 UIProcess/WebAuthentication/Cocoa/LocalService.mm @nonARC
-UIProcess/WebAuthentication/Cocoa/NearFieldSoftLink.mm @nonARC @no-unify
+UIProcess/WebAuthentication/Cocoa/NearFieldSoftLink.mm @nonARC @no-unify // SOFT_LINK_*_FOR_SOURCE defines non-inline symbols.
 UIProcess/WebAuthentication/Cocoa/NfcConnection.mm @nonARC
 UIProcess/WebAuthentication/Cocoa/NfcService.mm @nonARC
 UIProcess/WebAuthentication/Cocoa/WKASCAuthorizationPresenterDelegate.mm @nonARC
@@ -916,7 +916,7 @@ WebProcess/WebPage/RemoteLayerTree/PlatformCALayerRemoteHost.mm @nonARC
 WebProcess/WebPage/RemoteLayerTree/PlatformCALayerRemoteModelHosting.mm @nonARC
 WebProcess/WebPage/RemoteLayerTree/PlatformCALayerRemoteTiledBacking.cpp
 WebProcess/WebPage/RemoteLayerTree/RemoteLayerTreeContext.mm @nonARC @cost:4
-WebProcess/WebPage/RemoteLayerTree/RemoteLayerTreeDrawingArea.mm @nonARC @no-unify
+WebProcess/WebPage/RemoteLayerTree/RemoteLayerTreeDrawingArea.mm @nonARC @no-unify-when(bundle<=8) @cost:4
 WebProcess/WebPage/RemoteLayerTree/RemoteScrollbarsController.mm @nonARC
 WebProcess/WebPage/RemoteLayerTree/RemoteScrollingCoordinator.mm @nonARC @cost:3
 
@@ -939,7 +939,7 @@ LibWebRTCCodecsMessageReceiver.cpp
 LibWebRTCCodecsProxyMessageReceiver.cpp
 LibWebRTCNetworkMessageReceiver.cpp
 LogStreamMessageReceiver.cpp
-Shared/LogStream.mm @no-unify
+Shared/LogStream.mm @no-unify-when(bundle<=8)
 ModelConnectionToWebProcessMessageReceiver.cpp
 MediaPlayerPrivateRemoteMessageReceiver.cpp @cost:5
 MediaSourcePrivateRemoteMessageReceiverMessageReceiver.cpp

@@ -199,7 +199,7 @@ JSValue ObjcArray::valueAt(JSGlobalObject* lexicalGlobalObject, unsigned int ind
     if (index > [_array count])
         return throwException(lexicalGlobalObject, scope, createRangeError(lexicalGlobalObject, "Index exceeds array size."_s));
     @try {
-        id obj = [_array objectAtIndex:index];
+        id obj = [(NSArray *)_array objectAtIndex:index];
         if (obj)
             return convertObjcValueToValue (lexicalGlobalObject, &obj, ObjcObjectType, m_rootObject.get());
     } @catch(NSException* localException) {

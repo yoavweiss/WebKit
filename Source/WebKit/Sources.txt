@@ -161,10 +161,10 @@ NetworkProcess/ServiceWorker/ServiceWorkerDownloadTask.cpp @cost:4
 NetworkProcess/ServiceWorker/ServiceWorkerFetchTask.cpp @cost:5
 NetworkProcess/ServiceWorker/ServiceWorkerNavigationPreloader.cpp @cost:3
 NetworkProcess/ServiceWorker/ServiceWorkerSoftUpdateLoader.cpp @cost:3
-NetworkProcess/ServiceWorker/WebSWOriginStore.cpp @no-unify
+NetworkProcess/ServiceWorker/WebSWOriginStore.cpp @no-unify-when(bundle<=8)
 NetworkProcess/ServiceWorker/WebSWRegistrationStore.cpp
-NetworkProcess/ServiceWorker/WebSWServerConnection.cpp @no-unify
-NetworkProcess/ServiceWorker/WebSWServerToContextConnection.cpp @no-unify
+NetworkProcess/ServiceWorker/WebSWServerConnection.cpp @no-unify-when(bundle<=8) @cost:11
+NetworkProcess/ServiceWorker/WebSWServerToContextConnection.cpp @no-unify-when(bundle<=8) @cost:6
 
 NetworkProcess/SharedWorker/WebSharedWorker.cpp
 NetworkProcess/SharedWorker/WebSharedWorkerServer.cpp @cost:3
@@ -588,18 +588,17 @@ UIProcess/Authentication/AuthenticationDecisionListener.cpp
 UIProcess/Authentication/WebCredential.cpp
 UIProcess/Authentication/WebProtectionSpace.cpp
 
-// FIXME(206266): AutomationProtocolObjects.h's "namespace Protocol" conflicts with objc/runtime.h's "typedef struct objc_object Protocol"
-UIProcess/Automation/BidiBrowserAgent.cpp @no-unify
-UIProcess/Automation/BidiBrowsingContextAgent.cpp @no-unify
-UIProcess/Automation/BidiPermissionsAgent.cpp @no-unify
-UIProcess/Automation/BidiScriptAgent.cpp @no-unify
-UIProcess/Automation/BidiSessionAgent.cpp @no-unify
-UIProcess/Automation/BidiStorageAgent.cpp @no-unify
-UIProcess/Automation/BidiUserContext.cpp @no-unify
-UIProcess/Automation/InspectorPassthroughChannel.cpp @no-unify
-UIProcess/Automation/SimulatedInputDispatcher.cpp @no-unify
-UIProcess/Automation/WebAutomationSession.cpp @no-unify
-UIProcess/Automation/WebDriverBidiProcessor.cpp @no-unify
+UIProcess/Automation/BidiBrowserAgent.cpp @no-unify-when(bundle<=8)
+UIProcess/Automation/BidiBrowsingContextAgent.cpp @no-unify-when(bundle<=8)
+UIProcess/Automation/BidiPermissionsAgent.cpp @no-unify-when(bundle<=8)
+UIProcess/Automation/BidiScriptAgent.cpp @no-unify-when(bundle<=8)
+UIProcess/Automation/BidiSessionAgent.cpp @no-unify-when(bundle<=8)
+UIProcess/Automation/BidiStorageAgent.cpp @no-unify-when(bundle<=8)
+UIProcess/Automation/BidiUserContext.cpp @no-unify-when(bundle<=8)
+UIProcess/Automation/InspectorPassthroughChannel.cpp @no-unify-when(bundle<=8)
+UIProcess/Automation/SimulatedInputDispatcher.cpp @no-unify-when(bundle<=8)
+UIProcess/Automation/WebAutomationSession.cpp @no-unify-when(bundle<=8) @cost:8
+UIProcess/Automation/WebDriverBidiProcessor.cpp @no-unify-when(bundle<=8)
 
 UIProcess/Downloads/DownloadProxy.cpp
 UIProcess/Downloads/DownloadProxyMap.cpp
@@ -620,8 +619,7 @@ UIProcess/Extensions/API/WebExtensionContextAPIStorage.cpp @cost:3
 UIProcess/Gamepad/UIGamepad.cpp
 UIProcess/Gamepad/UIGamepadProvider.cpp
 
-// TODO: This file should be "unified" once GTK's PluginProcess2 is removed.
-UIProcess/Launcher/ProcessLauncher.cpp @no-unify
+UIProcess/Launcher/ProcessLauncher.cpp @no-unify-when(bundle<=8)
 
 UIProcess/Network/NetworkProcessProxy.cpp @cost:7
 
@@ -688,8 +686,7 @@ WebProcess/WebProcess.cpp @cost:11
 WebProcess/WebSleepDisablerClient.cpp
 WebProcess/WebSystemSoundDelegate.cpp
 
-// FIXME(206266): AutomationProtocolObjects.h's "namespace Protocol" conflicts with objc/runtime.h's "typedef struct objc_object Protocol"
-WebProcess/Automation/WebAutomationSessionProxy.cpp @no-unify
+WebProcess/Automation/WebAutomationSessionProxy.cpp @no-unify-when(bundle<=8) @cost:4
 WebProcess/Automation/WebAutomationDOMWindowObserver.cpp
 
 WebProcess/Cache/WebCacheStorageConnection.cpp @cost:3
@@ -742,8 +739,8 @@ WebProcess/InjectedBundle/API/c/WKBundleRangeHandle.cpp
 WebProcess/InjectedBundle/API/c/WKBundleScriptWorld.cpp
 
 WebProcess/InjectedBundle/DOM/InjectedBundleCSSStyleDeclarationHandle.cpp
-WebProcess/InjectedBundle/DOM/InjectedBundleNodeHandle.cpp @no-unify
-WebProcess/InjectedBundle/DOM/InjectedBundleRangeHandle.cpp @no-unify
+WebProcess/InjectedBundle/DOM/InjectedBundleNodeHandle.cpp @no-unify-when(bundle<=8)
+WebProcess/InjectedBundle/DOM/InjectedBundleRangeHandle.cpp @no-unify-when(bundle<=8)
 
 WebProcess/Inspector/RemoteWebInspectorUI.cpp
 WebProcess/Inspector/UIProcessForwardingFrontendChannel.cpp
@@ -839,7 +836,7 @@ WebProcess/GPU/media/RemoteLegacyCDMFactory.cpp
 WebProcess/GPU/media/RemoteLegacyCDMSession.cpp @cost:3
 WebProcess/GPU/media/RemoteMediaEngineConfigurationFactory.cpp
 WebProcess/GPU/media/RemoteMediaPlayerManager.cpp
-WebProcess/GPU/media/RemoteMediaPlayerMIMETypeCache.cpp @no-unify
+WebProcess/GPU/media/RemoteMediaPlayerMIMETypeCache.cpp @no-unify-when(bundle<=8)
 WebProcess/GPU/media/RemoteMediaResourceLoaderProxy.cpp
 WebProcess/GPU/media/RemoteMediaResourceProxy.cpp
 WebProcess/GPU/media/RemoteVideoFrameProxy.cpp @cost:3
@@ -858,7 +855,7 @@ WebProcess/Network/NetworkProcessConnection.cpp @cost:4
 WebProcess/Network/WebLoaderStrategy.cpp @cost:4
 WebProcess/Network/WebResourceInterceptController.cpp
 WebProcess/Network/WebResourceLoader.cpp
-WebProcess/Network/WebSocketChannel.cpp @no-unify
+WebProcess/Network/WebSocketChannel.cpp @no-unify-when(bundle<=8)
 WebProcess/Network/WebSocketChannelManager.cpp
 WebProcess/Network/WebSocketProvider.cpp
 WebProcess/Network/WebTransportSession.cpp @cost:4

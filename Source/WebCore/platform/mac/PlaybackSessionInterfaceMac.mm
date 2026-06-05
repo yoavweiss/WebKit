@@ -41,7 +41,10 @@
 
 #import <pal/cf/CoreMediaSoftLink.h>
 
+#if !defined(WebCore_AVKitLibrary_SoftLinked)
+#define WebCore_AVKitLibrary_SoftLinked
 SOFTLINK_AVKIT_FRAMEWORK()
+#endif
 SOFT_LINK_CLASS_OPTIONAL(AVKit, AVValueTiming)
 
 namespace WebCore {
