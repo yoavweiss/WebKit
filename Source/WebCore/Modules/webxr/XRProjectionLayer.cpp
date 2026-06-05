@@ -135,16 +135,42 @@ PlatformXR::DeviceLayer XRProjectionLayer::endFrame()
 
 uint32_t XRProjectionLayer::textureWidth() const
 {
+#if ENABLE(WEBGPU) && PLATFORM(COCOA)
+    if (m_layerData && m_layerData->layerSetup)
+        return m_layerData->layerSetup->actualSize[0][0];
+    if (RefPtr currentSession = session()) {
+        if (auto initial = currentSession->initialRenderingDimensions())
+            return initial->width;
+    }
+#endif
     return m_backing->colorTextureWidth();
 }
 
 uint32_t XRProjectionLayer::textureHeight() const
 {
+#if ENABLE(WEBGPU) && PLATFORM(COCOA)
+    if (m_layerData && m_layerData->layerSetup)
+        return m_layerData->layerSetup->actualSize[0][1];
+    if (RefPtr currentSession = session()) {
+        if (auto initial = currentSession->initialRenderingDimensions())
+            return initial->height;
+    }
+#endif
     return m_backing->colorTextureHeight();
 }
 
 uint32_t XRProjectionLayer::textureArrayLength() const
 {
+#if ENABLE(WEBGPU) && PLATFORM(COCOA)
+    if (m_layerData && m_layerData->layerSetup) {
+        auto& setupData = *m_layerData->layerSetup;
+        return (setupData.physicalSize[1][0] && setupData.physicalSize[1][1]) ? 2 : 1;
+    }
+    if (RefPtr currentSession = session()) {
+        if (auto initial = currentSession->initialRenderingDimensions())
+            return initial->arrayLength;
+    }
+#endif
 #if PLATFORM(IOS_FAMILY_SIMULATOR)
     ASSERT(m_backing->colorTextureArrayLength() == 1);
 #endif

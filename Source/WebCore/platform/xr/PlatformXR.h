@@ -633,6 +633,7 @@ public:
     virtual void sessionDidInitializeInputSources(Vector<FrameData::InputSource>&&) = 0;
     virtual void sessionDidEnd() = 0;
     virtual void updateSessionVisibilityState(VisibilityState) = 0;
+    virtual void sessionDidInitializeRendering(uint32_t /* width */, uint32_t /* height */, uint32_t /* arrayLength */) { }
     // FIXME: handle frame update
 };
 

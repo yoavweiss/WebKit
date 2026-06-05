@@ -536,6 +536,11 @@ void WebXRSession::updateSessionVisibilityState(PlatformXR::VisibilityState visi
     queueTaskToDispatchEvent(*this, TaskSource::WebXR, WTF::move(event));
 }
 
+void WebXRSession::sessionDidInitializeRendering(uint32_t width, uint32_t height, uint32_t arrayLength)
+{
+    m_initialRenderingDimensions = InitialRenderingDimensions { width, height, arrayLength };
+}
+
 void WebXRSession::applyPendingRenderState()
 {
     // https: //immersive-web.github.io/webxr/#apply-the-pending-render-state

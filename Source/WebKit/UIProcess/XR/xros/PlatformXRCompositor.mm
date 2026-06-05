@@ -767,6 +767,26 @@ void CompositorCoordinator::didCompleteSessionSetup(WebPageProxy& page, WebCore:
 
     setUpDepthTextures();
 
+    if (m_sessionEventClient) {
+        uint32_t initialWidth = 0;
+        uint32_t initialHeight = 0;
+        uint32_t initialArrayLength = 0;
+        if (id swapchainObject = (__bridge id)cp_layer_renderer_get_swapchain(m_cpLayer.get()); [swapchainObject isKindOfClass:getCP_OBJECT_cp_swapchainClassSingleton()]) {
+            CP_OBJECT_cp_swapchain *swapchain = (CP_OBJECT_cp_swapchain *)swapchainObject;
+            for (cp_swapchain_link_t swapchainLink in swapchain.swapchainLinks) {
+                id<MTLTexture> referenceTexture = swapchainLink.depthTextures.firstObject;
+                if (!referenceTexture)
+                    continue;
+                initialWidth = static_cast<uint32_t>(referenceTexture.width);
+                initialHeight = static_cast<uint32_t>(referenceTexture.height);
+                initialArrayLength = static_cast<uint32_t>(referenceTexture.arrayLength);
+                break;
+            }
+        }
+        if (initialWidth && initialHeight && initialArrayLength)
+            m_sessionEventClient->sessionDidInitializeRendering(m_headsetIdentifier.value(), initialWidth, initialHeight, initialArrayLength);
+    }
+
     BOOL handTrackingEnabled = NO;
 #if ENABLE(WEBXR_HANDS) && !PLATFORM(IOS_FAMILY_SIMULATOR)
     if (requestedFeatures.contains(PlatformXR::SessionFeature::HandTracking) && m_lastSecurityOriginGrantedHandTracking && securityOriginData == m_lastSecurityOriginGrantedHandTracking.value())
