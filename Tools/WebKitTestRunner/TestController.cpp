@@ -2040,15 +2040,14 @@ TestOptions TestController::testOptionsForTest(const TestCommand& command) const
     return TestOptions { features };
 }
 
-// Mirror WebProcessPool::createWebPage, which unconditionally enables this under Site
+// Mirror WebProcessPool::createWebPage, which unconditionally enables these under Site
 // Isolation. Merged last so it matches that override and survives WebKitTestRunner's
-// per-test preference reset; a test cannot run Site Isolation with it off, as in production.
-// FIXME: Also couple UseUIProcessForBackForwardItemLoading; it currently surfaces a
-// nested-frame form-state restoration failure.
+// per-test preference reset; a test cannot run Site Isolation with them off, as in production.
 TestFeatures TestController::featuresImpliedBySiteIsolation() const
 {
     TestFeatures implied;
     implied.boolWebPreferenceFeatures.insert_or_assign("MultiProcessBackForwardCacheEnabled", true);
+    implied.boolWebPreferenceFeatures.insert_or_assign("UseUIProcessForBackForwardItemLoading", true);
     return implied;
 }
 

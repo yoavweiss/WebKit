@@ -1248,12 +1248,15 @@ void WebLocalFrameLoaderClient::dispatchDecidePolicyForBackForwardNavigationActi
                 return;
             }
 
-            // The async wait is over — UIProcess has resolved the HistoryItem
-            // and the actual loading begins via normal DocumentLoader mechanisms.
-            // Clear the async state so that frame completion tracking behaves
-            // identically to the non-flag path.
-            if (localFrame->loader().shouldProceedWithAsyncBackForwardNavigation())
-                localFrame->loader().loadRequestedHistoryItem(loadType, PolicyAlreadyDecided::Yes);
+            if (localFrame->loader().asyncBackForwardNavigationWasCancelled()) {
+                localFrame->loader().clearAsyncBackForwardNavigationState();
+                return;
+            }
+
+            // Keep the async-wait state set across the load: the freshly created child still
+            // reports isComplete() until its document begins, so clearing it here would let the
+            // parent fire its load event early. didBeginDocument() clears it once loading starts.
+            localFrame->loader().loadRequestedHistoryItem(loadType, PolicyAlreadyDecided::Yes);
         }
     );
 }

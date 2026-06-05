@@ -3023,6 +3023,10 @@ void FrameLoader::checkLoadCompleteForThisFrame(LoadWillContinueInAnotherProcess
         if (!provisionalDocumentLoader->isLoadingInAPISense() || provisionalDocumentLoader->isStopping()) {
             FRAMELOADER_RELEASE_LOG(ResourceLoading, "checkLoadCompleteForThisFrame: Failed provisional load (isTimeout = %d, isCancellation = %d, errorCode = %d, httpsFirstApplicable = %d)", error.isTimeout(), error.isCancellation(), error.errorCode(), isHTTPSFirstApplicable);
 
+            // Provisional load failed before didBeginDocument() could clear the async-wait state;
+            // clear it here so this frame stops blocking its parent's completion.
+            clearAsyncBackForwardNavigationState();
+
             if (loadWillContinueInAnotherProcess == LoadWillContinueInAnotherProcess::No) {
                 auto willInternallyHandleFailure = (error.errorRecoveryMethod() == ResourceError::ErrorRecoveryMethod::NoRecovery || (error.errorRecoveryMethod() == ResourceError::ErrorRecoveryMethod::HTTPFallback && (!isHTTPSFirstApplicable || isHTTPFallbackInProgressOrUpgradeDisabled()))) ? WillInternallyHandleFailure::No : WillInternallyHandleFailure::Yes;
 
@@ -4777,12 +4781,6 @@ void FrameLoader::cancelPendingAsyncBackForwardNavigation()
     Ref frame = m_frame.get();
     if (RefPtr parentFrame = dynamicDowncast<LocalFrame>(frame->tree().parent()))
         parentFrame->loader().checkCompleted();
-}
-
-bool FrameLoader::shouldProceedWithAsyncBackForwardNavigation()
-{
-    auto state = std::exchange(m_asyncBackForwardNavigationState, AsyncBackForwardNavigationState::None);
-    return state != AsyncBackForwardNavigationState::Cancelled;
 }
 
 void FrameLoader::loadRequestedHistoryItem(FrameLoadType loadType, PolicyAlreadyDecided policyAlreadyDecided)

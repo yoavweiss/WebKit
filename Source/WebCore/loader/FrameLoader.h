@@ -364,7 +364,8 @@ public:
 
     WEBCORE_EXPORT void NODELETE setPendingAsyncBackForwardNavigation();
     WEBCORE_EXPORT void cancelPendingAsyncBackForwardNavigation();
-    WEBCORE_EXPORT bool NODELETE shouldProceedWithAsyncBackForwardNavigation();
+    bool asyncBackForwardNavigationWasCancelled() const { return m_asyncBackForwardNavigationState == AsyncBackForwardNavigationState::Cancelled; }
+    void clearAsyncBackForwardNavigationState() { m_asyncBackForwardNavigationState = AsyncBackForwardNavigationState::None; }
     bool isWaitingForAsyncBackForwardNavigation() const { return m_asyncBackForwardNavigationState != AsyncBackForwardNavigationState::None; }
 
     void setRequiredCookiesVersion(uint64_t version) { m_requiredCookiesVersion = version; }

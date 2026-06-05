@@ -2661,7 +2661,9 @@ void WebPage::goToBackForwardItem(GoToBackForwardItemParameters&& parameters)
         targetFrame = historyItemFrame.releaseNonNull();
 
     if (RefPtr targetLocalFrame = targetFrame->provisionalFrame() ? targetFrame->provisionalFrame() : targetFrame->coreLocalFrame()) {
-        if (!targetLocalFrame->loader().shouldProceedWithAsyncBackForwardNavigation()) {
+        bool wasCancelled = targetLocalFrame->loader().asyncBackForwardNavigationWasCancelled();
+        targetLocalFrame->loader().clearAsyncBackForwardNavigationState();
+        if (wasCancelled) {
             WEBPAGE_RELEASE_LOG(Loading, "goToBackForwardItem: Skipping because pending async back/forward traversal was cancelled");
             return;
         }
