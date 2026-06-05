@@ -90,6 +90,26 @@ void SkiaBackingStore::paintToCanvas(SkCanvas& canvas, const SkPaint& paint)
     }
 }
 
+Vector<SkCanvas::ImageSetEntry> SkiaBackingStore::buildImageSet(size_t matrixIndex, float opacity, bool enableAntialias) const
+{
+    if (m_tiles.isEmpty())
+        return { };
+
+    FloatRect layerRect = { { }, m_size };
+
+    Vector<SkCanvas::ImageSetEntry> images;
+    for (auto& tile : m_tiles.values()) {
+        const auto& image = tile.image();
+        if (!image)
+            continue;
+
+        // FIXME: implement per edge antialiasing.
+        unsigned aaFlags = enableAntialias && allTileEdgesExposed(layerRect, tile.rect()) ? SkCanvas::kAll_QuadAAFlags : SkCanvas::kNone_QuadAAFlags;
+        images.append(SkCanvas::ImageSetEntry(image, SkRect::MakeWH(image->width(), image->height()), SkRect(tile.rect()), matrixIndex, opacity, aaFlags, false));
+    }
+    return images;
+}
+
 void SkiaBackingStore::drawDebugBorders(SkCanvas& canvas, const SkPaint& paint)
 {
     for (const auto& tile : m_tiles.values())
@@ -160,7 +180,7 @@ void SkiaBackingStore::Tile::update(const IntRect& dirtyRect, const IntRect& til
     WTFEndSignpost(this, SkiaBackingStoreTileUpdate);
 }
 
-sk_sp<SkImage> SkiaBackingStore::Tile::image()
+sk_sp<SkImage> SkiaBackingStore::Tile::image() const
 {
     if (!m_cachedImage && m_texture) {
         auto* grContext = PlatformDisplay::sharedDisplay().skiaGrContext();

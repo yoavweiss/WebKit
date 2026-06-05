@@ -34,6 +34,7 @@
 #include "FloatPoint3D.h"
 #include "FloatRect.h"
 #include "FloatRoundedRect.h"
+#include "SkiaCompositingLayerImageSetBatch.h"
 #include "SkiaCompositingLayerOverlapRegions.h"
 #include "TextureMapperAnimation.h"
 #include "TransformationMatrix.h"
@@ -112,6 +113,8 @@ public:
     bool hasDebugIndicators() const { return m_debugBorder.has_value() || m_repaintCount.has_value(); }
 
 private:
+    using ScopedFlush = SkiaCompositingLayerImageSetBatch::ScopedFlush;
+
     SkiaCompositingLayer() = default;
 
     void removeFromParent();
@@ -142,6 +145,7 @@ private:
         RefPtr<SkiaCompositingLayer> paintingBackdropForLayer;
         bool skipAfterBackdrop { false };
         std::optional<Damage>& frameDamage;
+        SkiaCompositingLayerImageSetBatch imageSetBatch;
     };
 
     struct Filter {
@@ -160,7 +164,7 @@ private:
     void paintContents(SkCanvas&, PaintContext&);
     void paintDebugIndicators(SkCanvas&, PaintContext&);
 #if ENABLE(DAMAGE_TRACKING)
-    void collectFrameDamage(SkCanvas&, PaintContext&, const TransformationMatrix&);
+    void collectFrameDamage(SkCanvas&, PaintContext&);
 #endif
     void paintSelfAndChildren(SkCanvas&, PaintContext&);
     void paintWithIntermediateSurface(SkCanvas&, PaintContext&, const IntRect&, SkPaint*, PaintFunction&&);

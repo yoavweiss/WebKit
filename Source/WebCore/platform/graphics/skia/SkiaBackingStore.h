@@ -29,6 +29,7 @@
 #include "CoordinatedBackingStoreProxy.h"
 #include "FloatRect.h"
 WTF_IGNORE_WARNINGS_IN_THIRD_PARTY_CODE_BEGIN
+#include <skia/core/SkCanvas.h>
 #include <skia/core/SkSurface.h>
 WTF_IGNORE_WARNINGS_IN_THIRD_PARTY_CODE_END
 #include <wtf/HashMap.h>
@@ -47,6 +48,7 @@ public:
 
     void update(const FloatSize&, float scale, CoordinatedBackingStoreProxy::Update&&);
     void paintToCanvas(SkCanvas&, const SkPaint&);
+    Vector<SkCanvas::ImageSetEntry> buildImageSet(size_t matrixIndex, float opacity, bool enableAntialias) const;
     void drawDebugBorders(SkCanvas&, const SkPaint&);
 
 private:
@@ -62,7 +64,7 @@ private:
 
         void update(const IntRect& dirtyRect, const IntRect& tileRect, CoordinatedTileBuffer&);
         const FloatRect& rect() const LIFETIME_BOUND { return m_rect; }
-        sk_sp<SkImage> image();
+        sk_sp<SkImage> image() const;
 
     private:
         void ensureTexture(const IntSize&, CoordinatedTileBuffer&);
@@ -70,7 +72,7 @@ private:
         float m_scale { 1. };
         FloatRect m_rect;
         RefPtr<BitmapTexture> m_texture;
-        sk_sp<SkImage> m_cachedImage;
+        mutable sk_sp<SkImage> m_cachedImage;
     };
 
     HashMap<uint32_t, Tile> m_tiles;

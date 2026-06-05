@@ -427,6 +427,7 @@ bool SkiaCompositingLayer::paint(SkCanvas& canvas, std::optional<Damage>& damage
 
     context.mode = PaintMode::Paint;
     recursivePaint(canvas, context);
+    context.imageSetBatch.flushIfNeeded(canvas);
 
     recursiveCleanUpAfterPaint();
 
@@ -464,45 +465,70 @@ void SkiaCompositingLayer::paintSelf(SkCanvas& canvas, PaintContext& context)
     if (m_size.isEmpty() || !m_visible || !m_contentsVisible || !hasVisualContent())
         return;
 
-    TransformationMatrix transform(context.accumulatedReplicaTransform);
-    transform.multiply(m_transforms.combined);
-
-    canvas.save();
-    canvas.concat(SkM44(transform));
-
     if (context.mode == PaintMode::Paint) {
         paintContents(canvas, context);
 #if ENABLE(DAMAGE_TRACKING)
-        collectFrameDamage(canvas, context, transform);
+        collectFrameDamage(canvas, context);
 #endif
     }
-
-    canvas.restore();
 }
 
 void SkiaCompositingLayer::paintContents(SkCanvas& canvas, PaintContext& context)
 {
-    SkPaint paint;
-    paint.setStyle(SkPaint::kFill_Style);
-    auto ctm = canvas.getLocalToDeviceAs3x3();
-    paint.setAntiAlias(!ctm.preservesAxisAlignment() && !ctm.preservesRightAngles());
-    paint.setAlphaf(context.opacity);
-    if (context.blendMode)
-        paint.setBlendMode(*context.blendMode);
-    if (context.colorFilter)
-        paint.setColorFilter(context.colorFilter);
+    TransformationMatrix transform(context.accumulatedReplicaTransform);
+    transform.multiply(m_transforms.combined);
+
+    auto ctm = SkM44(transform).asM33();
+    bool enableAntialias = !ctm.preservesAxisAlignment() && !ctm.preservesRightAngles();
+
+    context.imageSetBatch.updatePaintProperties(canvas, context.colorFilter, context.blendMode);
+
+    auto setupPaint = [&] -> SkPaint {
+        SkPaint paint;
+        paint.setStyle(SkPaint::kFill_Style);
+        paint.setAntiAlias(enableAntialias);
+        paint.setAlphaf(context.opacity);
+        if (context.blendMode)
+            paint.setBlendMode(*context.blendMode);
+        if (context.colorFilter)
+            paint.setColorFilter(context.colorFilter);
+        return paint;
+    };
 
     if (m_backingStore)
-        m_backingStore->paintToCanvas(canvas, paint);
+        context.imageSetBatch.addImageSet(canvas, *m_backingStore, ctm, context.opacity, enableAntialias);
 
     if (m_contentsSolidColor.isValid() && m_contentsSolidColor.isVisible()) {
+        ScopedFlush autoFlush(canvas, context.imageSetBatch, ScopedFlush::Mode::FlushBefore);
+        canvas.concat(SkM44(transform));
+        SkPaint paint = setupPaint();
         paint.setColor(SkColor(m_contentsSolidColor.colorWithAlphaMultipliedBy(context.opacity)));
         canvas.drawRect(m_contentsRect, paint);
     } else if (m_contentsBuffer || m_imageBackingStore) {
-        bool shouldClipContents = m_contentsClippingRect.isRounded() || !m_contentsClippingRect.rect().contains(m_contentsRect);
-        SkAutoCanvasRestore autoRestore(&canvas, shouldClipContents);
-        if (shouldClipContents)
-            clipRect(canvas, m_contentsClippingRect);
+        bool shouldPaintNow = [&] {
+            if (m_contentsClippingRect.isRounded())
+                return true;
+
+            if (!m_contentsBuffer && !m_contentsTiling.size.isEmpty())
+                return true;
+
+            if (is<CoordinatedPlatformLayerBufferHolePunch>(m_contentsBuffer))
+                return true;
+
+            // FIXME: clip is not correctly applied with batched painting.
+            if (!m_contentsClippingRect.rect().contains(m_contentsRect))
+                return true;
+
+            return false;
+        }();
+
+        ScopedFlush autoFlush(canvas, context.imageSetBatch, shouldPaintNow ? ScopedFlush::Mode::FlushBefore : ScopedFlush::Mode::DoNothing);
+        if (shouldPaintNow) {
+            canvas.concat(SkM44(transform));
+
+            if (m_contentsClippingRect.isRounded() || !m_contentsClippingRect.rect().contains(m_contentsRect))
+                clipRect(canvas, m_contentsClippingRect);
+        }
 
         sk_sp<SkImage> image;
 
@@ -512,6 +538,7 @@ void SkiaCompositingLayer::paintContents(SkCanvas& canvas, PaintContext& context
                 TransformationMatrix matrix = canvas.getLocalToDevice();
                 downcast<CoordinatedPlatformLayerBufferHolePunch>(*m_contentsBuffer).setHolePunchVideoRectangle(enclosingIntRect(matrix.mapRect(m_contentsRect)));
 #endif
+                SkPaint paint = setupPaint();
                 paint.setBlendMode(SkBlendMode::kClear);
                 canvas.drawRect(SkRect(m_contentsRect), paint);
             } else
@@ -523,24 +550,35 @@ void SkiaCompositingLayer::paintContents(SkCanvas& canvas, PaintContext& context
                 SkMatrix matrix;
                 matrix.setScale(m_contentsTiling.size.width() / tileImage->width(), m_contentsTiling.size.height() / tileImage->height());
                 matrix.postTranslate(-m_contentsTiling.phase.width(), -m_contentsTiling.phase.height());
+                SkPaint paint = setupPaint();
                 paint.setShader(tileImage->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kNone), matrix));
                 canvas.drawRect(m_contentsRect, paint);
             }
         }
 
         if (image) {
-            canvas.drawImageRect(image, SkRect::MakeSize(SkSize::Make(image->dimensions())), SkRect(m_contentsRect),
-                SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kNone), &paint, SkCanvas::kFast_SrcRectConstraint);
+            if (shouldPaintNow) {
+                SkPaint paint = setupPaint();
+                canvas.drawImageRect(image, SkRect::MakeSize(SkSize::Make(image->dimensions())), SkRect(m_contentsRect),
+                    SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kNone), &paint, SkCanvas::kFast_SrcRectConstraint);
+            } else {
+                auto clippingRect = m_contentsClippingRect.rect();
+                if (clippingRect.contains(m_contentsRect))
+                    clippingRect = { };
+                context.imageSetBatch.addImage(canvas, image, m_contentsRect, clippingRect, ctm, context.opacity, enableAntialias);
+            }
         }
     }
 }
 
 #if ENABLE(DAMAGE_TRACKING)
-void SkiaCompositingLayer::collectFrameDamage(SkCanvas& canvas, PaintContext& context, const TransformationMatrix& transform)
+void SkiaCompositingLayer::collectFrameDamage(SkCanvas& canvas, PaintContext& context)
 {
     if (!frameDamagePropagationEnabled() || !context.frameDamage)
         return;
 
+    TransformationMatrix transform(context.accumulatedReplicaTransform);
+    transform.multiply(m_transforms.combined);
     auto frameDamage = transform.mapRect(effectiveLayerRect());
     auto clipBounds = FloatRect(this->clipBounds(canvas, context));
     if (!clipBounds.isEmpty())
@@ -567,10 +605,11 @@ void SkiaCompositingLayer::paintDebugIndicators(SkCanvas& canvas, PaintContext& 
 
     TransformationMatrix transform(context.accumulatedReplicaTransform);
     transform.multiply(m_transforms.combined);
-    SkAutoCanvasRestore autoRestore(&canvas, true);
-    canvas.concat(SkM44(transform));
 
     if (m_debugBorder) {
+        SkAutoCanvasRestore autoRestore(&canvas, true);
+        canvas.concat(SkM44(transform));
+
         SkPaint borderPaint;
         borderPaint.setStyle(SkPaint::kStroke_Style);
         borderPaint.setColor(SkColor(m_debugBorder->color));
@@ -615,8 +654,7 @@ void SkiaCompositingLayer::paintDebugIndicators(SkCanvas& canvas, PaintContext& 
         m_repaintCountOverlay.baselineOffset = -textBounds.fTop + padding;
     }
 
-    SkAutoCanvasRestore overlayRestore(&canvas, true);
-    canvas.resetMatrix();
+    SkAutoCanvasRestore autoRestore(&canvas, true);
 
     SkPaint backgroundPaint;
     backgroundPaint.setColor(m_debugBorder ? SkColor(m_debugBorder->color) : SK_ColorBLACK);
@@ -677,18 +715,22 @@ void SkiaCompositingLayer::paintSelfAndChildren(SkCanvas& canvas, PaintContext& 
 
     const bool contentsRectClipsDescendants = !m_preserves3D && m_contentsRectClipsDescendants && (m_contentsClippingRect.isRounded() || !m_contentsClippingRect.rect().contains(m_contentsRect));
     const bool masksToBounds = !m_preserves3D && m_masksToBounds;
-    const bool shouldClip = masksToBounds || contentsRectClipsDescendants;
-    SkAutoCanvasRestore autoRestore(&canvas, shouldClip);
-    if (shouldClip) {
-        FloatRoundedRect rect = contentsRectClipsDescendants ? m_contentsClippingRect : FloatRoundedRect(effectiveLayerRect());
-        TransformationMatrix clipTransform(context.accumulatedReplicaTransform);
+    TransformationMatrix clipTransform;
+    FloatRoundedRect clippingRect;
+    if (masksToBounds || contentsRectClipsDescendants) {
+        clipTransform = context.accumulatedReplicaTransform;
         clipTransform.multiply(m_transforms.combined);
         if (!contentsRectClipsDescendants)
             clipTransform.translate(m_boundsOrigin.x(), m_boundsOrigin.y());
 
+        FloatRoundedRect rect = contentsRectClipsDescendants ? m_contentsClippingRect : FloatRoundedRect(effectiveLayerRect());
         if (!canSkipClip(rect, clipTransform))
-            clipRect(canvas, rect, clipTransform);
+            clippingRect = rect;
     }
+
+    ScopedFlush autoFlush(canvas, context.imageSetBatch, clippingRect.isEmpty() ? ScopedFlush::Mode::DoNothing : ScopedFlush::Mode::FlushBeforeAndAfter);
+    if (!clippingRect.isEmpty())
+        clipRect(canvas, clippingRect, clipTransform);
 
     for (auto& child : m_children)
         child->recursivePaint(canvas, context);
@@ -779,10 +821,13 @@ void SkiaCompositingLayer::paintWithIntermediateSurface(SkCanvas& canvas, PaintC
     if (!surfaceCanvas)
         return;
 
+    context.imageSetBatch.flushIfNeeded(canvas);
+
     surfaceCanvas->clear(SK_ColorTRANSPARENT);
     surfaceCanvas->translate(-surfaceRect.x(), -surfaceRect.y());
     SetForScope scopedOffset(context.offset, toIntSize(surfaceRect.location()));
     paintFunction(*surfaceCanvas, context);
+    context.imageSetBatch.flushIfNeeded(*surfaceCanvas);
     grContext->flushAndSubmit(surface.get(), GrSyncCpu::kNo);
 
     canvas.drawImageRect(surface->makeImageSnapshot(), SkRect::MakeWH(surfaceRect.width(), surfaceRect.height()), SkRect::Make(surfaceRect), SkSamplingOptions(SkFilterMode::kNearest, SkMipmapMode::kNone), paint, SkCanvas::kFast_SrcRectConstraint);
@@ -790,6 +835,8 @@ void SkiaCompositingLayer::paintWithIntermediateSurface(SkCanvas& canvas, PaintC
 
 void SkiaCompositingLayer::paintBackdrop(SkCanvas& canvas, PaintContext& context)
 {
+    context.imageSetBatch.flushIfNeeded(canvas);
+
     SkAutoCanvasRestore autoRestore(&canvas, true);
     TransformationMatrix clipTransform(context.accumulatedReplicaTransform);
     clipTransform.multiply(m_transforms.combined);
@@ -835,7 +882,8 @@ void SkiaCompositingLayer::paintWithMaskAndBackdrop(SkCanvas& canvas, PaintConte
         if (!shouldClipPath)
             maskImage = m_mask->maskImage();
     }
-    SkAutoCanvasRestore autoRestore(&canvas, shouldClipPath || maskImage);
+
+    ScopedFlush autoFlush(canvas, context.imageSetBatch, shouldClipPath || maskImage ? ScopedFlush::Mode::FlushBeforeAndAfter : ScopedFlush::Mode::DoNothing);
     if (shouldClipPath || maskImage) {
         TransformationMatrix transform(context.accumulatedReplicaTransform);
         transform.multiply(m_mask->m_transforms.combined);
@@ -1059,7 +1107,7 @@ void SkiaCompositingLayer::paintWithOpacity(SkCanvas& canvas, PaintContext& cont
     }
 
     for (const auto& rect : data.nonOverlapRegion.rects()) {
-        SkAutoCanvasRestore autoRestore(&canvas, true);
+        ScopedFlush autoFlush(canvas, context.imageSetBatch, ScopedFlush::Mode::FlushBeforeAndAfter);
         canvas.clipIRect(SkIRect::MakeLTRB(rect.x(), rect.y(), rect.maxX(), rect.maxY()));
         paintWithReplica(canvas, context);
     }
@@ -1114,7 +1162,7 @@ void SkiaCompositingLayer::paintWithBlendMode(SkCanvas& canvas, PaintContext& co
     }
 
     for (const auto& rect : data.nonOverlapRegion.rects()) {
-        SkAutoCanvasRestore autoRestore(&canvas, true);
+        ScopedFlush autoFlush(canvas, context.imageSetBatch, ScopedFlush::Mode::FlushBeforeAndAfter);
         canvas.clipIRect(SkIRect::MakeLTRB(rect.x(), rect.y(), rect.maxX(), rect.maxY()));
         paintWithFilterAndMask(canvas, context);
     }
@@ -1166,7 +1214,7 @@ void SkiaCompositingLayer::paintWith3DRenderingContext(SkCanvas& canvas, PaintCo
     collect3DRenderingContextLayers(layers);
 
     SkiaCompositingLayer3DRenderingContext::paint(layers, [&](SkiaCompositingLayer& layer, std::optional<SkPath> clipPath) {
-        SkAutoCanvasRestore autoRestore(&canvas, clipPath.has_value());
+        ScopedFlush autoFlush(canvas, context.imageSetBatch, clipPath ? ScopedFlush::Mode::FlushBeforeAndAfter : ScopedFlush::Mode::DoNothing);
         if (clipPath)
             canvas.clipPath(*clipPath);
 
