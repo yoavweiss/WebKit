@@ -366,6 +366,19 @@ static void expandRootBoundsWithRootMargin(FloatRect& rootBounds, const Intersec
     rootBounds.expand(rootMarginEdges);
 }
 
+// Given a rectangle in the coordinate space of rendererOrFrame, compute the visible
+// rectangle in the content coordinate space of the root's (main frame) RenderView.
+// This is done by computing the visible rectangle in the nearest frame, then its
+// parent frame, ... up to the main frame.
+//
+// If rendererOrFrame is a:
+// * Renderer: rect is in the coordinate space of the renderer.
+// * Frame: rect is in the coordinate space of the frame's owner renderer.
+//   This is only used in Site Isolation mode, when the frame is out-of-process
+//   and its owner renderer is not available.
+//
+// targetSecurityOrigin is the security origin of the target (the element that
+// originates the very first rect)
 static std::optional<LayoutRect> computeClippedRectInRootContentsSpace(const LayoutRect& rect, const SecurityOrigin& targetSecurityOrigin, Variant<const RenderElement*, const Frame*> rendererOrFrame, std::optional<IntersectionObserverMarginBox> scrollMargin)
 {
     RefPtr rendererOrFrameSecurityOrigin = WTF::visit(WTF::makeVisitor(
@@ -395,6 +408,11 @@ static std::optional<LayoutRect> computeClippedRectInRootContentsSpace(const Lay
     if (!enclosingFrame)
         return std::nullopt;
 
+    RefPtr<const FrameView> enclosingFrameView = enclosingFrame->virtualView();
+    ASSERT(enclosingFrameView);
+    if (!enclosingFrameView)
+        return std::nullopt;
+
     auto absoluteClippedRect = WTF::visit(WTF::makeVisitor(
         [&] (const RenderElement* renderer) {
             auto visibleRects = renderer->computeVisibleRectsInContainer(
@@ -416,15 +434,21 @@ static std::optional<LayoutRect> computeClippedRectInRootContentsSpace(const Lay
             return visibleRects.transform([] (auto&& repaintRects) { return repaintRects.clippedOverflowRect; } );
         },
         [&] (const Frame* frame) -> std::optional<LayoutRect> {
-            auto visibleRectInParentFrame = enclosingFrame->virtualView()->visibleRectOfChild(*frame);
+            // This rect is in coordinate space of parent frame. It doesn't account for
+            // scroll margin, which is fine as this codepath is only reached when Site
+            // Isolation is enabled, and the frame is cross-origin. Scroll margin doesn't
+            // get applied to cross-origin frames.
+            auto visibleRectInParentFrame = enclosingFrameView->visibleRectOfChild(*frame);
             if (!visibleRectInParentFrame)
                 return std::nullopt;
 
-            auto clippedRect = rect;
-            if (!clippedRect.edgeInclusiveIntersect(*visibleRectInParentFrame))
+            // rect is in coordinate space of the frame's owner renderer,
+            // it needs to be converted to parent frame's coordinate space first before intersecting.
+            auto absoluteRect = LayoutRect { enclosingFrameView->childFrameOwnerToRootContentTransform(*frame).mapRect(rect) };
+            if (!absoluteRect.edgeInclusiveIntersect(*visibleRectInParentFrame))
                 return std::nullopt;
 
-            return std::make_optional(clippedRect);
+            return std::make_optional(absoluteRect);
     }), rendererOrFrame);
 
     if (!absoluteClippedRect)
@@ -437,10 +461,7 @@ static std::optional<LayoutRect> computeClippedRectInRootContentsSpace(const Lay
     // The computed visible rect is in the coordinate space of enclosingFrame.
     // But only the iframe's viewport is visible, so clip by the iframe's viewport.
 
-    // Compute the frame's viewport (this is in the coordinate space of the document content box)
-    RefPtr<const FrameView> enclosingFrameView = enclosingFrame->virtualView();
-    ASSERT(enclosingFrameView);
-
+    // Compute the frame's viewport (this is in the coordinate space of enclosingFrame too.)
     auto frameRect = enclosingFrameView->layoutViewportRect();
     if (scrollMargin) {
         auto scrollMarginEdges = LayoutBoxExtent {

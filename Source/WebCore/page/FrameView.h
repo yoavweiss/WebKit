@@ -136,6 +136,11 @@ public:
     // from its border box. This can be non-zero due to padding or border.
     virtual LayoutPoint childFrameOwnerContentBoxLocation(const Frame&) const = 0;
 
+    // Return the transformation matrix to convert a point/rect from the coordinate
+    // system of the child's frame owner to this FrameView's RenderView. Note this
+    // does not correspond to the absolute coordinate of this FrameView, as it doesn't
+    // include the page scale transform on the RenderView (if page is scaled).
+    virtual TransformationMatrix childFrameOwnerToRootContentTransform(const Frame&) const = 0;
 private:
     ScrollableArea* enclosingScrollableArea() const final;
 

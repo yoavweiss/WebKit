@@ -471,6 +471,8 @@ inspector/unit-tests/target-manager.html [ Skip ]
 
 # Intersection Observer x Site Isolation is not fully implemented.
 imported/w3c/web-platform-tests/intersection-observer/cross-origin-tall-iframe.sub.html [ Failure ]
+imported/w3c/web-platform-tests/intersection-observer/transformed-iframe-001-cross-origin.html [ Failure ]
+imported/w3c/web-platform-tests/intersection-observer/transformed-iframe-002-cross-origin.html [ Failure ]
 
 # Inspector protocol commands (e.g. CSS.getMatchedStylesForNode) return
 # "Not yet implemented for frame targets" under site isolation.

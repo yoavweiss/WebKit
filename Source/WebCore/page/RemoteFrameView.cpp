@@ -95,6 +95,14 @@ LayoutPoint RemoteFrameView::childFrameOwnerContentBoxLocation(const Frame& chil
     return { };
 }
 
+TransformationMatrix RemoteFrameView::childFrameOwnerToRootContentTransform(const Frame& child) const
+{
+    if (RefPtr info = m_frame->frameTreeSyncData().childrenFrameLayoutInfo.get(child.frameID()))
+        return info->childFrameOwnerToRootContentTransform();
+
+    return { };
+}
+
 // FIXME: Implement all the stubs below.
 
 bool RemoteFrameView::isScrollableOrRubberbandable()

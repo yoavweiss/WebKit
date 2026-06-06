@@ -26,6 +26,7 @@
 #pragma once
 
 #include <WebCore/LayoutRect.h>
+#include <WebCore/TransformationMatrix.h>
 #include <wtf/RefCounted.h>
 #include <wtf/TZoneMalloc.h>
 
@@ -47,19 +48,26 @@ class RemoteFrameLayoutInfo : public RefCounted<RemoteFrameLayoutInfo> {
     WTF_MAKE_TZONE_ALLOCATED_EXPORT(RemoteFrameLayoutInfo, WEBCORE_EXPORT);
 
 public:
-    WEBCORE_EXPORT static Ref<RemoteFrameLayoutInfo> create(std::optional<LayoutRect>, float, LayoutPoint, OptionSet<FrameOwnerElementAppearance>);
+    WEBCORE_EXPORT static Ref<RemoteFrameLayoutInfo> create(std::optional<LayoutRect>, TransformationMatrix, float, LayoutPoint, OptionSet<FrameOwnerElementAppearance>);
 
     std::optional<LayoutRect> visibleRectInParent() const { return m_visibleRectInParent; }
+    const TransformationMatrix& childFrameOwnerToRootContentTransform() const { return m_childFrameOwnerToRootContentTransform; }
     float usedZoom() const { return m_usedZoom; }
     LayoutPoint contentBoxLocation() const { return m_contentBoxLocation; }
     OptionSet<FrameOwnerElementAppearance> ownerElementAppearance() const { return m_ownerElementAppearance; }
 
 private:
-    RemoteFrameLayoutInfo(std::optional<LayoutRect>, float, LayoutPoint, OptionSet<FrameOwnerElementAppearance>);
+    RemoteFrameLayoutInfo(std::optional<LayoutRect>, TransformationMatrix, float, LayoutPoint, OptionSet<FrameOwnerElementAppearance>);
 
     // Rectangle of the visible portion of the frame in its parent frame,
     // in the coordinate space of the document of the parent frame.
     std::optional<LayoutRect> m_visibleRectInParent;
+
+    // The transformation matrix to project from the frame owner's
+    // coordinate space to its RenderView's (root) coordinate space.
+    // Note: this DOES NOT include the frame scale transform on the
+    // RenderView.
+    TransformationMatrix m_childFrameOwnerToRootContentTransform;
 
     // Style::ComputedStyle::usedZoom of the owner renderer of the frame.
     float m_usedZoom;

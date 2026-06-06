@@ -138,6 +138,7 @@
 #include "TextIterator.h"
 #include "TextResourceDecoder.h"
 #include "TiledBacking.h"
+#include "TransformState.h"
 #include "VelocityData.h"
 #include "VisualViewport.h"
 #include "WheelEventTestMonitor.h"
@@ -2179,6 +2180,23 @@ LayoutPoint LocalFrameView::childFrameOwnerContentBoxLocation(const Frame& child
     ASSERT(childOwnerRenderer->frame().frameID() == m_frame->frameID());
 
     return childOwnerRenderer->contentBoxLocation();
+}
+
+TransformationMatrix LocalFrameView::childFrameOwnerToRootContentTransform(const Frame& child) const
+{
+    CheckedPtr<RenderObject> childOwnerRenderer = child.ownerRenderer();
+    if (!childOwnerRenderer)
+        return { };
+
+    // Ensure |child| is a child of this frame.
+    ASSERT(child.tree().parent()->frameID() == m_frame->frameID());
+    ASSERT(childOwnerRenderer->frame().frameID() == m_frame->frameID());
+
+    // Identical to localToContainerQuad
+    TransformState transformState(TransformState::ApplyTransformDirection, FloatPoint { });
+    childOwnerRenderer->mapLocalToContainer(&childOwnerRenderer->view(), transformState, { MapCoordinatesMode::UseTransforms, MapCoordinatesMode::ApplyContainerFlip }, nullptr);
+
+    return *transformState.releaseTrackedTransform();
 }
 
 LayoutRect LocalFrameView::rectForFixedPositionLayout() const

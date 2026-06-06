@@ -32,13 +32,14 @@ namespace WebCore {
 
 WTF_MAKE_TZONE_ALLOCATED_IMPL(RemoteFrameLayoutInfo);
 
-Ref<RemoteFrameLayoutInfo> RemoteFrameLayoutInfo::create(std::optional<LayoutRect> visibleRectInParent, float usedZoom, LayoutPoint contentBoxLocation, OptionSet<FrameOwnerElementAppearance> ownerElementAppearance)
+Ref<RemoteFrameLayoutInfo> RemoteFrameLayoutInfo::create(std::optional<LayoutRect> visibleRectInParent, TransformationMatrix childFrameOwnerToRootContentTransform, float usedZoom, LayoutPoint contentBoxLocation, OptionSet<FrameOwnerElementAppearance> ownerElementAppearance)
 {
-    return adoptRef(*new RemoteFrameLayoutInfo(visibleRectInParent, usedZoom, contentBoxLocation, ownerElementAppearance));
+    return adoptRef(*new RemoteFrameLayoutInfo(visibleRectInParent, WTF::move(childFrameOwnerToRootContentTransform), usedZoom, contentBoxLocation, ownerElementAppearance));
 }
 
-RemoteFrameLayoutInfo::RemoteFrameLayoutInfo(std::optional<LayoutRect> visibleRectInParent, float usedZoom, LayoutPoint contentBoxLocation, OptionSet<FrameOwnerElementAppearance> ownerElementAppearance)
+RemoteFrameLayoutInfo::RemoteFrameLayoutInfo(std::optional<LayoutRect> visibleRectInParent, TransformationMatrix childFrameOwnerToRootContentTransform, float usedZoom, LayoutPoint contentBoxLocation, OptionSet<FrameOwnerElementAppearance> ownerElementAppearance)
     : m_visibleRectInParent(visibleRectInParent)
+    , m_childFrameOwnerToRootContentTransform(WTF::move(childFrameOwnerToRootContentTransform))
     , m_usedZoom(usedZoom)
     , m_contentBoxLocation(contentBoxLocation)
     , m_ownerElementAppearance(ownerElementAppearance)
