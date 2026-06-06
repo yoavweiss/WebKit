@@ -412,6 +412,22 @@ nothing to commit, working tree clean
                     ][:int(args[2].split('=')[-1])])
                 )
             ), mocks.Subprocess.Route(
+                self.executable, 'log', '--oneline', re.compile(r'.+'),
+                cwd=self.path,
+                generator=lambda *args, **kwargs: mocks.ProcessCompletion(
+                    returncode=0,
+                    stdout=''.join([
+                        '{hash} {subject}\n'.format(
+                            hash=commit.hash[:7],
+                            subject=commit.message.splitlines()[0],
+                        ) for commit in self.rev_list(args[3])
+                    ])
+                )
+            ), mocks.Subprocess.Route(
+                self.executable, 'log', '--abbrev-commit', re.compile(r'.+'),
+                cwd=self.path,
+                generator=lambda *args, **kwargs: self.log(args[3], args, path, git_svn)
+            ), mocks.Subprocess.Route(
                 self.executable, '--no-replace-objects', 'log', re.compile(r'.+'),
                 cwd=self.path,
                 generator=lambda *args, **kwargs: self.log(args[3], args, path, git_svn)
@@ -894,16 +910,27 @@ nothing to commit, working tree clean
             stdout='{}\n'.format(self.count(ref))
         ) if self.find(ref) else mocks.ProcessCompletion(returncode=128)
 
+    def decoration(self, commit):
+        branches = []
+        for branch, commits in self.commits.items():
+            if commits[-1] == commit:
+                branches.append(branch)
+        if branches:
+            return ' ({})'.format(', '.join(sorted(branches)))
+        return ''
+
     def log(self, ref, args, path, git_svn):
         """Helper for git log"""
+        decorate = '--decorate' in args
         return mocks.ProcessCompletion(
             returncode=0,
             stdout='\n'.join([
-                'commit {hash}\n'
+                'commit {hash}{decoration}\n'
                 'Author: {author} <{email}>\n'
                 'Date:   {date}\n'
                 '\n{log}\n'.format(
-                    hash=commit.hash,
+                    hash=commit.hash[:7] if '--abbrev-commit' in args else commit.hash,
+                    decoration=self.decoration(commit) if decorate else '',
                     author=commit.author.name,
                     email=commit.author.email,
                     date=commit.timestamp if '--date=unix' in args else datetime.fromtimestamp(commit.timestamp + time.timezone, timezone.utc).strftime('%a %b %d %H:%M:%S %Y +0000'),
