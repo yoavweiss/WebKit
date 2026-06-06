@@ -162,22 +162,24 @@ void AnchorScrollAdjuster::addScrollSnapshot(const RenderBox& scroller)
     m_scrollSnapshots.constructAndAppend(scroller, scroller.constrainedScrollPosition());
 }
 
-void AnchorScrollAdjuster::addViewportSnapshot(const RenderView& renderView)
+void AnchorScrollAdjuster::addViewportSnapshot(const RenderView& renderView, AnchorScrollAdjuster::Direction direction)
 {
     CheckedRef view = renderView.frameView();
     auto position = view->constrainedScrollPosition(ScrollPosition(view->scrollPositionRespectingCustomFixedPosition()));
     m_scrollSnapshots.insert(0, AnchorScrollSnapshot { position });
-    m_adjustForViewport = true;
+    m_adjustmentForViewport = direction;
 }
 
 LayoutSize AnchorScrollAdjuster::adjustmentForViewport(const RenderView& renderView) const
 {
-    if (m_adjustForViewport) {
+    if (m_adjustmentForViewport) {
         // Viewport snapshot is stored in the first slot.
         ASSERT(m_scrollSnapshots.size() && !m_scrollSnapshots.first().m_scroller);
         CheckedRef view = renderView.frameView();
-        return m_scrollSnapshots.first().m_scrollSnapshot
+        auto adjustment = m_scrollSnapshots.first().m_scrollSnapshot
             - view->constrainedScrollPosition(IntPoint(view->scrollPositionRespectingCustomFixedPosition()));
+        adjustment.scale(m_adjustmentForViewport);
+        return adjustment;
     }
     return { };
 }
@@ -300,8 +302,11 @@ void AnchorPositionEvaluator::captureScrollSnapshots(RenderBox& anchored, bool i
         }
     }
 
-    if (isFixed(anchored) && !isFixedAnchor && !isFixed(*containingBlock))
-        adjuster.addViewportSnapshot(anchored.view());
+    bool isFixedAnchored = isFixed(anchored);
+    if (isFixedAnchored != isFixedAnchor && !isFixed(*containingBlock)) {
+        auto direction = isFixedAnchored ? AnchorScrollAdjuster::Direction::Normal : AnchorScrollAdjuster::Direction::Reverse;
+        adjuster.addViewportSnapshot(anchored.view(), direction);
+    }
 
     if (adjuster.isEmpty())
         return clearAnchorScrollSnapshots(anchored);
@@ -544,10 +549,18 @@ LayoutRect AnchorPositionEvaluator::computeAnchorRectRelativeToContainingBlock(C
 
     auto anchorBox = boxBoundingBoxInContainer(anchor, containingBlock);
 
-    // Handle fixed positioning x scrolling anchor.
-    if (&containingBlock == &containingBlock.view() && isFixed(anchoredBox) && !isFixed(anchor)) {
-        CheckedRef view = anchor->view().frameView();
-        anchorBox.moveBy(-view->constrainedScrollPosition(ScrollPosition(view->scrollPositionRespectingCustomFixedPosition())));
+    // Handle fixed positioning x scrolling anchor or vice versa.
+    if (&containingBlock == &containingBlock.view()) {
+        bool anchoredFixed = isFixed(anchoredBox);
+        bool anchorFixed = isFixed(anchor);
+        if (anchoredFixed != anchorFixed) {
+            CheckedRef view = anchor->view().frameView();
+            auto offset = view->constrainedScrollPosition(ScrollPosition(view->scrollPositionRespectingCustomFixedPosition()));
+            if (anchoredFixed)
+                anchorBox.moveBy(-offset);
+            else
+                anchorBox.moveBy(offset);
+        }
     }
 
     if (CheckedPtr containingBox = dynamicDowncast<RenderBox>(containingBlock)) {
