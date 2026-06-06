@@ -76,7 +76,7 @@ class FilteredCommand(Command):
     REVISION_RES = (re.compile(r'^(?P<revision>\d+)\s'), re.compile(r'(?P<revision>[rR]\d+)'))
     HASH_RES = (re.compile(r'^(?P<hash>[a-f0-9A-F]{8}[a-f0-9A-F]+)\s'), re.compile(r'(?P<hash>[a-f0-9A-F]{8}[a-f0-9A-F]+)'))
     IDENTIFIER_RES = (re.compile(r'^(?P<identifier>(?:\d+\.)?\d+@\S*)'), re.compile(r'(?P<identifier>(?:\d+\.)?\d+@\S*)'))
-    NO_FILTER_RES = [re.compile(r'    Canonical link:'), re.compile(r'    git-svn-id:')]
+    NO_FILTER_RES = [re.compile(r'    Canonical(?:-| )link:'), re.compile(r'    git-svn-id:')]
     DIFF_RE = re.compile(r'^diff --git ')
 
     REPLACE_MODE = 0

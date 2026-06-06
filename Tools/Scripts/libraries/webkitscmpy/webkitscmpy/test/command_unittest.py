@@ -155,6 +155,21 @@ class TestFilteredCommandHash(TestFilteredCommandBase):
             self._run_log(git, ref=root.hash),
         )
 
+    def test_canonical_link_hyphen_not_transformed(self):
+        git = mocks.local.Git(self.path)
+        root = git.commits['main'][0]
+        root.message = 'Patch Series\n\nCanonical-link: https://commits.webkit.org/5@main\n'
+        self.assertEqual(
+            'commit 9b8311f25a77 (1@main)\n'
+            'Author: Jonathan Bedard <jbedard@apple.com>\n'
+            'Date:   Fri Oct 02 17:33:20 2020 +0000\n'
+            '\n'
+            '    Patch Series\n'
+            '\n'
+            '    Canonical-link: https://commits.webkit.org/5@main\n',
+            self._run_log(git, ref=root.hash),
+        )
+
     def test_canonical_link_space_not_transformed(self):
         git = mocks.local.Git(self.path)
         root = git.commits['main'][0]
