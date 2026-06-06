@@ -6942,8 +6942,8 @@ void Document::adjustFocusNavigationNodeOnNodeRemoval(Node& node, NodeRemoval no
 
 void Document::textInserted(Node& text, unsigned offset, unsigned length)
 {
-    for (auto& range : m_ranges)
-        range.get().textInserted(text, offset, length);
+    for (Ref range : m_ranges)
+        range->textInserted(text, offset, length);
 
     if (!m_markers)
         return;
@@ -6959,8 +6959,8 @@ void Document::textInserted(Node& text, unsigned offset, unsigned length)
 
 void Document::textRemoved(Node& text, unsigned offset, unsigned length)
 {
-    for (auto& range : m_ranges)
-        range.get().textRemoved(text, offset, length);
+    for (Ref range : m_ranges)
+        range->textRemoved(text, offset, length);
 
     if (!m_markers)
         return;
