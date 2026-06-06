@@ -213,7 +213,7 @@ void UnrealizedCoreTextFont::applyVariations(CFMutableDictionaryRef attributes, 
 
 void UnrealizedCoreTextFont::modifyFromContext(CFMutableDictionaryRef attributes, const FontDescription& fontDescription, const FontCreationContext& fontCreationContext, ApplyTraitsVariations applyTraitsVariations, float weight, float width, float slope, CGFloat size, const OpticalSizingType& opticalSizingType)
 {
-    auto fontStyleAxis = fontDescription.fontStyleAxis();
+    auto fontStyleAxis = variationStyleAxis(fontDescription, fontCreationContext.fontFaceCapabilities());
     const auto& variations = fontDescription.variationSettings();
     const auto& features = fontDescription.featureSettings();
     const auto& variantSettings = fontDescription.variantSettings();
@@ -286,7 +286,7 @@ void UnrealizedCoreTextFont::modifyFromContext(const FontDescription& fontDescri
         m_weight = fontSelectionRequest.weight;
         m_width = fontSelectionRequest.width;
         m_slope = fontSelectionRequest.slope.value_or(normalItalicValue());
-        m_fontStyleAxis = fontDescription.fontStyleAxis();
+        m_fontStyleAxis = variationStyleAxis(fontDescription, fontCreationContext.fontFaceCapabilities());
         if (auto weightValue = fontCreationContext.fontFaceCapabilities().weight)
             m_weight = std::max(std::min(m_weight, static_cast<float>(weightValue->maximum)), static_cast<float>(weightValue->minimum));
         if (auto widthValue = fontCreationContext.fontFaceCapabilities().width)

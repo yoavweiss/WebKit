@@ -70,7 +70,7 @@ FontPlatformData FontCustomPlatformData::fontPlatformData(const FontDescription&
             width = std::max(std::min(width, static_cast<float>(widthValue->maximum)), static_cast<float>(widthValue->minimum));
         applyVariation(FontVariationAxisTag::wdth, width);
 
-        if (description.fontStyleAxis() == FontStyleAxis::ital)
+        if (variationStyleAxis(description, fontCreationContext.fontFaceCapabilities()) == FontStyleAxis::ital)
             applyVariation(FontVariationAxisTag::ital, 1);
         else {
             float slope = description.fontStyleSlope().value_or(normalItalicValue());
