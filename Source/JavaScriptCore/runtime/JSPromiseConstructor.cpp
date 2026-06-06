@@ -409,7 +409,7 @@ static JSObject* promiseAllSlow(JSGlobalObject* globalObject, CallFrame* callFra
 
         JSPromiseCombinatorsContext* context = JSPromiseCombinatorsContext::create(vm, globalContext, currentIndex);
 
-        auto* onFulfilled = JSFunctionWithFields::create(vm, globalObject, vm.promiseAllSlowFulfillFunctionExecutable(), 1, emptyString());
+        auto* onFulfilled = JSFunctionWithFields::create(vm, globalObject, vm.promiseAllSlowFulfillFunctionExecutable());
         onFulfilled->setField(vm, JSFunctionWithFields::Field::PromiseAllContext, context);
         onFulfilled->setField(vm, JSFunctionWithFields::Field::PromiseAllResolve, resolve);
 
@@ -539,7 +539,7 @@ JSC_DEFINE_HOST_FUNCTION(promiseConstructorFuncAll, (JSGlobalObject* globalObjec
         }
 
         JSPromiseCombinatorsContext* context = JSPromiseCombinatorsContext::create(vm, globalContext, index);
-        auto* onFulfilled = JSFunctionWithFields::create(vm, globalObject, vm.promiseAllFulfillFunctionExecutable(), 1, emptyString());
+        auto* onFulfilled = JSFunctionWithFields::create(vm, globalObject, vm.promiseAllFulfillFunctionExecutable());
         onFulfilled->setField(vm, JSFunctionWithFields::Field::PromiseAllContext, context);
 
         MarkedArgumentBuffer thenArguments;
@@ -737,10 +737,10 @@ static JSObject* promiseAllSettledSlow(JSGlobalObject* globalObject, CallFrame* 
 
         JSPromiseCombinatorsContext* context = JSPromiseCombinatorsContext::create(vm, globalContext, currentIndex);
 
-        auto* onFulfilled = JSFunctionWithFields::create(vm, globalObject, vm.promiseAllSettledSlowFulfillFunctionExecutable(), 1, emptyString());
+        auto* onFulfilled = JSFunctionWithFields::create(vm, globalObject, vm.promiseAllSettledSlowFulfillFunctionExecutable());
         onFulfilled->setField(vm, JSFunctionWithFields::Field::PromiseAllSettledContext, context);
 
-        auto* onRejected = JSFunctionWithFields::create(vm, globalObject, vm.promiseAllSettledSlowRejectFunctionExecutable(), 1, emptyString());
+        auto* onRejected = JSFunctionWithFields::create(vm, globalObject, vm.promiseAllSettledSlowRejectFunctionExecutable());
         onRejected->setField(vm, JSFunctionWithFields::Field::PromiseAllSettledContext, context);
 
         onFulfilled->setField(vm, JSFunctionWithFields::Field::PromiseAllSettledOther, onRejected);
@@ -861,10 +861,10 @@ JSC_DEFINE_HOST_FUNCTION(promiseConstructorFuncAllSettled, (JSGlobalObject* glob
         }
 
         JSPromiseCombinatorsContext* context = JSPromiseCombinatorsContext::create(vm, globalContext, index);
-        auto* onFulfilled = JSFunctionWithFields::create(vm, globalObject, vm.promiseAllSettledFulfillFunctionExecutable(), 1, emptyString());
+        auto* onFulfilled = JSFunctionWithFields::create(vm, globalObject, vm.promiseAllSettledFulfillFunctionExecutable());
         onFulfilled->setField(vm, JSFunctionWithFields::Field::PromiseAllSettledContext, context);
 
-        auto* onRejected = JSFunctionWithFields::create(vm, globalObject, vm.promiseAllSettledRejectFunctionExecutable(), 1, emptyString());
+        auto* onRejected = JSFunctionWithFields::create(vm, globalObject, vm.promiseAllSettledRejectFunctionExecutable());
         onRejected->setField(vm, JSFunctionWithFields::Field::PromiseAllSettledContext, context);
 
         onFulfilled->setField(vm, JSFunctionWithFields::Field::PromiseAllSettledOther, onRejected);
@@ -1227,7 +1227,7 @@ static JSObject* promiseAnySlow(JSGlobalObject* globalObject, CallFrame* callFra
         JSPromiseCombinatorsContext* context = JSPromiseCombinatorsContext::create(vm, globalContext, index);
 
         // For Promise.any slow path, use resolve directly as onFulfilled
-        auto* onRejected = JSFunctionWithFields::create(vm, globalObject, vm.promiseAnySlowRejectFunctionExecutable(), 1, emptyString());
+        auto* onRejected = JSFunctionWithFields::create(vm, globalObject, vm.promiseAnySlowRejectFunctionExecutable());
         onRejected->setField(vm, JSFunctionWithFields::Field::PromiseAnyContext, context);
         onRejected->setField(vm, JSFunctionWithFields::Field::PromiseAnyReject, reject);
 
@@ -1348,7 +1348,7 @@ JSC_DEFINE_HOST_FUNCTION(promiseConstructorFuncAny, (JSGlobalObject* globalObjec
             resolve = promise->createFirstResolveFunction(vm, globalObject);
 
         JSPromiseCombinatorsContext* context = JSPromiseCombinatorsContext::create(vm, globalContext, index);
-        auto* onRejected = JSFunctionWithFields::create(vm, globalObject, vm.promiseAnyRejectFunctionExecutable(), 1, emptyString());
+        auto* onRejected = JSFunctionWithFields::create(vm, globalObject, vm.promiseAnyRejectFunctionExecutable());
         onRejected->setField(vm, JSFunctionWithFields::Field::PromiseAnyContext, context);
 
         JSValue then = nextPromise->get(globalObject, vm.propertyNames->then);

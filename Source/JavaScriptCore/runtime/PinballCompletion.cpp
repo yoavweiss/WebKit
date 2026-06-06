@@ -117,9 +117,9 @@ extern "C" {
 
 static JSFunctionWithFields* createHandler(VM& vm, JSGlobalObject* globalObject, PinballCompletion* pinballCompletion, NativeFunction function, const String name)
 {
-    NativeExecutable* executable = vm.getHostFunction(function, ImplementationVisibility::Private, NoIntrinsic, callHostFunctionAsConstructor, nullptr, name);
     constexpr unsigned length = 1;
-    JSFunctionWithFields* handler = JSFunctionWithFields::create(vm, globalObject, executable, length, name);
+    NativeExecutable* executable = vm.getHostFunction(function, ImplementationVisibility::Private, NoIntrinsic, callHostFunctionAsConstructor, nullptr, length, name);
+    JSFunctionWithFields* handler = JSFunctionWithFields::create(vm, globalObject, executable);
     handler->setField(vm, JSFunctionWithFields::Field::PromiseHandlerPinballCompletion, pinballCompletion);
     return handler;
 }

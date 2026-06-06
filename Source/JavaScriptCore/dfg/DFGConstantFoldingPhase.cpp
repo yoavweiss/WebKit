@@ -1235,9 +1235,13 @@ private:
                 Edge target = m_graph.child(node, 0);
                 AbstractValue& targetValue = m_state.forNode(target);
                 auto& structureSet = targetValue.m_structure;
-                if (!(targetValue.m_type & ~SpecFunction) && structureSet.isFinite() && structureSet.size() == 1) {
-                    RegisteredStructure structure = structureSet.onlyStructure();
-                    if (JSBoundFunction::canSkipNameAndLengthMaterialization(globalObject, structure.get())) {
+                if (!(targetValue.m_type & ~SpecFunction) && structureSet.isFinite() && structureSet.size() >= 1) {
+                    bool allCanSkip = true;
+                    structureSet.forEach([&](RegisteredStructure structure) {
+                        if (!JSBoundFunction::canSkipNameAndLengthMaterialization(globalObject, structure.get()))
+                            allCanSkip = false;
+                    });
+                    if (allCanSkip) {
                         node->convertToNewBoundFunction(m_graph.freeze(m_graph.m_vm.getBoundFunction(/* isJSFunction */ true, SourceTaintedOrigin::Untainted)));
                         changed = true;
                         break;
