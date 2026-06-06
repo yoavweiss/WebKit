@@ -5775,7 +5775,7 @@ MoveBeforeEnabled:
 
 MultiProcessBackForwardCacheEnabled:
   type: bool
-  status: unstable
+  status: testable
   category: security
   humanReadableName: "Multi-Process Back/Forward Cache"
   humanReadableDescription: "Enable back/forward cache when site isolation is active"
