@@ -130,10 +130,12 @@ std::optional<Style::UnadjustedStyle> SelectFallbackButtonElement::resolveCustom
     auto elementStyle = resolveStyle(resolutionContext);
     CheckedRef style = *elementStyle.style;
 
-    style->setFlexGrow(1);
-    style->setFlexShrink(1);
-    // min-width: 0; is needed for correct shrinking.
-    style->setLogicalMinWidth(0_css_px);
+    if (hostStyle->usedAppearance() != StyleAppearance::Base) {
+        style->setFlexGrow(1);
+        style->setFlexShrink(1);
+        // min-width: 0; is needed for correct shrinking.
+        style->setLogicalMinWidth(0_css_px);
+    }
 
     auto hostTextAlign = hostStyle->textAlign();
     if (hostTextAlign == Style::TextAlign::Start)
