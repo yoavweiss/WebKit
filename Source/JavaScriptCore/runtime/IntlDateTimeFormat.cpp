@@ -2255,8 +2255,10 @@ std::unique_ptr<UDateFormat, IntlDateTimeFormat::UDateFormatDeleter> IntlDateTim
     //     is observably equivalent because ICU's pattern generator respects hour-field length.
     Vector<char16_t, 32> formatOptions;
     if (!inheritAll && allowedFieldsForKind(kind).get('G')) {
-        if (m_impl->m_userSkeleton.contains(u'G'))
-            formatOptions.append(u'G');
+        for (auto ch : m_impl->m_userSkeleton) {
+            if (ch == u'G')
+                formatOptions.append(ch);
+        }
     }
 
     // Steps 13-14: anyPresent — whether the user set any date/time option.
