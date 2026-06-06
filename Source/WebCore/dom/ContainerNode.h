@@ -154,7 +154,7 @@ public:
     ExceptionOr<void> insertChildrenBeforeWithoutPreInsertionValidityCheck(NodeVector&&, Node* nextChild = nullptr);
 
 protected:
-    explicit ContainerNode(Document&, NodeType, OptionSet<TypeFlag> = { });
+    explicit inline ContainerNode(Document&, NodeType, OptionSet<TypeFlag> = { });
 
     friend void removeDetachedChildrenInContainer(ContainerNode&);
 

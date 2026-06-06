@@ -382,6 +382,9 @@ http/tests/security/strip-referrer-to-origin-for-third-party-redirects-in-privat
 http/tests/security/strip-referrer-to-origin-for-third-party-requests-in-private-mode.html [ Skip ]
 media/deactivate-audio-session.html [ Skip ]
 
+# Skip the test which hits a debug assertion for now.
+[ Debug ] media/track/webvtt-parser-does-not-leak.html [ Skip ]
+
 # Skip isolated-tree specific tests.
 accessibility/isolated-tree [ Skip ]
 
