@@ -7000,8 +7000,8 @@ class PushCommitToWebKitRepo(shell.ShellCommand):
 class DetermineLandedIdentifier(shell.ShellCommand):
     name = 'determine-landed-identifier'
     descriptionDone = ['Determined landed identifier']
-    command = ['/bin/bash', '--posix', '-o', 'pipefail', '-c', "git log -1 --no-decorate | grep 'Canonical link: https://commits\\.webkit\\.org/'"]
-    CANONICAL_LINK_RE = re.compile(r'\ACanonical link: https://commits\.webkit\.org/(?P<identifier>\d+.?\d*@\S+)\Z')
+    command = ['/bin/bash', '--posix', '-o', 'pipefail', '-c', "git log -1 --format=%B | sed 's/^Canonical link:/Canonical-link:/' | git -c trailer.Canonical-link.key=Canonical-link -c trailer.Identifier.key=Identifier -c trailer.git-svn-id.key=git-svn-id interpret-trailers --parse --no-divider | grep 'Canonical-link: https://commits\\.webkit\\.org/'"]
+    CANONICAL_LINK_RE = re.compile(r'\ACanonical-link: https://commits\.webkit\.org/(?P<identifier>\d+.?\d*@\S+)\Z')
     haltOnFailure = False
 
     def __init__(self, **kwargs):
@@ -7027,7 +7027,7 @@ class DetermineLandedIdentifier(shell.ShellCommand):
         for line in loglines:
             if not line:
                 continue
-            match = self.CANONICAL_LINK_RE.match(line[4:])
+            match = self.CANONICAL_LINK_RE.match(line)
             if match:
                 self.identifier = match.group('identifier')
                 break

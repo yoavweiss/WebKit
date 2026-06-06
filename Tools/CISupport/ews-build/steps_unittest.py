@@ -7671,8 +7671,8 @@ class TestDetermineLandedIdentifier(BuildStepMixinAdditions, unittest.TestCase):
                 ExpectShell(workdir='wkdir',
                             timeout=300,
                             log_environ=False,
-                            command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', "git log -1 --no-decorate | grep 'Canonical link: https://commits\\.webkit\\.org/'"])
-                .log('stdio', stdout='    Canonical link: https://commits.webkit.org/220797@main\n')
+                            command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', "git log -1 --format=%B | sed 's/^Canonical link:/Canonical-link:/' | git -c trailer.Canonical-link.key=Canonical-link -c trailer.Identifier.key=Identifier -c trailer.git-svn-id.key=git-svn-id interpret-trailers --parse --no-divider | grep 'Canonical-link: https://commits\\.webkit\\.org/'"])
+                .log('stdio', stdout='Canonical-link: https://commits.webkit.org/220797@main\n')
                 .exit(0),
             )
             self.expect_outcome(result=SUCCESS, state_string='Identifier: 220797@main')
@@ -7693,8 +7693,8 @@ class TestDetermineLandedIdentifier(BuildStepMixinAdditions, unittest.TestCase):
                 ExpectShell(workdir='wkdir',
                             timeout=300,
                             log_environ=False,
-                            command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', "git log -1 --no-decorate | grep 'Canonical link: https://commits\\.webkit\\.org/'"])
-                .log('stdio', stdout='    Canonical link: https://commits.webkit.org/249903@main\n')
+                            command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', "git log -1 --format=%B | sed 's/^Canonical link:/Canonical-link:/' | git -c trailer.Canonical-link.key=Canonical-link -c trailer.Identifier.key=Identifier -c trailer.git-svn-id.key=git-svn-id interpret-trailers --parse --no-divider | grep 'Canonical-link: https://commits\\.webkit\\.org/'"])
+                .log('stdio', stdout='Canonical-link: https://commits.webkit.org/249903@main\n')
                 .exit(0),
             )
             self.expect_outcome(result=SUCCESS, state_string='Identifier: 249903@main')
@@ -7714,7 +7714,7 @@ class TestDetermineLandedIdentifier(BuildStepMixinAdditions, unittest.TestCase):
                 ExpectShell(workdir='wkdir',
                             timeout=300,
                             log_environ=False,
-                            command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', "git log -1 --no-decorate | grep 'Canonical link: https://commits\\.webkit\\.org/'"])
+                            command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', "git log -1 --format=%B | sed 's/^Canonical link:/Canonical-link:/' | git -c trailer.Canonical-link.key=Canonical-link -c trailer.Identifier.key=Identifier -c trailer.git-svn-id.key=git-svn-id interpret-trailers --parse --no-divider | grep 'Canonical-link: https://commits\\.webkit\\.org/'"])
                 .log('stdio', stdout='')
                 .exit(1),
             )
@@ -7735,7 +7735,7 @@ class TestDetermineLandedIdentifier(BuildStepMixinAdditions, unittest.TestCase):
                 ExpectShell(workdir='wkdir',
                             timeout=300,
                             log_environ=False,
-                            command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', "git log -1 --no-decorate | grep 'Canonical link: https://commits\\.webkit\\.org/'"])
+                            command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', "git log -1 --format=%B | sed 's/^Canonical link:/Canonical-link:/' | git -c trailer.Canonical-link.key=Canonical-link -c trailer.Identifier.key=Identifier -c trailer.git-svn-id.key=git-svn-id interpret-trailers --parse --no-divider | grep 'Canonical-link: https://commits\\.webkit\\.org/'"])
                 .log('stdio', stdout='')
                 .exit(1),
             )
@@ -7756,7 +7756,7 @@ class TestDetermineLandedIdentifier(BuildStepMixinAdditions, unittest.TestCase):
                 ExpectShell(workdir='wkdir',
                             timeout=300,
                             log_environ=False,
-                            command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', "git log -1 --no-decorate | grep 'Canonical link: https://commits\\.webkit\\.org/'"])
+                            command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', "git log -1 --format=%B | sed 's/^Canonical link:/Canonical-link:/' | git -c trailer.Canonical-link.key=Canonical-link -c trailer.Identifier.key=Identifier -c trailer.git-svn-id.key=git-svn-id interpret-trailers --parse --no-divider | grep 'Canonical-link: https://commits\\.webkit\\.org/'"])
                 .log('stdio', stdout='')
                 .exit(1),
             )
@@ -7777,7 +7777,7 @@ class TestDetermineLandedIdentifier(BuildStepMixinAdditions, unittest.TestCase):
                 ExpectShell(workdir='wkdir',
                             timeout=300,
                             log_environ=False,
-                            command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', "git log -1 --no-decorate | grep 'Canonical link: https://commits\\.webkit\\.org/'"])
+                            command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', "git log -1 --format=%B | sed 's/^Canonical link:/Canonical-link:/' | git -c trailer.Canonical-link.key=Canonical-link -c trailer.Identifier.key=Identifier -c trailer.git-svn-id.key=git-svn-id interpret-trailers --parse --no-divider | grep 'Canonical-link: https://commits\\.webkit\\.org/'"])
                 .log('stdio', stdout='')
                 .exit(1),
             )
