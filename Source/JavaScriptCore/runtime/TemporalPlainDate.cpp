@@ -695,9 +695,7 @@ ISO8601::PlainDate TemporalPlainDate::with(JSGlobalObject* globalObject, JSObjec
 // https://tc39.es/proposal-temporal/#sec-getutcepochnanoseconds
 static Int128 getUTCEpochNanoseconds(ISO8601::PlainDate isoDate)
 {
-    return getUTCEpochNanoseconds(
-        std::tuple<ISO8601::PlainDate, ISO8601::PlainTime>(
-            isoDate, ISO8601::PlainTime()));
+    return TemporalCore::getUTCEpochNanoseconds(isoDate, ISO8601::PlainTime());
 }
 
 ISO8601::Duration TemporalPlainDate::differenceTemporalPlainDate(JSGlobalObject* globalObject, DifferenceOperation op, TemporalPlainDate* other, TemporalUnit smallestUnit, TemporalUnit largestUnit, RoundingMode roundingMode, double increment)
@@ -733,7 +731,7 @@ ISO8601::Duration TemporalPlainDate::differenceTemporalPlainDate(JSGlobalObject*
             return { };
         }
     }
-    auto durResult = TemporalDuration::temporalDurationFromInternal(duration, TemporalUnit::Day);
+    auto durResult = TemporalCore::temporalDurationFromInternal(duration, TemporalUnit::Day);
     if (!durResult) [[unlikely]] {
         throwTemporalError(globalObject, scope, durResult.error());
         return { };
@@ -772,31 +770,6 @@ ISO8601::Duration TemporalPlainDate::since(JSGlobalObject* globalObject, Tempora
     // Steps 5-9: DifferenceTemporalPlainDate.
     RELEASE_AND_RETURN(scope, differenceTemporalPlainDate(globalObject,
         DifferenceOperation::Since, other, smallestUnit, largestUnit, roundingMode, increment));
-}
-
-String TemporalPlainDate::monthCode() const
-{
-    return ISO8601::monthCode(m_plainDate.month());
-}
-
-uint8_t TemporalPlainDate::dayOfWeek() const
-{
-    return ISO8601::dayOfWeek(m_plainDate);
-}
-
-uint16_t TemporalPlainDate::dayOfYear() const
-{
-    return ISO8601::dayOfYear(m_plainDate);
-}
-
-uint8_t TemporalPlainDate::weekOfYear() const
-{
-    return ISO8601::weekOfYear(m_plainDate);
-}
-
-int32_t TemporalPlainDate::yearOfWeek() const
-{
-    return ISO8601::yearOfWeek(m_plainDate);
 }
 
 } // namespace JSC

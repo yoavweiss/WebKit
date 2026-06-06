@@ -359,9 +359,4 @@ ISO8601::PlainDate TemporalPlainMonthDay::with(JSGlobalObject* globalObject, JSO
     return resolved->isoDate;
 }
 
-String TemporalPlainMonthDay::monthCode() const
-{
-    return ISO8601::monthCode(m_plainMonthDay.month());
-}
-
 } // namespace JSC

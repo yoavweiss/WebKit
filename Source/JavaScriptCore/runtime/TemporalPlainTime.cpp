@@ -658,7 +658,7 @@ ISO8601::Duration TemporalPlainTime::differenceTemporalPlainTime(DifferenceOpera
     auto d = ISO8601::roundTimeDuration(globalObject, timeDuration, increment, smallestUnit, roundingMode);
     RETURN_IF_EXCEPTION(scope, { });
     auto duration = ISO8601::InternalDuration::combineDateAndTimeDuration(ISO8601::Duration(), d);
-    auto durResult = TemporalDuration::temporalDurationFromInternal(duration, largestUnit);
+    auto durResult = TemporalCore::temporalDurationFromInternal(duration, largestUnit);
     if (!durResult) [[unlikely]] {
         throwTemporalError(globalObject, scope, durResult.error());
         return { };

@@ -603,16 +603,15 @@ ISO8601::Duration differenceTemporalPlainYearMonth(JSGlobalObject* globalObject,
     auto duration = ISO8601::InternalDuration::combineDateAndTimeDuration(ISO8601::Duration { dateDifference.years(), dateDifference.months(), 0LL, 0LL, 0LL, 0LL, 0LL, 0LL, Int128(0), Int128(0) }, 0);
 
     if (smallestUnit != TemporalUnit::Month || increment != 1) {
-        auto originEpochNs = getUTCEpochNanoseconds(TemporalDuration::combineISODateAndTimeRecord(thisDate, ISO8601::PlainTime()));
-        auto isoDateTimeOther = TemporalDuration::combineISODateAndTimeRecord(otherDate, ISO8601::PlainTime());
-        auto destEpochNs = getUTCEpochNanoseconds(isoDateTimeOther);
+        auto originEpochNs = TemporalCore::getUTCEpochNanoseconds(thisDate, ISO8601::PlainTime());
+        auto destEpochNs = TemporalCore::getUTCEpochNanoseconds(otherDate, ISO8601::PlainTime());
         auto roundResult = TemporalCore::roundRelativeDuration(duration, originEpochNs, destEpochNs, thisDate, ISO8601::PlainTime(), largestUnit, increment, smallestUnit, roundingMode, nullptr, calendarId);
         if (!roundResult) [[unlikely]] {
             throwTemporalError(globalObject, scope, roundResult.error());
             return { };
         }
     }
-    auto durResult = TemporalDuration::temporalDurationFromInternal(duration, TemporalUnit::Day);
+    auto durResult = TemporalCore::temporalDurationFromInternal(duration, TemporalUnit::Day);
     if (!durResult) [[unlikely]] {
         throwTemporalError(globalObject, scope, durResult.error());
         return { };

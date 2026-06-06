@@ -662,9 +662,9 @@ JSValue TemporalDuration::compare(JSGlobalObject* globalObject, JSValue valueOne
     // Fast path: no ZDT addZonedDateTime needed — pure 24h-day time comparison.
     bool hasCalendarUnits = one->years() || two->years() || one->months() || two->months() || one->weeks() || two->weeks();
     if (!hasCalendarUnits) {
-        auto timeDuration1 = add24HourDaysToTimeDuration(globalObject, toInternalDuration(one->m_duration).time(), one->days());
+        auto timeDuration1 = add24HourDaysToTimeDuration(globalObject, TemporalCore::toInternalDuration(one->m_duration).time(), one->days());
         RETURN_IF_EXCEPTION(scope, { });
-        auto timeDuration2 = add24HourDaysToTimeDuration(globalObject, toInternalDuration(two->m_duration).time(), two->days());
+        auto timeDuration2 = add24HourDaysToTimeDuration(globalObject, TemporalCore::toInternalDuration(two->m_duration).time(), two->days());
         RETURN_IF_EXCEPTION(scope, { });
         return jsNumber(timeDuration1 > timeDuration2 ? 1 : timeDuration1 < timeDuration2 ? -1 : 0);
     }
@@ -681,14 +681,14 @@ JSValue TemporalDuration::compare(JSGlobalObject* globalObject, JSValue valueOne
     auto endDate1 = calendarAwareDateAdd(globalObject, relativeTo.calendarId, plainDate, dateDuration1, TemporalOverflow::Constrain);
     RETURN_IF_EXCEPTION(scope, { });
     auto daysDiff1 = TemporalCore::diffISODate(plainDate, endDate1, TemporalUnit::Day);
-    auto timeDuration1 = add24HourDaysToTimeDuration(globalObject, toInternalDuration(one->m_duration).time(), daysDiff1.days());
+    auto timeDuration1 = add24HourDaysToTimeDuration(globalObject, TemporalCore::toInternalDuration(one->m_duration).time(), daysDiff1.days());
     RETURN_IF_EXCEPTION(scope, { });
 
     ISO8601::Duration dateDuration2(two->years(), two->months(), two->weeks(), two->days(), 0LL, 0LL, 0LL, 0LL, Int128(0), Int128(0));
     auto endDate2 = calendarAwareDateAdd(globalObject, relativeTo.calendarId, plainDate, dateDuration2, TemporalOverflow::Constrain);
     RETURN_IF_EXCEPTION(scope, { });
     auto daysDiff2 = TemporalCore::diffISODate(plainDate, endDate2, TemporalUnit::Day);
-    auto timeDuration2 = add24HourDaysToTimeDuration(globalObject, toInternalDuration(two->m_duration).time(), daysDiff2.days());
+    auto timeDuration2 = add24HourDaysToTimeDuration(globalObject, TemporalCore::toInternalDuration(two->m_duration).time(), daysDiff2.days());
     RETURN_IF_EXCEPTION(scope, { });
 
     return jsNumber(timeDuration1 > timeDuration2 ? 1 : timeDuration1 < timeDuration2 ? -1 : 0);
@@ -805,24 +805,12 @@ ISO8601::Duration TemporalDuration::add(JSGlobalObject* globalObject, JSValue ot
     }
 
     auto result = ISO8601::InternalDuration::combineDateAndTimeDuration(ISO8601::Duration(), timeResult);
-    auto durResult = temporalDurationFromInternal(result, largestUnit);
+    auto durResult = TemporalCore::temporalDurationFromInternal(result, largestUnit);
     if (!durResult) [[unlikely]] {
         throwTemporalError(globalObject, scope, durResult.error());
         return { };
     }
     return *durResult;
-}
-
-// https://tc39.es/proposal-temporal/#sec-temporal-tointernaldurationrecord
-ISO8601::InternalDuration TemporalDuration::toInternalDuration(ISO8601::Duration d)
-{
-    return TemporalCore::toInternalDuration(d);
-}
-
-// https://tc39.es/proposal-temporal/#sec-temporal-temporaldurationfrominternal
-TemporalResult<ISO8601::Duration> TemporalDuration::temporalDurationFromInternal(ISO8601::InternalDuration internalDuration, TemporalUnit largestUnit)
-{
-    return TemporalCore::temporalDurationFromInternal(internalDuration, largestUnit);
 }
 
 // https://tc39.es/proposal-temporal/#sec-temporal.duration.prototype.subtract
@@ -845,12 +833,6 @@ std::tuple<ISO8601::PlainDate, ISO8601::PlainTime> TemporalDuration::combineISOD
     return { isoDate, isoTime };
 }
 
-// Local wrapper: tuple-form getUTCEpochNanoseconds delegates to TemporalCore two-arg form.
-// https://tc39.es/proposal-temporal/#sec-temporal-getutcepochnanoseconds
-Int128 getUTCEpochNanoseconds(std::tuple<ISO8601::PlainDate, ISO8601::PlainTime> isoDateTime)
-{
-    return TemporalCore::getUTCEpochNanoseconds(std::get<0>(isoDateTime), std::get<1>(isoDateTime));
-}
 
 // RoundDuration ( years, months, weeks, days, hours, minutes, seconds, milliseconds, microseconds, nanoseconds, increment, unit, roundingMode [ , relativeTo ] )
 // https://tc39.es/proposal-temporal/#sec-temporal-roundduration
@@ -1015,7 +997,7 @@ ISO8601::Duration TemporalDuration::round(JSGlobalObject* globalObject, JSValue 
             RETURN_IF_EXCEPTION(scope, { });
             zdtInternal = round(globalObject, zdtInternal, roundingIncrement, smallestUnit, roundingMode);
             RETURN_IF_EXCEPTION(scope, { });
-            auto durResult = temporalDurationFromInternal(zdtInternal, largestUnit);
+            auto durResult = TemporalCore::temporalDurationFromInternal(zdtInternal, largestUnit);
             if (!durResult) [[unlikely]] {
                 throwTemporalError(globalObject, scope, durResult.error());
                 return { };
@@ -1030,7 +1012,7 @@ ISO8601::Duration TemporalDuration::round(JSGlobalObject* globalObject, JSValue 
         }
         // Step 27 sub-step: If TemporalUnitCategory(largestUnit) is ~date~, set largestUnit to ~hour~.
         TemporalUnit effectiveLargestUnit = (largestUnit <= TemporalUnit::Day) ? TemporalUnit::Hour : largestUnit;
-        auto durResult = temporalDurationFromInternal(*zdtDiffResult, effectiveLargestUnit);
+        auto durResult = TemporalCore::temporalDurationFromInternal(*zdtDiffResult, effectiveLargestUnit);
         if (!durResult) [[unlikely]] {
             throwTemporalError(globalObject, scope, durResult.error());
             return { };
@@ -1066,7 +1048,7 @@ ISO8601::Duration TemporalDuration::round(JSGlobalObject* globalObject, JSValue 
         }
 
         // Step 28i: Return ? TemporalDurationFromInternal(internalDuration, largestUnit).
-        auto durResult = temporalDurationFromInternal(*diffResult, largestUnit);
+        auto durResult = TemporalCore::temporalDurationFromInternal(*diffResult, largestUnit);
         if (!durResult) [[unlikely]] {
             throwTemporalError(globalObject, scope, durResult.error());
             return { };
@@ -1090,7 +1072,7 @@ ISO8601::Duration TemporalDuration::round(JSGlobalObject* globalObject, JSValue 
     RETURN_IF_EXCEPTION(scope, { });
     auto result = round(globalObject, internalDuration, roundingIncrement, smallestUnit, roundingMode);
     RETURN_IF_EXCEPTION(scope, { });
-    auto durResult2 = temporalDurationFromInternal(result, largestUnit);
+    auto durResult2 = TemporalCore::temporalDurationFromInternal(result, largestUnit);
     if (!durResult2) [[unlikely]] {
         throwTemporalError(globalObject, scope, durResult2.error());
         return { };
@@ -1205,8 +1187,8 @@ double TemporalDuration::total(JSGlobalObject* globalObject, JSValue optionsValu
         RETURN_IF_EXCEPTION(scope, 0);
         ISO8601::PlainTime targetTime = TemporalCore::plainTimeFromSubdayNs(subdayNs);
 
-        Int128 originEpochNs = getUTCEpochNanoseconds(combineISODateAndTimeRecord(plainDate, midnight));
-        Int128 destEpochNs = getUTCEpochNanoseconds(combineISODateAndTimeRecord(targetDate, targetTime));
+        Int128 originEpochNs = TemporalCore::getUTCEpochNanoseconds(plainDate, midnight);
+        Int128 destEpochNs = TemporalCore::getUTCEpochNanoseconds(targetDate, targetTime);
 
         // Spec: DifferencePlainDateTimeWithTotal early-return for zero duration,
         // then ISODateTimeWithinLimits check on both endpoints.
@@ -1298,7 +1280,7 @@ String TemporalDuration::toString(JSGlobalObject* globalObject, JSValue optionsV
     // Step 17: Let roundedDuration be ? TemporalDurationFromInternal(internalDuration, roundedLargestUnit).
     // TemporalDurationFromInternal calls CreateTemporalDuration which calls IsValidDuration.
     // When days+time together exceed 2^53 seconds after decomposition, IsValidDuration fails → RangeError.
-    auto roundedDurationResult = temporalDurationFromInternal(internalDuration, roundedLargestUnit);
+    auto roundedDurationResult = TemporalCore::temporalDurationFromInternal(internalDuration, roundedLargestUnit);
     if (!roundedDurationResult) [[unlikely]] {
         throwTemporalError(globalObject, scope, roundedDurationResult.error());
         return { };

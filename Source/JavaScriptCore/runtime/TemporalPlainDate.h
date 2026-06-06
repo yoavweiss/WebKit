@@ -73,11 +73,11 @@ public:
 
     ISO8601::PlainDate with(JSGlobalObject*, JSObject* temporalDateLike, JSValue options);
 
-    String monthCode() const;
-    uint8_t dayOfWeek() const;
-    uint16_t dayOfYear() const;
-    uint8_t weekOfYear() const;
-    int32_t yearOfWeek() const;
+    String monthCode() const { return ISO8601::monthCode(m_plainDate.month()); }
+    uint8_t dayOfWeek() const { return ISO8601::dayOfWeek(m_plainDate); }
+    uint16_t dayOfYear() const { return ISO8601::dayOfYear(m_plainDate); }
+    uint8_t weekOfYear() const { return ISO8601::weekOfYear(m_plainDate); }
+    int32_t yearOfWeek() const { return ISO8601::yearOfWeek(m_plainDate); }
 
     String toString(JSGlobalObject*, JSValue options) const;
     String toString() const;

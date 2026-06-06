@@ -72,10 +72,8 @@ public:
     String toString(JSGlobalObject*, JSValue options) const;
     String toString(JSGlobalObject* globalObject, std::tuple<Precision, unsigned> precision = { Precision::Auto, 0 }) const { return toString(globalObject, m_duration, precision); }
 
-    static ISO8601::InternalDuration toInternalDuration(ISO8601::Duration);
     static ISO8601::InternalDuration toInternalDurationRecordWith24HourDays(JSGlobalObject*, ISO8601::Duration);
     ISO8601::Duration addDurations(JSGlobalObject*, AddOrSubtract, ISO8601::Duration, TemporalUnit) const;
-    static TemporalResult<ISO8601::Duration> temporalDurationFromInternal(ISO8601::InternalDuration, TemporalUnit);
 
     static ISO8601::Duration fromDurationLike(JSGlobalObject*, JSObject*);
     static ISO8601::Duration toISO8601Duration(JSGlobalObject*, JSValue);
@@ -95,7 +93,5 @@ private:
 
     ISO8601::Duration m_duration;
 };
-
-Int128 getUTCEpochNanoseconds(std::tuple<ISO8601::PlainDate, ISO8601::PlainTime>);
 
 } // namespace JSC

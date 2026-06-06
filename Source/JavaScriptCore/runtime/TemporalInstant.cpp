@@ -267,7 +267,7 @@ ISO8601::Duration TemporalInstant::difference(JSGlobalObject* globalObject, Temp
     RETURN_IF_EXCEPTION(scope, { });
 
     // Step 5: Return CreateTemporalDuration from the balanced result.
-    auto durResult = TemporalDuration::temporalDurationFromInternal(internalDuration, largestUnit);
+    auto durResult = TemporalCore::temporalDurationFromInternal(internalDuration, largestUnit);
     if (!durResult) [[unlikely]] {
         throwTemporalError(globalObject, scope, durResult.error());
         return { };

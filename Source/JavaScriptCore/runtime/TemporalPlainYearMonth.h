@@ -67,7 +67,7 @@ public:
 
     ISO8601::PlainDate with(JSGlobalObject*, JSObject*, JSValue);
 
-    String monthCode() const;
+    String monthCode() const { return ISO8601::monthCode(m_plainYearMonth.month()); }
 
     String toString(JSGlobalObject*, JSValue options) const;
     String toString() const;

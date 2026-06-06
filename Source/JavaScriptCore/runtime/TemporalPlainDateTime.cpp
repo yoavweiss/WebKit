@@ -574,31 +574,6 @@ String TemporalPlainDateTime::toString(JSGlobalObject* globalObject, JSValue opt
     return base;
 }
 
-String TemporalPlainDateTime::monthCode() const
-{
-    return ISO8601::monthCode(m_plainDate.month());
-}
-
-uint8_t TemporalPlainDateTime::dayOfWeek() const
-{
-    return ISO8601::dayOfWeek(m_plainDate);
-}
-
-uint16_t TemporalPlainDateTime::dayOfYear() const
-{
-    return ISO8601::dayOfYear(m_plainDate);
-}
-
-uint8_t TemporalPlainDateTime::weekOfYear() const
-{
-    return ISO8601::weekOfYear(m_plainDate);
-}
-
-int32_t TemporalPlainDateTime::yearOfWeek() const
-{
-    return ISO8601::yearOfWeek(m_plainDate);
-}
-
 // https://tc39.es/proposal-temporal/#sec-temporal-differencetemporalplaindatetime
 ISO8601::Duration TemporalPlainDateTime::differenceTemporalPlainDateTime(
     JSGlobalObject* globalObject, DifferenceOperation op,

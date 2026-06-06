@@ -744,7 +744,7 @@ JSC_DEFINE_HOST_FUNCTION(temporalZonedDateTimePrototypeFuncWith, (JSGlobalObject
     // temporal_rs: ZonedDateTime::with_with_provider — is_exact=true when offset option is 'use'.
     // offset_nanos = Some(givenOffsetNs) always.
     if (offsetOpt == TemporalOffsetDisambiguation::Use) {
-        Int128 naiveNs = getUTCEpochNanoseconds({ newDate, newTime });
+        Int128 naiveNs = TemporalCore::getUTCEpochNanoseconds(newDate, newTime);
         auto resultNs = naiveNs - Int128(givenOffsetNs);
         RELEASE_AND_RETURN(scope, JSValue::encode(zdt->withExactTime(globalObject, ISO8601::ExactTime(resultNs))));
     }

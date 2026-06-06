@@ -346,9 +346,4 @@ ISO8601::Duration TemporalPlainYearMonth::since(JSGlobalObject* globalObject, Te
     return sinceOrUntil<DifferenceOperation::Since>(globalObject, other, optionsValue);
 }
 
-String TemporalPlainYearMonth::monthCode() const
-{
-    return ISO8601::monthCode(m_plainYearMonth.month());
-}
-
 } // namespace JSC
