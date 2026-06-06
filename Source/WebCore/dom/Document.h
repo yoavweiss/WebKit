@@ -2079,8 +2079,8 @@ public:
     // Cache of the first (in tree order) Element with 'attribute'.
     Element* NODELETE cachedFirstElementWithAttribute(const QualifiedName& attribute) const;
     void setCachedFirstElementWithAttribute(const QualifiedName& attribute, Element&);
-    void NODELETE attributeAddedToElement(const QualifiedName& attribute);
-    void NODELETE elementDisconnectedFromDocument(const Element&);
+    void attributeAddedToElement(const QualifiedName& attribute);
+    void elementDisconnectedFromDocument(const Element&);
 
     WEBCORE_EXPORT void prefetch(const URL&, const Vector<String>&, std::optional<ReferrerPolicy>, bool lowPriority = false);
 
@@ -2260,7 +2260,7 @@ private:
     RefPtr<ResizeObserver> ensureResizeObserverForContainIntrinsicSize();
     void parentOrShadowHostNode() const = delete; // Call parentNode() instead.
 
-    bool NODELETE isObservingContentVisibilityTargets() const;
+    bool isObservingContentVisibilityTargets() const;
 
 #if ENABLE(MEDIA_STREAM)
     void updateCaptureAccordingToMutedState();
