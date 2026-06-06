@@ -276,8 +276,12 @@ StreamPipeToState::~StreamPipeToState() = default;
 JSDOMGlobalObject* StreamPipeToState::globalObject()
 {
     RefPtr context = scriptExecutionContext();
-
-    return context ? dynamicDowncast<JSDOMGlobalObject>(context->globalObject()) : nullptr;
+    if (!context)
+        return nullptr;
+    auto* jsGlobalObject = context->globalObject();
+    if (!jsGlobalObject)
+        return nullptr;
+    return dynamicDowncast<JSDOMGlobalObject>(jsGlobalObject);
 }
 
 void StreamPipeToState::handleSignal()
