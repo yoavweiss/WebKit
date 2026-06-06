@@ -2013,7 +2013,7 @@ public:
     //     matched string alternative, without jumping to backtracking doe to fixup offests.
     //     Instead we fixup the offsets, if needed, at the top of the next alternative's
     //     matching JIT code.
-    void NODELETE checkForTerminalParentheses()
+    void checkForTerminalParentheses()
     {
         // This check is much too crude; should be just checking whether the candidate
         // node contains nested capturing subpatterns, not the whole expression!
@@ -2041,8 +2041,13 @@ public:
                 PatternTerm& term = terms[1];
 
                 PatternDisjunction* nestedDisjunction = term.parentheses.disjunction;
+                constexpr unsigned emptyAlternativeNotFound = std::numeric_limits<unsigned>::max();
+                unsigned firstEmptyAlternative = emptyAlternativeNotFound;
                 for (unsigned alt = 0; isStringList && alt < nestedDisjunction->m_alternatives.size(); ++alt) {
                     Vector<PatternTerm>& innerTerms = nestedDisjunction->m_alternatives[alt]->m_terms;
+
+                    if (innerTerms.isEmpty() && firstEmptyAlternative == emptyAlternativeNotFound)
+                        firstEmptyAlternative = alt;
 
                     for (size_t termIndex = 0; termIndex < innerTerms.size(); ++termIndex) {
                         PatternTerm& innerTerm = innerTerms[termIndex];
@@ -2055,8 +2060,16 @@ public:
                     }
                 }
 
+                bool isEOLStringList = terms.size() == 3 && terms[2].type == PatternTerm::Type::AssertionEOL;
                 term.parentheses.isStringList = isStringList;
-                term.parentheses.isEOLStringList = (terms.size() == 3 && terms[2].type == PatternTerm::Type::AssertionEOL);
+                term.parentheses.isEOLStringList = isEOLStringList;
+
+                // In a non-EOL string list the first empty alternative always matches and ends the match, so later
+                // alternatives are unreachable. Drop them so the empty alternative is last and the JIT can fall through to success.
+                if (isStringList && !isEOLStringList && firstEmptyAlternative != emptyAlternativeNotFound && firstEmptyAlternative + 1 < nestedDisjunction->m_alternatives.size()) {
+                    nestedDisjunction->m_alternatives.shrink(firstEmptyAlternative + 1);
+                    nestedDisjunction->m_alternatives.last()->m_isLastAlternative = true;
+                }
             }
 
             if (isStringList)
