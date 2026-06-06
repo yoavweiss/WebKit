@@ -3280,6 +3280,11 @@ void Element::movingSteps(bool isSubtreeRoot, ContainerNode& oldParent)
             updateNameForDocument(*newHTMLDocument, nullAtom(), nameValue);
     }
 
+    if (!is<HTMLSlotElement>(*this))
+        updateEffectiveTextDirectionIfNeeded();
+
+    updateEffectiveLangState();
+
     if (!isSubtreeRoot || !hasFocusWithin())
         return;
 
