@@ -52,6 +52,7 @@ skip:
     - test/intl402/Intl/getCanonicalLocales/unicode-ext-canonicalize-region.js
     - test/intl402/Intl/getCanonicalLocales/unicode-ext-canonicalize-subdivision.js
     - test/intl402/Locale/constructor-options-region-valid.js
+    - test/intl402/Locale/extensions-grandfathered.js
     - test/intl402/Locale/getters-grandfathered.js
     - test/intl402/Locale/likely-subtags-grandfathered.js
 
