@@ -858,7 +858,7 @@ void WebProcessPool::registerNotificationObservers()
     }];
 
     m_accessibilityDisplayOptionsNotificationObserver = [retainPtr([NSWorkspace.sharedWorkspace notificationCenter]) addObserverForName:NSWorkspaceAccessibilityDisplayOptionsDidChangeNotification object:nil queue:[NSOperationQueue currentQueue] usingBlock:^(NSNotification *notification) {
-        screenPropertiesChanged();
+        screenPropertiesChanged("NSWorkspaceAccessibilityDisplayOptionsDidChangeNotification"_s);
     }];
 
     m_scrollerStyleNotificationObserver = [[NSNotificationCenter defaultCenter] addObserverForName:NSPreferredScrollerStyleDidChangeNotification object:nil queue:[NSOperationQueue currentQueue] usingBlock:^(NSNotification *notification) {
@@ -878,7 +878,7 @@ void WebProcessPool::registerNotificationObservers()
     }];
 
     m_didChangeScreenParametersNotificationObserver = [[NSNotificationCenter defaultCenter] addObserverForName:NSApplicationDidChangeScreenParametersNotification object:NSAppSingleton() queue:[NSOperationQueue currentQueue] usingBlock:^(NSNotification *notification) {
-        screenPropertiesChanged();
+        screenPropertiesChanged("NSApplicationDidChangeScreenParametersNotification"_s);
     }];
 #if HAVE(SUPPORT_HDR_DISPLAY_APIS)
     m_didBeginSuppressingHighDynamicRange = [[NSNotificationCenter defaultCenter] addObserverForName:NSApplicationShouldBeginSuppressingHighDynamicRangeContentNotification object:NSAppSingleton() queue:[NSOperationQueue currentQueue] usingBlock:^(NSNotification *notification) {
@@ -1287,7 +1287,85 @@ void WebProcessPool::notifyPreferencesChanged(const String& domain, const String
 }
 #endif // ENABLE(CFPREFS_DIRECT_MODE)
 
-void WebProcessPool::screenPropertiesChanged()
+void WebProcessPool::sendScreenPropertiesChangedToAllProcesses(const WebCore::ScreenProperties& screenProperties, ASCIILiteral reason)
+{
+    static constexpr Seconds excessiveUpdateWindow { 60_s };
+    static constexpr unsigned excessiveUpdateThreshold = 600;
+
+    auto now = ApproximateTime::now();
+    if (now - m_screenPropertiesUpdateReasonsTime > excessiveUpdateWindow) {
+        if (m_logScreenPropertiesUpdateReasonsTimer.isActive()) {
+            // Drain any pending log first so we don't drop counts that were about to be reported.
+            m_logScreenPropertiesUpdateReasonsTimer.stop();
+            logScreenPropertiesUpdateReasonsTimerFired();
+        } else {
+            m_screenPropertiesUpdateReasons.clear();
+            m_screenPropertiesUpdateCount = 0;
+            m_screenPropertiesUpdateReasonsTime = now;
+        }
+    }
+    m_screenPropertiesUpdateReasons.add(reason);
+    ++m_screenPropertiesUpdateCount;
+
+    if (m_screenPropertiesUpdateCount > excessiveUpdateThreshold && !m_logScreenPropertiesUpdateReasonsTimer.isActive())
+        m_logScreenPropertiesUpdateReasonsTimer.startOneShot(excessiveUpdateWindow - (now - m_screenPropertiesUpdateReasonsTime));
+
+    static constexpr Seconds debounceInterval { 1_s };
+
+    if (m_screenPropertiesUpdateTimer.isActive()) {
+        ASSERT(m_pendingScreenProperties);
+        *m_pendingScreenProperties = screenProperties;
+        return;
+    }
+
+    auto elapsed = now - m_lastScreenPropertiesSendTime;
+    if (elapsed >= debounceInterval) {
+        m_lastScreenPropertiesSendTime = now;
+        dispatchScreenPropertiesChangedToAllProcesses(screenProperties);
+        return;
+    }
+
+    m_pendingScreenProperties = makeUnique<WebCore::ScreenProperties>(screenProperties);
+    m_screenPropertiesUpdateTimer.startOneShot(debounceInterval - elapsed);
+}
+
+void WebProcessPool::logScreenPropertiesUpdateReasonsTimerFired()
+{
+    ASCIILiteral mostCommonReason;
+    unsigned mostCommonCount = 0;
+    for (const auto& entry : m_screenPropertiesUpdateReasons) {
+        if (entry.value > mostCommonCount) {
+            mostCommonCount = entry.value;
+            mostCommonReason = entry.key;
+        }
+    }
+    auto elapsed = ApproximateTime::now() - m_screenPropertiesUpdateReasonsTime;
+    WEBPROCESSPOOL_RELEASE_LOG(DisplayLink, "Excessive screen property updates: %u updates over %.1f seconds, most common reason: %" PUBLIC_LOG_STRING " (%u times)", m_screenPropertiesUpdateCount, elapsed.seconds(), mostCommonReason.characters(), mostCommonCount);
+
+    m_screenPropertiesUpdateReasons.clear();
+    m_screenPropertiesUpdateCount = 0;
+    m_screenPropertiesUpdateReasonsTime = ApproximateTime::now();
+}
+
+void WebProcessPool::screenPropertiesUpdateTimerFired()
+{
+    ASSERT(m_pendingScreenProperties);
+    auto pendingProperties = std::exchange(m_pendingScreenProperties, nullptr);
+    m_lastScreenPropertiesSendTime = ApproximateTime::now();
+    dispatchScreenPropertiesChangedToAllProcesses(*pendingProperties);
+}
+
+void WebProcessPool::dispatchScreenPropertiesChangedToAllProcesses(const WebCore::ScreenProperties& screenProperties)
+{
+    sendToAllProcesses(Messages::WebProcess::SetScreenProperties(screenProperties));
+
+#if PLATFORM(MAC) && ENABLE(GPU_PROCESS)
+    if (RefPtr gpuProcess = this->gpuProcess())
+        gpuProcess->setScreenProperties(screenProperties);
+#endif
+}
+
+void WebProcessPool::screenPropertiesChanged(ASCIILiteral reason)
 {
     auto screenProperties = WebCore::collectScreenProperties();
 #if HAVE(SUPPORT_HDR_DISPLAY)
@@ -1300,26 +1378,17 @@ void WebProcessPool::screenPropertiesChanged()
         }
     }
 #endif
-    sendToAllProcesses(Messages::WebProcess::SetScreenProperties(screenProperties));
 
-#if PLATFORM(MAC) && ENABLE(GPU_PROCESS)
-    if (RefPtr gpuProcess = this->gpuProcess())
-        gpuProcess->setScreenProperties(screenProperties);
-#endif
+    sendScreenPropertiesChangedToAllProcesses(screenProperties, reason);
 }
 
 #if PLATFORM(MAC)
 void WebProcessPool::displayPropertiesChanged(const WebCore::ScreenProperties& screenProperties, WebCore::PlatformDisplayID displayID, CGDisplayChangeSummaryFlags flags)
 {
-    sendToAllProcesses(Messages::WebProcess::SetScreenProperties(screenProperties));
-
     if (auto* displayLink = displayLinks().existingDisplayLinkForDisplay(displayID))
         displayLink->displayPropertiesChanged();
 
-#if ENABLE(GPU_PROCESS)
-    if (RefPtr gpuProcess = this->gpuProcess())
-        gpuProcess->setScreenProperties(screenProperties);
-#endif
+    sendScreenPropertiesChangedToAllProcesses(screenProperties, "displayPropertiesChanged"_s);
 }
 
 static void displayReconfigurationCallBack(CGDirectDisplayID displayID, CGDisplayChangeSummaryFlags flags, void *userInfo)
@@ -1346,7 +1415,7 @@ static void webProcessPoolHighDynamicRangeDidChangeCallback(CFNotificationCenter
     RunLoop::mainSingleton().dispatch([] {
         auto properties = WebCore::collectScreenProperties();
         for (auto& pool : WebProcessPool::allProcessPools())
-            pool->sendToAllProcesses(Messages::WebProcess::SetScreenProperties(properties));
+            pool->sendScreenPropertiesChangedToAllProcesses(properties, "ShouldPlayHDRVideoChanged"_s);
     });
 }
 
@@ -1387,7 +1456,7 @@ void WebProcessPool::registerHighDynamicRangeChangeCallback()
     static NeverDestroyed<LowPowerModeNotifier> notifier { [](bool) {
         auto properties = WebCore::collectScreenProperties();
         for (auto& pool : WebProcessPool::allProcessPools())
-            pool->sendToAllProcesses(Messages::WebProcess::SetScreenProperties(properties));
+            pool->sendScreenPropertiesChangedToAllProcesses(properties, "LowPowerModeNotifier"_s);
     } };
 }
 #endif // PLATFORM(IOS) || PLATFORM(VISION)
@@ -1400,7 +1469,7 @@ void WebProcessPool::didRefreshDisplay()
     float headroom = currentEDRHeadroomForDisplay(screen->primaryScreenDisplayID());
     if (m_currentEDRHeadroom != headroom) {
         m_currentEDRHeadroom = headroom;
-        screenPropertiesChanged();
+        screenPropertiesChanged("didRefreshDisplayEDRHeadroomChanged"_s);
     }
 #endif
 }
@@ -1413,7 +1482,7 @@ void WebProcessPool::suppressEDR(bool suppressEDR)
         return;
 
     m_suppressEDR = suppressEDR;
-    screenPropertiesChanged();
+    screenPropertiesChanged("suppressEDR"_s);
 #else
     UNUSED_PARAM(m_suppressEDR);
 #endif

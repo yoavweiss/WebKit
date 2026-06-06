@@ -27,6 +27,7 @@
 
 #include <WebCore/ContentsFormat.h>
 #include <WebCore/ScreenProperties.h>
+#include <memory>
 #include <wtf/Forward.h>
 #include <wtf/Platform.h>
 #include <wtf/ThreadSafeRefCounted.h>

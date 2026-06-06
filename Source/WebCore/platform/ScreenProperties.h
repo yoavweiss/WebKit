@@ -30,6 +30,7 @@
 #include <wtf/HashMap.h>
 #include <wtf/Platform.h>
 #include <wtf/RetainPtr.h>
+#include <wtf/TZoneMalloc.h>
 #include <wtf/text/WTFString.h>
 
 namespace WebCore {
@@ -90,6 +91,8 @@ struct ScreenData {
 using ScreenDataMap = HashMap<PlatformDisplayID, ScreenData>;
 
 struct ScreenProperties {
+    WTF_MAKE_STRUCT_TZONE_ALLOCATED_EXPORT(ScreenProperties, WEBCORE_EXPORT);
+
     PlatformDisplayID primaryDisplayID { 0 };
     ScreenDataMap screenDataMap;
 #if HAVE(SUPPORT_HDR_DISPLAY)

@@ -31,8 +31,11 @@
 #include "ScreenProperties.h"
 #include <wtf/Lock.h>
 #include <wtf/NeverDestroyed.h>
+#include <wtf/TZoneMallocInlines.h>
 
 namespace WebCore {
+
+WTF_MAKE_STRUCT_TZONE_ALLOCATED_IMPL(ScreenProperties);
 
 static Lock& platformScreenLock()
 {
