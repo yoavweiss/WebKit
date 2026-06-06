@@ -253,7 +253,7 @@ static RefPtr<DOMPromise> cancelReadableStream(JSDOMGlobalObject& globalObject, 
     if (!value)
         return nullptr;
 
-    auto* promise = downcast<JSC::JSPromise>(value);
+    auto* promise = dynamicDowncast<JSC::JSPromise>(value);
     if (!promise)
         return nullptr;
 
@@ -276,7 +276,8 @@ StreamPipeToState::~StreamPipeToState() = default;
 JSDOMGlobalObject* StreamPipeToState::globalObject()
 {
     RefPtr context = scriptExecutionContext();
-    return context ? downcast<JSDOMGlobalObject>(context->globalObject()) : nullptr;
+
+    return context ? dynamicDowncast<JSDOMGlobalObject>(context->globalObject()) : nullptr;
 }
 
 void StreamPipeToState::handleSignal()
@@ -411,7 +412,7 @@ void StreamPipeToState::errorsMustBePropagatedForward(JSDOMGlobalObject& globalO
                 auto value = internalWritableStream->abort(*globalObject, error.get());
                 if (!value)
                     return nullptr;
-                auto* promise = downcast<JSC::JSPromise>(value);
+                auto* promise = dynamicDowncast<JSC::JSPromise>(value);
                 if (!promise) {
                     auto [result, deferred] = createPromiseAndWrapper(*globalObject);
                     deferred->resolve();
@@ -559,7 +560,7 @@ void StreamPipeToState::closingMustBePropagatedBackward()
             };
 
             auto [result, deferred] = createPromiseAndWrapper(*globalObject);
-            auto* promise = downcast<JSC::JSPromise>(value);
+            auto* promise = dynamicDowncast<JSC::JSPromise>(value);
             if (!promise)
                 deferred->rejectWithCallback(WTF::move(getError2), RejectAsHandled::Yes);
             else {
