@@ -1969,16 +1969,33 @@ inline OptionSet<WebKit::FindOptions> toFindOptions(WKFindConfiguration *configu
 
 - (void)_showWarningView:(const WebKit::BrowsingWarning&)warning completionHandler:(CompletionHandler<void(Variant<WebKit::ContinueUnsafeLoad, URL>&&)>&&)completionHandler
 {
-    _warningView = adoptNS([[_WKWarningView alloc] initWithFrame:self.bounds browsingWarning:warning completionHandler:[weakSelf = WeakObjCPtr<WKWebView>(self), completionHandler = WTF::move(completionHandler)] (auto&& result) mutable {
-        completionHandler(std::forward<decltype(result)>(result));
-        auto strongSelf = weakSelf.get();
+#if HAVE(SAFE_BROWSING)
+    if (_warningView)
+        [std::exchange(_warningView, nullptr) removeFromSuperview];
+
+    auto navigationID = _page->safeBrowsingWarningShownForNavigation();
+#endif
+    _warningView = adoptNS([[_WKWarningView alloc] initWithFrame:self.bounds browsingWarning:warning completionHandler:[weakSelf = WeakObjCPtr { self },
+#if HAVE(SAFE_BROWSING)
+        navigationID,
+#endif
+        completionHandler = WTF::move(completionHandler)]<typename Result> (Result&& result) mutable {
+        RetainPtr strongSelf = weakSelf.get();
+#if HAVE(SAFE_BROWSING)
+        if (!strongSelf || !strongSelf->_page
+            || strongSelf->_page->safeBrowsingWarningShownForNavigation() != navigationID) {
+            completionHandler(std::forward<Result>(result));
+            return;
+        }
+#endif
+        bool forMainFrameNavigation = [strongSelf->_warningView forMainFrameNavigation];
+        completionHandler(std::forward<Result>(result));
         if (!strongSelf)
             return;
         bool navigatesFrame = WTF::switchOn(result,
             [] (WebKit::ContinueUnsafeLoad continueUnsafeLoad) { return continueUnsafeLoad == WebKit::ContinueUnsafeLoad::Yes; },
             [] (const URL&) { return true; }
         );
-        bool forMainFrameNavigation = [strongSelf->_warningView forMainFrameNavigation];
         if (navigatesFrame && forMainFrameNavigation) {
             // The safe browsing warning will be hidden once the next page is shown.
             return;
@@ -7122,7 +7139,7 @@ static RetainPtr<_WKTextExtractionResult> createEmptyTextExtractionResult()
         if (_page->pageLoadState().committedHadSafeBrowsingWarning())
             return YES;
 
-        if (_page->hasShownSafeBrowsingWarningAfterLastLoadCommit())
+        if (_page->safeBrowsingWarningShownForNavigation())
             return YES;
 #endif
 #if HAVE(SAFE_BROWSING) && PLATFORM(IOS_FAMILY)

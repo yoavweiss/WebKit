@@ -2981,11 +2981,6 @@ public:
 
     void updateRemoteIntersectionObserversInOtherWebProcesses(IPC::Connection&);
 
-#if HAVE(SAFE_BROWSING)
-    void setHasShownSafeBrowsingWarningAfterLastLoadCommit() { m_hasShownSafeBrowsingWarningAfterLastLoadCommit = true; }
-    bool hasShownSafeBrowsingWarningAfterLastLoadCommit() const { return m_hasShownSafeBrowsingWarningAfterLastLoadCommit; }
-#endif
-
     bool shouldUseBackForwardCache() const;
 
 #if ENABLE(MODEL_ELEMENT_IMMERSIVE)
@@ -2993,6 +2988,11 @@ public:
 #endif
 
     void updateCanGoBackAndForward();
+
+#if HAVE(SAFE_BROWSING)
+    void setSafeBrowsingWarningShownForNavigation(WebCore::NavigationIdentifier id) { m_safeBrowsingWarningShownForNavigation = id; }
+    std::optional<WebCore::NavigationIdentifier> safeBrowsingWarningShownForNavigation() const { return m_safeBrowsingWarningShownForNavigation; }
+#endif
 
 private:
     WebPageProxy(PageClient&, WebProcessProxy&, Ref<API::PageConfiguration>&&);
@@ -4202,7 +4202,7 @@ private:
 #if HAVE(SAFE_BROWSING)
     Vector<CompletionHandler<void(bool)>> m_deferredModalHandlers;
     bool m_isSafeBrowsingCheckInProgress { false };
-    bool m_hasShownSafeBrowsingWarningAfterLastLoadCommit { false };
+    std::optional<WebCore::NavigationIdentifier> m_safeBrowsingWarningShownForNavigation;
 #endif
     bool m_isLockdownModeExplicitlySet { false };
 
