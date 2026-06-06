@@ -190,10 +190,10 @@ AcceleratedEffectReferencePath Evaluation<ReferencePath, AcceleratedEffectRefere
     };
 }
 
-AcceleratedEffectBasicShapePath Evaluation<BasicShapePath, AcceleratedEffectBasicShapePath>::operator()(const BasicShapePath& value, const TransformOperationData& data, ZoomFactor zoom)
+AcceleratedEffectBasicShapePath Evaluation<BasicShapePath, AcceleratedEffectBasicShapePath>::operator()(const BasicShapePath& value, const FloatRect& containingBlock, ZoomFactor zoom)
 {
     return {
-        .basicShape = evaluate<AcceleratedEffectBasicShape>(value.shape(), data, zoom),
+        .basicShape = evaluate<AcceleratedEffectBasicShape>(value.shape(), containingBlock, zoom),
         .box = toAcceleratedEffectCoordBox(value.referenceBox()),
     };
 }

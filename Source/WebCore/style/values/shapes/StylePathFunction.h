@@ -33,7 +33,6 @@
 namespace WebCore {
 
 struct AcceleratedEffectPathFunction;
-struct TransformOperationData;
 
 namespace Style {
 
@@ -100,7 +99,7 @@ template<> struct Blending<Path> {
 
 #if ENABLE(THREADED_ANIMATIONS)
 
-template<> struct Evaluation<PathFunction, AcceleratedEffectPathFunction> { AcceleratedEffectPathFunction operator()(const PathFunction&, const TransformOperationData&, ZoomFactor); };
+template<> struct Evaluation<PathFunction, AcceleratedEffectPathFunction> { AcceleratedEffectPathFunction operator()(const PathFunction&, const FloatSize&, ZoomFactor); };
 
 #endif
 

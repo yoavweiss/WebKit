@@ -181,7 +181,7 @@ WTF::TextStream& operator<<(WTF::TextStream& ts, const Path::Data& value)
 
 #if ENABLE(THREADED_ANIMATIONS)
 
-AcceleratedEffectPathFunction Evaluation<PathFunction, AcceleratedEffectPathFunction>::operator()(const PathFunction& value, const TransformOperationData&, ZoomFactor)
+AcceleratedEffectPathFunction Evaluation<PathFunction, AcceleratedEffectPathFunction>::operator()(const PathFunction& value, const FloatSize&, ZoomFactor)
 {
     return {
         .fillRule = windRule(value),

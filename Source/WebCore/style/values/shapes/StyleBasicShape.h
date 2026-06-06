@@ -88,7 +88,7 @@ template<> struct WindRuleComputation<BasicShape> { WebCore::WindRule operator()
 
 #if ENABLE(THREADED_ANIMATIONS)
 
-template<> struct Evaluation<BasicShape, AcceleratedEffectBasicShape> { AcceleratedEffectBasicShape operator()(const BasicShape&, const TransformOperationData&, ZoomFactor); };
+template<> struct Evaluation<BasicShape, AcceleratedEffectBasicShape> { AcceleratedEffectBasicShape operator()(const BasicShape&, const FloatRect&, ZoomFactor); };
 
 #endif
 

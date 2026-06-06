@@ -33,7 +33,6 @@
 #include "StyleLengthWrapper+Blending.h"
 #include "StylePrimitiveNumericTypes+Blending.h"
 #include "StylePrimitiveNumericTypes+Evaluation.h"
-#include "TransformOperationData.h"
 #include <WebCore/StylePosition.h>
 #include <wtf/TinyLRUCache.h>
 
@@ -193,10 +192,8 @@ AcceleratedEffectEllipseFunction::RadialSize Evaluation<Ellipse::RadialSize, Acc
     );
 }
 
-AcceleratedEffectEllipseFunction Evaluation<EllipseFunction, AcceleratedEffectEllipseFunction>::operator()(const EllipseFunction& value, const TransformOperationData& data, ZoomFactor zoom)
+AcceleratedEffectEllipseFunction Evaluation<EllipseFunction, AcceleratedEffectEllipseFunction>::operator()(const EllipseFunction& value, const FloatSize& containingBlockSize, ZoomFactor zoom)
 {
-    auto containingBlockSize = data.motionPathData->offsetRect().rect().size();
-
     return {
         .radii = {
             evaluate<AcceleratedEffectEllipseFunction::RadialSize>(get<0>(value->radii), containingBlockSize.width(), zoom),

@@ -117,7 +117,7 @@ AcceleratedEffectOffsetPath Evaluation<OffsetPath, AcceleratedEffectOffsetPath>:
             return { .value = evaluate<AcceleratedEffectOffsetPath::ReferencePath>(path, data, zoom) };
         },
         [&](const BasicShapePath& path) -> AcceleratedEffectOffsetPath {
-            return { .value = evaluate<AcceleratedEffectOffsetPath::BasicShapePath>(path, data, zoom) };
+            return { .value = evaluate<AcceleratedEffectOffsetPath::BasicShapePath>(path, data.motionPathData->offsetRect().rect(), zoom) };
         },
         [&](const BoxPath& path) -> AcceleratedEffectOffsetPath {
             return { .value = evaluate<AcceleratedEffectOffsetPath::BoxPath>(path, data, zoom) };

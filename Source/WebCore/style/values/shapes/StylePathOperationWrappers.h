@@ -209,7 +209,7 @@ template<> struct Serialize<BasicShapePath> { void operator()(StringBuilder&, co
 
 template<> struct Evaluation<RayPath, AcceleratedEffectRayPath> { AcceleratedEffectRayPath operator()(const RayPath&, const TransformOperationData& data, ZoomFactor); };
 template<> struct Evaluation<ReferencePath, AcceleratedEffectReferencePath> { AcceleratedEffectReferencePath operator()(const ReferencePath&, const TransformOperationData&, ZoomFactor); };
-template<> struct Evaluation<BasicShapePath, AcceleratedEffectBasicShapePath> { AcceleratedEffectBasicShapePath operator()(const BasicShapePath&, const TransformOperationData&, ZoomFactor); };
+template<> struct Evaluation<BasicShapePath, AcceleratedEffectBasicShapePath> { AcceleratedEffectBasicShapePath operator()(const BasicShapePath&, const FloatRect&, ZoomFactor); };
 template<> struct Evaluation<BoxPath, AcceleratedEffectBoxPath> { AcceleratedEffectBoxPath operator()(const BoxPath&, const TransformOperationData&, ZoomFactor); };
 
 #endif

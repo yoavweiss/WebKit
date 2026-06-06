@@ -157,26 +157,26 @@ WindRule WindRuleComputation<BasicShape>::operator()(const BasicShape& shape)
 
 #if ENABLE(THREADED_ANIMATIONS)
 
-AcceleratedEffectBasicShape Evaluation<BasicShape, AcceleratedEffectBasicShape>::operator()(const BasicShape& shape, const TransformOperationData& data, ZoomFactor zoom)
+AcceleratedEffectBasicShape Evaluation<BasicShape, AcceleratedEffectBasicShape>::operator()(const BasicShape& shape, const FloatRect& containingBlock, ZoomFactor zoom)
 {
     return WTF::switchOn(shape,
         [&](const Style::CircleFunction& shape) -> AcceleratedEffectBasicShape {
-            return { .function = evaluate<AcceleratedEffectCircleFunction>(shape, data, zoom) };
+            return { .function = evaluate<AcceleratedEffectCircleFunction>(shape, containingBlock.size(), zoom) };
         },
         [&](const Style::EllipseFunction& shape) -> AcceleratedEffectBasicShape {
-            return { .function = evaluate<AcceleratedEffectEllipseFunction>(shape, data, zoom) };
+            return { .function = evaluate<AcceleratedEffectEllipseFunction>(shape, containingBlock.size(), zoom) };
         },
         [&](const Style::InsetFunction& shape) -> AcceleratedEffectBasicShape {
-            return { .function = evaluate<AcceleratedEffectInsetFunction>(shape, data, zoom) };
+            return { .function = evaluate<AcceleratedEffectInsetFunction>(shape, containingBlock.size(), zoom) };
         },
         [&](const Style::PathFunction& shape) -> AcceleratedEffectBasicShape {
-            return { .function = evaluate<AcceleratedEffectPathFunction>(shape, data, zoom) };
+            return { .function = evaluate<AcceleratedEffectPathFunction>(shape, containingBlock.size(), zoom) };
         },
         [&](const Style::PolygonFunction& shape) -> AcceleratedEffectBasicShape {
-            return { .function = evaluate<AcceleratedEffectPolygonFunction>(shape, data, zoom) };
+            return { .function = evaluate<AcceleratedEffectPolygonFunction>(shape, containingBlock.size(), zoom) };
         },
         [&](const Style::ShapeFunction& shape) -> AcceleratedEffectBasicShape {
-            return { .function = evaluate<AcceleratedEffectShapeFunction>(shape, data, zoom) };
+            return { .function = evaluate<AcceleratedEffectShapeFunction>(shape, containingBlock, zoom) };
         }
     );
 }

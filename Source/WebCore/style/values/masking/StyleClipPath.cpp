@@ -80,7 +80,7 @@ AcceleratedEffectClipPath Evaluation<ClipPath, AcceleratedEffectClipPath>::opera
             return { .value = evaluate<AcceleratedEffectClipPath::ReferencePath>(path, data, zoom) };
         },
         [&](const BasicShapePath& path) -> AcceleratedEffectClipPath {
-            return { .value = evaluate<AcceleratedEffectClipPath::BasicShapePath>(path, data, zoom) };
+            return { .value = evaluate<AcceleratedEffectClipPath::BasicShapePath>(path, data.boundingBox, zoom) };
         },
         [&](const BoxPath& path) -> AcceleratedEffectClipPath {
             return { .value = evaluate<AcceleratedEffectClipPath::BoxPath>(path, data, zoom) };
