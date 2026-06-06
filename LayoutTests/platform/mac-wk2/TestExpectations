@@ -2435,7 +2435,3 @@ webkit.org/b/316036 [ Debug ] inspector/timeline/timeline-event-TimerFire.html [
 webkit.org/b/315982 [ Sequoia Release x86_64 ] webgl/pending/conformance/glsl/misc/swizzle-as-lvalue.html [ Pass Timeout ]
 
 webkit.org/b/316089 [ Sequoia Release ] inspector/css/setLayoutContextTypeChangedMode.html [ Pass Failure ]
-
-# webkit.org/b/316455 REGRESSION(314371@main): (macOS) fast/scrolling/Mac tests are flaky failures
-fast/scrolling/mac/slow-scrolling-overflow.html [ Pass Failure ]
-fast/scrolling/mac/overflow-scrolled-document.html [ Pass Failure ]
