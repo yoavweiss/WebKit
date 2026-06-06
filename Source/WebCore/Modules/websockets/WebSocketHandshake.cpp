@@ -197,6 +197,7 @@ ResourceRequest WebSocketHandshake::clientHandshakeRequest(NOESCAPE const Functi
     auto extensions = m_extensionDispatcher.createHeaderValue();
     ResourceRequest request { URL { m_url } };
     request.setHTTPMethod("GET"_s);
+    request.setHTTPHeaderField(HTTPHeaderName::Upgrade, "websocket"_s);
     request.setHTTPHeaderField(HTTPHeaderName::Connection, "Upgrade"_s);
     request.setHTTPHeaderField(HTTPHeaderName::Host, hostName(m_url, m_secure));
     request.setHTTPHeaderField(HTTPHeaderName::Origin, m_clientOrigin);

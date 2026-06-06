@@ -62,7 +62,6 @@ WebSocketTask::WebSocketTask(NetworkSocketChannel& channel, WebPageProxyIdentifi
         localhostAlias = WebCore::CurlStream::LocalhostAlias::Enable;
 
     m_streamID = m_scheduler.createStream(request.url(), *this, WebCore::CurlStream::ServerTrustEvaluation::Enable, localhostAlias);
-    channel.didSendHandshakeRequest(WebCore::ResourceRequest(m_request));
 }
 
 WebSocketTask::~WebSocketTask()
@@ -127,16 +126,17 @@ void WebSocketTask::didOpen(WebCore::CurlStreamID)
     m_handshake->reset();
     m_handshake->addExtensionProcessor(m_deflateFramer.createExtensionProcessor());
 
-    CString cookieHeader;
-
+    String cookieHeaderField;
     if (m_request.allowCookies()) {
         if (CheckedPtr storageSession = networkSession() ? networkSession()->networkStorageSession() : nullptr) {
             auto includeSecureCookies = m_request.url().protocolIs("wss"_s) ? WebCore::IncludeSecureCookies::Yes : WebCore::IncludeSecureCookies::No;
-            auto cookieHeaderField = storageSession->cookieRequestHeaderFieldValue(m_request.firstPartyForCookies(), WebCore::SameSiteInfo::create(m_request), m_request.url(), std::nullopt, std::nullopt, includeSecureCookies, WebCore::ApplyTrackingPrevention::Yes, WebCore::ShouldRelaxThirdPartyCookieBlocking::No, WebCore::IsKnownCrossSiteTracker::No).first;
-            if (!cookieHeaderField.isEmpty())
-                cookieHeader = makeString("Cookie: "_s, cookieHeaderField, "\r\n"_s).utf8();
+            cookieHeaderField = storageSession->cookieRequestHeaderFieldValue(m_request.firstPartyForCookies(), WebCore::SameSiteInfo::create(m_request), m_request.url(), std::nullopt, std::nullopt, includeSecureCookies, WebCore::ApplyTrackingPrevention::Yes, WebCore::ShouldRelaxThirdPartyCookieBlocking::No, WebCore::IsKnownCrossSiteTracker::No).first;
         }
     }
+
+    CString cookieHeader;
+    if (!cookieHeaderField.isEmpty())
+        cookieHeader = makeString("Cookie: "_s, cookieHeaderField, "\r\n"_s).utf8();
 
     auto originalMessage = m_handshake->clientHandshakeMessage();
     auto handshakeMessageLength = originalMessage.length() + cookieHeader.length();
@@ -149,6 +149,15 @@ void WebSocketTask::didOpen(WebCore::CurlStreamID)
     }
 
     m_scheduler.send(m_streamID, WTF::move(handshakeMessage), handshakeMessageLength);
+
+    // Web Inspector needs the method and headers from the handshake.
+    auto handshakeRequest = m_handshake->clientHandshakeRequest([&cookieHeaderField] (const URL&) {
+        return cookieHeaderField;
+    });
+    auto inspectorRequest = m_request;
+    inspectorRequest.setHTTPMethod(handshakeRequest.httpMethod());
+    inspectorRequest.setHTTPHeaderFields(handshakeRequest.httpHeaderFields());
+    protect(m_channel)->didSendHandshakeRequest(WTF::move(inspectorRequest));
 }
 
 void WebSocketTask::didReceiveData(WebCore::CurlStreamID, const WebCore::SharedBuffer& buffer)
