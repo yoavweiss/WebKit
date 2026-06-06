@@ -1399,6 +1399,8 @@ auto AnchorPositionEvaluator::makeAnchorPositionedForAnchorMap(AnchorPositionedT
             RefPtr element = &styleable->element;
             if (styleable->pseudoElementIdentifier)
                 element = element->pseudoElementIfExists(*styleable->pseudoElementIdentifier);
+            if (!element)
+                continue;
 
             map.ensure(*anchor.renderer, [&] {
                 return Vector<Ref<Element>> { };
