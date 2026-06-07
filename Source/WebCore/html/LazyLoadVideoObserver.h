@@ -53,6 +53,6 @@ private:
     RefPtr<IntersectionObserver> m_observer;
 };
 
-#endif
-
 } // namespace
+
+#endif
