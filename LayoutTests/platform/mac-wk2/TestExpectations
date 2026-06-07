@@ -1460,7 +1460,6 @@ http/tests/webgpu/webgpu/shader/execution/expression/access/vector/components.ht
 http/tests/webgpu/webgpu/shader/execution/expression/call/builtin/refract.html [ Skip ]
 
 # test output is out of order
-http/tests/webgpu/webgpu/shader/validation/expression/binary/bitwise_shift.html [ Skip ]
 http/tests/webgpu/webgpu/shader/validation/expression/call/builtin/dot.html [ Skip ]
 http/tests/webgpu/webgpu/shader/validation/expression/call/builtin/extractBits.html [ Skip ]
 webkit.org/b/308252 [ Debug ] http/tests/webgpu/webgpu/shader/validation/expression/call/builtin/fma.html [ Skip ]

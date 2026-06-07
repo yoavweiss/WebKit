@@ -197,12 +197,14 @@ operator :~, {
 end
 
 {
-    "<<" => 'constantBitwiseShiftLeft',
-    ">>" => 'constantBitwiseShiftRight',
-}.each do |op, const_function|
+    "<<" => ['constantBitwiseShiftLeft', 'validateBitwiseShiftLeft'],
+    ">>" => ['constantBitwiseShiftRight', 'validateBitwiseShiftRight'],
+}.each do |op, functions|
+    const_function, validate_function = functions
     operator :"#{op}", {
         must_use: true,
         const: const_function,
+        validate: validate_function,
 
         [S < Integer].(S, u32) => S,
         [S < Integer, N].(vec[N][S], vec[N][u32]) => vec[N][S],

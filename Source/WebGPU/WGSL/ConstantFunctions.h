@@ -734,8 +734,14 @@ CONSTANT_FUNCTION(BitwiseShiftRight)
     ASSERT(arguments.size() == 2);
     const auto& shift = [&]<typename T>(T left, uint32_t right) -> ConstantResult {
         constexpr auto bitSize = sizeof(T) * 8;
-        if (right >= bitSize)
-            return makeUnexpected(makeString("shift right value must be less than the bit width of the shifted value, which is "_s, bitSize));
+        if constexpr (std::is_same_v<T, int64_t>) {
+            // Abstract-int right shifts are permitted to shift by >= bitwidth
+            if (right >= bitSize)
+                return { left < 0 ? T(-1) : T(0) };
+        } else {
+            if (right >= bitSize)
+                return makeUnexpected(makeString("shift right value must be less than the bit width of the shifted value, which is "_s, bitSize));
+        }
         return { left >> right };
     };
 
@@ -1970,7 +1976,53 @@ VALIDATION_FUNCTION(Ldexp)
     }
     if (checkScalar(e2))
         return { makeString("e2 must be less than or equal to "_s, maxExponent) };
+    return std::nullopt;
+}
 
+static bool shiftAmountExceedsBitWidth(const std::optional<ConstantValue>& lhs, const std::optional<ConstantValue>& rhs)
+{
+    if (!rhs)
+        return false;
+
+    unsigned bitWidth = 32;
+    if (lhs) {
+        auto& lhsValue = *lhs;
+        if (auto* vec = std::get_if<ConstantVector>(&lhsValue)) {
+            if (std::get_if<int64_t>(&vec->elements[0]))
+                bitWidth = 64;
+        } else if (std::get_if<int64_t>(&lhsValue))
+            bitWidth = 64;
+    }
+
+    auto checkScalarExceedsBitWidth = [&](const ConstantValue& value) -> bool {
+        if (auto* u = std::get_if<uint32_t>(&value))
+            return *u >= bitWidth;
+        return false;
+    };
+
+    if (auto* vec = std::get_if<ConstantVector>(&*rhs)) {
+        for (auto& element : vec->elements) {
+            if (checkScalarExceedsBitWidth(element))
+                return true;
+        }
+        return false;
+    }
+    return checkScalarExceedsBitWidth(*rhs);
+}
+
+VALIDATION_FUNCTION(BitwiseShiftLeft)
+{
+    UNUSED_PARAM(parameterTypes);
+    if (shiftAmountExceedsBitWidth(arguments[0], arguments[1]))
+        return { "shift left value must be less than the bit width of the shifted value, which is 32"_s };
+    return std::nullopt;
+}
+
+VALIDATION_FUNCTION(BitwiseShiftRight)
+{
+    UNUSED_PARAM(parameterTypes);
+    if (shiftAmountExceedsBitWidth(arguments[0], arguments[1]))
+        return { "shift right value must be less than the bit width of the shifted value, which is 32"_s };
     return std::nullopt;
 }
 
