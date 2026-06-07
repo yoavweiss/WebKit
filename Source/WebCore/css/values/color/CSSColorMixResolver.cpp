@@ -146,16 +146,11 @@ WebCore::Color mix(const ColorMixResolver& colorMix)
 
     auto [items, leftover] = normalizedMixPercentages(colorMix.components);
 
-    // 2. If leftover is 100%, return transparent black, converted to the specified interpolation <color-space>.
-
-    if (leftover == 100)
-        return convertToColorMixResultRepresentation(colorMix.colorInterpolationMethod, WebCore::Color::transparentBlack);
-
-    // 3. Let alpha mult be 1 - leftover, interpreting leftover as a number between 0 and 1.
+    // 2. Let alpha mult be 1 - leftover, interpreting leftover as a number between 0 and 1.
     // NOTE: Not calculated until it is used below.
 
     auto color = [&] -> WebCore::Color {
-        // 4. If items is length 1, set color to the color of that sole item, converted to the specified interpolation <color-space>.
+        // 3. If items is length 1, set color to the color of that sole item, converted to the specified interpolation <color-space>.
         if (items.size() == 1)
             return convertToColorMixResultRepresentation(colorMix.colorInterpolationMethod, items[0].color);
 
@@ -174,12 +169,14 @@ WebCore::Color mix(const ColorMixResolver& colorMix)
 
             auto combinedPercentage = a.percentage + b.percentage;
 
-            // 2. Interpolate a and b’s colors as described in CSS Color 4 §  13. Color Interpolation, with a progress percentage equal to (b’s percentage) / combined percentage). If the specified color space is a cylindrical polar color space, then the <hue-interpolation-method> controls the interpolation of hue, as described in CSS Color 4 § 13.4 Hue Interpolation. If no <hue-interpolation-method> is specified, assume shorter.
+            // 2. Interpolate a and b’s colors as described in CSS Color 4 §  13. Color Interpolation, with a progress percentage equal to (b’s percentage) / combined percentage), if combined percentage is greater than 0, and 0.5 otherwise. If the specified color space is a cylindrical polar color space, then the <hue-interpolation-method> controls the interpolation of hue, as described in CSS Color 4 § 13.4 Hue Interpolation. If no <hue-interpolation-method> is specified, assume shorter.
+
+            auto progressPercentage = combinedPercentage > 0 ? b.percentage / combinedPercentage : 0.5;
             auto mixedColor = WTF::switchOn(colorMix.colorInterpolationMethod.colorSpace,
                 [&](const auto& methodColorSpace) {
                     return mixColorComponentsUsingColorInterpolationMethod(
                         methodColorSpace,
-                        b.percentage / combinedPercentage,
+                        progressPercentage,
                         a.color,
                         b.color
                     );
@@ -194,12 +191,12 @@ WebCore::Color mix(const ColorMixResolver& colorMix)
         return result.color;
     }();
 
-    // 5. Multiply the alpha component of color by alpha mult.
+    // 4. Multiply the alpha component of color by alpha mult.
 
     if (leftover != 0)
         color = color.colorWithUnresolvedAlphaMultipliedBy(1.0 - (leftover / 100.0));
 
-    // 6. Return color.
+    // 5. Return color.
 
     return color;
 }
