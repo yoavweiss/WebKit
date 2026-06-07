@@ -123,10 +123,12 @@ endif ()
 
 # FIXME: Audit and reduce these suppressions. https://bugs.webkit.org/show_bug.cgi?id=312034
 add_compile_options(
-    "$<$<NOT:$<COMPILE_LANGUAGE:Swift>>:-Wno-shadow-ivar>"
-    "$<$<NOT:$<COMPILE_LANGUAGE:Swift>>:-Wno-objc-property-synthesis>"
-    "$<$<NOT:$<COMPILE_LANGUAGE:Swift>>:-Wno-objc-missing-super-calls>"
-    "$<$<NOT:$<COMPILE_LANGUAGE:Swift>>:-Wno-objc-duplicate-category-definition>"
+    "$<$<COMPILE_LANGUAGE:C,CXX,OBJC,OBJCXX>:-Wno-shadow-ivar>"
+    "$<$<COMPILE_LANGUAGE:C,CXX,OBJC,OBJCXX>:-Wno-objc-property-synthesis>"
+    "$<$<COMPILE_LANGUAGE:C,CXX,OBJC,OBJCXX>:-Wno-objc-missing-super-calls>"
+    "$<$<COMPILE_LANGUAGE:C,CXX,OBJC,OBJCXX>:-Wno-objc-duplicate-category-definition>"
+    "$<$<COMPILE_LANGUAGE:C,CXX,OBJC,OBJCXX>:-Wno-objc-signed-char-bool-implicit-float-conversion>"
+    "$<$<COMPILE_LANGUAGE:C,CXX,OBJC,OBJCXX>:-Wno-unused-parameter>"
 )
 add_compile_options("$<$<NOT:$<COMPILE_LANGUAGE:Swift>>:-Wno-cast-align>")
 add_compile_options("$<$<NOT:$<COMPILE_LANGUAGE:Swift>>:-Wno-undefined-inline>")
@@ -156,9 +158,9 @@ option(RELATIVE_DEBUG_INFO "Write relative paths into DWARF debug info for porta
 
 if (RELATIVE_DEBUG_INFO)
     add_compile_options(
-        "$<$<NOT:$<COMPILE_LANGUAGE:Swift>>:-fdebug-prefix-map=${CMAKE_SOURCE_DIR}=.>"
-        "$<$<NOT:$<COMPILE_LANGUAGE:Swift>>:-fdebug-prefix-map=${CMAKE_BINARY_DIR}=build>"
-        "$<$<NOT:$<COMPILE_LANGUAGE:Swift>>:-ffile-prefix-map=${CMAKE_SOURCE_DIR}=.>"
+        "$<$<COMPILE_LANGUAGE:C,CXX,OBJC,OBJCXX>:-fdebug-prefix-map=${CMAKE_SOURCE_DIR}=.>"
+        "$<$<COMPILE_LANGUAGE:C,CXX,OBJC,OBJCXX>:-fdebug-prefix-map=${CMAKE_BINARY_DIR}=build>"
+        "$<$<COMPILE_LANGUAGE:C,CXX,OBJC,OBJCXX>:-ffile-prefix-map=${CMAKE_SOURCE_DIR}=.>"
     )
 endif ()
 

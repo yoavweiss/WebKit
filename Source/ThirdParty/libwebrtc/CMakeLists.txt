@@ -2695,7 +2695,6 @@ if (APPLE)
           Source/third_party/opus/src/celt/x86/x86cpu.c
           Source/third_party/opus/src/celt/x86/x86_celt_map.c
           Source/third_party/opus/src/celt/x86/pitch_sse.c
-          Source/third_party/opus/src/silk/fixed/x86/prefilter_FIX_sse.c
           Source/third_party/opus/src/silk/x86/x86_silk_map.c
       )
     endif ()
@@ -3030,6 +3029,11 @@ set(vpx_SOURCES
 
 if (WTF_CPU_X86_64)
     enable_language(ASM_NASM)
+    # Override the compile command to only pass nasm-compatible flags.
+    # Global add_compile_options() bleeds in Clang flags (-isystem, -iframework, -w) that
+    # nasm doesn't understand, and nasm 3.x doesn't treat -MD as a two-token dep flag.
+    # Mirrors how the Xcode build invokes yasm: format + includes + defines, nothing else.
+    set(CMAKE_ASM_NASM_COMPILE_OBJECT "<CMAKE_ASM_NASM_COMPILER> <DEFINES> <INCLUDES> -f ${CMAKE_ASM_NASM_OBJECT_FORMAT} -o <OBJECT> <SOURCE>")
 
     list(APPEND vpx_SOURCES
         Source/third_party/libvpx/source/config/mac/x64/vpx_config.c
@@ -3311,7 +3315,7 @@ elseif (WTF_CPU_ARM64)
 endif ()
 
 target_include_directories(vpx PRIVATE ${vpx_INCLUDE_DIRECTORIES})
-target_compile_options(vpx PRIVATE -Wno-cast-align -Wno-incompatible-pointer-types)
+target_compile_options(vpx PRIVATE $<$<COMPILE_LANGUAGE:C,CXX>:-Wno-cast-align> $<$<COMPILE_LANGUAGE:C,CXX>:-Wno-incompatible-pointer-types>)
 
 # libaom OBJECT library, mirrors libwebrtc.xcodeproj's libaom target.
 # Source list canonically extracted from libwebrtc.xcodeproj/project.pbxproj (228 entries),
