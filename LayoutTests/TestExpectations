@@ -6693,6 +6693,8 @@ webkit.org/b/277912 imported/w3c/web-platform-tests/css/css-borders/corner-shape
 webkit.org/b/277912 imported/w3c/web-platform-tests/css/css-borders/corner-shape/render-corner-shape.html?corner-shape=squircle&border-radius=50% [ ImageOnlyFailure ]
 webkit.org/b/277912 imported/w3c/web-platform-tests/css/css-borders/corner-shape/render-corner-shape.html?corner-top-left-shape=-4&border-radius=40 [ ImageOnlyFailure ]
 
+webkit.org/b/316474 imported/w3c/web-platform-tests/css/css-borders/border-width-rounding.tentative.html [ Pass Failure ]
+
 ipc/send-gpu-GetShareableBitmap-RemoteRenderingBackend.html [ ImageOnlyFailure ]
 media/media-source/media-source-real-play-after-eos.html [ ImageOnlyFailure ]
 
