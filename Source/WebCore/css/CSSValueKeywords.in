@@ -1518,6 +1518,7 @@ path
 xywh
 
 calc
+calc-mix
 -webkit-calc
 min
 max

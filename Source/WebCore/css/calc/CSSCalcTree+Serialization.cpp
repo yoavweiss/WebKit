@@ -92,6 +92,7 @@ template<typename Op> static void serializeMathFunctionPrefix(StringBuilder&, co
 static void serializeMathFunctionArguments(StringBuilder&, const IndirectNode<Sum>&, SerializationState&);
 static void serializeMathFunctionArguments(StringBuilder&, const IndirectNode<Product>&, SerializationState&);
 static void serializeMathFunctionArguments(StringBuilder&, const IndirectNode<Random>&, SerializationState&);
+static void serializeMathFunctionArguments(StringBuilder&, const IndirectNode<CalcMix>&, SerializationState&);
 static void serializeMathFunctionArguments(StringBuilder&, const IndirectNode<Anchor>&, SerializationState&);
 static void serializeMathFunctionArguments(StringBuilder&, const IndirectNode<AnchorSize>&, SerializationState&);
 template<typename Op> static void serializeMathFunctionArguments(StringBuilder&, const IndirectNode<Op>&, SerializationState&);
@@ -409,6 +410,19 @@ void serializeMathFunctionArguments(StringBuilder& builder, const IndirectNode<R
     if (fn->step) {
         builder.append(", "_s);
         serializeCalculationTree(builder, *fn->step, state);
+    }
+}
+
+void serializeMathFunctionArguments(StringBuilder& builder, const IndirectNode<CalcMix>& fn, SerializationState& state)
+{
+    auto separator = ""_s;
+    for (const auto& item : fn->children) {
+        builder.append(std::exchange(separator, ", "_s));
+        serializeCalculationTree(builder, item.value, state);
+        if (item.weight) {
+            builder.append(' ');
+            CSS::serializationForCSS(builder, state.serializationContext, *item.weight);
+        }
     }
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024-2025 Samuel Weinig <sam@webkit.org>
+ * Copyright (C) 2024-2026 Samuel Weinig <sam@webkit.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -39,6 +39,7 @@
 #include "CSSPropertyParserConsumer+Ident.h"
 #include "CSSPropertyParserConsumer+MetaConsumer.h"
 #include "CSSPropertyParserConsumer+NumberDefinitions.h"
+#include "CSSPropertyParserConsumer+PercentageDefinitions.h"
 #include "CSSPropertyParserConsumer+Primitives.h"
 #include "CSSPropertyParserState.h"
 #include "CSSPropertyParsing.h"
@@ -163,6 +164,7 @@ bool isCalcFunction(CSSValueID functionId)
 {
     switch (functionId) {
     case CSSValueCalc:
+    case CSSValueCalcMix:
     case CSSValueWebkitCalc:
     case CSSValueMin:
     case CSSValueMax:
@@ -983,7 +985,7 @@ static std::optional<TypedChild> consumeProgress(CSSParserTokenRange& tokens, in
     return TypedChild { makeChild(WTF::move(op), *outputType), *outputType };
 }
 
-static std::optional<TypedChild> consumeValueWithoutSimplifyingCalc(CSSParserTokenRange& tokens, int depth, ParserState& state)
+static std::optional<TypedChild> consumeValueWithoutSimplifyingRootCalc(CSSParserTokenRange& tokens, int depth, ParserState& state)
 {
     // Complex arguments need to be surrounded by a math function.
     if (tokens.peek().type() == LeftParenthesisToken)
@@ -1011,11 +1013,87 @@ static std::optional<TypedChild> consumeValueWithoutSimplifyingCalc(CSSParserTok
     return typedValue;
 }
 
+static std::optional<TypedChild> consumeCalcMix(CSSParserTokenRange& tokens, int depth, ParserState& state)
+{
+    // <calc-mix()> = calc-mix( [ <calc-sum> <percentage [0,100]>? ]# )
+
+    using Op = CalcMix;
+
+    if (!state.propertyParserState.context.cssCalcMixEnabled)
+        return { };
+
+    std::optional<Type> mergedType;
+    Vector<CalcMix::Item> children;
+
+    bool requireComma = false;
+    unsigned argumentCount = 0;
+
+    while (!tokens.atEnd()) {
+        tokens.consumeWhitespace();
+        if (requireComma && !CSSPropertyParserHelpers::consumeCommaIncludingWhitespace(tokens)) {
+            LOG_WITH_STREAM(Calc, stream << "Failed '" << nameLiteralForSerialization(Op::id) << "' function - missing comma");
+            return std::nullopt;
+        }
+
+        auto sum = parseCalcSum(tokens, depth, state);
+        if (!sum) {
+            LOG_WITH_STREAM(Calc, stream << "Failed '" << nameLiteralForSerialization(Op::id) << "' function - failed parse of argument #" << argumentCount);
+            return std::nullopt;
+        }
+
+        if (!validateType<Op::input>(sum->type)) {
+            LOG_WITH_STREAM(Calc, stream << "Failed '" << nameLiteralForSerialization(Op::id) << "' function - argument #" << argumentCount << " has invalid type: " << sum->type);
+            return std::nullopt;
+        }
+
+        if (!mergedType)
+            mergedType = sum->type;
+        else {
+            auto mergeResult = mergeTypes<Op::merge>(*mergedType, sum->type);
+            if (!mergeResult) {
+                LOG_WITH_STREAM(Calc, stream << "Failed '" << nameLiteralForSerialization(Op::id) << "' function - argument #" << argumentCount << " failed to merge type with other arguments: existing type " << *mergedType << " & argument type " << sum->type);
+                return std::nullopt;
+            }
+            mergedType = *mergeResult;
+        }
+
+        std::optional<CalcMix::Item::Weight> weight;
+        if (!tokens.atEnd() && tokens.peek().type() != CommaToken) {
+            weight = CSSPropertyParserHelpers::MetaConsumer<CalcMix::Item::Weight>::consume(tokens, state.propertyParserState);
+            if (!weight)
+                return { };
+        }
+
+        ++argumentCount;
+        children.append(CalcMix::Item { .value = WTF::move(sum->child), .weight = WTF::move(weight) });
+        requireComma = true;
+    }
+
+    if (argumentCount < 1) {
+        LOG_WITH_STREAM(Calc, stream << "Failed '" << nameLiteralForSerialization(Op::id) << "' function - no arguments found");
+        return std::nullopt;
+    }
+
+    auto outputType = transformType<Op::output>(*mergedType);
+    if (!outputType) {
+        LOG_WITH_STREAM(Calc, stream << "Failed '" << nameLiteralForSerialization(Op::id) << "' function - output transform failed for type: " << *mergedType);
+        return std::nullopt;
+    }
+
+    Op op { WTF::move(children) };
+
+    if (auto* simplificationOptions = state.simplificationOptions) {
+        if (auto replacement = simplify(op, *simplificationOptions))
+            return TypedChild { WTF::move(*replacement), *outputType };
+    }
+    return TypedChild { makeChild(WTF::move(op), *outputType), *outputType };
+}
+
 // Parse the fallback value specified in anchor() and anchor-size() as a <length> or
 // <length-percentage>. Additionally, unitless zero is allowed and gets treated as 0px.
 static std::optional<TypedChild> consumeAnchorFallback(CSSParserTokenRange& tokens, int depth, ParserState& state)
 {
-    auto typedFallback = consumeValueWithoutSimplifyingCalc(tokens, depth, state);
+    auto typedFallback = consumeValueWithoutSimplifyingRootCalc(tokens, depth, state);
     if (!typedFallback)
         return { };
 
@@ -1075,7 +1153,7 @@ static std::optional<TypedChild> consumeAnchor(CSSParserTokenRange& tokens, int 
             .simplificationOptions = { },
         };
 
-        auto percentage = consumeValueWithoutSimplifyingCalc(tokens, depth, percentageState);
+        auto percentage = consumeValueWithoutSimplifyingRootCalc(tokens, depth, percentageState);
         if (!percentage)
             return { };
 
@@ -1346,6 +1424,13 @@ std::optional<TypedChild> parseCalcFunction(CSSParserTokenRange& tokens, CSSValu
         //     - INPUT: "consistent" <number>, <dimension>, or <percentage>
         //     - OUTPUT: <number> "made consistent"
         return consumeProgress(tokens, depth, state);
+
+
+    case CSSValueCalcMix:
+        // <calc-mix()> = calc-mix( [ <calc-sum> <percentage [0,100]>? ]# )
+        //     - INPUT: "consistent" <number>, <dimension>, or <percentage> (referring to <calc-sum> arguments)
+        //     - OUTPUT: consistent type
+        return consumeCalcMix(tokens, depth, state);
 
     case CSSValueSiblingCount:
         // <sibling-count()> = sibling-count()

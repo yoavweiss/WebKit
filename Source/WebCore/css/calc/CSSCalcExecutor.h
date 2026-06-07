@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2021 Apple Inc. All rights reserved.
- * Copyright (C) 2024-2025 Samuel Weinig <sam@webkit.org>
+ * Copyright (C) 2024-2026 Samuel Weinig <sam@webkit.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -61,7 +61,7 @@ template<typename Range> concept FloatingPointRange = requires(Range range) {
 };
 
 template<> struct OperatorExecutor<Operator::Sum> {
-    template<typename Range> double operator()(Range&& range)
+    double operator()(auto&& range)
     {
         double sum = 0;
         for (double value : range)
@@ -88,7 +88,7 @@ template<> struct OperatorExecutor<Operator::Negate> {
 };
 
 template<> struct OperatorExecutor<Operator::Product> {
-    template<typename Range> double operator()(Range&& range)
+    double operator()(auto&& range)
     {
         double product = 1;
         for (double value : range)
@@ -381,7 +381,7 @@ template<> struct OperatorExecutor<Operator::Sqrt> {
 };
 
 template<> struct OperatorExecutor<Operator::Hypot> {
-    template<typename Range> double operator()(Range&& range)
+    double operator()(auto&& range)
     {
         if (range.empty())
             return std::numeric_limits<double>::quiet_NaN();
@@ -449,6 +449,21 @@ template<> struct OperatorExecutor<Operator::Progress> {
     {
         // (progress value - start value) / (end value - start value)
         return executeOperation<Operator::Clamp>(0.0, (progress - from) / (to - from), 1.0);
+    }
+};
+
+template<> struct OperatorExecutor<Operator::CalcMix> {
+    double operator()(auto&& range)
+    {
+        double total = 0;
+        for (auto [value, percentage] : range)
+            total += value * (percentage / 100);
+        return total;
+    }
+
+    template<typename Functor> double operator()(auto&& range, Functor&& functor)
+    {
+        return executeOperation<Operator::CalcMix>(range | std::views::transform(std::forward<Functor>(functor)));
     }
 };
 

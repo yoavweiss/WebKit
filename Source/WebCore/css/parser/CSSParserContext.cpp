@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2018-2023 Apple Inc. All rights reserved.
+ * Copyright (C) 2026 Samuel Weinig <sam@webkit.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -127,6 +128,7 @@ CSSParserContext::CSSParserContext(const Settings& settings)
     , openPseudoClassEnabled { settings.openPseudoClassEnabled() }
     , cssAttrSubstitutionFunctionEnabled { settings.cssAttrSubstitutionFunctionEnabled() }
     , cssScrollStateContainerQueriesEnabled { settings.cssScrollStateContainerQueriesEnabled() }
+    , cssCalcMixEnabled { settings.cssCalcMixEnabled() }
     , propertySettings { CSSPropertySettings { settings } }
 {
 }
@@ -173,7 +175,8 @@ void add(Hasher& hasher, const CSSParserContext& context)
         context.cssMathDepthEnabled,
         context.openPseudoClassEnabled,
         context.cssAttrSubstitutionFunctionEnabled,
-        context.cssScrollStateContainerQueriesEnabled
+        context.cssScrollStateContainerQueriesEnabled,
+        context.cssCalcMixEnabled
     );
     add(hasher, context.baseURL, context.charset, context.propertySettings, context.mode, context.enclosingRuleType, bits);
 }
