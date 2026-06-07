@@ -4709,6 +4709,9 @@ http/tests/security/offscreen-canvas-remote-read-remote-image.html [ Skip ]
 http/tests/security/no-javascript-location-percent-escaped.html [ Skip ] # Crash
 http/tests/security/no-javascript-location.html [ Skip ] # Crash
 http/tests/security/no-javascript-refresh-percent-escaped.py [ Skip ] # Crash
+http/tests/security/no-javascript-refresh-spaces.py [ Skip ] # Crash
+
+webkit.org/b/315806 imported/w3c/web-platform-tests/gpc/sec-gpc.https.html [ Pass Failure ] # Flaky harness timeout after serviceworker subtests were added in 314317@main
 
 imported/w3c/web-platform-tests/largest-contentful-paint/broken-image-icon.html [ Skip ] # Flake
 imported/w3c/web-platform-tests/largest-contentful-paint/transparent-text.html [ Skip ] # Flake or perhaps always fails
