@@ -2273,6 +2273,8 @@ webkit.org/b/308586 imported/w3c/web-platform-tests/fullscreen/rendering/fullscr
 
 webkit.org/b/316539 media/media-source/media-source-real-webm-fastseek.html [ Pass Failure ]
 
+webkit.org/b/316578 media/media-source/media-source-real-webm-currenttime-progression.html [ Pass Failure ]
+
 webkit.org/b/308594 imported/w3c/web-platform-tests/media-source/mediasource-config-change-mp4-v-framerate.html [ Pass Failure ]
 
 tiled-drawing/mac/margin-tiles-with-banner-view-overlay.html [ Skip ]
