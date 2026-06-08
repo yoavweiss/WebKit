@@ -535,6 +535,7 @@ heap/FreeList.cpp
 heap/GCActivityCallback.cpp
 heap/GCConductor.cpp
 heap/GCLogging.cpp
+heap/GCOwnedDataScope.cpp
 heap/GCRequest.cpp
 heap/GCSegmentedArray.cpp
 heap/GigacageAlignedMemoryAllocator.cpp
