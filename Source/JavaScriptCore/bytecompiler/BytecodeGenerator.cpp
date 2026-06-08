@@ -1128,7 +1128,7 @@ BytecodeGenerator::BytecodeGenerator(VM& vm, ModuleProgramNode* moduleProgramNod
     if (shouldEmitTypeProfilerHooks() || moduleProgramNode->usesAwait())
         constantSymbolTable = addConstantValue(moduleEnvironmentSymbolTable);
     else
-        constantSymbolTable = addConstantValue(moduleEnvironmentSymbolTable->cloneScopePart(m_vm));
+        constantSymbolTable = addConstantValue(moduleEnvironmentSymbolTable->cloneScopePart(m_vm, SymbolTable::PropagateCloneInvalidationToOriginal::No));
 
     if (moduleProgramNode->usesAwait()) {
         m_generatorFrameSymbolTable.set(m_vm, moduleEnvironmentSymbolTable);
@@ -2255,7 +2255,7 @@ void BytecodeGenerator::pushLexicalScopeInternal(VariableEnvironment& environmen
             newScope = addVar();
         if (!constantSymbolTable) {
             ASSERT(!shouldEmitTypeProfilerHooks());
-            constantSymbolTable = addConstantValue(symbolTable->cloneScopePart(m_vm));
+            constantSymbolTable = addConstantValue(symbolTable->cloneScopePart(m_vm, SymbolTable::PropagateCloneInvalidationToOriginal::No));
             symbolTableConstantIndex = constantSymbolTable->index();
         }
         if (constantSymbolTableResult)

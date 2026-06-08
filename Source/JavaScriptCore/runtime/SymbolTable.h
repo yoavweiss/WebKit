@@ -743,19 +743,32 @@ public:
     void setScopeType(ScopeType type) { m_scopeType = type; }
     ScopeType scopeType() const { return static_cast<ScopeType>(m_scopeType); }
 
-    SymbolTable* cloneScopePart(VM&);
+    enum class PropagateCloneInvalidationToOriginal : bool { No, Yes };
+    SymbolTable* cloneScopePart(VM&, PropagateCloneInvalidationToOriginal);
 
     void prepareForTypeProfiling(const ConcurrentJSLocker&);
 
     String NODELETE inferredName();
     DebuggerLocation NODELETE debuggerLocation();
     void collectDebuggerInfo(CodeBlock*);
-    
+
     InferredValue<JSScope>& singleton() LIFETIME_BOUND { return m_singleton; }
 
     void notifyCreation(VM& vm, JSScope* scope, const char* reason)
     {
         m_singleton.notifyWrite(vm, this, scope, reason);
+        if (m_singleton.hasBeenInvalidated()) {
+            // Propagate to the original SymbolTable so future clones in other realms pre-invalidate.
+            // This "SymbolTable can be reused multiple times for the different lexical environments" is
+            // important feedback information from the code execution, and it is derived from the code's lexical
+            // characteristics. Thus carrying beyond realms makes sense.
+            if (m_propagateCloneInvalidationToOriginal == PropagateCloneInvalidationToOriginal::Yes) {
+                if (auto* origin = m_clonedFrom.get()) {
+                    if (!origin->m_singleton.hasBeenInvalidated())
+                        origin->m_singleton.invalidate(vm, StringFireDetail("Singleton invalidated in clone"));
+                }
+            }
+        }
     }
 
     DECLARE_VISIT_CHILDREN;
@@ -802,6 +815,7 @@ private:
     unsigned m_usesSloppyEval : 1;
     unsigned m_nestedLexicalScope : 1; // Non-function LexicalScope.
     unsigned m_scopeType : 3; // ScopeType
+    PropagateCloneInvalidationToOriginal m_propagateCloneInvalidationToOriginal : 1 { PropagateCloneInvalidationToOriginal::No };
 
     std::unique_ptr<SymbolTableRareData> m_rareData;
 

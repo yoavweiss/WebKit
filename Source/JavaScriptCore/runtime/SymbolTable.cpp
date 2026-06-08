@@ -138,7 +138,7 @@ SymbolTableEntry* SymbolTable::entryFor(const ConcurrentJSLocker& locker, ScopeO
     return toEntryVector[offset.offset()];
 }
 
-SymbolTable* SymbolTable::cloneScopePart(VM& vm)
+SymbolTable* SymbolTable::cloneScopePart(VM& vm, PropagateCloneInvalidationToOriginal propagateCloneInvalidationToOriginal)
 {
     SymbolTable* result = SymbolTable::create(vm);
     
@@ -213,7 +213,14 @@ SymbolTable* SymbolTable::cloneScopePart(VM& vm)
                 result->m_rareData->m_privateNames.add(name.key, name.value);
         }
     }
+
     result->m_clonedFrom.set(vm, result, this);
+    result->m_propagateCloneInvalidationToOriginal = propagateCloneInvalidationToOriginal;
+    if (result->m_propagateCloneInvalidationToOriginal == PropagateCloneInvalidationToOriginal::Yes) {
+        // If the original SymbolTable's singleton is already invalidated, the new clone starts out invalidated too.
+        if (m_singleton.hasBeenInvalidated())
+            result->m_singleton.invalidate(vm, StringFireDetail("Singleton was previously invalidated"));
+    }
     return result;
 }
 
