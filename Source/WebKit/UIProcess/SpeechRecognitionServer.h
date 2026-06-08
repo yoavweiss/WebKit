@@ -102,7 +102,6 @@ private:
     SpeechRecognitionPermissionChecker m_permissionChecker;
     std::unique_ptr<WebCore::SpeechRecognizer> m_recognizer;
     SpeechRecognitionCheckIfMockSpeechRecognitionEnabled m_checkIfMockSpeechRecognitionEnabled;
-    bool m_isResetting { false };
 
 #if ENABLE(MEDIA_STREAM)
     RealtimeMediaSourceCreateFunction m_realtimeMediaSourceCreateFunction;

@@ -257,9 +257,6 @@ private:
     bool m_isMetalShaderValidationEnabledForTesting { false };
 #endif
 
-#if HAVE(SCREEN_CAPTURE_KIT)
-    bool m_hasEnabledScreenCaptureKit { false };
-#endif
     static std::optional<GPUProcessMediaCodecCapabilities> s_gpuProcessMediaCodecCapabilities;
 #if PLATFORM(COCOA)
     static bool s_enableMetalDebugDeviceInNewGPUProcessesForTesting;

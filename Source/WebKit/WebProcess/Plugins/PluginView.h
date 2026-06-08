@@ -240,7 +240,6 @@ private:
     const Ref<PDFPluginBase> m_plugin;
     WeakPtr<WebPage> m_webPage;
     URL m_mainResourceURL;
-    String m_mainResourceContentType;
     bool m_shouldUseManualLoader { false };
 
     bool m_isInitialized { false };

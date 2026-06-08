@@ -124,8 +124,6 @@ private:
     ShaderModule::FragmentOutputs parseFragmentReturnType(const WGSL::Type&, const WGSL::CallGraph::EntryPoint&);
 
     const Ref<Device> m_device;
-    // FIXME: https://bugs.webkit.org/show_bug.cgi?id=250441 - this needs to be populated from the compiler
-    HashMap<String, String> m_constantIdentifiersToNames;
     HashMap<String, FragmentOutputs> m_fragmentReturnTypeForEntryPoint;
     HashMap<String, FragmentInputs> m_fragmentInputsForEntryPoint;
     HashMap<String, VertexOutputs> m_vertexReturnTypeForEntryPoint;

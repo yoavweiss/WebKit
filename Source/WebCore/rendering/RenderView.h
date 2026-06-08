@@ -291,7 +291,6 @@ private:
     bool m_hasQuotesNeedingUpdate { false };
 
     SingleThreadWeakHashSet<RenderCounter> m_countersNeedingUpdate;
-    unsigned m_renderCounterCount { 0 };
     unsigned m_renderersWithOutlineCount { 0 };
 
     bool m_hasSoftwareFilters { false };

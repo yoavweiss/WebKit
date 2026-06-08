@@ -3229,12 +3229,10 @@ private:
     HashMap<String, Ref<WebURLSchemeHandlerProxy>> m_schemeToURLSchemeHandlerProxyMap;
     HashMap<WebURLSchemeHandlerIdentifier, WeakRef<WebURLSchemeHandlerProxy>> m_identifierToURLSchemeHandlerProxyMap;
 
-    HashMap<uint64_t, Function<void(bool granted)>> m_storageAccessResponseCallbackMap;
 
     OptionSet<LayerTreeFreezeReason> m_layerTreeFreezeReasons;
     bool m_isSuspended { false };
     bool m_needsFontAttributes { false };
-    bool m_firstFlushAfterCommit { false };
     bool m_needsFixedContainerEdgesUpdate { true };
 #if PLATFORM(COCOA)
     WeakPtr<WebRemoteObjectRegistry> m_remoteObjectRegistry;
@@ -3307,7 +3305,6 @@ private:
 
 #if ENABLE(MEDIA_SESSION_COORDINATOR)
     RefPtr<WebCore::MediaSessionCoordinator> m_mediaSessionCoordinator;
-    RefPtr<RemoteMediaSessionCoordinator> m_remoteMediaSessionCoordinator;
 #endif
 
 #if ENABLE(GPU_PROCESS)

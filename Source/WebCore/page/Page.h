@@ -1532,7 +1532,6 @@ private:
     PlatformDisplayID m_displayID { 0 };
     std::optional<FramesPerSecond> m_displayNominalFramesPerSecond;
 
-    String m_groupName;
     bool m_openedByDOM { false };
     bool m_openedByDOMWithOpener { false };
 

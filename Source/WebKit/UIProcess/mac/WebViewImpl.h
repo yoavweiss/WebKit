@@ -83,7 +83,6 @@ OBJC_CLASS NSView;
 OBJC_CLASS QLPreviewPanel;
 OBJC_CLASS WebTextIndicatorLayer;
 OBJC_CLASS WKAccessibilitySettingsObserver;
-OBJC_CLASS WKBrowsingContextController;
 OBJC_CLASS WKDOMPasteMenuDelegate;
 OBJC_CLASS WKEditorUndoTarget;
 OBJC_CLASS WKFullScreenWindowController;
@@ -1099,10 +1098,6 @@ private:
 
     RetainPtr<_WKRemoteObjectRegistry> m_remoteObjectRegistry;
 
-ALLOW_DEPRECATED_DECLARATIONS_BEGIN
-    RetainPtr<WKBrowsingContextController> m_browsingContextController;
-ALLOW_DEPRECATED_DECLARATIONS_END
-
     RefPtr<ViewGestureController> m_gestureController;
     bool m_allowsBackForwardNavigationGestures { false };
     bool m_allowsMagnification { false };
@@ -1110,7 +1105,6 @@ ALLOW_DEPRECATED_DECLARATIONS_END
     RetainPtr<NSAccessibilityRemoteUIElement> m_remoteAccessibilityChild;
     RetainPtr<NSData> m_remoteAccessibilityChildToken;
     RetainPtr<NSData> m_remoteAccessibilityTokenGeneratedByUIProcess;
-    RetainPtr<NSMutableDictionary> m_remoteAccessibilityFrameCache;
     HashSet<pid_t> m_registeredRemoteAccessibilityPids;
 
     struct PromisedImageDragData {

@@ -87,7 +87,6 @@ private:
 
 #if PLATFORM(COCOA)
     std::unique_ptr<WebCore::RunLoopObserver> m_frameStartObserver;
-    std::unique_ptr<WebCore::RunLoopObserver> m_frameStopObserver;
     int m_runLoopNestingLevel { 0 };
 #elif USE(GLIB_EVENT_LOOP)
     RefPtr<RunLoop::EventObserver> m_runLoopObserver;

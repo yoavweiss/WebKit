@@ -107,7 +107,6 @@ protected:
     bool m_muted { false };
     bool m_isStopped { true };
     RefPtr<MediaStreamTrackPrivate> m_track;
-    std::optional<RealtimeMediaSourceSettings> m_initialSettings;
     GRefPtr<GstElement> m_bin;
     GRefPtr<GstElement> m_inputSelector;
     GRefPtr<GstElement> m_fallbackSource;

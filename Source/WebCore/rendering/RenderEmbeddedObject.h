@@ -96,7 +96,6 @@ private:
     String m_unavailablePluginReplacementText;
     bool m_unavailablePluginIndicatorIsPressed;
     bool m_mouseDownWasInUnavailablePluginIndicator;
-    String m_unavailabilityDescription;
     bool m_hasShadowContent { false };
 };
 

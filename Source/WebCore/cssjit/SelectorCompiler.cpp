@@ -621,7 +621,6 @@ private:
     void popMacroAssemblerRegisters(StackAllocator&);
     bool generatePrologue();
     void generateEpilogue(StackAllocator&);
-    StackAllocator::StackReferenceVector m_macroAssemblerRegistersStackReferences;
     StackAllocator::StackReferenceVector m_prologueStackReferences;
 
     Assembler m_assembler;

@@ -162,7 +162,6 @@ private:
     std::span<const IntSize, 4> NODELETE resultsButtonSizes() const;
     void setSearchFieldSize(Style::ComputedStyle&) const;
 
-    mutable RetainPtr<NSPopUpButtonCell> m_popupButton;
 
     RetainPtr<WebCoreRenderThemeNotificationObserver> m_notificationObserver;
 };

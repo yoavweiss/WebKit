@@ -7354,7 +7354,6 @@ private:
     RegisterAtOffsetList m_calleeSaves;
     MacroAssembler::JumpList m_abortExecution;
     MacroAssembler::JumpList m_hitMatchLimit;
-    MacroAssembler::Label m_tryReadUnicodeCharacterEntry;
     MacroAssembler::JumpList m_inlinedMatched;
     MacroAssembler::JumpList m_inlinedFailedMatch;
 

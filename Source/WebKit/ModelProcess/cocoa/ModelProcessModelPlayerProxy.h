@@ -218,7 +218,6 @@ private:
     simd_float3 m_originalBoundingBoxExtents { simd_make_float3(0, 0, 0) };
     simd_float3 m_originalEntityScale { simd_make_float3(1, 1, 1) };
     float m_pitch { 0 };
-    float m_yaw { 0 };
 
     RESRT m_transformSRT; // SRT=Scaling/Rotation/Translation. This is stricter than a WebCore::TransformationMatrix.
     bool m_transformNeedsUpdateAfterNextLayout { false };

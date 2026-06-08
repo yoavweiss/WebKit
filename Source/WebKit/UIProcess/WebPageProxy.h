@@ -4081,10 +4081,6 @@ private:
     bool m_isNeverRichlyEditableForTouchBar { false };
 #endif
 
-#if ENABLE(WIRELESS_PLAYBACK_TARGET) && !PLATFORM(IOS_FAMILY)
-    bool m_requiresTargetMonitoring { false };
-#endif
-
 #if ENABLE(META_VIEWPORT)
     bool m_forceAlwaysUserScalable { false };
     double m_viewportConfigurationLayoutSizeScaleFactorFromClient { 1 };

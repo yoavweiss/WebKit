@@ -47,7 +47,6 @@ public:
 
 private:
     RefPtr<Range> m_contentRange;
-    size_t m_positionOffsetInContent;
 };
 
 } // namespace WebCore

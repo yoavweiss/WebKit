@@ -85,7 +85,6 @@ protected:
     size_t m_sampleCount { 0 };
     size_t m_sampleCapacity { 0 };
     size_t m_maxBufferSizePerChannel { 0 };
-    size_t m_bufferListBaseSize { 0 };
     const UniqueRef<WebAudioBufferList> m_bufferList;
 };
 
