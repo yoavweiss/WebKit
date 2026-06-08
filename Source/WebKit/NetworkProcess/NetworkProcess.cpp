@@ -584,15 +584,24 @@ void NetworkProcess::addWebsiteDataStore(WebsiteDataStoreParameters&& parameters
 #if PLATFORM(IOS_FAMILY)
     if (auto& handle = parameters.cookieStorageDirectoryExtensionHandle)
         SandboxExtension::consumePermanently(*handle);
+#if !USE(EXTENSIONKIT)
     if (auto& handle = parameters.containerCachesDirectoryExtensionHandle)
         SandboxExtension::consumePermanently(*handle);
+#endif
     if (auto& handle = parameters.parentBundleDirectoryExtensionHandle)
         SandboxExtension::consumePermanently(*handle);
+#if !USE(EXTENSIONKIT)
     if (auto& handle = parameters.tempDirectoryExtensionHandle)
-        grantAccessToContainerTempDirectory(*handle);
-    if (auto& handle = parameters.tempDirectoryRootExtensionHandle)
         SandboxExtension::consumePermanently(*handle);
 #endif
+    if (auto& handle = parameters.tempDirectoryRootExtensionHandle)
+        SandboxExtension::consumePermanently(*handle);
+#if ENABLE(LLVM_PROFILE_GENERATION)
+    WebKit::initializeLLVMProfiling();
+    WebCore::initializeLLVMProfiling();
+    JSC::initializeLLVMProfiling();
+#endif // ENABLE(LLVM_PROFILE_GENERATION)
+#endif // PLATFORM(IOS_FAMILY)
 
     addStorageSession(sessionID, parameters);
 
