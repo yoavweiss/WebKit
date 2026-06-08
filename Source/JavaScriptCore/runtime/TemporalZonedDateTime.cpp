@@ -47,16 +47,16 @@ namespace JSC {
 
 const ClassInfo TemporalZonedDateTime::s_info = { "Object"_s, &Base::s_info, nullptr, nullptr, CREATE_METHOD_TABLE(TemporalZonedDateTime) };
 
-TemporalZonedDateTime* TemporalZonedDateTime::create(VM& vm, Structure* structure, ISO8601::ExactTime exactTime, TimeZone timeZone, String&& timeZoneId, CalendarID calendarID)
+TemporalZonedDateTime* TemporalZonedDateTime::create(VM& vm, Structure* structure, ISO8601::ExactTime exactTime, TimeZone timeZone, CalendarID calendarID)
 {
-    auto* object = new (NotNull, allocateCell<TemporalZonedDateTime>(vm)) TemporalZonedDateTime(vm, structure, exactTime, timeZone, WTF::move(timeZoneId), calendarID);
+    auto* object = new (NotNull, allocateCell<TemporalZonedDateTime>(vm)) TemporalZonedDateTime(vm, structure, exactTime, timeZone, calendarID);
     object->finishCreation(vm);
     return object;
 }
 
 // temporal_rs: ZonedDateTime::try_new (validates epochNanoseconds range)
 // https://tc39.es/proposal-temporal/#sec-temporal-createtemporalzoneddatetime
-TemporalZonedDateTime* TemporalZonedDateTime::tryCreate(JSGlobalObject* globalObject, Structure* structure, ISO8601::ExactTime exactTime, TimeZone timeZone, String&& timeZoneId, CalendarID calendarID)
+TemporalZonedDateTime* TemporalZonedDateTime::tryCreate(JSGlobalObject* globalObject, Structure* structure, ISO8601::ExactTime exactTime, TimeZone timeZone, CalendarID calendarID)
 {
     VM& vm = globalObject->vm();
     auto scope = DECLARE_THROW_SCOPE(vm);
@@ -68,7 +68,7 @@ TemporalZonedDateTime* TemporalZonedDateTime::tryCreate(JSGlobalObject* globalOb
     }
 
     // Steps 2-5: Allocate object, set [[EpochNanoseconds]], [[TimeZone]], [[Calendar]], return.
-    return create(vm, structure, exactTime, timeZone, WTF::move(timeZoneId), calendarID);
+    return create(vm, structure, exactTime, timeZone, calendarID);
 }
 
 Structure* TemporalZonedDateTime::createStructure(VM& vm, JSGlobalObject* globalObject, JSValue prototype)
@@ -78,21 +78,15 @@ Structure* TemporalZonedDateTime::createStructure(VM& vm, JSGlobalObject* global
 
 TemporalZonedDateTime* TemporalZonedDateTime::withExactTime(JSGlobalObject* globalObject, ISO8601::ExactTime epochNs) const
 {
-    return tryCreate(globalObject, globalObject->zonedDateTimeStructure(), epochNs, m_timeZone, String(m_timeZoneId), m_calendarID);
+    return tryCreate(globalObject, globalObject->zonedDateTimeStructure(), epochNs, m_timeZone, m_calendarID);
 }
 
-TemporalZonedDateTime::TemporalZonedDateTime(VM& vm, Structure* structure, ISO8601::ExactTime exactTime, TimeZone timeZone, String&& timeZoneId, CalendarID calendarID)
+TemporalZonedDateTime::TemporalZonedDateTime(VM& vm, Structure* structure, ISO8601::ExactTime exactTime, TimeZone timeZone, CalendarID calendarID)
     : Base(vm, structure)
     , m_exactTime(exactTime)
     , m_timeZone(timeZone)
-    , m_timeZoneId(WTF::move(timeZoneId))
     , m_calendarID(calendarID)
 {
-}
-
-void TemporalZonedDateTime::destroy(JSCell* cell)
-{
-    SUPPRESS_MEMORY_UNSAFE_CAST static_cast<TemporalZonedDateTime*>(cell)->TemporalZonedDateTime::~TemporalZonedDateTime();
 }
 
 // https://tc39.es/proposal-temporal/#sec-temporal-getoffsetnanosecondsfor
@@ -142,31 +136,10 @@ static std::optional<TimeZone> timeZoneFromRecord(const ISO8601::TimeZoneRecord&
     }
     // No bracket annotation: use Z or inline offset.
     if (tzRecord.m_z)
-        return TimeZone::fromUTCOffset(0);
+        return TimeZone::fromID(utcTimeZoneID());
     if (tzRecord.m_offset)
         return TimeZone::fromUTCOffset(*tzRecord.m_offset);
     return std::nullopt;
-}
-
-// Internal helper: extracts the canonical timezone ID string from a parsed TimeZoneRecord.
-// Bracket annotation takes priority over Z ("UTC"), which takes priority over inline offset.
-static String computeTimeZoneIdFromRecord(const ISO8601::TimeZoneRecord& tzRecord)
-{
-    auto& nameOrOffset = tzRecord.m_nameOrOffset;
-    if (std::holds_alternative<int64_t>(nameOrOffset))
-        return ISO8601::formatTimeZoneOffsetString(std::get<int64_t>(nameOrOffset));
-    auto& name = std::get<Vector<Latin1Character>>(nameOrOffset);
-    if (!name.isEmpty()) {
-        auto namedTz = intlAvailableNamedTimeZone(StringView(name.span()));
-        if (namedTz)
-            return namedTz->identifier;
-        return { };
-    }
-    if (tzRecord.m_z)
-        return "UTC"_s;
-    if (tzRecord.m_offset)
-        return ISO8601::formatTimeZoneOffsetString(*tzRecord.m_offset);
-    return { };
 }
 
 // Aggregate of all inputs needed by the unified steps 6-12 epilogue in TemporalZonedDateTime::from().
@@ -176,7 +149,6 @@ struct ZDTEpochArgs {
     ISO8601::PlainDate plainDate;
     ISO8601::PlainTime plainTime;
     TimeZone timeZone;
-    String timeZoneId;
     CalendarID calendarID;
     OffsetBehaviour offsetBehaviour;
     int64_t inlineOffsetNs { 0 };
@@ -285,12 +257,10 @@ static std::optional<ZDTEpochArgs> toEpochArgsFromString(JSGlobalObject* globalO
 
     bool useStartOfDay = !plainTimeOptional.has_value() && offsetBehaviour == OffsetBehaviour::Wall;
 
-    String timeZoneId = computeTimeZoneIdFromRecord(tzRecord);
     return ZDTEpochArgs {
         plainDate,
         plainTime,
         timeZone,
-        WTF::move(timeZoneId),
         calendarID,
         offsetBehaviour,
         inlineOffsetNs,
@@ -316,7 +286,6 @@ static std::optional<ZDTEpochArgs> toEpochArgsFromPropertyBag(JSGlobalObject* gl
 
     // Steps 4.d-4.e: timeZone = fields.[[TimeZone]]; offsetString = fields.[[OffsetString]].
     TimeZone timeZone = fields.timeZone;
-    String timeZoneId = WTF::move(fields.timeZoneId);
 
     // Steps 4.f-4.i: GetOptionsObject + disambiguation/offsetOption/overflow (after fields per spec).
     JSObject* options = nullptr;
@@ -442,7 +411,6 @@ static std::optional<ZDTEpochArgs> toEpochArgsFromPropertyBag(JSGlobalObject* gl
         plainDate,
         plainTime,
         timeZone,
-        WTF::move(timeZoneId),
         calendarID,
         offsetBehaviour,
         inlineOffsetNs,
@@ -503,7 +471,7 @@ TemporalZonedDateTime* TemporalZonedDateTime::from(JSGlobalObject* globalObject,
         }
         // Step 4.a.v: Return ! CreateTemporalZonedDateTime(item.[[EpochNanoseconds]], item.[[TimeZone]], item.[[Calendar]]).
         return TemporalZonedDateTime::create(vm, globalObject->zonedDateTimeStructure(),
-            zdt->exactTime(), zdt->timeZone(), String(zdt->timeZoneId()), zdt->calendarID());
+            zdt->exactTime(), zdt->timeZone(), zdt->calendarID());
     } else {
         // Steps 4.b-4.l: property bag path.
         // Step 5 else: item is not a String — if also not an Object, throw TypeError.
@@ -532,7 +500,7 @@ TemporalZonedDateTime* TemporalZonedDateTime::from(JSGlobalObject* globalObject,
     // Step 12: Return ! CreateTemporalZonedDateTime(epochNanoseconds, timeZone, calendar).
     // interpretISODateTimeOffset guarantees a valid ExactTime, so create() suffices; tryCreate()
     // adds a redundant isValid() check that acts as defense-in-depth against a buggy ICU backend.
-    RELEASE_AND_RETURN(scope, TemporalZonedDateTime::tryCreate(globalObject, globalObject->zonedDateTimeStructure(), *exactTimeResult, args->timeZone, WTF::move(args->timeZoneId), args->calendarID));
+    RELEASE_AND_RETURN(scope, TemporalZonedDateTime::tryCreate(globalObject, globalObject->zonedDateTimeStructure(), *exactTimeResult, args->timeZone, args->calendarID));
 }
 
 // temporal_rs: ZonedDateTime::epoch_ns (via get_epoch_nanoseconds_for)

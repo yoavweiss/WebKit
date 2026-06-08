@@ -135,10 +135,6 @@ enum class TemporalAnyProperties : bool {
 
 void throwTemporalError(JSGlobalObject*, ThrowScope&, const TemporalError&);
 
-struct TemporalTimeZoneRecord {
-    TimeZone timeZone;
-    String identifier; // canonical: case-normalized alias or FormatOffsetTimeZoneIdentifier
-};
-std::optional<TemporalTimeZoneRecord> toTemporalTimeZoneIdentifier(JSGlobalObject*, JSValue);
+std::optional<TimeZone> toTemporalTimeZoneIdentifier(JSGlobalObject*, JSValue);
 
 } // namespace JSC

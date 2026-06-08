@@ -390,10 +390,9 @@ String TemporalInstant::toString(JSGlobalObject* globalObject, JSValue optionsVa
     // Step 11: If timeZone is not undefined, set timeZone to ? ToTemporalTimeZoneIdentifier(timeZone).
     std::optional<TimeZone> timeZone;
     if (!timeZoneValue.isUndefined()) {
-        auto tzRecord = toTemporalTimeZoneIdentifier(globalObject, timeZoneValue);
+        timeZone = toTemporalTimeZoneIdentifier(globalObject, timeZoneValue);
         RETURN_IF_EXCEPTION(scope, { });
-        ASSERT(tzRecord);
-        timeZone = tzRecord->timeZone;
+        ASSERT(timeZone);
     }
 
     // Step 12: Let precision be ToSecondsStringPrecisionRecord(smallestUnit, digits).

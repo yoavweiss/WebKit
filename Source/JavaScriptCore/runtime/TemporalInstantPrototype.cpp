@@ -318,10 +318,10 @@ JSC_DEFINE_HOST_FUNCTION(temporalInstantPrototypeFuncToZonedDateTimeISO, (JSGlob
         return throwVMTypeError(globalObject, scope, "Temporal.Instant.prototype.toZonedDateTimeISO called on value that's not an Instant"_s);
 
     // Step 3: Let timeZone be ? ToTemporalTimeZoneIdentifier(timeZoneIdentifier).
-    auto tzRecord = toTemporalTimeZoneIdentifier(globalObject, callFrame->argument(0));
+    auto timeZone = toTemporalTimeZoneIdentifier(globalObject, callFrame->argument(0));
     RETURN_IF_EXCEPTION(scope, { });
-    ASSERT(tzRecord);
-    RELEASE_AND_RETURN(scope, JSValue::encode(TemporalZonedDateTime::create(vm, globalObject->zonedDateTimeStructure(), instant->exactTime(), tzRecord->timeZone, WTF::move(tzRecord->identifier), iso8601CalendarID())));
+    ASSERT(timeZone);
+    RELEASE_AND_RETURN(scope, JSValue::encode(TemporalZonedDateTime::create(vm, globalObject->zonedDateTimeStructure(), instant->exactTime(), *timeZone, iso8601CalendarID())));
 }
 
 // https://tc39.es/proposal-temporal/#sec-temporal.instant.prototype.epochmilliseconds

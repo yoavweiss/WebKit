@@ -118,26 +118,9 @@ JSC_DEFINE_HOST_FUNCTION(constructTemporalZonedDateTime, (JSGlobalObject* global
     if (!parsedTZ) [[unlikely]]
         return throwVMRangeError(globalObject, scope, makeString("'"_s, ellipsizeAt(100, tzString), "' is not a valid time zone identifier"_s));
 
-    // Step 6: If _timeZoneParse_.[[OffsetMinutes]] is ~empty~ (named timezone):
-    //   a. Let _identifierRecord_ be GetAvailableNamedTimeZoneIdentifier(_timeZoneParse_.[[Name]]).
-    //   b. If _identifierRecord_ is ~empty~, throw *RangeError*.  ← guaranteed by parseTimeZoneIdentifierStrict
-    //      (parseTimeZoneName = intlResolveTimeZoneID uses the same ICU table as intlAvailableNamedTimeZone)
-    //   c. Set _timeZone_ to _identifierRecord_.[[Identifier]].  ← canonical case-normalized IANA name
-    // Step 7: Else (_timeZoneParse_.[[OffsetMinutes]] is set — offset timezone):
-    //   Set _timeZone_ to FormatOffsetTimeZoneIdentifier(_timeZoneParse_.[[OffsetMinutes]]).
-    //   Since parseTimeZoneIdentifierStrict only accepts whole-minute offsets, ns % (60×10⁹) == 0,
-    //   so formatTimeZoneOffsetString(ns) == FormatOffsetTimeZoneIdentifier(ns / 60×10⁹).
-    //
-    // Distinguish offset from named by first character: offset strings always start with '+'/'-';
-    // IANA names never do. (TimeZone internally conflates UTC+0 and "UTC" — we must use tzString.)
-    String timeZoneId;
-    if (tzString[0] == '+' || tzString[0] == '-')
-        timeZoneId = ISO8601::formatTimeZoneOffsetString(parsedTZ->utcOffsetNanoseconds()); // step 7
-    else if (auto namedTz = intlAvailableNamedTimeZone(tzString))
-        timeZoneId = namedTz->identifier; // step 6c
-    else
-        RELEASE_ASSERT_NOT_REACHED(); // step 6b: unreachable — parseTimeZoneIdentifierStrict already validated
-
+    // Steps 6-7: [[TimeZone]] = the parsed identifier in canonical case-normalized form
+    // (named zones) or formatted offset (UTC offsets). parseTimeZoneIdentifierStrict already
+    // produced both, with intlResolveTimeZoneID validating the named case (step 6b).
     // Step 8: If _calendar_ is *undefined*, set _calendar_ to *"iso8601"*.
     // Step 9: If _calendar_ is not a String, throw *TypeError*.
     // Step 10: Set _calendar_ to ? CanonicalizeCalendar(_calendar_).
@@ -156,7 +139,7 @@ JSC_DEFINE_HOST_FUNCTION(constructTemporalZonedDateTime, (JSGlobalObject* global
 
     // Step 11: Return ? CreateTemporalZonedDateTime(_epochNanoseconds_, _timeZone_, _calendar_, NewTarget).
     // tryCreate re-validates isValid() as a safety net (primarily for subclasses).
-    RELEASE_AND_RETURN(scope, JSValue::encode(TemporalZonedDateTime::tryCreate(globalObject, structure, exactTime, *parsedTZ, WTF::move(timeZoneId), calendarID)));
+    RELEASE_AND_RETURN(scope, JSValue::encode(TemporalZonedDateTime::tryCreate(globalObject, structure, exactTime, *parsedTZ, calendarID)));
 }
 
 // https://tc39.es/proposal-temporal/#sec-temporal.zoneddatetime

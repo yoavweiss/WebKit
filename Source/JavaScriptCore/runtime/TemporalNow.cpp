@@ -109,7 +109,7 @@ JSC_DEFINE_HOST_FUNCTION(temporalNowFuncTimeZoneId, (JSGlobalObject* globalObjec
 // Resolve the timezone argument for Temporal.Now.* functions.
 // undefined → nullopt (callers fall back to DateCache.defaultTimeZone()).
 // Otherwise → ? ToTemporalTimeZoneIdentifier(temporalTimeZoneLike).
-static std::optional<TemporalTimeZoneRecord> resolveNowTimeZone(JSGlobalObject* globalObject, JSValue arg)
+static std::optional<TimeZone> resolveNowTimeZone(JSGlobalObject* globalObject, JSValue arg)
 {
     if (arg.isUndefined())
         return std::nullopt;
@@ -170,7 +170,7 @@ JSC_DEFINE_HOST_FUNCTION(temporalNowFuncPlainDateISO, (JSGlobalObject* globalObj
         plainDate = ISO8601::PlainDate(dt.year(), static_cast<uint8_t>(dt.month() + 1), static_cast<uint8_t>(dt.monthDay()));
     } else {
         // SystemDate step 1 (cont): GetOffsetNanosecondsFor + GetISODateTimeFor.
-        int64_t offsetNs = getOffsetNanosecondsForTimeZone(tzOpt->timeZone, static_cast<double>(exactTime.floorEpochMilliseconds()));
+        int64_t offsetNs = getOffsetNanosecondsForTimeZone(*tzOpt, static_cast<double>(exactTime.floorEpochMilliseconds()));
         ISO8601::PlainTime unusedTime;
         TemporalCore::exactTimeToLocalDateAndTime(exactTime, offsetNs, plainDate, unusedTime);
     }
@@ -204,7 +204,7 @@ JSC_DEFINE_HOST_FUNCTION(temporalNowFuncPlainDateTimeISO, (JSGlobalObject* globa
         TemporalCore::exactTimeToLocalDateAndTime(exactTime, offsetMs * static_cast<int64_t>(ISO8601::ExactTime::nsPerMillisecond), plainDate, plainTime);
     } else {
         // SystemDateTime step 3: GetISODateTimeFor(timeZone, epochNs).
-        int64_t offsetNs = getOffsetNanosecondsForTimeZone(tzOpt->timeZone, static_cast<double>(exactTime.floorEpochMilliseconds()));
+        int64_t offsetNs = getOffsetNanosecondsForTimeZone(*tzOpt, static_cast<double>(exactTime.floorEpochMilliseconds()));
         TemporalCore::exactTimeToLocalDateAndTime(exactTime, offsetNs, plainDate, plainTime);
     }
 
@@ -235,7 +235,7 @@ JSC_DEFINE_HOST_FUNCTION(temporalNowFuncPlainTimeISO, (JSGlobalObject* globalObj
         TemporalCore::exactTimeToLocalDateAndTime(exactTime, offsetMs * static_cast<int64_t>(ISO8601::ExactTime::nsPerMillisecond), unusedDate, plainTime);
     } else {
         // SystemTime step 3: GetISODateTimeFor(timeZone, epochNs).
-        int64_t offsetNs = getOffsetNanosecondsForTimeZone(tzOpt->timeZone, static_cast<double>(exactTime.floorEpochMilliseconds()));
+        int64_t offsetNs = getOffsetNanosecondsForTimeZone(*tzOpt, static_cast<double>(exactTime.floorEpochMilliseconds()));
         TemporalCore::exactTimeToLocalDateAndTime(exactTime, offsetNs, unusedDate, plainTime);
     }
 
@@ -255,16 +255,12 @@ JSC_DEFINE_HOST_FUNCTION(temporalNowFuncZonedDateTimeISO, (JSGlobalObject* globa
     auto exactTime = ISO8601::ExactTime::now();
 
     TimeZone tz;
-    String tzId;
-    if (tzOpt) {
-        tz = tzOpt->timeZone;
-        tzId = WTF::move(tzOpt->identifier);
-    } else {
+    if (tzOpt)
+        tz = *tzOpt;
+    else
         tz = vm.dateCache.defaultTimeZone();
-        tzId = tz.toString();
-    }
 
-    RELEASE_AND_RETURN(scope, JSValue::encode(TemporalZonedDateTime::create(vm, globalObject->zonedDateTimeStructure(), exactTime, tz, WTF::move(tzId), iso8601CalendarID())));
+    RELEASE_AND_RETURN(scope, JSValue::encode(TemporalZonedDateTime::create(vm, globalObject->zonedDateTimeStructure(), exactTime, tz, iso8601CalendarID())));
 }
 
 } // namespace JSC

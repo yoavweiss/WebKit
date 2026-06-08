@@ -545,31 +545,32 @@ TemporalResult<ISO8601::ExactTime> addZonedDateTime(ISO8601::ExactTime startEpoc
 }
 
 // timeZoneEquals — temporal_rs: TimeZone::time_zone_equals_with_provider (src/builtins/core/time_zone.rs)
-// https://tc39.es/proposal-temporal/#sec-temporal-timezoneequals
+// https://tc39.es/proposal-canonical-tz/#sec-temporal-timezoneequals
+// Spec operates on Time Zone Identifier records. Step 1 (Object identity) and steps 2-4
+// (canonicalization + SameValue on the canonical strings) are subsumed by JSC's TimeZone
+// representation: identical TimeZone values mean both sides resolved to the same record.
+// Step 7 (both named) reduces to primary-identifier comparison via intlPrimaryTimeZoneID.
+// Step 8 (both offset) reduces to numeric offset comparison — already covered by
+// TimeZone::operator== since offset records share m_id == offsetTimeZoneID.
+// Mixed kinds fall through to step 9 (false).
+bool timeZoneEquals(const TimeZone& a, const TimeZone& b)
+{
+    if (a == b)
+        return true;
+    if (a.isUTCOffset() || b.isUTCOffset())
+        return false;
+    return intlPrimaryTimeZoneID(a.id()) == intlPrimaryTimeZoneID(b.id());
+}
+
 bool timeZoneEquals(StringView id1, StringView id2)
 {
-    // 1. If one is two, return true.
     if (id1 == id2)
         return true;
-
-    // 2. If IsOffsetTimeZoneIdentifier(one) is false and IsOffsetTimeZoneIdentifier(two) is false, then
-    //    a-b. Let recordOne/Two be GetAvailableNamedTimeZoneIdentifier(one/two).
-    //    e. If recordOne.[[PrimaryIdentifier]] is recordTwo.[[PrimaryIdentifier]], return true.
-    // NOTE: If either is an offset identifier, skip IANA comparison and fall through to step 3.
-    bool isOffset1 = !id1.isEmpty() && (id1[0] == '+' || id1[0] == '-');
-    bool isOffset2 = !id2.isEmpty() && (id2[0] == '+' || id2[0] == '-');
-    if (!isOffset1 && !isOffset2) {
-        auto primary1 = intlResolveTimeZoneID(id1);
-        auto primary2 = intlResolveTimeZoneID(id2);
-        if (primary1 && primary2 && *primary1 == *primary2)
-            return true;
-    }
-
-    // 3. Assert: if both are offset identifiers, they differ (step 1 caught equality).
-    // Available offset identifiers are in canonical form, so different strings → different minutes.
-    ASSERT(!isOffset1 || !isOffset2 || id1 != id2);
-    // 4. Return false.
-    return false;
+    auto a = ISO8601::parseTemporalTimeZoneIdentifier(id1);
+    auto b = ISO8601::parseTemporalTimeZoneIdentifier(id2);
+    if (!a || !b)
+        return false;
+    return timeZoneEquals(*a, *b);
 }
 
 } // namespace TemporalCore

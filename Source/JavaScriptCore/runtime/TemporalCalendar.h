@@ -73,7 +73,6 @@ struct ZonedDateTimeFields {
     // ZDT-specific fields — resolved in readZonedDateTimeFieldsFromObject per spec.
     std::optional<int64_t> offsetNs; // parsed from the "offset" string property
     TimeZone timeZone; // resolved TimeZone handle (Full mode only)
-    String timeZoneId; // canonical timezone ID string (Full mode only)
     // Presence flags (needed for with() partial validation).
     bool dayPresent { false };
     bool monthPresent { false };

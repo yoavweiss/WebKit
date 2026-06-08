@@ -484,11 +484,10 @@ static RelativeToRecord toRelativeTemporalObject(JSGlobalObject* globalObject, J
         if (!timeZoneValue.isUndefined()) {
             // Steps 8-9: compute offsetNs based on offsetBehaviour.
             // Steps 10-12: epochNs = InterpretISODateTimeOffset(...); return ZonedRelativeTo.
-            auto tzRecord = toTemporalTimeZoneIdentifier(globalObject, timeZoneValue);
+            auto timeZoneOpt = toTemporalTimeZoneIdentifier(globalObject, timeZoneValue);
             RETURN_IF_EXCEPTION(scope, { });
-            ASSERT(tzRecord);
-            TimeZone timeZone = tzRecord->timeZone;
-            String timeZoneId = WTF::move(tzRecord->identifier);
+            ASSERT(timeZoneOpt);
+            TimeZone timeZone = *timeZoneOpt;
 
             auto plainDate = resolvePlainDateFromFields(globalObject, calendarId,
                 calHasEras, era, eraYear, yearProperty.isUndefined(), year, month, day, otherMonth);
@@ -526,7 +525,7 @@ static RelativeToRecord toRelativeTemporalObject(JSGlobalObject* globalObject, J
                     throwRangeError(globalObject, scope, "offset does not agree with timezone for the given date/time"_s);
                     return { };
                 }
-                auto* zdt = TemporalZonedDateTime::create(vm, globalObject->zonedDateTimeStructure(), matchedEpoch, WTF::move(timeZone), WTF::move(timeZoneId), calendarId);
+                auto* zdt = TemporalZonedDateTime::create(vm, globalObject->zonedDateTimeStructure(), matchedEpoch, WTF::move(timeZone), calendarId);
                 return RelativeToRecord { zdt, { }, false };
             }
 
@@ -535,7 +534,7 @@ static RelativeToRecord toRelativeTemporalObject(JSGlobalObject* globalObject, J
             RETURN_IF_EXCEPTION(scope, { });
 
             // Steps 11-12: zonedRelativeTo = CreateTemporalZonedDateTime; return.
-            auto* zdt = TemporalZonedDateTime::create(vm, globalObject->zonedDateTimeStructure(), *epochNs, WTF::move(timeZone), WTF::move(timeZoneId), calendarId);
+            auto* zdt = TemporalZonedDateTime::create(vm, globalObject->zonedDateTimeStructure(), *epochNs, WTF::move(timeZone), calendarId);
             return RelativeToRecord { zdt, { }, false };
         }
 

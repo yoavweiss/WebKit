@@ -487,9 +487,9 @@ JSC_DEFINE_HOST_FUNCTION(temporalPlainDateTimePrototypeFuncToZonedDateTime, (JSG
         return throwVMTypeError(globalObject, scope, "Temporal.PlainDateTime.prototype.toZonedDateTime called on value that's not a PlainDateTime"_s);
 
     // Step 3: Let timeZone be ? ToTemporalTimeZoneIdentifier(temporalTimeZoneLike).
-    auto tzRecord = toTemporalTimeZoneIdentifier(globalObject, callFrame->argument(0));
+    auto timeZone = toTemporalTimeZoneIdentifier(globalObject, callFrame->argument(0));
     RETURN_IF_EXCEPTION(scope, { });
-    ASSERT(tzRecord);
+    ASSERT(timeZone);
 
     // Step 4: Let resolvedOptions be ? GetOptionsObject(options).
     JSObject* options = intlGetOptionsObject(globalObject, callFrame->argument(1));
@@ -500,11 +500,11 @@ JSC_DEFINE_HOST_FUNCTION(temporalPlainDateTimePrototypeFuncToZonedDateTime, (JSG
     RETURN_IF_EXCEPTION(scope, { });
 
     // Step 6: Let epochNs be ? GetEpochNanosecondsFor(timeZone, plainDateTime.[[ISODateTime]], disambiguation).
-    auto exactTimeOpt = TemporalZonedDateTime::getEpochNanosecondsFor(globalObject, tzRecord->timeZone, plainDateTime->plainDate(), plainDateTime->plainTime(), disambiguation);
+    auto exactTimeOpt = TemporalZonedDateTime::getEpochNanosecondsFor(globalObject, *timeZone, plainDateTime->plainDate(), plainDateTime->plainTime(), disambiguation);
     RETURN_IF_EXCEPTION(scope, { });
 
     // Step 7: Return ! CreateTemporalZonedDateTime(epochNs, timeZone, plainDateTime.[[Calendar]]).
-    RELEASE_AND_RETURN(scope, JSValue::encode(TemporalZonedDateTime::create(vm, globalObject->zonedDateTimeStructure(), *exactTimeOpt, tzRecord->timeZone, WTF::move(tzRecord->identifier), plainDateTime->calendarID())));
+    RELEASE_AND_RETURN(scope, JSValue::encode(TemporalZonedDateTime::create(vm, globalObject->zonedDateTimeStructure(), *exactTimeOpt, *timeZone, plainDateTime->calendarID())));
 }
 
 // https://tc39.es/proposal-temporal/#sec-temporal.plaindatetime.prototype.toplaindate

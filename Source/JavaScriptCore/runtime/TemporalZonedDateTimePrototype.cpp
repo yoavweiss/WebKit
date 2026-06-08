@@ -352,7 +352,7 @@ static EncodedJSValue differenceTemporalZonedDateTime(JSGlobalObject* globalObje
     // Step 7: If TimeZoneEquals(zonedDateTime.[[TimeZone]], other.[[TimeZone]]) is false, throw RangeError.
     // Only reached when largestUnit is not a time unit (spec step 5 otherwise returns early).
     if (largestUnit <= TemporalUnit::Day) {
-        if (!TemporalCore::timeZoneEquals(zdt->timeZoneId(), other->timeZoneId())) {
+        if (!TemporalCore::timeZoneEquals(zdt->timeZone(), other->timeZone())) {
             throwRangeError(globalObject, scope, "cannot compute day-or-larger difference between ZonedDateTimes with different time zones"_s);
             return { };
         }
@@ -799,7 +799,7 @@ JSC_DEFINE_HOST_FUNCTION(temporalZonedDateTimePrototypeFuncWithCalendar, (JSGlob
     RETURN_IF_EXCEPTION(scope, { });
 
     // Step 4: Return ! CreateTemporalZonedDateTime(zonedDateTime.[[EpochNanoseconds]], zonedDateTime.[[TimeZone]], calendar).
-    RELEASE_AND_RETURN(scope, JSValue::encode(TemporalZonedDateTime::create(vm, globalObject->zonedDateTimeStructure(), zdt->exactTime(), zdt->timeZone(), String(zdt->timeZoneId()), newCalendarID)));
+    RELEASE_AND_RETURN(scope, JSValue::encode(TemporalZonedDateTime::create(vm, globalObject->zonedDateTimeStructure(), zdt->exactTime(), zdt->timeZone(), newCalendarID)));
 }
 
 // temporal_rs: ZonedDateTime::with_time_zone_with_provider
@@ -816,12 +816,12 @@ JSC_DEFINE_HOST_FUNCTION(temporalZonedDateTimePrototypeFuncWithTimeZone, (JSGlob
         return throwVMTypeError(globalObject, scope, "Temporal.ZonedDateTime.prototype.withTimeZone called on value that's not a ZonedDateTime"_s);
 
     // Step 3: Let timeZone be ? ToTemporalTimeZoneIdentifier(timeZoneLike).
-    auto tzRecord = toTemporalTimeZoneIdentifier(globalObject, callFrame->argument(0));
+    auto timeZone = toTemporalTimeZoneIdentifier(globalObject, callFrame->argument(0));
     RETURN_IF_EXCEPTION(scope, { });
-    ASSERT(tzRecord);
+    ASSERT(timeZone);
 
     // Step 4: Return ! CreateTemporalZonedDateTime(zonedDateTime.[[EpochNanoseconds]], timeZone, zonedDateTime.[[Calendar]]).
-    RELEASE_AND_RETURN(scope, JSValue::encode(TemporalZonedDateTime::create(vm, globalObject->zonedDateTimeStructure(), zdt->exactTime(), tzRecord->timeZone, WTF::move(tzRecord->identifier), zdt->calendarID())));
+    RELEASE_AND_RETURN(scope, JSValue::encode(TemporalZonedDateTime::create(vm, globalObject->zonedDateTimeStructure(), zdt->exactTime(), *timeZone, zdt->calendarID())));
 }
 
 // temporal_rs: ZonedDateTime::equals_with_provider
@@ -847,7 +847,7 @@ JSC_DEFINE_HOST_FUNCTION(temporalZonedDateTimePrototypeFuncEquals, (JSGlobalObje
     // Step 6: Return CalendarEquals(zonedDateTime.[[Calendar]], other.[[Calendar]]).
     return JSValue::encode(jsBoolean(
         zdt->exactTime() == other->exactTime()
-        && TemporalCore::timeZoneEquals(zdt->timeZoneId(), other->timeZoneId())
+        && TemporalCore::timeZoneEquals(zdt->timeZone(), other->timeZone())
         && zdt->calendarID() == other->calendarID()));
 }
 
@@ -1119,7 +1119,8 @@ JSC_DEFINE_HOST_FUNCTION(temporalZonedDateTimePrototypeFuncToLocaleString, (JSGl
 
     // Steps 5-6: instant = ! CreateTemporalInstant(epochNanoseconds); Return ? FormatDateTime(dateTimeFormat, instant).
     // ICU formats the "+00:00" offset timezone as "UTC" but the spec requires "GMT"; fix it up.
-    bool isZeroOffset = (zdt->timeZoneId() == "+00:00"_s || zdt->timeZoneId() == "-00:00"_s);
+    const TimeZone& tz = zdt->timeZone();
+    bool isZeroOffset = tz.isUTCOffset() && !tz.utcOffsetNanoseconds();
     JSValue formatted = formatter->format(globalObject, zdt->exactTime().epochMilliseconds());
     RETURN_IF_EXCEPTION(scope, { });
     if (isZeroOffset && formatted.isString()) {

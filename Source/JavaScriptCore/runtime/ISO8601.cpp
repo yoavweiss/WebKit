@@ -2136,7 +2136,7 @@ std::optional<TimeZone> parseTemporalTimeZoneIdentifier(StringView string)
         }
         // 6. If timeZoneResult.[[Z]] is true, return ! ParseTimeZoneIdentifier("UTC").
         if (tzRecord->m_z)
-            return TimeZone::fromUTCOffset(0);
+            return TimeZone::fromID(utcTimeZoneID());
         // 7. If timeZoneResult.[[OffsetString]] is not ~empty~, return ? ParseTimeZoneIdentifier(timeZoneResult.[[OffsetString]]).
         if (tzRecord->m_offset)
             return TimeZone::fromUTCOffset(*tzRecord->m_offset);

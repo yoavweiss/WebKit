@@ -396,11 +396,10 @@ ZonedDateTimeFields readZonedDateTimeFieldsFromObject(JSGlobalObject* globalObje
             return result;
         }
         // ToTemporalTimeZoneIdentifier: accepts ZonedDateTime or String.
-        auto tzRecord = toTemporalTimeZoneIdentifier(globalObject, v);
+        auto timeZone = toTemporalTimeZoneIdentifier(globalObject, v);
         RETURN_IF_EXCEPTION(scope, result);
-        ASSERT(tzRecord);
-        result.timeZone = tzRecord->timeZone;
-        result.timeZoneId = WTF::move(tzRecord->identifier);
+        ASSERT(timeZone);
+        result.timeZone = *timeZone;
     }
 
     // year (~to-integer-with-truncation~)

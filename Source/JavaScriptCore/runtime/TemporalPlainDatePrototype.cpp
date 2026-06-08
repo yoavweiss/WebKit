@@ -347,7 +347,7 @@ JSC_DEFINE_HOST_FUNCTION(temporalPlainDatePrototypeFuncToZonedDateTime, (JSGloba
         return throwVMTypeError(globalObject, scope, "Temporal.PlainDate.prototype.toZonedDateTime called on value that's not a PlainDate"_s);
 
     JSValue item = callFrame->argument(0);
-    std::optional<TemporalTimeZoneRecord> tzRecord;
+    std::optional<TimeZone> tzOpt;
     JSValue temporalTime = jsUndefined(); // spec: ~undefined~ initially
 
     // Step 3: If item is an Object:
@@ -361,12 +361,12 @@ JSC_DEFINE_HOST_FUNCTION(temporalPlainDatePrototypeFuncToZonedDateTime, (JSGloba
         // Step 3.b: If timeZoneLike is undefined:
         if (timeZoneLike.isUndefined()) {
             // Step 3.b.i: timeZone = ? ToTemporalTimeZoneIdentifier(item).
-            tzRecord = toTemporalTimeZoneIdentifier(globalObject, item);
+            tzOpt = toTemporalTimeZoneIdentifier(globalObject, item);
             RETURN_IF_EXCEPTION(scope, { });
             // Step 3.b.ii: temporalTime = undefined. (already undefined)
         } else {
             // Step 3.c.i: timeZone = ? ToTemporalTimeZoneIdentifier(timeZoneLike).
-            tzRecord = toTemporalTimeZoneIdentifier(globalObject, timeZoneLike);
+            tzOpt = toTemporalTimeZoneIdentifier(globalObject, timeZoneLike);
             RETURN_IF_EXCEPTION(scope, { });
             // Step 3.c.ii: temporalTime = ? Get(item, "plainTime").
             temporalTime = itemObj->get(globalObject, Identifier::fromString(vm, "plainTime"_s));
@@ -374,12 +374,12 @@ JSC_DEFINE_HOST_FUNCTION(temporalPlainDatePrototypeFuncToZonedDateTime, (JSGloba
         }
     } else {
         // Step 4.a: timeZone = ? ToTemporalTimeZoneIdentifier(item).
-        tzRecord = toTemporalTimeZoneIdentifier(globalObject, item);
+        tzOpt = toTemporalTimeZoneIdentifier(globalObject, item);
         RETURN_IF_EXCEPTION(scope, { });
         // Step 4.b: temporalTime = undefined. (already undefined)
     }
-    ASSERT(tzRecord);
-    auto& tz = tzRecord->timeZone;
+    ASSERT(tzOpt);
+    const TimeZone& tz = *tzOpt;
 
     ISO8601::ExactTime epochNs;
 
@@ -415,7 +415,7 @@ JSC_DEFINE_HOST_FUNCTION(temporalPlainDatePrototypeFuncToZonedDateTime, (JSGloba
     }
 
     // Step 7: Return ! CreateTemporalZonedDateTime(epochNs, timeZone, plainDate.[[Calendar]]).
-    RELEASE_AND_RETURN(scope, JSValue::encode(TemporalZonedDateTime::create(vm, globalObject->zonedDateTimeStructure(), epochNs, tz, WTF::move(tzRecord->identifier), plainDate->calendarID())));
+    RELEASE_AND_RETURN(scope, JSValue::encode(TemporalZonedDateTime::create(vm, globalObject->zonedDateTimeStructure(), epochNs, tz, plainDate->calendarID())));
 }
 
 // https://tc39.es/proposal-temporal/#sec-temporal.plaindate.prototype.toplaindatetime

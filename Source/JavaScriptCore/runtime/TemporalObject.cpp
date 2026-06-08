@@ -732,14 +732,14 @@ void rejectObjectWithCalendarOrTimeZone(JSGlobalObject* globalObject, JSObject* 
 }
 
 // https://tc39.es/proposal-temporal/#sec-temporal-totemporaltimezoneidentifier
-std::optional<TemporalTimeZoneRecord> toTemporalTimeZoneIdentifier(JSGlobalObject* globalObject, JSValue item)
+std::optional<TimeZone> toTemporalTimeZoneIdentifier(JSGlobalObject* globalObject, JSValue item)
 {
     VM& vm = globalObject->vm();
     auto scope = DECLARE_THROW_SCOPE(vm);
 
     // Step 1: If item has [[InitializedTemporalZonedDateTime]], return its [[TimeZone]].
     if (auto* zdt = dynamicDowncast<TemporalZonedDateTime>(item))
-        return TemporalTimeZoneRecord { zdt->timeZone(), String(zdt->timeZoneId()) };
+        return zdt->timeZone();
 
     // Step 2: If item is not a String, throw TypeError.
     if (!item.isString()) [[unlikely]] {
@@ -749,24 +749,15 @@ std::optional<TemporalTimeZoneRecord> toTemporalTimeZoneIdentifier(JSGlobalObjec
     String tzString = asString(item)->value(globalObject);
     RETURN_IF_EXCEPTION(scope, std::nullopt);
 
-    // Step 3: Let parseResult be ? ParseTimeZoneIdentifier(item).
+    // Steps 3-5: ParseTimeZoneIdentifier; the resulting TimeZone already carries the
+    // case-normalized, alias-preserving identifier (named) or canonical offset.
     auto parsed = ISO8601::parseTemporalTimeZoneIdentifier(tzString);
     if (!parsed) [[unlikely]] {
         throwRangeError(globalObject, scope, makeString("'"_s, ellipsizeAt(100, tzString), "' is not a valid time zone identifier"_s));
         return std::nullopt;
     }
 
-    // Step 4: Named timezone → identifierRecord.[[Identifier]] (case-normalized, alias-preserving).
-    // Step 5: Offset timezone → FormatOffsetTimeZoneIdentifier → canonical "+HH:MM".
-    String identifier;
-    if (!tzString.isEmpty() && (tzString[0] == '+' || tzString[0] == '-'))
-        identifier = ISO8601::formatTimeZoneOffsetString(parsed->utcOffsetNanoseconds());
-    else if (auto namedTz = intlAvailableNamedTimeZone(tzString))
-        identifier = namedTz->identifier;
-    else
-        identifier = parsed->toString();
-
-    return TemporalTimeZoneRecord { *parsed, WTF::move(identifier) };
+    return *parsed;
 }
 
 void throwTemporalError(JSGlobalObject* globalObject, ThrowScope& scope, const TemporalError& error)

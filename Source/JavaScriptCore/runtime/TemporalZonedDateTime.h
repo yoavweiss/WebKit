@@ -38,9 +38,8 @@ namespace JSC {
 class TemporalZonedDateTime final : public JSNonFinalObject {
 public:
     using Base = JSNonFinalObject;
-    static constexpr DestructionMode needsDestruction = NeedsDestruction;
 
-    static void destroy(JSCell*);
+    static constexpr uint8_t numberOfLowerTierPreciseCells = 0;
 
     template<typename CellType, SubspaceAccess mode>
     static GCClient::IsoSubspace* subspaceFor(VM& vm)
@@ -48,8 +47,8 @@ public:
         return vm.temporalZonedDateTimeSpace<mode>();
     }
 
-    static TemporalZonedDateTime* create(VM&, Structure*, ISO8601::ExactTime, TimeZone, String&&, CalendarID);
-    static TemporalZonedDateTime* tryCreate(JSGlobalObject*, Structure*, ISO8601::ExactTime, TimeZone, String&&, CalendarID);
+    static TemporalZonedDateTime* create(VM&, Structure*, ISO8601::ExactTime, TimeZone, CalendarID);
+    static TemporalZonedDateTime* tryCreate(JSGlobalObject*, Structure*, ISO8601::ExactTime, TimeZone, CalendarID);
     static Structure* createStructure(VM&, JSGlobalObject*, JSValue);
 
     static TemporalZonedDateTime* from(JSGlobalObject*, JSValue item);
@@ -57,9 +56,9 @@ public:
 
     DECLARE_INFO;
 
-    ISO8601::ExactTime exactTime() const { return m_exactTime.get(); }
+    ISO8601::ExactTime exactTime() const { return m_exactTime; }
     const TimeZone& timeZone() const { return m_timeZone; }
-    const String& timeZoneId() const { return m_timeZoneId; }
+    String timeZoneId() const { return m_timeZone.toString(); }
     String calendarId() const { return TemporalCore::calendarIDToString(m_calendarID).toString(); }
     CalendarID calendarID() const { return m_calendarID; }
 
@@ -74,12 +73,11 @@ public:
     TemporalZonedDateTime* withExactTime(JSGlobalObject*, ISO8601::ExactTime epochNs) const;
 
 private:
-    TemporalZonedDateTime(VM&, Structure*, ISO8601::ExactTime, TimeZone, String&&, CalendarID);
+    TemporalZonedDateTime(VM&, Structure*, ISO8601::ExactTime, TimeZone, CalendarID);
     DECLARE_DEFAULT_FINISH_CREATION;
 
-    Packed<ISO8601::ExactTime> m_exactTime;
+    ISO8601::ExactTime m_exactTime;
     TimeZone m_timeZone;
-    String m_timeZoneId;
     CalendarID m_calendarID { 0 };
 };
 
