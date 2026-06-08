@@ -71,7 +71,7 @@
 #include "SVGSVGElement.h"
 #include "Settings.h"
 #include "StyleComputedStyle+GettersInlines.h"
-#include "StyleScope.h"
+#include "StyleDocumentScope.h"
 #include "TransformState.h"
 #include <wtf/SetForScope.h>
 #include <wtf/StackStats.h>

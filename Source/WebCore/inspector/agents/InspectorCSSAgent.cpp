@@ -71,11 +71,11 @@
 #include "SVGStyleElement.h"
 #include "SelectorChecker.h"
 #include "ShadowRoot.h"
+#include "StyleDocumentScope.h"
 #include "StyleProperties.h"
 #include "StylePropertyShorthand.h"
 #include "StyleResolver.h"
 #include "StyleRule.h"
-#include "StyleScope.h"
 #include "StyleSheetContents.h"
 #include "StyleSheetList.h"
 #include <JavaScriptCore/InspectorProtocolObjects.h>

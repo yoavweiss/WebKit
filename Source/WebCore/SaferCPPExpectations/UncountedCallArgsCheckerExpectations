@@ -643,6 +643,7 @@ style/StyleAdjuster.cpp
 style/StyleBuilder.cpp
 style/StyleBuilderState.cpp
 style/StyleDifference.cpp
+style/StyleDocumentScope.cpp
 style/StyleExtractor.cpp
 style/StyleExtractorCustom.h
 style/StyleInvalidator.cpp

@@ -40,9 +40,9 @@
 #include "SVGStyleElement.h"
 #include "SecurityOrigin.h"
 #include "ShadowRoot.h"
+#include "StyleDocumentScope.h"
 #include "StyleResolver.h"
 #include "StyleRule.h"
-#include "StyleScope.h"
 #include "StyleSheetContents.h"
 #include "StyleSheetContentsCache.h"
 #include <wtf/HexNumber.h>

@@ -42,10 +42,10 @@
 #include "MediaQueryEvaluator.h"
 #include "MutableCSSSelector.h"
 #include "StyleCustomPropertyRegistry.h"
+#include "StyleDocumentScope.h"
 #include "StyleResolver.h"
 #include "StyleRuleFunction.h"
 #include "StyleRuleImport.h"
-#include "StyleScope.h"
 #include "StyleSheetContents.h"
 #include <ranges>
 #include <wtf/CryptographicallyRandomNumber.h>

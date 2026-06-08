@@ -42,9 +42,9 @@
 #include "SVGGlyphElement.h"
 #include "SVGNames.h"
 #include "SVGPropertyOwnerRegistry.h"
+#include "StyleDocumentScope.h"
 #include "StyleResolver.h"
 #include "StyleRule.h"
-#include "StyleScope.h"
 #include <math.h>
 #include <wtf/TZoneMallocInlines.h>
 

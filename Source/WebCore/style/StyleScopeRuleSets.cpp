@@ -44,8 +44,8 @@
 #include "MediaQueryEvaluator.h"
 #include "Page.h"
 #include "RuleSetBuilder.h"
+#include "StyleDocumentScope.h"
 #include "StyleResolver.h"
-#include "StyleScope.h"
 #include "StyleSheetContents.h"
 #include <JavaScriptCore/ConsoleTypes.h>
 #include <ranges>

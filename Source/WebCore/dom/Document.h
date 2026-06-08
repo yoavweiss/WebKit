@@ -382,6 +382,7 @@ class ComputedStyle;
 class CustomPropertyRegistry;
 class Resolver;
 class Scope;
+class DocumentScope;
 class Update;
 enum class SVGRendererUpdateType : bool;
 }
@@ -721,8 +722,8 @@ public:
 
     WEBCORE_EXPORT StyleSheetList& styleSheets();
 
-    Style::Scope& styleScope() { return m_styleScope; }
-    const Style::Scope& styleScope() const { return m_styleScope; }
+    Style::DocumentScope& styleScope() { return m_styleScope; }
+    const Style::DocumentScope& styleScope() const { return m_styleScope; }
 
     ExtensionStyleSheets* extensionStyleSheetsIfExists() { return m_extensionStyleSheets.get(); }
     inline ExtensionStyleSheets& extensionStyleSheets(); // Defined in DocumentInlines.h.
@@ -2335,7 +2336,7 @@ private:
     WeakHashSet<NodeIterator> m_nodeIterators;
     HashSet<SingleThreadWeakRef<Range>> m_ranges;
 
-    const UniqueRef<Style::Scope> m_styleScope;
+    const UniqueRef<Style::DocumentScope> m_styleScope;
     const std::unique_ptr<ExtensionStyleSheets> m_extensionStyleSheets;
     RefPtr<StyleSheetList> m_styleSheetList;
 

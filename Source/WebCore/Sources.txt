@@ -3236,6 +3236,7 @@ style/StyleRelations.cpp @header:RenderStyleGetters @cost:5
 style/StyleResolveForDocument.cpp @header:RenderStyleGetters @cost:7
 style/StyleResolveForFont.cpp
 style/StyleResolver.cpp @header:RenderStyleGetters @cost:9
+style/StyleDocumentScope.cpp @header:RenderStyleGetters @cost:10
 style/StyleScope.cpp @header:RenderStyleGetters @cost:10
 style/StyleScopeRuleSets.cpp
 style/StyleSheetContentsCache.cpp

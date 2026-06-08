@@ -58,7 +58,7 @@
 #include "ScriptDisallowedScope.h"
 #include "Settings.h"
 #include "StyleComputedStyle+GettersInlines.h"
-#include "StyleScope.h"
+#include "StyleDocumentScope.h"
 #include <wtf/SetForScope.h>
 #include <wtf/SystemTracing.h>
 #include <wtf/TZoneMallocInlines.h>
@@ -176,7 +176,7 @@ void LocalFrameViewLayoutContext::layout(bool canDeferUpdateLayerPositions)
     if (view().hasOneRef())
         return;
 
-    Style::Scope::LayoutDependencyUpdateContext layoutDependencyUpdateContext;
+    Style::DocumentScope::LayoutDependencyUpdateContext layoutDependencyUpdateContext;
     while (document() && document()->styleScope().invalidateForLayoutDependencies(layoutDependencyUpdateContext)) {
         protect(document())->updateStyleIfNeeded();
 
@@ -198,7 +198,7 @@ void LocalFrameViewLayoutContext::interleavedLayout()
 
     performLayout(false);
 
-    Style::Scope::LayoutDependencyUpdateContext layoutDependencyUpdateContext;
+    Style::DocumentScope::LayoutDependencyUpdateContext layoutDependencyUpdateContext;
     document()->styleScope().invalidateForLayoutDependencies(layoutDependencyUpdateContext);
 }
 

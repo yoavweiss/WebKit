@@ -35,8 +35,8 @@
 #include "StyleBuilder.h"
 #include "StyleComputedStyle+SettersInlines.h"
 #include "StyleCustomProperty.h"
+#include "StyleDocumentScope.h"
 #include "StyleResolver.h"
-#include "StyleScope.h"
 #include "WebAnimation.h"
 #include <wtf/TZoneMallocInlines.h>
 
@@ -79,7 +79,7 @@ bool CustomPropertyRegistry::registerFromAPI(CSSRegisteredCustomProperty&& prope
 
     if (success) {
         invalidate(property.name);
-        m_scope.didChangeStyleSheetEnvironment();
+        m_scope.documentScope().didChangeStyleSheetEnvironment();
     }
 
     return success;

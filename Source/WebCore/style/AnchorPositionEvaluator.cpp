@@ -47,7 +47,7 @@
 #include "StyleBuilderState.h"
 #include "StyleComputedStyle+GettersInlines.h"
 #include "StyleComputedStyle+SettersInlines.h"
-#include "StyleScope.h"
+#include "StyleDocumentScope.h"
 #include "StyleableInlines.h"
 #include "WritingMode.h"
 #include <ranges>

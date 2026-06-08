@@ -39,7 +39,7 @@
 #include "NodeInlines.h"
 #include "SerializedNode.h"
 #include "Settings.h"
-#include "StyleScope.h"
+#include "StyleDocumentScope.h"
 #include "StyleSheetContents.h"
 #include "XMLDocumentParser.h"
 #include "XSLStyleSheet.h"

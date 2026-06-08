@@ -45,12 +45,12 @@
 #include "ShorthandSerializer.h"
 #include "StyleCustomProperty.h"
 #include "StyleCustomPropertyRegistry.h"
+#include "StyleDocumentScope.h"
 #include "StyleExtractorGenerated.h"
 #include "StyleInterpolation.h"
 #include "StylePrimitiveNumericTypes+Conversions.h"
 #include "StylePropertyShorthand.h"
 #include "StyleResolver.h"
-#include "StyleScope.h"
 #include "StyleZoomPrimitivesInlines.h"
 #include "Styleable.h"
 

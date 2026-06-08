@@ -127,8 +127,8 @@
 #import <WebCore/RenderWidget.h>
 #import <WebCore/SharedBuffer.h>
 #import <WebCore/StyleComputedStyle+GettersInlines.h>
+#import <WebCore/StyleDocumentScope.h>
 #import <WebCore/StyleProperties.h>
-#import <WebCore/StyleScope.h>
 #import <WebCore/Text.h>
 #import <WebCore/TextAlternativeWithRange.h>
 #import <WebCore/TextIndicator.h>

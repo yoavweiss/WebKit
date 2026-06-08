@@ -317,13 +317,13 @@
 #include "StyleColorOptions.h"
 #include "StyleColorScheme.h"
 #include "StyleComputedStyle+SettersInlines.h"
+#include "StyleDocumentScope.h"
 #include "StyleFontSizeFunctions.h"
 #include "StyleOriginatedTimelinesController.h"
 #include "StylePrimitiveNumericTypes+Evaluation.h"
 #include "StyleProperties.h"
 #include "StyleResolveForDocument.h"
 #include "StyleResolver.h"
-#include "StyleScope.h"
 #include "StyleSheetContents.h"
 #include "StyleSheetList.h"
 #include "StyleTreeResolverInlines.h"
@@ -673,7 +673,7 @@ Document::Document(LocalFrame* frame, const Settings& settings, const URL& url, 
     , m_parserContentPolicy(DefaultParserContentPolicy)
     , m_creationURL(url)
     , m_domTreeVersion(++s_globalTreeVersion)
-    , m_styleScope(makeUniqueRef<Style::Scope>(*this))
+    , m_styleScope(makeUniqueRef<Style::DocumentScope>(*this))
     , m_styleRecalcTimer([this] { Ref { *this }->updateStyleIfNeeded(); })
 #if !LOG_DISABLED
     , m_documentCreationTime(MonotonicTime::now())
@@ -5227,7 +5227,7 @@ bool Document::usesStyleBasedEditability() const
     ASSERT(!m_renderView || !m_renderView->frameView().isPainting());
     ASSERT(!m_inStyleRecalc);
 
-    auto& styleScope = const_cast<Style::Scope&>(this->styleScope());
+    auto& styleScope = const_cast<Style::DocumentScope&>(this->styleScope());
     styleScope.flushPendingUpdate();
     return styleScope.usesStyleBasedEditability();
 }

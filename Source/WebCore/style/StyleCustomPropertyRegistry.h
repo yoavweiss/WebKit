@@ -26,6 +26,7 @@
 
 #include "CSSRegisteredCustomProperty.h"
 #include "StyleRule.h"
+#include "StyleScope.h"
 #include <wtf/HashMap.h>
 #include <wtf/TZoneMalloc.h>
 
@@ -34,7 +35,6 @@ namespace Style {
 
 class ComputedStyle;
 class CustomProperty;
-class Scope;
 
 class CustomPropertyRegistry {
     WTF_MAKE_TZONE_ALLOCATED(CustomPropertyRegistry);
