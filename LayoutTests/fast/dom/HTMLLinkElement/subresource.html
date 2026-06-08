@@ -1,14 +1,13 @@
 <body>
 <div id="console"></div>
-<script src="../../../resources/js-test-pre.js"></script>
+<script src="../../../resources/js-test.js"></script>
 <script>
+window.jsTestIsAsync = true;
 function prefetch_onload() {
     testPassed('onload called!');
-    testRunner.notifyDone();
+    finishJSTest();
 }
 if (window.testRunner) {
-    testRunner.waitUntilDone();
-    testRunner.dumpAsText();
     testRunner.dumpResourceResponseMIMETypes();
 }
 </script>

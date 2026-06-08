@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
 <html>
 <head>
-<script src="../../../../resources/js-test-pre.js"></script>
+<script src="../../../../resources/js-test.js"></script>
 <script src="resources/gesture-helpers.js"></script>
 <style type="text/css">
 #touchtarget {
@@ -110,9 +110,7 @@ function checkWheelScrollOffset()
 	
     if (gesturesOccurred == expectedGesturesTotal) {
         successfullyParsed = true;
-        isSuccessfullyParsed();
-        if (window.testRunner)
-        testRunner.notifyDone();
+        finishJSTest();
     }
 }
 
@@ -131,8 +129,6 @@ function secondWheelScroll()
     checkWheelScrollOffset();
 }
 
-if (window.testRunner)
-    testRunner.waitUntilDone();
 
 function runTest()
 {
@@ -142,6 +138,7 @@ function runTest()
 
     if (window.eventSender) {
         description('This tests that precise scrolls on a horizontal scroll bar move vertically.');
+        window.jsTestIsAsync = true;
 
         if (checkTestDependencies())
             firstWheelScroll();
