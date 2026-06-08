@@ -1309,3 +1309,6 @@ webkit.org/b/316426 imported/w3c/web-platform-tests/html/semantics/embedded-cont
 
 webkit.org/b/315758 imported/w3c/web-platform-tests/webrtc/simulcast/vp8.https.html [ Crash Pass ]
 webkit.org/b/315758 imported/w3c/web-platform-tests/webrtc/simulcast/av1.https.html [ Crash Pass ]
+
+webkit.org/b/316572 [ x86_64 ] webaudio/require-transient-activation.html [ Pass Crash ]
+webkit.org/b/316574 [ x86_64 ] fast/parser/entities-in-html.html [ Pass Timeout ]

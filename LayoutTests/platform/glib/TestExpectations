@@ -5562,6 +5562,9 @@ webkit.org/b/316428 imported/w3c/web-platform-tests/html/semantics/popovers/popo
 # Needs picture-in-picture support
 media/media-visible-in-viewport-in-fullscreen.html
 
+webkit.org/b/316573 fast/parser/empty-text-resource.html [ Pass Timeout ]
+webkit.org/b/316575 [ x86_64 ] http/tests/IndexedDB/collect-IDB-objects.https.html [ Pass Crash ]
+
 # End: Common failures between GTK and WPE.
 
 #////////////////////////////////////////////////////////////////////////////////////////

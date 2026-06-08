@@ -1308,3 +1308,6 @@ webkit.org/b/316432 imported/w3c/web-platform-tests/css/css-contain/contain-size
 webkit.org/b/315994 imported/w3c/web-platform-tests/css/css-fonts/variations/variable-avar2-rvrn.html [ ImageOnlyFailure Pass ]
 webkit.org/b/315994 imported/w3c/web-platform-tests/css/css-view-transitions/new-content-inline-with-offset-from-containing-block-clipped.html [ ImageOnlyFailure Pass ]
 webkit.org/b/315994 imported/w3c/web-platform-tests/css/css-view-transitions/old-content-inline-with-offset-from-containing-block-clipped.html [ ImageOnlyFailure Pass ]
+
+webkit.org/b/316576 imported/w3c/web-platform-tests/dom/nodes/moveBefore/focus-preserve.html [ Pass Failure ]
+webkit.org/b/316577 http/tests/animations/threaded-animations-timeline-resumption-from-page-cache.html [ Pass Crash ]
