@@ -2952,6 +2952,17 @@ class YarrGenerator final : public YarrJITInfo {
 
         m_backtrackingState.link(*this, op);
 
+        if (term->possessive()) {
+            // When term is possessive, we do not need to do backtracking.
+            // Just rewind index completely and falling through to the next backtracking.
+            loadFromFrame(term->frameLocation + BackTrackInfoPatternCharacter::matchAmountIndex(), countRegister);
+            if (m_decodeSurrogatePairs && !U_IS_BMP(term->patternCharacter))
+                m_jit.lshift32(MacroAssembler::TrustedImm32(1), countRegister);
+            m_jit.sub32(countRegister, m_regs.index);
+            m_backtrackingState.fallthrough();
+            return;
+        }
+
         loadFromFrame(term->frameLocation + BackTrackInfoPatternCharacter::matchAmountIndex(), countRegister);
         m_backtrackingState.append(m_jit.branchTest32(MacroAssembler::Zero, countRegister));
         m_jit.sub32(MacroAssembler::TrustedImm32(1), countRegister);
@@ -3265,6 +3276,18 @@ class YarrGenerator final : public YarrJITInfo {
         const MacroAssembler::RegisterID countRegister = m_regs.regT1;
 
         m_backtrackingState.link(*this, op);
+
+        // Leveraging possessive flag to optimize this backtracking by rewinding entire matching so far.
+        // Important thing is possessive in YarrJIT is optional optimization flag: we can leverage this only when we can use it easily.
+        // We can completely ignore this flag and still this is OK.
+        if (term->possessive() && (!m_decodeSurrogatePairs || term->isFixedWidthCharacterClass())) {
+            loadFromFrame(term->frameLocation + BackTrackInfoCharacterClass::matchAmountIndex(), countRegister);
+            if (m_decodeSurrogatePairs && term->characterClass->hasNonBMPCharacters())
+                m_jit.lshift32(MacroAssembler::TrustedImm32(1), countRegister); // 2 code units per match.
+            m_jit.sub32(countRegister, m_regs.index);
+            m_backtrackingState.fallthrough();
+            return;
+        }
 
         loadFromFrame(term->frameLocation + BackTrackInfoCharacterClass::matchAmountIndex(), countRegister);
         m_backtrackingState.append(m_jit.branchTest32(MacroAssembler::Zero, countRegister));

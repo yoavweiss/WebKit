@@ -248,6 +248,12 @@ struct PatternTerm {
     unsigned inputPosition;
     unsigned frameLocation;
 
+    // Set by YarrPattern's auto-possessification pass for a Greedy single-character
+    // (PatternCharacter / CharacterClass) term whose following mandatory term can never
+    // match a character this term matches. Backtracking into such a term is always futile,
+    // so the JIT generates a possessive (no-give-back) backtrack instead of the retry loop.
+    bool m_possessive { false };
+
     PatternTerm(char32_t ch, OptionSet<Flags> currFlags, MatchDirection matchDirection = Forward)
         : type(PatternTerm::Type::PatternCharacter)
         , m_currentFlags(currFlags)
@@ -389,22 +395,27 @@ struct PatternTerm {
         return m_matchDirection;
     }
 
-    bool capture()
+    bool capture() const
     {
         return m_capture;
     }
 
-    bool NODELETE ignoreCase()
+    bool possessive() const
+    {
+        return m_possessive;
+    }
+
+    bool NODELETE ignoreCase() const
     {
         return m_currentFlags.contains(Flags::IgnoreCase);
     }
 
-    bool NODELETE multiline()
+    bool NODELETE multiline() const
     {
         return m_currentFlags.contains(Flags::Multiline);
     }
 
-    bool NODELETE dotAll()
+    bool NODELETE dotAll() const
     {
         return m_currentFlags.contains(Flags::DotAll);
     }
@@ -414,7 +425,7 @@ struct PatternTerm {
         return type == Type::CharacterClass && characterClass->hasOneCharacterSize() && !invert();
     }
 
-    bool containsAnyCaptures()
+    bool containsAnyCaptures() const
     {
         ASSERT(this->type == Type::ParenthesesSubpattern
             || this->type == Type::ParentheticalAssertion);
