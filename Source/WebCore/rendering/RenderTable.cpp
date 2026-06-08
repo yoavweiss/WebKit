@@ -76,18 +76,6 @@ WTF_MAKE_TZONE_ALLOCATED_IMPL(RenderTable);
 RenderTable::RenderTable(Type type, Element& element, Style::ComputedStyle&& style)
     : RenderBlock(type, element, WTF::move(style), { })
     , m_columnPos(FillWith { }, 1, 0)
-    , m_currentBorder(nullptr)
-    , m_collapsedBordersValid(false)
-    , m_collapsedEmptyBorderIsPresent(false)
-    , m_hasColElements(false)
-    , m_needsSectionRecalc(false)
-    , m_columnLogicalWidthChanged(false)
-    , m_columnRenderersValid(false)
-    , m_hasCellColspanThatDeterminesTableWidth(false)
-    , m_borderStart(0)
-    , m_borderEnd(0)
-    , m_columnOffsetTop(-1)
-    , m_columnOffsetHeight(-1)
 {
     setChildrenInline(false);
     ASSERT(isRenderTable());
@@ -96,16 +84,6 @@ RenderTable::RenderTable(Type type, Element& element, Style::ComputedStyle&& sty
 RenderTable::RenderTable(Type type, Document& document, Style::ComputedStyle&& style)
     : RenderBlock(type, document, WTF::move(style), { })
     , m_columnPos(FillWith { }, 1, 0)
-    , m_currentBorder(nullptr)
-    , m_collapsedBordersValid(false)
-    , m_collapsedEmptyBorderIsPresent(false)
-    , m_hasColElements(false)
-    , m_needsSectionRecalc(false)
-    , m_columnLogicalWidthChanged(false)
-    , m_columnRenderersValid(false)
-    , m_hasCellColspanThatDeterminesTableWidth(false)
-    , m_borderStart(0)
-    , m_borderEnd(0)
 {
     setChildrenInline(false);
     ASSERT(isRenderTable());

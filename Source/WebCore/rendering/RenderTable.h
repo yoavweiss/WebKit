@@ -279,16 +279,16 @@ protected:
     std::unique_ptr<TableLayout> m_tableLayout;
 
     CollapsedBorderValues m_collapsedBorders;
-    const CollapsedBorderValue* m_currentBorder;
-    bool m_collapsedBordersValid : 1;
-    bool m_collapsedEmptyBorderIsPresent : 1;
+    const CollapsedBorderValue* m_currentBorder { nullptr };
+    bool m_collapsedBordersValid : 1 { false };
+    bool m_collapsedEmptyBorderIsPresent : 1 { false };
 
-    mutable bool m_hasColElements : 1;
-    mutable bool m_needsSectionRecalc : 1;
+    mutable bool m_hasColElements : 1 { false };
+    mutable bool m_needsSectionRecalc : 1 { false };
 
-    bool m_columnLogicalWidthChanged : 1;
-    mutable bool m_columnRenderersValid: 1;
-    mutable bool m_hasCellColspanThatDeterminesTableWidth : 1;
+    bool m_columnLogicalWidthChanged : 1 { false };
+    mutable bool m_columnRenderersValid : 1 { false };
+    mutable bool m_hasCellColspanThatDeterminesTableWidth : 1 { false };
 
     bool hasCellColspanThatDeterminesTableWidth() const
     {
@@ -305,8 +305,8 @@ protected:
     LayoutUnit m_vSpacing;
     LayoutUnit m_borderStart;
     LayoutUnit m_borderEnd;
-    mutable LayoutUnit m_columnOffsetTop;
-    mutable LayoutUnit m_columnOffsetHeight;
+    mutable LayoutUnit m_columnOffsetTop { -1 };
+    mutable LayoutUnit m_columnOffsetHeight { -1 };
     unsigned m_recursiveSectionMovedWithPaginationLevel { 0 };
 };
 
