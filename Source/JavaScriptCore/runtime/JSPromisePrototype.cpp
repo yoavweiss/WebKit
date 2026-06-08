@@ -31,7 +31,7 @@
 #include "JSCInlines.h"
 #include "JSFunctionWithFields.h"
 #include "JSPromise.h"
-#include "JSPromiseCombinatorsGlobalContext.h"
+#include "JSPromiseReaction.h"
 
 namespace JSC {
 
@@ -288,7 +288,7 @@ JSC_DEFINE_HOST_FUNCTION(promiseProtoFuncFinally, (JSGlobalObject* globalObject,
 
         if (promiseSpeciesWatchpointIsValid(vm, promise)) [[likely]] {
             JSPromise* resultPromise = JSPromise::create(vm, globalObject->promiseStructure());
-            auto* context = JSPromiseCombinatorsGlobalContext::create(vm, resultPromise, onFinally, jsUndefined());
+            auto* context = JSSlimPromiseReaction::create(vm, resultPromise, onFinally, /* isFulfill */ false, /* next */ nullptr);
             promise->performPromiseThenWithInternalMicrotask(vm, InternalMicrotask::PromiseFinallyReactionJob, resultPromise, context);
             return JSValue::encode(resultPromise);
         }

@@ -34,7 +34,6 @@
 #include "JSFunctionWithFields.h"
 #include "JSMicrotask.h"
 #include "JSPromiseCombinatorsContext.h"
-#include "JSPromiseCombinatorsGlobalContext.h"
 #include "JSPromiseConstructor.h"
 #include "JSPromisePrototype.h"
 #include "JSPromiseReaction.h"
@@ -661,10 +660,9 @@ JSC_DEFINE_HOST_FUNCTION(promiseResolvingFunctionResolveWithInternalMicrotask, (
     callee->setField(vm, JSFunctionWithFields::Field::ResolvingWithInternalMicrotaskOther, jsNull());
     other->setField(vm, JSFunctionWithFields::Field::ResolvingWithInternalMicrotaskOther, jsNull());
 
-    auto* context = uncheckedDowncast<JSPromiseCombinatorsGlobalContext>(callee->getField(JSFunctionWithFields::Field::ResolvingWithInternalMicrotaskContext));
+    auto* contextCell = uncheckedDowncast<JSSlimPromiseReaction>(callee->getField(JSFunctionWithFields::Field::ResolvingWithInternalMicrotaskContext));
     JSValue argument = callFrame->argument(0);
-    JSValue onFulfilled = context->promise();
-    JSPromise::resolveWithInternalMicrotask(globalObject, vm, argument, static_cast<InternalMicrotask>(onFulfilled.asInt32()), context->remainingElementsCount());
+    JSPromise::resolveWithInternalMicrotask(globalObject, vm, argument, contextCell->internalMicrotask(), contextCell->handlerOrContext());
     return JSValue::encode(jsUndefined());
 }
 
@@ -680,10 +678,9 @@ JSC_DEFINE_HOST_FUNCTION(promiseResolvingFunctionRejectWithInternalMicrotask, (J
     callee->setField(vm, JSFunctionWithFields::Field::ResolvingWithInternalMicrotaskOther, jsNull());
     other->setField(vm, JSFunctionWithFields::Field::ResolvingWithInternalMicrotaskOther, jsNull());
 
-    auto* context = uncheckedDowncast<JSPromiseCombinatorsGlobalContext>(callee->getField(JSFunctionWithFields::Field::ResolvingWithInternalMicrotaskContext));
+    auto* contextCell = uncheckedDowncast<JSSlimPromiseReaction>(callee->getField(JSFunctionWithFields::Field::ResolvingWithInternalMicrotaskContext));
     JSValue argument = callFrame->argument(0);
-    JSValue onFulfilled = context->promise();
-    JSPromise::rejectWithInternalMicrotask(vm, globalObject, argument, static_cast<InternalMicrotask>(onFulfilled.asInt32()), context->remainingElementsCount());
+    JSPromise::rejectWithInternalMicrotask(vm, globalObject, argument, contextCell->internalMicrotask(), contextCell->handlerOrContext());
     return JSValue::encode(jsUndefined());
 }
 
@@ -742,17 +739,15 @@ std::tuple<JSFunction*, JSFunction*> JSPromise::createFirstResolvingFunctions(VM
 
 std::tuple<JSFunction*, JSFunction*> JSPromise::createResolvingFunctionsWithInternalMicrotask(VM& vm, JSGlobalObject* globalObject, InternalMicrotask task, JSValue context)
 {
-    JSValue encodedTask = jsNumber(static_cast<int32_t>(task));
-
     auto* resolve = JSFunctionWithFields::create(vm, globalObject, vm.promiseResolvingFunctionResolveWithInternalMicrotaskExecutable());
     auto* reject = JSFunctionWithFields::create(vm, globalObject, vm.promiseResolvingFunctionRejectWithInternalMicrotaskExecutable());
 
-    auto* all = JSPromiseCombinatorsGlobalContext::create(vm, encodedTask, encodedTask, context);
+    auto* contextCell = JSSlimPromiseReaction::create(vm, jsUndefined(), task, context, /* next */ nullptr);
 
-    resolve->setField(vm, JSFunctionWithFields::Field::ResolvingWithInternalMicrotaskContext, all);
+    resolve->setField(vm, JSFunctionWithFields::Field::ResolvingWithInternalMicrotaskContext, contextCell);
     resolve->setField(vm, JSFunctionWithFields::Field::ResolvingWithInternalMicrotaskOther, reject);
 
-    reject->setField(vm, JSFunctionWithFields::Field::ResolvingWithInternalMicrotaskContext, all);
+    reject->setField(vm, JSFunctionWithFields::Field::ResolvingWithInternalMicrotaskContext, contextCell);
     reject->setField(vm, JSFunctionWithFields::Field::ResolvingWithInternalMicrotaskOther, resolve);
 
     return std::tuple { resolve, reject };

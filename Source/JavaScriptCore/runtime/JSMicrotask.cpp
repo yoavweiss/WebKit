@@ -372,11 +372,8 @@ static void promiseAllResolveJob(JSGlobalObject* globalObject, VM& vm, JSPromise
         values->putDirectIndex(globalObject, index, resolution);
         RETURN_IF_EXCEPTION(scope, void());
 
-        uint64_t count = globalContext->remainingElementsCount().toIndex(globalObject, "count exceeds size"_s);
-        RETURN_IF_EXCEPTION(scope, void());
-
-        --count;
-        globalContext->setRemainingElementsCount(vm, jsNumber(count));
+        uint64_t count = globalContext->remainingElementsCount() - 1;
+        globalContext->setRemainingElementsCount(count);
         if (!count) {
             auto* promise = uncheckedDowncast<JSPromise>(globalContext->promise());
             scope.release();
@@ -418,11 +415,8 @@ static void promiseAllSettledResolveJob(JSGlobalObject* globalObject, VM& vm, JS
     values->putDirectIndex(globalObject, index, resultObject);
     RETURN_IF_EXCEPTION(scope, void());
 
-    uint64_t count = globalContext->remainingElementsCount().toIndex(globalObject, "count exceeds size"_s);
-    RETURN_IF_EXCEPTION(scope, void());
-
-    --count;
-    globalContext->setRemainingElementsCount(vm, jsNumber(count));
+    uint64_t count = globalContext->remainingElementsCount() - 1;
+    globalContext->setRemainingElementsCount(count);
     if (!count) {
         auto* promise = uncheckedDowncast<JSPromise>(globalContext->promise());
         scope.release();
@@ -451,11 +445,8 @@ static void promiseAnyResolveJob(JSGlobalObject* globalObject, VM& vm, JSPromise
         errors->putDirectIndex(globalObject, index, resolution);
         RETURN_IF_EXCEPTION(scope, void());
 
-        uint64_t count = globalContext->remainingElementsCount().toIndex(globalObject, "count exceeds size"_s);
-        RETURN_IF_EXCEPTION(scope, void());
-
-        --count;
-        globalContext->setRemainingElementsCount(vm, jsNumber(count));
+        uint64_t count = globalContext->remainingElementsCount() - 1;
+        globalContext->setRemainingElementsCount(count);
         if (!count) {
             auto* promise = uncheckedDowncast<JSPromise>(globalContext->promise());
             auto* aggregateError = createAggregateError(vm, globalObject->errorStructure(ErrorType::AggregateError), errors, String(), jsUndefined());
@@ -760,11 +751,11 @@ JSC_DEFINE_HOST_FUNCTION(asyncGeneratorCompleteAndDrain, (JSGlobalObject* global
     return JSValue::encode(jsUndefined());
 }
 
-static void promiseFinallyAwaitJob(JSGlobalObject* globalObject, VM& vm, JSValue settledValue, JSPromiseCombinatorsGlobalContext* context, JSPromise::Status status)
+static void promiseFinallyAwaitJob(JSGlobalObject* globalObject, VM& vm, JSValue settledValue, JSSlimPromiseReaction* context, JSPromise::Status status)
 {
     auto* resultPromise = uncheckedDowncast<JSPromise>(context->promise());
-    JSValue originalValue = context->values();
-    bool wasFulfilled = context->remainingElementsCount().asBoolean();
+    JSValue originalValue = context->handlerOrContext();
+    bool wasFulfilled = context->isFulfillHandler();
 
     if (status == JSPromise::Status::Rejected) {
         resultPromise->rejectPromise(vm, settledValue);
@@ -777,11 +768,11 @@ static void promiseFinallyAwaitJob(JSGlobalObject* globalObject, VM& vm, JSValue
         resultPromise->rejectPromise(vm, originalValue);
 }
 
-static void promiseFinallyReactionJob(JSGlobalObject* globalObject, VM& vm, JSPromise* resultPromise, JSValue valueOrReason, JSPromiseCombinatorsGlobalContext* context, JSPromise::Status status)
+static void promiseFinallyReactionJob(JSGlobalObject* globalObject, VM& vm, JSPromise* resultPromise, JSValue valueOrReason, JSSlimPromiseReaction* context, JSPromise::Status status)
 {
     auto scope = DECLARE_THROW_SCOPE(vm);
 
-    JSValue onFinally = context->values();
+    JSValue onFinally = context->handlerOrContext();
 
     JSValue result;
     JSValue error;
@@ -802,8 +793,8 @@ static void promiseFinallyReactionJob(JSGlobalObject* globalObject, VM& vm, JSPr
         return;
     }
 
-    context->setValues(vm, valueOrReason);
-    context->setRemainingElementsCount(vm, jsBoolean(status == JSPromise::Status::Fulfilled));
+    context->setHandlerOrContext(vm, valueOrReason);
+    context->setPerCellBit(status == JSPromise::Status::Fulfilled);
 
     if (result.inherits<JSPromise>()) {
         auto* promise = uncheckedDowncast<JSPromise>(result);
@@ -1407,7 +1398,7 @@ static void dynamicImportLoadSettled(JSGlobalObject* globalObject, VM& vm, Throw
     // PerformPromiseThen(evaluatePromise, onFulfilled, onRejected).
     // We inline the AND-join: each dep promise either rejects capabilityPromise (idempotent),
     // or decrements the join count; the last dep to fulfill resolves the deferred namespace.
-    auto* joinContext = JSPromiseCombinatorsGlobalContext::create(vm, capabilityPromise, module, jsNumber(asyncDepsEvaluationPromises.size()));
+    auto* joinContext = JSPromiseCombinatorsGlobalContext::create(vm, capabilityPromise, module, asyncDepsEvaluationPromises.size());
     for (unsigned i = 0; i < asyncDepsEvaluationPromises.size(); ++i) {
         auto* depPromise = uncheckedDowncast<JSPromise>(asyncDepsEvaluationPromises.at(i));
         depPromise->performPromiseThenWithInternalMicrotask(vm, InternalMicrotask::DynamicImportDeferDependencySettled, capabilityPromise, joinContext);
@@ -1419,7 +1410,7 @@ static void dynamicImportDeferDependencySettled(JSGlobalObject* globalObject, VM
     // SafePerformPromiseAll AND-join for the deferred-phase ContinueDynamicImport.
     // arguments[0] = capabilityPromise
     // arguments[1] = resolution or error
-    // arguments[2] = JSPromiseCombinatorsGlobalContext* (m_promise = capabilityPromise, m_values = module, m_remainingElementsCount = jsNumber(count))
+    // arguments[2] = JSPromiseCombinatorsGlobalContext* (m_promise = capabilityPromise, m_values = module, m_remainingElementsCount = count)
     auto* capabilityPromise = uncheckedDowncast<JSPromise>(arguments[0]);
     auto* joinContext = uncheckedDowncast<JSPromiseCombinatorsGlobalContext>(arguments[2]);
     auto status = static_cast<JSPromise::Status>(payload);
@@ -1428,9 +1419,10 @@ static void dynamicImportDeferDependencySettled(JSGlobalObject* globalObject, VM
         capabilityPromise->reject(vm, arguments[1]);
         return;
     }
-    int32_t remaining = joinContext->remainingElementsCount().asInt32() - 1;
-    ASSERT(remaining >= 0);
-    joinContext->setRemainingElementsCount(vm, jsNumber(remaining));
+    uint64_t count = joinContext->remainingElementsCount();
+    ASSERT(count > 0);
+    uint64_t remaining = count - 1;
+    joinContext->setRemainingElementsCount(remaining);
     if (remaining)
         return;
     auto* module = uncheckedDowncast<AbstractModuleRecord>(joinContext->values());
@@ -1818,14 +1810,14 @@ void runInternalMicrotask(JSGlobalObject* globalObject, VM& vm, InternalMicrotas
         // Phase 1: Original promise settled
         // arguments[0] = resultPromise
         // arguments[1] = value/reason from original promise
-        // arguments[2] = context (JSPromiseCombinatorsGlobalContext: promise=resultPromise, values=onFinally)
+        // arguments[2] = context (JSSlimPromiseReaction: promise=resultPromise, handlerOrContext=onFinally)
         // payload = Fulfilled/Rejected status
         auto* resultPromise = uncheckedDowncast<JSPromise>(arguments[0]);
         scope.release();
         promiseFinallyReactionJob(resultPromise->realm(), vm,
             resultPromise,
             arguments[1],
-            uncheckedDowncast<JSPromiseCombinatorsGlobalContext>(arguments[2]),
+            uncheckedDowncast<JSSlimPromiseReaction>(arguments[2]),
             static_cast<JSPromise::Status>(payload));
         return;
     }
@@ -1834,9 +1826,9 @@ void runInternalMicrotask(JSGlobalObject* globalObject, VM& vm, InternalMicrotas
         // Phase 2: onFinally's result settled
         // arguments[0] = unused (we get resultPromise from context)
         // arguments[1] = settled value from onFinally's result
-        // arguments[2] = context (JSPromiseCombinatorsGlobalContext: promise=resultPromise, values=originalValue, remainingElementsCount=wasFulfilled)
+        // arguments[2] = context (JSSlimPromiseReaction: promise=resultPromise, handlerOrContext=originalValue, perCellBit=wasFulfilled)
         // payload = status of onFinally's result
-        auto* context = uncheckedDowncast<JSPromiseCombinatorsGlobalContext>(arguments[2]);
+        auto* context = uncheckedDowncast<JSSlimPromiseReaction>(arguments[2]);
         auto* resultPromise = uncheckedDowncast<JSPromise>(context->promise());
         scope.release();
         promiseFinallyAwaitJob(resultPromise->realm(), vm,
