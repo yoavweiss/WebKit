@@ -1833,7 +1833,7 @@ void MediaPlayerPrivateGStreamer::updateTracks([[maybe_unused]] const GRefPtr<Gs
 #define CREATE_OR_SELECT_TRACK(type, Type) G_STMT_START { \
         bool isTrackCached = m_##type##Tracks.contains(streamId);       \
         if (!isTrackCached) { \
-            auto track = Type##TrackPrivateGStreamer::create(*this, type##TrackIndex, stream); \
+            auto track = Type##TrackPrivateGStreamer::create(*this, type##TrackIndex, WTF::move(stream)); \
             if (player && !useMediaSource)                              \
                 player->add##Type##Track(track);                        \
             m_##type##Tracks.add(streamId, WTF::move(track));             \
@@ -1858,13 +1858,13 @@ void MediaPlayerPrivateGStreamer::updateTracks([[maybe_unused]] const GRefPtr<Gs
     unsigned length = gst_stream_collection_get_size(m_streamCollection.get());
     GST_DEBUG_OBJECT(pipeline(), "Received STREAM_COLLECTION message with upstream id \"%s\" from %" GST_PTR_FORMAT " defining the following streams:", gst_stream_collection_get_upstream_id(m_streamCollection.get()), collectionOwner.get());
     for (unsigned i = 0; i < length; i++) {
-        auto* stream = gst_stream_collection_get_stream(m_streamCollection.get(), i);
+        GRefPtr stream = gst_stream_collection_get_stream(m_streamCollection.get(), i);
         RELEASE_ASSERT(stream);
         auto streamId = getStreamIdFromStream(stream).value_or(0);
-        auto type = gst_stream_get_stream_type(stream);
-        auto caps = adoptGRef(gst_stream_get_caps(stream));
+        auto type = gst_stream_get_stream_type(stream.get());
+        auto caps = adoptGRef(gst_stream_get_caps(stream.get()));
 
-        GST_DEBUG_OBJECT(pipeline(), "#%u %s track with ID %" PRIu64 ": %" GST_PTR_FORMAT, i, gst_stream_type_get_name(type), streamId, stream);
+        GST_DEBUG_OBJECT(pipeline(), "#%u %s track with ID %" PRIu64 ": %" GST_PTR_FORMAT, i, gst_stream_type_get_name(type), streamId, stream.get());
 
         if (type & GST_STREAM_TYPE_AUDIO) {
             CREATE_OR_SELECT_TRACK(audio, Audio);

@@ -136,19 +136,19 @@ TrackPrivateBaseGStreamer::TrackPrivateBaseGStreamer(ThreadSafeWeakPtr<MediaPlay
     m_data->installUpdateConfigurationHandlers();
 }
 
-TrackPrivateBaseGStreamer::TrackPrivateBaseGStreamer(ThreadSafeWeakPtr<MediaPlayerPrivateGStreamer>&& player, GStreamerTrackType type, TrackPrivateBase* owner, unsigned index, GstStream* stream)
+TrackPrivateBaseGStreamer::TrackPrivateBaseGStreamer(ThreadSafeWeakPtr<MediaPlayerPrivateGStreamer>&& player, GStreamerTrackType type, TrackPrivateBase* owner, unsigned index, GRefPtr<GstStream>&& stream)
     : m_data(TrackDataHolder::create(*this))
 {
     ASSERT(stream);
 
     m_data->m_player = WTF::move(player);
     m_data->m_index = index;
-    m_data->m_gstStreamId = byteCast<Latin1Character>(unsafeSpan(gst_stream_get_stream_id(stream)));
+    m_data->m_gstStreamId = byteCast<Latin1Character>(unsafeSpan(gst_stream_get_stream_id(stream.get())));
     m_data->m_id = parseStreamId(m_data->m_gstStreamId).value_or(index);
     m_data->m_type = type;
     m_data->m_owner = owner;
 
-    m_data->setStream(GRefPtr(stream));
+    m_data->setStream(WTF::move(stream));
 
     // We can't call notifyTrackOfTagsChanged() directly, because we need tagsChanged() to setup m_tags.
     m_data->tagsChanged();

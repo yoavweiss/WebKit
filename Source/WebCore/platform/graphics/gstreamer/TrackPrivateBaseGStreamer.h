@@ -152,7 +152,7 @@ public:
 private:
     TrackPrivateBaseGStreamer(ThreadSafeWeakPtr<MediaPlayerPrivateGStreamer>&&, GStreamerTrackType, TrackPrivateBase*, unsigned index, GRefPtr<GstPad>&&, bool shouldHandleStreamStartEvent);
     TrackPrivateBaseGStreamer(ThreadSafeWeakPtr<MediaPlayerPrivateGStreamer>&&, GStreamerTrackType, TrackPrivateBase*, unsigned index, GRefPtr<GstPad>&&, TrackID);
-    TrackPrivateBaseGStreamer(ThreadSafeWeakPtr<MediaPlayerPrivateGStreamer>&&, GStreamerTrackType, TrackPrivateBase*, unsigned index, GstStream*);
+    TrackPrivateBaseGStreamer(ThreadSafeWeakPtr<MediaPlayerPrivateGStreamer>&&, GStreamerTrackType, TrackPrivateBase*, unsigned index, GRefPtr<GstStream>&&);
     ~TrackPrivateBaseGStreamer();
 
     const Ref<TrackDataHolder> m_data;
