@@ -48,6 +48,13 @@ root
                 'This' […]
                 link uid=… url=https://www.apple.com/ 'link' […]
                 'was deleted' […]
+        section label='Class and ID Hint Filtering'
+            button uid=… class=user-avatar 'AB' […]
+            button uid=… id=user-account 'JS' […]
+            button uid=… class=user-menu-btn 'MN' […]
+            button uid=… 'Sign In' […]
+            button uid=… label=Profile 'YZ' […]
+            input uid=… […] placeholder=Username
     'Footer content with' […]
     role=img label='copyright symbol' '©' […]
     '2024' […]

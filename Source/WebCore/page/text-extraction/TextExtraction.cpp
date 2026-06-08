@@ -129,6 +129,20 @@ static String normalizeText(const String& string, unsigned maxDescriptionLength 
     return makeString(result.left(maxDescriptionLength / 2 - 2), "..."_s, result.right(maxDescriptionLength / 2 - 1));
 }
 
+static constexpr auto minimumClassOrIdLength = 6;
+static constexpr auto maximumClassOrIdLength = 20;
+
+static bool isCandidateClassOrId(StringView text)
+{
+    if (text.length() < minimumClassOrIdLength)
+        return false;
+
+    if (text.length() > maximumClassOrIdLength)
+        return false;
+
+    return StringEntropyHelpers::isProbablyHumanReadable(text);
+}
+
 static constexpr auto minOpacityToConsiderVisible = 0.05;
 
 enum class IncludeTextInAutoFilledControls : bool { No, Yes };
@@ -992,6 +1006,24 @@ static inline void extractRecursive(Node& node, Item& parentItem, TraversalConte
 
     auto clientAttributes = context.clientNodeAttributes.get(node);
 
+    static constexpr auto maximumClassNamesPerItem = 5;
+    Vector<String> classNames;
+    String idAttribute;
+    if (RefPtr element = dynamicDowncast<Element>(node)) {
+        if (auto idValue = element->attributeWithoutSynchronization(HTMLNames::idAttr); isCandidateClassOrId(idValue))
+            idAttribute = WTF::move(idValue);
+
+        if (auto classValue = element->attributeWithoutSynchronization(HTMLNames::classAttr); !classValue.isEmpty()) {
+            for (auto className : StringView { classValue }.split(' ')) {
+                if (!isCandidateClassOrId(className))
+                    continue;
+                classNames.append(className.toString());
+                if (classNames.size() >= maximumClassNamesPerItem)
+                    break;
+            }
+        }
+    }
+
     HashMap<String, String> ariaAttributes;
     String role;
     String title;
@@ -1148,6 +1180,8 @@ static inline void extractRecursive(Node& node, Item& parentItem, TraversalConte
                 WTF::move(role),
                 WTF::move(title),
                 WTF::move(clientAttributes),
+                WTF::move(classNames),
+                WTF::move(idAttribute),
                 enclosingBlockNumber,
             } };
         });
@@ -1170,6 +1204,8 @@ static inline void extractRecursive(Node& node, Item& parentItem, TraversalConte
                 WTF::move(role),
                 WTF::move(title),
                 { },
+                WTF::move(classNames),
+                WTF::move(idAttribute),
                 enclosingBlockNumber,
             };
         }
@@ -1363,7 +1399,7 @@ static RefPtr<ContainerNode> findContainerNodeForDataDetectorResults(Node& rootN
 Result extractItem(Request&& request, LocalFrame& frame)
 {
     auto frameID = frame.frameID();
-    Item root { ScrollableItemData { }, { }, { }, { }, { }, frameID, { }, { }, { }, { }, { }, 0 };
+    Item root { ScrollableItemData { }, { }, { }, { }, { }, frameID, { }, { }, { }, { }, { }, { }, { }, 0 };
     RefPtr document = frame.document();
     if (!document)
         return { root, 0 };
@@ -2558,21 +2594,6 @@ static String textDescription(const Element& element, Vector<String>& stringsToV
     }
 
     static constexpr auto maximumNumberOfClasses = 3;
-    static constexpr auto minimumClassOrIdLength = 6;
-    static constexpr auto maximumClassOrIdLength = 20;
-
-    auto isCandidateClassOrId = [](StringView text) {
-        if (text.length() < minimumClassOrIdLength)
-            return false;
-
-        if (text.length() > maximumClassOrIdLength)
-            return false;
-
-        if (!StringEntropyHelpers::isProbablyHumanReadable(text))
-            return false;
-
-        return true;
-    };
 
     if (auto text = element.attributeWithoutSynchronization(HTMLNames::idAttr); isCandidateClassOrId(text)) {
         description.append(makeString(" with id "_s, wrapWithDoubleQuotes(text)));

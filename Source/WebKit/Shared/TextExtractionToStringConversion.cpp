@@ -41,6 +41,10 @@
 #include <wtf/text/TextBreakIterator.h>
 #include <wtf/unicode/CharacterNames.h>
 
+#if PLATFORM(COCOA)
+#include "TextExtractionTokenizer.h"
+#endif
+
 namespace WebKit {
 
 using namespace WebCore;
@@ -960,6 +964,82 @@ static Ref<JSON::Array> eventListenerTypesToJSONArray(OptionSet<TextExtraction::
     return result;
 }
 
+static std::pair<Vector<String>, String> recognizedClassesAndIdForItem(const TextExtraction::Item& item)
+{
+    if (item.classNames.isEmpty() && item.idAttribute.isEmpty())
+        return { };
+
+    if (!item.accessibilityRole.isEmpty() || !item.title.isEmpty())
+        return { };
+
+    if (!item.ariaAttributes.isEmpty() || !item.clientAttributes.isEmpty())
+        return { };
+
+    bool hasLabelingData = WTF::switchOn(item.data,
+        [](const TextExtraction::TextFormControlData& data) {
+            return !data.editable.label.isEmpty()
+                || !data.editable.placeholder.isEmpty()
+                || !data.name.isEmpty()
+                || !data.pattern.isEmpty();
+        },
+        [](const TextExtraction::ImageItemData& data) {
+            return !data.altText.isEmpty();
+        },
+        [](const TextExtraction::FormData& data) {
+            return !data.name.isEmpty()
+                || !data.autocomplete.isEmpty();
+        },
+        [](const TextExtraction::TextItemData& data) {
+            if (!data.editable)
+                return false;
+            return !data.editable->label.isEmpty()
+                || !data.editable->placeholder.isEmpty();
+        },
+        [](const TextExtraction::LinkItemData& data) {
+            return !data.completedURL.isEmpty();
+        },
+        [](const TextExtraction::IFrameData& data) {
+            return !data.origin.isEmpty();
+        },
+        [](const auto&) {
+            return false;
+        });
+    if (hasLabelingData)
+        return { };
+
+    if (item.children.size() > 1)
+        return { };
+
+    if (item.children.size() == 1) {
+        auto* textData = std::get_if<TextExtraction::TextItemData>(&item.children[0].data);
+        if (!textData)
+            return { };
+        if (textData->content.trim(isASCIIWhitespace).length() > 2)
+            return { };
+    }
+
+#if PLATFORM(COCOA)
+    auto& tokenizer = TextExtractionTokenizer::singleton();
+
+    String idValue;
+    if (!item.idAttribute.isEmpty() && tokenizer.isMostlyRecognized(item.idAttribute))
+        idValue = item.idAttribute;
+
+    Vector<String> classes;
+    if (idValue.isEmpty()) {
+        classes.reserveInitialCapacity(item.classNames.size());
+        for (auto& className : item.classNames) {
+            if (tokenizer.isMostlyRecognized(className))
+                classes.append(className);
+        }
+    }
+
+    return { WTF::move(classes), WTF::move(idValue) };
+#else
+    return { };
+#endif
+}
+
 static void setCommonJSONProperties(JSON::Object& jsonObject, const TextExtraction::Item& item, const TextExtractionAggregator& aggregator)
 {
     if (!item.nodeName.isEmpty() && !item.hasData<TextExtraction::TextItemData>())
@@ -995,6 +1075,12 @@ static void setCommonJSONProperties(JSON::Object& jsonObject, const TextExtracti
         for (auto& [key, value] : item.clientAttributes)
             jsonObject.setString(key, value);
     }
+
+    auto [classes, idValue] = recognizedClassesAndIdForItem(item);
+    if (!classes.isEmpty())
+        jsonObject.setString("class"_s, makeStringByJoining(classes, " "_s));
+    if (!idValue.isEmpty())
+        jsonObject.setString("id"_s, idValue);
 }
 
 static void addJSONTextContent(Ref<JSON::Object>&& jsonObject, const TextExtraction::TextItemData& textData, const std::optional<FrameIdentifier>& frameIdentifier, const std::optional<NodeIdentifier>& identifier, TextExtractionAggregator& aggregator)
@@ -1223,6 +1309,14 @@ static Vector<String> partsForItem(const TextExtraction::Item& item, const TextE
 
     for (auto& key : sortedKeys(item.clientAttributes))
         parts.append(makeString(key, '=', quoteValue(item.clientAttributes.get(key), streamlined)));
+
+    if (aggregator.useTextTreeOutput() || aggregator.useHTMLOutput()) {
+        auto [classes, idValue] = recognizedClassesAndIdForItem(item);
+        if (!classes.isEmpty())
+            parts.append(makeString("class="_s, quoteValue(makeStringByJoining(classes, " "_s), streamlined)));
+        if (!idValue.isEmpty())
+            parts.append(makeString("id="_s, quoteValue(idValue, streamlined)));
+    }
 
     return parts;
 }

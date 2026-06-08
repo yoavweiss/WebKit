@@ -219,6 +219,8 @@ struct Item {
     String accessibilityRole;
     String title;
     HashMap<String, String> clientAttributes;
+    Vector<String> classNames;
+    String idAttribute;
     unsigned enclosingBlockNumber { 0 };
     unsigned visualBlockContainerNumber { 0 };
     bool hasLineThrough { false };

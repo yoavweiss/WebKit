@@ -2585,6 +2585,7 @@
 		F42A04712CA1B328000D3118 /* _WKTextRunInternal.h in Headers */ = {isa = PBXBuildFile; fileRef = F42A04702CA1B328000D3118 /* _WKTextRunInternal.h */; };
 		F42A04722CA1B3FC000D3118 /* _WKTextRun.h in Headers */ = {isa = PBXBuildFile; fileRef = F42A046C2CA1B2A4000D3118 /* _WKTextRun.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		F42CDFFF2E6E28A9005837F8 /* TextExtractionFilter.h in Headers */ = {isa = PBXBuildFile; fileRef = F42CDFFD2E6E28A9005837F8 /* TextExtractionFilter.h */; };
+		F4A9BADE2FD4B50800EB035D /* TextExtractionTokenizer.h in Headers */ = {isa = PBXBuildFile; fileRef = F4A9BADC2FD4B4F400EB035D /* TextExtractionTokenizer.h */; };
 		F42D634122A0EFDF00D2FB3A /* WebAutocorrectionData.h in Headers */ = {isa = PBXBuildFile; fileRef = F42D633F22A0EFD300D2FB3A /* WebAutocorrectionData.h */; };
 		F43019682DC97B10006522E0 /* WKColorExtensionView.h in Headers */ = {isa = PBXBuildFile; fileRef = F43019662DC97AAE006522E0 /* WKColorExtensionView.h */; };
 		F430E9422247335F005FE053 /* WebsiteMetaViewportPolicy.h in Headers */ = {isa = PBXBuildFile; fileRef = F430E941224732A9005FE053 /* WebsiteMetaViewportPolicy.h */; };
@@ -8926,6 +8927,8 @@
 		F42A04702CA1B328000D3118 /* _WKTextRunInternal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = _WKTextRunInternal.h; sourceTree = "<group>"; };
 		F42CDFFD2E6E28A9005837F8 /* TextExtractionFilter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TextExtractionFilter.h; sourceTree = "<group>"; };
 		F42CDFFE2E6E28A9005837F8 /* TextExtractionFilter.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = TextExtractionFilter.mm; sourceTree = "<group>"; };
+		F4A9BADC2FD4B4F400EB035D /* TextExtractionTokenizer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TextExtractionTokenizer.h; sourceTree = "<group>"; };
+		F4A9BADD2FD4B4F400EB035D /* TextExtractionTokenizer.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = TextExtractionTokenizer.mm; sourceTree = "<group>"; };
 		F42D633F22A0EFD300D2FB3A /* WebAutocorrectionData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WebAutocorrectionData.h; path = ios/WebAutocorrectionData.h; sourceTree = "<group>"; };
 		F42FC8702B7ADA5800BAF8D6 /* CoreIPCNSURLProtectionSpace.serialization.in */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CoreIPCNSURLProtectionSpace.serialization.in; sourceTree = "<group>"; };
 		F43019662DC97AAE006522E0 /* WKColorExtensionView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WKColorExtensionView.h; sourceTree = "<group>"; };
@@ -14710,6 +14713,8 @@
 				6BE969C91E54D4CF008B7483 /* ResourceLoadStatisticsClassifierCocoa.h */,
 				F42CDFFD2E6E28A9005837F8 /* TextExtractionFilter.h */,
 				F42CDFFE2E6E28A9005837F8 /* TextExtractionFilter.mm */,
+				F4A9BADC2FD4B4F400EB035D /* TextExtractionTokenizer.h */,
+				F4A9BADD2FD4B4F400EB035D /* TextExtractionTokenizer.mm */,
 			);
 			path = cocoa;
 			sourceTree = "<group>";
@@ -18860,6 +18865,7 @@
 				1A5E4DA412D3BD3D0099A2BB /* TextCheckerState.h in Headers */,
 				F41D73EC2EFF607700FD1ECB /* TextExtractionAssertionScope.h in Headers */,
 				F42CDFFF2E6E28A9005837F8 /* TextExtractionFilter.h in Headers */,
+				F4A9BADE2FD4B50800EB035D /* TextExtractionTokenizer.h in Headers */,
 				F4E89F5C2EFC702000E4D96E /* TextExtractionURLCache.h in Headers */,
 				CE1A0BD71A48E6C60054EF74 /* TextInputSPI.h in Headers */,
 				7B7C380F2EBABD7F00F71B4A /* TextManipulationParameters.h in Headers */,

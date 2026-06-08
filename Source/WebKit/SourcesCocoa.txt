@@ -95,6 +95,7 @@ ModelProcess/cocoa/ModelProcessModelPlayerProxy.mm @nonARC
 ModelProcess/ios/ModelProcessIOS.mm @nonARC
 
 Platform/classifier/cocoa/TextExtractionFilter.mm @nonARC
+Platform/classifier/cocoa/TextExtractionTokenizer.mm @nonARC
 Platform/classifier/cocoa/ResourceLoadStatisticsClassifierCocoa.cpp
 Platform/classifier/ResourceLoadStatisticsClassifier.cpp
 

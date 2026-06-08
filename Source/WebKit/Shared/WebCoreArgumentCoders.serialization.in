@@ -6939,6 +6939,8 @@ header: <WebCore/TextExtractionTypes.h>
     String accessibilityRole;
     String title;
     HashMap<String, String> clientAttributes;
+    Vector<String> classNames;
+    String idAttribute;
     unsigned enclosingBlockNumber;
     unsigned visualBlockContainerNumber;
     bool hasLineThrough;

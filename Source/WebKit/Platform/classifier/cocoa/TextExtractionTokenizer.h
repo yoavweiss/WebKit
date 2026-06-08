@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Apple Inc. All rights reserved.
+ * Copyright (C) 2026 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -23,11 +23,41 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#import "config.h"
+#pragma once
 
-#import <NaturalLanguage/NaturalLanguage.h>
-#import <wtf/SoftLinking.h>
+#if PLATFORM(COCOA)
 
-SOFT_LINK_FRAMEWORK_FOR_SOURCE_WITH_EXPORT(PAL, NaturalLanguage, PAL_EXPORT)
-SOFT_LINK_CLASS_FOR_SOURCE_WITH_EXPORT(PAL, NaturalLanguage, NLTokenizer, PAL_EXPORT)
-SOFT_LINK_CLASS_FOR_SOURCE_WITH_EXPORT(PAL, NaturalLanguage, NLEmbedding, PAL_EXPORT)
+#include <wtf/Forward.h>
+#include <wtf/Noncopyable.h>
+#include <wtf/RefCounted.h>
+#include <wtf/RetainPtr.h>
+#include <wtf/TZoneMalloc.h>
+#include <wtf/Vector.h>
+
+OBJC_CLASS NLEmbedding;
+
+namespace WebKit {
+
+class TextExtractionTokenizer : public RefCounted<TextExtractionTokenizer> {
+    WTF_MAKE_TZONE_ALLOCATED(TextExtractionTokenizer);
+    WTF_MAKE_NONCOPYABLE(TextExtractionTokenizer);
+public:
+    static TextExtractionTokenizer& singleton();
+    static TextExtractionTokenizer* singletonIfCreated();
+
+    void prewarm();
+
+    bool isMostlyRecognized(StringView);
+
+private:
+    TextExtractionTokenizer() = default;
+
+    void loadEmbeddingsIfNeeded();
+
+    Vector<RetainPtr<NLEmbedding>> m_embeddings;
+    bool m_loadAttempted { false };
+};
+
+} // namespace WebKit
+
+#endif // PLATFORM(COCOA)
