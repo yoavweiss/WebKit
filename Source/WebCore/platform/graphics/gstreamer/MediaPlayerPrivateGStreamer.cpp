@@ -229,6 +229,12 @@ void MediaPlayerPrivateGStreamer::tearDown(bool clearMediaPlayer)
     m_audioTracks.clear();
     m_videoTracks.clear();
     m_textTracks.clear();
+    {
+        Locker locker { m_decoderConfigurationLock };
+        m_codecProbes.clear();
+        m_videoFrameInputProbe = nullptr;
+        m_videoFrameOutputProbe = nullptr;
+    }
 
     if (m_fillTimer.isActive())
         m_fillTimer.stop();
@@ -3598,7 +3604,7 @@ void MediaPlayerPrivateGStreamer::setupCodecProbe(GstElement* element)
 {
 #if GST_CHECK_VERSION(1, 20, 0)
     auto sinkPad = adoptGRef(gst_element_get_static_pad(element, "sink"));
-    gst_pad_add_probe(sinkPad.get(), GST_PAD_PROBE_TYPE_EVENT_DOWNSTREAM, reinterpret_cast<GstPadProbeCallback>(+[](GstPad* pad, GstPadProbeInfo* info, MediaPlayerPrivateGStreamer* player) -> GstPadProbeReturn {
+    auto probe = PadProbeHandle<MediaPlayerPrivateGStreamer>::create(*this, WTF::move(sinkPad), GST_PAD_PROBE_TYPE_EVENT_DOWNSTREAM, [](const auto& player, const auto& pad, auto info) -> GstPadProbeReturn {
         auto* event = gst_pad_probe_info_get_event(info);
         if (GST_EVENT_TYPE(event) != GST_EVENT_CAPS)
             return GST_PAD_PROBE_OK;
@@ -3622,7 +3628,11 @@ void MediaPlayerPrivateGStreamer::setupCodecProbe(GstElement* element)
             player->m_codecs.add(streamId.value(), String(codec.span()));
         }
         return GST_PAD_PROBE_REMOVE;
-    }), this, nullptr);
+    });
+    {
+        Locker locker { m_decoderConfigurationLock };
+        m_codecProbes.append(WTF::move(probe));
+    }
 #else
     UNUSED_PARAM(element);
 #endif
@@ -3668,27 +3678,27 @@ void MediaPlayerPrivateGStreamer::configureVideoDecoder(GstElement* decoder)
 
     m_videoDecoderName = configureMediaStreamVideoDecoder(decoder);
 
+    Locker locker { m_decoderConfigurationLock };
     auto sinkPad = adoptGRef(gst_element_get_static_pad(decoder, "sink"));
-    gst_pad_add_probe(sinkPad.get(), static_cast<GstPadProbeType>(GST_PAD_PROBE_TYPE_BUFFER), [](GstPad*, GstPadProbeInfo* info, gpointer userData) -> GstPadProbeReturn {
-        auto* player = static_cast<MediaPlayerPrivateGStreamer*>(userData);
+    m_videoFrameInputProbe = PadProbeHandle<MediaPlayerPrivateGStreamer>::create(*this, WTF::move(sinkPad), GST_PAD_PROBE_TYPE_BUFFER, [](const auto& player, const auto&, auto info) -> GstPadProbeReturn {
         auto buffer = GST_PAD_PROBE_INFO_BUFFER(info);
         if (!GST_BUFFER_FLAG_IS_SET(buffer, GST_BUFFER_FLAG_DELTA_UNIT))
             player->m_decodedKeyFrames++;
         player->m_framesReceived++;
         return GST_PAD_PROBE_OK;
-    }, this, nullptr);
+    });
 
     auto pad = adoptGRef(gst_element_get_static_pad(decoder, "src"));
     if (!pad) {
         GST_INFO_OBJECT(pipeline(), "the decoder %s does not have a src pad, probably because it's a hardware decoder sink, can't get decoder stats", name.utf8());
         return;
     }
-    gst_pad_add_probe(pad.get(), static_cast<GstPadProbeType>(GST_PAD_PROBE_TYPE_QUERY_DOWNSTREAM | GST_PAD_PROBE_TYPE_BUFFER), [](GstPad* pad, GstPadProbeInfo* info, gpointer userData) -> GstPadProbeReturn {
-        auto* player = static_cast<MediaPlayerPrivateGStreamer*>(userData);
+
+    m_videoFrameOutputProbe = PadProbeHandle<MediaPlayerPrivateGStreamer>::create(*this, WTF::move(pad), static_cast<GstPadProbeType>(GST_PAD_PROBE_TYPE_QUERY_DOWNSTREAM | GST_PAD_PROBE_TYPE_BUFFER), [](const auto& player, const auto& pad, auto info) -> GstPadProbeReturn {
         if (GST_PAD_PROBE_INFO_TYPE(info) & GST_PAD_PROBE_TYPE_BUFFER) {
             player->incrementDecodedVideoFramesCount();
 
-            auto decoder = adoptGRef(gst_pad_get_parent_element(pad));
+            auto decoder = adoptGRef(gst_pad_get_parent_element(pad.get()));
             auto processingTime = webkitGstBufferGetProcessingTime(gst_pad_probe_info_get_buffer(info), decoder.get());
             if (processingTime.isInvalid())
                 return GST_PAD_PROBE_OK;
@@ -3720,7 +3730,7 @@ void MediaPlayerPrivateGStreamer::configureVideoDecoder(GstElement* decoder)
         }
 
         return GST_PAD_PROBE_OK;
-    }, this, nullptr);
+    });
 }
 
 bool MediaPlayerPrivateGStreamer::didPassCORSAccessCheck() const
