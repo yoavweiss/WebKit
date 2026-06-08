@@ -2815,7 +2815,7 @@ list(APPEND WebCore_SOURCES ${WebCore_DERIVED_SOURCES_DIR}/ColorData.cpp)
 # Generate DOMJITAbstractHeapRepository.h
 add_custom_command(
     OUTPUT ${WebCore_DERIVED_SOURCES_DIR}/DOMJITAbstractHeapRepository.h
-    MAIN_DEPENDENCY domjit/DOMJITAbstractHeapRepository.yaml
+    MAIN_DEPENDENCY ${WEBCORE_DIR}/domjit/DOMJITAbstractHeapRepository.yaml
     DEPENDS ${WEBCORE_DIR}/domjit/generate-abstract-heap.rb
     COMMAND ${Ruby_EXECUTABLE} ${WEBCORE_DIR}/domjit/generate-abstract-heap.rb ${WEBCORE_DIR}/domjit/DOMJITAbstractHeapRepository.yaml ${WebCore_DERIVED_SOURCES_DIR}/DOMJITAbstractHeapRepository.h
     VERBATIM)
@@ -2824,7 +2824,7 @@ list(APPEND WebCore_SOURCES ${WebCore_DERIVED_SOURCES_DIR}/DOMJITAbstractHeapRep
 # Generate XMLViewerCSS.h
 add_custom_command(
     OUTPUT ${WebCore_DERIVED_SOURCES_DIR}/XMLViewerCSS.h ${WebCore_DERIVED_SOURCES_DIR}/XMLViewer.min.css
-    MAIN_DEPENDENCY xml/XMLViewer.css
+    MAIN_DEPENDENCY ${WEBCORE_DIR}/xml/XMLViewer.css
     DEPENDS ${JavaScriptCore_SCRIPTS_DIR}/xxd.pl ${JavaScriptCore_SCRIPTS_DIR}/cssmin.py
     COMMAND ${PYTHON_EXECUTABLE} ${JavaScriptCore_SCRIPTS_DIR}/cssmin.py < ${WEBCORE_DIR}/xml/XMLViewer.css > ${WebCore_DERIVED_SOURCES_DIR}/XMLViewer.min.css
     COMMAND ${PERL_EXECUTABLE} ${JavaScriptCore_SCRIPTS_DIR}/xxd.pl XMLViewer_css ${WebCore_DERIVED_SOURCES_DIR}/XMLViewer.min.css ${WebCore_DERIVED_SOURCES_DIR}/XMLViewerCSS.h
@@ -2834,7 +2834,7 @@ list(APPEND WebCore_SOURCES ${WebCore_DERIVED_SOURCES_DIR}/XMLViewerCSS.h)
 # Generate XMLViewerJS.h
 add_custom_command(
     OUTPUT ${WebCore_DERIVED_SOURCES_DIR}/XMLViewerJS.h ${WebCore_DERIVED_SOURCES_DIR}/XMLViewer.min.js
-    MAIN_DEPENDENCY xml/XMLViewer.js
+    MAIN_DEPENDENCY ${WEBCORE_DIR}/xml/XMLViewer.js
     DEPENDS ${JavaScriptCore_SCRIPTS_DIR}/xxd.pl ${JavaScriptCore_SCRIPTS_DIR}/jsmin.py
     COMMAND ${PYTHON_EXECUTABLE} ${JavaScriptCore_SCRIPTS_DIR}/jsmin.py < ${WEBCORE_DIR}/xml/XMLViewer.js > ${WebCore_DERIVED_SOURCES_DIR}/XMLViewer.min.js
     COMMAND ${PERL_EXECUTABLE} ${JavaScriptCore_SCRIPTS_DIR}/xxd.pl XMLViewer_js ${WebCore_DERIVED_SOURCES_DIR}/XMLViewer.min.js ${WebCore_DERIVED_SOURCES_DIR}/XMLViewerJS.h

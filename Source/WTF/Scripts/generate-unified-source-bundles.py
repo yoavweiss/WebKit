@@ -128,6 +128,13 @@ class SourceFile:
         else:
             return str(self._args.derived_sources_path / self.path)
 
+    def bundled_source_form(self) -> str:
+        # String form for the --print-bundled-sources list: derived sources are
+        # rooted under derived_sources_path, source-tree files stay relative.
+        if self.derived:
+            return str(self._args.derived_sources_path / self.path)
+        return str(self.path)
+
 
 class BundleManager:
     def __init__(self, extension: str, suffix: str, max_count: int, args, generated_sources: list[str], output_sources: list[str]):
@@ -223,8 +230,9 @@ def parse_args():
                         help='Path to the root of the source directory.')
 
     mode_group = parser.add_mutually_exclusive_group()
-    mode_group.add_argument('--print-bundled-sources', action='store_true', default=False,
-                            help='Print bundled sources rather than generating sources.')
+    mode_group.add_argument('--print-bundled-sources', type=Path, metavar='PATH',
+                            help='While generating bundles, also write the bundled member '
+                                 'sources (one per line) to PATH.')
     mode_group.add_argument('--print-all-sources', action='store_true', default=False,
                             help='Print all sources rather than generating sources.')
     mode_group.add_argument('--generate-xcfilelists', action='store_true', default=False,
@@ -262,9 +270,7 @@ def parse_args():
         parser.error("Source tree {} does not exist.".format(args.source_tree_path))
 
     # Determine mode from flags
-    if args.print_bundled_sources:
-        args.mode = 'PrintBundledSources'
-    elif args.print_all_sources:
+    if args.print_all_sources:
         args.mode = 'PrintAllSources'
     elif args.generate_xcfilelists:
         args.mode = 'GenerateXCFilelists'
@@ -293,6 +299,7 @@ def main() -> None:
     generated_sources: list[str] = []
     input_sources: list[str] = []
     output_sources: list[str] = []
+    bundled_members: list[str] = []
 
     bundle_managers = {
         '.cpp': BundleManager('cpp', '.cpp', args.max_cpp_bundle_count, args, generated_sources, output_sources),
@@ -347,11 +354,11 @@ def main() -> None:
     for source_file in sorted(source_files, key=SourceFile.sort_key):
         if args.mode in ('GenerateBundles', 'GenerateXCFilelists'):
             process_file_for_unified_source_generation(source_file, args, bundle_managers, generated_sources, input_sources)
+            if args.mode == 'GenerateBundles' and args.print_bundled_sources \
+                    and bundle_managers.get(source_file.bundle_manager_key) and source_file.unifiable:
+                bundled_members.append(source_file.bundled_source_form())
         elif args.mode == 'PrintAllSources':
             generated_sources.append(str(source_file))
-        elif args.mode == 'PrintBundledSources':
-            if bundle_managers.get(source_file.bundle_manager_key) and source_file.unifiable:
-                generated_sources.append(str(source_file))
 
     if args.mode != 'PrintAllSources':
         for manager in bundle_managers.values():
@@ -378,6 +385,12 @@ def main() -> None:
         if args.output_xcfilelist_path:
             with open(args.output_xcfilelist_path, 'w') as f:
                 f.write("\n".join(sorted(output_sources)) + "\n")
+
+    if args.mode == 'GenerateBundles' and args.print_bundled_sources:
+        with open(args.print_bundled_sources, 'w') as f:
+            f.write("\n".join(bundled_members))
+            if bundled_members:
+                f.write("\n")
 
     # We use stdout to report our unified source list to CMake.
     # Add trailing semicolon and avoid a trailing newline for CMake's sake.

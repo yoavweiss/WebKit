@@ -51,24 +51,26 @@ set(CMAKE_LINK_DEPENDS_NO_SHARED ON)
 
 set(USE_ANGLE_EGL ON)
 
-find_package(SQLite3 REQUIRED)
+function(WEBKIT_ADD_SDK_IMPORTED_LIBRARY _target _library)
+    if (NOT TARGET ${_target})
+        add_library(${_target} UNKNOWN IMPORTED)
+        set_target_properties(${_target} PROPERTIES IMPORTED_LOCATION "${CMAKE_OSX_SYSROOT}/usr/lib/${_library}")
+    endif ()
+endfunction()
+
+WEBKIT_ADD_SDK_IMPORTED_LIBRARY(SQLite::SQLite3 libsqlite3.tbd)
+WEBKIT_ADD_SDK_IMPORTED_LIBRARY(LibXml2::LibXml2 libxml2.tbd)
+WEBKIT_ADD_SDK_IMPORTED_LIBRARY(LibXslt::LibXslt libxslt.tbd)
+WEBKIT_ADD_SDK_IMPORTED_LIBRARY(LibXslt::LibExslt libexslt.tbd)
+WEBKIT_ADD_SDK_IMPORTED_LIBRARY(ZLIB::ZLIB libz.tbd)
 if (NOT TARGET SQLite3::SQLite3)
     add_library(SQLite3::SQLite3 ALIAS SQLite::SQLite3)
 endif ()
 
 find_package(ICU 70.1 REQUIRED COMPONENTS data i18n uc)
-find_package(LibXml2 2.8.0 REQUIRED)
-find_package(LibXslt 1.1.13 REQUIRED)
 set(CMAKE_HAVE_PTHREAD_H 1 CACHE INTERNAL "")
 set(CMAKE_HAVE_LIBC_PTHREAD 1 CACHE INTERNAL "")
 find_package(Threads REQUIRED)
-
-# Strip ${SDK}/usr/include from these imported targets; reachable via -isysroot.
-foreach (_t SQLite::SQLite3 LibXml2::LibXml2 LibXslt::LibXslt LibXslt::LibExslt)
-    if (TARGET ${_t})
-        set_target_properties(${_t} PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "")
-    endif ()
-endforeach ()
 
 string(REGEX MATCH "^[0-9]+" _sdk_major "${_sdk_version}")
 set(_additions_candidates

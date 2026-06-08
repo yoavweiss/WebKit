@@ -153,12 +153,20 @@ if (EXISTS "${_clang}")
     set(CMAKE_OBJCXX_COMPILER "${_clang}++")
 endif ()
 
-# Deployment target must match SDK version -- PlatformHave.h SPI guards depend on
-# __MAC_OS_X_VERSION_MIN_REQUIRED. Auto-bump if the preset floor is below the SDK.
-string(REGEX MATCH "^[0-9]+\\.[0-9]+" _sdk_major_minor "${_sdk_version}")
-if (_sdk_major_minor AND (NOT CMAKE_OSX_DEPLOYMENT_TARGET OR CMAKE_OSX_DEPLOYMENT_TARGET VERSION_LESS _sdk_major_minor))
-    set(CMAKE_OSX_DEPLOYMENT_TARGET "${_sdk_major_minor}" CACHE STRING "Minimum macOS version" FORCE)
-    message(WARNING "Deployment target auto-set to SDK version: ${CMAKE_OSX_DEPLOYMENT_TARGET} (SPI header guards require this)")
+# Default the deployment target to the host macOS version.
+if (NOT CMAKE_OSX_DEPLOYMENT_TARGET)
+    execute_process(
+        COMMAND sw_vers -productVersion
+        OUTPUT_VARIABLE _host_os_version
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        RESULT_VARIABLE _host_os_result)
+    string(REGEX MATCH "^[0-9]+\\.[0-9]+" _host_os_major_minor "${_host_os_version}")
+    if (_host_os_result EQUAL 0 AND _host_os_major_minor)
+        set(CMAKE_OSX_DEPLOYMENT_TARGET "${_host_os_major_minor}" CACHE STRING "Minimum macOS version" FORCE)
+    endif ()
+    unset(_host_os_version)
+    unset(_host_os_result)
+    unset(_host_os_major_minor)
 endif ()
 
 set(_sdk_prefix "macosx")

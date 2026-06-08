@@ -160,6 +160,8 @@ if (DEVELOPER_MODE)
     endif ()
 endif ()
 
+WEBKIT_GENERATE_HEADER_MAPS()
+
 # -----------------------------------------------------------------------------
 # Print the features list last, for maximum visibility.
 # -----------------------------------------------------------------------------

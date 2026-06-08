@@ -48,9 +48,12 @@ macro(WEBKIT_COMPUTE_SOURCES _framework)
     endif ()
 
     if (ENABLE_UNIFIED_BUILDS)
+        # One pass generates the bundles (stdout = files to compile) and writes the
+        # bundled member list to a side file via --print-bundled-sources.
+        set(_bundledSourcesFile "${CMAKE_CURRENT_BINARY_DIR}/${_framework}BundledSources.txt")
         execute_process(COMMAND ${Python_EXECUTABLE} ${WTF_SCRIPTS_DIR}/generate-unified-source-bundles.py
             ${gusb_args}
-            "--print-bundled-sources"
+            --print-bundled-sources "${_bundledSourcesFile}"
             ${_sourceListFileTruePaths}
             RESULT_VARIABLE _resultTmp
             OUTPUT_VARIABLE _outputTmp)
@@ -59,21 +62,13 @@ macro(WEBKIT_COMPUTE_SOURCES _framework)
              message(FATAL_ERROR "generate-unified-source-bundles.py exited with non-zero status, exiting")
         endif ()
 
-        foreach (_sourceFileTmp IN LISTS _outputTmp)
+        # Member sources folded into bundles: compiled via the bundle, so mark header-only.
+        file(STRINGS "${_bundledSourcesFile}" _bundledSources)
+        foreach (_sourceFileTmp IN LISTS _bundledSources)
             set_source_files_properties(${_sourceFileTmp} PROPERTIES HEADER_FILE_ONLY ON)
             list(APPEND ${_framework}_HEADERS ${_sourceFileTmp})
         endforeach ()
         unset(_sourceFileTmp)
-
-        execute_process(COMMAND ${Python_EXECUTABLE} ${WTF_SCRIPTS_DIR}/generate-unified-source-bundles.py
-            ${gusb_args}
-            ${_sourceListFileTruePaths}
-            RESULT_VARIABLE  _resultTmp
-            OUTPUT_VARIABLE _outputTmp)
-
-        if (${_resultTmp})
-            message(FATAL_ERROR "generate-unified-source-bundles.py exited with non-zero status, exiting")
-        endif ()
 
         foreach (_file IN LISTS _outputTmp)
             # rdar://177465799 (Move bare filenames in DerivedSources to logical sub-folders)
@@ -668,13 +663,13 @@ function(WEBKIT_COPY_FILES target_name)
         if (APPLE AND NOT opt_NO_SYMLINK)
             add_custom_command(OUTPUT ${dst_file}
                 COMMAND ${CMAKE_COMMAND} -E create_symlink ${src_file} ${dst_file}
-                MAIN_DEPENDENCY ${file}
+                MAIN_DEPENDENCY ${src_file}
                 VERBATIM
             )
         else ()
             add_custom_command(OUTPUT ${dst_file}
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different ${src_file} ${dst_file}
-                MAIN_DEPENDENCY ${file}
+                MAIN_DEPENDENCY ${src_file}
                 VERBATIM
             )
         endif ()
@@ -725,7 +720,7 @@ function(WEBKIT_SYMLINK_FILES target_name)
         endif ()
         add_custom_command(OUTPUT ${dst_file}
             COMMAND ${CMAKE_COMMAND} -E create_symlink ${src_file} ${dst_file}
-            MAIN_DEPENDENCY ${file}
+            MAIN_DEPENDENCY ${src_file}
             VERBATIM
         )
         list(APPEND dst_files ${dst_file})

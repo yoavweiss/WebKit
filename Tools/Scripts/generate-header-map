@@ -29,13 +29,25 @@ On basename collisions the first directory listed wins, matching -I search order
 """
 
 import argparse
-import json
+import importlib.util
 import os
-import subprocess
 import sys
+from importlib.machinery import SourceFileLoader
 
 HEADER_EXTENSIONS = ('.h', '.hh', '.hpp', '.hxx', '.inc', '.def')
 HMAPTOOL = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'hmaptool')
+
+
+def _load_hmaptool():
+    # hmaptool has no .py extension, so load it via an explicit source loader.
+    # Calling its writer in-process avoids a second Python interpreter launch
+    # (and a JSON manifest round-trip through disk) per framework, which
+    # dominated header-map generation time.
+    loader = SourceFileLoader('hmaptool', HMAPTOOL)
+    spec = importlib.util.spec_from_loader(loader.name, loader)
+    module = importlib.util.module_from_spec(spec)
+    loader.exec_module(module)
+    return module
 
 
 def collect_mappings(directories, framework=None):
@@ -85,25 +97,52 @@ def collect_mappings(directories, framework=None):
     return mappings
 
 
+def _generate(directories, framework, output, write_headermap):
+    mappings = collect_mappings([d for d in directories if d], framework)
+    # Sort keys for deterministic output (clang header maps are order-sensitive
+    # in their bucket layout; sorting keeps regenerated maps byte-stable).
+    write_headermap(dict(sorted(mappings.items())), output)
+
+
+def run_header_maps_dir(header_maps_dir):
+    # Batch mode: every *.hmap.manifest in header_maps_dir is self-describing --
+    # line 1 is the output .hmap path, line 2 the framework, lines 3+ the
+    # directories. One interpreter launch and one hmaptool import for all
+    # frameworks, instead of one process (plus one for hmaptool) per framework.
+    write_headermap = _load_hmaptool().write_headermap
+    for name in sorted(os.listdir(header_maps_dir)):
+        if not name.endswith('.hmap.manifest'):
+            continue
+        with open(os.path.join(header_maps_dir, name)) as f:
+            lines = f.read().splitlines()
+        output, framework, directories = lines[0], lines[1] or None, lines[2:]
+        _generate(directories, framework, output, write_headermap)
+    return 0
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('-o', '--output', required=True, help='output .hmap path')
-    parser.add_argument('--dirs-file', required=True,
-                        help='file containing one include directory per line')
+    parser.add_argument('--header-maps-dir',
+                        help='batch mode: generate every .hmap described by the '
+                             '*.hmap.manifest files in this directory, in one process')
+    parser.add_argument('-o', '--output', help='output .hmap path (single-file mode)')
+    parser.add_argument('--dirs-file',
+                        help='file with one include directory per line (single-file mode)')
     parser.add_argument('--framework',
                         help='if set, also emit FRAMEWORK/Header.h entries so '
                              '<FRAMEWORK/Header.h> resolves to the source/derived path '
                              'without requiring a physical PrivateHeaders/ copy')
     args = parser.parse_args()
 
+    if args.header_maps_dir:
+        return run_header_maps_dir(args.header_maps_dir)
+
+    if not args.dirs_file or not args.output:
+        parser.error('--dirs-file and --output are required unless --header-maps-dir is given')
     with open(args.dirs_file) as f:
         directories = [line.strip() for line in f if line.strip()]
-
-    manifest = args.output + '.json'
-    with open(manifest, 'w') as f:
-        json.dump({'mappings': collect_mappings(directories, args.framework)}, f, indent=2, sort_keys=True)
-
-    return subprocess.call([sys.executable, HMAPTOOL, 'write', manifest, args.output])
+    _generate(directories, args.framework, args.output, _load_hmaptool().write_headermap)
+    return 0
 
 
 if __name__ == '__main__':

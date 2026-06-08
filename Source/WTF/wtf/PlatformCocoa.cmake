@@ -131,7 +131,7 @@ add_custom_command(
         ${WTF_DERIVED_SOURCES_DIR}/mach_exc.h
         ${WTF_DERIVED_SOURCES_DIR}/mach_excServer.c
         ${WTF_DERIVED_SOURCES_DIR}/mach_excUser.c
-    MAIN_DEPENDENCY mac/MachExceptions.defs
+    MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/mac/MachExceptions.defs
     WORKING_DIRECTORY ${WTF_DERIVED_SOURCES_DIR}
     COMMAND mig -DMACH_EXC_SERVER_TASKIDTOKEN_STATE -sheader MachExceptionsServer.h MachExceptions.defs
     VERBATIM)

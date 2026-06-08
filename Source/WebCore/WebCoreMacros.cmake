@@ -59,29 +59,53 @@ function(GENERATE_BINDINGS target)
     set(included_idl_files_list ${CMAKE_CURRENT_BINARY_DIR}/included_idl_files_${target}.tmp)
     set(_supplemental_dependency)
 
-    set(content)
-    foreach (f ${arg_INPUT_FILES} ${arg_SUPPLEMENTAL_IDL_FILES})
+    # Absolutize inputs once. These feed both the file lists handed to the
+    # generator and the custom command DEPENDS below: relative DEPENDS force
+    # CMake's O(N^2) linear output-to-source search during generation, and with
+    # ~1000 IDLs that dominates the configure's generate step.
+    set(_abs_input_files)
+    foreach (f ${arg_INPUT_FILES})
         if (NOT IS_ABSOLUTE ${f})
             set(f ${CMAKE_CURRENT_SOURCE_DIR}/${f})
         endif ()
+        list(APPEND _abs_input_files ${f})
+    endforeach ()
+    set(_abs_supplemental_files)
+    foreach (f ${arg_SUPPLEMENTAL_IDL_FILES})
+        if (NOT IS_ABSOLUTE ${f})
+            set(f ${CMAKE_CURRENT_SOURCE_DIR}/${f})
+        endif ()
+        list(APPEND _abs_supplemental_files ${f})
+    endforeach ()
+    set(_abs_pp_input_files)
+    foreach (f ${arg_PP_INPUT_FILES})
+        if (NOT IS_ABSOLUTE ${f})
+            set(f ${CMAKE_CURRENT_SOURCE_DIR}/${f})
+        endif ()
+        list(APPEND _abs_pp_input_files ${f})
+    endforeach ()
+    set(_abs_included_files)
+    foreach (f ${arg_INCLUDED_FILES})
+        if (NOT IS_ABSOLUTE ${f})
+            set(f ${CMAKE_CURRENT_SOURCE_DIR}/${f})
+        endif ()
+        list(APPEND _abs_included_files ${f})
+    endforeach ()
+
+    set(content)
+    foreach (f ${_abs_input_files} ${_abs_supplemental_files})
         set(content "${content}${f}\n")
     endforeach ()
     file(WRITE ${idl_files_list} ${content})
 
     set(pp_content)
-    foreach (f ${arg_PP_INPUT_FILES})
-        if (NOT IS_ABSOLUTE ${f})
-            set(f ${CMAKE_CURRENT_SOURCE_DIR}/${f})
-        endif ()
+    foreach (f ${_abs_pp_input_files})
         set(pp_content "${pp_content}${f}\n")
     endforeach ()
     file(WRITE ${pp_idl_files_list} ${pp_content})
 
     set(include_content)
-    foreach (f ${arg_INPUT_FILES} ${arg_SUPPLEMENTAL_IDL_FILES} ${arg_INCLUDED_FILES})
-        if (NOT IS_ABSOLUTE ${f})
-            set(f ${CMAKE_CURRENT_SOURCE_DIR}/${f})
-        endif ()
+    foreach (f ${_abs_input_files} ${_abs_supplemental_files} ${_abs_included_files})
         set(include_content "${include_content}${f}\n")
     endforeach ()
     file(WRITE ${included_idl_files_list} ${include_content})
@@ -170,9 +194,9 @@ function(GENERATE_BINDINGS target)
         COMMAND ${PERL_EXECUTABLE} ${binding_generator} ${args}
         COMMAND ${CMAKE_COMMAND} -E touch ${_stamp_file}
         DEPENDS
-            ${arg_INPUT_FILES}
-            ${arg_SUPPLEMENTAL_IDL_FILES}
-            ${arg_PP_INPUT_FILES}
+            ${_abs_input_files}
+            ${_abs_supplemental_files}
+            ${_abs_pp_input_files}
             ${common_generator_dependencies}
             ${binding_generator}
             ${idl_attributes_file}

@@ -6,6 +6,13 @@ else ()
 endif ()
 option(USE_HEADER_MAPS "Collapse per-target include directories into a Clang header map" ${_USE_HEADER_MAPS_DEFAULT})
 
+if (USE_HEADER_MAPS)
+    # One flat directory holds every framework's .hmap and its .hmap.manifest.
+    # Cleared once per configure so entries for removed targets don't linger.
+    file(REMOVE_RECURSE "${CMAKE_BINARY_DIR}/HeaderMaps")
+    file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/HeaderMaps")
+endif ()
+
 function(WEBKIT_MAKE_HEADER_MAP _target _source_root _dirs_var)
     set(_hmap_dirs)
     set(_result)
@@ -43,21 +50,32 @@ function(WEBKIT_MAKE_HEADER_MAP _target _source_root _dirs_var)
         return()
     endif ()
 
-    set(_dirs_file "${CMAKE_CURRENT_BINARY_DIR}/${_target}HeaderMap.dirs")
-    set(_hmap_file "${CMAKE_CURRENT_BINARY_DIR}/${_target}.hmap")
+    set(_hmap_file "${CMAKE_BINARY_DIR}/HeaderMaps/${_target}.hmap")
     list(JOIN _hmap_dirs "\n" _dirs_content)
-    file(WRITE "${_dirs_file}" "${_dirs_content}\n")
-
-    execute_process(
-        COMMAND "${PYTHON_EXECUTABLE}" "${TOOLS_DIR}/Scripts/generate-header-map"
-                --dirs-file "${_dirs_file}" --framework "${_target}" -o "${_hmap_file}"
-        RESULT_VARIABLE _hmap_result
-    )
-    if (NOT _hmap_result EQUAL 0)
-        message(WARNING "generate-header-map failed for ${_target}; falling back to -I directories")
-        return()
-    endif ()
+    # Write a self-describing manifest (output path, framework, then dirs). The
+    # .hmap files are generated in one batched python pass (WEBKIT_GENERATE_HEADER_MAPS)
+    # after all targets are configured. The .hmap path is deterministic, so wire
+    # it into this target's include directories now.
+    file(WRITE "${CMAKE_BINARY_DIR}/HeaderMaps/${_target}.hmap.manifest"
+        "${_hmap_file}\n${_target}\n${_dirs_content}\n")
 
     list(TRANSFORM _result REPLACE "^${_placeholder}$" "${_hmap_file}")
     set(${_dirs_var} "${_result}" PARENT_SCOPE)
+endfunction()
+
+# Generate every framework's .hmap in a single python invocation, reading the
+# manifests left in ${CMAKE_BINARY_DIR}/HeaderMaps. Call once after all targets
+# are configured. One interpreter launch replaces ~2 per framework.
+function(WEBKIT_GENERATE_HEADER_MAPS)
+    if (NOT USE_HEADER_MAPS)
+        return()
+    endif ()
+    execute_process(
+        COMMAND "${PYTHON_EXECUTABLE}" "${TOOLS_DIR}/Scripts/generate-header-map"
+                --header-maps-dir "${CMAKE_BINARY_DIR}/HeaderMaps"
+        RESULT_VARIABLE _result
+    )
+    if (NOT _result EQUAL 0)
+        message(WARNING "generate-header-map (batch) failed; targets fall back to -I directories")
+    endif ()
 endfunction()

@@ -82,11 +82,14 @@ find_library(UNIFORMTYPEIDENTIFIERS_LIBRARY UniformTypeIdentifiers)
 find_library(VIDEOTOOLBOX_LIBRARY VideoToolbox)
 find_library(XML2_LIBRARY XML2)
 
-find_package(SQLite3 REQUIRED)
-find_package(ZLIB REQUIRED)
-
-if (NOT TARGET SQLite3::SQLite3) # CMake < 4.3
+# SQLite3::SQLite3 and ZLIB::ZLIB are declared in OptionsCocoa.cmake; only search
+# if missing (e.g. ANGLE/WebCore configured standalone).
+if (NOT TARGET SQLite3::SQLite3)
+    find_package(SQLite3 REQUIRED)
     add_library(SQLite3::SQLite3 ALIAS SQLite::SQLite3)
+endif ()
+if (NOT TARGET ZLIB::ZLIB)
+    find_package(ZLIB REQUIRED)
 endif ()
 
 list(APPEND WebCore_UNIFIED_SOURCE_LIST_FILES
