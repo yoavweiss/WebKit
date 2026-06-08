@@ -70,8 +70,6 @@ public:
     inline LayoutUnit borderTop() const final;
     inline LayoutUnit borderBottom() const final;
 
-    Color bgColor() const { return protect(style())->visitedDependentBackgroundColorApplyingColorFilter(); }
-
     LayoutUnit outerBorderBefore() const;
     LayoutUnit outerBorderAfter() const;
     LayoutUnit outerBorderStart() const;
@@ -104,10 +102,6 @@ public:
         m_columnLogicalWidthChanged |= m_columnPos[index] != position;
         m_columnPos[index] = position;
     }
-
-    RenderTableSection* NODELETE header() const;
-    RenderTableSection* NODELETE footer() const;
-    RenderTableSection* NODELETE firstBody() const;
 
     // This function returns 0 if the table has no section.
     RenderTableSection* NODELETE topSection() const;

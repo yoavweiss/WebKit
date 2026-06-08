@@ -113,21 +113,6 @@ RenderTable::RenderTable(Type type, Document& document, Style::ComputedStyle&& s
 
 RenderTable::~RenderTable() = default;
 
-RenderTableSection* RenderTable::header() const
-{
-    return m_head.get();
-}
-
-RenderTableSection* RenderTable::footer() const
-{
-    return m_foot.get();
-}
-
-RenderTableSection* RenderTable::firstBody() const
-{
-    return m_firstBody.get();
-}
-
 RenderTableSection* NODELETE RenderTable::topSection() const
 {
     ASSERT(!needsSectionRecalc());
