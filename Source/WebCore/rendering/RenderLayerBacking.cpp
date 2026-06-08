@@ -1341,9 +1341,18 @@ bool RenderLayerBacking::updateConfiguration(const RenderLayer* compositingAnces
     }
 #if ENABLE(MODEL_ELEMENT)
     else if (is<RenderModel>(renderer())) {
+        auto modelBackgroundColor = rendererBackgroundColor();
+#if ENABLE(GPU_PROCESS_MODEL)
+        // Model expects opaque colors but if dynamic-range-limit: standard is used, we don't make the IOSurface
+        // of the model opaque, rather we make it transparent and composite it with the user's chosen background
+        // color. Otherwise during tonemapping to standard dynamic range the background becomes too dark.
+        // Set the graphics layer's background color as a fallback for the transparent IOSurface case.
+        modelBackgroundColor = modelBackgroundColor.isValid() ? modelBackgroundColor.opaqueColor() : Color::black;
+        m_graphicsLayer->setBackgroundColor(modelBackgroundColor);
+#endif
         RefPtr element = downcast<HTMLModelElement>(renderer().element());
 
-        element->configureGraphicsLayer(*m_graphicsLayer, rendererBackgroundColor());
+        element->configureGraphicsLayer(*m_graphicsLayer, modelBackgroundColor);
         element->sizeMayHaveChanged();
 
         layerConfigChanged = true;

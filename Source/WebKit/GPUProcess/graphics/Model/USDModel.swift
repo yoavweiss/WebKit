@@ -497,6 +497,8 @@ extension WKBridgeUSDConfiguration {
         }
     }
 
+    var standardDynamicRange: Bool = false
+
     func makeStandaloneResources() async {
         do {
             appRenderer.pendingStandaloneResources = try await LowLevelRenderContextStandalone.Resources(device: self.device)
@@ -518,16 +520,19 @@ extension WKBridgeUSDConfiguration {
 
     func makeRendererResources() async {
         do {
+            let colorPixelFormat: MTLPixelFormat = standardDynamicRange ? .bgra8Unorm : .rgba16Float
+            let sampleCount: Int = 4
             appRenderer.pendingRendererResources = try await LowLevelRenderer.Resources(
                 configuration: .init(
-                    output: .init(colorPixelFormat: .rgba16Float),
-                    rasterSampleCount: 4,
-                    enableTonemap: false,
+                    output: .init(colorPixelFormat: colorPixelFormat),
+                    rasterSampleCount: sampleCount,
+                    enableTonemap: standardDynamicRange,
                     enableColorMatch: false,
                     alphaPremultiply: false
                 ),
                 renderContext: self.renderContext
             )
+            appRenderer.rasterSampleCount = sampleCount
         } catch {
             fatalError("Exception creating renderer resources \(error)")
         }
@@ -539,6 +544,7 @@ extension WKBridgeUSDConfiguration {
             // swift-format-ignore: NeverForceUnwrap
             try appRenderer.createRenderer(resources: appRenderer.pendingRendererResources!)
             appRenderer.pendingRendererResources = nil
+            appRenderer.tonemapEnabled = standardDynamicRange
         } catch {
             fatalError("Exception creating renderer \(error)")
         }
@@ -2412,6 +2418,8 @@ private func makeFallBackTextureResource(
 extension WKBridgeUSDConfiguration {
     init(device: any MTLDevice, memoryOwner: task_id_token_t) {
     }
+
+    var standardDynamicRange: Bool = false
 
     func makeStandaloneResources() async {
     }

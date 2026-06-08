@@ -272,10 +272,10 @@ void RemoteGPU::paintNativeImageToImageBuffer(WebCore::NativeImage& nativeImage,
 
 
 #if ENABLE(GPU_PROCESS_MODEL)
-Vector<UniqueRef<WebCore::IOSurface>> RemoteGPU::createRenderBuffers(unsigned width, unsigned height, const WebCore::ProcessIdentity& processIdentity)
+Vector<UniqueRef<WebCore::IOSurface>> RemoteGPU::createRenderBuffers(unsigned width, unsigned height, const WebCore::ProcessIdentity& processIdentity, bool standardDynamicRange)
 {
-    const auto colorFormat = WebCore::IOSurface::Format::RGBA16F;
-    const auto colorSpace = WebCore::DestinationColorSpace::ExtendedLinearDisplayP3();
+    const auto colorFormat = standardDynamicRange ? WebCore::IOSurface::Format::BGRA : WebCore::IOSurface::Format::RGBA16F;
+    const auto colorSpace = standardDynamicRange ? WebCore::DestinationColorSpace::LinearDisplayP3() : WebCore::DestinationColorSpace::ExtendedLinearDisplayP3();
 
     Vector<UniqueRef<WebCore::IOSurface>> ioSurfaces;
 
@@ -292,9 +292,9 @@ Vector<UniqueRef<WebCore::IOSurface>> RemoteGPU::createRenderBuffers(unsigned wi
 #endif
 
 #if ENABLE(GPU_PROCESS_MODEL)
-static RefPtr<WebKit::Mesh> createModelBackingInternal(unsigned width, unsigned height, WebModel::ImageAsset&& diffuseTexture, WebModel::ImageAsset&& specularTexture, const WebCore::ProcessIdentity& processIdentity, CompletionHandler<void(Vector<MachSendRight>&&)>&& callback)
+static RefPtr<WebKit::Mesh> createModelBackingInternal(unsigned width, unsigned height, WebModel::ImageAsset&& diffuseTexture, WebModel::ImageAsset&& specularTexture, const WebCore::ProcessIdentity& processIdentity, bool standardDynamicRange, CompletionHandler<void(Vector<MachSendRight>&&)>&& callback)
 {
-    auto ioSurfaceVector = RemoteGPU::createRenderBuffers(width, height, processIdentity);
+    auto ioSurfaceVector = RemoteGPU::createRenderBuffers(width, height, processIdentity, standardDynamicRange);
     Vector<RetainPtr<IOSurfaceRef>> ioSurfaces;
     for (auto& ioSurface : ioSurfaceVector)
         ioSurfaces.append(ioSurface->surface());
@@ -305,7 +305,8 @@ static RefPtr<WebKit::Mesh> createModelBackingInternal(unsigned width, unsigned 
         .ioSurfaces = WTF::move(ioSurfaces),
         .diffuseTexture = WTF::move(diffuseTexture),
         .specularTexture = WTF::move(specularTexture),
-        .processIdentity = &processIdentity
+        .processIdentity = &processIdentity,
+        .standardDynamicRange = standardDynamicRange
     };
 
     auto mesh = WebKit::MeshImpl::create(WebMesh::create(backingDescriptor), WTF::move(ioSurfaceVector));
@@ -314,7 +315,7 @@ static RefPtr<WebKit::Mesh> createModelBackingInternal(unsigned width, unsigned 
 }
 #endif
 
-void RemoteGPU::createModelBacking(unsigned width, unsigned height, WebModel::ImageAsset&& diffuseTexture, WebModel::ImageAsset&& specularTexture, WebModelIdentifier identifier, CompletionHandler<void(Vector<MachSendRight>&&)>&& callback)
+void RemoteGPU::createModelBacking(unsigned width, unsigned height, WebModel::ImageAsset&& diffuseTexture, WebModel::ImageAsset&& specularTexture, WebModelIdentifier identifier, bool standardDynamicRange, CompletionHandler<void(Vector<MachSendRight>&&)>&& callback)
 {
 #if ENABLE(GPU_PROCESS_MODEL)
     assertIsCurrent(workQueue());
@@ -347,8 +348,8 @@ void RemoteGPU::createModelBacking(unsigned width, unsigned height, WebModel::Im
     auto gpuProcessConnection = m_gpuConnectionToWebProcess.get();
     MESSAGE_CHECK(gpuProcessConnection);
 
-    auto mesh = createModelBackingInternal(width, height, WTF::move(diffuseTexture), WTF::move(specularTexture), gpuProcessConnection->webProcessIdentity(), WTF::move(callback));
-    auto remoteMesh = RemoteMesh::create(*m_gpuConnectionToWebProcess.get(), *this, *mesh, objectHeap, protect(*m_streamConnection), identifier);
+    auto mesh = createModelBackingInternal(width, height, WTF::move(diffuseTexture), WTF::move(specularTexture), gpuProcessConnection->webProcessIdentity(), standardDynamicRange, WTF::move(callback));
+    auto remoteMesh = RemoteMesh::create(*m_gpuConnectionToWebProcess.get(), *this, *mesh, objectHeap, protect(*m_streamConnection), identifier, standardDynamicRange);
     objectHeap->addObject(identifier, remoteMesh);
 #else
     UNUSED_PARAM(width);
@@ -356,6 +357,7 @@ void RemoteGPU::createModelBacking(unsigned width, unsigned height, WebModel::Im
     UNUSED_PARAM(diffuseTexture);
     UNUSED_PARAM(specularTexture);
     UNUSED_PARAM(identifier);
+    UNUSED_PARAM(standardDynamicRange);
     UNUSED_PARAM(callback);
 #endif
 }

@@ -49,7 +49,7 @@
 
 @implementation ContainerView
 
-- (void)setCustomCornerRadius:(WebCore::CornerRadii)cornerRadii
+- (void)setCustomCornerRadius:(::WebCore::CornerRadii)cornerRadii
 {
     _topLeftRadius = cornerRadii.topLeft().width();
     _topRightRadius = cornerRadii.topRight().width();

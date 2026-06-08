@@ -52,6 +52,7 @@
 #import <WebCore/PlatformCALayerDelegatedContents.h>
 #import <WebCore/PlatformScreen.h>
 #import <WebCore/ScreenProperties.h>
+#import <wtf/BlockPtr.h>
 #import <wtf/RetainPtr.h>
 #import <wtf/cocoa/SpanCocoa.h>
 #import <wtf/threads/BinarySemaphore.h>
@@ -109,6 +110,7 @@ public:
     void setContentsFormat(WebCore::ContentsFormat contentsFormat)
     {
         m_contentsFormat = contentsFormat;
+        setOpaque(m_contentsFormat == WebCore::ContentsFormat::RGBA16F);
     }
     void setOpaque(bool opaque)
     {
@@ -143,6 +145,8 @@ WebModelPlayer::WebModelPlayer(WebCore::Page& page, WebCore::ModelPlayerClient& 
 , m_page(page)
 {
 #if HAVE(SUPPORT_HDR_DISPLAY) && ENABLE(PIXEL_FORMAT_RGBA16F)
+    updateScreenHeadroomFromPage();
+
     if (RefPtr document = page.localTopDocument()) {
         m_screenPropertiesChangedObserver = ScreenPropertiesChangedObserver::create([weakThis = ThreadSafeWeakPtr { *this }](WebCore::PlatformDisplayID displayID) {
             RefPtr protectedThis = weakThis.get();
@@ -182,6 +186,13 @@ static std::optional<WebCore::SharedMemoryHandle> loadData(RetainPtr<CFStringRef
     return WebCore::SharedMemoryHandle::createCopy(WTF::span(data.get()), WebCore::SharedMemoryProtection::ReadOnly);
 }
 
+#if HAVE(SUPPORT_HDR_DISPLAY) && ENABLE(PIXEL_FORMAT_RGBA16F)
+static WebCore::ContentsFormat contentsFormatForDynamicRange(bool isStandard)
+{
+    return isStandard ? WebCore::ContentsFormat::RGBA8 : WebCore::ContentsFormat::RGBA16F;
+}
+#endif
+
 // MARK: - ModelPlayer overrides.
 
 void WebModelPlayer::load(WebCore::Model& modelSource, WebCore::LayoutSize size)
@@ -210,12 +221,27 @@ void WebModelPlayer::load(WebCore::Model& modelSource, WebCore::LayoutSize size)
     size.scale(document->deviceScaleFactor());
     m_currentPixelSize = WebCore::IntSize(size.width().toUnsigned(), size.height().toUnsigned());
 
+#if HAVE(SUPPORT_HDR_DISPLAY) && ENABLE(PIXEL_FORMAT_RGBA16F)
+    m_cachedModelSource = &modelSource;
+    m_lastLayoutSize = cssSize;
+#endif
+
     WEBMODEL_WEB_MODEL_PLAYER_DECLARE_DIFFUSE_AND_SPECULAR_TEXTURES
 
-    m_currentModel = static_cast<RemoteGPUProxy&>(gpu->backing()).createModelBacking(m_currentPixelSize.width(), m_currentPixelSize.height(), WTF::move(diffuseTexture), WTF::move(specularTexture), [protectedThis = protect(*this)] (Vector<MachSendRight>&& surfaceHandles) {
+#if HAVE(SUPPORT_HDR_DISPLAY) && ENABLE(PIXEL_FORMAT_RGBA16F)
+    bool standardDynamicRange = m_dynamicRangeLimit == WebCore::PlatformDynamicRangeLimit::standard();
+    m_usingStandardDynamicRange = standardDynamicRange;
+#else
+    bool standardDynamicRange = false;
+#endif
+
+    m_lastSentContentsHeadroom = -1.f;
+    m_currentModel = static_cast<RemoteGPUProxy&>(gpu->backing()).createModelBacking(m_currentPixelSize.width(), m_currentPixelSize.height(), WTF::move(diffuseTexture), WTF::move(specularTexture), standardDynamicRange, [protectedThis = protect(*this)] (Vector<MachSendRight>&& surfaceHandles) {
         if (surfaceHandles.size()) {
             protectedThis->m_displayBuffers = WTF::move(surfaceHandles);
-            protectedThis->updateContentsHeadroom();
+            protectedThis->m_renderTextureIndex = 0;
+            protectedThis->m_displayTextureIndex = 0;
+            protectedThis->updateScreenHeadroomFromPage();
         }
     });
     if (!m_currentModel)
@@ -323,6 +349,9 @@ void WebModelPlayer::sizeDidChange(WebCore::LayoutSize size)
         return;
 
     m_currentPixelSize = newPixelSize;
+#if HAVE(SUPPORT_HDR_DISPLAY) && ENABLE(PIXEL_FORMAT_RGBA16F)
+    m_lastLayoutSize = cssSize;
+#endif
 
     currentModel->sizeDidChange(newPixelSize.width(), newPixelSize.height(), [protectedThis = protect(*this)](Vector<MachSendRight>&& newBuffers) {
         if (newBuffers.isEmpty())
@@ -479,6 +508,10 @@ WebCore::GraphicsLayerContentsDisplayDelegate* WebModelPlayer::contentsDisplayDe
         RefPtr modelDisplayDelegate = ModelDisplayBufferDisplayDelegate::create(*this);
         m_contentsDisplayDelegate = modelDisplayDelegate;
         modelDisplayDelegate->setDisplayBuffer(*buffer);
+#if HAVE(SUPPORT_HDR_DISPLAY) && ENABLE(PIXEL_FORMAT_RGBA16F)
+        if (m_dynamicRangeLimit == WebCore::PlatformDynamicRangeLimit::standard())
+            modelDisplayDelegate->setContentsFormat(WebCore::ContentsFormat::RGBA8);
+#endif
     }
 
     return m_contentsDisplayDelegate.get();
@@ -592,8 +625,18 @@ bool WebModelPlayer::render()
                 return;
 
             protectedThis->m_displayTextureIndex = textureIndex;
-            if (auto* machSendRight = protectedThis->displayBuffer(); machSendRight && protectedThis->contentsDisplayDelegate())
-                protect(protectedThis->m_contentsDisplayDelegate)->setDisplayBuffer(*machSendRight);
+            if (auto* machSendRight = protectedThis->displayBuffer(); machSendRight && protectedThis->contentsDisplayDelegate()) {
+                Ref delegate = *protectedThis->m_contentsDisplayDelegate;
+#if HAVE(SUPPORT_HDR_DISPLAY) && ENABLE(PIXEL_FORMAT_RGBA16F)
+                // Apply the contents format together with the new display buffer so the
+                // layer's format always matches the IOSurface being shown. This is what
+                // completes the deferred format swap when the model is reloaded due to
+                // a dynamic-range-limit change.
+                delegate->setContentsFormat(contentsFormatForDynamicRange(protectedThis->m_usingStandardDynamicRange));
+#endif
+                delegate->setDisplayBuffer(*machSendRight);
+                protectedThis->updateScreenHeadroomFromPage();
+            }
 
             protectedThis->scheduleDisplayUpdate();
         });
@@ -748,6 +791,9 @@ void WebModelPlayer::visibilityStateDidChange()
         m_isUpdateScheduled = false;
         m_isUpdating = false;
         m_displayTextureIndex = 0;
+#if HAVE(SUPPORT_HDR_DISPLAY) && ENABLE(PIXEL_FORMAT_RGBA16F)
+        m_cachedModelSource = nullptr;
+#endif
     }
 }
 
@@ -841,16 +887,28 @@ float WebModelPlayer::computeContentsHeadroom()
 void WebModelPlayer::updateContentsHeadroom()
 {
     constexpr auto visionProHeadroom = 2.f;
-    auto headroom = computeContentsHeadroom();
-    if (RefPtr model = m_currentModel)
-        model->updateContentsHeadroom(std::min(visionProHeadroom, headroom));
+    auto contentsHeadroom = std::min(visionProHeadroom, computeContentsHeadroom());
+    if (fabs(contentsHeadroom - m_lastSentContentsHeadroom) < 0.01f)
+        return;
+    if (RefPtr model = m_currentModel; model && m_didFinishLoading) {
+        m_lastSentContentsHeadroom = contentsHeadroom;
+        model->updateContentsHeadroom(contentsHeadroom);
+    }
+}
+
+void WebModelPlayer::updateScreenHeadroomFromPage()
+{
+    RefPtr page = m_page.get();
+    if (!page)
+        return;
+
+    auto platformScreen = WebCore::PlatformScreen::singleton();
+    if (auto data = platformScreen->screenData(page->displayID()))
+        updateScreenHeadroom(data->currentEDRHeadroom, data->suppressEDR);
 }
 
 void WebModelPlayer::updateScreenHeadroom(float currentEDRHeadroom, bool suppressEDR)
 {
-    if (m_suppressEDR == suppressEDR && m_currentEDRHeadroom == currentEDRHeadroom)
-        return;
-
     m_currentEDRHeadroom = currentEDRHeadroom;
     m_suppressEDR = suppressEDR;
     updateContentsHeadroom();
@@ -868,7 +926,9 @@ void WebModelPlayer::setDynamicRangeLimit(WebCore::PlatformDynamicRangeLimit dyn
     m_currentEDRHeadroom = currentEDRHeadroom;
     m_suppressEDR = suppressEDR;
 
+    dynamicRangeLimitDidChange();
     updateContentsHeadroom();
+    startUpdateLoopIfNeeded();
 }
 
 std::optional<double> WebModelPlayer::getEffectiveDynamicRangeLimitValue() const
@@ -876,6 +936,26 @@ std::optional<double> WebModelPlayer::getEffectiveDynamicRangeLimitValue() const
     auto limitValue = m_dynamicRangeLimit.value();
     auto suppressValue = m_suppressEDR ? WebCore::PlatformDynamicRangeLimit::constrained().value() : WebCore::PlatformDynamicRangeLimit::noLimit().value();
     return std::min(limitValue, suppressValue);
+}
+
+void WebModelPlayer::dynamicRangeLimitDidChange()
+{
+    if (!m_cachedModelSource)
+        return;
+
+    bool newIsStandard = m_dynamicRangeLimit == WebCore::PlatformDynamicRangeLimit::standard();
+    if (newIsStandard == m_usingStandardDynamicRange)
+        return;
+
+    auto animationState = currentAnimationState();
+    if (!animationState)
+        return;
+    auto transformStateOpt = currentTransformState();
+    std::unique_ptr<WebCore::ModelPlayerTransformState> transformState;
+    if (transformStateOpt)
+        transformState = WTF::move(*transformStateOpt);
+
+    reload(*m_cachedModelSource, m_lastLayoutSize, *animationState, WTF::move(transformState));
 }
 #endif
 

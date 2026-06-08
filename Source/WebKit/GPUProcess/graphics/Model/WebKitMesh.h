@@ -80,6 +80,7 @@ private:
     WebMesh(const WebModelCreateMeshDescriptor&);
 
     RetainPtr<NSMutableArray> m_textures;
+    const bool m_standardDynamicRange { false };
 
 #if ENABLE(GPU_PROCESS_MODEL)
     RetainPtr<WKBridgeReceiver> m_receiver;

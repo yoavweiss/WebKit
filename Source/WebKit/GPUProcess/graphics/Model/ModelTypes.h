@@ -482,6 +482,8 @@ NS_SWIFT_SENDABLE
 - (instancetype)init NS_UNAVAILABLE;
 - (instancetype)initWithDevice:(id<MTLDevice>)device memoryOwner:(task_id_token_t)memoryOwner NS_DESIGNATED_INITIALIZER;
 
+@property (nonatomic) BOOL standardDynamicRange;
+
 - (void)makeStandaloneResourcesWithCompletionHandler:(void (^)(void))completionHandler;
 - (void)createMaterialCompiler;
 - (void)makeRendererResourcesWithCompletionHandler:(void (^)(void))completionHandler;
@@ -831,6 +833,7 @@ typedef struct WebModelCreateMeshDescriptor {
     WebModel::ImageAsset&& diffuseTexture;
     WebModel::ImageAsset&& specularTexture;
     const WebCore::ProcessIdentity* processIdentity;
+    bool standardDynamicRange { false };
 } WebModelCreateMeshDescriptor;
 
 #endif

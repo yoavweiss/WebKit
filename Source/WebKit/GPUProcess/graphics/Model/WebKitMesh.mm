@@ -867,9 +867,9 @@ static WKBridgeMaterialGraph *convert(const MaterialGraph& material)
 
 namespace WebKit {
 
-static RetainPtr<NSMutableArray> createMetalTextures(id<MTLDevice> device, const Vector<RetainPtr<IOSurfaceRef>>& ioSurfaces, unsigned width, unsigned height)
+static RetainPtr<NSMutableArray> createMetalTextures(id<MTLDevice> device, const Vector<RetainPtr<IOSurfaceRef>>& ioSurfaces, unsigned width, unsigned height, MTLPixelFormat pixelFormat)
 {
-    MTLTextureDescriptor *textureDescriptor = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatRGBA16Float width:width height:height mipmapped:NO];
+    MTLTextureDescriptor *textureDescriptor = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:pixelFormat width:width height:height mipmapped:NO];
     RetainPtr textures = adoptNS([[NSMutableArray alloc] init]);
     for (auto& ioSurface : ioSurfaces)
         [textures addObject:[device newTextureWithDescriptor:textureDescriptor iosurface:ioSurface.get() plane:0]];
@@ -878,16 +878,23 @@ static RetainPtr<NSMutableArray> createMetalTextures(id<MTLDevice> device, const
 
 WTF_MAKE_TZONE_ALLOCATED_IMPL(WebMesh);
 
+static MTLPixelFormat pixelFormatForDynamicRange(bool standardRange)
+{
+    return standardRange ? MTLPixelFormatBGRA8Unorm : MTLPixelFormatRGBA16Float;
+}
+
 WebMesh::WebMesh(const WebModelCreateMeshDescriptor& descriptor)
+    : m_standardDynamicRange(descriptor.standardDynamicRange)
 {
     id<MTLDevice> device = MTLCreateSystemDefaultDevice();
-    m_textures = createMetalTextures(device, descriptor.ioSurfaces, descriptor.width, descriptor.height);
+    m_textures = createMetalTextures(device, descriptor.ioSurfaces, descriptor.width, descriptor.height, pixelFormatForDynamicRange(m_standardDynamicRange));
 
 #if ENABLE(GPU_PROCESS_MODEL)
     WKBridgeUSDConfiguration *configuration = [WebKit::allocWKBridgeUSDConfigurationInstance() initWithDevice:device memoryOwner:descriptor.processIdentity ? descriptor.processIdentity->taskIdToken() : 0];
     WKBridgeImageAsset *diffuseAsset = WebModel::convert(descriptor.diffuseTexture);
     WKBridgeImageAsset *specularAsset = WebModel::convert(descriptor.specularTexture);
     if (configuration) {
+        configuration.standardDynamicRange = m_standardDynamicRange;
         BinarySemaphore standaloneResourcesCompletion;
         [configuration makeStandaloneResourcesWithCompletionHandler:[&standaloneResourcesCompletion] mutable {
             standaloneResourcesCompletion.signal();
@@ -1065,7 +1072,7 @@ void WebMesh::updateRenderBuffers(const WebModel::ResizeMeshDescriptor& descript
     auto ioSurfaces = descriptor.renderBuffers.map([](auto& buffer) -> RetainPtr<IOSurfaceRef> {
         return buffer->surface();
     });
-    m_textures = createMetalTextures(MTLCreateSystemDefaultDevice(), ioSurfaces, descriptor.width, descriptor.height);
+    m_textures = createMetalTextures(MTLCreateSystemDefaultDevice(), ioSurfaces, descriptor.width, descriptor.height, pixelFormatForDynamicRange(m_standardDynamicRange));
 #else
     UNUSED_PARAM(descriptor);
 #endif

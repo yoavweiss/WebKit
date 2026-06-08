@@ -48,7 +48,113 @@ final class Renderer {
     private var effectiveCameraDistance: Float = Renderer.cameraDistance
     private var fovY: Float = 60 * .pi / 180
     private var clearColor: MTLClearColor = .init(red: 1, green: 1, blue: 1, alpha: 1)
+    var tonemapEnabled: Bool = false
+    var rasterSampleCount: Int = 1
     let memoryOwner: task_id_token_t
+
+    private struct ColorAdjustTilePipelineKey: Hashable {
+        let pixelFormat: MTLPixelFormat
+        let rasterSampleCount: Int
+    }
+
+    private var colorAdjustTilePipelineStates: [ColorAdjustTilePipelineKey: any MTLRenderPipelineState] = [:]
+
+    private static let colorAdjustTileShaderSource = """
+        #include <metal_stdlib>
+        using namespace metal;
+
+        // Mirrors RealityCoreRenderer's TonemapParameters / kDefaultTonemapParams
+        // from RealityCoreRenderer/Shaders/TonemapShared.h and Tonemap.h.
+        struct TonemapSegment {
+            float offsX, offsY, scaleX, scaleY, lnA, B;
+        };
+
+        struct TonemapParameters {
+            float whitePoint;
+            float oneOverWhitePoint;
+            float x0, x1, y0, y1;
+            float exposure;
+            float pivotFactor;
+            float contrast;
+            float oneOverPivotFactor;
+            float oneOverContrast;
+            TonemapSegment segments[3];
+            float oneOverExposure;
+            float edrScalar;
+        };
+
+        constant TonemapParameters kDefaultTonemapParams = {
+            .whitePoint = 2.01402664,
+            .oneOverWhitePoint = 0.496517748,
+            .x0 = 0.0278579127,
+            .x1 = 0.17054522,
+            .y0 = 0.0420799,
+            .y1 = 0.3294559,
+            .exposure = 1.0,
+            .pivotFactor = 1.0,
+            .contrast = 1.0,
+            .oneOverPivotFactor = 1.0,
+            .oneOverContrast = 1.0,
+            .segments = {
+                { 0.0,          0.0,        1.0,  0.778939604,  1.60599995,  1.33333337 },
+                { 0.00696447864, 0.0,       1.0,  0.778939604,  0.700136005, 1.0        },
+                { 3.0,          1.16840935, -1.0, -0.778939604, -4.90600586, 4.86833191 }
+            },
+            .oneOverExposure = 1.0,
+            .edrScalar = 1.0,
+        };
+
+        // Mirrors computeFilmic() in RealityCoreRenderer/Shaders/Tonemap.metal.
+        static half3 computeFilmic(half3 clr, constant TonemapParameters &params) {
+            if (params.contrast != 1.0f) {
+                clr = pow(clr, params.contrast) * params.pivotFactor;
+            }
+
+            half3 xs = clr * (half)params.oneOverWhitePoint;
+            int3 indices = (int3)((half3)params.x0 < xs) + (int3)((half3)params.x1 < xs);
+
+            half3 offsXs  = half3(params.segments[indices.r].offsX,  params.segments[indices.g].offsX,  params.segments[indices.b].offsX);
+            half3 scaleXs = half3(params.segments[indices.r].scaleX, params.segments[indices.g].scaleX, params.segments[indices.b].scaleX);
+            half3 lnAs    = half3(params.segments[indices.r].lnA,    params.segments[indices.g].lnA,    params.segments[indices.b].lnA);
+            half3 Bs      = half3(params.segments[indices.r].B,      params.segments[indices.g].B,      params.segments[indices.b].B);
+            half3 scaleYs = half3(params.segments[indices.r].scaleY, params.segments[indices.g].scaleY, params.segments[indices.b].scaleY);
+            half3 offsYs  = half3(params.segments[indices.r].offsY,  params.segments[indices.g].offsY,  params.segments[indices.b].offsY);
+
+            half3 x0s = (xs - offsXs) * scaleXs;
+            bool3 mask = (x0s > 0);
+            half3 y0s = select(half3(0, 0, 0), exp(lnAs + Bs * log(x0s)), mask);
+            return y0s * scaleYs + offsYs;
+        }
+
+        // Mirrors tonemap() in RealityCoreRenderer/Shaders/Tonemap.metal.
+        static half3 tonemap(half3 color, constant TonemapParameters &params) {
+            color *= params.exposure;
+            return computeFilmic(color, params) * params.edrScalar;
+        }
+
+        struct ImplicitFragmentInPlace {
+            half4 color [[color(0)]];
+        };
+
+        // Mirrors resolveColorInPlace() in RealityCoreRenderer/Shaders/ColorResolve.metal.
+        kernel void colorAdjustTile(imageblock<ImplicitFragmentInPlace, imageblock_layout_implicit> ib,
+                                    ushort2 localThreadId [[thread_position_in_threadgroup]]) {
+            half4 color = 0;
+            ushort numColors = ib.get_num_colors(localThreadId);
+            for (ushort c = 0; c < numColors; ++c) {
+                ImplicitFragmentInPlace f = ib.read(localThreadId, c, imageblock_data_rate::color);
+                color += f.color * popcount(ib.get_color_coverage_mask(localThreadId, c));
+            }
+            color /= (half)ib.get_num_samples();
+
+            color.rgb = tonemap(color.rgb, kDefaultTonemapParams);
+            color.rgb *= 1.5032214035h;
+
+            ImplicitFragmentInPlace out;
+            out.color = color;
+            ib.write(out, localThreadId, 0xF);
+        }
+        """
 
     init(device: any MTLDevice, memoryOwner: task_id_token_t) throws {
         guard let commandQueue = device.makeCommandQueue() else {
@@ -108,7 +214,11 @@ final class Renderer {
         renderer.cameras[0].position = cameraPosition
         renderer.cameras[0].rotation = cameraRotation
         renderer.cameras[0].projection = projection
-        renderer.output.clearColor = clearColor
+        if tonemapEnabled {
+            renderer.output.clearColor = MTLClearColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.0)
+        } else {
+            renderer.output.clearColor = clearColor
+        }
         renderer.output.color = .init(texture: texture)
         try renderer.setMeshInstances(meshInstances, at: 0)
 
@@ -125,12 +235,41 @@ final class Renderer {
             indices: &span,
             configuration: .init(cameraPosition: renderer.cameras[0].position)
         )
+        let tilePipelineState: (any MTLRenderPipelineState)? =
+            tonemapEnabled ? nil : try colorAdjustTilePipelineState(for: texture.pixelFormat, rasterSampleCount: rasterSampleCount)
         renderer.render(using: commandBuffer) { state in
             for index in indices {
                 state.render(meshInstancesArrayIndex: 0, meshInstanceIndex: index)
             }
+            if let tilePipelineState {
+                let encoder = state.encoder
+                encoder.setRenderPipelineState(tilePipelineState)
+                encoder.dispatchThreadsPerTile(MTLSize(width: encoder.tileWidth, height: encoder.tileHeight, depth: 1))
+            }
+            state.reset()
         }
         commandBuffer.commit()
+    }
+
+    private func colorAdjustTilePipelineState(for pixelFormat: MTLPixelFormat, rasterSampleCount: Int) throws -> any MTLRenderPipelineState
+    {
+        let key = ColorAdjustTilePipelineKey(pixelFormat: pixelFormat, rasterSampleCount: rasterSampleCount)
+        if let cached = colorAdjustTilePipelineStates[key] {
+            return cached
+        }
+        let library = try device.makeLibrary(source: Self.colorAdjustTileShaderSource, options: nil)
+        guard let tileFunction = library.makeFunction(name: "colorAdjustTile") else {
+            fatalError("Failed to find colorAdjustTile tile function")
+        }
+        let descriptor = MTLTileRenderPipelineDescriptor()
+        descriptor.label = "Color Adjust Tile Pipeline"
+        descriptor.tileFunction = tileFunction
+        descriptor.colorAttachments[0].pixelFormat = pixelFormat
+        descriptor.rasterSampleCount = rasterSampleCount
+        descriptor.threadgroupSizeMatchesTileSize = true
+        let (pipelineState, _) = try device.makeRenderPipelineState(tileDescriptor: descriptor, options: [])
+        colorAdjustTilePipelineStates[key] = pipelineState
+        return pipelineState
     }
 
     func setFOV(_ fovYRadians: Float) {

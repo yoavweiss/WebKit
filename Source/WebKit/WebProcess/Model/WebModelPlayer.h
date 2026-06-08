@@ -135,6 +135,8 @@ private:
     float computeContentsHeadroom();
     void updateContentsHeadroom();
     void updateScreenHeadroom(float currentEDRHeadroom, bool suppressEDR);
+    void updateScreenHeadroomFromPage();
+    void dynamicRangeLimitDidChange();
 #endif
 
     WeakPtr<WebCore::ModelPlayerClient> m_client;
@@ -176,9 +178,13 @@ private:
 #if HAVE(SUPPORT_HDR_DISPLAY) && ENABLE(PIXEL_FORMAT_RGBA16F)
     using ScreenPropertiesChangedObserver = Observer<void(WebCore::PlatformDisplayID)>;
     RefPtr<ScreenPropertiesChangedObserver> m_screenPropertiesChangedObserver;
+    RefPtr<WebCore::Model> m_cachedModelSource;
+    WebCore::LayoutSize m_lastLayoutSize;
     float m_currentEDRHeadroom { 1.f };
+    float m_lastSentContentsHeadroom { -1.f };
     bool m_suppressEDR { false };
     WebCore::PlatformDynamicRangeLimit m_dynamicRangeLimit { WebCore::PlatformDynamicRangeLimit::initialValue() };
+    bool m_usingStandardDynamicRange { false };
 #endif
 };
 
