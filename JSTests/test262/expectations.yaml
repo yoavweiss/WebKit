@@ -150,12 +150,6 @@ test/language/import/import-attributes/text-string.js:
   module: 'TypeError: Import attribute type "text" is not valid'
 test/language/import/import-attributes/text-via-namespace.js:
   module: 'TypeError: Import attribute type "text" is not valid'
-test/language/statements/async-generator/yield-star-promise-not-unwrapped.js:
-  default: 'Test262:AsyncTestFailure:Test262Error: Test262Error: yield* should not unwrap promises from manually-implemented async iterators Expected SameValue(«"unwrapped value"», «[object Promise]») to be true'
-  strict mode: 'Test262:AsyncTestFailure:Test262Error: Test262Error: yield* should not unwrap promises from manually-implemented async iterators Expected SameValue(«"unwrapped value"», «[object Promise]») to be true'
-test/language/statements/async-generator/yield-star-return-then-getter-ticks.js:
-  default: 'Test262:AsyncTestFailure:Test262Error: Test262Error: Actual [start, tick 1, tick 2, get then, tick 3, get return, get then] and expected [start, tick 1, get then, tick 2, get return, get then, tick 3] should have the same contents. Ticks for return with thenable getter'
-  strict mode: 'Test262:AsyncTestFailure:Test262Error: Test262Error: Actual [start, tick 1, tick 2, get then, tick 3, get return, get then] and expected [start, tick 1, get then, tick 2, get return, get then, tick 3] should have the same contents. Ticks for return with thenable getter'
 test/language/statements/class/elements/private-class-field-on-nonextensible-objects.js:
   strict mode: 'Test262Error: Expected a TypeError to be thrown but no exception was thrown at all'
 test/language/statements/class/subclass/private-class-field-on-nonextensible-return-override.js:

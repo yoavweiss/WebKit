@@ -467,58 +467,75 @@ static void promiseAnyResolveJob(JSGlobalObject* globalObject, VM& vm, JSPromise
     }
 }
 
-static bool NODELETE isSuspendYieldState(int32_t state)
-{
-    return state > 0 && (state & JSAsyncGenerator::reasonMask) == static_cast<int32_t>(JSAsyncGenerator::AsyncGeneratorSuspendReason::Yield);
-}
+static void asyncGeneratorBodyCall(JSGlobalObject*, JSAsyncGenerator*, JSValue resumeValue, int32_t resumeMode);
+static void asyncGeneratorCompleteStep(JSGlobalObject*, JSAsyncGenerator*, JSValue, bool isThrow, bool done);
+static void asyncGeneratorDrainQueue(JSGlobalObject*, JSAsyncGenerator*);
+static void asyncGeneratorDispatchSuspend(JSGlobalObject*, JSAsyncGenerator*, JSValue value);
 
-static void asyncGeneratorResumeNext(JSGlobalObject*, JSAsyncGenerator*);
-
-template<IterationStatus status>
-static void asyncGeneratorReject(JSGlobalObject* globalObject, JSAsyncGenerator* generator, JSValue error)
+// https://tc39.es/ecma262/#sec-asyncgeneratorcompletestep
+static void asyncGeneratorCompleteStep(JSGlobalObject* globalObject, JSAsyncGenerator* generator, JSValue value, bool isThrow, bool done)
 {
     VM& vm = globalObject->vm();
 
-    auto [value, resumeMode, promise] = generator->dequeue(vm);
+    // 1-4. Remove the first request from the queue.
+    auto [reqValue, reqMode, promise] = generator->dequeue(vm);
     ASSERT(promise);
 
-    promise->reject(vm, error);
+    // 6. throw completion -> reject.
+    if (isThrow) {
+        promise->reject(vm, value);
+        return;
+    }
 
-    if constexpr (status == IterationStatus::Continue)
-        asyncGeneratorResumeNext(globalObject, generator);
+    // 7. normal completion -> resolve with CreateIteratorResultObject(value, done).
+    auto* iteratorResult = createIteratorResultObject(globalObject, value, done);
+    promise->resolve(globalObject, vm, iteratorResult);
 }
 
-template<IterationStatus status>
-static void asyncGeneratorResolve(JSGlobalObject* globalObject, JSAsyncGenerator* generator, JSValue value, bool done)
+// https://tc39.es/ecma262/#sec-asyncgeneratorawaitreturn
+void asyncGeneratorAwaitReturn(JSGlobalObject* globalObject, JSAsyncGenerator* generator)
+{
+    VM& vm = globalObject->vm();
+    ASSERT(generator->state() == static_cast<int32_t>(JSAsyncGenerator::AsyncGeneratorState::DrainingQueue));
+    JSPromise::resolveWithInternalMicrotaskForAsyncAwait(globalObject, vm, generator->resumeValue(), InternalMicrotask::AsyncGeneratorAwaitReturn, generator);
+}
+
+// https://tc39.es/ecma262/#sec-asyncgeneratordrainqueue
+static void asyncGeneratorDrainQueue(JSGlobalObject* globalObject, JSAsyncGenerator* generator)
 {
     VM& vm = globalObject->vm();
     auto scope = DECLARE_THROW_SCOPE(vm);
 
-    auto [itemValue, itemResumeMode, promise] = generator->dequeue(vm);
-    ASSERT(promise);
+    ASSERT(generator->state() == static_cast<int32_t>(JSAsyncGenerator::AsyncGeneratorState::DrainingQueue));
 
-    auto* iteratorResult = createIteratorResultObject(globalObject, value, done);
+    // 3. Repeat, while the queue is not empty.
+    while (!generator->isQueueEmpty()) {
+        int32_t resumeMode = generator->resumeMode();
 
-    promise->resolve(globalObject, vm, iteratorResult);
-    RETURN_IF_EXCEPTION(scope, void());
+        // 5c. return completion -> AsyncGeneratorAwaitReturn and stop.
+        if (resumeMode == static_cast<int32_t>(JSGenerator::ResumeMode::ReturnMode)) {
+            scope.release();
+            asyncGeneratorAwaitReturn(globalObject, generator);
+            return;
+        }
 
-    if constexpr (status == IterationStatus::Continue)
-        RELEASE_AND_RETURN(scope, asyncGeneratorResumeNext(globalObject, generator));
-}
-
-template<IterationStatus status>
-static bool asyncGeneratorBodyCall(JSGlobalObject* globalObject, JSAsyncGenerator* generator, JSValue resumeValue, int32_t resumeMode)
-{
-    VM& vm = globalObject->vm();
-
-    int32_t state = generator->state();
-    if (resumeMode == static_cast<int32_t>(JSGenerator::ResumeMode::ReturnMode) && isSuspendYieldState(state)) {
-        state = (state & ~JSAsyncGenerator::reasonMask) | static_cast<int32_t>(JSAsyncGenerator::AsyncGeneratorSuspendReason::Await);
-        generator->setState(state);
-        JSPromise::resolveWithInternalMicrotaskForAsyncAwait(globalObject, vm, resumeValue, InternalMicrotask::AsyncGeneratorBodyCallReturn, generator);
-        return false;
+        // 5d. throw -> reject; normal -> resolve { undefined, true }.
+        bool isThrow = resumeMode == static_cast<int32_t>(JSGenerator::ResumeMode::ThrowMode);
+        asyncGeneratorCompleteStep(globalObject, generator, isThrow ? generator->resumeValue() : jsUndefined(), isThrow, /* done */ true);
+        RETURN_IF_EXCEPTION(scope, void());
     }
 
+    // 3a. queue empty -> completed.
+    generator->setState(static_cast<int32_t>(JSAsyncGenerator::AsyncGeneratorState::Completed));
+}
+
+// https://tc39.es/ecma262/#sec-asyncgeneratorresume (then AsyncGeneratorStart's completion handling).
+static void asyncGeneratorBodyCall(JSGlobalObject* globalObject, JSAsyncGenerator* generator, JSValue resumeValue, int32_t resumeMode)
+{
+    VM& vm = globalObject->vm();
+    auto scope = DECLARE_THROW_SCOPE(vm);
+
+    int32_t state = generator->state();
     generator->setState(static_cast<int32_t>(JSAsyncGenerator::AsyncGeneratorState::Executing));
 
     JSValue generatorFunction = generator->next();
@@ -528,114 +545,144 @@ static bool asyncGeneratorBodyCall(JSGlobalObject* globalObject, JSAsyncGenerato
     JSValue value;
     JSValue error;
     {
-        auto scope = DECLARE_TOP_EXCEPTION_SCOPE(vm);
+        auto catchScope = DECLARE_TOP_EXCEPTION_SCOPE(vm);
         value = callMicrotask(globalObject, generatorFunction, generatorThis, generator, "handler is not a function"_s, nullptr,
             generator, jsNumber(state >> JSAsyncGenerator::reasonShift), resumeValue, jsNumber(resumeMode), generatorFrame);
-        if (scope.exception()) [[unlikely]] {
-            error = scope.exception()->value();
-            if (!scope.clearExceptionExceptTermination()) [[unlikely]]
-                return false;
+        if (catchScope.exception()) [[unlikely]] {
+            error = catchScope.exception()->value();
+            if (!catchScope.clearExceptionExceptTermination()) [[unlikely]]
+                return;
         }
-    }
-
-    if (error) [[unlikely]] {
-        generator->setState(static_cast<int32_t>(JSAsyncGenerator::AsyncGeneratorState::Completed));
-        asyncGeneratorReject<status>(globalObject, generator, error);
-        return true;
     }
 
     state = generator->state();
-    if (state == static_cast<int32_t>(JSAsyncGenerator::AsyncGeneratorState::Executing)) {
-        generator->setState(static_cast<int32_t>(JSAsyncGenerator::AsyncGeneratorState::Completed));
-        state = static_cast<int32_t>(JSAsyncGenerator::AsyncGeneratorState::Completed);
-    }
 
+    // The body suspended at an `await` or a `yield`/`yield*`.
     if (state > 0) {
-        if ((state & JSAsyncGenerator::reasonMask) == static_cast<int32_t>(JSAsyncGenerator::AsyncGeneratorSuspendReason::Await)) {
-            JSPromise::resolveWithInternalMicrotaskForAsyncAwait(globalObject, vm, value, InternalMicrotask::AsyncGeneratorBodyCallNormal, generator);
-            return false;
-        }
-
-        state = (state & ~JSAsyncGenerator::reasonMask) | static_cast<int32_t>(JSAsyncGenerator::AsyncGeneratorSuspendReason::Await);
-        generator->setState(state);
-        JSPromise::resolveWithInternalMicrotaskForAsyncAwait(globalObject, vm, value, InternalMicrotask::AsyncGeneratorYieldAwaited, generator);
-        return false;
+        scope.release();
+        asyncGeneratorDispatchSuspend(globalObject, generator, value);
+        return;
     }
 
-    if (state == static_cast<int32_t>(JSAsyncGenerator::AsyncGeneratorState::Completed)) {
-        asyncGeneratorResolve<status>(globalObject, generator, value, true);
-        return true;
-    }
-
-    return false;
+    // https://tc39.es/ecma262/#sec-asyncgeneratorstart
+    ASSERT(state == static_cast<int32_t>(JSAsyncGenerator::AsyncGeneratorState::Executing));
+    // 4.g. Set acGen.[[AsyncGeneratorState]] to draining-queue.
+    generator->setState(static_cast<int32_t>(JSAsyncGenerator::AsyncGeneratorState::DrainingQueue));
+    // 4.h. If result is a normal completion, set result to NormalCompletion(undefined).
+    // 4.i. If result is a return completion, set result to NormalCompletion(result.[[Value]]).
+    // 4.j. Perform AsyncGeneratorCompleteStep(acGen, result, true).
+    asyncGeneratorCompleteStep(globalObject, generator, error ? error : value, /* isThrow */ !!error, /* done */ true);
+    RETURN_IF_EXCEPTION(scope, void());
+    // 4.k. Perform AsyncGeneratorDrainQueue(acGen).
+    RELEASE_AND_RETURN(scope, asyncGeneratorDrainQueue(globalObject, generator));
 }
 
-static void asyncGeneratorResumeNext(JSGlobalObject* globalObject, JSAsyncGenerator* generator)
+// https://tc39.es/ecma262/#sec-asyncgeneratorunwrapyieldresumption
+static void asyncGeneratorUnwrapYieldResumption(JSGlobalObject* globalObject, JSAsyncGenerator* generator, JSValue resumeValue, int32_t resumeMode)
+{
+    VM& vm = globalObject->vm();
+    int32_t state = generator->state();
+    ASSERT(state > 0);
+    // 1. If resumptionValue is not a return completion, return ? resumptionValue.
+    if (resumeMode != static_cast<int32_t>(JSGenerator::ResumeMode::ReturnMode)) {
+        asyncGeneratorBodyCall(globalObject, generator, resumeValue, resumeMode);
+        return;
+    }
+
+    // 2. Let awaited be Completion(Await(resumptionValue.[[Value]])).
+    // 3. If awaited is a throw completion, return ? awaited.
+    // 4. Assert: awaited is a normal completion.
+    // 5. Return ReturnCompletion(awaited.[[Value]]).
+    generator->setState((state & ~JSAsyncGenerator::reasonMask) | static_cast<int32_t>(JSAsyncGenerator::AsyncGeneratorSuspendReason::Await));
+    JSPromise::resolveWithInternalMicrotaskForAsyncAwait(globalObject, vm, resumeValue, InternalMicrotask::AsyncGeneratorBodyCallReturn, generator);
+}
+
+// https://tc39.es/ecma262/#sec-asyncgeneratorresume
+void asyncGeneratorResume(JSGlobalObject* globalObject, JSAsyncGenerator* generator)
+{
+    // 1. Assert: gen.[[AsyncGeneratorState]] is either suspended-start or suspended-yield.
+    ASSERT(generator->state() == static_cast<int32_t>(JSAsyncGenerator::AsyncGeneratorState::Init) || JSAsyncGenerator::isSuspendedYieldState(generator->state()));
+    asyncGeneratorUnwrapYieldResumption(globalObject, generator, generator->resumeValue(), generator->resumeMode());
+}
+
+// https://tc39.es/ecma262/#sec-asyncgeneratoryield
+static void asyncGeneratorYield(JSGlobalObject* globalObject, JSAsyncGenerator* generator, JSValue value)
 {
     VM& vm = globalObject->vm();
     auto scope = DECLARE_THROW_SCOPE(vm);
 
-    while (true) {
-        int32_t state = generator->state();
+    // Stay executing across CompleteStep so reentrant requests only enqueue.
+    int32_t state = generator->state();
+    generator->setState((state & ~JSAsyncGenerator::reasonMask) | static_cast<int32_t>(JSAsyncGenerator::AsyncGeneratorSuspendReason::Await));
 
-        ASSERT(state != static_cast<int32_t>(JSAsyncGenerator::AsyncGeneratorState::Executing));
+    // 9. Perform AsyncGeneratorCompleteStep(gen, completion, false, previousRealm).
+    asyncGeneratorCompleteStep(globalObject, generator, value, /* isThrow */ false, /* done */ false);
+    RETURN_IF_EXCEPTION(scope, void());
 
-        if (state == static_cast<int32_t>(JSAsyncGenerator::AsyncGeneratorState::AwaitingReturn))
-            return;
-
-        if (generator->isQueueEmpty())
-            return;
-
-        JSValue nextValue = generator->resumeValue();
-        int32_t resumeMode = generator->resumeMode();
-
-        if (resumeMode != static_cast<int32_t>(JSGenerator::ResumeMode::NormalMode)) {
-            if (state == static_cast<int32_t>(JSAsyncGenerator::AsyncGeneratorState::Init)) {
-                generator->setState(static_cast<int32_t>(JSAsyncGenerator::AsyncGeneratorState::Completed));
-                state = static_cast<int32_t>(JSAsyncGenerator::AsyncGeneratorState::Completed);
-            }
-
-            if (state == static_cast<int32_t>(JSAsyncGenerator::AsyncGeneratorState::Completed)) {
-                if (resumeMode == static_cast<int32_t>(JSGenerator::ResumeMode::ReturnMode)) {
-                    generator->setState(static_cast<int32_t>(JSAsyncGenerator::AsyncGeneratorState::AwaitingReturn));
-                    RELEASE_AND_RETURN(scope, JSPromise::resolveWithInternalMicrotaskForAsyncAwait(globalObject, vm, nextValue, InternalMicrotask::AsyncGeneratorResumeNext, generator));
-                }
-
-                ASSERT(resumeMode == static_cast<int32_t>(JSGenerator::ResumeMode::ThrowMode));
-                asyncGeneratorReject<IterationStatus::Done>(globalObject, generator, nextValue);
-                continue;
-            }
-        } else if (state == static_cast<int32_t>(JSAsyncGenerator::AsyncGeneratorState::Completed)) {
-            asyncGeneratorResolve<IterationStatus::Done>(globalObject, generator, jsUndefined(), true);
-            RETURN_IF_EXCEPTION(scope, void());
-            continue;
-        }
-
-        ASSERT(state == static_cast<int32_t>(JSAsyncGenerator::AsyncGeneratorState::Init) || isSuspendYieldState(state));
-        bool next = asyncGeneratorBodyCall<IterationStatus::Done>(globalObject, generator, nextValue, resumeMode);
-        RETURN_IF_EXCEPTION(scope, void());
-        if (!next)
-            return;
+    // 10. Let queue be gen.[[AsyncGeneratorQueue]].
+    // 11. If queue is not empty, then
+    if (!generator->isQueueEmpty()) {
+        // 11.a. NOTE: Execution continues without suspending the generator.
+        // 11.b. Let toYield be the first element of queue.
+        // 11.c. Let resumptionValue be Completion(toYield.[[Completion]]).
+        // 11.d. Return ? AsyncGeneratorUnwrapYieldResumption(resumptionValue).
+        scope.release();
+        asyncGeneratorUnwrapYieldResumption(globalObject, generator, generator->resumeValue(), generator->resumeMode());
+        return;
     }
+    // 12. Set gen.[[AsyncGeneratorState]] to suspended-yield.
+    state = generator->state();
+    generator->setState((state & ~JSAsyncGenerator::reasonMask) | static_cast<int32_t>(JSAsyncGenerator::AsyncGeneratorSuspendReason::Yield));
 }
 
+// Plain `yield`'s operand Await (AsyncGeneratorYield(? Await(value))) has settled.
 static void asyncGeneratorYieldAwaited(JSGlobalObject* globalObject, JSAsyncGenerator* generator, JSValue result, JSPromise::Status status)
 {
     switch (status) {
     case JSPromise::Status::Pending:
         RELEASE_ASSERT_NOT_REACHED();
-        break;
+        return;
     case JSPromise::Status::Rejected:
-        asyncGeneratorBodyCall<IterationStatus::Continue>(globalObject, generator, result, static_cast<int32_t>(JSGenerator::ResumeMode::ThrowMode));
+        // `? Await(value)` threw -> resume the body with a throw at the yield.
+        asyncGeneratorBodyCall(globalObject, generator, result, static_cast<int32_t>(JSGenerator::ResumeMode::ThrowMode));
         return;
-    case JSPromise::Status::Fulfilled: {
-        int32_t state = generator->state();
-        state = (state & ~JSAsyncGenerator::reasonMask) | static_cast<int32_t>(JSAsyncGenerator::AsyncGeneratorSuspendReason::Yield);
-        generator->setState(state);
-        asyncGeneratorResolve<IterationStatus::Continue>(globalObject, generator, result, false);
+    case JSPromise::Status::Fulfilled:
+        asyncGeneratorYield(globalObject, generator, result);
+        return;
+    }
+}
+
+// The body suspended (state > 0); dispatch on the suspend reason:
+//   Await        `await x`   -> resume the body once x settles (AsyncGeneratorBodyCallNormal).
+//   Yield        `yield x`   -> AsyncGeneratorYield(? Await(value)): Await first (AsyncGeneratorYieldAwaited).
+//   YieldNoAwait `yield* x`  -> AsyncGeneratorYield(value): deliver directly.
+static void asyncGeneratorDispatchSuspend(JSGlobalObject* globalObject, JSAsyncGenerator* generator, JSValue value)
+{
+    VM& vm = globalObject->vm();
+    int32_t state = generator->state();
+    switch (static_cast<JSAsyncGenerator::AsyncGeneratorSuspendReason>(state & JSAsyncGenerator::reasonMask)) {
+    case JSAsyncGenerator::AsyncGeneratorSuspendReason::Await: {
+        JSPromise::resolveWithInternalMicrotaskForAsyncAwait(globalObject, vm, value, InternalMicrotask::AsyncGeneratorBodyCallNormal, generator);
+        return;
+    }
+    case JSAsyncGenerator::AsyncGeneratorSuspendReason::Yield: {
+        generator->setState((state & ~JSAsyncGenerator::reasonMask) | static_cast<int32_t>(JSAsyncGenerator::AsyncGeneratorSuspendReason::Await));
+        JSPromise::resolveWithInternalMicrotaskForAsyncAwait(globalObject, vm, value, InternalMicrotask::AsyncGeneratorYieldAwaited, generator);
+        return;
+    }
+    case JSAsyncGenerator::AsyncGeneratorSuspendReason::YieldNoAwait: {
+        asyncGeneratorYield(globalObject, generator, value);
         return;
     }
     }
+}
+
+// Entry for the next() builtin once the body suspends (await / yield / yield*).
+JSC_DEFINE_HOST_FUNCTION(asyncGeneratorSuspend, (JSGlobalObject* globalObject, CallFrame* callFrame))
+{
+    auto* generator = uncheckedDowncast<JSAsyncGenerator>(callFrame->uncheckedArgument(0));
+    asyncGeneratorDispatchSuspend(globalObject, generator, callFrame->uncheckedArgument(1));
+    return JSValue::encode(jsUndefined());
 }
 
 static void asyncGeneratorBodyCallNormal(JSGlobalObject* globalObject, JSAsyncGenerator* generator, JSValue result, JSPromise::Status status)
@@ -645,10 +692,10 @@ static void asyncGeneratorBodyCallNormal(JSGlobalObject* globalObject, JSAsyncGe
         RELEASE_ASSERT_NOT_REACHED();
         break;
     case JSPromise::Status::Rejected:
-        asyncGeneratorBodyCall<IterationStatus::Continue>(globalObject, generator, result, static_cast<int32_t>(JSGenerator::ResumeMode::ThrowMode));
+        asyncGeneratorBodyCall(globalObject, generator, result, static_cast<int32_t>(JSGenerator::ResumeMode::ThrowMode));
         return;
     case JSPromise::Status::Fulfilled:
-        asyncGeneratorBodyCall<IterationStatus::Continue>(globalObject, generator, result, static_cast<int32_t>(JSGenerator::ResumeMode::NormalMode));
+        asyncGeneratorBodyCall(globalObject, generator, result, static_cast<int32_t>(JSGenerator::ResumeMode::NormalMode));
         return;
     }
 }
@@ -660,29 +707,57 @@ static void asyncGeneratorBodyCallReturn(JSGlobalObject* globalObject, JSAsyncGe
         RELEASE_ASSERT_NOT_REACHED();
         break;
     case JSPromise::Status::Rejected:
-        asyncGeneratorBodyCall<IterationStatus::Continue>(globalObject, generator, result, static_cast<int32_t>(JSGenerator::ResumeMode::ThrowMode));
+        asyncGeneratorBodyCall(globalObject, generator, result, static_cast<int32_t>(JSGenerator::ResumeMode::ThrowMode));
         return;
     case JSPromise::Status::Fulfilled:
-        asyncGeneratorBodyCall<IterationStatus::Continue>(globalObject, generator, result, static_cast<int32_t>(JSGenerator::ResumeMode::ReturnMode));
+        asyncGeneratorBodyCall(globalObject, generator, result, static_cast<int32_t>(JSGenerator::ResumeMode::ReturnMode));
         return;
     }
 }
 
-static void asyncGeneratorResumeNextReturn(JSGlobalObject* globalObject, JSAsyncGenerator* generator, JSValue result, JSPromise::Status status)
+// https://tc39.es/ecma262/#sec-asyncgeneratorawaitreturn
+static void asyncGeneratorAwaitReturnContinuation(JSGlobalObject* globalObject, JSAsyncGenerator* generator, JSValue result, JSPromise::Status status)
 {
-    generator->setState(static_cast<int32_t>(JSAsyncGenerator::AsyncGeneratorState::Completed));
+    VM& vm = globalObject->vm();
+    auto scope = DECLARE_THROW_SCOPE(vm);
+
+    ASSERT(generator->state() == static_cast<int32_t>(JSAsyncGenerator::AsyncGeneratorState::DrainingQueue));
 
     switch (status) {
     case JSPromise::Status::Pending:
         RELEASE_ASSERT_NOT_REACHED();
-        break;
-    case JSPromise::Status::Rejected:
-        asyncGeneratorReject<IterationStatus::Continue>(globalObject, generator, result);
         return;
     case JSPromise::Status::Fulfilled:
-        asyncGeneratorResolve<IterationStatus::Continue>(globalObject, generator, result, true);
-        return;
+        asyncGeneratorCompleteStep(globalObject, generator, result, /* isThrow */ false, /* done */ true);
+        RETURN_IF_EXCEPTION(scope, void());
+        break;
+    case JSPromise::Status::Rejected:
+        asyncGeneratorCompleteStep(globalObject, generator, result, /* isThrow */ true, /* done */ true);
+        RETURN_IF_EXCEPTION(scope, void());
+        break;
     }
+
+    RELEASE_AND_RETURN(scope, asyncGeneratorDrainQueue(globalObject, generator));
+}
+
+// AsyncGeneratorStart completion (https://tc39.es/ecma262/#sec-asyncgeneratorstart : 4.g-4.k):
+// CompleteStep with done=true, then drain. Called by the next() builtin once the body finishes.
+JSC_DEFINE_HOST_FUNCTION(asyncGeneratorCompleteAndDrain, (JSGlobalObject* globalObject, CallFrame* callFrame))
+{
+    VM& vm = globalObject->vm();
+    auto scope = DECLARE_THROW_SCOPE(vm);
+
+    auto* generator = uncheckedDowncast<JSAsyncGenerator>(callFrame->uncheckedArgument(0));
+    JSValue value = callFrame->uncheckedArgument(1);
+    bool isThrow = callFrame->uncheckedArgument(2).asBoolean();
+
+    generator->setState(static_cast<int32_t>(JSAsyncGenerator::AsyncGeneratorState::DrainingQueue));
+    asyncGeneratorCompleteStep(globalObject, generator, value, isThrow, /* done */ true);
+    RETURN_IF_EXCEPTION(scope, { });
+
+    scope.release();
+    asyncGeneratorDrainQueue(globalObject, generator);
+    return JSValue::encode(jsUndefined());
 }
 
 static void promiseFinallyAwaitJob(JSGlobalObject* globalObject, VM& vm, JSValue settledValue, JSPromiseCombinatorsGlobalContext* context, JSPromise::Status status)
@@ -1734,9 +1809,9 @@ void runInternalMicrotask(JSGlobalObject* globalObject, VM& vm, InternalMicrotas
         RELEASE_AND_RETURN(scope, asyncGeneratorBodyCallReturn(generator->realm(), generator, arguments[1], static_cast<JSPromise::Status>(payload)));
     }
 
-    case InternalMicrotask::AsyncGeneratorResumeNext: {
+    case InternalMicrotask::AsyncGeneratorAwaitReturn: {
         auto* generator = uncheckedDowncast<JSAsyncGenerator>(arguments[2]);
-        RELEASE_AND_RETURN(scope, asyncGeneratorResumeNextReturn(generator->realm(), generator, arguments[1], static_cast<JSPromise::Status>(payload)));
+        RELEASE_AND_RETURN(scope, asyncGeneratorAwaitReturnContinuation(generator->realm(), generator, arguments[1], static_cast<JSPromise::Status>(payload)));
     }
 
     case InternalMicrotask::PromiseFinallyReactionJob: {

@@ -5313,6 +5313,9 @@ void BytecodeGenerator::emitYieldPoint(RegisterID* argument, JSAsyncGenerator::A
 
 RegisterID* BytecodeGenerator::emitYield(RegisterID* argument)
 {
+    // For async generators the operand is Awaited by the driver (reason Yield), not here, so there is no
+    // extra yield point. `yield*` instead suspends with YieldNoAwait (see emitDelegateYield) so the driver
+    // skips that await.
     emitYieldPoint(argument, JSAsyncGenerator::AsyncGeneratorSuspendReason::Yield);
 
     Ref<Label> normalLabel = newLabel();
@@ -5509,7 +5512,10 @@ RegisterID* BytecodeGenerator::emitDelegateYield(RegisterID* argument, Throwable
 
             Ref<Label> branchOnResult = newLabel();
             {
-                emitYieldPoint(value.get(), JSAsyncGenerator::AsyncGeneratorSuspendReason::Yield);
+                // `yield*` delegates the inner iterator's value without an enclosing Await (the iterator
+                // result was already Awaited above). YieldNoAwait tells the async driver not to await it.
+                // (Sync generators ignore the suspend reason.)
+                emitYieldPoint(value.get(), JSAsyncGenerator::AsyncGeneratorSuspendReason::YieldNoAwait);
                 move(value.get(), generatorValueRegister());
 
                 Ref<Label> normalLabel = newLabel();

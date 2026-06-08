@@ -117,6 +117,7 @@
 #include "IntlSegmenterPrototype.h"
 #include "IntlSegments.h"
 #include "IntlSegmentsPrototype.h"
+#include "IteratorOperations.h"
 #include "JSAPIWrapperObject.h"
 #include "JSArrayBuffer.h"
 #include "JSArrayBufferConstructor.h"
@@ -372,9 +373,7 @@ static JSC_DECLARE_HOST_FUNCTION(promiseReturnUndefinedOnFulfilled);
 static JSC_DECLARE_HOST_FUNCTION(promiseResolve);
 static JSC_DECLARE_HOST_FUNCTION(promiseReject);
 static JSC_DECLARE_HOST_FUNCTION(performPromiseThen);
-static JSC_DECLARE_HOST_FUNCTION(asyncGeneratorQueueEnqueue);
-static JSC_DECLARE_HOST_FUNCTION(asyncGeneratorQueueDequeueResolve);
-static JSC_DECLARE_HOST_FUNCTION(asyncGeneratorQueueDequeueReject);
+static JSC_DECLARE_HOST_FUNCTION(asyncGeneratorNextQueueEnqueue);
 #if ASSERT_ENABLED
 static JSC_DECLARE_HOST_FUNCTION(assertCall);
 #endif
@@ -878,7 +877,8 @@ JSC_DEFINE_HOST_FUNCTION(performPromiseThen, (JSGlobalObject* globalObject, Call
     return encodedJSUndefined();
 }
 
-JSC_DEFINE_HOST_FUNCTION(asyncGeneratorQueueEnqueue, (JSGlobalObject* globalObject, CallFrame* callFrame))
+// https://tc39.es/ecma262/#sec-asyncgenerator-prototype-next
+JSC_DEFINE_HOST_FUNCTION(asyncGeneratorNextQueueEnqueue, (JSGlobalObject* globalObject, CallFrame* callFrame))
 {
     VM& vm = globalObject->vm();
 
@@ -887,44 +887,43 @@ JSC_DEFINE_HOST_FUNCTION(asyncGeneratorQueueEnqueue, (JSGlobalObject* globalObje
     int32_t resumeMode = callFrame->uncheckedArgument(2).asInt32();
     JSPromise* promise = uncheckedDowncast<JSPromise>(callFrame->uncheckedArgument(3));
 
+    // 3. Let result be Completion(AsyncGeneratorValidate(gen, empty)).
+    // 4. IfAbruptRejectPromise(result, promiseCapability).
+    // https://tc39.es/ecma262/#sec-asyncgeneratorvalidate
     if (!generator) [[unlikely]] {
         promise->reject(vm, createTypeError(globalObject, "|this| should be an async generator"_s));
         return JSValue::encode(jsNumber(static_cast<int32_t>(JSAsyncGenerator::AsyncGeneratorResumeMode::Empty)));
     }
 
+    // 5. Let state be gen.[[AsyncGeneratorState]].
+    auto state = generator->state();
+    // 6. If state is completed, then
+    if (state == static_cast<int32_t>(JSAsyncGenerator::AsyncGeneratorState::Completed)) {
+        // 6.a. Let iteratorResult be CreateIteratorResultObject(undefined, true).
+        // 6.b. Perform ! Call(promiseCapability.[[Resolve]], undefined, « iteratorResult »).
+        // 6.c. Return promiseCapability.[[Promise]].
+        ASSERT(resumeMode == static_cast<int32_t>(JSGenerator::ResumeMode::NormalMode));
+        auto* iteratorResult = createIteratorResultObject(globalObject, jsUndefined(), /* done */ true);
+        promise->resolve(globalObject, vm, iteratorResult);
+        return JSValue::encode(jsNumber(static_cast<int32_t>(JSAsyncGenerator::AsyncGeneratorResumeMode::Empty)));
+    }
+
+    // 7. Let completion be NormalCompletion(value).
+    // 8. Perform AsyncGeneratorEnqueue(gen, completion, promiseCapability).
     generator->enqueue(vm, value, resumeMode, promise);
 
-    if (generator->isExecutionState())
-        return JSValue::encode(jsNumber(static_cast<int32_t>(JSAsyncGenerator::AsyncGeneratorResumeMode::Empty)));
-    return JSValue::encode(jsNumber(generator->resumeMode()));
-}
+    // 9. If state is either suspended-start or suspended-yield, then
+    if (state == static_cast<int32_t>(JSAsyncGenerator::AsyncGeneratorState::Init) || JSAsyncGenerator::isSuspendedYieldState(state)) {
+        // 9.a. Perform AsyncGeneratorResume(gen, completion).
+        return JSValue::encode(jsNumber(generator->resumeMode()));
+    }
 
-JSC_DEFINE_HOST_FUNCTION(asyncGeneratorQueueDequeueResolve, (JSGlobalObject* globalObject, CallFrame* callFrame))
-{
-    VM& vm = globalObject->vm();
+    // 10. Else,
+    // 10.a. Assert: state is either executing or draining-queue.
+    ASSERT(JSAsyncGenerator::isExecutingState(state) || state == static_cast<int32_t>(JSAsyncGenerator::AsyncGeneratorState::DrainingQueue));
 
-    JSAsyncGenerator* generator = uncheckedDowncast<JSAsyncGenerator>(callFrame->uncheckedArgument(0));
-    JSValue resolution = callFrame->uncheckedArgument(1);
-
-    auto [value, resumeMode, promise] = generator->dequeue(vm);
-
-    promise->resolve(globalObject, vm, resolution);
-
-    return JSValue::encode(jsNumber(generator->resumeMode()));
-}
-
-JSC_DEFINE_HOST_FUNCTION(asyncGeneratorQueueDequeueReject, (JSGlobalObject* globalObject, CallFrame* callFrame))
-{
-    VM& vm = globalObject->vm();
-
-    JSAsyncGenerator* generator = uncheckedDowncast<JSAsyncGenerator>(callFrame->uncheckedArgument(0));
-    JSValue error = callFrame->uncheckedArgument(1);
-
-    auto [value, resumeMode, promise] = generator->dequeue(vm);
-
-    promise->reject(vm, error);
-
-    return JSValue::encode(jsNumber(generator->resumeMode()));
+    // 11. Return promiseCapability.[[Promise]].
+    return JSValue::encode(jsNumber(static_cast<int32_t>(JSAsyncGenerator::AsyncGeneratorResumeMode::Empty)));
 }
 
 JS_GLOBAL_OBJECT_ADDITIONS_2;
@@ -2014,14 +2013,14 @@ capitalName ## Constructor* lowerName ## Constructor = featureFlag ? capitalName
     m_linkTimeConstants[static_cast<unsigned>(LinkTimeConstant::resolveWithInternalMicrotaskForAsyncAwait)].initLater([] (const Initializer<JSCell>& init) {
             init.set(JSFunction::create(init.vm, init.owner, 3, "resolveWithInternalMicrotaskForAsyncAwait"_s, resolveWithInternalMicrotaskForAsyncAwait, ImplementationVisibility::Private));
         });
-    m_linkTimeConstants[static_cast<unsigned>(LinkTimeConstant::asyncGeneratorQueueEnqueue)].initLater([] (const Initializer<JSCell>& init) {
-            init.set(JSFunction::create(init.vm, init.owner, 4, "asyncGeneratorQueueEnqueue"_s, asyncGeneratorQueueEnqueue, ImplementationVisibility::Private));
+    m_linkTimeConstants[static_cast<unsigned>(LinkTimeConstant::asyncGeneratorNextQueueEnqueue)].initLater([] (const Initializer<JSCell>& init) {
+            init.set(JSFunction::create(init.vm, init.owner, 4, "asyncGeneratorNextQueueEnqueue"_s, asyncGeneratorNextQueueEnqueue, ImplementationVisibility::Private));
         });
-    m_linkTimeConstants[static_cast<unsigned>(LinkTimeConstant::asyncGeneratorQueueDequeueResolve)].initLater([] (const Initializer<JSCell>& init) {
-            init.set(JSFunction::create(init.vm, init.owner, 2, "asyncGeneratorQueueDequeueResolve"_s, asyncGeneratorQueueDequeueResolve, ImplementationVisibility::Private));
+    m_linkTimeConstants[static_cast<unsigned>(LinkTimeConstant::asyncGeneratorCompleteAndDrain)].initLater([] (const Initializer<JSCell>& init) {
+            init.set(JSFunction::create(init.vm, init.owner, 3, "asyncGeneratorCompleteAndDrain"_s, asyncGeneratorCompleteAndDrain, ImplementationVisibility::Private));
         });
-    m_linkTimeConstants[static_cast<unsigned>(LinkTimeConstant::asyncGeneratorQueueDequeueReject)].initLater([] (const Initializer<JSCell>& init) {
-            init.set(JSFunction::create(init.vm, init.owner, 2, "asyncGeneratorQueueDequeueReject"_s, asyncGeneratorQueueDequeueReject, ImplementationVisibility::Private));
+    m_linkTimeConstants[static_cast<unsigned>(LinkTimeConstant::asyncGeneratorSuspend)].initLater([] (const Initializer<JSCell>& init) {
+            init.set(JSFunction::create(init.vm, init.owner, 2, "asyncGeneratorSuspend"_s, asyncGeneratorSuspend, ImplementationVisibility::Private));
         });
     m_linkTimeConstants[static_cast<unsigned>(LinkTimeConstant::driveAsyncFunction)].initLater([] (const Initializer<JSCell>& init) {
             init.set(JSFunction::create(init.vm, init.owner, 2, "driveAsyncFunction"_s, driveAsyncFunction, ImplementationVisibility::Private));
