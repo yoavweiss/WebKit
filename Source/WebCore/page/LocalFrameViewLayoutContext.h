@@ -190,7 +190,7 @@ public:
     Vector<AnchorScrollAdjuster>& anchorScrollAdjusters() LIFETIME_BOUND { return m_anchorScrollAdjusters; }
     const AnchorScrollAdjuster* anchorScrollAdjusterFor(const RenderBox& anchored) const LIFETIME_BOUND;
     AnchorScrollAdjuster::Diff registerAnchorScrollAdjuster(AnchorScrollAdjuster&&);
-    void unregisterAnchorScrollAdjusterFor(const RenderBox& anchored);
+    void unregisterAnchorScrollAdjusterFor(const RenderBox& anchored, bool clearAnchorScrollAdjustment = true); // If clearAnchorScrollAdjustment is true, removes the layer's anchorScrollAdjustment; otherwise sets it to zero.
     void invalidateAnchorDependenciesForScroller(const RenderBox& scroller);
     void removeScrollerFromAnchorScrollAdjusters(const RenderBox& scroller);
 

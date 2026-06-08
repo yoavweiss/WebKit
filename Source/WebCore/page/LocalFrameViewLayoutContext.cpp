@@ -1047,7 +1047,7 @@ AnchorScrollAdjuster::Diff LocalFrameViewLayoutContext::registerAnchorScrollAdju
     return recaptureDiffers ? AnchorScrollAdjuster::SnapshotsDiffer : AnchorScrollAdjuster::SnapshotsMatch;
 }
 
-void LocalFrameViewLayoutContext::unregisterAnchorScrollAdjusterFor(const RenderBox& anchored)
+void LocalFrameViewLayoutContext::unregisterAnchorScrollAdjusterFor(const RenderBox& anchored, bool clearAnchorScrollAdjustment)
 {
     m_anchorScrollAdjusters.removeFirstMatching([&](auto& item) {
         return item.anchored() == &anchored;
@@ -1056,8 +1056,12 @@ void LocalFrameViewLayoutContext::unregisterAnchorScrollAdjusterFor(const Render
         return item.anchored() == &anchored;
     }));
 
-    if (anchored.layer())
-        anchored.layer()->clearAnchorScrollAdjustment();
+    if (anchored.layer()) {
+        if (clearAnchorScrollAdjustment)
+            anchored.layer()->clearAnchorScrollAdjustment();
+        else
+            anchored.layer()->setAnchorScrollAdjustment(LayoutSize { });
+    }
 }
 
 void LocalFrameViewLayoutContext::invalidateAnchorDependenciesForScroller(const RenderBox& scroller)

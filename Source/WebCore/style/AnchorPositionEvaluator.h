@@ -102,6 +102,7 @@ public:
 
     enum Diff : uint8_t { New, SnapshotsDiffer, SnapshotsMatch };
     bool NODELETE recaptureDiffers(const AnchorScrollAdjuster&) const; // Snapshot differences can require invalidation.
+    void removeMatchingSnapshots(const AnchorScrollAdjuster&);
 
     void setFallbackLimits(const RenderBox& anchored);
     bool hasFallbackLimits() const { return m_hasFallback; }

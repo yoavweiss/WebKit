@@ -256,15 +256,26 @@ bool AnchorScrollAdjuster::invalidateForScroller(const RenderBox& scroller)
     return anchoredNeedsInvalidation;
 }
 
+void AnchorScrollAdjuster::removeMatchingSnapshots(const AnchorScrollAdjuster& containerAdjuster)
+{
+    if (m_adjustmentForViewport != containerAdjuster.m_adjustmentForViewport)
+        return;
+    for (auto containerSnapshot : containerAdjuster.m_scrollSnapshots) {
+        m_scrollSnapshots.removeFirstMatching([containerSnapshot](const auto& selfSnapshot) {
+            return selfSnapshot.m_scroller.get() == containerSnapshot.m_scroller.get();
+        });
+    }
+}
+
 namespace Style {
 
 WTF_MAKE_TZONE_ALLOCATED_IMPL(AnchorPositionedState);
 
-static inline void clearAnchorScrollSnapshots(RenderBox& anchored)
+static inline void clearAnchorScrollSnapshots(RenderBox& anchored, bool clearAnchorScrollAdjustment = true)
 {
     if (!anchored.layer()->anchorScrollAdjustment())
         return;
-    anchored.layoutContext().unregisterAnchorScrollAdjusterFor(anchored);
+    anchored.layoutContext().unregisterAnchorScrollAdjusterFor(anchored, clearAnchorScrollAdjustment);
 }
 
 static inline bool isFixed(const RenderBoxModelObject& box)
@@ -291,8 +302,8 @@ void AnchorPositionEvaluator::captureScrollSnapshots(RenderBox& anchored, bool i
     bool isFixedAnchor = isFixed(*defaultAnchor);
     if (defaultAnchor->isStickilyPositioned())
         adjuster.addStickySnapshot(*defaultAnchor);
-    for (auto* ancestor = defaultAnchor->container(); ancestor && ancestor != containingBlock; ancestor = ancestor->container()) {
-        if (auto* box = dynamicDowncast<RenderBox>(ancestor)) {
+    for (CheckedPtr ancestor = defaultAnchor->container(); ancestor && ancestor != containingBlock; ancestor = ancestor->container()) {
+        if (auto* box = dynamicDowncast<RenderBox>(ancestor.get())) {
             if (box->hasPotentiallyScrollableOverflow())
                 adjuster.addScrollSnapshot(*box);
             if (isFixed(*box))
@@ -302,14 +313,27 @@ void AnchorPositionEvaluator::captureScrollSnapshots(RenderBox& anchored, bool i
         }
     }
 
+    bool clearAdjustmentIfEmpty = true;
     bool isFixedAnchored = isFixed(anchored);
     if (isFixedAnchored != isFixedAnchor && !isFixed(*containingBlock)) {
         auto direction = isFixedAnchored ? AnchorScrollAdjuster::Direction::Normal : AnchorScrollAdjuster::Direction::Reverse;
         adjuster.addViewportSnapshot(anchored.view(), direction);
+        // Check if we're already nested in a scroll-adjusted container, and if so unwind any shared scroll adjustments.
+        for (CheckedPtr ancestor = anchored.parent(); ancestor && ancestor != containingBlock; ancestor = ancestor->parent()) {
+            auto* box = dynamicDowncast<RenderBox>(ancestor.get());
+            if (!box || !box->layer() || !box->layer()->anchorScrollAdjustment())
+                continue;
+            if (auto* ancestorAdjuster = box->layoutContext().anchorScrollAdjusterFor(*box)) {
+                adjuster.removeMatchingSnapshots(*ancestorAdjuster);
+                // We use the presence of the adjustment on fixedpos as a compositing signal.
+                anchored.layer()->setAnchorScrollAdjustment({ });
+                clearAdjustmentIfEmpty = false;
+            }
+        }
     }
 
     if (adjuster.isEmpty())
-        return clearAnchorScrollSnapshots(anchored);
+        return clearAnchorScrollSnapshots(anchored, clearAdjustmentIfEmpty);
 
     if (!anchored.style().positionTryFallbacks().isNone()
         || anchored.style().positionVisibility().contains(PositionVisibilityValue::NoOverflow))

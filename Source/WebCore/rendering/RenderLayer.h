@@ -848,7 +848,7 @@ public:
     bool hasTransformedAncestor() const { return m_hasTransformedAncestor; }
     bool participatesInPreserve3D() const;
 
-    std::optional<LayoutSize> anchorScrollAdjustment() const { return m_anchorScrollAdjustment; };
+    std::optional<LayoutSize> anchorScrollAdjustment() const { return m_anchorScrollAdjustment; }; // This is zero (rather than missing) on certain fixed boxes that don't have an AnchorScrollAdjuster.
     bool setAnchorScrollAdjustment(LayoutSize); // Returns true if changed.
     void clearAnchorScrollAdjustment();
 

@@ -4121,8 +4121,8 @@ bool RenderLayerCompositor::requiresCompositingForPosition(RenderLayerModelObjec
         return false;
     }
 
-    bool intersectsViewport = fixedLayerIntersectsViewport(layer);
-    if (!intersectsViewport) {
+    // Scroll-adjusted boxes can be scrolled into view, so don't check viewport intersection on them.
+    if (!layer.anchorScrollAdjustment() && !fixedLayerIntersectsViewport(layer)) {
         queryData.nonCompositedForPositionReason = RenderLayer::NotCompositedForBoundsOutOfView;
         LOG_WITH_STREAM(Compositing, stream << "Layer " << &layer << " is outside the viewport");
         return false;
