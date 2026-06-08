@@ -1307,6 +1307,12 @@ webkit.org/b/316419 imported/w3c/web-platform-tests/html/semantics/embedded-cont
 webkit.org/b/316422 css3/text-decoration/text-decoration-line-spelling-error-2.html [ Pass ImageOnlyFailure ]
 webkit.org/b/316426 imported/w3c/web-platform-tests/html/semantics/embedded-content/media-elements/networkState_during_loadstart.html [ Pass Failure ]
 
+webkit.org/b/316582 [ arm64 ] imported/w3c/web-platform-tests/wasm/core/simd/simd_f32x4_pmin_pmax.wast.js.html [ Pass Failure Timeout ]
+webkit.org/b/316583 [ arm64 ] css3/filters/filter-animation-from-none-multi-hw.html [ Pass Failure ]
+webkit.org/b/316584 [ arm64 ] imported/w3c/web-platform-tests/wasm/core/simd/simd_f64x2_pmin_pmax.wast.js.html [ Pass Failure Timeout ]
+webkit.org/b/316585 [ arm64 ] fullscreen/full-screen-disables-viewport-clipping.html [ Pass ImageOnlyFailure ]
+webkit.org/b/316586 [ arm64 ] http/tests/cache/cache-control-immutable-http.html [ Pass Crash ]
+
 webkit.org/b/315758 imported/w3c/web-platform-tests/webrtc/simulcast/vp8.https.html [ Crash Pass ]
 webkit.org/b/315758 imported/w3c/web-platform-tests/webrtc/simulcast/av1.https.html [ Crash Pass ]
 
