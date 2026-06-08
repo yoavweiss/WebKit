@@ -169,6 +169,13 @@ static ALWAYS_INLINE bool canSkipIntermediatePromise(JSGlobalObject* globalObjec
     return isDefinitelyNonThenable(uncheckedDowncast<JSObject>(cell), globalObject);
 }
 
+static ALWAYS_INLINE unsigned vectorLengthHintForCombinator(JSValue iterable)
+{
+    if (!isJSArray(iterable))
+        return 0;
+    return std::min<unsigned>(uncheckedDowncast<JSArray>(iterable)->length(), MAX_STORAGE_VECTOR_LENGTH);
+}
+
 static JSObject* promiseRaceSlow(JSGlobalObject* globalObject, CallFrame* callFrame, JSValue thisValue)
 {
     VM& vm = globalObject->vm();
@@ -371,7 +378,8 @@ static JSObject* promiseAllSlow(JSGlobalObject* globalObject, CallFrame* callFra
         cachedCall = &cachedCallHolder.value();
     }
 
-    JSArray* values = JSArray::tryCreate(vm, globalObject->arrayStructureForIndexingTypeDuringAllocation(ArrayWithUndecided), 0);
+    JSValue iterable = callFrame->argument(0);
+    JSArray* values = JSArray::tryCreate(vm, globalObject->arrayStructureForIndexingTypeDuringAllocation(ArrayWithContiguous), 0, vectorLengthHintForCombinator(iterable));
     if (!values) [[unlikely]] {
         callReject(createOutOfMemoryError(globalObject));
         return promise;
@@ -381,7 +389,6 @@ static JSObject* promiseAllSlow(JSGlobalObject* globalObject, CallFrame* callFra
 
     uint64_t index = 0;
 
-    JSValue iterable = callFrame->argument(0);
     forEachInIterable(globalObject, iterable, [&](VM& vm, JSGlobalObject* globalObject, JSValue value) {
         auto scope = DECLARE_THROW_SCOPE(vm);
 
@@ -481,7 +488,8 @@ JSC_DEFINE_HOST_FUNCTION(promiseConstructorFuncAll, (JSGlobalObject* globalObjec
         promise->reject(vm, exception);
     };
 
-    JSArray* values = JSArray::tryCreate(vm, globalObject->arrayStructureForIndexingTypeDuringAllocation(ArrayWithUndecided), 0);
+    JSValue iterable = callFrame->argument(0);
+    JSArray* values = JSArray::tryCreate(vm, globalObject->arrayStructureForIndexingTypeDuringAllocation(ArrayWithContiguous), 0, vectorLengthHintForCombinator(iterable));
     if (!values) [[unlikely]] {
         throwOutOfMemoryError(globalObject, scope);
         callReject();
@@ -493,7 +501,6 @@ JSC_DEFINE_HOST_FUNCTION(promiseConstructorFuncAll, (JSGlobalObject* globalObjec
     uint64_t index = 0;
     JSFunction* onRejected = nullptr;
 
-    JSValue iterable = callFrame->argument(0);
     forEachInIterable(globalObject, iterable, [&](VM& vm, JSGlobalObject* globalObject, JSValue value) {
         auto scope = DECLARE_THROW_SCOPE(vm);
 
@@ -699,7 +706,8 @@ static JSObject* promiseAllSettledSlow(JSGlobalObject* globalObject, CallFrame* 
         cachedCall = &cachedCallHolder.value();
     }
 
-    JSArray* values = JSArray::tryCreate(vm, globalObject->arrayStructureForIndexingTypeDuringAllocation(ArrayWithUndecided), 0);
+    JSValue iterable = callFrame->argument(0);
+    JSArray* values = JSArray::tryCreate(vm, globalObject->arrayStructureForIndexingTypeDuringAllocation(ArrayWithContiguous), 0, vectorLengthHintForCombinator(iterable));
     if (!values) [[unlikely]] {
         callReject(createOutOfMemoryError(globalObject));
         return promise;
@@ -709,7 +717,6 @@ static JSObject* promiseAllSettledSlow(JSGlobalObject* globalObject, CallFrame* 
 
     uint64_t index = 0;
 
-    JSValue iterable = callFrame->argument(0);
     forEachInIterable(globalObject, iterable, [&](VM& vm, JSGlobalObject* globalObject, JSValue value) {
         auto scope = DECLARE_THROW_SCOPE(vm);
 
@@ -814,7 +821,8 @@ JSC_DEFINE_HOST_FUNCTION(promiseConstructorFuncAllSettled, (JSGlobalObject* glob
         promise->reject(vm, exception);
     };
 
-    JSArray* values = JSArray::tryCreate(vm, globalObject->arrayStructureForIndexingTypeDuringAllocation(ArrayWithUndecided), 0);
+    JSValue iterable = callFrame->argument(0);
+    JSArray* values = JSArray::tryCreate(vm, globalObject->arrayStructureForIndexingTypeDuringAllocation(ArrayWithContiguous), 0, vectorLengthHintForCombinator(iterable));
     if (!values) [[unlikely]] {
         throwOutOfMemoryError(globalObject, scope);
         callReject();
@@ -825,7 +833,6 @@ JSC_DEFINE_HOST_FUNCTION(promiseConstructorFuncAllSettled, (JSGlobalObject* glob
 
     uint64_t index = 0;
 
-    JSValue iterable = callFrame->argument(0);
     forEachInIterable(globalObject, iterable, [&](VM& vm, JSGlobalObject* globalObject, JSValue value) {
         auto scope = DECLARE_THROW_SCOPE(vm);
 
@@ -1191,7 +1198,8 @@ static JSObject* promiseAnySlow(JSGlobalObject* globalObject, CallFrame* callFra
         cachedCall = &cachedCallHolder.value();
     }
 
-    JSArray* errors = JSArray::tryCreate(vm, globalObject->arrayStructureForIndexingTypeDuringAllocation(ArrayWithUndecided), 0);
+    JSValue iterable = callFrame->argument(0);
+    JSArray* errors = JSArray::tryCreate(vm, globalObject->arrayStructureForIndexingTypeDuringAllocation(ArrayWithContiguous), 0, vectorLengthHintForCombinator(iterable));
     if (!errors) [[unlikely]] {
         callReject(createOutOfMemoryError(globalObject));
         return promise;
@@ -1201,7 +1209,6 @@ static JSObject* promiseAnySlow(JSGlobalObject* globalObject, CallFrame* callFra
 
     uint64_t index = 0;
 
-    JSValue iterable = callFrame->argument(0);
     forEachInIterable(globalObject, iterable, [&](VM& vm, JSGlobalObject* globalObject, JSValue value) {
         auto scope = DECLARE_THROW_SCOPE(vm);
 
@@ -1296,7 +1303,9 @@ JSC_DEFINE_HOST_FUNCTION(promiseConstructorFuncAny, (JSGlobalObject* globalObjec
         promise->reject(vm, exception);
     };
 
-    JSArray* errors = JSArray::tryCreate(vm, globalObject->arrayStructureForIndexingTypeDuringAllocation(ArrayWithUndecided), 0);
+    JSValue resolve;
+    JSValue iterable = callFrame->argument(0);
+    JSArray* errors = JSArray::tryCreate(vm, globalObject->arrayStructureForIndexingTypeDuringAllocation(ArrayWithContiguous), 0, vectorLengthHintForCombinator(iterable));
     if (!errors) [[unlikely]] {
         throwOutOfMemoryError(globalObject, scope);
         callReject();
@@ -1307,8 +1316,6 @@ JSC_DEFINE_HOST_FUNCTION(promiseConstructorFuncAny, (JSGlobalObject* globalObjec
 
     uint64_t index = 0;
 
-    JSValue resolve;
-    JSValue iterable = callFrame->argument(0);
     forEachInIterable(globalObject, iterable, [&](VM& vm, JSGlobalObject* globalObject, JSValue value) {
         auto scope = DECLARE_THROW_SCOPE(vm);
 
