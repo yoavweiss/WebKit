@@ -28,6 +28,7 @@
 
 #include "InternalWritableStream.h"
 #include "JSDOMPromise.h"
+#include "ScriptExecutionContext.h"
 #include "WebCoreJSClientData.h"
 #include "WritableStream.h"
 #include <JavaScriptCore/CallData.h>

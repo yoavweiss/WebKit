@@ -27,6 +27,7 @@
 #include "SkiaCompositingLayerImageSetBatch.h"
 
 #if USE(COORDINATED_GRAPHICS) && USE(SKIA)
+#include "BitmapTexture.h"
 #include "FloatRect.h"
 #include "SkiaBackingStore.h"
 

@@ -28,6 +28,7 @@
 
 #include "JSDOMPromise.h"
 #include "JSReadableStream.h"
+#include "ScriptExecutionContext.h"
 #include "WebCoreJSClientData.h"
 #include <JavaScriptCore/CallData.h>
 #include <JavaScriptCore/JSObjectInlines.h>
