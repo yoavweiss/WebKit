@@ -648,6 +648,13 @@ std::optional<String> mapHostName(const String& hostName, URLDecodeFunction deco
     else
         string = hostName;
 
+    if (decodeFunction && string.containsOnlyASCII()) {
+        auto lowered = string.convertToASCIILowercase();
+        if (lowered == string)
+            return String();
+        return lowered;
+    }
+
     unsigned length = string.length();
 
     auto expectedSourceBuffer = string.charactersWithNullTermination();
