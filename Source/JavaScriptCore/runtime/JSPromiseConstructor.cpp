@@ -99,7 +99,6 @@ void JSPromiseConstructor::finishCreation(VM& vm, JSPromisePrototype* promisePro
 {
     Base::finishCreation(vm);
     putDirectWithoutTransition(vm, vm.propertyNames->prototype, promisePrototype, PropertyAttribute::DontEnum | PropertyAttribute::DontDelete | PropertyAttribute::ReadOnly);
-    putDirectWithoutTransition(vm, vm.propertyNames->length, jsNumber(1), PropertyAttribute::DontEnum | PropertyAttribute::ReadOnly);
 
     JSGlobalObject* globalObject = this->realm();
 
