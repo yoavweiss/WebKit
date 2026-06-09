@@ -429,39 +429,25 @@ void RenderTable::distributeExtraLogicalHeight(LayoutUnit extraLogicalHeight)
         for (auto& section : tbodySections)
             totalTBodyHeight += section->logicalHeight();
 
-        if (totalTBodyHeight > 0) {
-            // Distribute proportionally among tbodies based on their intrinsic heights
-            LayoutUnit remainingHeight = extraLogicalHeight;
-            for (size_t sectionIndex = 0; sectionIndex < tbodySections.size(); ++sectionIndex) {
-                CheckedPtr section = tbodySections[sectionIndex];
-                LayoutUnit sectionHeight = section->logicalHeight();
+        // Distribute proportionally to each tbody's intrinsic height; if all tbodies
+        // are empty, distribute equally. The last section absorbs any rounding remainder.
+        auto shareForSection = [&](size_t sectionIndex) -> LayoutUnit {
+            if (totalTBodyHeight > 0)
+                return (extraLogicalHeight * tbodySections[sectionIndex]->logicalHeight()) / totalTBodyHeight;
+            return extraLogicalHeight / tbodySections.size();
+        };
 
-                LayoutUnit extraHeightForSection;
-                if (sectionIndex == tbodySections.size() - 1)
-                    extraHeightForSection = remainingHeight;
-                else {
-                    extraHeightForSection = (extraLogicalHeight * sectionHeight) / totalTBodyHeight;
-                    remainingHeight -= extraHeightForSection;
-                }
-
-                section->distributeExtraLogicalHeightToRows(extraHeightForSection);
+        LayoutUnit remainingHeight = extraLogicalHeight;
+        for (size_t sectionIndex = 0; sectionIndex < tbodySections.size(); ++sectionIndex) {
+            LayoutUnit extraHeightForSection;
+            if (sectionIndex == tbodySections.size() - 1)
+                extraHeightForSection = remainingHeight;
+            else {
+                extraHeightForSection = shareForSection(sectionIndex);
+                remainingHeight -= extraHeightForSection;
             }
-        } else {
-            // All tbodies are empty - distribute equally among them
-            LayoutUnit remainingHeight = extraLogicalHeight;
-            LayoutUnit heightPerSection = extraLogicalHeight / tbodySections.size();
 
-            for (size_t sectionIndex = 0; sectionIndex < tbodySections.size(); ++sectionIndex) {
-                LayoutUnit extraHeightForSection;
-                if (sectionIndex == tbodySections.size() - 1)
-                    extraHeightForSection = remainingHeight;
-                else {
-                    extraHeightForSection = heightPerSection;
-                    remainingHeight -= extraHeightForSection;
-                }
-
-                tbodySections[sectionIndex]->distributeExtraLogicalHeightToRows(extraHeightForSection);
-            }
+            tbodySections[sectionIndex]->distributeExtraLogicalHeightToRows(extraHeightForSection);
         }
         return;
     }
