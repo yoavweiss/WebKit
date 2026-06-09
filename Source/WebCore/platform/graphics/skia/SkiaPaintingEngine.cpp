@@ -129,17 +129,15 @@ Ref<CoordinatedTileBuffer> SkiaPaintingEngine::createBuffer(RenderingMode render
     return CoordinatedUnacceleratedTileBuffer::create(size, contentsOpaque ? CoordinatedTileBuffer::NoFlags : CoordinatedTileBuffer::SupportsAlpha);
 }
 
-RefPtr<SkiaGPUAtlas> SkiaPaintingEngine::createAtlas(const SkiaImageAtlasLayout& layout, AtlasUploadCondition& uploadCondition, bool& needsUploadFence)
+RefPtr<SkiaGPUAtlas> SkiaPaintingEngine::createAtlas(const SkiaImageAtlasLayout& layout, AtlasUploadCondition& uploadCondition)
 {
     const auto& atlasSize = layout.atlasSize();
 
     OptionSet<BitmapTexture::Flags> textureFlags { BitmapTexture::Flags::UseBGRALayout, BitmapTexture::Flags::NearestFiltering, BitmapTexture::Flags::SupportsAlpha };
     bool isDMABufBackedTexture = false;
 #if USE(GBM)
-    if (shouldUseDMABufAtlasTextures()) {
-        isDMABufBackedTexture = true;
+    if (shouldUseDMABufAtlasTextures())
         textureFlags.add({ BitmapTexture::Flags::BackedByDMABuf, BitmapTexture::Flags::ForceLinearBuffer });
-    }
 #endif
 
     // Verify the texture actually has DMA-buf backing. BitmapTexture silently
@@ -147,18 +145,17 @@ RefPtr<SkiaGPUAtlas> SkiaPaintingEngine::createAtlas(const SkiaImageAtlasLayout&
     // GL operations to the upload worker thread (which has no GL context).
     auto texture = BitmapTexturePool::singleton().acquireTexture(atlasSize, textureFlags);
 #if USE(GBM)
-    if (!texture->memoryMappedGPUBuffer())
-        isDMABufBackedTexture = false;
+    if (texture->memoryMappedGPUBuffer())
+        isDMABufBackedTexture = true;
 #endif
 
-    auto atlas = SkiaGPUAtlas::create(layout, WTF::move(texture));
+    auto atlas = SkiaGPUAtlas::create(layout, WTF::move(texture), Ref { uploadCondition });
     if (!atlas)
         return nullptr;
 
     // GL path: upload synchronously.
     if (!isDMABufBackedTexture) [[unlikely]] {
         atlas->uploadImages();
-        needsUploadFence = true;
         return atlas;
     }
 
@@ -166,9 +163,8 @@ RefPtr<SkiaGPUAtlas> SkiaPaintingEngine::createAtlas(const SkiaImageAtlasLayout&
     if (!m_uploadWorkQueue)
         m_uploadWorkQueue = WorkQueue::create("AtlasUpload"_s);
     uploadCondition.addPending();
-    m_uploadWorkQueue->dispatch([atlas = Ref { *atlas }, condition = Ref { uploadCondition }]() mutable {
+    m_uploadWorkQueue->dispatch([atlas = Ref { *atlas }]() mutable {
         atlas->uploadImages();
-        condition->signal();
     });
     return atlas;
 }
@@ -249,9 +245,8 @@ Ref<SkiaRecordingResult> SkiaPaintingEngine::record(const GraphicsLayerCoordinat
             auto uploadCondition = AtlasUploadCondition::create();
             gpuAtlases.reserveInitialCapacity(result->atlasLayouts().size());
 
-            bool needsUploadFence = false;
             for (const auto& layout : result->atlasLayouts()) {
-                if (auto atlas = createAtlas(layout.get(), uploadCondition.get(), needsUploadFence))
+                if (auto atlas = createAtlas(layout.get(), uploadCondition.get()))
                     gpuAtlases.append(atlas.releaseNonNull());
             }
 
@@ -260,17 +255,12 @@ Ref<SkiaRecordingResult> SkiaPaintingEngine::record(const GraphicsLayerCoordinat
                 // This avoids holding the BitmapTextures by an extra frame, if not needed.
                 if (fingerprint == m_cachedImageFingerprint) {
                     m_cachedGPUAtlases = WTF::move(gpuAtlases);
-                    result->setGPUAtlases(copyToVectorOf<Ref<SkiaGPUAtlas>>(m_cachedGPUAtlases), WTF::move(uploadCondition));
+                    result->setGPUAtlases(copyToVectorOf<Ref<SkiaGPUAtlas>>(m_cachedGPUAtlases));
                 } else {
                     m_cachedImageFingerprint = fingerprint;
                     m_cachedGPUAtlases.clear();
-                    result->setGPUAtlases(WTF::move(gpuAtlases), WTF::move(uploadCondition));
+                    result->setGPUAtlases(WTF::move(gpuAtlases));
                 }
-
-                // Flush and fence only for the GL upload path, where
-                // BitmapTexture::updateContents() issues GL upload commands.
-                if (needsUploadFence)
-                    result->setUploadFence(SkiaUtilities::flushAndSubmitWithFence(grContext));
             }
         }
     } else {

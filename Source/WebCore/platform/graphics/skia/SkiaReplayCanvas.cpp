@@ -45,9 +45,6 @@ SkiaReplayCanvas::SkiaReplayCanvas(const IntSize& size, const RefPtr<SkiaRecordi
         if (!glContext || !glContext->makeContextCurrent())
             return;
 
-        m_recording->waitForUploadCondition();
-        m_recording->waitForUploadFence();
-
         const auto& gpuAtlases = m_recording->gpuAtlases();
         m_atlases.reserveInitialCapacity(gpuAtlases.size());
 
@@ -189,10 +186,10 @@ void SkiaReplayCanvas::onDrawImage2(const SkImage* image, SkScalar x, SkScalar y
         for (auto& atlas : m_atlases) {
             if (auto atlasRect = atlas->rectForImage(*image)) {
                 // Draw from atlas instead of original image.
-                const auto& atlasTexture = atlas->atlasTexture();
-                ASSERT(atlasTexture);
+                const auto& atlasImage = atlas->atlasImage();
+                ASSERT(atlasImage);
                 auto dst = SkRect::MakeXYWH(x, y, atlasRect->width(), atlasRect->height());
-                SkNWayCanvas::onDrawImageRect2(atlasTexture.get(), *atlasRect, dst, sampling, paint, SkCanvas::kStrict_SrcRectConstraint);
+                SkNWayCanvas::onDrawImageRect2(atlasImage.get(), *atlasRect, dst, sampling, paint, SkCanvas::kStrict_SrcRectConstraint);
                 return;
             }
         }
@@ -217,8 +214,8 @@ void SkiaReplayCanvas::onDrawImageRect2(const SkImage* image, const SkRect& src,
         for (auto& atlas : m_atlases) {
             if (auto atlasRect = atlas->rectForImage(*image)) {
                 // Draw from atlas instead of original image.
-                const auto& atlasTexture = atlas->atlasTexture();
-                ASSERT(atlasTexture);
+                const auto& atlasImage = atlas->atlasImage();
+                ASSERT(atlasImage);
 
                 // Map src rect from image coordinates to atlas coordinates.
                 SkScalar atlasX = atlasRect->x() + src.x();
@@ -238,11 +235,11 @@ void SkiaReplayCanvas::onDrawImageRect2(const SkImage* image, const SkRect& src,
                     SkScalar scaleY = dst.height() / src.height();
 
                     auto adjustedDst = SkRect::MakeXYWH(dst.x() + leftClip * scaleX, dst.y() + topClip * scaleY, atlasSrc.width() * scaleX, atlasSrc.height() * scaleY);
-                    SkNWayCanvas::onDrawImageRect2(atlasTexture.get(), atlasSrc, adjustedDst, sampling, paint, SkCanvas::kStrict_SrcRectConstraint);
+                    SkNWayCanvas::onDrawImageRect2(atlasImage.get(), atlasSrc, adjustedDst, sampling, paint, SkCanvas::kStrict_SrcRectConstraint);
                     return;
                 }
 
-                SkNWayCanvas::onDrawImageRect2(atlasTexture.get(), atlasSrc, dst, sampling, paint, SkCanvas::kStrict_SrcRectConstraint);
+                SkNWayCanvas::onDrawImageRect2(atlasImage.get(), atlasSrc, dst, sampling, paint, SkCanvas::kStrict_SrcRectConstraint);
                 return;
             }
         }
