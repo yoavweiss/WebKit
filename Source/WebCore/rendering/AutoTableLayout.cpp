@@ -43,12 +43,18 @@ AutoTableLayout::AutoTableLayout(RenderTable* table)
 
 AutoTableLayout::~AutoTableLayout() = default;
 
+bool AutoTableLayout::isColumnCollapsed(unsigned effCol) const
+{
+    CheckedPtr colElement = m_table->colElement(effCol);
+    return colElement && colElement->style().visibility() == Visibility::Collapse;
+}
+
 void AutoTableLayout::recalcColumn(unsigned effCol)
 {
     Layout& columnLayout = m_layoutStruct[effCol];
 
     // Check if this column is collapsed.
-    if (CheckedPtr colElement = m_table->colElement(effCol); colElement && colElement->style().visibility() == Visibility::Collapse) {
+    if (isColumnCollapsed(effCol)) {
         columnLayout.effectiveLogicalWidth = CSS::Keyword::Auto { };
         columnLayout.effectiveMinLogicalWidth = 0;
         columnLayout.effectiveMaxLogicalWidth = 0;
@@ -634,7 +640,7 @@ void AutoTableLayout::layout()
     // fill up every cell with its minWidth
     for (size_t i = 0; i < nEffCols; ++i) {
         // Check if this column is collapsed
-        if (CheckedPtr colElement = m_table->colElement(i); colElement && colElement->style().visibility() == Visibility::Collapse) {
+        if (isColumnCollapsed(i)) {
             m_layoutStruct[i].computedLogicalWidth = 0;
             continue;
         }
@@ -667,7 +673,7 @@ void AutoTableLayout::layout()
     // allocate width to percent cols
     if (available > 0 && havePercent) {
         for (size_t i = 0; i < nEffCols; ++i) {
-            if (CheckedPtr colElement = m_table->colElement(i); colElement && colElement->style().visibility() == Visibility::Collapse)
+            if (isColumnCollapsed(i))
                 continue;
 
             auto& logicalWidth = m_layoutStruct[i].effectiveLogicalWidth;
@@ -682,7 +688,7 @@ void AutoTableLayout::layout()
             float excess = tableLogicalWidth * (totalPercent - 100) / 100;
             for (unsigned i = nEffCols; i; ) {
                 --i;
-                if (CheckedPtr colElement = m_table->colElement(i); colElement && colElement->style().visibility() == Visibility::Collapse)
+                if (isColumnCollapsed(i))
                     continue;
 
                 if (m_layoutStruct[i].effectiveLogicalWidth.isPercentOrCalculated()) {
@@ -701,7 +707,7 @@ void AutoTableLayout::layout()
     // then allocate width to fixed cols
     if (available > 0) {
         for (size_t i = 0; i < nEffCols; ++i) {
-            if (CheckedPtr colElement = m_table->colElement(i); colElement && colElement->style().visibility() == Visibility::Collapse)
+            if (isColumnCollapsed(i))
                 continue;
 
             auto& logicalWidth = m_layoutStruct[i].effectiveLogicalWidth;
@@ -723,7 +729,7 @@ void AutoTableLayout::layout()
             equalWidthForZeroLengthColumns = available / numberOfNonEmptyAuto;
         }
         for (size_t i = 0; i < nEffCols; ++i) {
-            if (CheckedPtr colElement = m_table->colElement(i); colElement && colElement->style().visibility() == Visibility::Collapse)
+            if (isColumnCollapsed(i))
                 continue;
 
             auto& column = m_layoutStruct[i];
@@ -743,7 +749,7 @@ void AutoTableLayout::layout()
     // spread over fixed columns
     if (available > 0 && numFixed) {
         for (size_t i = 0; i < nEffCols; ++i) {
-            if (CheckedPtr colElement = m_table->colElement(i); colElement && colElement->style().visibility() == Visibility::Collapse)
+            if (isColumnCollapsed(i))
                 continue;
 
             auto& logicalWidth = m_layoutStruct[i].effectiveLogicalWidth;
@@ -759,7 +765,7 @@ void AutoTableLayout::layout()
     // spread over percent columns
     if (available > 0 && m_hasPercent && totalPercent < 100) {
         for (size_t i = 0; i < nEffCols; ++i) {
-            if (CheckedPtr colElement = m_table->colElement(i); colElement && colElement->style().visibility() == Visibility::Collapse)
+            if (isColumnCollapsed(i))
                 continue;
 
             auto& logicalWidth = m_layoutStruct[i].effectiveLogicalWidth;
@@ -780,7 +786,7 @@ void AutoTableLayout::layout()
         // Count collapsed columns to subtract from total
         unsigned numCollapsed = 0;
         for (size_t i = 0; i < nEffCols; ++i) {
-            if (CheckedPtr colElement = m_table->colElement(i); colElement && colElement->style().visibility() == Visibility::Collapse)
+            if (isColumnCollapsed(i))
                 numCollapsed++;
         }
         total -= numCollapsed;
@@ -788,7 +794,7 @@ void AutoTableLayout::layout()
         // still have some width to spread
         for (unsigned i = nEffCols; i && total > 0; ) {
             --i;
-            if (CheckedPtr colElement = m_table->colElement(i); colElement && colElement->style().visibility() == Visibility::Collapse)
+            if (isColumnCollapsed(i))
                 continue;
 
             // variable columns with empty cells only don't get any width
@@ -805,7 +811,7 @@ void AutoTableLayout::layout()
         // All columns in this table are empty with 'width: auto'.
         auto equalWidthForColumns = available / numAutoEmptyCellsOnly;
         for (size_t i = 0; i < nEffCols; ++i) {
-            if (CheckedPtr colElement = m_table->colElement(i); colElement && colElement->style().visibility() == Visibility::Collapse)
+            if (isColumnCollapsed(i))
                 continue;
 
             auto& column = m_layoutStruct[i];
@@ -829,7 +835,7 @@ void AutoTableLayout::layout()
     for (size_t i = 0; i < nEffCols; ++i) {
         m_table->setColumnPosition(i, pos);
 
-        if (CheckedPtr colElement = m_table->colElement(i); colElement && colElement->style().visibility() == Visibility::Collapse) {
+        if (isColumnCollapsed(i)) {
             // Don't add width or spacing for collapsed columns.
             continue;
         }

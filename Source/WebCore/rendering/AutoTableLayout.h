@@ -50,6 +50,8 @@ private:
 
     void insertSpanCell(RenderTableCell*);
 
+    bool isColumnCollapsed(unsigned effCol) const;
+
     struct Layout {
         Style::PreferredSize logicalWidth { CSS::Keyword::Auto { } };
         Style::PreferredSize effectiveLogicalWidth { CSS::Keyword::Auto { } };
