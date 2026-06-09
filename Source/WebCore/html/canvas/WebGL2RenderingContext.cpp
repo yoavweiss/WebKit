@@ -1822,7 +1822,7 @@ void WebGL2RenderingContext::endQuery(ScriptExecutionContext& scriptExecutionCon
     graphicsContextGL()->endQuery(target);
 
     // A query's result must not be made available until control has returned to the user agent's main loop.
-    protect(scriptExecutionContext.eventLoop())->queueMicrotask(scriptExecutionContext.vm(), [query = WTF::move(m_activeQueries[*activeQueryKey])] {
+    protect(scriptExecutionContext.eventLoop())->queueMicrotask(scriptExecutionContext.vm(), [query = m_activeQueries[*activeQueryKey].releaseNonNull()] {
         query->makeResultAvailable();
     });
 }
