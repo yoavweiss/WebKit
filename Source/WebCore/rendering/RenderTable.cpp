@@ -401,11 +401,11 @@ void RenderTable::layoutCaptions(BottomCaptionLayoutPhase bottomCaptionLayoutPha
     if (m_captions.isEmpty())
         return;
     // FIXME: Collapse caption margin.
-    for (unsigned i = 0; i < m_captions.size(); ++i) {
-        if ((bottomCaptionLayoutPhase == BottomCaptionLayoutPhase::Yes && m_captions[i]->style().captionSide() != CaptionSide::Bottom)
-            || (bottomCaptionLayoutPhase == BottomCaptionLayoutPhase::No && m_captions[i]->style().captionSide() == CaptionSide::Bottom))
+    for (auto& caption : m_captions) {
+        if ((bottomCaptionLayoutPhase == BottomCaptionLayoutPhase::Yes && caption->style().captionSide() != CaptionSide::Bottom)
+            || (bottomCaptionLayoutPhase == BottomCaptionLayoutPhase::No && caption->style().captionSide() == CaptionSide::Bottom))
             continue;
-        layoutCaption(*m_captions[i]);
+        layoutCaption(*caption);
     }
 }
 
@@ -524,8 +524,8 @@ void RenderTable::layout()
         LayoutUnit oldLogicalHeight = logicalHeight();
         updateLogicalWidth();
         if (logicalWidth() != oldLogicalWidth) {
-            for (unsigned i = 0; i < m_captions.size(); i++)
-                m_captions[i]->setNeedsLayout(MarkingBehavior::MarkOnlyThis);
+            for (auto& caption : m_captions)
+                caption->setNeedsLayout(MarkingBehavior::MarkOnlyThis);
         }
         resetLogicalHeightBeforeLayoutIfNeeded();
         // FIXME: The optimisation below doesn't work since the internal table
@@ -537,10 +537,10 @@ void RenderTable::layout()
 
         LayoutUnit totalSectionLogicalHeight;
         LayoutUnit oldTableLogicalTop;
-        for (unsigned i = 0; i < m_captions.size(); i++) {
-            if (m_captions[i]->style().captionSide() == CaptionSide::Bottom)
+        for (auto& caption : m_captions) {
+            if (caption->style().captionSide() == CaptionSide::Bottom)
                 continue;
-            oldTableLogicalTop += m_captions[i]->logicalHeight() + m_captions[i]->marginBefore() + m_captions[i]->marginAfter();
+            oldTableLogicalTop += caption->logicalHeight() + caption->marginBefore() + caption->marginAfter();
         }
 
         bool collapsing = collapseBorders();
@@ -791,8 +791,8 @@ void RenderTable::addOverflowFromInFlowChildren(OptionSet<ComputeOverflowOptions
     }
 
     // Add overflow from our caption.
-    for (unsigned i = 0; i < m_captions.size(); ++i) {
-        if (auto* caption = m_captions[i].get())
+    for (auto& caption : m_captions) {
+        if (caption)
             addOverflowFromContainedBox(*caption);
     }
 
@@ -908,9 +908,9 @@ void RenderTable::paintCollapsedBordersForRow(PaintInfo& paintInfo, RenderTableR
 
 void RenderTable::adjustBorderBoxRectForPainting(LayoutRect& rect)
 {
-    for (unsigned i = 0; i < m_captions.size(); i++) {
-        LayoutUnit captionLogicalHeight = m_captions[i]->logicalHeight() + m_captions[i]->marginBefore() + m_captions[i]->marginAfter();
-        bool captionIsBefore = (m_captions[i]->style().captionSide() != CaptionSide::Bottom) ^ writingMode().isBlockFlipped();
+    for (auto& caption : m_captions) {
+        LayoutUnit captionLogicalHeight = caption->logicalHeight() + caption->marginBefore() + caption->marginAfter();
+        bool captionIsBefore = (caption->style().captionSide() != CaptionSide::Bottom) ^ writingMode().isBlockFlipped();
         if (writingMode().isHorizontal()) {
             rect.setHeight(rect.height() - captionLogicalHeight);
             if (captionIsBefore)
@@ -1005,9 +1005,9 @@ void RenderTable::computeIntrinsicLogicalWidthContributions()
 
     m_tableLayout->applyContentLogicalWidthQuirks(m_minContentLogicalWidthContribution, m_maxContentLogicalWidthContribution);
 
-    for (unsigned i = 0; i < m_captions.size(); i++) {
-        LayoutUnit captionMinWidth = m_captions[i]->minContentLogicalWidthContribution();
-        captionMinWidth += marginIntrinsicLogicalWidthForChild(*m_captions[i]);
+    for (auto& caption : m_captions) {
+        LayoutUnit captionMinWidth = caption->minContentLogicalWidthContribution();
+        captionMinWidth += marginIntrinsicLogicalWidthForChild(*caption);
 
         m_minContentLogicalWidthContribution = std::max(m_minContentLogicalWidthContribution, captionMinWidth);
     }
