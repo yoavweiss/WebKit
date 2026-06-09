@@ -263,6 +263,11 @@ inline std::optional<PseudoElementType> ComputedStyleBase::pseudoElementType() c
     return m_nonInheritedFlags.pseudoElementType ? std::make_optional(static_cast<PseudoElementType>(m_nonInheritedFlags.pseudoElementType - 1)) : std::nullopt;
 }
 
+inline std::optional<PseudoElementType> pseudoElementType(const ComputedStyleBase& style)
+{
+    return style.pseudoElementType();
+}
+
 inline const AtomString& ComputedStyleBase::pseudoElementNameArgument() const
 {
     return m_nonInheritedData->rareData->pseudoElementNameArgument;

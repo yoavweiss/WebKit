@@ -857,5 +857,7 @@ protected:
 #endif
 };
 
+std::optional<PseudoElementType> pseudoElementType(const ComputedStyleBase&);
+
 } // namespace Style
 } // namespace WebCore

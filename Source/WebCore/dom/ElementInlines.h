@@ -32,7 +32,7 @@
 #include <WebCore/NodeDocument.h>
 #include <WebCore/NodeInlines.h>
 #include <WebCore/StyleChange.h>
-#include <WebCore/StyleComputedStyle+GettersInlines.h>
+#include <WebCore/StyleComputedStyle.h>
 
 namespace WebCore {
 
@@ -236,7 +236,7 @@ inline const AtomString& Element::getAttribute(const QualifiedName& name, const 
 
 inline bool isInTopLayerOrBackdrop(const Style::ComputedStyle& style, const Element* element)
 {
-    return (element && element->isInTopLayer()) || style.pseudoElementType() == PseudoElementType::Backdrop;
+    return (element && element->isInTopLayer()) || pseudoElementType(style) == PseudoElementType::Backdrop;
 }
 
 inline void Element::hideNonce()
