@@ -4077,7 +4077,7 @@ JSC_DEFINE_JIT_OPERATION(operationStringSplitRegExp, EncodedJSValue, (JSGlobalOb
 
     JSValue limitValue = JSValue::decode(encodedLimit);
 
-    if (separator->isSymbolSplitFastAndNonObservable()) [[likely]] {
+    if (separator->isSymbolSplitFastAndNonObservable() && (limitValue.isUndefined() || limitValue.isNumber())) [[likely]] {
         unsigned limit = 0xFFFFFFFFu;
         if (!limitValue.isUndefined()) {
             limit = limitValue.toUInt32(globalObject);

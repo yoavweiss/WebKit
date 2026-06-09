@@ -1250,15 +1250,13 @@ JSC_DEFINE_HOST_FUNCTION(stringProtoFuncSplit, (JSGlobalObject* globalObject, Ca
     //    directly — this beats the JS-builtin path on the steady state.
     if (separatorValue.isObject()) {
         JSObject* separatorObject = asObject(separatorValue);
-        if (auto* regExpObject = dynamicDowncast<RegExpObject>(separatorObject); regExpObject && regExpObject->isSymbolSplitFastAndNonObservable()) {
-            JSString* thisString = thisValue.toString(globalObject);
-            RETURN_IF_EXCEPTION(scope, { });
+        if (auto* regExpObject = dynamicDowncast<RegExpObject>(separatorObject); regExpObject && regExpObject->isSymbolSplitFastAndNonObservable() && thisValue.isString() && (limitValue.isUndefined() || limitValue.isNumber())) {
             unsigned limit = 0xFFFFFFFFu;
             if (!limitValue.isUndefined()) {
                 limit = limitValue.toUInt32(globalObject);
                 RETURN_IF_EXCEPTION(scope, { });
             }
-            RELEASE_AND_RETURN(scope, JSValue::encode(regExpSplitFast(globalObject, regExpObject, thisString, limit)));
+            RELEASE_AND_RETURN(scope, JSValue::encode(regExpSplitFast(globalObject, regExpObject, asString(thisValue), limit)));
         }
 
         JSValue splitter = separatorObject->get(globalObject, vm.propertyNames->splitSymbol);
