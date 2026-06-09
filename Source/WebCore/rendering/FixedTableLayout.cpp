@@ -320,7 +320,7 @@ void FixedTableLayout::layout()
         m_table->setColumnPosition(i, LayoutUnit(pos));
         pos += calcWidth[i] + hspacing;
     }
-    float colPositionsSize = m_table->columnPositions().size();
+    auto colPositionsSize = m_table->columnPositions().size();
     if (colPositionsSize > 0)
         m_table->setColumnPosition(colPositionsSize - 1, LayoutUnit(pos));
 }
