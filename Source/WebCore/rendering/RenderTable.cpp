@@ -1608,8 +1608,8 @@ RenderTableCell* RenderTable::cellAbove(const RenderTableCell* cell) const
         unsigned effCol = colToEffCol(cell->col());
         RenderTableSection::CellStruct& aboveCell = section->cellAt(rAbove, effCol);
         return aboveCell.primaryCell();
-    } else
-        return nullptr;
+    }
+    return nullptr;
 }
 
 RenderTableCell* RenderTable::cellBelow(const RenderTableCell* cell) const
@@ -1635,8 +1635,8 @@ RenderTableCell* RenderTable::cellBelow(const RenderTableCell* cell) const
         unsigned effCol = colToEffCol(cell->col());
         RenderTableSection::CellStruct& belowCell = section->cellAt(rBelow, effCol);
         return belowCell.primaryCell();
-    } else
-        return nullptr;
+    }
+    return nullptr;
 }
 
 RenderTableCell* RenderTable::cellBefore(const RenderTableCell* cell) const
