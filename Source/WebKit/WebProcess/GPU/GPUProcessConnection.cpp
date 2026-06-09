@@ -115,7 +115,7 @@ using namespace WebCore;
 Ref<GPUProcessConnection> GPUProcessConnection::create(Ref<IPC::Connection>&& connection)
 {
     Ref instance = adoptRef(*new GPUProcessConnection(WTF::move(connection)));
-    RELEASE_LOG(Process, "GPUProcessConnection::create - %p", instance.ptr());
+    RELEASE_LOG_FORWARDABLE(Process, GpuProcessConnectionCreate, instance->identifier().toUInt64());
     return instance;
 }
 

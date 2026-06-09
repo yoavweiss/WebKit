@@ -24,6 +24,7 @@
 #
 # Identifier, format string, parameters, Log type (DEFAULT, INFO, ERROR, FAULT), Category (Default, Process, Loading, etc)
 
+GpuProcessConnectionCreate, "GPUProcessConnection::create - %" PRIu64 "", (uint64_t), DEFAULT, Process
 MediaPlayerPrivateRemoteLayerHostingContextChanged, "MediaPlayerPrivateRemote::layerHostingContextChanged", (), DEFAULT, Media
 PlatformInitializeWebProcess, "WebProcess::platformInitializeWebProcess", (), DEFAULT, Process
 ReceivedLaunchServicesDatabase, "Received Launch Services database", (), INFO, Loading
