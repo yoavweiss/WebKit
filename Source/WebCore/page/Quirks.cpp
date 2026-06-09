@@ -1769,6 +1769,26 @@ bool Quirks::shouldDisableLazyIframeLoadingQuirk() const
     return m_quirksData.quirkIsEnabled(QuirksData::SiteSpecificQuirk::ShouldDisableLazyIframeLoadingQuirk);
 }
 
+// reddit.com with Sink It extension (rdar://176377447).
+bool Quirks::shouldDisableScrollAnchoringQuirk() const
+{
+#if PLATFORM(IOS_FAMILY)
+    QUIRKS_EARLY_RETURN_IF_DISABLED_WITH_VALUE(false);
+
+    if (!m_quirksData.quirkIsEnabled(QuirksData::SiteSpecificQuirk::ShouldDisableScrollAnchoringQuirk))
+        return false;
+
+    RefPtr document = m_document.get();
+    if (!document)
+        return false;
+
+    static MainThreadNeverDestroyed<const AtomString> sinkItBackToTopID("sink-it-back-to-top"_s);
+    return !!document->getElementById(sinkItBackToTopID.get());
+#else
+    return false;
+#endif
+}
+
 // Breaks express checkout on victoriassecret.com (rdar://104818312).
 bool Quirks::shouldDisableFetchMetadata() const
 {
@@ -3230,13 +3250,22 @@ static void handleForbesQuirks(QuirksData& quirksData, const URL& /* quirksURL *
     // forbes.com rdar://67273166
     quirksData.enableQuirk(QuirksData::SiteSpecificQuirk::RequiresUserGestureToPauseInPictureInPictureQuirk);
 }
+#endif
 
+#if ENABLE(VIDEO_PRESENTATION_MODE) || PLATFORM(IOS_FAMILY)
 static void handleRedditQuirks(QuirksData& quirksData, const URL& /* quirksURL */, const String& quirksDomainString, const URL&  /* documentURL */)
 {
     QUIRKS_EARLY_RETURN_IF_NOT_DOMAIN("reddit.com"_s);
 
+#if ENABLE(VIDEO_PRESENTATION_MODE)
     // reddit.com: rdar://80550715
     quirksData.enableQuirk(QuirksData::SiteSpecificQuirk::RequiresUserGestureToPauseInPictureInPictureQuirk);
+#endif
+
+#if PLATFORM(IOS_FAMILY)
+    // reddit.com with Sink It extension: rdar://176377447.
+    quirksData.enableQuirk(QuirksData::SiteSpecificQuirk::ShouldDisableScrollAnchoringQuirk);
+#endif
 }
 #endif
 
@@ -4089,7 +4118,7 @@ void Quirks::determineRelevantQuirks()
 #if PLATFORM(IOS_FAMILY)
         { "ralphlauren"_s, &handleRalphLaurenQuirks },
 #endif
-#if ENABLE(VIDEO_PRESENTATION_MODE)
+#if ENABLE(VIDEO_PRESENTATION_MODE) || PLATFORM(IOS_FAMILY)
         { "reddit"_s, &handleRedditQuirks },
 #endif
         { "scribd"_s, &handleScribdQuirks },

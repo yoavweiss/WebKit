@@ -28,11 +28,13 @@
 
 #include "ContainerNodeInlines.h"
 #include "Document.h"
+#include "DocumentQuirks.h"
 #include "Editing.h"
 #include "FloatRect.h"
 #include "LegacyRenderSVGModelObject.h"
 #include "LocalFrameView.h"
 #include "Logging.h"
+#include "Quirks.h"
 #include "RenderBlockFlow.h"
 #include "RenderBox.h"
 #include "RenderBoxInlines.h"
@@ -573,12 +575,16 @@ void ScrollAnchoringController::updateBeforeLayout()
 {
     LOG_WITH_STREAM(ScrollAnchoring, stream << "ScrollAnchoringController " << this << " on " << *scrollableAreaBox() << " updateBeforeLayout() - scroll position " << m_owningScrollableArea->scrollPosition() << " queued " << m_isQueuedForScrollPositionUpdate);
 
+    CheckedPtr scrollerBox = scrollableAreaBox();
+    if (scrollerBox->document().quirks().shouldDisableScrollAnchoringQuirk()) [[unlikely]] {
+        invalidate();
+        return;
+    }
+
     if (m_isQueuedForScrollPositionUpdate) {
         m_anchoringSuppressedByStyleChange |= anchoringSuppressedByStyleChange();
         return;
     }
-
-    CheckedPtr scrollerBox = scrollableAreaBox();
 
     auto scrollPosition = m_owningScrollableArea->scrollPosition();
     auto isRubberBanding = [&]() {
