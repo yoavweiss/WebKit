@@ -69,12 +69,25 @@ static Path pathFromEllipseElement(const SVGEllipseElement& element)
 
     auto& style = renderer->style();
     SVGLengthContext lengthContext(&element);
-    float rx = lengthContext.valueForLength(style.rx(), Style::ZoomNeeded { }, SVGLengthMode::Width);
-    if (rx <= 0)
+
+    // Per SVG 2 §10.4: an `auto` value for either rx or ry is converted to the
+    // used value of the other property. If both are auto, both used values are 0.
+    auto& rxStyle = style.rx();
+    auto& ryStyle = style.ry();
+    if (rxStyle.isAuto() && ryStyle.isAuto())
         return { };
 
-    float ry = lengthContext.valueForLength(style.ry(), Style::ZoomNeeded { }, SVGLengthMode::Height);
-    if (ry <= 0)
+    float rx, ry;
+    if (rxStyle.isAuto())
+        rx = ry = lengthContext.valueForLength(ryStyle, Style::ZoomNeeded { }, SVGLengthMode::Height);
+    else if (ryStyle.isAuto())
+        ry = rx = lengthContext.valueForLength(rxStyle, Style::ZoomNeeded { }, SVGLengthMode::Width);
+    else {
+        rx = lengthContext.valueForLength(rxStyle, Style::ZoomNeeded { }, SVGLengthMode::Width);
+        ry = lengthContext.valueForLength(ryStyle, Style::ZoomNeeded { }, SVGLengthMode::Height);
+    }
+
+    if (rx <= 0 || ry <= 0)
         return { };
 
     Path path;
