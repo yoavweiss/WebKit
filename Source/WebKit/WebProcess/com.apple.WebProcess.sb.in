@@ -122,9 +122,7 @@
     (subpath "/System/Library/SubFrameworks/RealityCoreTextureProcessing.framework")
     (subpath "/usr/lib")
     (subpath "/usr/local/lib/sanitizers") ;; FIXME(209820)
-    (subpath "/usr/appleinternal/lib") ;; <rdar://problem/72317112>
-
-)
+    (subpath "/usr/appleinternal/lib")) ;; <rdar://problem/72317112>
 
 (allow file-read-metadata
     (literal "/etc")
