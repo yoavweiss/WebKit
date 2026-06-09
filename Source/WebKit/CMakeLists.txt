@@ -1020,7 +1020,6 @@ macro(GENERATE_MESSAGE_SOURCES _output_source _inputs)
         ${WebKit_DERIVED_SOURCES_DIR}/MessageNames.cpp
     )
 
-    set(_messages_stage_dir ${WebKit_DERIVED_SOURCES_DIR}/.messages-stage)
     add_custom_command(
         OUTPUT
             ${WebKit_DERIVED_SOURCES_DIR}/MessageArgumentDescriptions.cpp
@@ -1034,9 +1033,7 @@ macro(GENERATE_MESSAGE_SOURCES _output_source _inputs)
             ${WEBKIT_DIR}/Scripts/webkit/model.py
             ${WEBKIT_DIR}/Scripts/webkit/parser.py
             ${_input_files}
-        COMMAND ${CMAKE_COMMAND} -E make_directory ${_messages_stage_dir}
-        COMMAND ${PYTHON_EXECUTABLE} ${WEBKIT_DIR}/Scripts/generate-message-receiver.py --preserve-subdirs ${WEBKIT_DIR} ${_inputs} --output-dir ${_messages_stage_dir}
-        COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different ${_messages_stage_dir} ${WebKit_DERIVED_SOURCES_DIR}
+        COMMAND ${PYTHON_EXECUTABLE} ${WEBKIT_DIR}/Scripts/generate-message-receiver.py --preserve-subdirs ${WEBKIT_DIR} ${_inputs}
         WORKING_DIRECTORY ${WebKit_DERIVED_SOURCES_DIR}
         VERBATIM
     )
@@ -1120,7 +1117,6 @@ list(APPEND WebKit_DERIVED_SOURCES
     ${WebKit_DERIVED_SOURCES_DIR}/WebKitPlatformGeneratedSerializers.${WebKit_GENERATED_SERIALIZERS_SUFFIX}
 )
 
-set(_serializers_stage_dir ${WebKit_DERIVED_SOURCES_DIR}/.serializers-stage)
 add_custom_command(
     OUTPUT
         ${WebKit_DERIVED_SOURCES_DIR}/GeneratedSerializers.h
@@ -1140,9 +1136,7 @@ add_custom_command(
     DEPENDS
         ${WEBKIT_DIR}/Scripts/webkit/opaque_ipc_types.py
         ${WebKit_SERIALIZATION_DEPENDENCIES}
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${_serializers_stage_dir}
-    COMMAND ${PYTHON_EXECUTABLE} ${WEBKIT_DIR}/Scripts/generate-serializers.py ${WebKit_GENERATED_SERIALIZERS_SUFFIX} --split-by-directory ${WebKit_SERIALIZATION_DEPENDENCIES} --output-dir ${_serializers_stage_dir}
-    COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different ${_serializers_stage_dir} ${WebKit_DERIVED_SOURCES_DIR}
+    COMMAND ${PYTHON_EXECUTABLE} ${WEBKIT_DIR}/Scripts/generate-serializers.py ${WebKit_GENERATED_SERIALIZERS_SUFFIX} --split-by-directory ${WebKit_SERIALIZATION_DEPENDENCIES}
     WORKING_DIRECTORY ${WebKit_DERIVED_SOURCES_DIR}
     VERBATIM
 )
