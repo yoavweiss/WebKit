@@ -87,6 +87,8 @@ static PlatformMediaSession::RemoteControlCommandType platformCommandForMediaSes
         { MediaSessionAction::Skipad, PlatformMediaSession::RemoteControlCommandType::NextTrackCommand },
         { MediaSessionAction::Stop, PlatformMediaSession::RemoteControlCommandType::StopCommand },
         { MediaSessionAction::Seekto, PlatformMediaSession::RemoteControlCommandType::SeekToPlaybackPositionCommand },
+        { MediaSessionAction::Previousslide, PlatformMediaSession::RemoteControlCommandType::PreviousTrackCommand },
+        { MediaSessionAction::Nextslide, PlatformMediaSession::RemoteControlCommandType::NextTrackCommand },
     }) };
     return map.get(action, PlatformMediaSession::RemoteControlCommandType::NoCommand);
 }
@@ -128,10 +130,14 @@ static std::optional<std::pair<PlatformMediaSession::RemoteControlCommandType, P
         argument.time = actionDetails.seekTime;
         argument.fastSeek = actionDetails.fastSeek;
         break;
+    case MediaSessionAction::Previousslide:
+        command = PlatformMediaSession::RemoteControlCommandType::PreviousTrackCommand;
+        break;
+    case MediaSessionAction::Nextslide:
+        command = PlatformMediaSession::RemoteControlCommandType::NextTrackCommand;
+        break;
     case MediaSessionAction::Settrack:
     case MediaSessionAction::Hangup:
-    case MediaSessionAction::Previousslide:
-    case MediaSessionAction::Nextslide:
     case MediaSessionAction::Enterpictureinpicture:
         // Not supported at present.
         break;
@@ -321,16 +327,27 @@ ExceptionOr<void> MediaSession::setActionHandler(MediaSessionAction action, RefP
             }
         }
     } else {
-        bool containedAction;
+        bool containedAction = false;
+        bool anotherActionNeedsCommand = false;
+        auto platformCommand = platformCommandForMediaSessionAction(action);
         {
             Locker lock { m_actionHandlersLock };
             containedAction = m_actionHandlers.remove(action);
+            if (containedAction) {
+                for (auto registeredAction : m_actionHandlers.keys()) {
+                    if (platformCommandForMediaSessionAction(registeredAction) == platformCommand) {
+                        anotherActionNeedsCommand = true;
+                        break;
+                    }
+                }
+            }
         }
 
         if (sessionManager) {
             if (containedAction)
                 ALWAYS_LOG(LOGIDENTIFIER, "removing ", action);
-            sessionManager->removeSupportedCommand(platformCommandForMediaSessionAction(action));
+            if (!anotherActionNeedsCommand)
+                sessionManager->removeSupportedCommand(platformCommand);
         }
     }
 
@@ -364,16 +381,28 @@ bool MediaSession::hasActionHandler(const MediaSessionAction action) const
 bool MediaSession::callActionHandler(const MediaSessionActionDetails& actionDetails, TriggerGestureIndicator triggerGestureIndicator)
 {
     RefPtr<MediaSessionActionHandler> handler;
+    MediaSessionActionDetails effectiveActionDetails = actionDetails;
     {
         Locker lock { m_actionHandlersLock };
         handler = m_actionHandlers.get(actionDetails.action);
+        if (!handler) {
+            if (actionDetails.action == MediaSessionAction::Nexttrack) {
+                handler = m_actionHandlers.get(MediaSessionAction::Nextslide);
+                if (handler)
+                    effectiveActionDetails.action = MediaSessionAction::Nextslide;
+            } else if (actionDetails.action == MediaSessionAction::Previoustrack) {
+                handler = m_actionHandlers.get(MediaSessionAction::Previousslide);
+                if (handler)
+                    effectiveActionDetails.action = MediaSessionAction::Previousslide;
+            }
+        }
     }
 
     if (handler) {
         std::optional<UserGestureIndicator> maybeGestureIndicator;
         if (triggerGestureIndicator == TriggerGestureIndicator::Yes)
             maybeGestureIndicator.emplace(IsProcessingUserGesture::Yes, document());
-        handler->invoke(actionDetails);
+        handler->invoke(effectiveActionDetails);
         return true;
     }
     auto element = activeMediaElement();
