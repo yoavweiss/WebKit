@@ -45,6 +45,7 @@
 #include "IntersectionObserverEntry.h"
 #include "JSNodeCustom.h"
 #include "LegacyRenderSVGModelObject.h"
+#include "LegacyRenderSVGRoot.h"
 #include "LocalDOMWindow.h"
 #include "Logging.h"
 #include "Performance.h"
@@ -54,7 +55,9 @@
 #include "RenderLineBreak.h"
 #include "RenderObjectInlines.h"
 #include "RenderSVGModelObject.h"
+#include "RenderSVGRoot.h"
 #include "RenderView.h"
+#include "SVGRenderSupport.h"
 #include "StyleKeyword+Logging.h"
 #include "StylePrimitiveNumericTypes+Conversions.h"
 #include "StylePrimitiveNumericTypes+Evaluation.h"
@@ -501,7 +504,7 @@ auto IntersectionObserver::computeIntersectionState(const IntersectionObserverRe
 
     // This is only set for explicit roots.
     // FIXME: remove one remaining place that needs this to work with implicit root.
-    CheckedPtr<RenderBlock> rootRenderer;
+    CheckedPtr<RenderBox> rootRenderer;
 
     CheckedPtr<RenderElement> targetRenderer;
     IntersectionObservationState intersectionState;
@@ -527,8 +530,26 @@ auto IntersectionObserver::computeIntersectionState(const IntersectionObserverRe
             if (!root()->renderer())
                 return;
 
-            rootRenderer = dynamicDowncast<RenderBlock>(root()->renderer());
-            if (!rootRenderer || !rootRenderer->isContainingBlockAncestorFor(*targetRenderer))
+            // Use RenderBox here rather than RenderBlock so explicit SVG roots
+            // (LegacyRenderSVGRoot and RenderSVGRoot are RenderReplaced) are accepted.
+            rootRenderer = dynamicDowncast<RenderBox>(root()->renderer());
+            if (!rootRenderer)
+                return;
+
+            auto isRootAncestorOfTarget = [&] {
+                // containingBlock() skips the SVG boundary (the SVG root is a
+                // RenderReplaced), so resolve an explicit SVG root via the target's SVG tree root.
+                if (CheckedPtr legacySVGRoot = dynamicDowncast<LegacyRenderSVGRoot>(rootRenderer))
+                    return SVGRenderSupport::findTreeRootObject(*targetRenderer) == legacySVGRoot;
+                if (CheckedPtr svgRoot = dynamicDowncast<RenderSVGRoot>(rootRenderer))
+                    return lineageOfType<RenderSVGRoot>(*targetRenderer).first() == svgRoot;
+
+                // isContainingBlockAncestorFor is only available on RenderBlock.
+                CheckedPtr rootBlock = dynamicDowncast<RenderBlock>(rootRenderer);
+                return rootBlock && rootBlock->isContainingBlockAncestorFor(*targetRenderer);
+            };
+
+            if (!isRootAncestorOfTarget())
                 return;
 
             intersectionState.canComputeIntersection = true;
