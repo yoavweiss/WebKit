@@ -1370,8 +1370,6 @@ fast/text/design-system-ui-16.html [ Pass ]
 # See bug 232916; this test can't pass as we do not support mid-stream resolution change.
 webkit.org/b/231084 imported/w3c/web-platform-tests/html/semantics/embedded-content/the-video-element/resize-during-playback.html [ Skip ]
 
-webkit.org/b/198867 webgl/many-contexts.html [ Skip ]
-
 webkit.org/b/203171 inspector/layers/layers-for-node.html [ Pass Failure ]
 
 webkit.org/b/203357 [ Debug ] imported/w3c/web-platform-tests/css/css-transitions/event-dispatch.tentative.html [ Pass Failure ]
