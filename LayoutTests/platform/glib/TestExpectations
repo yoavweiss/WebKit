@@ -3745,6 +3745,7 @@ webkit.org/b/242145 media/mediacapabilities/mediacapabilities-allowed-containers
 media/media-allowed-codecs.html [ Skip ]
 media/media-allowed-containers.html [ Skip ]
 media/media-source/media-source-allowed-codecs.html [ Skip ]
+webkit.org/b/316466 media/media-source/media-managedmse-adts-aac.html [ Failure ]
 
 webkit.org/b/214166 imported/w3c/web-platform-tests/media-source/idlharness.window.html [ Skip ]
 
