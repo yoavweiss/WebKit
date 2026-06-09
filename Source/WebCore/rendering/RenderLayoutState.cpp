@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007, 2013 Apple Inc. All rights reserved.
+ * Copyright (C) 2007-2026 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -43,14 +43,8 @@ namespace WebCore {
 WTF_MAKE_TZONE_ALLOCATED_IMPL(RenderLayoutState);
 
 RenderLayoutState::RenderLayoutState(RenderElement& renderer)
-    : m_clipped(false)
-    , m_isPaginated(false)
-    , m_pageLogicalHeightChanged(false)
 #if ASSERT_ENABLED
-    , m_layoutDeltaXSaturated(false)
-    , m_layoutDeltaYSaturated(false)
-    , m_marginTrimBlockStart(false)
-    , m_renderer(&renderer)
+    : m_renderer(&renderer)
 #endif
 {
     if (RenderElement* container = renderer.container()) {
@@ -71,15 +65,7 @@ RenderLayoutState::RenderLayoutState(RenderElement& renderer)
 }
 
 RenderLayoutState::RenderLayoutState(const LocalFrameViewLayoutContext::LayoutStateStack& layoutStateStack, RenderBox& renderer, const LayoutSize& offset, LayoutUnit pageLogicalHeight, bool pageLogicalHeightChanged, std::optional<LineClamp> lineClamp, std::optional<LegacyLineClamp> legacyLineClamp)
-    : m_clipped(false)
-    , m_isPaginated(false)
-    , m_pageLogicalHeightChanged(false)
-#if ASSERT_ENABLED
-    , m_layoutDeltaXSaturated(false)
-    , m_layoutDeltaYSaturated(false)
-#endif
-    , m_marginTrimBlockStart(false)
-    , m_lineClamp(lineClamp)
+    : m_lineClamp(lineClamp)
     , m_legacyLineClamp(legacyLineClamp)
 #if ASSERT_ENABLED
     , m_renderer(&renderer)

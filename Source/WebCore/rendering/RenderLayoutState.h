@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2025 Apple Inc. All rights reserved.
+ * Copyright (C) 2007-2026 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -57,17 +57,7 @@ public:
         SingleThreadWeakPtr<const RenderBlockFlow> clampedRenderer;
     };
 
-    RenderLayoutState()
-        : m_clipped(false)
-        , m_isPaginated(false)
-        , m_pageLogicalHeightChanged(false)
-#if ASSERT_ENABLED
-        , m_layoutDeltaXSaturated(false)
-        , m_layoutDeltaYSaturated(false)
-#endif
-        , m_marginTrimBlockStart(false)
-    {
-    }
+    RenderLayoutState() = default;
     RenderLayoutState(const LocalFrameViewLayoutContext::LayoutStateStack&, RenderBox&, const LayoutSize& offset, LayoutUnit pageHeight, bool pageHeightChanged, std::optional<LineClamp>, std::optional<LegacyLineClamp>);
     explicit RenderLayoutState(RenderElement&);
 
@@ -122,13 +112,13 @@ private:
     void computeLineGridPaginationOrigin(const RenderMultiColumnFlow&);
 
     // Do not add anything apart from bitfields. See https://bugs.webkit.org/show_bug.cgi?id=100173
-    bool m_clipped : 1;
-    bool m_isPaginated : 1;
+    bool m_clipped : 1 { false };
+    bool m_isPaginated : 1 { false };
     // If our page height has changed, this will force all blocks to relayout.
-    bool m_pageLogicalHeightChanged : 1;
+    bool m_pageLogicalHeightChanged : 1 { false };
 #if ASSERT_ENABLED
-    bool m_layoutDeltaXSaturated : 1;
-    bool m_layoutDeltaYSaturated : 1;
+    bool m_layoutDeltaXSaturated : 1 { false };
+    bool m_layoutDeltaYSaturated : 1 { false };
 #endif
     bool m_marginTrimBlockStart : 1 { false };
 
