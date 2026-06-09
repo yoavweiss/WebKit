@@ -901,6 +901,164 @@ Vector<AudioStreamPacketDescription> getPacketDescriptions(CMSampleBufferRef sam
     return descriptions;
 }
 
+Vector<CMSampleTimingInfo> getSampleTimingInfoArray(CMSampleBufferRef sampleBuffer)
+{
+    CMItemCount entriesNeeded = 0;
+    if (PAL::CMSampleBufferGetSampleTimingInfoArray(sampleBuffer, 0, nullptr, &entriesNeeded) != noErr || !entriesNeeded)
+        return { };
+    Vector<CMSampleTimingInfo> timings(entriesNeeded);
+    if (PAL::CMSampleBufferGetSampleTimingInfoArray(sampleBuffer, entriesNeeded, timings.mutableSpan().data(), nullptr) != noErr)
+        return { };
+    return timings;
+}
+
+static bool sampleBufferHasNoSampleSizes(CMSampleBufferRef sampleBuffer)
+{
+    return PAL::CMSampleBufferGetSampleSizeArray(sampleBuffer, 0, nullptr, nullptr) == kCMSampleBufferError_BufferHasNoSampleSizes;
+}
+
+// Synthesize a single-packet CMSampleBuffer that references a slice of a source
+// block buffer. Used when the source CMSampleBuffer carries per-packet sizes in
+// the audio stream packet description array (kCMSampleBufferError_BufferHasNoSampleSizes
+// shape) and CoreMedia APIs that walk the sample-size array cannot be used.
+static RetainPtr<CMSampleBufferRef> createSinglePacketSampleBuffer(CMBlockBufferRef sourceBlockBuffer, CMFormatDescriptionRef formatDescription, const AudioStreamPacketDescription& desc, const CMSampleTimingInfo& timing)
+{
+    if (desc.mStartOffset < 0)
+        return nullptr;
+
+    CMBlockBufferRef rawSubBlock = nullptr;
+    if (PAL::CMBlockBufferCreateEmpty(kCFAllocatorDefault, 1, 0, &rawSubBlock) != kCMBlockBufferNoErr || !rawSubBlock)
+        return nullptr;
+    RetainPtr subBlock = adoptCF(rawSubBlock);
+    if (PAL::CMBlockBufferAppendBufferReference(subBlock.get(), sourceBlockBuffer, static_cast<size_t>(desc.mStartOffset), desc.mDataByteSize, 0) != kCMBlockBufferNoErr)
+        return nullptr;
+
+    size_t sampleSize = desc.mDataByteSize;
+    CMSampleBufferRef rawSample = nullptr;
+    if (PAL::CMSampleBufferCreateReady(kCFAllocatorDefault, subBlock.get(), formatDescription, 1, 1, &timing, 1, &sampleSize, &rawSample) != noErr || !rawSample)
+        return nullptr;
+    return adoptCF(rawSample);
+}
+
+OSStatus forEachSample(CMSampleBufferRef sampleBuffer, NOESCAPE const Function<OSStatus(CMSampleBufferRef, CMItemCount)>& callback)
+{
+    if (!sampleBufferHasNoSampleSizes(sampleBuffer)) {
+        return PAL::CMSampleBufferCallBlockForEachSample(sampleBuffer, [&](CMSampleBufferRef subSample, CMItemCount index) -> OSStatus {
+            return callback(subSample, index);
+        });
+    }
+
+    auto numSamples = PAL::CMSampleBufferGetNumSamples(sampleBuffer);
+    auto packetDescs = getPacketDescriptions(sampleBuffer);
+    if (packetDescs.size() != static_cast<size_t>(numSamples))
+        return kCMSampleBufferError_CannotSubdivide;
+
+    auto timings = getSampleTimingInfoArray(sampleBuffer);
+    if (timings.isEmpty())
+        return kCMSampleBufferError_CannotSubdivide;
+
+    const bool uniformTiming = timings.size() == 1;
+    const CMSampleTimingInfo& baseTiming = timings[0];
+    CMTime runningPTS = baseTiming.presentationTimeStamp;
+    CMTime runningDTS = baseTiming.decodeTimeStamp;
+
+    RetainPtr formatDescription = PAL::CMSampleBufferGetFormatDescription(sampleBuffer);
+    RetainPtr sourceBlockBuffer = PAL::CMSampleBufferGetDataBuffer(sampleBuffer);
+    if (!formatDescription || !sourceBlockBuffer)
+        return kCMSampleBufferError_CannotSubdivide;
+
+    for (CMItemCount i = 0; i < numSamples; ++i) {
+        CMSampleTimingInfo timing = uniformTiming
+            ? CMSampleTimingInfo { baseTiming.duration, runningPTS, runningDTS }
+            : timings[i];
+        if (uniformTiming && CMTIME_IS_VALID(baseTiming.duration)) {
+            if (CMTIME_IS_VALID(runningPTS))
+                runningPTS = PAL::CMTimeAdd(runningPTS, baseTiming.duration);
+            if (CMTIME_IS_VALID(runningDTS))
+                runningDTS = PAL::CMTimeAdd(runningDTS, baseTiming.duration);
+        }
+
+        RetainPtr subSample = createSinglePacketSampleBuffer(sourceBlockBuffer.get(), formatDescription.get(), packetDescs[i], timing);
+        if (!subSample)
+            return kCMSampleBufferError_CannotSubdivide;
+
+        if (auto status = callback(subSample.get(), i))
+            return status;
+    }
+    return noErr;
+}
+
+RetainPtr<CMSampleBufferRef> copySampleBufferForRange(CMSampleBufferRef sampleBuffer, CFRange range)
+{
+    if (!sampleBufferHasNoSampleSizes(sampleBuffer)) {
+        CMSampleBufferRef rawCopy = nullptr;
+        if (PAL::CMSampleBufferCopySampleBufferForRange(kCFAllocatorDefault, sampleBuffer, range, &rawCopy) != noErr || !rawCopy)
+            return nullptr;
+        return adoptCF(rawCopy);
+    }
+
+    auto numSamples = PAL::CMSampleBufferGetNumSamples(sampleBuffer);
+    if (range.location < 0 || range.length <= 0 || range.location + range.length > numSamples)
+        return nullptr;
+
+    auto packetDescs = getPacketDescriptions(sampleBuffer);
+    if (packetDescs.size() != static_cast<size_t>(numSamples))
+        return nullptr;
+
+    auto timings = getSampleTimingInfoArray(sampleBuffer);
+    if (timings.isEmpty())
+        return nullptr;
+
+    RetainPtr formatDescription = PAL::CMSampleBufferGetFormatDescription(sampleBuffer);
+    RetainPtr sourceBlockBuffer = PAL::CMSampleBufferGetDataBuffer(sampleBuffer);
+    if (!formatDescription || !sourceBlockBuffer)
+        return nullptr;
+
+    CMBlockBufferRef rawSubBlock = nullptr;
+    if (PAL::CMBlockBufferCreateEmpty(kCFAllocatorDefault, range.length, 0, &rawSubBlock) != kCMBlockBufferNoErr || !rawSubBlock)
+        return nullptr;
+    RetainPtr subBlock = adoptCF(rawSubBlock);
+
+    Vector<size_t> sampleSizes;
+    sampleSizes.reserveInitialCapacity(static_cast<size_t>(range.length));
+    for (CFIndex i = 0; i < range.length; ++i) {
+        const auto& desc = packetDescs[range.location + i];
+        if (desc.mStartOffset < 0)
+            return nullptr;
+        if (PAL::CMBlockBufferAppendBufferReference(subBlock.get(), sourceBlockBuffer.get(), static_cast<size_t>(desc.mStartOffset), desc.mDataByteSize, 0) != kCMBlockBufferNoErr)
+            return nullptr;
+        sampleSizes.append(desc.mDataByteSize);
+    }
+
+    Vector<CMSampleTimingInfo> rangeTimings;
+    CMItemCount timingEntries;
+    const CMSampleTimingInfo* timingArray = nullptr;
+    CMSampleTimingInfo uniformTimingForRange;
+    if (timings.size() == 1) {
+        const CMSampleTimingInfo& baseTiming = timings[0];
+        uniformTimingForRange = baseTiming;
+        if (CMTIME_IS_VALID(baseTiming.duration)) {
+            for (CFIndex i = 0; i < range.location; ++i) {
+                if (CMTIME_IS_VALID(uniformTimingForRange.presentationTimeStamp))
+                    uniformTimingForRange.presentationTimeStamp = PAL::CMTimeAdd(uniformTimingForRange.presentationTimeStamp, baseTiming.duration);
+                if (CMTIME_IS_VALID(uniformTimingForRange.decodeTimeStamp))
+                    uniformTimingForRange.decodeTimeStamp = PAL::CMTimeAdd(uniformTimingForRange.decodeTimeStamp, baseTiming.duration);
+            }
+        }
+        timingArray = &uniformTimingForRange;
+        timingEntries = 1;
+    } else {
+        rangeTimings = timings.subspan(range.location, range.length);
+        timingArray = rangeTimings.span().data();
+        timingEntries = rangeTimings.size();
+    }
+
+    CMSampleBufferRef rawSample = nullptr;
+    if (PAL::CMSampleBufferCreateReady(kCFAllocatorDefault, subBlock.get(), formatDescription.get(), range.length, timingEntries, timingArray, sampleSizes.size(), sampleSizes.span().data(), &rawSample) != noErr || !rawSample)
+        return nullptr;
+    return adoptCF(rawSample);
+}
+
 RetainPtr<CMBlockBufferRef> ensureContiguousBlockBuffer(CMBlockBufferRef rawBlockBuffer)
 {
     if (PAL::CMBlockBufferIsRangeContiguous(rawBlockBuffer, 0, 0))
