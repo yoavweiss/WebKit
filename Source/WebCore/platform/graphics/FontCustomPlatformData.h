@@ -115,9 +115,11 @@ public:
 
 inline bool computeSyntheticBold(bool hasWeightVariationAxis, const FontDescription& fontDescription, const FontCreationContext& fontCreationContext)
 {
-    if (hasWeightVariationAxis)
+    auto explicitlyDeclaredWeight = fontCreationContext.fontFaceCapabilities().weight;
+    // No explicit font-weight descriptor (auto): the variable font's wght axis handles weight, so don't synthesize.
+    if (hasWeightVariationAxis && !explicitlyDeclaredWeight)
         return false;
-    auto declaredWeightMax = fontCreationContext.fontFaceCapabilities().weight
+    auto declaredWeightMax = explicitlyDeclaredWeight
         .transform([](auto range) { return range.maximum; })
         .value_or(normalWeightValue());
     return fontDescription.hasAutoFontSynthesisWeight()
