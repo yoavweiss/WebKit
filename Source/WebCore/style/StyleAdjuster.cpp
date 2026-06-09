@@ -527,6 +527,15 @@ void Adjuster::adjust(Style::ComputedStyle& style) const
         // https://drafts.csswg.org/css-ruby-1/#bidi
         if (style.display().isRubyContainerOrInternalRubyBox())
             style.setUnicodeBidi(forceBidiIsolationForRuby(style.unicodeBidi()));
+
+        // Line decorations propagate through the box tree, not through inheritance, so only a
+        // box-generating element folds its own text-decoration-line into the in-effect value.
+        if (shouldInheritTextDecorationsInEffect(style, m_element.get())) {
+            auto updatedTextDecorationLineInEffect = style.textDecorationLineInEffect();
+            updatedTextDecorationLineInEffect.addOrReplaceIfNotNone(style.textDecorationLine());
+            style.setTextDecorationLineInEffect(updatedTextDecorationLineInEffect);
+        } else
+            style.setTextDecorationLineInEffect(style.textDecorationLine());
     }
 
     auto hasAutoZIndex = [](const Style::ComputedStyle& style, const Style::ComputedStyle& parentBoxStyle, const Element* element) {
@@ -623,13 +632,6 @@ void Adjuster::adjust(Style::ComputedStyle& style) const
         if (RefPtr htmlElement = dynamicDowncast<HTMLElement>(element); htmlElement && htmlElement->isHiddenUntilFound())
             style.setAutoRevealsWhenFound();
     }
-
-    if (shouldInheritTextDecorationsInEffect(style, m_element.get())) {
-        auto updatedTextDecorationLineInEffect = style.textDecorationLineInEffect();
-        updatedTextDecorationLineInEffect.addOrReplaceIfNotNone(style.textDecorationLine());
-        style.setTextDecorationLineInEffect(updatedTextDecorationLineInEffect);
-    } else
-        style.setTextDecorationLineInEffect(style.textDecorationLine());
 
     bool overflowIsClipOrVisible = isOverflowClipOrVisible(style.overflowY()) && isOverflowClipOrVisible(style.overflowX());
 
