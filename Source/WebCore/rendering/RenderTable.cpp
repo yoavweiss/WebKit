@@ -1555,7 +1555,7 @@ RenderTableSection* RenderTable::sectionAbove(const RenderTableSection* section,
     RenderObject* prevSection = section == m_foot ? lastChild() : section->previousSibling();
     while (prevSection) {
         auto* tableSection = dynamicDowncast<RenderTableSection>(*prevSection);
-        if (tableSection && prevSection != m_head && prevSection != m_foot && (skipEmptySections == DoNotSkipEmptySections || downcast<RenderTableSection>(*prevSection).numRows()))
+        if (tableSection && prevSection != m_head && prevSection != m_foot && (skipEmptySections == DoNotSkipEmptySections || tableSection->numRows()))
             return tableSection;
         prevSection = prevSection->previousSibling();
     }
@@ -1574,7 +1574,7 @@ RenderTableSection* RenderTable::sectionBelow(const RenderTableSection* section,
     RenderObject* nextSection = section == m_head ? firstChild() : section->nextSibling();
     while (nextSection) {
         auto* tableSection = dynamicDowncast<RenderTableSection>(*nextSection);
-        if (tableSection && nextSection != m_head && nextSection != m_foot && (skipEmptySections  == DoNotSkipEmptySections || downcast<RenderTableSection>(*nextSection).numRows()))
+        if (tableSection && nextSection != m_head && nextSection != m_foot && (skipEmptySections  == DoNotSkipEmptySections || tableSection->numRows()))
             return tableSection;
         nextSection = nextSection->nextSibling();
     }
