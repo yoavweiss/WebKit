@@ -137,7 +137,6 @@ typedef NS_ENUM(NSInteger, _WKImmediateActionType) {
 @class _WKJSHandle;
 @class _WKRemoteObjectRegistry;
 @class _WKSafeBrowsingWarning;
-@class _WKSerializedNode;
 @class _WKSessionState;
 @class _WKSpatialBackdropSource;
 @class _WKTargetedElementInfo;
