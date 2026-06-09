@@ -69,6 +69,7 @@
 #import "TextExtractionAssertionScope.h"
 #import "TextExtractionFilter.h"
 #import "TextExtractionToStringConversion.h"
+#import "TextExtractionTokenizer.h"
 #import "TextExtractionURLCache.h"
 #import "UIDelegate.h"
 #import "UIKitUtilities.h"
@@ -7879,6 +7880,8 @@ static OptionSet<WebCore::DataDetectorType> NODELETE coreDataDetectorTypes(_WKTe
             ASSERT_UNUSED(addResult, addResult.isNewEntry);
         });
     }
+
+    WebKit::TextExtractionTokenizer::singleton().prewarm();
 
 #if ENABLE(TEXT_EXTRACTION_FILTER) && HAVE(VISION)
     if (!_textExtractionRecognizedWords && preferences->textExtractionFilterEnabled() && (configuration.filterOptions & _WKTextExtractionFilterTextRecognition)) {
