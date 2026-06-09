@@ -87,11 +87,6 @@ static constexpr std::array stretchyCharacters {
     StretchyCharacter { 0x222b, 0x2320, 0x23ae, 0x2321, 0x0    } // integral sign
 };
 
-MathOperator::MathOperator()
-{
-    m_variantGlyph = 0;
-}
-
 void MathOperator::setOperator(const Style::ComputedStyle& style, char32_t baseCharacter, Type operatorType)
 {
     m_baseCharacter = baseCharacter;

@@ -42,7 +42,7 @@ class ComputedStyle;
 
 class MathOperator {
 public:
-    MathOperator();
+    MathOperator() = default;
     enum class Type { NormalOperator, DisplayOperator, VerticalOperator, HorizontalOperator };
     void setOperator(const Style::ComputedStyle&, char32_t baseCharacter, Type);
     void reset(const Style::ComputedStyle&);
@@ -103,7 +103,7 @@ private:
     Type m_operatorType { Type::NormalOperator };
     StretchType m_stretchType { StretchType::Unstretched };
     union {
-        Glyph m_variantGlyph;
+        Glyph m_variantGlyph { 0 };
         GlyphAssemblyData m_assembly;
     };
     LayoutUnit m_maxPreferredWidth { 0 };
