@@ -316,6 +316,10 @@ Expected<bool, String> WebSocketTask::validateOpeningHandshake()
 
     if (m_handshake->mode() != WebCore::WebSocketHandshake::Connected) {
         auto reason = m_handshake->failureReason();
+        if (!m_handshake->serverHandshakeResponse().isNull()) {
+            if (RefPtr channel = m_channel.get())
+                channel->didReceiveHandshakeResponse(WebCore::ResourceResponse(m_handshake->serverHandshakeResponse()));
+        }
         m_handshake = nullptr;
         return makeUnexpected(reason);
     }

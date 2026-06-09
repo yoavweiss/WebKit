@@ -326,26 +326,29 @@ URL WebSocketHandshake::httpURLForAuthenticationAndCookies() const
     return url;
 }
 
-// https://tools.ietf.org/html/rfc6455#section-4.1
-// "The HTTP version MUST be at least 1.1."
-static inline bool headerHasValidHTTPVersion(StringView httpStatusLine)
+struct HTTPVersion {
+    int major;
+    int minor;
+};
+
+static inline std::optional<HTTPVersion> readHTTPVersion(StringView httpStatusLine)
 {
     constexpr auto preamble = "HTTP/"_s;
     if (!httpStatusLine.startsWith(preamble))
-        return false;
+        return std::nullopt;
 
     // Check that there is a version number which should be at least three characters after "HTTP/"
     unsigned preambleLength = preamble.length();
     if (httpStatusLine.length() < preambleLength + 3)
-        return false;
+        return std::nullopt;
 
     auto dotPosition = httpStatusLine.find('.', preambleLength);
     if (dotPosition == notFound)
-        return false;
+        return std::nullopt;
 
     auto majorVersion = parseInteger<int>(httpStatusLine.substring(preambleLength, dotPosition - preambleLength));
     if (!majorVersion)
-        return false;
+        return std::nullopt;
 
     unsigned minorVersionLength;
     unsigned charactersLeftAfterDotPosition = httpStatusLine.length() - dotPosition;
@@ -355,9 +358,20 @@ static inline bool headerHasValidHTTPVersion(StringView httpStatusLine)
     }
     auto minorVersion = parseInteger<int>(httpStatusLine.substring(dotPosition + 1, minorVersionLength));
     if (!minorVersion)
-        return false;
+        return std::nullopt;
 
-    return (*majorVersion >= 1 && *minorVersion >= 1) || *majorVersion >= 2;
+    // Accept any well-formed HTTP/1.x or later status line. While a successful WebSocket
+    // upgrade requires HTTP/1.1 (enforced separately by the 101 status-code check in
+    // readStatusLine()), a failed handshake may legitimately come back as an HTTP/1.0
+    // error response (e.g. from a simple proxy or origin server). Rejecting HTTP/1.0 here
+    // would discard that response's status code and text instead of surfacing them.
+    if (*majorVersion < 1 || *minorVersion < 0)
+        return std::nullopt;
+
+    return { {
+        .major = *majorVersion,
+        .minor = *minorVersion,
+    } };
 }
 
 // Returns the header length (including "\r\n"), or -1 if we have not received enough data yet.
@@ -415,7 +429,8 @@ int WebSocketHandshake::readStatusLine(std::span<const uint8_t> header, int& sta
     }
 
     StringView httpStatusLine(byteCast<Latin1Character>(header.first(*firstSpaceIndex)));
-    if (!headerHasValidHTTPVersion(httpStatusLine)) {
+    auto httpVersion = readHTTPVersion(httpStatusLine);
+    if (!httpVersion) {
         m_failureReason = makeString("Invalid HTTP version string: "_s, httpStatusLine);
         return lineLength;
     }
@@ -432,6 +447,14 @@ int WebSocketHandshake::readStatusLine(std::span<const uint8_t> header, int& sta
 
     statusCode = parseInteger<int>(statusCodeString).value();
     statusText = String(byteCast<Latin1Character>(header.subspan(*secondSpaceIndex + 1, lineLength - *secondSpaceIndex - 3))); // Exclude "\r\n".
+
+    // https://tools.ietf.org/html/rfc6455#section-4.1
+    // "The HTTP version MUST be at least 1.1."
+    if (statusCode == 101 && (httpVersion->major < 1 || httpVersion->minor < 1)) {
+        m_failureReason = makeString("Invalid HTTP version string: "_s, httpStatusLine);
+        return lineLength;
+    }
+
     return lineLength;
 }
 
