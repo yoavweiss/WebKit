@@ -3289,6 +3289,8 @@ void WebPageProxy::updateActivityState(OptionSet<ActivityState> flagsToUpdate)
 {
     bool wasVisible = isViewVisible();
     RefPtr pageClient = this->pageClient();
+    if (!pageClient)
+        return;
     internals().activityState.remove(flagsToUpdate);
     if (flagsToUpdate & ActivityState::IsFocused && pageClient->isViewFocused())
         internals().activityState.add(ActivityState::IsFocused);
