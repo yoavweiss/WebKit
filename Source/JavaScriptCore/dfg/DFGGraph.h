@@ -36,7 +36,6 @@
 #include "DFGFrozenValue.h"
 #include "DFGNode.h"
 #include "DFGPlan.h"
-#include "DFGPropertyTypeKey.h"
 #include "FullBytecodeLiveness.h"
 #include "FunctionAllowlist.h"
 #include "JITScannable.h"

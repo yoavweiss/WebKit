@@ -182,7 +182,6 @@ set(WTF_PUBLIC_HEADERS
     MachSendRight.h
     MachSendRightAnnotated.h
     MainThread.h
-    MainThreadData.h
     MainThreadDispatcher.h
     MallocCommon.h
     MallocPtr.h
@@ -335,7 +334,6 @@ set(WTF_PUBLIC_HEADERS
     StackShotProfiler.h
     StackStats.h
     StackTrace.h
-    StatisticsManager.h
     StdFilesystem.h
     StdIntExtras.h
     StdLibExtras.h
@@ -623,7 +621,6 @@ set(WTF_SOURCES
     StackPointer.cpp
     StackStats.cpp
     StackTrace.cpp
-    StatisticsManager.cpp
     StringPrintStream.cpp
     SuspendableWorkQueue.cpp
     ThreadGroup.cpp

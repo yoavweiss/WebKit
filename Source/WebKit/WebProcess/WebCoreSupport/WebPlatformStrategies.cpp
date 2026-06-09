@@ -27,7 +27,6 @@
 #include "WebPlatformStrategies.h"
 
 #include "BlobRegistryProxy.h"
-#include "BlockingResponseMap.h"
 #include "HangDetectionDisabler.h"
 #include "NetworkConnectionToWebProcessMessages.h"
 #include "NetworkProcessConnection.h"

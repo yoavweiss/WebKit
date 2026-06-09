@@ -625,7 +625,6 @@ UIProcess/ios/WKUIScrollEdgeEffect.mm @nonARC
 UIProcess/ios/WKUSDPreviewView.mm @nonARC
 UIProcess/ios/WKVideoView.mm @nonARC
 UIProcess/ios/WKVisibilityPropagationView.mm @nonARC
-UIProcess/ios/WKWebEvent.mm @nonARC
 UIProcess/ios/WKWebGeolocationPolicyDeciderIOS.mm @nonARC
 
 UIProcess/Launcher/cocoa/ProcessLauncherCocoa.mm @nonARC

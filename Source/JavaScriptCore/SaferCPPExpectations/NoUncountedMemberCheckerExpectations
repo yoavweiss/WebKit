@@ -14,7 +14,6 @@ debugger/Debugger.cpp
 dfg/DFGFinalizer.h
 dfg/DFGLazyJSValue.h
 dfg/DFGNode.h
-dfg/DFGPropertyTypeKey.h
 dfg/DFGSpeculativeJIT.h
 ftl/FTLLowerDFGToB3.cpp
 ftl/FTLOSRExitHandle.h
