@@ -30,6 +30,7 @@
 #include "APIWebsitePolicies.h"
 #include "EnhancedSecurity.h"
 #include "FrameProcess.h"
+#include "Logging.h"
 #include "PageLoadState.h"
 #include "ProvisionalPageProxy.h"
 #include "RemotePageProxy.h"
@@ -37,6 +38,9 @@
 #include "WebPageProxy.h"
 #include "WebProcessPool.h"
 #include "WebProcessProxy.h"
+
+#define BCG_RELEASE_LOG(fmt, ...) RELEASE_LOG(ProcessSwapping, "%p - BrowsingContextGroup::" fmt, this, ##__VA_ARGS__)
+#define BCG_RELEASE_LOG_ERROR(fmt, ...) RELEASE_LOG_ERROR(ProcessSwapping, "%p - BrowsingContextGroup::" fmt, this, ##__VA_ARGS__)
 
 namespace WebKit {
 
@@ -70,14 +74,22 @@ void BrowsingContextGroup::sharedProcessForSite(WebsiteDataStore& websiteDataSto
         pageConfiguration = protect(pageConfiguration),
         completionHandler = WTF::move(completionHandler)
     ](const HashSet<WebCore::RegistrableDomain>& domainsWithUserInteraction) mutable {
-
         if (domainsWithUserInteraction.contains(site.domain()) && !protectedThis->m_sharedProcessSites.contains(site))
             return completionHandler(nullptr);
 
         protectedThis->m_sharedProcessSites.add(site);
         if (RefPtr frameProcess = protectedThis->m_sharedProcess.get()) {
             ASSERT(frameProcess->isSharedProcess());
-            ASSERT(!frameProcess->process().isInProcessCache());
+            if (frameProcess->process().isInProcessCache()) {
+                RELEASE_LOG_ERROR(ProcessSwapping, "%p - BrowsingContextGroup::sharedProcessForSite: shared process pid %i is in process cache unexpectedly, clearing m_sharedProcess (site=%" SENSITIVE_LOG_STRING ")",
+                    protectedThis.ptr(), frameProcess->process().processID(), site.toString().utf8().data());
+                // FIXME: Remove this workaround once we can correlate the error log with logs of
+                // maybeShutDown / addProcessIfPossible to understand why the web process enters
+                // cache when its FrameProcess (m_sharedProcess) is still alive.
+                protectedThis->m_sharedProcess = nullptr;
+                protectedThis->m_sharedProcessSites.clear();
+                return completionHandler(nullptr);
+            }
             return completionHandler(frameProcess.get());
         }
 
