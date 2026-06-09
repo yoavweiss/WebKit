@@ -79,14 +79,6 @@ static_assert(sizeof(CollapsedBorderValue) <= 24, "CollapsedBorderValue should s
 
 RenderTableCell::RenderTableCell(Element& element, Style::ComputedStyle&& style)
     : RenderBlockFlow(Type::TableCell, element, WTF::move(style))
-    , m_column(unsetColumnIndex)
-    , m_cellWidthChanged(false)
-    , m_hasColSpan(false)
-    , m_hasRowSpan(false)
-    , m_hasEmptyCollapsedBeforeBorder(false)
-    , m_hasEmptyCollapsedAfterBorder(false)
-    , m_hasEmptyCollapsedStartBorder(false)
-    , m_hasEmptyCollapsedEndBorder(false)
 {
     // We only update the flags when notified of DOM changes in colSpanOrRowSpanChanged()
     // so we need to set their initial values here in case something asks for colSpan()/rowSpan() before then.
@@ -96,14 +88,6 @@ RenderTableCell::RenderTableCell(Element& element, Style::ComputedStyle&& style)
 
 RenderTableCell::RenderTableCell(Document& document, Style::ComputedStyle&& style)
     : RenderBlockFlow(Type::TableCell, document, WTF::move(style))
-    , m_column(unsetColumnIndex)
-    , m_cellWidthChanged(false)
-    , m_hasColSpan(false)
-    , m_hasRowSpan(false)
-    , m_hasEmptyCollapsedBeforeBorder(false)
-    , m_hasEmptyCollapsedAfterBorder(false)
-    , m_hasEmptyCollapsedStartBorder(false)
-    , m_hasEmptyCollapsedEndBorder(false)
 {
     ASSERT(isRenderTableCell());
 }

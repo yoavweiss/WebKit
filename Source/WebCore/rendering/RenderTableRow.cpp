@@ -4,7 +4,7 @@
  *           (C) 1998 Waldo Bastian (bastian@kde.org)
  *           (C) 1999 Lars Knoll (knoll@kde.org)
  *           (C) 1999 Antti Koivisto (koivisto@kde.org)
- * Copyright (C) 2003-2023 Apple Inc. All rights reserved.
+ * Copyright (C) 2003-2026 Apple Inc. All rights reserved.
  * Copyright (C) 2015 Google Inc. All rights reserved.
  * Copyright (C) 2026 Samuel Weinig <sam@webkit.org>
  *
@@ -53,7 +53,6 @@ WTF_MAKE_TZONE_ALLOCATED_IMPL(RenderTableRow);
 
 RenderTableRow::RenderTableRow(Element& element, Style::ComputedStyle&& style)
     : RenderBlock(Type::TableRow, element, WTF::move(style), { })
-    , m_rowIndex(unsetRowIndex)
 {
     setInline(false);
     ASSERT(isRenderTableRow());
@@ -61,7 +60,6 @@ RenderTableRow::RenderTableRow(Element& element, Style::ComputedStyle&& style)
 
 RenderTableRow::RenderTableRow(Document& document, Style::ComputedStyle&& style)
     : RenderBlock(Type::TableRow, document, WTF::move(style), { })
-    , m_rowIndex(unsetRowIndex)
 {
     setInline(false);
     ASSERT(isRenderTableRow());

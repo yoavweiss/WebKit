@@ -4,7 +4,7 @@
  *           (C) 1998 Waldo Bastian (bastian@kde.org)
  *           (C) 1999 Lars Knoll (knoll@kde.org)
  *           (C) 1999 Antti Koivisto (koivisto@kde.org)
- * Copyright (C) 2003-2025 Apple Inc. All rights reserved.
+ * Copyright (C) 2003-2026 Apple Inc. All rights reserved.
  * Copyright (C) 2016 Google Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or
@@ -94,7 +94,7 @@ private:
     void nextSibling() const = delete;
     void previousSibling() const = delete;
 
-    unsigned m_rowIndex : 31;
+    unsigned m_rowIndex : 31 { unsetRowIndex };
 };
 
 inline void RenderTableRow::setRowIndex(unsigned rowIndex)

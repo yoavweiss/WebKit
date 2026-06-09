@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2002 Lars Knoll (knoll@kde.org)
  *           (C) 2002 Dirk Mueller (mueller@kde.org)
- * Copyright (C) 2003-2025 Apple Inc. All rights reserved.
+ * Copyright (C) 2003-2026 Apple Inc. All rights reserved.
  * Copyright (C) 2014-2017 Google Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or
@@ -38,8 +38,6 @@ namespace WebCore {
 
 AutoTableLayout::AutoTableLayout(RenderTable* table)
     : TableLayout(table)
-    , m_hasPercent(false)
-    , m_effectiveLogicalWidthDirty(true)
 {
 }
 

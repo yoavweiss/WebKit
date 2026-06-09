@@ -4,7 +4,7 @@
  *           (C) 1998 Waldo Bastian (bastian@kde.org)
  *           (C) 1999 Lars Knoll (knoll@kde.org)
  *           (C) 1999 Antti Koivisto (koivisto@kde.org)
- * Copyright (C) 2003, 2004, 2005, 2006, 2007, 2009 Apple Inc. All rights reserved.
+ * Copyright (C) 2003-2026 Apple Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -209,15 +209,14 @@ private:
 
     bool hasLineIfEmpty() const final;
 
-    // Note MSVC will only pack members if they have identical types, hence we use unsigned instead of bool here.
-    unsigned m_column : 25;
-    unsigned m_cellWidthChanged : 1;
-    unsigned m_hasColSpan: 1;
-    unsigned m_hasRowSpan: 1;
-    mutable unsigned m_hasEmptyCollapsedBeforeBorder: 1;
-    mutable unsigned m_hasEmptyCollapsedAfterBorder: 1;
-    mutable unsigned m_hasEmptyCollapsedStartBorder: 1;
-    mutable unsigned m_hasEmptyCollapsedEndBorder: 1;
+    unsigned m_column : 25 { unsetColumnIndex };
+    bool m_cellWidthChanged : 1 { false };
+    bool m_hasColSpan : 1 { false };
+    bool m_hasRowSpan : 1 { false };
+    mutable bool m_hasEmptyCollapsedBeforeBorder : 1 { false };
+    mutable bool m_hasEmptyCollapsedAfterBorder : 1 { false };
+    mutable bool m_hasEmptyCollapsedStartBorder : 1 { false };
+    mutable bool m_hasEmptyCollapsedEndBorder : 1 { false };
     bool m_isComputingPreferredSize { false };
     LayoutUnit m_intrinsicPaddingBefore { 0 };
     LayoutUnit m_intrinsicPaddingAfter { 0 };
