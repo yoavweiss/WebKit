@@ -449,7 +449,7 @@ bool isDefinitelyNonThenable(JSObject* object, JSGlobalObject* globalObject)
             // (null proto) or [self, Object.prototype]. Mark anything else Uncacheable
             // so subsequent calls skip this check and go straight to the walk.
             JSValue proto = structure->storedPrototype();
-            if (!proto.isObject() || asObject(proto) == globalObject->objectPrototype())
+            if (!proto.isObject() || asObject(proto) == structure->realm()->objectPrototype())
                 structure->setDefinitelyNonThenableState(Structure::DefinitelyNonThenableState::NonThenable);
             else
                 structure->setDefinitelyNonThenableState(Structure::DefinitelyNonThenableState::Uncacheable);
