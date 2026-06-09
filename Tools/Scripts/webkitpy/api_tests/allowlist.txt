@@ -4329,7 +4329,6 @@ TestWebKitAPI._WKDownload.SystemPreviewUSDZBlobNaming
 [ ios ] TestWebKitAPI.InAppBrowserPrivacy.WebViewWithoutAppBoundFlagCanFreelyNavigate
 [ ios ] TestWebKitAPI.IndexedDB.DeleteRecovery
 [ ios ] TestWebKitAPI.IndexedDB.IndexedDBInPageCache
-[ ios ] TestWebKitAPI.IndexedDB.IndexedDBPersistence
 [ ios ] TestWebKitAPI.IndexedDB.IndexedDBPersistencePrivate
 [ ios ] TestWebKitAPI.IndexedDB.IndexedDBSuspendImminently
 [ ios ] TestWebKitAPI.IndexedDB.IndexedDBTempFileSize
