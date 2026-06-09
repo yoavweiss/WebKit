@@ -1,3 +1,4 @@
+<!-- webkit-test-runner [ dumpResourceResponseMIMETypes=* ] -->
 <body>
 <div id="console"></div>
 <script src="../../../resources/js-test.js"></script>
@@ -6,9 +7,6 @@ window.jsTestIsAsync = true;
 function prefetch_onload() {
     testPassed('onload called!');
     finishJSTest();
-}
-if (window.testRunner) {
-    testRunner.dumpResourceResponseMIMETypes();
 }
 </script>
 <html>

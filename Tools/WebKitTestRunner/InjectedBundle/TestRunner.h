@@ -138,7 +138,7 @@ public:
     void dumpTitleChanges() { m_dumpTitleChanges = true; }
     void dumpFrameLoadCallbacks() { setShouldDumpFrameLoadCallbacks(true); }
     void dumpProgressFinishedCallback() { setShouldDumpProgressFinishedCallback(true); }
-    void dumpResourceResponseMIMETypes() { m_dumpResourceResponseMIMETypes = true; }
+    void dumpResourceResponseMIMETypes(String&& types) { m_resourceResponseMIMETypesToDump = WTF::move(types); }
     void dumpWillCacheResponse() { m_dumpWillCacheResponse = true; }
     void dumpApplicationCacheDelegateCallbacks() { m_dumpApplicationCacheDelegateCallbacks = true; }
     void dumpDOMAsWebArchive() { setWhatToDump(WhatToDump::DOMAsWebArchive); }
@@ -230,7 +230,7 @@ public:
     bool shouldDumpPixels() const;
     bool shouldDumpFrameLoadCallbacks();
     bool shouldDumpProgressFinishedCallback() const { return m_dumpProgressFinishedCallback; }
-    bool shouldDumpResourceResponseMIMETypes() const { return m_dumpResourceResponseMIMETypes; }
+    const String& resourceResponseMIMETypesToDump() const { return m_resourceResponseMIMETypesToDump; }
     bool shouldDumpWillCacheResponse() const { return m_dumpWillCacheResponse; }
     bool shouldDumpApplicationCacheDelegateCallbacks() const { return m_dumpApplicationCacheDelegateCallbacks; }
     bool shouldDumpSelectionRect() const { return m_dumpSelectionRect; }
@@ -523,7 +523,7 @@ private:
     bool m_dumpPixels { false };
     bool m_dumpSelectionRect { false };
     bool m_dumpProgressFinishedCallback { false };
-    bool m_dumpResourceResponseMIMETypes { false };
+    String m_resourceResponseMIMETypesToDump;
     bool m_dumpWillCacheResponse { false };
     bool m_dumpApplicationCacheDelegateCallbacks { false };
 

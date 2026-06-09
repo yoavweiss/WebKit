@@ -245,6 +245,7 @@ const TestFeatures& TestOptions::defaults()
             { "jscOptions", { } },
             { "captionDisplayMode", { } },
             { "standaloneWebApplicationURL", { } },
+            { "dumpResourceResponseMIMETypes", { } },
         };
         features.stringVectorTestRunnerFeatures = {
             { "language", { "en-US" } },
@@ -264,6 +265,7 @@ const std::unordered_map<std::string, TestHeaderKeyType>& TestOptions::keyTypeMa
         { "allowTestOnlyIPC", TestHeaderKeyType::BoolTestRunner },
         { "dumpJSConsoleLogInStdErr", TestHeaderKeyType::BoolTestRunner },
         { "dumpResourceLoadCallbacks", TestHeaderKeyType::BoolTestRunner },
+        { "dumpResourceResponseMIMETypes", TestHeaderKeyType::StringTestRunner },
         { "editable", TestHeaderKeyType::BoolTestRunner },
         { "enableInAppBrowserPrivacy", TestHeaderKeyType::BoolTestRunner },
         { "enableProcessSwapOnNavigation", TestHeaderKeyType::BoolTestRunner },

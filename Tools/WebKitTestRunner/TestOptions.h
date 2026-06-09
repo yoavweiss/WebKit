@@ -97,6 +97,7 @@ public:
     bool pageTopColorSamplingEnabled() const { return boolTestRunnerFeatureValue("pageTopColorSamplingEnabled"); }
     bool enhancedSecurityEnabled() const { return boolTestRunnerFeatureValue("enhancedSecurityEnabled"); }
     bool shouldDumpResourceLoadCallbacks() const { return boolTestRunnerFeatureValue("dumpResourceLoadCallbacks"); }
+    std::string resourceResponseMIMETypesToDump() const { return stringTestRunnerFeatureValue("dumpResourceResponseMIMETypes"); }
 
     double contentInsetTop() const { return doubleTestRunnerFeatureValue("contentInset.top"); }
     double obscuredInsetTop() const { return doubleTestRunnerFeatureValue("obscuredInset.top"); }

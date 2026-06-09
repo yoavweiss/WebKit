@@ -206,6 +206,7 @@ public:
     void setPluginSupportedMode(const String&);
 
     void dumpResourceLoadCallbacks();
+    void dumpResourceResponseMIMETypes(String&&);
     void dumpPolicyDelegateCallbacks() { m_dumpPolicyDelegateCallbacks = true; }
     void dumpFullScreenCallbacks() { m_dumpFullScreenCallbacks = true; }
     void waitBeforeFinishingFullscreenExit() { m_waitBeforeFinishingFullscreenExit = true; }
@@ -559,6 +560,13 @@ private:
     void decidePolicyForGeolocationPermissionRequestIfPossible();
     void decidePolicyForUserMediaPermissionRequestIfPossible();
 
+    void installResourceLoadClient();
+    void didSendRequest(WKPageRef, WKURLRequestRef);
+    void didPerformRedirect(WKPageRef, WKURLResponseRef, WKURLRequestRef);
+    void didReceiveResponse(WKPageRef, WKURLRef, WKURLResponseRef);
+    void didCompleteWithError(WKPageRef, WKURLRef, WKURLResponseRef, WKErrorRef);
+    String platformResponseMIMEType(WKURLResponseRef);
+
 #if PLATFORM(IOS_FAMILY)
     UIPasteboardConsistencyEnforcer *pasteboardConsistencyEnforcer();
     void restorePortraitOrientationIfNeeded();
@@ -892,6 +900,9 @@ private:
     size_t m_downloadIndex { 0 };
     bool m_shouldDownloadContentDispositionAttachments { true };
     bool m_dumpPolicyDelegateCallbacks { false };
+    bool m_hasResourceLoadClient { false };
+    bool m_dumpResourceLoadCallbacks { false };
+    String m_resourceResponseMIMETypesToDump;
     bool m_dumpFullScreenCallbacks { false };
     bool m_dumpAllHTTPRedirectedResponseHeaders { false };
     bool m_waitBeforeFinishingFullscreenExit { false };
