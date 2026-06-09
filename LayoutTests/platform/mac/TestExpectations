@@ -729,11 +729,6 @@ webkit.org/b/161725 imported/w3c/web-platform-tests/media-source/mediasource-seq
 webkit.org/b/161725 imported/w3c/web-platform-tests/media-source/mediasource-sourcebuffer-mode.html [ Skip ]
 webkit.org/b/214166 imported/w3c/web-platform-tests/media-source/idlharness.window.html [ Skip ]
 
-# Skipped in W3C Web Platform Test manifest
-imported/w3c/web-platform-tests/media-source/mediasource-sourcebuffer-trackdefaults.html [ Skip ]
-imported/w3c/web-platform-tests/media-source/mediasource-trackdefault.html [ Skip ]
-imported/w3c/web-platform-tests/media-source/mediasource-trackdefaultlist.html [ Skip ]
-
 ## --- End W3C Imported Media Source Tests
 
 # --- End Media Source Tests ---
