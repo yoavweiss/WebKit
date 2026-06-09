@@ -1346,7 +1346,11 @@ CONSTANT_FUNCTION(Normalize)
 BINARY_OPERATION(Pow, Float, [&]<typename T>(T base, T exp) -> ConstantResult {
     if (base < 0)
         return makeUnexpected(makeString("pow called with negative base ("_s, String::number(base), ")"_s));
+    if (!base && exp <= 0)
+        return makeUnexpected(makeString("pow called with base 0 and non-positive exponent ("_s, String::number(exp), ")"_s));
     auto result = std::pow(base, exp);
+    if (!std::isfinite(result))
+        return makeUnexpected("pow overflow"_s);
     return { { T(result) } };
 });
 
