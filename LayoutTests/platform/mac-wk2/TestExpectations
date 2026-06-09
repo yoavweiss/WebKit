@@ -2299,8 +2299,6 @@ webkit.org/b/313278 [ Tahoe+ ] imported/w3c/web-platform-tests/css/css-images/gr
 
 webkit.org/b/313346 [ Sequoia+ Debug ] imported/w3c/web-platform-tests/webrtc/RTCRtpReceiver-audio-jitterBufferTarget-stats.https.html [ Pass Failure ]
 
-webkit.org/b/313362 [ Sequoia+ ] imported/w3c/web-platform-tests/media-source/mediasource-changetype-play-implicit.html [ Pass Failure ]
-
 webkit.org/b/313554 [ Debug ] http/tests/security/javascriptURL/xss-ALLOWED-from-javascript-url-to-javscript-url.html [ Skip ]
 
 webkit.org/b/313664 [ Tahoe+ ] imported/w3c/web-platform-tests/css/filter-effects/filter-function/filter-function-linear-gradient.html [ ImageOnlyFailure ]
