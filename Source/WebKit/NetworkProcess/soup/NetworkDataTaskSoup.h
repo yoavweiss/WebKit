@@ -55,6 +55,7 @@ private:
     void invalidateAndCancel() override;
     NetworkDataTask::State state() const override;
     void setTimingAllowFailedFlag() final;
+    void setNavigationTAOCheckPassed() final;
 
     void setPendingDownloadLocation(const String&, SandboxExtension::Handle&&, bool /*allowOverwrite*/) override;
     String suggestedFilename() const override;

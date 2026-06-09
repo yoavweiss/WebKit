@@ -68,6 +68,7 @@ private:
     void invalidateAndCancel() override;
     NetworkDataTask::State state() const override;
     void setTimingAllowFailedFlag() final;
+    void setNavigationTAOCheckPassed() final;
 
     Ref<WebCore::CurlRequest> createCurlRequest(WebCore::ResourceRequest&&, RequestStatus = RequestStatus::NewRequest);
     void curlDidSendData(WebCore::CurlRequest&, unsigned long long, unsigned long long) override;
@@ -121,6 +122,7 @@ private:
     MonotonicTime m_startTime;
     bool m_failsTAOCheck { false };
     bool m_hasCrossOriginRedirect { false };
+    bool m_navigationTAOCheckPassed { false };
 };
 
 } // namespace WebKit

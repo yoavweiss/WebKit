@@ -73,14 +73,18 @@ public:
     void documentLoadFinished(const NetworkLoadMetrics&);
 
 private:
-    PerformanceNavigationTiming(MonotonicTime timeOrigin, CachedResource&, const DocumentLoadTiming&, const NetworkLoadMetrics&, const DocumentEventTiming&, const SecurityOrigin&, WebCore::NavigationType);
+    PerformanceNavigationTiming(MonotonicTime timeOrigin, CachedResource&, const DocumentLoadTiming&, const NetworkLoadMetrics&, const DocumentEventTiming&, const SecurityOrigin&, WebCore::NavigationType, bool clientOrReferrerAllowsRedirectTiming);
 
     double millisecondsSinceOrigin(MonotonicTime) const;
     bool NODELETE sameOriginCheckFails() const;
+    bool NODELETE shouldExposeRedirectTiming() const final;
 
     DocumentEventTiming m_documentEventTiming;
     DocumentLoadTiming m_documentLoadTiming;
     NavigationType m_navigationType;
+    // The client/no-referrer half of the redirect timing gate, which only the web process can tell.
+    // https://html.spec.whatwg.org/#create-the-navigation-timing-entry
+    bool m_clientOrReferrerAllowsRedirectTiming;
 };
 
 } // namespace WebCore

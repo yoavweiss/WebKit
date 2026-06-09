@@ -2210,6 +2210,7 @@ class WebCore::NetworkLoadMetrics {
     [BitField] bool isReusedConnection;
     [BitField] bool failsTAOCheck;
     [BitField] bool hasCrossOriginRedirect;
+    [BitField] bool navigationTAOCheckPassed;
     [BitField] bool fromPrefetch;
     [BitField] bool fromCache;
 

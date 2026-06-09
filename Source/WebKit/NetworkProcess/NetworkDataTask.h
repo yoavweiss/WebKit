@@ -154,6 +154,7 @@ public:
     NetworkSession* networkSession() { return m_session.get(); }
 
     virtual void setTimingAllowFailedFlag() { }
+    virtual void setNavigationTAOCheckPassed() { }
 
     size_t bytesTransferredOverNetwork() const { return m_bytesTransferredOverNetwork; }
 

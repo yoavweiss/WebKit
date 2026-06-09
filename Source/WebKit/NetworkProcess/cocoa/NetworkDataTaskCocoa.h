@@ -108,6 +108,7 @@ private:
     WebCore::StoredCredentialsPolicy storedCredentialsPolicy() const final { return m_storedCredentialsPolicy; }
 
     void setTimingAllowFailedFlag() final;
+    void setNavigationTAOCheckPassed() final;
 
     WeakPtr<SessionWrapper> m_sessionWrapper;
     RefPtr<SandboxExtension> m_sandboxExtension;

@@ -38,7 +38,7 @@ static MonotonicTime dateToMonotonicTime(NSDate *date)
     return { };
 }
 
-static Box<NetworkLoadMetrics> packageTimingData(MonotonicTime redirectStart, NSDate *fetchStart, NSDate *domainLookupStart, NSDate *domainLookupEnd, NSDate *connectStart, NSDate *secureConnectionStart, NSDate *connectEnd, NSDate *requestStart, NSDate *responseStart, bool reusedTLSConnection, NSString *protocol, uint16_t redirectCount, bool failsTAOCheck, bool hasCrossOriginRedirect)
+static Box<NetworkLoadMetrics> packageTimingData(MonotonicTime redirectStart, NSDate *fetchStart, NSDate *domainLookupStart, NSDate *domainLookupEnd, NSDate *connectStart, NSDate *secureConnectionStart, NSDate *connectEnd, NSDate *requestStart, NSDate *responseStart, bool reusedTLSConnection, NSString *protocol, uint16_t redirectCount, bool failsTAOCheck, bool hasCrossOriginRedirect, bool navigationTAOCheckPassed)
 {
 
     auto timing = Box<NetworkLoadMetrics>::create();
@@ -59,6 +59,7 @@ static Box<NetworkLoadMetrics> packageTimingData(MonotonicTime redirectStart, NS
     timing->redirectCount = redirectCount;
     timing->failsTAOCheck = failsTAOCheck;
     timing->hasCrossOriginRedirect = hasCrossOriginRedirect;
+    timing->navigationTAOCheckPassed = navigationTAOCheckPassed;
 
     // NOTE: responseEnd is not populated in this code path.
 
@@ -83,7 +84,8 @@ Box<NetworkLoadMetrics> copyTimingData(NSURLSessionTaskMetrics *incompleteMetric
         retainPtr(metrics.get().response.URL.scheme).get(),
         incompleteMetrics.redirectCount,
         metricsFromTask.failsTAOCheck,
-        metricsFromTask.hasCrossOriginRedirect
+        metricsFromTask.hasCrossOriginRedirect,
+        metricsFromTask.navigationTAOCheckPassed
     );
 }
 
@@ -113,7 +115,8 @@ Box<NetworkLoadMetrics> copyTimingData(NSURLConnection *connection, const Resour
         retainPtr(connection.currentRequest.URL.scheme).get(),
         handle.redirectCount(),
         handle.failsTAOCheck(),
-        handle.hasCrossOriginRedirect()
+        handle.hasCrossOriginRedirect(),
+        false
     );
 
     if (!data->fetchStart)

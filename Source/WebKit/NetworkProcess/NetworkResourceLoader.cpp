@@ -1019,6 +1019,8 @@ void NetworkResourceLoader::didReceiveResponse(ResourceResponse&& receivedRespon
         }
         if (RefPtr networkLoad = m_networkLoad; networkLoad && networkLoadChecker->timingAllowFailedFlag())
             networkLoad->setTimingAllowFailedFlag();
+        if (RefPtr networkLoad = m_networkLoad; networkLoad && networkLoadChecker->navigationTAOCheckPassed())
+            networkLoad->setNavigationTAOCheckPassed();
     }
 
     initializeReportingEndpoints(m_response);

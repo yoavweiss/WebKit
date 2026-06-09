@@ -165,6 +165,9 @@ void NetworkLoadChecker::checkRedirection(ResourceRequest&& request, ResourceReq
         return;
     }
 
+    if (m_options.mode == FetchOptions::Mode::Navigate)
+        appendToNavigationTimingAllowValuesList(redirectResponse);
+
     m_previousURL = WTF::move(m_url);
     m_url = redirectRequest.url();
 
@@ -237,6 +240,10 @@ ResourceError NetworkLoadChecker::validateResponse(const ResourceRequest& reques
                 response.setDeprecatedNetworkLoadMetrics(WTF::move(metrics));
             }
         }
+
+        // https://fetch.spec.whatwg.org/#navigation-tao-check
+        if (m_options.mode == FetchOptions::Mode::Navigate && !response.isRedirection())
+            m_navigationTAOCheckPassed = passesNavigationTAOCheck(SecurityOrigin::create(m_url).get());
     });
 
     if (m_redirectCount)
@@ -305,6 +312,30 @@ bool NetworkLoadChecker::checkTAO(const ResourceResponse& response)
 
     m_timingAllowFailedFlag = response.tainting() != ResourceResponse::Tainting::Basic;
     return !m_timingAllowFailedFlag;
+}
+
+// https://fetch.spec.whatwg.org/#append-to-a-request-navigation-timing-allow-values-list
+void NetworkLoadChecker::appendToNavigationTimingAllowValuesList(const ResourceResponse& response)
+{
+    Vector<String> taoValues;
+    const auto& timingAllowOriginString = response.httpHeaderField(HTTPHeaderName::TimingAllowOrigin);
+    for (auto valueWithSpace : StringView(timingAllowOriginString).split(',')) {
+        auto value = valueWithSpace.trim(isASCIIWhitespaceWithoutFF<char16_t>);
+        if (!value.isEmpty())
+            taoValues.append(value.toString());
+    }
+    m_navigationTimingAllowValuesList.append(WTF::move(taoValues));
+}
+
+// https://fetch.spec.whatwg.org/#navigation-tao-check
+bool NetworkLoadChecker::passesNavigationTAOCheck(const SecurityOrigin& destinationOrigin) const
+{
+    auto destinationOriginString = destinationOrigin.toString();
+    for (auto& taoValues : m_navigationTimingAllowValuesList) {
+        if (!taoValues.contains("*"_s) && !taoValues.contains(destinationOriginString))
+            return false;
+    }
+    return true;
 }
 
 auto NetworkLoadChecker::accessControlErrorForValidationHandler(String&& message) -> RequestOrRedirectionTripletOrError

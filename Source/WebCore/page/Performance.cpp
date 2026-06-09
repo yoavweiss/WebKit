@@ -408,7 +408,10 @@ void Performance::enqueueLargestContentfulPaint(Ref<LargestContentfulPaint>&& pa
 
 void Performance::addNavigationTiming(DocumentLoader& documentLoader, Document& document, CachedResource& resource, const DocumentLoadTiming& timing, const NetworkLoadMetrics& metrics)
 {
-    m_navigationTiming = PerformanceNavigationTiming::create(m_timeOrigin, resource, timing, metrics, document.eventTiming(), document.securityOrigin(), documentLoader.triggeringAction().type());
+    // A no-referrer navigation that has a referring client should not expose redirect timing.
+    // https://html.spec.whatwg.org/#create-the-navigation-timing-entry
+    bool clientOrReferrerAllowsRedirectTiming = !documentLoader.triggeringAction().requester() || !documentLoader.request().httpReferrer().isEmpty();
+    m_navigationTiming = PerformanceNavigationTiming::create(m_timeOrigin, resource, timing, metrics, document.eventTiming(), document.securityOrigin(), documentLoader.triggeringAction().type(), clientOrReferrerAllowsRedirectTiming);
     addToEntryBuffer(*m_navigationTiming);
 }
 

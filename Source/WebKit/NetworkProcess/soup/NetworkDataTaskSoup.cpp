@@ -436,6 +436,11 @@ void NetworkDataTaskSoup::setTimingAllowFailedFlag()
     m_networkLoadMetrics.failsTAOCheck = true;
 }
 
+void NetworkDataTaskSoup::setNavigationTAOCheckPassed()
+{
+    m_networkLoadMetrics.navigationTAOCheckPassed = true;
+}
+
 void NetworkDataTaskSoup::dispatchDidReceiveResponse()
 {
     ASSERT(!m_response.isNull());

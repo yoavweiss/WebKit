@@ -599,6 +599,12 @@ void NetworkDataTaskCurl::updateNetworkLoadMetrics(WebCore::NetworkLoadMetrics& 
     networkLoadMetrics.redirectCount = m_redirectCount;
     networkLoadMetrics.failsTAOCheck = m_failsTAOCheck;
     networkLoadMetrics.hasCrossOriginRedirect = m_hasCrossOriginRedirect;
+    networkLoadMetrics.navigationTAOCheckPassed = m_navigationTAOCheckPassed;
+}
+
+void NetworkDataTaskCurl::setNavigationTAOCheckPassed()
+{
+    m_navigationTAOCheckPassed = true;
 }
 
 void NetworkDataTaskCurl::setTimingAllowFailedFlag()

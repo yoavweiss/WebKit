@@ -371,6 +371,12 @@ void NetworkLoad::setTimingAllowFailedFlag()
         task->setTimingAllowFailedFlag();
 }
 
+void NetworkLoad::setNavigationTAOCheckPassed()
+{
+    if (RefPtr task = m_task)
+        task->setNavigationTAOCheckPassed();
+}
+
 String NetworkLoad::attributedBundleIdentifier(WebPageProxyIdentifier pageID)
 {
     if (auto* task = m_task.get())

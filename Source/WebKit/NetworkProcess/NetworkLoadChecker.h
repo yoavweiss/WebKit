@@ -34,7 +34,9 @@
 #include <pal/SessionID.h>
 #include <wtf/RefCountedAndCanMakeWeakPtr.h>
 #include <wtf/TZoneMalloc.h>
+#include <wtf/Vector.h>
 #include <wtf/WeakPtr.h>
+#include <wtf/text/WTFString.h>
 
 namespace WebCore {
 class ContentSecurityPolicy;
@@ -121,6 +123,7 @@ public:
     const WebCore::FetchOptions& options() const LIFETIME_BOUND { return m_options; }
 
     bool timingAllowFailedFlag() const { return m_timingAllowFailedFlag; }
+    bool navigationTAOCheckPassed() const { return m_navigationTAOCheckPassed; }
 
 private:
     NetworkLoadChecker(NetworkProcess&, NetworkResourceLoader*, NetworkSchemeRegistry*, WebCore::FetchOptions&&, PAL::SessionID, std::optional<WebPageProxyIdentifier>, WebCore::HTTPHeaderMap&&, URL&&, DocumentURL&&,  RefPtr<WebCore::SecurityOrigin>&&, RefPtr<WebCore::SecurityOrigin>&& topOrigin, RefPtr<WebCore::SecurityOrigin>&& parentOrigin, WebCore::PreflightPolicy, String&& referrer, bool allowPrivacyProxy, OptionSet<WebCore::AdvancedPrivacyProtections>, bool shouldCaptureExtraNetworkLoadMetrics, LoadType requestLoadType);
@@ -159,6 +162,11 @@ private:
     RefPtr<WebCore::SecurityOrigin> parentOrigin() const { return m_parentOrigin; }
 
     bool checkTAO(const WebCore::ResourceResponse&);
+
+    // Lets a navigation's redirect chain opt into exposing its redirect timing.
+    // https://html.spec.whatwg.org/#create-the-navigation-timing-entry
+    void appendToNavigationTimingAllowValuesList(const WebCore::ResourceResponse&);
+    bool passesNavigationTAOCheck(const WebCore::SecurityOrigin& destinationOrigin) const;
 
     WebCore::FetchOptions m_options;
     WebCore::StoredCredentialsPolicy m_storedCredentialsPolicy;
@@ -201,6 +209,12 @@ private:
     WeakPtr<NetworkResourceLoader> m_networkResourceLoader;
 
     bool m_timingAllowFailedFlag { false };
+
+    // Remembers each redirect's opt-in so the whole chain can be judged once the destination is known.
+    Vector<Vector<String>> m_navigationTimingAllowValuesList;
+
+    // https://fetch.spec.whatwg.org/#navigation-tao-check
+    bool m_navigationTAOCheckPassed { false };
 };
 
 }

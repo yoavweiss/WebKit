@@ -730,6 +730,11 @@ void NetworkDataTaskCocoa::setTimingAllowFailedFlag()
     networkLoadMetrics().failsTAOCheck = true;
 }
 
+void NetworkDataTaskCocoa::setNavigationTAOCheckPassed()
+{
+    networkLoadMetrics().navigationTAOCheckPassed = true;
+}
+
 NSURLSessionTask* NetworkDataTaskCocoa::task() const
 {
     return m_task.get();

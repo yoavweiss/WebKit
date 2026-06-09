@@ -50,11 +50,12 @@ static PerformanceNavigationTiming::NavigationType NODELETE toPerformanceNavigat
     return PerformanceNavigationTiming::NavigationType::Navigate;
 }
 
-PerformanceNavigationTiming::PerformanceNavigationTiming(MonotonicTime timeOrigin, CachedResource& resource, const DocumentLoadTiming& documentLoadTiming, const NetworkLoadMetrics& metrics, const DocumentEventTiming& documentEventTiming, const SecurityOrigin& origin, WebCore::NavigationType navigationType)
+PerformanceNavigationTiming::PerformanceNavigationTiming(MonotonicTime timeOrigin, CachedResource& resource, const DocumentLoadTiming& documentLoadTiming, const NetworkLoadMetrics& metrics, const DocumentEventTiming& documentEventTiming, const SecurityOrigin& origin, WebCore::NavigationType navigationType, bool clientOrReferrerAllowsRedirectTiming)
     : PerformanceResourceTiming(timeOrigin, ResourceTiming::fromLoad(resource, resource.response().url(), "navigation"_s, documentLoadTiming, metrics, origin))
     , m_documentEventTiming(documentEventTiming)
     , m_documentLoadTiming(documentLoadTiming)
-    , m_navigationType(toPerformanceNavigationTimingNavigationType(navigationType)) { }
+    , m_navigationType(toPerformanceNavigationTimingNavigationType(navigationType))
+    , m_clientOrReferrerAllowsRedirectTiming(clientOrReferrerAllowsRedirectTiming) { }
 
 PerformanceNavigationTiming::~PerformanceNavigationTiming() = default;
 
@@ -121,9 +122,17 @@ PerformanceNavigationTiming::NavigationType PerformanceNavigationTiming::type() 
     return m_navigationType;
 }
 
+bool PerformanceNavigationTiming::shouldExposeRedirectTiming() const
+{
+    // A cross-origin redirect chain must not leak its redirect timing unless it opted in.
+    // https://html.spec.whatwg.org/#create-the-navigation-timing-entry
+    auto& metrics = m_resourceTiming.networkLoadMetrics();
+    return !metrics.hasCrossOriginRedirect || (m_clientOrReferrerAllowsRedirectTiming && metrics.navigationTAOCheckPassed);
+}
+
 unsigned short PerformanceNavigationTiming::redirectCount() const
 {
-    if (m_resourceTiming.networkLoadMetrics().hasCrossOriginRedirect)
+    if (!shouldExposeRedirectTiming())
         return 0;
 
     return m_resourceTiming.networkLoadMetrics().redirectCount;
