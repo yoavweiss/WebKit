@@ -179,7 +179,7 @@ public:
     RenderTableCell* cellBefore(const RenderTableCell*) const;
     RenderTableCell* cellAfter(const RenderTableCell*) const;
  
-    typedef Vector<CollapsedBorderValue> CollapsedBorderValues;
+    using CollapsedBorderValues = Vector<CollapsedBorderValue>;
     bool collapsedBordersAreValid() const { return m_collapsedBordersValid; }
     void invalidateCollapsedBorders(RenderTableCell* cellWithStyleChange = nullptr);
     void invalidateCollapsedBordersAfterStyleChangeIfNeeded(const Style::ComputedStyle& oldStyle, const Style::ComputedStyle& newStyle, RenderTableCell* cellWithStyleChange = nullptr);
