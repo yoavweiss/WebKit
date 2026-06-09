@@ -42,7 +42,7 @@ class ComputedStyle;
 
 class MathOperator {
 public:
-    MathOperator() = default;
+    MathOperator() { }
     enum class Type { NormalOperator, DisplayOperator, VerticalOperator, HorizontalOperator };
     void setOperator(const Style::ComputedStyle&, char32_t baseCharacter, Type);
     void reset(const Style::ComputedStyle&);
