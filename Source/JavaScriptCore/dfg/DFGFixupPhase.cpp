@@ -1355,7 +1355,7 @@ private:
                         break;
                     }
 
-                    if (m_graph.m_plan.isFTL()) {
+                    if (is64Bit()) {
                         if (node->op() == GetByVal && m_graph.child(node, 1)->shouldSpeculateInt32()) {
                             if (m_graph.hasExitSite(node->origin.semantic, OutOfBounds)) {
                                 auto old = node->arrayMode();
@@ -1555,7 +1555,7 @@ private:
                     }
 
                     // Right now, we only support the pattern MultiPutByVal(Object, Int32, Int32)
-                    if (m_graph.m_plan.isFTL()) {
+                    if (is64Bit()) {
                         if (node->op() == PutByVal && child2->shouldSpeculateInt32() && child3->shouldSpeculateInt32()) {
                             ArrayModes arrayModes = 0;
                             {

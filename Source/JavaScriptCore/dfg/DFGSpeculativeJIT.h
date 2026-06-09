@@ -1548,6 +1548,9 @@ public:
     // We use a scopedLambda to placate register allocation validation.
     void compileGetByVal(Node*, const ScopedLambda<std::tuple<JSValueRegs, DataFormat>(DataFormat preferredFormat, bool needsFlush)>& prefix);
 
+    void compileMultiGetByVal(Node*);
+    void compileMultiPutByVal(Node*);
+
     void compileGetCharCodeAt(Node*);
     void compileGetByValOnString(Node*, const ScopedLambda<std::tuple<JSValueRegs, DataFormat>(DataFormat preferredFormat, bool needsFlush)>& prefix);
     void compileStringFromCharCodeOrCodePoint(Node*);
@@ -1854,6 +1857,8 @@ public:
     void compileCreateInternalFieldObject(Node*, Operation);
     template<typename JSClass, typename Operation>
     void compileNewInternalFieldObjectImpl(Node*, Operation);
+
+    void compileClampIntegerToByte(GPRReg srcGPR, GPRReg resultGPR);
 
     void moveTrueTo(GPRReg);
     void moveFalseTo(GPRReg);

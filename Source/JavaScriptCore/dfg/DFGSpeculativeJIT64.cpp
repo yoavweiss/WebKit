@@ -4953,6 +4953,14 @@ void SpeculativeJIT::compile(Node* node)
         compileGetByIdWithThisMegamorphic(node);
         break;
 
+    case MultiGetByVal:
+        compileMultiGetByVal(node);
+        break;
+
+    case MultiPutByVal:
+        compileMultiPutByVal(node);
+        break;
+
     case GetArrayLength:
     case GetUndetachedTypeArrayLength:
         compileGetArrayLength(node);
@@ -6832,8 +6840,6 @@ void SpeculativeJIT::compile(Node* node)
     case CPUIntrinsic:
     case CallWasm:
     case TailCallInlinedCallerWasm:
-    case MultiGetByVal:
-    case MultiPutByVal:
         DFG_CRASH(m_graph, node, "Unexpected node");
         break;
     }
@@ -9173,6 +9179,522 @@ void SpeculativeJIT::compileArrayUnshift(Node* node)
         DFG_CRASH(m_graph, node, "Bad array mode");
         break;
     }
+}
+
+static IndexingType arrayModeToIndexingType(ArrayModes oneArrayMode)
+{
+    switch (oneArrayMode) {
+    case asArrayModesIgnoringTypedArrays(ArrayWithInt32):
+        return ArrayWithInt32;
+    case asArrayModesIgnoringTypedArrays(ArrayWithDouble):
+        return ArrayWithDouble;
+    case asArrayModesIgnoringTypedArrays(ArrayWithContiguous):
+        return ArrayWithContiguous;
+    case asArrayModesIgnoringTypedArrays(CopyOnWriteArrayWithInt32):
+        return CopyOnWriteArrayWithInt32;
+    case asArrayModesIgnoringTypedArrays(CopyOnWriteArrayWithDouble):
+        return CopyOnWriteArrayWithDouble;
+    case asArrayModesIgnoringTypedArrays(CopyOnWriteArrayWithContiguous):
+        return CopyOnWriteArrayWithContiguous;
+
+    default:
+        RELEASE_ASSERT_NOT_REACHED();
+        return ArrayWithContiguous;
+    }
+}
+
+static TypedArrayType arrayModeToTypedArrayType(ArrayModes oneArrayMode)
+{
+    switch (oneArrayMode) {
+    case Int8ArrayMode:
+        return TypeInt8;
+    case Int16ArrayMode:
+        return TypeInt16;
+    case Int32ArrayMode:
+        return TypeInt32;
+    case Uint8ArrayMode:
+        return TypeUint8;
+    case Uint8ClampedArrayMode:
+        return TypeUint8Clamped;
+    case Uint16ArrayMode:
+        return TypeUint16;
+    case Uint32ArrayMode:
+        return TypeUint32;
+    case Float32ArrayMode:
+        return TypeFloat32;
+    case Float64ArrayMode:
+        return TypeFloat64;
+    default:
+        RELEASE_ASSERT_NOT_REACHED();
+        return TypeFloat64;
+    }
+}
+
+void SpeculativeJIT::compileMultiGetByVal(Node* node)
+{
+    // Mostly similar to FTL MultiGetByVal handling but there are two differences.
+    //     1. Int32Result is not set
+    //     2. Int52Result is not set.
+    // Thus it is always Double or JSValue results because they are attached in ValueRep phase.
+    //
+    // FIXME: We can extend it to support them based on profiling result,
+    // like what GetByOffset's DoubleResult (In FTL, they are attached in ValueRep as well).
+
+    constexpr ArrayModes arrayModesForJSArray = ALL_ARRAY_ARRAY_MODES;
+    constexpr ArrayModes arrayModesForTypedArrays = ALL_TYPED_ARRAY_MODES;
+
+    ArrayMode arrayMode = node->arrayMode();
+    ArrayModes arrayModes = node->multiGetByValData().m_arrayModes;
+
+    Edge& baseEdge = m_graph.child(node, 0);
+    Edge& indexEdge = m_graph.child(node, 1);
+
+    SpeculateCellOperand base(this, baseEdge);
+    SpeculateStrictInt32Operand index(this, indexEdge);
+    GPRTemporary scratch1(this);
+    GPRTemporary scratch2(this);
+    JSValueRegsTemporary result(this);
+
+    GPRReg baseGPR = base.gpr();
+    GPRReg indexGPR = index.gpr();
+    GPRReg scratch1GPR = scratch1.gpr();
+    GPRReg scratch2GPR = scratch2.gpr();
+    JSValueRegs resultRegs = result.regs();
+    GPRReg resultGPR = resultRegs.payloadGPR();
+
+    bool needsFPR = node->hasDoubleResult() || (arrayModes & (asArrayModesIgnoringTypedArrays(ArrayWithDouble) | Float32ArrayMode | Float64ArrayMode | Uint32ArrayMode));
+    std::optional<FPRTemporary> fprTemp;
+    FPRReg resultFPR = InvalidFPRReg;
+    if (needsFPR) {
+        fprTemp.emplace(this);
+        resultFPR = fprTemp->fpr();
+    }
+
+    bool needsPNaNFPR = node->hasDoubleResult()
+        && arrayMode.isInBoundsSaneChain()
+        && (arrayModes & asArrayModesIgnoringTypedArrays(ArrayWithDouble));
+    std::optional<FPRTemporary> pNaNFPRTemp;
+    FPRReg pNaNFPR = InvalidFPRReg;
+    if (needsPNaNFPR) {
+        pNaNFPRTemp.emplace(this);
+        pNaNFPR = pNaNFPRTemp->fpr();
+        move64ToDouble(TrustedImm64(std::bit_cast<uint64_t>(PNaN)), pNaNFPR);
+    }
+
+    JumpList doneCases;
+    JumpList bailoutCases;
+    JumpList jsArraySlowCases;
+    JumpList jsArrayUndefinedCases;
+    JumpList typedArrayUndefinedCases;
+
+    if (arrayModes & arrayModesForJSArray) {
+        load8(Address(baseGPR, JSCell::indexingTypeAndMiscOffset()), scratch1GPR);
+        and32(TrustedImm32(IndexingTypeMask), scratch1GPR);
+
+        auto handleJSArrayLoad = [&](IndexingType expectedType) {
+            loadPtr(Address(baseGPR, JSObject::butterflyOffset()), scratch2GPR);
+            Jump outOfBounds = branch32(AboveOrEqual, indexGPR, Address(scratch2GPR, Butterfly::offsetOfPublicLength()));
+
+            if (arrayMode.isInBounds()) {
+                speculationCheck(OutOfBounds, JSValueSource::unboxedCell(baseGPR), nullptr, outOfBounds);
+
+                if (expectedType == ArrayWithDouble) {
+                    loadDouble(BaseIndex(scratch2GPR, indexGPR, TimesEight), resultFPR);
+                    if (arrayMode.isInBoundsSaneChain()) {
+                        if (node->hasDoubleResult())
+                            moveDoubleConditionallyDouble(DoubleNotEqualOrUnordered, resultFPR, resultFPR, pNaNFPR, resultFPR, resultFPR);
+                        else {
+                            boxDouble(resultFPR, resultRegs);
+                            move(TrustedImm64(JSValue::encode(jsUndefined())), scratch1GPR);
+                            moveConditionallyDouble(DoubleNotEqualOrUnordered, resultFPR, resultFPR, scratch1GPR, resultGPR, resultGPR);
+                        }
+                    } else {
+                        speculationCheck(LoadFromHole, JSValueSource::unboxedCell(baseGPR), nullptr, branchIfNaN(resultFPR));
+                        if (!node->hasDoubleResult())
+                            boxDouble(resultFPR, resultRegs);
+                    }
+                } else {
+                    load64(BaseIndex(scratch2GPR, indexGPR, TimesEight), resultGPR);
+                    if (arrayMode.isInBoundsSaneChain()) {
+                        move(TrustedImm64(JSValue::encode(jsUndefined())), scratch1GPR);
+                        moveConditionally64(Equal, resultGPR, TrustedImm32(0), scratch1GPR, resultGPR, resultGPR);
+                    } else
+                        speculationCheck(LoadFromHole, JSValueSource::unboxedCell(baseGPR), nullptr, branchIfEmpty(resultGPR));
+                }
+                doneCases.append(jump());
+                return;
+            }
+
+            ASSERT(!node->hasDoubleResult());
+            JumpList& slowJumps = arrayMode.isOutOfBoundsSaneChain() ? jsArrayUndefinedCases : jsArraySlowCases;
+            slowJumps.append(outOfBounds);
+
+            if (expectedType == ArrayWithDouble) {
+                loadDouble(BaseIndex(scratch2GPR, indexGPR, TimesEight), resultFPR);
+                slowJumps.append(branchIfNaN(resultFPR));
+                boxDouble(resultFPR, resultRegs);
+            } else {
+                load64(BaseIndex(scratch2GPR, indexGPR, TimesEight), resultGPR);
+                slowJumps.append(branchIfEmpty(resultGPR));
+            }
+            doneCases.append(jump());
+        };
+
+        for (unsigned i = 0; i < sizeof(ArrayModes) * CHAR_BIT; ++i) {
+            ArrayModes oneArrayMode = 1ULL << i;
+            if (!((arrayModes & arrayModesForJSArray) & oneArrayMode))
+                continue;
+
+            IndexingType expectedType = arrayModeToIndexingType(oneArrayMode);
+            Jump notMatching = branch32(NotEqual, scratch1GPR, TrustedImm32(expectedType));
+            handleJSArrayLoad(expectedType);
+            notMatching.link(this);
+        }
+    }
+
+    if (arrayModes & arrayModesForTypedArrays) {
+        unsigned typedArrayPopCount = std::popcount(arrayModes & arrayModesForTypedArrays);
+        if (typedArrayPopCount > 1)
+            bailoutCases.append(branchIfNotType(baseGPR, JSTypeRange { static_cast<JSType>(FirstTypedArrayType), static_cast<JSType>(LastTypedArrayTypeExcludingDataView) }));
+
+        std::optional<TypedArrayType> singleTypedArrayType;
+        if (typedArrayPopCount == 1)
+            singleTypedArrayType = arrayModeToTypedArrayType(arrayModes & arrayModesForTypedArrays);
+
+        if (singleTypedArrayType) {
+            JSType jsType = typeForTypedArrayType(*singleTypedArrayType);
+            Jump notMatching = branch8(NotEqual, Address(baseGPR, JSCell::typeInfoTypeOffset()), TrustedImm32(jsType));
+            bailoutCases.append(notMatching);
+        }
+
+        if (!arrayMode.mayBeResizableOrGrowableSharedTypedArray()) {
+            if (!m_graph.isNeverResizableOrGrowableSharedTypedArrayIncludingDataView(m_state.forNode(baseEdge)))
+                speculationCheck(UnexpectedResizableArrayBufferView, JSValueSource::unboxedCell(baseGPR), node, branchTest8(NonZero, Address(baseGPR, JSArrayBufferView::offsetOfMode()), TrustedImm32(isResizableOrGrowableSharedMode)));
+#if USE(LARGE_TYPED_ARRAYS)
+            load64(Address(baseGPR, JSArrayBufferView::offsetOfLength()), scratch1GPR);
+#else
+            load32(Address(baseGPR, JSArrayBufferView::offsetOfLength()), scratch1GPR);
+#endif
+        } else
+            loadTypedArrayLength(baseGPR, scratch1GPR, scratch2GPR, scratch1GPR, singleTypedArrayType);
+
+        Jump typedArrayOutOfBounds;
+#if USE(LARGE_TYPED_ARRAYS)
+        signExtend32ToPtr(indexGPR, scratch2GPR);
+        typedArrayOutOfBounds = branch64(AboveOrEqual, scratch2GPR, scratch1GPR);
+#else
+        typedArrayOutOfBounds = branch32(AboveOrEqual, indexGPR, scratch1GPR);
+#endif
+
+        if (arrayMode.isOutOfBounds()) {
+            ASSERT(!node->hasDoubleResult());
+            typedArrayUndefinedCases.append(typedArrayOutOfBounds);
+        } else
+            speculationCheck(OutOfBounds, JSValueSource::unboxedCell(baseGPR), nullptr, typedArrayOutOfBounds);
+
+        loadPtr(Address(baseGPR, JSArrayBufferView::offsetOfVector()), scratch2GPR);
+        cageTypedArrayStorage(baseGPR, scratch2GPR);
+
+        auto handleTypedArrayLoad = [&](TypedArrayType type) {
+            if (isInt(type)) {
+                ASSERT(!node->hasDoubleResult());
+                loadFromIntTypedArray(scratch2GPR, indexGPR, scratch1GPR, type);
+                if (elementSize(type) < 4 || JSC::isSigned(type))
+                    boxInt32(scratch1GPR, resultRegs);
+                else if (node->shouldSpeculateInt32()) {
+                    speculationCheck(ExitKind::Overflow, JSValueRegs(), nullptr, branch32(LessThan, scratch1GPR, TrustedImm32(0)));
+                    boxInt32(scratch1GPR, resultRegs);
+                } else {
+                    convertUInt32ToDouble(scratch1GPR, resultFPR);
+                    boxDouble(resultFPR, resultRegs);
+                }
+                doneCases.append(jump());
+                return;
+            }
+
+            ASSERT(isFloat(type));
+            switch (type) {
+            case TypeFloat32:
+                loadFloat(BaseIndex(scratch2GPR, indexGPR, TimesFour), resultFPR);
+                convertFloatToDouble(resultFPR, resultFPR);
+                break;
+            case TypeFloat64:
+                loadDouble(BaseIndex(scratch2GPR, indexGPR, TimesEight), resultFPR);
+                break;
+            default:
+                RELEASE_ASSERT_NOT_REACHED();
+            }
+            if (!node->hasDoubleResult()) {
+                purifyNaN(resultFPR, resultFPR);
+                boxDouble(resultFPR, resultRegs);
+            }
+            doneCases.append(jump());
+        };
+
+        if (singleTypedArrayType)
+            handleTypedArrayLoad(*singleTypedArrayType);
+        else {
+            // scratch1GPR is free here — its previous use as the typed-array length is over.
+            load8(Address(baseGPR, JSCell::typeInfoTypeOffset()), scratch1GPR);
+            for (unsigned i = 0; i < sizeof(ArrayModes) * CHAR_BIT; ++i) {
+                ArrayModes oneArrayMode = 1ULL << i;
+                if (!((arrayModes & arrayModesForTypedArrays) & oneArrayMode))
+                    continue;
+                TypedArrayType type = arrayModeToTypedArrayType(oneArrayMode);
+                JSType jsType = typeForTypedArrayType(type);
+                Jump notMatching = branch32(NotEqual, scratch1GPR, TrustedImm32(jsType));
+                handleTypedArrayLoad(type);
+                notMatching.link(this);
+            }
+        }
+    }
+
+    bailoutCases.append(jump());
+    speculationCheck(BadIndexingType, JSValueSource::unboxedCell(baseGPR), nullptr, bailoutCases);
+
+    if (!jsArrayUndefinedCases.empty()) {
+        jsArrayUndefinedCases.link(this);
+        speculationCheck(NegativeIndex, JSValueSource::unboxedCell(baseGPR), nullptr, branch32(LessThan, indexGPR, TrustedImm32(0)));
+        // Fall through to the typedArrayUndefinedCases handler below (or directly to the move).
+    }
+
+    if (!typedArrayUndefinedCases.empty() || !jsArrayUndefinedCases.empty()) {
+        typedArrayUndefinedCases.link(this);
+        move(TrustedImm64(JSValue::encode(jsUndefined())), resultGPR);
+        // Fall through to doneCases.link(this).
+    }
+
+    doneCases.link(this);
+
+    if (!jsArraySlowCases.empty())
+        addSlowPathGenerator(slowPathCall(jsArraySlowCases, this, operationGetByValObjectInt, resultGPR, LinkableConstant::globalObject(*this, node), baseGPR, indexGPR));
+
+    if (node->hasDoubleResult())
+        doubleResult(resultFPR, node);
+    else
+        jsValueResult(resultRegs, node);
+}
+
+void SpeculativeJIT::compileMultiPutByVal(Node* node)
+{
+    constexpr ArrayModes arrayModesForJSArray = ALL_ARRAY_ARRAY_MODES;
+    constexpr ArrayModes arrayModesForTypedArrays = ALL_TYPED_ARRAY_MODES;
+
+    ArrayMode arrayMode = node->arrayMode().modeForPut();
+    ArrayModes arrayModes = node->multiPutByValData().m_arrayModes;
+
+    Edge& baseEdge = m_graph.child(node, 0);
+    Edge& indexEdge = m_graph.child(node, 1);
+    Edge& valueEdge = m_graph.child(node, 2);
+
+    SpeculateCellOperand base(this, baseEdge);
+    SpeculateStrictInt32Operand index(this, indexEdge);
+    SpeculateInt32Operand value(this, valueEdge);
+    GPRTemporary scratch1(this);
+    GPRTemporary scratch2(this);
+
+    GPRReg baseGPR = base.gpr();
+    GPRReg indexGPR = index.gpr();
+    GPRReg valueGPR = value.gpr();
+    GPRReg scratch1GPR = scratch1.gpr();
+    GPRReg scratch2GPR = scratch2.gpr();
+
+    // lengthScratch is only used when extending publicLength on the OOB JSArray store fast path.
+    bool needsLengthScratch = (arrayModes & arrayModesForJSArray) && !arrayMode.isInBounds();
+    std::optional<GPRTemporary> lengthScratch;
+    GPRReg lengthScratchGPR = InvalidGPRReg;
+    if (needsLengthScratch) {
+        lengthScratch.emplace(this);
+        lengthScratchGPR = lengthScratch->gpr();
+    }
+
+    // Boxed Int32 is needed by JSArray Int32 / Contiguous fast paths, and by the
+    // operationPutByValBeyondArrayBounds slow path (which any OOB JSArray mode reaches).
+    // Pure ArrayWithDouble in-bounds doesn't read the boxed value.
+    constexpr ArrayModes nonDoubleJSArrayModes = asArrayModesIgnoringTypedArrays(ArrayWithInt32) | asArrayModesIgnoringTypedArrays(ArrayWithContiguous);
+    bool needsBoxedValue = (arrayModes & nonDoubleJSArrayModes) || ((arrayModes & arrayModesForJSArray) && arrayMode.isOutOfBounds());
+    GPRReg boxedValueGPR = InvalidGPRReg;
+    std::optional<GPRTemporary> boxedValueScratch;
+    if (needsBoxedValue) {
+        boxedValueScratch.emplace(this);
+        boxedValueGPR = boxedValueScratch->gpr();
+        boxInt32(valueGPR, JSValueRegs(boxedValueGPR));
+    }
+
+    bool needsDoubleValue = arrayModes & (asArrayModesIgnoringTypedArrays(ArrayWithDouble) | Float32ArrayMode | Float64ArrayMode);
+    FPRReg doubleValueFPR = InvalidFPRReg;
+    std::optional<FPRTemporary> doubleValueScratch;
+    if (needsDoubleValue) {
+        doubleValueScratch.emplace(this);
+        doubleValueFPR = doubleValueScratch->fpr();
+        convertInt32ToDouble(valueGPR, doubleValueFPR);
+    }
+
+    bool needsFloatScratch = arrayModes & Float32ArrayMode;
+    FPRReg floatScratchFPR = InvalidFPRReg;
+    std::optional<FPRTemporary> floatScratch;
+    if (needsFloatScratch) {
+        floatScratch.emplace(this);
+        floatScratchFPR = floatScratch->fpr();
+    }
+
+    JumpList doneCases;
+    JumpList bailoutCases;
+    JumpList jsArraySlowCases;
+
+    if (arrayModes & arrayModesForJSArray) {
+        load8(Address(baseGPR, JSCell::indexingTypeAndMiscOffset()), scratch1GPR);
+        and32(TrustedImm32(IndexingModeMask), scratch1GPR);
+
+        auto handleJSArrayStore = [&](IndexingType expectedMode) {
+            loadPtr(Address(baseGPR, JSObject::butterflyOffset()), scratch2GPR);
+
+            if (arrayMode.isInBounds())
+                speculationCheck(OutOfBounds, JSValueSource::unboxedCell(baseGPR), nullptr, branch32(AboveOrEqual, indexGPR, Address(scratch2GPR, Butterfly::offsetOfPublicLength())));
+            else {
+                Jump inBoundsCase = branch32(Below, indexGPR, Address(scratch2GPR, Butterfly::offsetOfPublicLength()));
+
+                Jump outOfVector = branch32(AboveOrEqual, indexGPR, Address(scratch2GPR, Butterfly::offsetOfVectorLength()));
+                if (arrayMode.isOutOfBounds())
+                    jsArraySlowCases.append(outOfVector);
+                else
+                    speculationCheck(OutOfBounds, JSValueSource::unboxedCell(baseGPR), nullptr, outOfVector);
+
+                add32(TrustedImm32(1), indexGPR, lengthScratchGPR);
+                store32(lengthScratchGPR, Address(scratch2GPR, Butterfly::offsetOfPublicLength()));
+
+                inBoundsCase.link(this);
+            }
+
+            if (expectedMode == ArrayWithDouble || expectedMode == CopyOnWriteArrayWithDouble)
+                storeDouble(doubleValueFPR, BaseIndex(scratch2GPR, indexGPR, TimesEight));
+            else
+                store64(boxedValueGPR, BaseIndex(scratch2GPR, indexGPR, TimesEight));
+
+            doneCases.append(jump());
+        };
+
+        for (unsigned i = 0; i < sizeof(ArrayModes) * CHAR_BIT; ++i) {
+            ArrayModes oneArrayMode = 1ULL << i;
+            if (!((arrayModes & arrayModesForJSArray) & oneArrayMode))
+                continue;
+            IndexingType indexingMode = arrayModeToIndexingType(oneArrayMode);
+            Jump notMatching = branch32(NotEqual, scratch1GPR, TrustedImm32(indexingMode));
+            handleJSArrayStore(indexingMode);
+            notMatching.link(this);
+        }
+    }
+
+    if (arrayModes & arrayModesForTypedArrays) {
+        unsigned typedArrayPopCount = std::popcount(arrayModes & arrayModesForTypedArrays);
+        if (typedArrayPopCount > 1)
+            bailoutCases.append(branchIfNotType(baseGPR, JSTypeRange { static_cast<JSType>(FirstTypedArrayType), static_cast<JSType>(LastTypedArrayTypeExcludingDataView) }));
+
+        std::optional<TypedArrayType> singleTypedArrayType;
+        if (typedArrayPopCount == 1)
+            singleTypedArrayType = arrayModeToTypedArrayType(arrayModes & arrayModesForTypedArrays);
+
+        if (singleTypedArrayType) {
+            JSType jsType = typeForTypedArrayType(*singleTypedArrayType);
+            Jump notMatching = branch8(NotEqual, Address(baseGPR, JSCell::typeInfoTypeOffset()), TrustedImm32(jsType));
+            bailoutCases.append(notMatching);
+        }
+
+        if (!arrayMode.mayBeResizableOrGrowableSharedTypedArray()) {
+            if (!m_graph.isNeverResizableOrGrowableSharedTypedArrayIncludingDataView(m_state.forNode(baseEdge)))
+                speculationCheck(UnexpectedResizableArrayBufferView, JSValueSource::unboxedCell(baseGPR), node, branchTest8(NonZero, Address(baseGPR, JSArrayBufferView::offsetOfMode()), TrustedImm32(isResizableOrGrowableSharedMode)));
+#if USE(LARGE_TYPED_ARRAYS)
+            load64(Address(baseGPR, JSArrayBufferView::offsetOfLength()), scratch1GPR);
+#else
+            load32(Address(baseGPR, JSArrayBufferView::offsetOfLength()), scratch1GPR);
+#endif
+        } else
+            loadTypedArrayLength(baseGPR, scratch1GPR, scratch2GPR, scratch1GPR, singleTypedArrayType);
+
+        Jump typedArrayOutOfBounds;
+#if USE(LARGE_TYPED_ARRAYS)
+        signExtend32ToPtr(indexGPR, scratch2GPR);
+        typedArrayOutOfBounds = branch64(AboveOrEqual, scratch2GPR, scratch1GPR);
+#else
+        typedArrayOutOfBounds = branch32(AboveOrEqual, indexGPR, scratch1GPR);
+#endif
+
+        if (arrayMode.isOutOfBounds())
+            doneCases.append(typedArrayOutOfBounds);
+        else
+            speculationCheck(OutOfBounds, JSValueSource::unboxedCell(baseGPR), nullptr, typedArrayOutOfBounds);
+
+        loadPtr(Address(baseGPR, JSArrayBufferView::offsetOfVector()), scratch2GPR);
+        cageTypedArrayStorage(baseGPR, scratch2GPR);
+
+        auto handleTypedArrayStore = [&](TypedArrayType type) {
+            if (isInt(type)) {
+                if (type == TypeUint8Clamped) {
+                    compileClampIntegerToByte(valueGPR, scratch1GPR);
+                    store8(scratch1GPR, BaseIndex(scratch2GPR, indexGPR, TimesOne));
+                } else {
+                    switch (elementSize(type)) {
+                    case 1:
+                        store8(valueGPR, BaseIndex(scratch2GPR, indexGPR, TimesOne));
+                        break;
+                    case 2:
+                        store16(valueGPR, BaseIndex(scratch2GPR, indexGPR, TimesTwo));
+                        break;
+                    case 4:
+                        store32(valueGPR, BaseIndex(scratch2GPR, indexGPR, TimesFour));
+                        break;
+                    default:
+                        RELEASE_ASSERT_NOT_REACHED();
+                    }
+                }
+                doneCases.append(jump());
+                return;
+            }
+
+            ASSERT(isFloat(type));
+            switch (type) {
+            case TypeFloat32:
+                convertDoubleToFloat(doubleValueFPR, floatScratchFPR);
+                storeFloat(floatScratchFPR, BaseIndex(scratch2GPR, indexGPR, TimesFour));
+                break;
+            case TypeFloat64:
+                storeDouble(doubleValueFPR, BaseIndex(scratch2GPR, indexGPR, TimesEight));
+                break;
+            default:
+                RELEASE_ASSERT_NOT_REACHED();
+            }
+            doneCases.append(jump());
+        };
+
+        if (singleTypedArrayType)
+            handleTypedArrayStore(*singleTypedArrayType);
+        else {
+            // scratch1GPR is free here — its previous use as the typed-array length is over.
+            load8(Address(baseGPR, JSCell::typeInfoTypeOffset()), scratch1GPR);
+            for (unsigned i = 0; i < sizeof(ArrayModes) * CHAR_BIT; ++i) {
+                ArrayModes oneArrayMode = 1ULL << i;
+                if (!((arrayModes & arrayModesForTypedArrays) & oneArrayMode))
+                    continue;
+                TypedArrayType type = arrayModeToTypedArrayType(oneArrayMode);
+                JSType jsType = typeForTypedArrayType(type);
+                Jump notMatching = branch32(NotEqual, scratch1GPR, TrustedImm32(jsType));
+                handleTypedArrayStore(type);
+                notMatching.link(this);
+            }
+        }
+    }
+
+    bailoutCases.append(jump());
+    speculationCheck(BadIndexingType, JSValueSource::unboxedCell(baseGPR), nullptr, bailoutCases);
+
+    doneCases.link(this);
+
+    if (!jsArraySlowCases.empty()) {
+        auto* op = node->ecmaMode().isStrict() ? operationPutByValBeyondArrayBoundsStrict : operationPutByValBeyondArrayBoundsSloppy;
+        addSlowPathGenerator(slowPathCall(jsArraySlowCases, this, op, NoResult, LinkableConstant::globalObject(*this, node), baseGPR, indexGPR, boxedValueGPR));
+    }
+
+    noResult(node);
 }
 
 #endif
