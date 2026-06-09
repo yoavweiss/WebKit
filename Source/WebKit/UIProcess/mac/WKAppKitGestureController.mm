@@ -66,6 +66,8 @@
 #import <wtf/WeakPtr.h>
 
 #define WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(pageID, fmt, ...) RELEASE_LOG(ViewGestures, "[pageProxyID=%llu] %s: " fmt, pageID, std::source_location::current().function_name(), ##__VA_ARGS__)
+#define WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG_DEBUG(pageID, fmt, ...) RELEASE_LOG_DEBUG(ViewGestures, "[pageProxyID=%llu] %s: " fmt, pageID, std::source_location::current().function_name(), ##__VA_ARGS__)
+#define WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG_ERROR(pageID, fmt, ...) RELEASE_LOG_ERROR(ViewGestures, "[pageProxyID=%llu] %s: " fmt, pageID, std::source_location::current().function_name(), ##__VA_ARGS__)
 
 @interface WKPanGestureRecognizer : NSPanGestureRecognizer
 
@@ -169,6 +171,15 @@ static bool representsDraggableElement(const WebKit::InteractionInformationAtPos
 static bool representsSelectableElement(const WebKit::InteractionInformationAtPosition& info)
 {
     return info.selectability == WebKit::InteractionInformationAtPosition::Selectability::Selectable;
+}
+
+static NSString *gestureLogName(NSGestureRecognizer *gesture)
+{
+    if (!gesture)
+        return @"(null)";
+    if (RetainPtr<NSString> name = gesture.name)
+        return name.autorelease();
+    return NSStringFromClass(gesture.class);
 }
 
 @interface WKAppKitGestureController () <NSGestureRecognizerDelegatePrivate, WKDeferringGestureRecognizerDelegate>
@@ -363,7 +374,7 @@ static bool representsSelectableElement(const WebKit::InteractionInformationAtPo
     if (!page)
         return;
     bool gestureEnabled = protect(page->preferences())->useAppKitGestures();
-    WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(page->logIdentifier(), "%@ setEnabled:%d", gesture, static_cast<int>(gestureEnabled));
+    WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(page->logIdentifier(), "%@ setEnabled:%d", gestureLogName(gesture), static_cast<int>(gestureEnabled));
     [gesture setEnabled:gestureEnabled];
 }
 
@@ -408,12 +419,12 @@ static bool representsSelectableElement(const WebKit::InteractionInformationAtPo
     if (!page)
         return;
 
-    WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(page->logIdentifier(), "%@", gesture);
+    WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG_DEBUG(page->logIdentifier(), "%@ state=%ld", gestureLogName(gesture), static_cast<long>(gesture.state));
 
     RELEASE_ASSERT(_panGestureRecognizer == gesture);
 
     if (viewImpl->ignoresAllEvents()) {
-        WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(page->logIdentifier(), "Ignored gesture");
+        WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG_DEBUG(page->logIdentifier(), "Ignored gesture");
         return;
     }
 
@@ -442,7 +453,7 @@ static bool representsSelectableElement(const WebKit::InteractionInformationAtPo
     if (!page)
         return;
 
-    WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(page->logIdentifier(), "%@", gesture);
+    WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG_DEBUG(page->logIdentifier(), "%@ state=%ld", gestureLogName(gesture), static_cast<long>(gesture.state));
 
     RELEASE_ASSERT(_singleClickGestureRecognizer == gesture);
 
@@ -489,7 +500,7 @@ static bool representsSelectableElement(const WebKit::InteractionInformationAtPo
     if (!page)
         return;
 
-    WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(page->logIdentifier(), "%@", gesture);
+    WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG_DEBUG(page->logIdentifier(), "%@ state=%ld", gestureLogName(gesture), static_cast<long>(gesture.state));
 
     RELEASE_ASSERT(_doubleClickGestureRecognizer == gesture);
 
@@ -513,7 +524,7 @@ static bool representsSelectableElement(const WebKit::InteractionInformationAtPo
     if (!page)
         return;
 
-    WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(page->logIdentifier(), "%@", gesture);
+    WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG_DEBUG(page->logIdentifier(), "%@ state=%ld", gestureLogName(gesture), static_cast<long>(gesture.state));
 
     RELEASE_ASSERT(_secondaryClickGestureRecognizer == gesture);
 
@@ -558,15 +569,15 @@ ALLOW_NEW_API_WITHOUT_GUARDS_END
         return;
     }
 
-    WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(page->logIdentifier(), "%@", gesture);
+    WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG_DEBUG(page->logIdentifier(), "%@ state=%ld", gestureLogName(gesture), static_cast<long>(gesture.state));
 
     if (_dragGestureHasSentMouseDown) {
-        WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(page->logIdentifier(), "Exiting early because _dragGestureHasSentMouseDown is true");
+        WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG_DEBUG(page->logIdentifier(), "Exiting early because _dragGestureHasSentMouseDown is true");
         return;
     }
 
     if (_isSuppressingSingleClickGestureForTextSelection) {
-        WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(page->logIdentifier(), "Exiting early because _isSuppressingSingleClickGestureForTextSelection is true");
+        WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG_DEBUG(page->logIdentifier(), "Exiting early because _isSuppressingSingleClickGestureForTextSelection is true");
         return;
     }
 
@@ -916,13 +927,13 @@ ALLOW_NEW_API_WITHOUT_GUARDS_END
     if (!page)
         return;
 
-    WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(page->logIdentifier(), "%@", gesture);
+    WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG_DEBUG(page->logIdentifier(), "%@ state=%ld", gestureLogName(gesture), static_cast<long>(gesture.state));
 
     if (_dragPressGestureRecognizer != gesture)
         return;
 
     if (viewImpl->ignoresAllEvents()) {
-        WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(page->logIdentifier(), "Ignored gesture");
+        WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG_DEBUG(page->logIdentifier(), "Ignored gesture");
         return;
     }
 
@@ -1097,7 +1108,7 @@ ALLOW_NEW_API_WITHOUT_GUARDS_END
     _commitPotentialClickPointerId = 0;
     [self _handleClickCancelled];
 
-    WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(page->logIdentifier(), "Commit potential click failed");
+    WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG_ERROR(page->logIdentifier(), "Commit potential click failed");
 }
 
 - (void)didCompleteSyntheticClick
@@ -1187,7 +1198,7 @@ ALLOW_NEW_API_WITHOUT_GUARDS_END
     WebKit::NativeWebWheelEvent nativeEvent { wheelEvent };
 
     if (viewImpl->allowsBackForwardNavigationGestures() && protect(viewImpl->ensureGestureController())->handleScrollWheelEvent(nativeEvent)) {
-        WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(page->logIdentifier(), "View gesture controller handled gesture");
+        WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG_DEBUG(page->logIdentifier(), "View gesture controller handled gesture");
         return;
     }
 
@@ -1288,9 +1299,9 @@ ALLOW_NEW_API_WITHOUT_GUARDS_END
 - (void)setTextSelectionDragGesture:(NSGestureRecognizer *)gesture completionHandler:(void (^)(NSDraggingSession *))completionHandler
 {
     if (_textSelectionDragGesture) {
-        WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(RefPtr { _page.get() }->logIdentifier(),
+        WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG_ERROR(RefPtr { _page.get() }->logIdentifier(),
             "Replacing prior text-selection drag gesture %@ (completion handler set: %d); prior drag never reached setGestureDraggingSession:",
-            _textSelectionDragGesture.get(), !!_textSelectionDragCompletionHandler);
+            gestureLogName(_textSelectionDragGesture), !!_textSelectionDragCompletionHandler);
         ASSERT_NOT_REACHED();
     }
 
@@ -1346,7 +1357,7 @@ static inline bool isSamePair(NSGestureRecognizer *a, NSGestureRecognizer *b, NS
 
 - (BOOL)gestureRecognizer:(NSGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(NSGestureRecognizer *)otherGestureRecognizer
 {
-    WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(RefPtr { _page.get() }->logIdentifier(), "Gesture: %@, Other gesture: %@", gestureRecognizer, otherGestureRecognizer);
+    WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG_DEBUG(RefPtr { _page.get() }->logIdentifier(), "Gesture: %@, Other gesture: %@", gestureLogName(gestureRecognizer), gestureLogName(otherGestureRecognizer));
 
     if (isSamePair(gestureRecognizer, otherGestureRecognizer, _singleClickGestureRecognizer.get(), _panGestureRecognizer.get()))
         return YES;
@@ -1390,7 +1401,7 @@ static inline bool isSamePair(NSGestureRecognizer *a, NSGestureRecognizer *b, NS
 
 - (BOOL)gestureRecognizer:(NSGestureRecognizer *)gestureRecognizer shouldBeRequiredToFailByGestureRecognizer:(NSGestureRecognizer *)otherGestureRecognizer
 {
-    WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(RefPtr { _page.get() }->logIdentifier(), "Gesture: %@, Other gesture: %@", gestureRecognizer, otherGestureRecognizer);
+    WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG_DEBUG(RefPtr { _page.get() }->logIdentifier(), "Gesture: %@, Other gesture: %@", gestureLogName(gestureRecognizer), gestureLogName(otherGestureRecognizer));
 
     CheckedPtr viewImpl = _viewImpl.get();
     if (!viewImpl)
@@ -1414,7 +1425,7 @@ static inline bool isSamePair(NSGestureRecognizer *a, NSGestureRecognizer *b, NS
 
 - (BOOL)gestureRecognizer:(NSGestureRecognizer *)gestureRecognizer shouldRequireFailureOfGestureRecognizer:(NSGestureRecognizer *)otherGestureRecognizer
 {
-    WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(RefPtr { _page.get() }->logIdentifier(), "Gesture: %@, Other gesture: %@", gestureRecognizer, otherGestureRecognizer);
+    WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG_DEBUG(RefPtr { _page.get() }->logIdentifier(), "Gesture: %@, Other gesture: %@", gestureLogName(gestureRecognizer), gestureLogName(otherGestureRecognizer));
 
     CheckedPtr viewImpl = _viewImpl.get();
     if (!viewImpl)
@@ -1429,7 +1440,7 @@ static inline bool isSamePair(NSGestureRecognizer *a, NSGestureRecognizer *b, NS
 
     if (gestureRecognizer == _mouseTrackingGestureRecognizer && otherGestureRecognizer == _panGestureRecognizer) {
         bool panCanScroll = [self panGestureRecognizerCanScroll];
-        WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(RefPtr { _page.get() }->logIdentifier(), "Mouse tracking requires pan to fail: %d", panCanScroll);
+        WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG_DEBUG(RefPtr { _page.get() }->logIdentifier(), "Mouse tracking requires pan to fail: %d", panCanScroll);
         return panCanScroll;
     }
 
@@ -1438,7 +1449,7 @@ static inline bool isSamePair(NSGestureRecognizer *a, NSGestureRecognizer *b, NS
 
 - (BOOL)gestureRecognizerShouldBegin:(NSGestureRecognizer *)gestureRecognizer
 {
-    WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(RefPtr { _page.get() }->logIdentifier(), "Gesture: %@", gestureRecognizer);
+    WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG_DEBUG(RefPtr { _page.get() }->logIdentifier(), "Gesture: %@", gestureLogName(gestureRecognizer));
 
     CheckedPtr viewImpl = _viewImpl.get();
     if (!viewImpl)
@@ -1478,7 +1489,7 @@ static inline bool isSamePair(NSGestureRecognizer *a, NSGestureRecognizer *b, NS
 
 - (BOOL)_gestureRecognizer:(NSGestureRecognizer *)preventingGestureRecognizer canPreventGestureRecognizer:(NSGestureRecognizer *)preventedGestureRecognizer
 {
-    WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(RefPtr { _page.get() }->logIdentifier(), "Preventing gesture: %@, Prevented gesture: %@", preventingGestureRecognizer, preventedGestureRecognizer);
+    WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG_DEBUG(RefPtr { _page.get() }->logIdentifier(), "Preventing gesture: %@, Prevented gesture: %@", gestureLogName(preventingGestureRecognizer), gestureLogName(preventedGestureRecognizer));
 
     CheckedPtr viewImpl = _viewImpl.get();
     if (!viewImpl)
@@ -1521,6 +1532,8 @@ static inline bool isSamePair(NSGestureRecognizer *a, NSGestureRecognizer *b, NS
 #import <WebKitAdditions/WKAppKitGestureControllerAdditionsAfter.mm>
 #endif
 
+#undef WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG_ERROR
+#undef WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG_DEBUG
 #undef WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG
 
 #endif // HAVE(APPKIT_GESTURES_SUPPORT)
