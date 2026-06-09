@@ -346,22 +346,15 @@
       "configuration": "release", "architectures": ["x86_64", "arm64"],
       "deployment_target": "15.4",
       "rebuild_without_change_on_builder": true,
-      "triggers": ["api-tests-mac-ews", "macos-sequoia-release-wk1-tests-ews", "macos-sequoia-release-wk2-tests-ews", "macos-sequoia-release-wk2-intel-tests-ews", "macos-release-wk2-stress-tests-ews", "macos-sequoia-release-site-isolation-tests-ews"],
+      "triggers": ["api-tests-mac-ews", "macos-sequoia-release-wk2-tests-ews", "macos-sequoia-release-wk2-intel-tests-ews", "macos-release-wk2-stress-tests-ews", "macos-sequoia-release-site-isolation-tests-ews"],
       "workernames": ["ews101", "ews102", "ews103", "ews105", "ews116", "ews117", "ews118", "ews119", "ews120", "ews141", "ews145", "ews147", "ews148", "ews161", "ews162"]
-    },
-    {
-      "name": "macOS-Sequoia-Release-WK1-Tests-EWS", "shortname": "mac-wk1", "icon": "testOnly",
-      "factory": "macOSWK1Factory", "platform": "mac-sequoia",
-      "configuration": "release",
-      "triggered_by": ["macos-sequoia-release-build-ews"],
-      "workernames": ["ews116", "ews112"]
     },
     {
       "name": "macOS-Sequoia-Release-WK2-Tests-EWS", "shortname": "mac-wk2", "icon": "testOnly",
       "factory": "macOSWK2Factory", "platform": "mac-sequoia",
       "configuration": "release",
       "triggered_by": ["macos-sequoia-release-build-ews"],
-      "workernames": ["ews104", "ews106", "ews107", "ews113", "ews115", "ews144", "ews146", "ews149", "ews169", "ews186", "ews187", "ews188", "ews189"]
+      "workernames": ["ews104", "ews106", "ews107", "ews112", "ews113", "ews115", "ews144", "ews146", "ews149", "ews169", "ews186", "ews187", "ews188", "ews189"]
     },
     {
       "name": "macOS-Sequoia-Release-Site-Isolation-Tests-EWS", "shortname": "mac-site-isolation", "icon": "testOnly",
@@ -620,10 +613,6 @@
     {
       "type": "Triggerable", "name": "macos-sequoia-release-build-ews",
       "builderNames": ["macOS-Sequoia-Release-Build-EWS"]
-    },
-    {
-      "type": "Triggerable", "name": "macos-sequoia-release-wk1-tests-ews",
-      "builderNames": ["macOS-Sequoia-Release-WK1-Tests-EWS"]
     },
     {
       "type": "Triggerable", "name": "macos-sequoia-release-wk2-tests-ews",
