@@ -73,9 +73,6 @@ static const AtomString& indefiniteAtom()
     return indefiniteValue;
 }
 
-// This is used for duration type time values that can't be negative.
-static const double invalidCachedTime = -1.;
-    
 class ConditionEventListener final : public EventListener {
 public:
     static Ref<ConditionEventListener> create(SVGSMILElement* animation, SVGSMILElement::Condition* condition)
@@ -139,22 +136,6 @@ SVGSMILElement::Condition::Condition(Type type, BeginOrEnd beginOrEnd, const Str
 SVGSMILElement::SVGSMILElement(const QualifiedName& tagName, Document& doc, UniqueRef<SVGPropertyRegistry>&& propertyRegistry)
     : SVGElement(tagName, doc, WTF::move(propertyRegistry))
     , m_attributeName(anyQName())
-    , m_conditionsConnected(false)
-    , m_hasEndEventConditions(false)
-    , m_isWaitingForFirstInterval(true)
-    , m_intervalBegin(SMILTime::unresolved())
-    , m_intervalEnd(SMILTime::unresolved())
-    , m_previousIntervalBegin(SMILTime::unresolved())
-    , m_activeState(Inactive)
-    , m_lastPercent(0)
-    , m_lastRepeat(0)
-    , m_nextProgressTime(0)
-    , m_documentOrderIndex(0)
-    , m_cachedDur(invalidCachedTime)
-    , m_cachedRepeatDur(invalidCachedTime)
-    , m_cachedRepeatCount(invalidCachedTime)
-    , m_cachedMin(invalidCachedTime)
-    , m_cachedMax(invalidCachedTime)
 {
 }
 
