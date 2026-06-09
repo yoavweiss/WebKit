@@ -30,6 +30,7 @@
 #include "ISOArithmetic.h"
 #include "IntlObject.h"
 #include <unicode/ucal.h>
+#include <wtf/CheckedArithmetic.h>
 #include <wtf/DateMath.h>
 #include <wtf/text/MakeString.h>
 #include <wtf/unicode/icu/ICUHelpers.h>
@@ -1460,19 +1461,31 @@ TemporalResult<ISO8601::PlainDate> calendarDateFromFields(CalendarID calendarId,
         tookEraPath = true;
         // Japanese "ce"/"bce": eraYear IS the Gregorian year. Use ISO date path.
         if (calendarId == japaneseCalendarID() && (*era == "ce"_s || *era == "bce"_s)) {
-            int32_t isoYear = *era == "bce"_s ? (1 - *eraYear) : *eraYear; // For Japanese "ce"/"bce" eras, the year IS the ISO year — bypass ICU to avoid
+            // For Japanese "ce"/"bce" eras, the year IS the ISO year — bypass ICU to avoid
             // Julian/Gregorian calendar switch issues for pre-1582 dates. Apply overflow.
+            CheckedInt32 checkedISOYear = *eraYear;
+            if (*era == "bce"_s)
+                checkedISOYear = 1 - checkedISOYear;
+            if (checkedISOYear.hasOverflowed() || !ISO8601::isYearWithinLimits(checkedISOYear.value())) [[unlikely]]
+                return makeUnexpected(rangeError("Resolved calendar date is outside representable range"_s));
+            int32_t isoYear = checkedISOYear.value();
             // year.has_value() means user-provided; check for consistency (NonISOResolveFields step).
             if (year && *year != isoYear) [[unlikely]]
                 return makeUnexpected(rangeError("year is inconsistent with era and eraYear"_s));
+            uint8_t resolvedMonth = month;
+            if (month > 12) {
+                if (overflow == TemporalOverflow::Reject) [[unlikely]]
+                    return makeUnexpected(rangeError("month is out of range for this calendar"_s));
+                resolvedMonth = 12;
+            }
             uint8_t resolvedDay = day;
-            uint8_t daysInMo = static_cast<uint8_t>(ISO8601::daysInMonth(isoYear, month));
+            uint8_t daysInMo = ISO8601::daysInMonth(isoYear, resolvedMonth);
             if (day > daysInMo) {
                 if (overflow == TemporalOverflow::Reject) [[unlikely]]
                     return makeUnexpected(rangeError("Day is out of range for the given month"_s));
                 resolvedDay = daysInMo;
             }
-            return ISO8601::PlainDate(isoYear, month, resolvedDay);
+            return ISO8601::PlainDate(isoYear, resolvedMonth, resolvedDay);
         }
         auto icuEra = mapTemporalEraToICUEra(calendarId, *era);
         if (!icuEra) [[unlikely]]
