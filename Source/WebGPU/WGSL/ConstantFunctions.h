@@ -504,8 +504,13 @@ CONSTANT_FUNCTION(Add)
         return { { result } };
     }
 
-    return constantBinaryOperation<Constraints::Number>(arguments, [&]<typename T>(T left, T right) -> T {
-        return left + right;
+    return constantBinaryOperation<Constraints::Number>(arguments, [&]<typename T>(T left, T right) -> ConstantResult {
+        auto result = static_cast<T>(left + right);
+        if constexpr (std::is_floating_point_v<T> || std::is_same_v<T, half>) {
+            if (!std::isfinite(static_cast<double>(result)))
+                return makeUnexpected("addition overflow"_s);
+        }
+        return { { result } };
     });
 }
 
@@ -529,8 +534,13 @@ CONSTANT_FUNCTION(Minus)
         return { { result } };
     }
 
-    return constantBinaryOperation<Constraints::Number>(arguments, [&]<typename T>(T left, T right) -> T {
-        return left - right;
+    return constantBinaryOperation<Constraints::Number>(arguments, [&]<typename T>(T left, T right) -> ConstantResult {
+        auto result = static_cast<T>(left - right);
+        if constexpr (std::is_floating_point_v<T> || std::is_same_v<T, half>) {
+            if (!std::isfinite(static_cast<double>(result)))
+                return makeUnexpected("subtraction overflow"_s);
+        }
+        return { { result } };
     });
 }
 
@@ -605,8 +615,13 @@ CONSTANT_FUNCTION(Multiply)
         return { { result } };
     }
 
-    return constantBinaryOperation<Constraints::Number>(arguments, [&]<typename T>(T left, T right) -> T {
-        return left * right;
+    return constantBinaryOperation<Constraints::Number>(arguments, [&]<typename T>(T left, T right) -> ConstantResult {
+        auto result = static_cast<T>(left * right);
+        if constexpr (std::is_floating_point_v<T> || std::is_same_v<T, half>) {
+            if (!std::isfinite(static_cast<double>(result)))
+                return makeUnexpected("multiply overflow"_s);
+        }
+        return { { result } };
     });
 }
 
