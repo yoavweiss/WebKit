@@ -535,6 +535,10 @@ bool BackForwardCache::addIfCacheable(BackForwardFrameItemIdentifier identifier,
     if (isInBackForwardCache(identifier))
         return false;
 
+    // Bug 316458: no-LocalFrame pages null-deref on restore via
+    // loadDifferentDocumentItem; FrameLoader::commitProvisionalLoad gates this out.
+    ASSERT(page.hasAnyLocalFrame());
+
     auto cachedPage = trySuspendPage(page, ForceSuspension::No);
     if (!cachedPage)
         return false;

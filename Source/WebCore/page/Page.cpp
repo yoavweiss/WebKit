@@ -4481,6 +4481,15 @@ bool Page::hasLocalMainFrame()
     return dynamicDowncast<LocalFrame>(mainFrame());
 }
 
+bool Page::hasAnyLocalFrame() const
+{
+    for (RefPtr frame = mainFrame(); frame; frame = frame->tree().traverseNext()) {
+        if (is<LocalFrame>(*frame))
+            return true;
+    }
+    return false;
+}
+
 void Page::didChangeMainDocument(Document* newDocument)
 {
     m_topDocumentSyncData = newDocument ? newDocument->syncData() : DocumentSyncData::create();

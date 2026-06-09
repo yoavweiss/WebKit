@@ -2479,11 +2479,13 @@ void FrameLoader::commitProvisionalLoad()
         protect(document->editor())->confirmOrCancelCompositionAndNotifyClient();
     }
 
-    if (!frame->tree().parent() && history().currentItem() && (!history().provisionalItem() || history().currentItem()->itemID() != history().provisionalItem()->itemID())) {
+    RefPtr page = frame->page();
+    bool isCurrentMainFrame = page && frame.ptr() == &page->mainFrame();
+    if (isCurrentMainFrame && history().currentItem() && (!history().provisionalItem() || history().currentItem()->itemID() != history().provisionalItem()->itemID())) {
         // Check to see if we need to cache the page we are navigating away from into the back/forward cache.
         // We are doing this here because we know for sure that a new page is about to be loaded.
         Ref currentItem = *history().currentItem();
-        if (BackForwardCache::singleton().addIfCacheable(currentItem.get(), protect(frame->page()).get()))
+        if (BackForwardCache::singleton().addIfCacheable(currentItem.get(), page.get()))
             m_client->didCacheBackForwardItem(currentItem->itemID(), currentItem->frameItemID());
 
         WebCore::jettisonExpensiveObjectsOnTopLevelNavigation();

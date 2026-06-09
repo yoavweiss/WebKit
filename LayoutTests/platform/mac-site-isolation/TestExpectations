@@ -20,10 +20,6 @@ imported/w3c/web-platform-tests/speculation-rules/prefetch/initiators-a-element.
 imported/w3c/web-platform-tests/speculation-rules/prefetch/initiators-a-element.sub.https.html?same-site [ Crash ]
 imported/w3c/web-platform-tests/speculation-rules/prefetch/initiators-window-open.sub.https.html?cross-site [ Crash ]
 imported/w3c/web-platform-tests/speculation-rules/prefetch/initiators-window-open.sub.https.html?same-site [ Crash ]
-http/tests/animations/threaded-animations-timeline-resumption-from-page-cache.html [ Crash ]
-http/tests/navigation-api/different-origin-entries-removed-after-bfcache.html [ Crash ]
-http/tests/navigation/page-cache-requestAnimationFrame.html [ Crash ]
-http/wpt/css/css-view-transitions/navigation/old_vt_promises_bfcache.html [ Crash ]
 
 #######################
 # Tests that time out #
@@ -50,6 +46,7 @@ imported/w3c/web-platform-tests/html/browsers/browsing-the-web/navigating-across
 fast/loader/stateobjects/pushstate-in-iframe.html [ Timeout ]
 http/tests/navigation/cross-site-iframe-nav-with-bfcache.html [ Timeout ]
 http/tests/navigation/forward-and-cancel.html [ Timeout ]
+http/tests/navigation-api/different-origin-entries-removed-after-bfcache.html [ Failure Timeout ]
 webanimations/animation-page-cache.html [ Timeout ]
 
 ########################
@@ -88,6 +85,7 @@ http/tests/storageAccess/grant-storage-access-under-opener-at-popup-user-gesture
 http/tests/storageAccess/request-and-grant-access-cross-origin-sandboxed-iframe-from-prevalent-domain-with-user-interaction-and-access-from-right-frame.https.html [ Failure ]
 http/tests/storageAccess/request-and-grant-access-then-navigate-cross-site-should-not-have-access.https.html [ Failure ]
 http/wpt/webrtc/third-party-frame-ice-candidate-filtering.html [ Failure ]
+http/wpt/css/css-view-transitions/navigation/old_vt_promises_bfcache.html [ Failure ]
 imported/w3c/web-platform-tests/cookies/partitioned-cookies/partitioned-cookies.tentative.https.html [ Failure ]
 imported/w3c/web-platform-tests/css/css-view-transitions/navigation/reload-crash.html [ Failure ]
 imported/w3c/web-platform-tests/dom/events/scrolling/scroll-cross-origin-iframes.html [ Failure ]

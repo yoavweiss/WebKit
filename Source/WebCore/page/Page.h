@@ -422,6 +422,7 @@ public:
     EditorClient& editorClient() { return m_editorClient.get(); }
 
     WEBCORE_EXPORT LocalFrame* NODELETE localMainFrame() const;
+    WEBCORE_EXPORT bool hasAnyLocalFrame() const;
     WEBCORE_EXPORT Document* localTopDocument() const;
 
     Frame& mainFrame() const { return m_mainFrame.get(); }
