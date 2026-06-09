@@ -165,6 +165,8 @@ private:
     void reset();
     void destroyedNodesTimerFired();
 
+    RefPtr<Node> nodeForPath(const String& path);
+
     const UniqueRef<Inspector::DOMFrontendDispatcher> m_frontendDispatcher;
     const Ref<Inspector::DOMBackendDispatcher> m_backendDispatcher;
     WeakRef<InstrumentingAgents> m_instrumentingAgents;
@@ -179,6 +181,9 @@ private:
     Vector<Inspector::Protocol::DOM::NodeId> m_destroyedDetachedNodeIdentifiers;
     Vector<std::pair<Inspector::Protocol::DOM::NodeId, Inspector::Protocol::DOM::NodeId>> m_destroyedAttachedNodeIdentifiers;
     Timer m_destroyedNodesTimer;
+
+    using SearchResults = HashMap<String, Vector<RefPtr<Node>>>;
+    SearchResults m_searchResults;
 
     bool m_suppressAttributeModifiedEvent { false };
     bool m_documentRequested { false };

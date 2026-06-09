@@ -332,7 +332,7 @@
         {
             "name": "querySelector",
             "description": "Executes <code>querySelector</code> on a given node.",
-            "targetTypes": ["page"],
+            "targetTypes": ["frame", "page"],
             "parameters": [
                 { "name": "nodeId", "$ref": "NodeId", "description": "Id of the node to query upon." },
                 { "name": "selector", "type": "string", "description": "Selector string." }
@@ -344,7 +344,7 @@
         {
             "name": "querySelectorAll",
             "description": "Executes <code>querySelectorAll</code> on a given node.",
-            "targetTypes": ["page"],
+            "targetTypes": ["frame", "page"],
             "parameters": [
                 { "name": "nodeId", "$ref": "NodeId", "description": "Id of the node to query upon." },
                 { "name": "selector", "type": "string", "description": "Selector string." }
@@ -727,7 +727,7 @@
         {
             "name": "pushNodeByPathToFrontend",
             "description": "Requests that the node is sent to the caller given its path.",
-            "targetTypes": ["page"],
+            "targetTypes": ["frame", "page"],
             "parameters": [
                 { "name": "path", "type": "string", "description": "Path to node in the proprietary format." }
             ],

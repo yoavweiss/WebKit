@@ -174,6 +174,10 @@ WI.DOMNodeStyles = class DOMNodeStyles extends WI.Object
 
         this._needsRefresh = false;
 
+        // FIXME: <https://webkit.org/b/298980> CSS inspection for cross-origin frame nodes requires FrameCSSAgent.
+        if (this._node.owningTarget)
+            return Promise.resolve(this);
+
         let fetchedMatchedStylesPromise = Promise.withResolvers();
         let fetchedInlineStylesPromise = Promise.withResolvers();
         let fetchedComputedStylesPromise = Promise.withResolvers();
