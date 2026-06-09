@@ -45,7 +45,7 @@ constexpr size_t reusableTextureMaxCount = 3;
 
 static PlatformXR::FrameData::ExternalTexture makeMachSendRight(id<MTLTexture> texture)
 {
-#if !PLATFORM(IOS_FAMILY_SIMULATOR)
+#if !PLATFORM(IOS_SIMULATOR) || __VISION_OS_VERSION_MIN_REQUIRED >= 270000
     RetainPtr<MTLSharedTextureHandle> sharedTextureHandle = adoptNS([texture newSharedTextureHandle]);
     if (sharedTextureHandle)
         return { MachSendRight::adopt([sharedTextureHandle.get() createMachPort]), true };
