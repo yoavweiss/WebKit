@@ -70,7 +70,7 @@ class WPTLinter(object):
             # actual failure.
             if e.returncode != 1:
                 raise RuntimeError(
-                    'WPT linter failed:\n' + result.stderr.decode('utf-8', 'replace')
+                    'WPT linter failed:\n' + e.stderr.decode('utf-8', 'replace')
                 ) from e
             result = e
         for line in result.stdout.splitlines():
