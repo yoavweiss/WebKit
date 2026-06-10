@@ -109,6 +109,14 @@ static bool processHasActiveRunTimeLimitation()
     [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationWillEnterForegroundNotification object:[UIApplication sharedApplication] queue:nil usingBlock:^(NSNotification *) {
         [self _cancelPendingReleaseTask];
         [self _updateBackgroundTask];
+
+        // The ProcessStateMonitor may have proactively suspended the Web processes (e.g. when RunningBoard
+        // started the suspension timer as the app was about to get backgrounded). If the app comes back to
+        // the foreground before RunningBoard delivers the asynchronous "no longer time-limited" state update,
+        // we need to let the Web processes resume right away. Otherwise they stay unable to take foreground
+        // activities and the WebView is left showing stale / blank content.
+        if (RefPtr processStateMonitor = self->m_processStateMonitor)
+            processStateMonitor->processDidBecomeRunning();
     }];
 
     [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidEnterBackgroundNotification object:[UIApplication sharedApplication] queue:nil usingBlock:^(NSNotification *) {
