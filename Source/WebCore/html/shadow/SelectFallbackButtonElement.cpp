@@ -130,13 +130,6 @@ std::optional<Style::UnadjustedStyle> SelectFallbackButtonElement::resolveCustom
     auto elementStyle = resolveStyle(resolutionContext);
     CheckedRef style = *elementStyle.style;
 
-    if (hostStyle->usedAppearance() != StyleAppearance::Base) {
-        style->setFlexGrow(1);
-        style->setFlexShrink(1);
-        // min-width: 0; is needed for correct shrinking.
-        style->setLogicalMinWidth(0_css_px);
-    }
-
     auto hostTextAlign = hostStyle->textAlign();
     if (hostTextAlign == Style::TextAlign::Start)
         style->setTextAlign(hostStyle->writingMode().isBidiLTR() ? Style::TextAlign::Left : Style::TextAlign::Right);
@@ -159,19 +152,18 @@ std::optional<Style::UnadjustedStyle> SelectFallbackButtonElement::resolveCustom
         break;
     }
 
-    switch (hostStyle->usedAppearance()) {
-    case StyleAppearance::Menulist:
-    case StyleAppearance::MenulistButton: {
+    if (hostStyle->usedAppearance() != StyleAppearance::Base) {
+        style->setFlexGrow(1);
+        style->setFlexShrink(1);
+        // min-width: 0; is needed for correct shrinking.
+        style->setLogicalMinWidth(0_css_px);
+
         style->setMarginBefore(CSS::Keyword::Auto { });
         style->setMarginAfter(CSS::Keyword::Auto { });
         style->setAlignSelf(CSS::Keyword::FlexStart { });
 
         auto paddingBox = RenderTheme::singleton().popupInternalPaddingBox(*hostStyle);
         style->setPaddingBox(WTF::move(paddingBox));
-        break;
-    }
-    default:
-        break;
     }
 
     return elementStyle;
