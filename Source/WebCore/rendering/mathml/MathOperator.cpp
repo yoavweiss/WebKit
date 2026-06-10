@@ -133,7 +133,17 @@ LayoutUnit MathOperator::stretchSize() const
 bool MathOperator::getGlyph(const Style::ComputedStyle& style, char32_t character, GlyphData& glyph) const
 {
     glyph = style.fontCascade().glyphDataForCharacter(character, style.writingMode().isBidiRTL());
-    return glyph.font && glyph.font == &style.fontCascade().primaryFont();
+    if (!glyph.font)
+        return false;
+
+    // Stretchy and large operators pull size variants and assemblies from the primary
+    // font's MATH table, so their base glyph must come from the primary font. A plain
+    // operator (e.g. the minus sign) just paints its base glyph, so a fallback-font glyph
+    // is fine when the primary text font lacks the character.
+    if (m_operatorType == Type::NormalOperator)
+        return true;
+
+    return glyph.font == &style.fontCascade().primaryFont();
 }
 
 bool MathOperator::getBaseGlyph(const Style::ComputedStyle& style, GlyphData& glyph)
