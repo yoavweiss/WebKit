@@ -398,7 +398,7 @@ template<class T>
 class PadProbeHandle : public ThreadSafeRefCountedAndCanMakeThreadSafeWeakPtr<PadProbeHandle<T>, WTF::DestructionThread::Main> {
 public:
     using PadProbeCallback = Function<GstPadProbeReturn(const RefPtr<T>&, const GRefPtr<GstPad>&, GstPadProbeInfo*)>;
-    static Ref<PadProbeHandle> create(const T& owner, GRefPtr<GstPad>&& pad, GstPadProbeType probeType, PadProbeCallback&& callback)
+    static RefPtr<PadProbeHandle> create(const T& owner, GRefPtr<GstPad>&& pad, GstPadProbeType probeType, PadProbeCallback&& callback)
     {
         return adoptRef(*new PadProbeHandle<T>(owner, WTF::move(pad), probeType, WTF::move(callback)));
     }
