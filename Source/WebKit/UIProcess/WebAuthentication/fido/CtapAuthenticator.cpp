@@ -173,7 +173,7 @@ void CtapAuthenticator::makeCredential()
         continueMakeCredentialAfterCheckExcludedCredentials();
 }
 
-void CtapAuthenticator::continueSilentlyCheckCredentials(Vector<uint8_t>&& data, CompletionHandler<void(bool)>&& completionHandler)
+void CtapAuthenticator::continueSilentlyCheckCredentials(Vector<uint8_t>&& data, Function<void(bool)>&& completionHandler)
 {
     auto error = getResponseCode(data);
     CTAP_RELEASE_LOG("continueSilentlyCheckCredentials: Got error code: %hhu from authenticator.", std::to_underlying(error));
