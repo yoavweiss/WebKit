@@ -1979,7 +1979,7 @@ void NetworkProcess::deleteWebsiteDataForOrigin(PAL::SessionID sessionID, Option
         if (CheckedPtr networkStorageSession = storageSession(sessionID))
             networkStorageSession->deleteCookies(origin, [clearTasksHandler] { });
     }
-    if (websiteDataTypes.contains(WebsiteDataType::DiskCache) && !sessionID.isEphemeral()) {
+    if (websiteDataTypes.contains(WebsiteDataType::DiskCache) && !sessionID.isEphemeral() && session) {
         if (RefPtr cache = session->cache()) {
             Vector<NetworkCache::Key> cacheKeysToDelete;
             String cachePartition = origin.clientOrigin == origin.topOrigin ? emptyString() : ResourceRequest::partitionName(origin.topOrigin.host());
