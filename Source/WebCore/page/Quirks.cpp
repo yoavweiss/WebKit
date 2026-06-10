@@ -32,6 +32,7 @@
 #include "ContainerNodeInlines.h"
 #include "Cookie.h"
 #include "CookieJar.h"
+#include "DNS.h"
 #include "DatasetDOMStringMap.h"
 #include "DeprecatedGlobalSettings.h"
 #include "DocumentLoader.h"
@@ -742,6 +743,16 @@ bool Quirks::shouldIgnoreInputModeNone() const
 #else
     return false;
 #endif
+}
+
+// rdar://176981763
+bool Quirks::shouldAllowMixedContentConnectionToLoopback(const URL& url)
+{
+    if (m_document->url().host() != "account.battle.net"_s || m_document->url().path().startsWith("/login"_s))
+        return false;
+    if (auto address = IPAddress::fromString(url.host().toStringWithoutCopying()))
+        return address->isLoopback();
+    return false;
 }
 
 // FIXME: Remove after the site is fixed, <rdar://problem/50374200>

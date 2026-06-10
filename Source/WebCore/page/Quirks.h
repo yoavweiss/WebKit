@@ -139,6 +139,8 @@ public:
 
     WEBCORE_EXPORT bool static NODELETE shouldDisableBlobFileAccessEnforcement();
 
+    bool shouldAllowMixedContentConnectionToLoopback(const URL&);
+
     bool NODELETE needsGMailOverflowScrollQuirk() const;
     bool NODELETE needsYouTubeOverflowScrollQuirk() const;
     bool NODELETE needsFullscreenDisplayNoneQuirk() const;
