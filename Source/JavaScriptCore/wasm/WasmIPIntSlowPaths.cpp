@@ -601,6 +601,8 @@ WASM_IPINT_EXTERN_CPP_DECL(table_grow, IPIntStackEntry* sp, TableGrowMetadata* m
 WASM_IPINT_EXTERN_CPP_DECL(memory_grow, int64_t delta, uint8_t memoryIndex)
 {
     WasmSlowPathWithoutCallFrameTracer tracer(instance->vm());
+    if (!instance->module().moduleInformation().memory(memoryIndex).isMemory64())
+        delta = static_cast<uint32_t>(delta);
     WASM_RETURN_TWO(reinterpret_cast<void*>(Wasm::growMemory(instance, delta, memoryIndex)), 0);
 }
 
@@ -1337,7 +1339,7 @@ WASM_IPINT_EXTERN_CPP_DECL(memory_atomic_notify, IPIntStackEntry* args)
     uint64_t offset = args[0].i64;
     uint8_t memoryIndex = args[1].i32;
     int32_t count = args[2].i32;
-    uint64_t base = args[3].i64;
+    uint64_t base = instance->module().moduleInformation().memory(memoryIndex).isMemory64() ? args[3].i64 : static_cast<uint32_t>(args[3].i32);
     int32_t result = Wasm::memoryAtomicNotify(instance, base, offset, count, memoryIndex);
     WASM_RETURN_TWO(std::bit_cast<void*>(static_cast<intptr_t>(result)), nullptr);
 #else
