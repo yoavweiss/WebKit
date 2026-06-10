@@ -143,6 +143,8 @@ bool EnhancedSecuritySitesPersistence::openDatabase(const String& directoryPath)
     {
         auto columnCheckStatement = checkedDB->prepareStatement("SELECT COUNT(*) FROM pragma_table_info('sites') WHERE name = 'last_modified'"_s);
         bool hasLastModifiedColumn = columnCheckStatement && columnCheckStatement->step() == SQLITE_ROW && columnCheckStatement->columnInt(0) > 0;
+        columnCheckStatement = nullptr;
+
         if (!hasLastModifiedColumn) {
             if (!checkedDB->executeCommand("ALTER TABLE sites ADD COLUMN last_modified REAL NOT NULL DEFAULT 0"_s))
                 return reportErrorAndCloseDatabase("add last_modified column"_s);

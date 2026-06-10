@@ -1635,6 +1635,28 @@ TEST(EnhancedSecurityPolicies, MigrationAddsLastModifiedColumnToExistingDatabase
     cleanUpEnhancedSecuritySites();
 }
 
+TEST(EnhancedSecurityPolicies, OpenDatabaseDoesNotCrashWhenMigrationFails)
+{
+    auto dbPath = emptyEnhancedSecuritySitesPath();
+
+    {
+        auto database = makeUniqueRef<WebCore::SQLiteDatabase>();
+        EXPECT_TRUE(database->open(dbPath.get()));
+
+        // Create a table with a specific edge case that causes our ALTER TABLE statement to fail
+        // by causing a collision in the column names of the table. This should not crash.
+        EXPECT_TRUE(database->executeCommand("CREATE TABLE sites (site TEXT PRIMARY KEY, enhanced_security_state INT NOT NULL, Last_Modified REAL NOT NULL DEFAULT 0)"_s));
+        EXPECT_TRUE(database->executeCommand("CREATE INDEX idx_sites_enhanced_security_state ON sites(enhanced_security_state)"_s));
+
+        database->close();
+    }
+
+    auto webView = enhancedSecurityTestConfiguration(nullptr, nullptr, /* useSiteIsolation */ false, /* useNonPersistentStore */ false);
+    waitForEnhancedSecurityDatabaseOpen(webView.get());
+
+    cleanUpEnhancedSecuritySites();
+}
+
 #if USE(APPLE_INTERNAL_SDK) && __has_include(<WebKitAdditions/EnhancedSecurityPoliciesAdditions.mm>)
 #import <WebKitAdditions/EnhancedSecurityPoliciesAdditions.mm>
 #endif
