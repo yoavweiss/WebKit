@@ -188,11 +188,12 @@ typedef NS_ENUM(NSInteger, NSScrollPocketEdge) {
 
 #endif
 
-#if !HAVE(NSGESTURERECOGNIZER_MODIFIER_FLAGS)
 @interface NSGestureRecognizer (SPI)
+@property (readwrite) BOOL shouldBeArchived;
+#if !HAVE(NSGESTURERECOGNIZER_MODIFIER_FLAGS)
 - (NSEventModifierFlags)modifierFlags;
-@end
 #endif
+@end
 
 @protocol NSGestureRecognizerDelegatePrivate <NSGestureRecognizerDelegate>
 
