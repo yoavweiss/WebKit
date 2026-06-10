@@ -57,6 +57,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS_DIR "${CMAKE_BINARY_DIR}/WebCore/PrivateHe
 set(WebKitLegacy_FRAMEWORK_HEADERS_DIR "${CMAKE_BINARY_DIR}/WebKitLegacy/Headers")
 set(WebKit_FRAMEWORK_HEADERS_DIR "${CMAKE_BINARY_DIR}/WebKit/Headers")
 set(WebKit_PRIVATE_FRAMEWORK_HEADERS_DIR "${CMAKE_BINARY_DIR}/WebKit/PrivateHeaders")
+set(WebKitAdditions_FRAMEWORK_HEADERS_DIR "${CMAKE_BINARY_DIR}/WebKitAdditions/Headers")
 
 set(WTF_SCRIPTS_DIR "${CMAKE_BINARY_DIR}/WTF/Scripts")
 set(JavaScriptCore_SCRIPTS_DIR "${CMAKE_BINARY_DIR}/JavaScriptCore/Scripts")
