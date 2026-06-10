@@ -953,7 +953,7 @@ bool SourceBufferPrivate::validateInitializationSegment(const SourceBufferPrivat
     }
 
     if (segment.textTracks.size() >= 2) {
-        for (auto& textTrackInfo : segment.videoTracks) {
+        for (auto& textTrackInfo : segment.textTracks) {
             if (m_trackBufferMap.find(RefPtr { textTrackInfo.track }->id()) == m_trackBufferMap.end())
                 return false;
         }
