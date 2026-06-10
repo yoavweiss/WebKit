@@ -24,15 +24,12 @@ imported/w3c/web-platform-tests/speculation-rules/prefetch/initiators-window-ope
 #######################
 # Tests that time out #
 #######################
-fast/dom/Window/timer-resume-on-navigation-back.html [ Timeout ]
 fast/events/pageshow-pagehide-on-back-cached-with-frames.html [ Timeout ]
 fast/events/pageshow-pagehide-on-back-cached.html [ Timeout ]
 fast/history/back-from-page-with-focused-iframe.html [ Timeout ]
 fast/history/go-back-to-object-subframe.html [ Timeout ]
 fast/history/page-cache-element-state-focused.html [ Timeout ]
-fast/scrolling/iframe-scrollable-after-back.html [ Timeout ]
 fast/scrolling/overflow-scrollable-after-back.html [ Timeout ]
-fast/scrolling/page-cache-back-overflow-scroll-restore.html [ Timeout ]
 fullscreen/exit-full-screen-video-crash.html [ Timeout ]
 http/tests/inspector/dom/cross-domain-inspected-node-access.html [ Timeout ]
 http/tests/local/blob/download-blob-from-iframe.html [ Timeout ]
@@ -47,7 +44,6 @@ fast/loader/stateobjects/pushstate-in-iframe.html [ Timeout ]
 http/tests/navigation/cross-site-iframe-nav-with-bfcache.html [ Timeout ]
 http/tests/navigation/forward-and-cancel.html [ Timeout ]
 http/tests/navigation-api/different-origin-entries-removed-after-bfcache.html [ Failure Timeout ]
-webanimations/animation-page-cache.html [ Timeout ]
 
 ########################
 # Tests that Text fail #

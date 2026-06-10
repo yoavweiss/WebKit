@@ -2172,7 +2172,7 @@ void WebProcessPool::processForNavigation(WebPageProxy& page, WebFrameProxy& fra
         return completionHandler(sourceProcess.copyRef(), nullptr, "Navigation is treated as same-site (archive load)"_s);
     }
 
-    if (siteIsolationEnabled && !site.isEmpty()) {
+    if (siteIsolationEnabled) {
         if (RefPtr targetItem = navigation.targetItem(); targetItem && frame.isMainFrame()) {
             if (RefPtr suspendedPage = targetItem->suspendedPage()) {
                 Ref process = suspendedPage->process();
@@ -2186,7 +2186,9 @@ void WebProcessPool::processForNavigation(WebPageProxy& page, WebFrameProxy& fra
                 }
             }
         }
+    }
 
+    if (siteIsolationEnabled && !site.isEmpty()) {
         ASSERT(frameInfo.isMainFrame ? site == mainFrameSite : Site(URL(protect(page.pageLoadState())->activeURL())) == mainFrameSite);
         if (!frame.isMainFrame() && site == mainFrameSite) {
             Ref mainFrameProcess = Ref { page.mainFrame()->process() };
@@ -2371,11 +2373,13 @@ std::tuple<Ref<WebProcessProxy>, RefPtr<SuspendedPageProxy>, ASCIILiteral> WebPr
             return { createNewProcess(), nullptr, "Process swap because this is a first navigation in a DOM popup without opener"_s };
     }
 
-    const bool treatAsSameOriginNavigation = [&targetURL, &navigation, &siteIsolationEnabled] {
-        if (siteIsolationEnabled
-            && targetURL.protocolIsAbout()
-            && !SecurityPolicy::shouldInheritSecurityOriginFromOwner(targetURL))
-            return false;
+    const bool treatAsSameOriginNavigation = [&targetURL, &navigation, &siteIsolationEnabled, &frame] {
+        if (siteIsolationEnabled) {
+            if (targetURL.protocolIsAbout() && !SecurityPolicy::shouldInheritSecurityOriginFromOwner(targetURL))
+                return false;
+            if (frame.isMainFrame() && targetURL.protocolIsData())
+                return false;
+        }
 
         return navigation.treatAsSameOriginNavigation();
     }();
