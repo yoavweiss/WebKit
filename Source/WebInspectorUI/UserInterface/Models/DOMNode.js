@@ -998,13 +998,17 @@ WI.DOMNode = class DOMNode extends WI.Object
         if (this._destroyed)
             return Promise.reject("ERROR: node is destroyed");
 
+        // FIXME: <https://webkit.org/b/298980> Event listeners for cross-origin frame nodes are not yet supported.
+        if (this.owningTarget)
+            return Promise.resolve({listeners: []});
+
         includeAncestors ??= true;
 
         console.assert(WI.domManager.inspectedNode === this || !includeAncestors, this, includeAncestors);
 
-        let target = this.owningTarget || WI.assumingMainTarget();
+        let target = WI.assumingMainTarget();
         return target.DOMAgent.getEventListenersForNode.invoke({
-            nodeId: this.backendNodeId,
+            nodeId: this.id,
             includeAncestors,
         });
     }
