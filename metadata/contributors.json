@@ -4304,6 +4304,13 @@
    },
    {
       "emails" : [
+         "jeffrey_xu2@apple.com"
+      ],
+      "github" : "jeffreyhxu",
+      "name" : "Jeffrey Xu"
+   },
+   {
+      "emails" : [
          "jennb@chromium.org"
       ],
       "name" : "Jenn Braithwaite",
