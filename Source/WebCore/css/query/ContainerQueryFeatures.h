@@ -51,6 +51,10 @@ const MQ::FeatureSchema& aspectRatio();
 const MQ::FeatureSchema& orientation();
 const MQ::FeatureSchema& style();
 
+// Returns the scroll-state query feature schema for `name`
+// (scrollable/scrolled/stuck/snapped), or nullptr. Used inside scroll-state().
+const MQ::FeatureSchema* scrollState(const AtomString&);
+
 Vector<const MQ::FeatureSchema*> allSchemas();
 
 } // namespace Features
