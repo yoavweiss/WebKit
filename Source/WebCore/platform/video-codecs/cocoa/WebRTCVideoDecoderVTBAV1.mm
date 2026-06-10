@@ -38,10 +38,10 @@ namespace WebCore {
 
 WTF_MAKE_TZONE_ALLOCATED_IMPL(WebRTCVideoDecoderVTBAV1);
 
-static RetainPtr<CMVideoFormatDescriptionRef> computeAV1InputFormat(std::span<const uint8_t> data, int32_t width, int32_t height)
+static RetainPtr<CMVideoFormatDescriptionRef> computeAV1InputFormat(std::span<const uint8_t> data, int32_t width, int32_t height, const std::optional<PlatformVideoColorSpace>& colorSpaceOverride)
 {
 #if ENABLE(AV1)
-    RefPtr videoInfo = createVideoInfoFromAV1Stream(data);
+    RefPtr videoInfo = createVideoInfoFromAV1Stream(data, std::nullopt, colorSpaceOverride);
     if (!videoInfo)
         return { };
 
@@ -55,19 +55,21 @@ static RetainPtr<CMVideoFormatDescriptionRef> computeAV1InputFormat(std::span<co
     UNUSED_PARAM(data);
     UNUSED_PARAM(width);
     UNUSED_PARAM(height);
+    UNUSED_PARAM(colorSpaceOverride);
     ASSERT_NOT_REACHED();
     return { };
 #endif
 }
 
-WebRTCVideoDecoderVTBAV1::WebRTCVideoDecoderVTBAV1(WebRTCVideoDecoderCallback callback)
+WebRTCVideoDecoderVTBAV1::WebRTCVideoDecoderVTBAV1(WebRTCVideoDecoderCallback callback, std::optional<PlatformVideoColorSpace>&& colorSpaceOverride)
     : WebRTCVideoDecoderVTB(callback)
+    , m_colorSpaceOverride(WTF::move(colorSpaceOverride))
 {
 }
 
 int32_t WebRTCVideoDecoderVTBAV1::decodeFrame(int64_t timeStamp, std::span<const uint8_t> data)
 {
-    if (auto videoFormat = computeAV1InputFormat(data, width(), height()))
+    if (auto videoFormat = computeAV1InputFormat(data, width(), height(), m_colorSpaceOverride))
         setVideoFormat(WTF::move(videoFormat));
 
     return decodeFrameInternal(timeStamp, data);

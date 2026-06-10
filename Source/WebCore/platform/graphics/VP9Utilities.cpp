@@ -497,7 +497,7 @@ void setConfigurationColorSpaceFromVP9ColorSpace(VPCodecConfigurationRecord& rec
     }
 }
 
-std::optional<VPCodecConfigurationRecord> vPCodecConfigurationRecordFromVPXByteStream(VPXCodec codec, std::span<const uint8_t> data)
+std::optional<VPCodecConfigurationRecord> vpCodecConfigurationRecordFromVPXByteStream(VPXCodec codec, std::span<const uint8_t> data)
 {
     if (data.size() < 11)
         return { };

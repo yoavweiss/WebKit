@@ -64,7 +64,7 @@ private:
     webrtc::LocalDecoder m_decoder;
 };
 
-std::unique_ptr<WebRTCVideoDecoder> WebRTCVideoDecoder::create(VideoCodecType decoderType, WebRTCVideoDecoderCallback callback)
+std::unique_ptr<WebRTCVideoDecoder> WebRTCVideoDecoder::create(VideoCodecType decoderType, WebRTCVideoDecoderCallback callback, std::optional<PlatformVideoColorSpace>&& colorSpaceOverride)
 {
     switch (decoderType) {
     case VideoCodecType::H264:
@@ -72,9 +72,9 @@ std::unique_ptr<WebRTCVideoDecoder> WebRTCVideoDecoder::create(VideoCodecType de
     case VideoCodecType::H265:
         return makeUnique<WebRTCLocalVideoDecoder>(webrtc::createLocalH265Decoder(callback));
     case VideoCodecType::VP9:
-        return makeUnique<WebRTCVideoDecoderVTBVP9>(callback);
+        return makeUnique<WebRTCVideoDecoderVTBVP9>(callback, WTF::move(colorSpaceOverride));
     case VideoCodecType::AV1:
-        return makeUnique<WebRTCVideoDecoderVTBAV1>(callback);
+        return makeUnique<WebRTCVideoDecoderVTBAV1>(callback, WTF::move(colorSpaceOverride));
     }
     ASSERT_NOT_REACHED();
     return nullptr;

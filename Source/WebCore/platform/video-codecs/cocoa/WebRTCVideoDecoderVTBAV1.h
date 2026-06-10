@@ -29,6 +29,7 @@
 
 #include "VideoDecoderVTB.h"
 #include "WebRTCVideoDecoderVTB.h"
+#include <WebCore/PlatformVideoColorSpace.h>
 #include <wtf/TZoneMalloc.h>
 
 namespace WebCore {
@@ -36,11 +37,13 @@ namespace WebCore {
 class WebRTCVideoDecoderVTBAV1 final : public WebRTCVideoDecoderVTB {
     WTF_MAKE_TZONE_ALLOCATED(WebRTCVideoDecoderVTBAV1);
 public:
-    explicit WebRTCVideoDecoderVTBAV1(WebRTCVideoDecoderCallback);
+    explicit WebRTCVideoDecoderVTBAV1(WebRTCVideoDecoderCallback, std::optional<PlatformVideoColorSpace>&& colorSpaceOverride = std::nullopt);
     ~WebRTCVideoDecoderVTBAV1() = default;
 
 private:
     int32_t decodeFrame(int64_t, std::span<const uint8_t>) final;
+
+    const std::optional<PlatformVideoColorSpace> m_colorSpaceOverride;
 };
 
 }

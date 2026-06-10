@@ -39,9 +39,9 @@ namespace WebCore {
 
 WTF_MAKE_TZONE_ALLOCATED_IMPL(WebRTCVideoDecoderVTBVP9);
 
-static RetainPtr<CMVideoFormatDescriptionRef> createVP9FormatDescriptionFromData(std::span<const uint8_t> data, int32_t width, int32_t height)
+static RetainPtr<CMVideoFormatDescriptionRef> createVP9FormatDescriptionFromData(std::span<const uint8_t> data, int32_t width, int32_t height, const std::optional<PlatformVideoColorSpace>& colorSpaceOverride)
 {
-    auto parsedRecord = vPCodecConfigurationRecordFromVPXByteStream(VPXCodec::Vp9, data);
+    auto parsedRecord = vpCodecConfigurationRecordFromVPXByteStream(VPXCodec::Vp9, data);
     if (!parsedRecord)
         return { };
 
@@ -56,17 +56,18 @@ static RetainPtr<CMVideoFormatDescriptionRef> createVP9FormatDescriptionFromData
         parsedRecord->matrixCoefficients = VPConfigurationMatrixCoefficients::BT_709_6;
     }
 
-    return createVP9FormatDescriptionFromRecord(*parsedRecord);
+    return createVP9FormatDescriptionFromRecord(*parsedRecord, colorSpaceOverride);
 }
 
-WebRTCVideoDecoderVTBVP9::WebRTCVideoDecoderVTBVP9(WebRTCVideoDecoderCallback callback)
+WebRTCVideoDecoderVTBVP9::WebRTCVideoDecoderVTBVP9(WebRTCVideoDecoderCallback callback, std::optional<PlatformVideoColorSpace>&& colorSpaceOverride)
     : WebRTCVideoDecoderVTB(callback)
+    , m_colorSpaceOverride(WTF::move(colorSpaceOverride))
 {
 }
 
 int32_t WebRTCVideoDecoderVTBVP9::decodeFrame(int64_t timeStamp, std::span<const uint8_t> data)
 {
-    if (auto videoFormat = createVP9FormatDescriptionFromData(data, width(), height()))
+    if (auto videoFormat = createVP9FormatDescriptionFromData(data, width(), height(), m_colorSpaceOverride))
         setVideoFormat(WTF::move(videoFormat));
 
     return decodeFrameInternal(timeStamp, data);

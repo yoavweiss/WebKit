@@ -548,10 +548,13 @@ static uint8_t NODELETE convertSubsamplingXYToChromaSubsampling(uint64_t x, uint
     return VPConfigurationChromaSubsampling::Subsampling_420_Colocated;
 }
 
-static Ref<VideoInfo> createVideoInfoFromVPCodecConfigurationRecord(const VPCodecConfigurationRecord& record, const FloatSize& size, const FloatSize& displaySize)
+static Ref<VideoInfo> createVideoInfoFromVPCodecConfigurationRecord(const VPCodecConfigurationRecord& record, const FloatSize& size, const FloatSize& displaySize, const std::optional<PlatformVideoColorSpace>& colorSpaceOverride = std::nullopt)
 {
     // FIXME: Convert existing struct to an ISOBox and replace the writing code below
     // with a subclass of ISOFullBox.
+
+    auto colorSpace = colorSpaceFromVPCodecConfigurationRecord(record);
+    overrideVideoColorSpaceAsNeeded(colorSpace, colorSpaceOverride);
 
     FourCC codecName = record.codecName == "vp09"_s ? 'vp09' : 'vp08';
     return VideoInfo::create({
@@ -562,7 +565,7 @@ static Ref<VideoInfo> createVideoInfoFromVPCodecConfigurationRecord(const VPCode
             .size = size,
             .displaySize = displaySize,
             .bitDepth = record.bitDepth,
-            .colorSpace = colorSpaceFromVPCodecConfigurationRecord(record),
+            .colorSpace = WTF::move(colorSpace),
             .extensionAtoms = { FillWith { }, 1, { computeBoxType(codecName), SharedBuffer::create(vpcCFromVPCodecConfigurationRecord(record)) } },
         }
     });
@@ -700,13 +703,19 @@ Ref<VideoInfo> createVideoInfoFromVP8Header(const VP8FrameHeader& header, const 
     return createVideoInfoFromVPCodecConfigurationRecord(record, { static_cast<float>(header.width), static_cast<float>(header.height) }, { static_cast<float>(video.display_width.is_present() ? video.display_width.value() : header.width), static_cast<float>(video.display_height.is_present() ? video.display_height.value() : header.height) });
 }
 
-RetainPtr<CMVideoFormatDescriptionRef> createVP9FormatDescriptionFromRecord(const VPCodecConfigurationRecord& record)
+RetainPtr<CMVideoFormatDescriptionRef> createVP9FormatDescriptionFromRecord(const VPCodecConfigurationRecord& record, const std::optional<PlatformVideoColorSpace>& colorSpaceOverride)
 {
     ASSERT(record.frameWidth);
     ASSERT(record.frameHeight);
 
-    Ref videoInfo = createVideoInfoFromVPCodecConfigurationRecord(record, IntSize { record.frameWidth, record.frameHeight }, IntSize { record.frameWidth, record.frameHeight });
+    Ref videoInfo = createVideoInfoFromVPCodecConfigurationRecord(record, IntSize { record.frameWidth, record.frameHeight }, IntSize { record.frameWidth, record.frameHeight }, colorSpaceOverride);
     return createFormatDescriptionFromTrackInfo(videoInfo.get());
+}
+
+Ref<VideoInfo> createVideoInfoFromVPCodecConfigurationRecord(const VPCodecConfigurationRecord& record, const std::optional<PlatformVideoColorSpace>& colorSpaceOverride)
+{
+    FloatSize size { static_cast<float>(record.frameWidth), static_cast<float>(record.frameHeight) };
+    return createVideoInfoFromVPCodecConfigurationRecord(record, size, size, colorSpaceOverride);
 }
 
 }

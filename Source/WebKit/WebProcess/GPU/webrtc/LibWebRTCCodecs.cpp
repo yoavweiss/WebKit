@@ -198,9 +198,9 @@ static inline VideoFrame::Rotation NODELETE toVideoRotation(webrtc::VideoRotatio
     return VideoFrame::Rotation::None;
 }
 
-static void createRemoteDecoder(LibWebRTCCodecs::Decoder& decoder, IPC::Connection& connection, bool useRemoteFrames, bool enableAdditionalLogging, Function<void(bool)>&& callback)
+static void createRemoteDecoder(LibWebRTCCodecs::Decoder& decoder, IPC::Connection& connection, bool useRemoteFrames, bool enableAdditionalLogging, std::optional<WebCore::PlatformVideoColorSpace> colorSpaceOverride, Function<void(bool)>&& callback)
 {
-    connection.sendWithAsyncReplyOnDispatcher(Messages::LibWebRTCCodecsProxy::CreateDecoder { decoder.identifier, decoder.type, decoder.codec, useRemoteFrames, enableAdditionalLogging }, WebProcess::singleton().libWebRTCCodecs().workQueue(), WTF::move(callback), 0);
+    connection.sendWithAsyncReplyOnDispatcher(Messages::LibWebRTCCodecsProxy::CreateDecoder { decoder.identifier, decoder.type, decoder.codec, useRemoteFrames, enableAdditionalLogging, WTF::move(colorSpaceOverride) }, WebProcess::singleton().libWebRTCCodecs().workQueue(), WTF::move(callback), 0);
 }
 
 static int32_t encodeVideoFrame(webrtc::WebKitVideoEncoder encoder, const webrtc::VideoFrame& frame, bool shouldEncodeAsKeyFrame)
@@ -330,27 +330,28 @@ void LibWebRTCCodecs::setWebRTCMediaPipelineAdditionalLoggingEnabled(bool enable
 // May be called on any thread.
 LibWebRTCCodecs::Decoder* LibWebRTCCodecs::createDecoder(WebCore::VideoCodecType type)
 {
-    return createDecoderInternal(type, { }, [](auto*) { });
+    return createDecoderInternal(type, { }, std::nullopt, [](auto*) { });
 }
 
-void LibWebRTCCodecs::createDecoderAndWaitUntilReady(WebCore::VideoCodecType type, const String& codec, Function<void(Decoder*)>&& callback)
+void LibWebRTCCodecs::createDecoderAndWaitUntilReady(WebCore::VideoCodecType type, const String& codec, std::optional<WebCore::PlatformVideoColorSpace>&& colorSpaceOverride, Function<void(Decoder*)>&& callback)
 {
-    createDecoderInternal(type, codec, WTF::move(callback));
+    createDecoderInternal(type, codec, WTF::move(colorSpaceOverride), WTF::move(callback));
 }
 
-LibWebRTCCodecs::Decoder* LibWebRTCCodecs::createDecoderInternal(WebCore::VideoCodecType type, const String& codec, Function<void(Decoder*)>&& callback)
+LibWebRTCCodecs::Decoder* LibWebRTCCodecs::createDecoderInternal(WebCore::VideoCodecType type, const String& codec, std::optional<WebCore::PlatformVideoColorSpace>&& colorSpaceOverride, Function<void(Decoder*)>&& callback)
 {
     auto decoder = makeUnique<Decoder>(VideoDecoderIdentifier::generate());
     auto* result = decoder.get();
     decoder->type = type;
     decoder->codec = codec.isolatedCopy();
+    decoder->colorSpaceOverride = WTF::move(colorSpaceOverride);
 
     ensureGPUProcessConnectionAndDispatchToThread([this, protectedThis = Ref { *this }, decoder = WTF::move(decoder), callback = WTF::move(callback)]() mutable {
         assertIsCurrent(workQueue());
 
         {
             Locker locker { m_connectionLock };
-            createRemoteDecoder(*decoder, *protect(m_connection), m_useRemoteFrames, m_enableAdditionalLogging, [identifier = decoder->identifier, callback = WTF::move(callback)](bool result) mutable {
+            createRemoteDecoder(*decoder, *protect(m_connection), m_useRemoteFrames, m_enableAdditionalLogging, decoder->colorSpaceOverride, [identifier = decoder->identifier, callback = WTF::move(callback)](bool result) mutable {
                 if (!result) {
                     callback(nullptr);
                     return;
@@ -885,7 +886,7 @@ void LibWebRTCCodecs::clearConnection()
         {
             Locker locker { m_connectionLock };
             for (auto& decoder : m_decoders.values()) {
-                createRemoteDecoder(*decoder, *connection, m_useRemoteFrames, m_enableAdditionalLogging, [](auto) { });
+                createRemoteDecoder(*decoder, *connection, m_useRemoteFrames, m_enableAdditionalLogging, decoder->colorSpaceOverride, [](auto) { });
                 setDecoderConnection(*decoder, connection.get());
             }
         }
