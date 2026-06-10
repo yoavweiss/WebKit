@@ -428,14 +428,14 @@ void WebSWClientConnection::retrieveRecordResponseBody(BackgroundFetchRecordIden
 
 void WebSWClientConnection::notifyRecordResponseBodyChunk(RetrieveRecordResponseBodyCallbackIdentifier identifier, IPC::SharedBufferReference&& data)
 {
-    auto iterator = m_retrieveRecordResponseBodyCallbacks.find(identifier);
-    if (iterator == m_retrieveRecordResponseBodyCallbacks.end())
+    auto callback = m_retrieveRecordResponseBodyCallbacks.take(identifier);
+    if (!callback)
         return;
     auto buffer = data.unsafeBuffer();
     bool isDone = !buffer;
-    iterator->value(WTF::move(buffer));
-    if (isDone)
-        m_retrieveRecordResponseBodyCallbacks.remove(iterator);
+    callback(WTF::move(buffer));
+    if (!isDone)
+        m_retrieveRecordResponseBodyCallbacks.add(identifier, WTF::move(callback));
 }
 
 void WebSWClientConnection::notifyRecordResponseBodyEnd(RetrieveRecordResponseBodyCallbackIdentifier identifier, WebCore::ResourceError&& error)
