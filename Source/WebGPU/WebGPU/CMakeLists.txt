@@ -1,3 +1,5 @@
+# FIXME: Use the standard WEBKIT_FRAMEWORK family of macros to describe WebGPU.
+
 set(WebGPU_SOURCES
     Adapter.mm
     BindGroup.mm
@@ -127,6 +129,7 @@ target_link_libraries(WebGPU PRIVATE
     ${QUARTZCORE_FRAMEWORK}
     ICU::uc
     JavaScriptCore
+    INTERFACE WebKitAdditions
 )
 
 target_include_directories(WebGPU PRIVATE

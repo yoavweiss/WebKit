@@ -1,17 +1,3 @@
-set(_wka_found FALSE)
-set(_wka_cmake_paths
-    "${CMAKE_SOURCE_DIR}/../Internal/WebKit"
-)
-foreach (_wka_path IN LISTS _wka_cmake_paths)
-    if (EXISTS "${_wka_path}/WebKitAdditions" AND NOT _wka_found)
-        set(WEBKIT_ADDITIONS_INCLUDE_PATH "${_wka_path}" CACHE PATH "WebKitAdditions include path" FORCE)
-        message(STATUS "WebKitAdditions (cmake): ${_wka_path}")
-        set(_wka_found TRUE)
-    endif ()
-endforeach ()
-unset(_wka_cmake_paths)
-unset(_wka_found)
-
 set(SWIFT_REQUIRED ON)
 
 # FIXME: AV1 decoding requires dav1d which uses meson. https://bugs.webkit.org/show_bug.cgi?id=314011

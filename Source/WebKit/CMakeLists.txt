@@ -765,6 +765,10 @@ set(WebKit_FRAMEWORKS
     WebCore
     bmalloc
 )
+if (USE_APPLE_INTERNAL_SDK)
+    list(APPEND WebKit_FRAMEWORKS WebKitAdditions)
+    list(APPEND WebKit_PRIVATE_INCLUDE_DIRECTORIES "${WebKitAdditions_FRAMEWORK_HEADERS_DIR}/WebKitAdditions")
+endif ()
 
 set(WebProcess_LIBRARIES WebKit)
 set(NetworkProcess_LIBRARIES WebKit)

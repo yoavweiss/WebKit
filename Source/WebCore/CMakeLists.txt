@@ -2156,6 +2156,33 @@ set(WebCore_SUPPLEMENTAL_IDL_FILES
     xml/XPathEvaluatorBase.idl
 )
 
+# Apple Internal build uses separate touch events IDLs.
+if (USE_APPLE_INTERNAL_SDK)
+    list(REMOVE_ITEM WebCore_NON_SVG_IDL_FILES
+        dom/Touch.idl
+        dom/TouchEvent.idl
+        dom/TouchList.idl
+    )
+    list(REMOVE_ITEM WebCore_SUPPLEMENTAL_IDL_FILES
+        dom/Document+Touch.idl
+    )
+    list(APPEND WebCore_NON_SVG_IDL_FILES
+        ${WebKitAdditions_FRAMEWORK_HEADERS_DIR}/WebKitAdditions/GestureEvent.idl
+        ${WebKitAdditions_FRAMEWORK_HEADERS_DIR}/WebKitAdditions/Touch.idl
+        ${WebKitAdditions_FRAMEWORK_HEADERS_DIR}/WebKitAdditions/TouchEvent.idl
+        ${WebKitAdditions_FRAMEWORK_HEADERS_DIR}/WebKitAdditions/TouchList.idl
+    )
+    list(APPEND WebCore_SUPPLEMENTAL_IDL_FILES
+        ${WebKitAdditions_FRAMEWORK_HEADERS_DIR}/WebKitAdditions/DocumentTouch.idl
+    )
+    set(WebCore_UNIFIED_SOURCE_EXCLUDES
+        dom/DocumentTouch.cpp
+        dom/Touch.cpp
+        dom/TouchEvent.cpp
+        dom/TouchList.cpp
+    )
+endif ()
+
 set(WebCore_IDL_FILES
     ${WebCore_NON_SVG_IDL_FILES}
     ${WebCore_SVG_IDL_FILES}
@@ -2206,6 +2233,10 @@ set(WebCore_FRAMEWORKS
     WTF
     bmalloc
 )
+if (USE_APPLE_INTERNAL_SDK)
+    list(APPEND WebCore_FRAMEWORKS WebKitAdditions)
+    list(APPEND WebCore_PRIVATE_INCLUDE_DIRECTORIES "${WebKitAdditions_FRAMEWORK_HEADERS_DIR}/WebKitAdditions")
+endif ()
 
 if (ENABLE_XSLT)
     list(APPEND WebCore_LIBRARIES LibXslt::LibXslt)

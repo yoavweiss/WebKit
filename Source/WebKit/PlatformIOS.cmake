@@ -1184,6 +1184,7 @@ function(WEBKIT_DEFINE_XPC_SERVICES)
     set(_default_sim_entitlements "${WEBKIT_DIR}/Resources/ios/XPCService-embedded-simulator.entitlements")
 
     set(_wka_entitlements_dir "")
+    # FIXME: Use the WebKitAdditions path provided by the interface library.
     if (WEBKIT_ADDITIONS_INCLUDE_PATH AND EXISTS "${WEBKIT_ADDITIONS_INCLUDE_PATH}/WebKitAdditions/Entitlements")
         set(_wka_entitlements_dir "${WEBKIT_ADDITIONS_INCLUDE_PATH}/WebKitAdditions/Entitlements")
     endif ()
