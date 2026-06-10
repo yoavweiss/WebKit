@@ -42,6 +42,8 @@ public:
     MathMLRowElement& NODELETE element() const;
     virtual ~RenderMathMLRow();
 
+    RenderMathMLOperator* unembellishedOperator() const override;
+
 protected:
     void layoutBlock(RelayoutChildren, LayoutUnit pageLogicalHeight = 0_lu) override;
     std::optional<LayoutUnit> firstLineBaseline() const override;

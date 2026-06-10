@@ -58,6 +58,21 @@ MathMLRowElement& RenderMathMLRow::element() const
     return static_cast<MathMLRowElement&>(nodeForNonAnonymous());
 }
 
+RenderMathMLOperator* RenderMathMLRow::unembellishedOperator() const
+{
+    // Per MathML Core spec (section 3.2.4.1), a grouping element (mrow) with a
+    // single embellished operator child is itself an embellished operator.
+    auto* child = firstInFlowChildBox();
+    if (!child || child->nextInFlowSiblingBox())
+        return nullptr;
+
+    if (is<RenderMathMLOperator>(*child))
+        return downcast<RenderMathMLOperator>(child);
+
+    CheckedPtr mathMLBlock = dynamicDowncast<RenderMathMLBlock>(*child);
+    return mathMLBlock ? mathMLBlock->unembellishedOperator() : nullptr;
+}
+
 std::optional<LayoutUnit> RenderMathMLRow::firstLineBaseline() const
 {
     auto* baselineChild = firstInFlowChildBox();
@@ -80,6 +95,16 @@ static RenderMathMLOperator* toVerticalStretchyOperator(RenderBox* box)
 
 void RenderMathMLRow::stretchVerticalOperatorsAndLayoutChildren()
 {
+    // Per MathML Core spec (section 3.2.4.1), if this mrow is itself an embellished
+    // operator (single embellished operator child), its stretching is controlled by
+    // the parent mrow. Don't re-stretch internally to avoid double-stretching which
+    // can cause inverted paint coordinates.
+    if (unembellishedOperator()) {
+        for (auto* child = firstInFlowChildBox(); child; child = child->nextInFlowSiblingBox())
+            child->layoutIfNeeded();
+        return;
+    }
+
     // First calculate stretch ascent and descent.
     LayoutUnit stretchAscent, stretchDescent;
     for (auto* child = firstInFlowChildBox(); child; child = child->nextInFlowSiblingBox()) {
