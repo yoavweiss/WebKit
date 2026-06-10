@@ -1635,6 +1635,53 @@ class YarrGenerator final : public YarrJITInfo {
 #endif
     }
 
+    void emitClearCapturesForTerm(PatternTerm* term)
+    {
+        if (!shouldRecordSubpatterns() || !term->containsAnyCaptures())
+            return;
+        for (unsigned subpattern = term->parentheses.subpatternId; subpattern <= term->parentheses.lastSubpatternId; ++subpattern)
+            clearSubpattern(subpattern);
+    }
+
+    void emitClearAllCaptures()
+    {
+        if (!shouldRecordSubpatterns())
+            return;
+        for (unsigned subpatternId = 0; subpatternId < m_pattern.m_numSubpatterns + 1; ++subpatternId)
+            clearSubpattern(subpatternId);
+        for (unsigned i = 1; i <= m_pattern.m_numDuplicateNamedCaptureGroups; ++i)
+            m_jit.store32(MacroAssembler::TrustedImm32(0), duplicateNamedGroupAddress(i));
+    }
+
+    void emitCaptureStart(PatternTerm* term, Checked<unsigned> checkedOffset, MacroAssembler::RegisterID indexTemporary, unsigned extraOffset = 0)
+    {
+        // FIXME: could avoid offsetting this value in JIT code, apply offsets only afterwards, at the point the results array is being accessed.
+        ASSERT(term->capture() && shouldRecordSubpatterns());
+        unsigned inputOffset = checkedOffset - term->inputPosition + extraOffset;
+        if (inputOffset) {
+            m_jit.sub32(m_regs.index, MacroAssembler::Imm32(inputOffset), indexTemporary);
+            setSubpatternStart(indexTemporary, term->parentheses.subpatternId);
+        } else
+            setSubpatternStart(m_regs.index, term->parentheses.subpatternId);
+    }
+
+    void emitCaptureEnd(PatternTerm* term, Checked<unsigned> checkedOffset, MacroAssembler::RegisterID indexTemporary)
+    {
+        // FIXME: could avoid offsetting this value in JIT code, apply offsets only afterwards, at the point the results array is being accessed.
+        ASSERT(term->capture() && shouldRecordSubpatterns());
+        auto subpatternId = term->parentheses.subpatternId;
+        unsigned inputOffset = checkedOffset - term->inputPosition;
+        if (inputOffset) {
+            m_jit.sub32(m_regs.index, MacroAssembler::Imm32(inputOffset), indexTemporary);
+            setSubpatternEnd(indexTemporary, subpatternId);
+        } else
+            setSubpatternEnd(m_regs.index, subpatternId);
+        if (m_pattern.m_numDuplicateNamedCaptureGroups) {
+            if (auto duplicateNamedGroupId = m_pattern.m_duplicateNamedGroupForSubpatternId[subpatternId])
+                storeDuplicateNamedGroupSubpatternId(duplicateNamedGroupId, subpatternId);
+        }
+    }
+
     void storeDuplicateNamedGroupSubpatternId(unsigned duplicateNamedGroupId, unsigned subpatternId)
     {
         m_jit.store32(MacroAssembler::TrustedImm32(subpatternId), duplicateNamedGroupAddress(duplicateNamedGroupId));
@@ -4089,7 +4136,6 @@ class YarrGenerator final : public YarrJITInfo {
                 termMatchTargets.append(MatchTargets());
 
                 unsigned parenthesesFrameLocation = term->frameLocation;
-                const MacroAssembler::RegisterID indexTemporary = m_regs.regT0;
                 ASSERT(term->quantityMaxCount == 1);
 
                 // Upon entry to a Greedy quantified set of parenthese store the index.
@@ -4115,27 +4161,15 @@ class YarrGenerator final : public YarrJITInfo {
                     storeToFrame(m_regs.index, parenthesesFrameLocation + BackTrackInfoParenthesesOnce::beginIndex());
                 }
 
-                // If the parenthese are capturing, store the starting index value to the
-                // captures array, offsetting as necessary.
-                //
-                // FIXME: could avoid offsetting this value in JIT code, apply
-                // offsets only afterwards, at the point the results array is
-                // being accessed.
+                // If the parenthese are capturing, store the starting index value to the captures array.
                 if (term->capture() && shouldRecordSubpatterns()) {
-                    unsigned inputOffset = op.m_checkedOffset - term->inputPosition;
-                    if (term->quantityType == QuantifierType::FixedCount)
-                        inputOffset += term->parentheses.disjunction->m_minimumSize;
-                    if (inputOffset) {
-                        m_jit.sub32(m_regs.index, MacroAssembler::Imm32(inputOffset), indexTemporary);
-                        setSubpatternStart(indexTemporary, term->parentheses.subpatternId);
-                    } else
-                        setSubpatternStart(m_regs.index, term->parentheses.subpatternId);
+                    unsigned extraOffset = term->quantityType == QuantifierType::FixedCount ? term->parentheses.disjunction->m_minimumSize : 0;
+                    emitCaptureStart(term, op.m_checkedOffset, m_regs.regT0, extraOffset);
                 }
                 break;
             }
             case YarrOpCode::ParenthesesSubpatternOnceEnd: {
                 PatternTerm* term = op.m_term;
-                const MacroAssembler::RegisterID indexTemporary = m_regs.regT0;
                 ASSERT(term->quantityMaxCount == 1);
 
                 termMatchTargets.takeLast();
@@ -4146,25 +4180,9 @@ class YarrGenerator final : public YarrJITInfo {
                 if (term->quantityType != QuantifierType::FixedCount && !term->parentheses.disjunction->m_minimumSize)
                     m_abortExecution.append(m_jit.branch32(MacroAssembler::Equal, m_regs.index, frameAddress().withOffset(term->frameLocation * sizeof(void*))));
 
-                // If the parenthese are capturing, store the ending index value to the
-                // captures array, offsetting as necessary.
-                //
-                // FIXME: could avoid offsetting this value in JIT code, apply
-                // offsets only afterwards, at the point the results array is
-                // being accessed.
-                if (term->capture() && shouldRecordSubpatterns()) {
-                    auto subpatternId = term->parentheses.subpatternId;
-                    unsigned inputOffset = op.m_checkedOffset - term->inputPosition;
-                    if (inputOffset) {
-                        m_jit.sub32(m_regs.index, MacroAssembler::Imm32(inputOffset), indexTemporary);
-                        setSubpatternEnd(indexTemporary, subpatternId);
-                    } else
-                        setSubpatternEnd(m_regs.index, subpatternId);
-                    if (m_pattern.m_numDuplicateNamedCaptureGroups) {
-                        if (auto duplicateNamedGroupId = m_pattern.m_duplicateNamedGroupForSubpatternId[subpatternId])
-                            storeDuplicateNamedGroupSubpatternId(duplicateNamedGroupId, subpatternId);
-                    }
-                }
+                // If the parenthese are capturing, store the ending index value to the captures array.
+                if (term->capture() && shouldRecordSubpatterns())
+                    emitCaptureEnd(term, op.m_checkedOffset, m_regs.regT0);
 
                 // If the parentheses are quantified Greedy then add a label to jump back
                 // to if we get a failed match from after the parentheses. For NonGreedy
@@ -4221,11 +4239,19 @@ class YarrGenerator final : public YarrJITInfo {
 
             // YarrOpCode::ParenthesesSubpatternFixedCountBegin/End
             //
-            // These nodes support non-capturing parentheses with FixedCount quantifier.
-            // Example: (?:abc){3,3} or (?:x){5,5}
+            // Used to wrap FixedCount parentheses (capturing or non-capturing) whose
+            // content has a single alternative and contains nothing backtrackable
+            // (no backreferences, no variable quantifiers, no multi-alt). Examples:
+            //   (?:abc){3,3}, (?:x){5,5}, ([0-9a-fA-F]){12}, ([0-9]{4}\.){2}
+            //
             // The semantics are: match exactly N times. Any failure = total failure.
-            // Note: We reuse BackTrackInfoParentheses offsets for frame layout compatibility
-            // with the interpreter fallback path.
+            // For capturing parens, the body cannot observe intermediate capture
+            // values (the safety check above rejects any inner backref), so we only
+            // need to set the capture to the last iteration's positions; per-iteration
+            // bookkeeping in a ParenContext is not required.
+            //
+            // Note: We reuse BackTrackInfoParentheses offsets for frame layout
+            // compatibility with the interpreter fallback path.
             case YarrOpCode::ParenthesesSubpatternFixedCountBegin: {
                 termMatchTargets.append(MatchTargets());
 
@@ -4243,13 +4269,20 @@ class YarrGenerator final : public YarrJITInfo {
                 // Set the reentry label for looping.
                 defineReentryLabel(op);
 
-                // Clear nested captures at the start of each iteration.
-                // This is required by ECMAScript spec - capture groups are reset to undefined
-                // at the beginning of each iteration of a quantified group.
-                if (shouldRecordSubpatterns() && term->containsAnyCaptures()) {
-                    for (unsigned subpattern = term->parentheses.subpatternId; subpattern <= term->parentheses.lastSubpatternId; subpattern++)
+                // Clear nested captures at the start of each iteration. ECMAScript
+                // requires capture groups to be reset to undefined at the start of
+                // each iteration of a quantified group. For a capturing outer, we
+                // skip its own id here because BEGIN's setSubpatternStart and END's
+                // setSubpatternEnd unconditionally overwrite both halves.
+                unsigned firstClear = term->parentheses.subpatternId + (term->capture() ? 1 : 0);
+                if (shouldRecordSubpatterns() && firstClear <= term->parentheses.lastSubpatternId) {
+                    for (unsigned subpattern = firstClear; subpattern <= term->parentheses.lastSubpatternId; subpattern++)
                         clearSubpattern(subpattern);
                 }
+
+                // For capturing parens, record this iteration's starting index.
+                if (term->capture() && shouldRecordSubpatterns())
+                    emitCaptureStart(term, op.m_checkedOffset, m_regs.regT0);
 
                 // Store the current index for empty match detection.
                 storeToFrame(m_regs.index, parenthesesFrameLocation + BackTrackInfoParentheses::beginIndex());
@@ -4266,6 +4299,12 @@ class YarrGenerator final : public YarrJITInfo {
                 // FIXME: <https://bugs.webkit.org/show_bug.cgi?id=200786>
                 if (!term->parentheses.disjunction->m_minimumSize)
                     m_abortExecution.append(m_jit.branch32(MacroAssembler::Equal, m_regs.index, frameAddress().withOffset(parenthesesFrameLocation * sizeof(void*))));
+
+                // For capturing parens, record this iteration's ending index. After
+                // the loop exits with success the surviving values are exactly the
+                // last iteration's positions, which is what ECMA requires.
+                if (term->capture() && shouldRecordSubpatterns())
+                    emitCaptureEnd(term, op.m_checkedOffset, m_regs.regT0);
 
                 // Increment the match count.
                 const MacroAssembler::RegisterID countTemporary = m_regs.regT0;
@@ -4348,21 +4387,9 @@ class YarrGenerator final : public YarrJITInfo {
                 storeToFrame(countTemporary, parenthesesFrameLocation + BackTrackInfoParentheses::matchAmountIndex());
                 storeToFrame(m_regs.index, parenthesesFrameLocation + BackTrackInfoParentheses::beginIndex());
 
-                // If the parenthese are capturing, store the starting index value to the
-                // captures array, offsetting as necessary.
-                //
-                // FIXME: could avoid offsetting this value in JIT code, apply
-                // offsets only afterwards, at the point the results array is
-                // being accessed.
-                if (term->capture() && shouldRecordSubpatterns()) {
-                    const MacroAssembler::RegisterID indexTemporary = m_regs.regT0;
-                    unsigned inputOffset = op.m_checkedOffset - term->inputPosition;
-                    if (inputOffset) {
-                        m_jit.sub32(m_regs.index, MacroAssembler::Imm32(inputOffset), indexTemporary);
-                        setSubpatternStart(indexTemporary, term->parentheses.subpatternId);
-                    } else
-                        setSubpatternStart(m_regs.index, term->parentheses.subpatternId);
-                }
+                // If the parenthese are capturing, store the starting index value to the captures array.
+                if (term->capture() && shouldRecordSubpatterns())
+                    emitCaptureStart(term, op.m_checkedOffset, m_regs.regT0);
 #else // !YARR_JIT_ALL_PARENS_EXPRESSIONS
                 RELEASE_ASSERT_NOT_REACHED();
 #endif
@@ -4388,27 +4415,9 @@ class YarrGenerator final : public YarrJITInfo {
                 const MacroAssembler::RegisterID countTemporary = m_regs.regT1;
                 loadFromFrame(parenthesesFrameLocation + BackTrackInfoParentheses::matchAmountIndex(), countTemporary);
 
-                // If the parenthese are capturing, store the ending index value to the
-                // captures array, offsetting as necessary.
-                //
-                // FIXME: could avoid offsetting this value in JIT code, apply
-                // offsets only afterwards, at the point the results array is
-                // being accessed.
-                if (term->capture() && shouldRecordSubpatterns()) {
-                    const MacroAssembler::RegisterID indexTemporary = m_regs.regT0;
-
-                    auto subpatternId = term->parentheses.subpatternId;
-                    unsigned inputOffset = op.m_checkedOffset - term->inputPosition;
-                    if (inputOffset) {
-                        m_jit.sub32(m_regs.index, MacroAssembler::Imm32(inputOffset), indexTemporary);
-                        setSubpatternEnd(indexTemporary, subpatternId);
-                    } else
-                        setSubpatternEnd(m_regs.index, subpatternId);
-                    if (m_pattern.m_numDuplicateNamedCaptureGroups) {
-                        if (auto duplicateNamedGroupId = m_pattern.m_duplicateNamedGroupForSubpatternId[subpatternId])
-                            storeDuplicateNamedGroupSubpatternId(duplicateNamedGroupId, subpatternId);
-                    }
-                }
+                // If the parenthese are capturing, store the ending index value to the captures array.
+                if (term->capture() && shouldRecordSubpatterns())
+                    emitCaptureEnd(term, op.m_checkedOffset, m_regs.regT0);
 
                 switch (term->quantityType) {
                 case QuantifierType::FixedCount:
@@ -4469,11 +4478,7 @@ class YarrGenerator final : public YarrJITInfo {
                 // If inverted, a successful match of the assertion must be treated
                 // as a failure, clear any nested captures and jump to backtracking.
                 if (term->invert()) {
-                    if (shouldRecordSubpatterns()
-                        && term->containsAnyCaptures()) {
-                        for (unsigned subpattern = term->parentheses.subpatternId; subpattern <= term->parentheses.lastSubpatternId; subpattern++)
-                            clearSubpattern(subpattern);
-                    }
+                    emitClearCapturesForTerm(term);
                     op.m_jumps.append(m_jit.jump());
                     defineReentryLabel(op);
                 }
@@ -5007,15 +5012,15 @@ class YarrGenerator final : public YarrJITInfo {
 
             // YarrOpCode::ParenthesesSubpatternFixedCountBegin/End
             //
-            // For non-capturing FixedCount parentheses, any failure means the entire
-            // pattern fails. There's no partial backtracking - we either match
-            // exactly N times or we fail completely.
+            // For FixedCount parentheses (capturing or non-capturing) on the fast
+            // path, any failure means the entire pattern fails. There's no partial
+            // backtracking - we either match exactly N times or we fail completely.
             case YarrOpCode::ParenthesesSubpatternFixedCountBegin: {
                 // Any backtrack to Begin means we failed to match the required count.
                 // Link any pending backtrack state from the content inside, restore
                 // the index to the position when we entered the group (since one or
-                // more iterations may have advanced it), clear any nested captures,
-                // then propagate the failure upward.
+                // more iterations may have advanced it), clear this paren's capture
+                // and any nested captures, then propagate the failure upward.
                 PatternTerm* term = op.m_term;
                 unsigned parenthesesFrameLocation = term->frameLocation;
 
@@ -5023,10 +5028,7 @@ class YarrGenerator final : public YarrJITInfo {
 
                 loadFromFrame(parenthesesFrameLocation + BackTrackInfoParentheses::returnAddressIndex(), m_regs.index);
 
-                if (shouldRecordSubpatterns() && term->containsAnyCaptures()) {
-                    for (unsigned subpattern = term->parentheses.subpatternId; subpattern <= term->parentheses.lastSubpatternId; subpattern++)
-                        clearSubpattern(subpattern);
-                }
+                emitClearCapturesForTerm(term);
 
                 m_backtrackingState.fallthrough();
                 break;
@@ -5039,9 +5041,11 @@ class YarrGenerator final : public YarrJITInfo {
 
             // YarrOpCode::ParenthesesSubpatternBegin/End
             //
-            // These handle capturing subpatterns, and non-capturing subpatterns that need
-            // ParenContext for inter-iteration backtracking (FixedCount with backtrackable
-            // content, multi-alt FixedCount, or Greedy/NonGreedy quantifiers).
+            // Capturing or non-capturing subpatterns that need a ParenContext for
+            // inter-iteration backtracking: FixedCount with backtrackable content,
+            // multi-alt FixedCount, or Greedy/NonGreedy quantifiers. (Capturing
+            // FixedCount with non-backtrackable single-alt body is routed instead
+            // to ParenthesesSubpatternFixedCountBegin/End above.)
             //
             // In all quantifiers, we always save the state at BEGIN (save-at-BEGIN model).
             // Each iteration's pre-iteration state is snapshotted into a ParenContext that
@@ -5108,10 +5112,7 @@ class YarrGenerator final : public YarrJITInfo {
                     // This is because NonGreedy already tried with count = 0, failing and reaching here.
                     // So there is no way to proceed further, just propagate a failure.
                     noPreviousIteration.link(&m_jit);
-                    if (shouldRecordSubpatterns() && term->containsAnyCaptures()) {
-                        for (unsigned subpattern = term->parentheses.subpatternId; subpattern <= term->parentheses.lastSubpatternId; subpattern++)
-                            clearSubpattern(subpattern);
-                    }
+                    emitClearCapturesForTerm(term);
                     storeToFrame(MacroAssembler::TrustedImm32(-1), parenthesesFrameLocation + BackTrackInfoParentheses::beginIndex());
                     m_backtrackingState.fallthrough();
                     break;
@@ -5143,10 +5144,7 @@ class YarrGenerator final : public YarrJITInfo {
                         // We need to clear the state, and go back to the further former backtracking.
                         noPreviousIteration.link(&m_jit);
                         op.m_jumps.link(&m_jit);
-                        if (shouldRecordSubpatterns() && term->containsAnyCaptures()) {
-                            for (unsigned subpattern = term->parentheses.subpatternId; subpattern <= term->parentheses.lastSubpatternId; subpattern++)
-                                clearSubpattern(subpattern);
-                        }
+                        emitClearCapturesForTerm(term);
                     } else {
                         // Try fewer iterations.
                         m_jit.jump(endOp.m_reentry);
@@ -5254,10 +5252,7 @@ class YarrGenerator final : public YarrJITInfo {
                     // subpattern. We already have adjusted the input position
                     // back to that before the assertion, which is correct.
                     if (term->invert()) {
-                        if (shouldRecordSubpatterns() && term->containsAnyCaptures()) {
-                            for (unsigned subpattern = term->parentheses.subpatternId; subpattern <= term->parentheses.lastSubpatternId; subpattern++)
-                                clearSubpattern(subpattern);
-                        }
+                        emitClearCapturesForTerm(term);
                         m_jit.jump(endOp.m_reentry);
                     }
 
@@ -5278,8 +5273,7 @@ class YarrGenerator final : public YarrJITInfo {
                 PatternTerm* term = op.m_term;
                 if (!term->invert() && shouldRecordSubpatterns() && term->containsAnyCaptures()) {
                     m_backtrackingState.link(*this, op);
-                    for (unsigned subpattern = term->parentheses.subpatternId; subpattern <= term->parentheses.lastSubpatternId; subpattern++)
-                        clearSubpattern(subpattern);
+                    emitClearCapturesForTerm(term);
                     m_backtrackingState.fallthrough();
                 }
                 m_backtrackingState.takeBacktracksToJumpList(op.m_jumps, &m_jit);
@@ -5357,24 +5351,20 @@ class YarrGenerator final : public YarrJITInfo {
         } else {
 #if ENABLE(YARR_JIT_ALL_PARENS_EXPRESSIONS)
             if (term->quantityType == QuantifierType::FixedCount) {
-                // Handle FixedCount parentheses.
-                // For non-capturing FixedCount without backtrackable content AND single alternative,
-                // we can use the simpler opcodes that don't need ParenContext.
-                // For capturing FixedCount, FixedCount with backtrackable content, or multi-alt FixedCount,
-                // we use ParenContext to save/restore state between iterations.
                 bool hasMultipleAlternatives = term->parentheses.disjunction->m_alternatives.size() != 1;
                 bool hasBacktrackableContent = term->quantityMaxCount > 1 && disjunctionContainsBacktrackableContent(term->parentheses.disjunction);
 
-                // Multi-alt FixedCount needs ParenContext for inter-iteration backtracking
-                // (trying different alternatives in previous iterations)
-                if (!term->capture() && !hasBacktrackableContent && !hasMultipleAlternatives) {
-                    // Non-capturing FixedCount without backtrackable content AND single alternative:
-                    // use the simpler, more efficient opcodes that don't need ParenContext.
+                if (!hasBacktrackableContent && !hasMultipleAlternatives) {
+                    // Single-alt FixedCount whose body has nothing backtrackable —
+                    // capture support is also legal here because no inner term can
+                    // observe an intermediate capture value (see ParenthesesSubpattern-
+                    // FixedCountBegin's header for the full argument).
                     parenthesesBeginOpCode = YarrOpCode::ParenthesesSubpatternFixedCountBegin;
                     parenthesesEndOpCode = YarrOpCode::ParenthesesSubpatternFixedCountEnd;
                 } else {
-                    // Capturing FixedCount, FixedCount with backtrackable content, or multi-alt FixedCount:
-                    // need ParenContext to save/restore state between iterations.
+                    // Multi-alt FixedCount (needs to remember which alternative each
+                    // iteration took) or backtrackable inner content (needs to roll
+                    // state back across iterations) — use the ParenContext path.
                     m_containsNestedSubpatterns = true;
                     m_usesT2 = true;
                     parenthesesBeginOpCode = YarrOpCode::ParenthesesSubpatternBegin;
@@ -6906,12 +6896,7 @@ public:
 
         // Initialize subpatterns' starts. And initialize matchStart if `!m_pattern.m_body->m_hasFixedSize`.
         // If shouldRecordSubpatterns(), then matchStart is subpatterns[0]'s start.
-        if (shouldRecordSubpatterns()) {
-            for (unsigned subpatternId = 0; subpatternId < m_pattern.m_numSubpatterns + 1; ++subpatternId)
-                clearSubpattern(subpatternId);
-            for (unsigned i = 1; i <= m_pattern.m_numDuplicateNamedCaptureGroups; ++i)
-                m_jit.store32(MacroAssembler::TrustedImm32(0), duplicateNamedGroupAddress(i));
-        }
+        emitClearAllCaptures();
         if (!m_pattern.m_body->m_hasFixedSize)
             setMatchStart(m_regs.index);
 
@@ -7054,12 +7039,7 @@ public:
             m_jit.getEffectiveAddress(MacroAssembler::BaseIndex(m_regs.input, m_regs.length, MacroAssembler::TimesTwo), m_regs.endOfStringAddress);
 #endif
 
-        if (shouldRecordSubpatterns()) {
-            for (unsigned subpatternId = 0; subpatternId < m_pattern.m_numSubpatterns + 1; ++subpatternId)
-                clearSubpattern(subpatternId);
-            for (unsigned i = 1; i <= m_pattern.m_numDuplicateNamedCaptureGroups; ++i)
-                m_jit.store32(MacroAssembler::TrustedImm32(0), duplicateNamedGroupAddress(i));
-        }
+        emitClearAllCaptures();
         if (!m_pattern.m_body->m_hasFixedSize)
             setMatchStart(m_regs.index);
 
@@ -7277,13 +7257,21 @@ public:
             return 0;
 
         case YarrOpCode::ParenthesesSubpatternFixedCountBegin:
-            out.printf("ParenthesesSubpatternFixedCountBegin checked-offset:(%u) non-capturing ", op.m_checkedOffset.value());
+            out.printf("ParenthesesSubpatternFixedCountBegin checked-offset:(%u) ", op.m_checkedOffset.value());
+            if (term->capture())
+                out.printf("capturing pattern #%u", term->parentheses.subpatternId);
+            else
+                out.print("non-capturing");
             term->dumpQuantifier(out);
             out.print("\n");
             return 0;
 
         case YarrOpCode::ParenthesesSubpatternFixedCountEnd:
-            out.printf("ParenthesesSubpatternFixedCountEnd checked-offset:(%u) non-capturing ", op.m_checkedOffset.value());
+            out.printf("ParenthesesSubpatternFixedCountEnd checked-offset:(%u) ", op.m_checkedOffset.value());
+            if (term->capture())
+                out.printf("capturing pattern #%u", term->parentheses.subpatternId);
+            else
+                out.print("non-capturing");
             term->dumpQuantifier(out);
             out.print("\n");
             return 0;
