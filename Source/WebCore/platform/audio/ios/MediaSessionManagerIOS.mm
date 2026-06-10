@@ -47,9 +47,7 @@ WTF_MAKE_TZONE_ALLOCATED_IMPL(MediaSessionManageriOS);
 
 RefPtr<PlatformMediaSessionManager> PlatformMediaSessionManager::create(PageIdentifier pageIdentifier)
 {
-    Ref manager = MediaSessionManageriOS::create(pageIdentifier);
-    MediaSessionHelper::sharedHelper().addClient(manager);
-    return manager;
+    return MediaSessionManageriOS::create(pageIdentifier);
 }
 
 Ref<MediaSessionManageriOS> MediaSessionManageriOS::create(PageIdentifier pageIdentifier)
@@ -60,6 +58,7 @@ Ref<MediaSessionManageriOS> MediaSessionManageriOS::create(PageIdentifier pageId
 MediaSessionManageriOS::MediaSessionManageriOS(PageIdentifier pageIdentifier)
     : MediaSessionManagerCocoa(pageIdentifier)
 {
+    MediaSessionHelper::sharedHelper().addClient(*this);
     AudioSession::addInterruptionObserver(*this);
 }
 
