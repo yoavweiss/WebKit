@@ -2105,22 +2105,7 @@ TestOptions TestController::testOptionsForTest(const TestCommand& command) const
     merge(features, featureDefaultsFromTestHeaderForTest(command, TestOptions::keyTypeMapping()));
     merge(features, featureFromAdditionalHeaderOption(command, TestOptions::keyTypeMapping()));
     merge(features, platformSpecificFeatureOverridesDefaultsForTest(command));
-
-    auto siteIsolation = features.boolWebPreferenceFeatures.find("SiteIsolationEnabled");
-    if (siteIsolation != features.boolWebPreferenceFeatures.end() && siteIsolation->second)
-        merge(features, featuresImpliedBySiteIsolation());
-
     return TestOptions { features };
-}
-
-// Mirror WebProcessPool::createWebPage, which unconditionally enables this under Site
-// Isolation. Merged last so it matches that override and survives WebKitTestRunner's
-// per-test preference reset; a test cannot run Site Isolation with it off, as in production.
-TestFeatures TestController::featuresImpliedBySiteIsolation() const
-{
-    TestFeatures implied;
-    implied.boolWebPreferenceFeatures.insert_or_assign("UseUIProcessForBackForwardItemLoading", true);
-    return implied;
 }
 
 void TestController::updateWebViewSizeForTest(const TestInvocation& test)
