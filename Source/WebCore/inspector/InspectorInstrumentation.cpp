@@ -443,6 +443,10 @@ void InspectorInstrumentation::willRemoveEventListenerImpl(InstrumentingAgents& 
 
 bool InspectorInstrumentation::isEventListenerDisabledImpl(InstrumentingAgents& instrumentingAgents, EventTarget& target, const AtomString& eventType, EventListener& listener, bool capture)
 {
+    if (CheckedPtr frameDOMAgent = instrumentingAgents.persistentFrameDOMAgent()) {
+        if (frameDOMAgent->isEventListenerDisabled(target, eventType, listener, capture))
+            return true;
+    }
     if (CheckedPtr domAgent = instrumentingAgents.persistentDOMAgent())
         return domAgent->isEventListenerDisabled(target, eventType, listener, capture);
     return false;
