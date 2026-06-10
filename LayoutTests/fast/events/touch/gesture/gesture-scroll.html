@@ -129,7 +129,7 @@ function runTest()
         description('This tests scroll gesture events. ' +
             'Square is (mostly) green on pass');
 
-        if (eventSender.clearTouchPoints)
+        if (eventSender.gestureScrollBegin)
             firstGestureScrollSequence();
         else
             exitIfNecessary();

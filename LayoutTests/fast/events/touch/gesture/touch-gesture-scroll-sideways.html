@@ -87,6 +87,8 @@ var scrollEventsOccurred = 0;
 var expectedScrollEventsOccurred = '1';
 var scrolledElement = 'movingdiv'
 
+window.jsTestIsAsync = true;
+
 function checkWheelScrollOffset()
 {
     if (!window.eventSender)
@@ -138,7 +140,6 @@ function runTest()
 
     if (window.eventSender) {
         description('This tests that precise scrolls on a horizontal scroll bar move vertically.');
-        window.jsTestIsAsync = true;
 
         if (checkTestDependencies())
             firstWheelScroll();
