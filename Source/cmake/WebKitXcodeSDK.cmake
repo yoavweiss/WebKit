@@ -18,7 +18,7 @@ function(WEBKIT_RESOLVE_SDK)
             string(JSON _sdk_canonical_name GET ${_sdk_settings} CanonicalName)
 
             message(STATUS "Xcode SDK: ${_sdk_canonical_name} at ${_sdk_path}")
-            set(CACHE{CMAKE_OSX_SYSROOT} TYPE PATH FORCE VALUE ${_sdk_path})
+            set(CMAKE_OSX_SYSROOT "${_sdk_path}" CACHE PATH "" FORCE)
             if (_sdk_path MATCHES "\\.[Ii]nternal.sdk$")
                 set(USE_APPLE_INTERNAL_SDK ON PARENT_SCOPE)
             else ()
@@ -52,7 +52,7 @@ function(WEBKIT_RESOLVE_TOOL OUTPUT_VAR _tool)
         message(SEND_ERROR "Cannot find ${_tool} in the active SDK and "
             "toolchain (${CMAKE_OSX_SYSROOT})")
     else ()
-        set(CACHE{${OUTPUT_VAR}} VALUE "${_path}")
+        set(${OUTPUT_VAR} "${_path}" CACHE STRING "" FORCE)
     endif ()
 endfunction()
 
