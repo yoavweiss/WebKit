@@ -389,7 +389,7 @@ FrameLoader::FrameLoader(LocalFrame& frame, CompletionHandler<UniqueRef<LocalFra
     , m_state(FrameState::Provisional)
     , m_loadType(FrameLoadType::Standard)
     , m_checkTimer(*this, &FrameLoader::checkTimerFired)
-    , m_documentPrefetcher(DocumentPrefetcher::create(*this))
+    , m_documentPrefetcher(DocumentPrefetcher::create(frame))
 {
 }
 
