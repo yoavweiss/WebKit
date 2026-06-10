@@ -31,7 +31,6 @@ set(TestWTF_SOURCES
     Helpers/Utilities.cpp
 
     Tests/WTF/AtomString.cpp
-    Tests/WTF/AutomaticThread.cpp
     Tests/WTF/Base64.cpp
     Tests/WTF/BitSet.cpp
     Tests/WTF/BitVector.cpp

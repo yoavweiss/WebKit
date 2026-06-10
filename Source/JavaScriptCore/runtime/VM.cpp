@@ -151,7 +151,6 @@
 #include "WeakGCMapInlines.h"
 #include "WideningNumberPredictionFuzzerAgent.h"
 #include <wtf/CryptographicallyRandomNumber.h>
-#include <wtf/MemoryPressureHandler.h>
 #include <wtf/ProcessID.h>
 #include <wtf/ReadWriteLock.h>
 #include <wtf/SimpleStats.h>
@@ -1018,21 +1017,6 @@ void VM::deleteAllCode(DeleteAllCodeEffort effort)
         heap.deleteAllCodeBlocks(effort);
         heap.deleteAllUnlinkedCodeBlocks(effort);
         heap.reportAbandonedObjectGraph();
-
-        if (MemoryPressureHandler::singleton().memoryPressureStatus() == SystemMemoryPressureStatus::Normal)
-            return;
-        // If we're deleting all code as a response to memory pressure, allow
-        // worklist threads to temporarily stop, which frees any thread-local
-        // data (specifically, any bulky heap-allocated data for the assembler
-        // buffer).
-#if ENABLE(JIT)
-        if (auto worklist = JITWorklist::existingGlobalWorklistOrNull())
-            worklist->requestTemporaryStop();
-#if ENABLE(WEBASSEMBLY)
-        if (auto worklist = Wasm::existingWorklistOrNull())
-            worklist->requestTemporaryStop();
-#endif // ENABLE(WEBASSEMBLY)
-#endif // ENABLE(JIT)
     });
 }
 
