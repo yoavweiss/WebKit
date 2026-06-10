@@ -103,8 +103,19 @@ void FindController::countStringMatches(const String& string, OptionSet<FindOpti
 #endif
     {
         RefPtr webPage { m_webPage.get() };
-        matchCount = protect(webPage->corePage())->countFindMatches(string, core(options), maxMatchCount + 1);
-        protect(webPage->corePage())->unmarkAllTextMatches();
+        bool shouldShowOverlay = options.contains(FindOptions::ShowOverlay);
+        bool shouldShowHighlight = options.contains(FindOptions::ShowHighlight);
+        if (shouldShowOverlay || shouldShowHighlight) {
+            auto result = protect(webPage->corePage())->findTextMatches(string, core(options), maxMatchCount);
+            matchCount = result.ranges.size();
+            protect(webPage->corePage())->unmarkAllTextMatches();
+            protect(webPage->corePage())->markAllMatchesForText(string, core(options), shouldShowHighlight, maxMatchCount + 1);
+        } else {
+            matchCount = protect(webPage->corePage())->countFindMatches(string, core(options), maxMatchCount + 1);
+            protect(webPage->corePage())->unmarkAllTextMatches();
+        }
+
+        updateFindPageOverlay(shouldShowOverlay);
     }
 
     if (matchCount > maxMatchCount)
@@ -258,7 +269,6 @@ void FindController::updateFindUIAfterFindingAllMatches(bool found, const String
     RefPtr pluginView = mainFramePlugIn();
 #endif
 
-    bool shouldShowOverlay = found && options.contains(FindOptions::ShowOverlay);
     if (!found) {
         if (selectedFrame && !options.contains(FindOptions::DoNotSetSelection))
             protect(selectedFrame->selection())->clear();
@@ -266,6 +276,7 @@ void FindController::updateFindUIAfterFindingAllMatches(bool found, const String
         return;
     }
 
+    bool shouldShowOverlay = found && options.contains(FindOptions::ShowOverlay);
     bool shouldShowHighlight = options.contains(FindOptions::ShowHighlight);
     if (shouldShowOverlay || shouldShowHighlight) {
         protect(webPage->corePage())->unmarkAllTextMatches();
