@@ -6911,6 +6911,9 @@ void Document::nodeWillBeMoved(Node& node)
 
     for (Ref range : m_ranges)
         range->nodeWillBeRemoved(node);
+
+    if (RefPtr frame = this->frame())
+        frame->selection().nodeWillBeRemoved(node);
 }
 
 void Document::parentlessNodeMovedToNewDocument(Node& node)

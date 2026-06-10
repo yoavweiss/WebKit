@@ -6117,9 +6117,6 @@ webkit.org/b/281223 imported/w3c/web-platform-tests/dom/nodes/moveBefore/moveBef
 webkit.org/b/281223 imported/w3c/web-platform-tests/dom/nodes/moveBefore/select-option-optgroup.html [ Skip ]
 webkit.org/b/281223 imported/w3c/web-platform-tests/dom/nodes/moveBefore/css-transition-trigger.html [ Skip ]
 webkit.org/b/281223 imported/w3c/web-platform-tests/dom/nodes/moveBefore/relevant-mutations.html [ Skip ]
-webkit.org/b/281223 imported/w3c/web-platform-tests/dom/nodes/moveBefore/selection-preserve.html [ Skip ]
-webkit.org/b/281223 imported/w3c/web-platform-tests/dom/nodes/moveBefore/hover-style-update.html [ Skip ]
-webkit.org/b/281223 imported/w3c/web-platform-tests/dom/nodes/moveBefore/pointer-events.html [ Skip ]
 
 # Flaky crash.
 webkit.org/b/315031 imported/w3c/web-platform-tests/dom/nodes/moveBefore/throws-exception.html [ Skip ]
