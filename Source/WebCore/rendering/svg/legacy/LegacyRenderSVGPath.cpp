@@ -83,15 +83,20 @@ void LegacyRenderSVGPath::updateShapeFromElement()
 
 FloatRect LegacyRenderSVGPath::adjustStrokeBoundingBoxForMarkersAndZeroLengthLinecaps(RepaintRectCalculation repaintRectCalculation, FloatRect strokeBoundingBox) const
 {
+    bool hasMarkers = !m_markerPositions.isEmpty();
+    bool hasZeroLengthCaps = !style().stroke().isNone() && !m_zeroLengthLinecapLocations.isEmpty();
+    if (!hasMarkers && !hasZeroLengthCaps)
+        return strokeBoundingBox;
+
     float strokeWidth = this->strokeWidth();
 
-    if (!m_markerPositions.isEmpty()) {
+    if (hasMarkers) {
         auto markerRect = this->markerRect(repaintRectCalculation, strokeWidth);
         if (!markerRect.isNaN())
             strokeBoundingBox.unite(markerRect);
     }
 
-    if (!style().stroke().isNone()) {
+    if (hasZeroLengthCaps) {
         // FIXME: zero-length subpaths do not respect vector-effect = non-scaling-stroke.
         for (auto& zeroLengthLinecapLocation : m_zeroLengthLinecapLocations) {
             auto subpathRect = zeroLengthSubpathRect(zeroLengthLinecapLocation, strokeWidth);
