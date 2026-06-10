@@ -549,7 +549,7 @@ std::optional<InteractionRegion> interactionRegionForRenderedRegion(const Render
     auto rect = bounds;
     float cornerRadius = 0;
     OptionSet<InteractionRegion::CornerMask> maskedCorners { };
-    std::optional<Path> clipPath;
+    std::optional<Path> clipPath = std::nullopt;
 
     CheckedRef style = regionRenderer.style();
     CheckedPtr<const RenderBox> regionRendererBox;

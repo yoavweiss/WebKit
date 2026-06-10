@@ -61,7 +61,7 @@ struct PlatformColorResolutionState {
 
     // Conversion data needed to evaluate `calc()` expressions with relative length units.
     // If unset, colors that require conversion data will return the invalid Color.
-    std::optional<CSSToLengthConversionData> conversionData;
+    std::optional<CSSToLengthConversionData> conversionData = std::nullopt;
 
     // Whether links should be resolved to the visited style.
     Style::ForVisitedLink forVisitedLink = Style::ForVisitedLink::No;
@@ -71,19 +71,19 @@ struct PlatformColorResolutionState {
 
     // Appearance used to select from a light-dark() color function.
     // If unset, light-dark() colors will return the invalid Color.
-    std::optional<LightDarkColorAppearance> appearance;
+    std::optional<LightDarkColorAppearance> appearance = std::nullopt;
 
     // Colors are resolved:
     //   1. Checking if the color is set below, and if it is, returning it.
     //   2. If a delegate has been set, calling the associated delegate function,
     //      storing the result below, and returning that color.
     //   3. Returning the invalid `Color` value.
-    mutable std::optional<WebCore::Color> resolvedCurrentColor;
-    mutable std::optional<WebCore::Color> resolvedInternalDocumentTextColor;
-    mutable std::optional<WebCore::Color> resolvedWebkitLink;
-    mutable std::optional<WebCore::Color> resolvedWebkitLinkVisited;
-    mutable std::optional<WebCore::Color> resolvedWebkitActiveLink;
-    mutable std::optional<WebCore::Color> resolvedWebkitFocusRingColor;
+    mutable std::optional<WebCore::Color> resolvedCurrentColor = std::nullopt;
+    mutable std::optional<WebCore::Color> resolvedInternalDocumentTextColor = std::nullopt;
+    mutable std::optional<WebCore::Color> resolvedWebkitLink = std::nullopt;
+    mutable std::optional<WebCore::Color> resolvedWebkitLinkVisited = std::nullopt;
+    mutable std::optional<WebCore::Color> resolvedWebkitActiveLink = std::nullopt;
+    mutable std::optional<WebCore::Color> resolvedWebkitFocusRingColor = std::nullopt;
 
     WebCore::Color currentColor() const
     {

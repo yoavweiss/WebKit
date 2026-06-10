@@ -137,7 +137,7 @@ static bool isValidEncoderConfig(const WebCodecsAudioEncoderConfig& config)
 
 static ExceptionOr<AudioEncoder::Config> createAudioEncoderConfig(const WebCodecsAudioEncoderConfig& config)
 {
-    std::optional<AudioEncoder::OpusConfig> opusConfig;
+    std::optional<AudioEncoder::OpusConfig> opusConfig = std::nullopt;
     if (config.opus) {
         opusConfig = {
             .isOggBitStream = config.opus->format == OpusBitstreamFormat::Ogg,
@@ -149,11 +149,11 @@ static ExceptionOr<AudioEncoder::Config> createAudioEncoderConfig(const WebCodec
         };
     }
 
-    std::optional<bool> isAacADTS;
+    std::optional<bool> isAacADTS = std::nullopt;
     if (config.aac)
         isAacADTS = config.aac->format == AacBitstreamFormat::Adts;
 
-    std::optional<AudioEncoder::FlacConfig> flacConfig;
+    std::optional<AudioEncoder::FlacConfig> flacConfig = std::nullopt;
     if (config.flac)
         flacConfig = { config.flac->blockSize, config.flac->compressLevel };
 

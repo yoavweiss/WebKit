@@ -183,7 +183,7 @@ static UniqueRef<CaretAnimator> createCaretAnimator(FrameSelection* frameSelecti
 {
 #if PLATFORM(MAC) && HAVE(REDESIGNED_TEXT_CURSOR)
     if (redesignedTextCursorEnabled()) {
-        std::optional<LayoutRect> existingExpansionRect;
+        std::optional<LayoutRect> existingExpansionRect = std::nullopt;
         if (optionalCaretType)
             existingExpansionRect = frameSelection->caretAnimator().caretRepaintRectForLocalRect(LayoutRect());
 

@@ -698,7 +698,7 @@ void Navigation::recursivelyDisposeOfForwardEntriesInParents(BackForwardItemIden
     if (frame() == navigatedFrame)
         return;
 
-    std::optional<size_t> index;
+    std::optional<size_t> index = std::nullopt;
     for (size_t i = 0; i < m_entries.size(); i++) {
         if (m_entries[i]->associatedHistoryItem().itemID() == itemID) {
             index = i;

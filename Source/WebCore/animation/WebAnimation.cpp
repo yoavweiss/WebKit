@@ -767,7 +767,7 @@ void WebAnimation::setEffectiveFrameRate(std::optional<FramesPerSecond> effectiv
     if (m_effectiveFrameRate == effectiveFrameRate)
         return;
 
-    std::optional<FramesPerSecond> maximumFrameRate;
+    std::optional<FramesPerSecond> maximumFrameRate = std::nullopt;
     if (RefPtr timeline = dynamicDowncast<DocumentTimeline>(m_timeline))
         maximumFrameRate = timeline->maximumFrameRate();
 
