@@ -457,7 +457,7 @@ bool WebFrameProxy::didHandleContentFilterUnblockNavigation(const ResourceReques
     m_contentFilterUnblockHandler.setConfigurationPath(protect(page->websiteDataStore())->configuration().webContentRestrictionsConfigurationFile());
 #endif
 
-    std::optional<URL> unblockRequestURL = std::nullopt;
+    std::optional<URL> unblockRequestURL;
 #if HAVE(WEBCONTENTRESTRICTIONS_ASK_TO)
     bool webContentRestrictionsAskToEnabled = page->preferences().webContentRestrictionsAskToEnabled();
     if (webContentRestrictionsAskToEnabled)

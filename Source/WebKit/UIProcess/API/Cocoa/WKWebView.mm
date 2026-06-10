@@ -4014,11 +4014,11 @@ struct WKWebViewData {
 
 - (void)_setContentOffsetX:(NSNumber *)x y:(NSNumber *)y animated:(BOOL)animated
 {
-    std::optional<int> optionalX = std::nullopt;
+    std::optional<int> optionalX;
     if (x)
         optionalX = static_cast<int>([x doubleValue]);
 
-    std::optional<int> optionalY = std::nullopt;
+    std::optional<int> optionalY;
     if (y)
         optionalY = static_cast<int>([y doubleValue]);
 

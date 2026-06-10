@@ -225,7 +225,7 @@ IntRect WebHitTestResultData::elementBoundingBoxInWindowCoordinates(const WebCor
 
 std::optional<WebCore::SharedMemory::Handle> WebHitTestResultData::getImageSharedMemoryHandle() const
 {
-    std::optional<WebCore::SharedMemory::Handle> imageHandle = std::nullopt;
+    std::optional<WebCore::SharedMemory::Handle> imageHandle;
     if (RefPtr memory = imageSharedMemory; memory && !memory->span().empty()) {
         if (auto handle = memory->createHandle(WebCore::SharedMemory::Protection::ReadOnly))
             imageHandle = WTF::move(*handle);

@@ -278,7 +278,7 @@ static std::optional<WebCore::ApplicationManifest::Shortcut> makeVectorElement(c
     bool isDefaultScope = [aDecoder decodeBoolForKey:@"is_default_scope"];
     NSInteger display = [aDecoder decodeIntegerForKey:@"display"];
     NSInteger orientation = [aDecoder decodeIntegerForKey:@"orientation"];
-    std::optional<WebCore::ScreenOrientationLockType> orientationValue = std::nullopt;
+    std::optional<WebCore::ScreenOrientationLockType> orientationValue;
     if (orientation != NSNotFound)
         orientationValue = static_cast<WebCore::ScreenOrientationLockType>(orientation);
     URL manifestURL = [aDecoder decodeObjectOfClass:[NSURL class] forKey:@"manifest_url"];
