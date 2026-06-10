@@ -395,7 +395,7 @@ void PageClientImpl::didCommitLoadForMainFrame(const String& mimeType, bool useC
 #endif
 
 #if ENABLE(SYSTEM_TEXT_EXTRACTION)
-    if (RefPtr page = [webView _page]; page && page->preferences().systemTextExtractionEnabled())
+    if (RefPtr page = [webView _page].get(); page && page->preferences().systemTextExtractionEnabled())
         [webView _addTextExtractionAnnotation];
 #endif
 }
