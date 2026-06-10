@@ -1540,7 +1540,10 @@ class Port(object):
             try:
                 repos['webkit'] = local.Scm.from_path(self.host.filesystem.getcwd())
             except OSError:
-                repos['webkit'] = local.Scm.from_path(self.host.filesystem.dirname(__file__))
+                try:
+                    repos['webkit'] = local.Scm.from_path(self.host.filesystem.dirname(self.host.filesystem.path_to_module(__name__)))
+                except OSError:
+                    pass
 
         commits = []
         for repo_id, repo in repos.items():
