@@ -1367,6 +1367,26 @@ void WebProcess::setMediaAccessibilityPreferences(WebCore::CaptionUserPreference
             captionPreferences->captionPreferencesChanged();
     }
 }
+
+void WebProcess::setMediaAccessibilityPreferredLanguages(const Vector<String>& preferredLanguages)
+{
+    WebCore::CaptionUserPreferencesMediaAF::setCachedPreferredLanguages(preferredLanguages);
+
+    for (auto& pageGroup : m_pageGroupMap.values()) {
+        if (RefPtr captionPreferences = pageGroup->corePageGroup()->captionPreferences())
+            captionPreferences->captionPreferencesChanged();
+    }
+}
+
+void WebProcess::setMediaAccessibilityPreferredCaptionDisplayMode(WebCore::CaptionUserPreferences::CaptionDisplayMode captionDisplayMode)
+{
+    WebCore::CaptionUserPreferencesMediaAF::setCachedCaptionDisplayMode(captionDisplayMode);
+
+    for (auto& pageGroup : m_pageGroupMap.values()) {
+        if (RefPtr captionPreferences = pageGroup->corePageGroup()->captionPreferences())
+            captionPreferences->captionPreferencesChanged();
+    }
+}
 #endif
 
 void WebProcess::updatePageAccessibilitySettings()

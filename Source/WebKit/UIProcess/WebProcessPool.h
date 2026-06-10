@@ -84,6 +84,10 @@ OBJC_CLASS WKProcessPoolWeakObserver;
 #include <wtf/cf/NotificationCenterCF.h>
 #endif
 
+#if HAVE(MEDIA_ACCESSIBILITY_FRAMEWORK) && PLATFORM(COCOA)
+#include <WebCore/CaptionUserPreferences.h>
+#endif
+
 namespace API {
 class Array;
 class AutomationClient;
@@ -1046,6 +1050,11 @@ private:
     bool m_suppressEDR { false };
 
     Seconds m_pltResourceDelayInterval { 100_ms };
+
+#if HAVE(MEDIA_ACCESSIBILITY_FRAMEWORK) && PLATFORM(COCOA)
+    std::optional<WebCore::CaptionUserPreferences::CaptionDisplayMode> m_captionDisplayMode;
+    std::optional<Vector<String>> m_preferredLanguages;
+#endif
 };
 
 template<typename T>

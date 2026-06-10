@@ -292,12 +292,23 @@ void WebProcessPool::setMediaAccessibilityPreferences(WebProcessProxy& process)
 {
     static NeverDestroyed<OSObjectPtr<dispatch_queue_t>> mediaAccessibilityQueue = adoptOSObject(dispatch_queue_create("MediaAccessibility queue", DISPATCH_QUEUE_SERIAL));
 
-    dispatch_async(mediaAccessibilityQueue.get().get(), [weakProcess = WeakPtr { process }] {
+    dispatch_async(mediaAccessibilityQueue.get().get(), [weakThis = WeakPtr { *this }, weakProcess = WeakPtr { process }] mutable {
         auto captionDisplayMode = WebCore::CaptionUserPreferencesMediaAF::platformCaptionDisplayMode();
         auto preferredLanguages = WebCore::CaptionUserPreferencesMediaAF::platformPreferredLanguages();
-        callOnMainRunLoop([weakProcess, captionDisplayMode, preferredLanguages = crossThreadCopy(WTF::move(preferredLanguages))] {
-            if (weakProcess)
-                weakProcess->send(Messages::WebProcess::SetMediaAccessibilityPreferences(captionDisplayMode, preferredLanguages), 0);
+        callOnMainRunLoop([weakThis = WTF::move(weakThis), weakProcess, captionDisplayMode, preferredLanguages = crossThreadCopy(WTF::move(preferredLanguages))] {
+            RefPtr protectedThis = weakThis.get();
+            if (!protectedThis || !weakProcess)
+                return;
+
+            if (captionDisplayMode != protectedThis->m_captionDisplayMode) {
+                protectedThis->m_captionDisplayMode = captionDisplayMode;
+                weakProcess->send(Messages::WebProcess::SetMediaAccessibilityPreferredCaptionDisplayMode(captionDisplayMode), 0);
+            }
+
+            if (preferredLanguages != protectedThis->m_preferredLanguages) {
+                protectedThis->m_preferredLanguages = preferredLanguages;
+                weakProcess->send(Messages::WebProcess::SetMediaAccessibilityPreferredLanguages(preferredLanguages), 0);
+            }
         });
     });
 }
@@ -650,7 +661,14 @@ void WebProcessPool::mediaAccessibilityPreferencesChangedCallback(CFNotification
         return;
     auto captionDisplayMode = WebCore::CaptionUserPreferencesMediaAF::platformCaptionDisplayMode();
     auto preferredLanguages = WebCore::CaptionUserPreferencesMediaAF::platformPreferredLanguages();
-    pool->sendToAllProcesses(Messages::WebProcess::SetMediaAccessibilityPreferences(captionDisplayMode, preferredLanguages));
+    if (captionDisplayMode != pool->m_captionDisplayMode) {
+        pool->m_captionDisplayMode = captionDisplayMode;
+        pool->sendToAllProcesses(Messages::WebProcess::SetMediaAccessibilityPreferredCaptionDisplayMode(captionDisplayMode));
+    }
+    if (preferredLanguages != pool->m_preferredLanguages) {
+        pool->m_preferredLanguages = preferredLanguages;
+        pool->sendToAllProcesses(Messages::WebProcess::SetMediaAccessibilityPreferredLanguages(preferredLanguages));
+    }
 }
 #endif
 

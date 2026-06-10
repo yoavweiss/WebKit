@@ -39,6 +39,7 @@
 #include "WebSocketChannelManager.h"
 #include <WebCore/ActivityState.h>
 #include <WebCore/BackForwardFrameItemIdentifier.h>
+#include <WebCore/CaptionUserPreferences.h>
 #include <WebCore/FrameIdentifier.h>
 #include <WebCore/NetworkStorageSession.h>
 #include <WebCore/PageIdentifier.h>
@@ -747,6 +748,8 @@ private:
     void updatePageAccessibilitySettings();
 #if HAVE(MEDIA_ACCESSIBILITY_FRAMEWORK)
     void setMediaAccessibilityPreferences(WebCore::CaptionUserPreferences::CaptionDisplayMode, const Vector<String>&);
+    void setMediaAccessibilityPreferredLanguages(const Vector<String>&);
+    void setMediaAccessibilityPreferredCaptionDisplayMode(WebCore::CaptionUserPreferences::CaptionDisplayMode);
 #endif
 
 #if PLATFORM(MAC) || PLATFORM(MACCATALYST)
