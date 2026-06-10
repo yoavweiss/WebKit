@@ -139,6 +139,32 @@ promise_test(async t => {
 
 }, `<model> stage-mode orbit survives multiple unload-reload cycles`);
 
+promise_test(async t => {
+    const [model, source] = createModelAndSource(t, "resources/heart.usdz");
+    model.className = "model-element";
+
+    scrollElementIntoView(model);
+    await waitForModelState(model, "Loaded");
+    await model.ready;
+
+    const loadedTransform = model.entityTransform.rotate(0, 45, 0).scale(2, 2, 2);
+    model.entityTransform = loadedTransform;
+    assert_3d_matrix_equals(model.entityTransform, loadedTransform);
+
+    window.scrollTo(0, 0);
+    await waitForModelState(model, "Unloaded", 10000);
+
+    const unloadedTransform = model.entityTransform.translate(0, 0, -10).rotate(0, 30, 0).scale(0.5, 0.5, 0.5);
+    model.entityTransform = unloadedTransform;
+    assert_3d_matrix_equals(model.entityTransform, unloadedTransform);
+
+    scrollElementIntoView(model);
+    await waitForModelState(model, "Loaded");
+    await sleepForSeconds(0.1);
+
+    assert_3d_matrix_equals(model.entityTransform, unloadedTransform);
+}, `<model> entityTransform can be set while unloaded`);
+
 </script>
 </body>
 

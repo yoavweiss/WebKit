@@ -779,7 +779,11 @@ void WebModelPlayer::setEntityTransform(WebCore::TransformationMatrix matrix)
         model->setEntityTransform(static_cast<simd_float4x4>(matrix));
         notifyEntityTransformUpdated();
         startUpdateLoopIfNeeded();
+        return;
     }
+
+    if (m_cachedTransformState)
+        (*m_cachedTransformState)->setEntityTransform(matrix);
 }
 
 void WebModelPlayer::setEnvironmentMap(Ref<WebCore::SharedBuffer>&& data)

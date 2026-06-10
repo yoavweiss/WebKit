@@ -10,7 +10,6 @@
           (position 8.00 8.00)
           (bounds 300.00 150.00)
           (drawsContent 1)
-          (backgroundColor #000000)
         )
       )
     )
