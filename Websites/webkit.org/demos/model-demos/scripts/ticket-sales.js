@@ -107,7 +107,7 @@ if (model.ready) {
 
 function togglePopup(show) {
     popupOpen = show;
-    previewBackdrop.hidden = !show;
+    previewBackdrop.classList.toggle('visible', show);
     if (!show && !document.immersiveElement) {
         setActiveSeat(null);
         currentSeat = null;

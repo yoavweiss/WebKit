@@ -221,6 +221,13 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.preview-backdrop.visible {
+    opacity: 1;
+    pointer-events: auto;
 }
 
 .preview-popup {
@@ -268,7 +275,7 @@ body {
     pointer-events: none;
 }
 
-.preview-overlay > * {
+.preview-backdrop.visible .preview-overlay > * {
     pointer-events: auto;
 }
 
