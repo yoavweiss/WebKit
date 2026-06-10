@@ -15769,6 +15769,12 @@ void WebPageProxy::takeSnapshot(const IntRect& rect, const IntSize& bitmapSize, 
         return;
     }
 
+    RefPtr mainFrame = m_mainFrame;
+    if (!mainFrame) {
+        callback(nullptr);
+        return;
+    }
+
     auto snapshotIdentifier = RemoteSnapshotIdentifier::generate();
     Ref gpuProcess = GPUProcessProxy::getOrCreate();
     sendWithAsyncReply(Messages::WebPage::TakeRemoteSnapshot(rect, bitmapSize, options, snapshotIdentifier),
@@ -15784,8 +15790,10 @@ void WebPageProxy::takeSnapshot(const IntRect& rect, const IntSize& bitmapSize, 
             return;
         }
         gpuProcess->sinkCompletedSnapshotToBitmap(snapshotIdentifier, bitmapSize, rootFrameIdentifier, [callback = WTF::move(callback)] (std::optional<WebCore::ShareableBitmap::Handle>&& handle) mutable {
-            if (!handle)
+            if (!handle) {
+                callback(nullptr);
                 return;
+            }
             RetainPtr<CGImageRef> image;
             if (RefPtr bitmap = WebCore::ShareableBitmap::create(WTF::move(*handle), WebCore::SharedMemory::Protection::ReadOnly))
                 image = bitmap->createPlatformImage(DontCopyBackingStore);
