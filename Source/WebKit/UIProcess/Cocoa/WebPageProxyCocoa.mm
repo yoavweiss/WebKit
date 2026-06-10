@@ -294,7 +294,6 @@ void WebPageProxy::beginSafeBrowsingCheck(const URL& url, API::Navigation& navig
     size_t redirectChainIndex = navigation.redirectChainIndex(url);
 
     navigation.setSafeBrowsingCheckOngoing(redirectChainIndex, true);
-    m_isSafeBrowsingCheckInProgress = true;
 
     auto performLookup = [weakThis = WeakPtr { *this }, navigation = protect(navigation), forMainFrameNavigation, url = url.isolatedCopy(), redirectChainIndex](RetainPtr<SSBLookupResult> cachedResult) mutable {
         RefPtr protectedThis = weakThis.get();
@@ -312,7 +311,9 @@ void WebPageProxy::beginSafeBrowsingCheck(const URL& url, API::Navigation& navig
                 RELEASE_LOG(Loading, "beginSafeBrowsingCheck: error navigationID=%" PRIu64, navigation->navigationID().toUInt64());
                 if (!navigation->safeBrowsingCheckOngoing())
                     navigation->fireSafeBrowsingCheckCompletionCallbacks();
-                return protectedThis->completeSafeBrowsingCheckForModals(true);
+                if (protectedThis->m_committedMainFrameNavigationID == navigation->navigationID())
+                    protectedThis->completeSafeBrowsingCheckForModals(true);
+                return;
             }
 
             RefPtr navigationState = NavigationState::fromWebPage(*protectedThis);
@@ -331,10 +332,12 @@ void WebPageProxy::beginSafeBrowsingCheck(const URL& url, API::Navigation& navig
                 }
             }
 
-            if (!navigation->safeBrowsingCheckOngoing())
-                navigation->fireSafeBrowsingCheckCompletionCallbacks();
+            if (navigation->safeBrowsingCheckOngoing())
+                return;
 
-            if (!navigation->safeBrowsingCheckOngoing() && navigation->safeBrowsingWarning()) {
+            navigation->fireSafeBrowsingCheckCompletionCallbacks();
+
+            if (navigation->safeBrowsingWarning()) {
                 RELEASE_LOG(Loading, "beginSafeBrowsingCheck: showing warning navigationID=%" PRIu64, navigation->navigationID().toUInt64());
                 if (navigation->safeBrowsingWarning()->forMainFrameNavigation()) {
                     RefPtr safeBrowsingWarning = navigation->safeBrowsingWarning();
@@ -349,12 +352,11 @@ void WebPageProxy::beginSafeBrowsingCheck(const URL& url, API::Navigation& navig
                     protectedThis->setSafeBrowsingWarningShownForNavigation(navigation->navigationID());
                     protectedThis->showBrowsingWarning(WTF::move(safeBrowsingWarning));
                 }
-                protectedThis->completeSafeBrowsingCheckForModals(false);
-            } else if (!navigation->safeBrowsingWarning()) {
+            } else {
                 RELEASE_LOG(Loading, "beginSafeBrowsingCheck: no threat, completing navigationID=%" PRIu64, navigation->navigationID().toUInt64());
-                protectedThis->completeSafeBrowsingCheckForModals(true);
-            } else
-                RELEASE_LOG(Loading, "beginSafeBrowsingCheck: check ongoing, deferring warning navigationID=%" PRIu64, navigation->navigationID().toUInt64());
+                if (protectedThis->m_committedMainFrameNavigationID == navigation->navigationID())
+                    protectedThis->completeSafeBrowsingCheckForModals(true);
+            }
         });
     };
 
@@ -396,6 +398,19 @@ void WebPageProxy::completeSafeBrowsingCheckForModals(bool userProceeded)
 
     for (auto& handler : std::exchange(handlers, { }))
         handler(userProceeded);
+}
+
+void WebPageProxy::drainDeferredModalsForNewNavigation()
+{
+    ASSERT(isMainRunLoop());
+    for (auto& handler : std::exchange(m_deferredModalHandlers, { }))
+        handler(false);
+
+    if (m_isSafeBrowsingCheckInProgress) {
+        m_isSafeBrowsingCheckInProgress = false;
+        m_safeBrowsingWarningShownForNavigation = std::nullopt;
+        protect(pageClient())->clearBrowsingWarning();
+    }
 }
 #endif
 

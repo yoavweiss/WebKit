@@ -3108,6 +3108,7 @@ private:
     void showBrowsingWarning(RefPtr<WebKit::BrowsingWarning>&&);
     void deferModalUntilSafeBrowsingCompletes(CompletionHandler<void(bool shouldShow)>&&);
     void completeSafeBrowsingCheckForModals(bool userProceeded);
+    void drainDeferredModalsForNewNavigation();
 
     WebContentMode effectiveContentModeAfterAdjustingPolicies(API::WebsitePolicies&, const WebCore::ResourceRequest&);
 
@@ -4199,6 +4200,7 @@ private:
     Vector<CompletionHandler<void(bool)>> m_deferredModalHandlers;
     bool m_isSafeBrowsingCheckInProgress { false };
     std::optional<WebCore::NavigationIdentifier> m_safeBrowsingWarningShownForNavigation;
+    std::optional<WebCore::NavigationIdentifier> m_committedMainFrameNavigationID;
 #endif
     bool m_isLockdownModeExplicitlySet { false };
 

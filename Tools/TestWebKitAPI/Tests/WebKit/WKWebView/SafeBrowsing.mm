@@ -1027,7 +1027,7 @@ TEST(SafeBrowsing, ModalShownImmediatelyWhenNoCheck)
 
 TEST(SafeBrowsing, ModalDeferredDuringCheck)
 {
-    DelayedLookupContext.delayDuration = 50_ms;
+    DelayedLookupContext.delayDuration = 1000_ms;
     TestWebKitAPI::HTTPServer server({
         { "/malicious"_s, { "<html><body><script>alert('deferred')</script><h1>Test</h1></body></html>"_s } },
     }, TestWebKitAPI::HTTPServer::Protocol::HttpsProxy);
@@ -1067,7 +1067,7 @@ TEST(SafeBrowsing, ModalDeferredDuringCheck)
 
 TEST(SafeBrowsing, DeferredModalShownWhenProceedingThroughWarning)
 {
-    DelayedLookupContext.delayDuration = 50_ms;
+    DelayedLookupContext.delayDuration = 1000_ms;
     TestWebKitAPI::HTTPServer server({
         { "/malicious"_s, { "<html><body onload='alert(\"proceed test\")'><h1>Test</h1></body></html>"_s } },
     }, TestWebKitAPI::HTTPServer::Protocol::HttpsProxy);
@@ -1111,7 +1111,7 @@ TEST(SafeBrowsing, DeferredModalShownWhenProceedingThroughWarning)
 
 TEST(SafeBrowsing, DeferredModalSuppressedWhenGoingBack)
 {
-    DelayedLookupContext.delayDuration = 50_ms;
+    DelayedLookupContext.delayDuration = 1000_ms;
     TestWebKitAPI::HTTPServer server({
         { "/malicious"_s, { "<html><body onload='alert(\"should not show\")'><h1>Phishing</h1></body></html>"_s } },
     }, TestWebKitAPI::HTTPServer::Protocol::HttpsProxy);
@@ -1156,7 +1156,7 @@ TEST(SafeBrowsing, DeferredModalSuppressedWhenGoingBack)
 
 TEST(SafeBrowsing, MultipleDeferredModalsShownInOrder)
 {
-    DelayedLookupContext.delayDuration = 50_ms;
+    DelayedLookupContext.delayDuration = 1000_ms;
     TestWebKitAPI::HTTPServer server({
         { "/malicious"_s, { "<html><body onload='test()'><script>function test() { alert('first'); alert('second'); alert('third'); }</script></body></html>"_s } },
     }, TestWebKitAPI::HTTPServer::Protocol::HttpsProxy);
@@ -1203,7 +1203,7 @@ TEST(SafeBrowsing, MultipleDeferredModalsShownInOrder)
 
 TEST(SafeBrowsing, DeferredModalsClearedOnNavigation)
 {
-    DelayedLookupContext.delayDuration = 50_ms;
+    DelayedLookupContext.delayDuration = 1000_ms;
     TestWebKitAPI::HTTPServer server({
         { "/malicious"_s, { "<html><body onload='alert(\"deferred\")'><h1>Test</h1></body></html>"_s } },
     }, TestWebKitAPI::HTTPServer::Protocol::HttpsProxy);
@@ -1273,7 +1273,7 @@ TEST(SafeBrowsing, ModalShownWhenCheckCompletesClean)
 
 TEST(SafeBrowsing, AllModalTypesProperlyDeferred)
 {
-    DelayedLookupContext.delayDuration = 50_ms;
+    DelayedLookupContext.delayDuration = 1000_ms;
     TestWebKitAPI::HTTPServer server({
         { "/malicious"_s, { "<html><body onload='test()'><script>function test() { alert('test alert'); confirm('test confirm'); prompt('test prompt', 'default'); }</script></body></html>"_s } },
     }, TestWebKitAPI::HTTPServer::Protocol::HttpsProxy);

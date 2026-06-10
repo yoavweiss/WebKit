@@ -2184,6 +2184,10 @@ RefPtr<API::Navigation> WebPageProxy::loadRequest(WebCore::ResourceRequest&& req
 
     WEBPAGEPROXY_RELEASE_LOG(Loading, "loadRequest:");
 
+#if HAVE(SAFE_BROWSING)
+    drainDeferredModalsForNewNavigation();
+#endif
+
     if (m_isCallingCreateNewPage && request.url().protocolIsJavaScript()) {
         WEBPAGEPROXY_RELEASE_LOG(Loading, "loadRequest: Not loading javascript URL during createNewPage.");
         return nullptr;
@@ -2319,6 +2323,10 @@ RefPtr<API::Navigation> WebPageProxy::loadFile(const String& fileURLString, cons
         return nullptr;
     }
 
+#if HAVE(SAFE_BROWSING)
+    drainDeferredModalsForNewNavigation();
+#endif
+
 #if PLATFORM(MAC)
     if (isQuarantinedAndNotUserApproved(fileURLString)) {
         WEBPAGEPROXY_RELEASE_LOG(Loading, "loadFile: file cannot be opened because it is from an unidentified developer.");
@@ -2407,6 +2415,10 @@ RefPtr<API::Navigation> WebPageProxy::loadData(Ref<WebCore::SharedBuffer>&& data
         return nullptr;
     }
 
+#if HAVE(SAFE_BROWSING)
+    drainDeferredModalsForNewNavigation();
+#endif
+
     if (!hasRunningProcess())
         launchProcess(Site(URL(baseURL)), ProcessLaunchReason::InitialProcess);
 
@@ -2480,6 +2492,10 @@ RefPtr<API::Navigation> WebPageProxy::loadSimulatedRequest(WebCore::ResourceRequ
         return nullptr;
     }
 
+#if HAVE(SAFE_BROWSING)
+    drainDeferredModalsForNewNavigation();
+#endif
+
     if (!hasRunningProcess())
         launchProcess(Site { simulatedRequest.url() }, ProcessLaunchReason::InitialProcess);
 
@@ -2541,6 +2557,10 @@ void WebPageProxy::loadAlternateHTML(Ref<WebCore::DataSegment>&& htmlData, const
         WEBPAGEPROXY_RELEASE_LOG(Loading, "loadAlternateHTML: page is closed (or other)");
         return;
     }
+
+#if HAVE(SAFE_BROWSING)
+    drainDeferredModalsForNewNavigation();
+#endif
 
     if (!m_failingProvisionalLoadURL.isEmpty()) {
         if (!m_allowsLoadingAlternateHTMLForFailingProvisionalLoadURL && unreachableURL == m_failingProvisionalLoadURL) {
@@ -2613,6 +2633,10 @@ void WebPageProxy::stopLoading()
         return;
     }
 
+#if HAVE(SAFE_BROWSING)
+    drainDeferredModalsForNewNavigation();
+#endif
+
     send(Messages::WebPage::StopLoading());
     if (RefPtr provisionalPage = m_provisionalPage) {
         provisionalPage->cancel();
@@ -2624,6 +2648,10 @@ void WebPageProxy::stopLoading()
 RefPtr<API::Navigation> WebPageProxy::reload(OptionSet<WebCore::ReloadOption> options)
 {
     WEBPAGEPROXY_RELEASE_LOG(Loading, "reload:");
+
+#if HAVE(SAFE_BROWSING)
+    drainDeferredModalsForNewNavigation();
+#endif
 
     // Make sure the Network & GPU processes are still responsive. This is so that reload() gets us out of the bad state if one of these
     // processes is hung.
@@ -2748,6 +2776,10 @@ RefPtr<API::Navigation> WebPageProxy::goToBackForwardItem(WebBackForwardListFram
         WEBPAGEPROXY_RELEASE_LOG(Loading, "goToBackForwardItem: page is closed");
         return nullptr;
     }
+
+#if HAVE(SAFE_BROWSING)
+    drainDeferredModalsForNewNavigation();
+#endif
 
     if (!hasRunningProcess()) {
         launchProcess(Site { URL { item->url() } }, ProcessLaunchReason::InitialProcess);
@@ -7820,7 +7852,6 @@ void WebPageProxy::didStartProvisionalLoadForFrameShared(Ref<WebProcessProxy>&& 
 #if HAVE(SAFE_BROWSING)
         for (auto& handler : std::exchange(m_deferredModalHandlers, { }))
             handler(false);
-        m_isSafeBrowsingCheckInProgress = false;
 #endif
     }
 
@@ -8291,6 +8322,14 @@ void WebPageProxy::didCommitLoadForFrame(IPC::Connection& connection, FrameIdent
         internals().pageAllowedToRunInTheBackgroundActivityDueToTitleChanges = nullptr;
         internals().pageAllowedToRunInTheBackgroundActivityDueToNotifications = nullptr;
         internals().didCommitLoadForMainFrameTimestamp = MonotonicTime::now();
+
+#if HAVE(SAFE_BROWSING)
+        m_committedMainFrameNavigationID = navigationID;
+        if (navigation && (navigation->safeBrowsingCheckOngoing() || navigation->safeBrowsingWarning()))
+            m_isSafeBrowsingCheckInProgress = true;
+        else
+            completeSafeBrowsingCheckForModals(true);
+#endif
     }
 
     Ref protectedPageLoadState = pageLoadState();
@@ -9354,9 +9393,6 @@ void WebPageProxy::decidePolicyForNavigationAction(Ref<WebProcessProxy>&& proces
         message = WTF::move(message),
         frameInfo,
         protectedPageClient = protect(pageClient())
-#if HAVE(SAFE_BROWSING)
-        , shouldExpectSafeBrowsingResult
-#endif
     ] (PolicyAction policyAction, API::WebsitePolicies* policies, ProcessSwapRequestedByClient processSwapRequestedByClient, std::optional<NavigatingToAppBoundDomain> isAppBoundDomain, WasNavigationIntercepted wasNavigationIntercepted) mutable {
         WEBPAGEPROXY_RELEASE_LOG(Loading, "decidePolicyForNavigationAction: listener called: frameID=%" PRIu64 ", isMainFrame=%d, navigationID=%" PRIu64  ", policyAction=%" PUBLIC_LOG_STRING ", isAppBoundDomain=%d, wasNavigationIntercepted=%d", frame->frameID().toUInt64(), frame->isMainFrame(), navigation ? navigation->navigationID().toUInt64() : 0, toString(policyAction).characters(), !!isAppBoundDomain, wasNavigationIntercepted == WasNavigationIntercepted::Yes);
 
@@ -9530,10 +9566,6 @@ void WebPageProxy::decidePolicyForNavigationAction(Ref<WebProcessProxy>&& proces
             m_uiClient->didShowSafeBrowsingWarning();
             return;
         }
-#if HAVE(SAFE_BROWSING)
-        if (shouldExpectSafeBrowsingResult == ShouldExpectSafeBrowsingResult::Yes)
-            protectedThis->completeSafeBrowsingCheckForModals(true);
-#endif
         completionHandlerWrapper(policyAction);
 
     }, ShouldExpectSafeBrowsingResult::No, shouldExpectAppBoundDomainResult, shouldWaitForInitialLinkDecorationFilteringData, shouldWaitForSiteHasStorageCheck, shouldWaitForEnhancedSecurityLink);
