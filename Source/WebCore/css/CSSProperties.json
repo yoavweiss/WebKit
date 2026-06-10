@@ -14617,7 +14617,7 @@
             }
         },
         "<corner-shape-value>": {
-            "grammar": "round | scoop | bevel | notch | straight | squircle | superellipse(<number [0,inf]> | infinity)",
+            "grammar": "round | scoop | bevel | notch | square | squircle | superellipse(<number [0,inf]> | infinity)",
             "specification": {
                 "category": "css-borders",
                 "url": "https://drafts.csswg.org/css-borders-4/#corner-shaping"

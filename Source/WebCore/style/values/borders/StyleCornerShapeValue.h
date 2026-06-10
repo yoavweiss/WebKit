@@ -40,7 +40,7 @@ struct CornerShapeValue {
     constexpr CornerShapeValue(CSS::Keyword::Scoop) : superellipse { 0.5 } { }
     constexpr CornerShapeValue(CSS::Keyword::Bevel) : superellipse { 1.0 } { }
     constexpr CornerShapeValue(CSS::Keyword::Notch) : superellipse { 0.0 } { }
-    constexpr CornerShapeValue(CSS::Keyword::Straight) : superellipse { std::numeric_limits<double>::infinity() } { }
+    constexpr CornerShapeValue(CSS::Keyword::Square) : superellipse { std::numeric_limits<double>::infinity() } { }
     constexpr CornerShapeValue(CSS::Keyword::Squircle) : superellipse { 4.0 } { }
     constexpr CornerShapeValue(SuperellipseFunction value) : superellipse { value } { }
 
@@ -54,8 +54,8 @@ struct CornerShapeValue {
             return functor(CSS::Keyword::Bevel { });
         if (*this == CornerShapeValue(CSS::Keyword::Notch { }))
             return functor(CSS::Keyword::Notch { });
-        if (*this == CornerShapeValue(CSS::Keyword::Straight { }))
-            return functor(CSS::Keyword::Straight { });
+        if (*this == CornerShapeValue(CSS::Keyword::Square { }))
+            return functor(CSS::Keyword::Square { });
         if (*this == CornerShapeValue(CSS::Keyword::Squircle { }))
             return functor(CSS::Keyword::Squircle { });
         return functor(superellipse);

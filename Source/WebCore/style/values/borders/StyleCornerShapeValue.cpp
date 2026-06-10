@@ -51,8 +51,8 @@ auto CSSValueConversion<CornerShapeValue>::operator()(BuilderState& state, const
             return CSS::Keyword::Bevel { };
         case CSSValueNotch:
             return CSS::Keyword::Notch { };
-        case CSSValueStraight:
-            return CSS::Keyword::Straight { };
+        case CSSValueSquare:
+            return CSS::Keyword::Square { };
         case CSSValueSquircle:
             return CSS::Keyword::Squircle { };
         default:
