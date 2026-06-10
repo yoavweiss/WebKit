@@ -276,6 +276,9 @@
     fuzzy_test_valid_color(`color-mix(in lch, lch(10% 20 30deg) 0%, lch(50% 60 70deg) 0%)`, `color-mix(in lch, lch(10 20 30) 0%, lch(50 60 70) 0%)`);
     fuzzy_test_valid_color(`color-mix(in lch, lch(10% 20 30deg / .4) 0%, lch(50% 60 70deg / .8) 0%)`, `color-mix(in lch, lch(10 20 30 / 0.4) 0%, lch(50 60 70 / 0.8) 0%)`);
 
+    // Nested color-mix() with all-absolute color components
+    fuzzy_test_valid_color(`color-mix(in lch, color-mix(in lch, lch(10 20 30deg), lch(50 60 70deg)), lch(100 40 50deg))`, `color-mix(in lch, color-mix(in lch, lch(10 20 30), lch(50 60 70)), lch(100 40 50))`);
+
     fuzzy_test_valid_color(`color-mix(lch(10 20 30), lch(50 60 70))`); // Missing interpolation method.
 
     // oklch()

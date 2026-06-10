@@ -54,8 +54,8 @@ Color toStyleColor(const CSS::ColorMix& unresolved, ColorResolutionState& state)
         };
     });
 
-    if (std::ranges::any_of(components, [](auto& component) { return component.color.isResolvedColor(); })) {
-        // If the any of the component colors are not resolved, we cannot fully resolve the
+    if (std::ranges::any_of(components, [](auto& component) { return !component.color.isResolvedColor(); })) {
+        // If any of the component colors are not resolved, we cannot fully resolve the
         // color yet. Instead we return a Style::ColorMix to be resolved at use time.
         return Color {
             ColorMix {

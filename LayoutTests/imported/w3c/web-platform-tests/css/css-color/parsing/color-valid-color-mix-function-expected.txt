@@ -215,6 +215,7 @@ PASS e.style['color'] = "color-mix(in lch, lch(10 20 30deg / none), lch(50 60 70
 PASS e.style['color'] = "color-mix(in lch, lch(10 20 30deg / none), lch(50 60 70deg / none))" should set the property value
 PASS e.style['color'] = "color-mix(in lch, lch(10% 20 30deg) 0%, lch(50% 60 70deg) 0%)" should set the property value
 PASS e.style['color'] = "color-mix(in lch, lch(10% 20 30deg / .4) 0%, lch(50% 60 70deg / .8) 0%)" should set the property value
+PASS e.style['color'] = "color-mix(in lch, color-mix(in lch, lch(10 20 30deg), lch(50 60 70deg)), lch(100 40 50deg))" should set the property value
 PASS e.style['color'] = "color-mix(lch(10 20 30), lch(50 60 70))" should set the property value
 PASS e.style['color'] = "color-mix(in oklch, oklch(0.1 0.2 30deg), oklch(0.5 0.6 70deg))" should set the property value
 PASS e.style['color'] = "color-mix(in oklch, oklch(0.1 0.2 30deg) 25%, oklch(0.5 0.6 70deg))" should set the property value
