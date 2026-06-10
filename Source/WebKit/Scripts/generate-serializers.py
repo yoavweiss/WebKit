@@ -2132,11 +2132,6 @@ def main(argv):
                 output.write(generate_impl(serialized_types, serialized_enums, headers, False, [], domain_filter=domain))
         with open(output_path(f'GeneratedSerializersCommon.{file_extension}'), "w+") as output:
             output.write(generate_impl(serialized_types, serialized_enums, headers, False, [], domain_filter=RESIDUAL_DOMAIN))
-
-        residual_types = [t.namespace_and_name() for t in serialized_types
-                          if not t.webkit_platform and t.source_directory not in KNOWN_DOMAINS]
-        if residual_types:
-            sys.stderr.write(f'generate-serializers.py: {len(residual_types)} type(s) fell into GeneratedSerializersCommon.{file_extension} (residual bucket): {", ".join(sorted(set(residual_types))[:10])}{"..." if len(residual_types) > 10 else ""}\n')
     else:
         with open(output_path('GeneratedSerializers.%s' % file_extension), "w+") as output:
             output.write(generate_impl(serialized_types, serialized_enums, headers, False, []))
