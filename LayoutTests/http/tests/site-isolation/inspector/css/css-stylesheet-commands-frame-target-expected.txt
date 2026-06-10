@@ -1,0 +1,9 @@
+Test that CSS stylesheet commands work correctly on frame targets under site isolation.
+
+
+
+== Running test suite: SiteIsolation.CSS.StyleSheetCommands.FrameTarget
+-- Running test case: SiteIsolation.CSS.StyleSheetCommands.FrameTarget.Setup
+PASS: Should find a child frame target.
+PASS: Child frame target should have a CSSAgent.
+
