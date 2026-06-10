@@ -104,13 +104,10 @@ WEBKIT_OPTION_END()
 # FIXME: Needs WebCore_Private Swift module. https://bugs.webkit.org/show_bug.cgi?id=312083
 SET_AND_EXPOSE_TO_BUILD(ENABLE_BACK_FORWARD_LIST_SWIFT OFF)
 
-include(WebKitXcrun)
 if (CMAKE_IOS_SIMULATOR OR CMAKE_OSX_SYSROOT MATCHES "[Ss]imulator")
-    WEBKIT_RESOLVE_SDK(iphonesimulator.internal iphonesimulator)
     set(WEBKIT_PLATFORM_NAME "iPhoneSimulator")
     set(_sdk_prefix "iphonesimulator")
 else ()
-    WEBKIT_RESOLVE_SDK(iphoneos.internal iphoneos)
     set(WEBKIT_PLATFORM_NAME "iPhoneOS")
     set(_sdk_prefix "iphoneos")
 endif ()

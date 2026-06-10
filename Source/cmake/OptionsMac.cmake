@@ -139,19 +139,6 @@ SET_AND_EXPOSE_TO_BUILD(ENABLE_BACK_FORWARD_LIST_SWIFT ON)
 # -----------------------------------------------------------------------------
 # Toolchain / SDK resolution
 # -----------------------------------------------------------------------------
-include(WebKitXcrun)
-WEBKIT_RESOLVE_SDK(macosx)
-
-# Resolve the real clang once and pin it for the lifetime of this build tree.
-# This is a build speed optimization, and also a defense against tearing between
-# resolved toolchain and resolved SDK path / version.
-WEBKIT_XCRUN(_clang -f clang)
-if (EXISTS "${_clang}")
-    set(CMAKE_C_COMPILER "${_clang}")
-    set(CMAKE_CXX_COMPILER "${_clang}++")
-    set(CMAKE_OBJC_COMPILER "${_clang}")
-    set(CMAKE_OBJCXX_COMPILER "${_clang}++")
-endif ()
 
 # Default the deployment target to the host macOS version.
 if (NOT CMAKE_OSX_DEPLOYMENT_TARGET)

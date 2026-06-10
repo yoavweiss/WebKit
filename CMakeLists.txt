@@ -7,42 +7,16 @@
 # and loading the cross-compilation settings from CMAKE_TOOLCHAIN_FILE.
 
 cmake_minimum_required(VERSION 3.20)
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/Source/cmake")
+
+if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
+    # Resolve the SDK and pin tools before the call to project().
+    include(WebKitXcodeSDK)
+endif ()
 
 if (PORT STREQUAL "IOS")
+    # FIXME: Delete or merge into WebKitXcodeSDK logic.
     set(CMAKE_SYSTEM_NAME iOS)
-    if (CMAKE_IOS_SIMULATOR)
-        set(_sdk_name "iphonesimulator.internal")
-        set(_sdk_name_fallback "iphonesimulator")
-    else ()
-        set(_sdk_name "iphoneos.internal")
-        set(_sdk_name_fallback "iphoneos")
-    endif ()
-    execute_process(COMMAND xcrun --sdk ${_sdk_name} --show-sdk-path
-        OUTPUT_VARIABLE _ios_sysroot
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-        RESULT_VARIABLE _internal_sdk_result
-        ERROR_QUIET)
-    if (NOT _internal_sdk_result EQUAL 0 OR NOT _ios_sysroot)
-        set(_ios_sysroot "")
-        if (CMAKE_OSX_SYSROOT AND EXISTS "${CMAKE_OSX_SYSROOT}")
-            set(_ios_sysroot "${CMAKE_OSX_SYSROOT}")
-        elseif (DEFINED ENV{SDKROOT} AND EXISTS "$ENV{SDKROOT}" AND "$ENV{SDKROOT}" MATCHES "iPhone")
-            set(_ios_sysroot "$ENV{SDKROOT}")
-        else ()
-            execute_process(COMMAND xcrun --sdk ${_sdk_name_fallback} --show-sdk-path
-                OUTPUT_VARIABLE _ios_sysroot
-                OUTPUT_STRIP_TRAILING_WHITESPACE
-                ERROR_QUIET)
-        endif ()
-    endif ()
-    if (_ios_sysroot)
-        set(CMAKE_OSX_SYSROOT "${_ios_sysroot}" CACHE PATH "iOS SDK path" FORCE)
-    endif ()
-    unset(_sdk_name)
-    unset(_sdk_name_fallback)
-    unset(_internal_sdk_result)
-    unset(_ios_sysroot)
-
     if (NOT CMAKE_OSX_ARCHITECTURES)
         if (CMAKE_OSX_SYSROOT MATCHES "\\.Internal\\.sdk$" AND NOT CMAKE_OSX_SYSROOT MATCHES "[Ss]imulator")
             execute_process(COMMAND uname -m
@@ -66,32 +40,11 @@ if (PORT STREQUAL "IOS")
     endif ()
 endif ()
 
-if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin" AND NOT CMAKE_SYSTEM_NAME STREQUAL "iOS" AND NOT CMAKE_OSX_SYSROOT)
-    # Set CMAKE_OSX_SYSROOT before the project() call below. project() runs ABI
-    # detection tests whose results are cached; having the wrong sysroot there
-    # would cause those cached results to refer to a different SDK than actual
-    # builds use. OptionsMac.cmake (which sets this via WEBKIT_XCRUN) is loaded
-    # only after project() via include(WebKitCommon), so it is too late.
-    # WEBKIT_XCRUN is also unavailable here because WebKitXcrun.cmake is
-    # included by OptionsMac.cmake.
-    execute_process(COMMAND xcrun --sdk macosx --show-sdk-path
-        OUTPUT_VARIABLE _macos_sysroot
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-        RESULT_VARIABLE _xcrun_result
-        ERROR_QUIET)
-    if (_xcrun_result EQUAL 0 AND _macos_sysroot)
-        set(CMAKE_OSX_SYSROOT "${_macos_sysroot}" CACHE PATH "macOS SDK path" FORCE)
-    endif ()
-    unset(_macos_sysroot)
-    unset(_xcrun_result)
-endif ()
-
 project(WebKit LANGUAGES C CXX)
 
 # -----------------------------------------------------------------------------
 # Common configuration
 #------------------------------------------------------------------------------
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/Source/cmake")
 include(WebKitCommon)
 
 # -----------------------------------------------------------------------------
