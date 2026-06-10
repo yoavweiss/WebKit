@@ -1633,22 +1633,28 @@ std::optional<LocalDOMWindow::ClickEventData> LocalDOMWindow::consumeLastUserCli
     return std::exchange(m_lastUserClickEvent, std::nullopt);
 }
 
+static void updateActivationTimestampAndNotify(LocalDOMWindow& window, MonotonicTime activationTime, bool closeWatcherEnabled)
+{
+    window.setLastActivationTimestamp(activationTime);
+    if (closeWatcherEnabled)
+        window.closeWatcherManager().notifyAboutUserActivation();
+}
+
 // https://html.spec.whatwg.org/multipage/interaction.html#activation-notification
 void LocalDOMWindow::notifyActivated(MonotonicTime activationTime)
 {
-    setLastActivationTimestamp(activationTime);
     RefPtr frame = this->frame();
+    bool closeWatcherEnabled = frame && frame->settings().closeWatcherEnabled();
+    updateActivationTimestampAndNotify(*this, activationTime, closeWatcherEnabled);
     if (!frame)
         return;
-    if (frame->settings().closeWatcherEnabled())
-        closeWatcherManager().notifyAboutUserActivation();
 
-    for (auto* ancestor = frame->tree().parent(); ancestor; ancestor = ancestor->tree().parent()) {
-        auto* localAncestor = dynamicDowncast<LocalFrame>(ancestor);
+    for (RefPtr ancestor = frame->tree().parent(); ancestor; ancestor = ancestor->tree().parent()) {
+        RefPtr localAncestor = dynamicDowncast<LocalFrame>(ancestor);
         if (!localAncestor)
             continue;
-        if (auto* window = localAncestor->window())
-            window->setLastActivationTimestamp(activationTime);
+        if (RefPtr window = localAncestor->window())
+            updateActivationTimestampAndNotify(*window, activationTime, closeWatcherEnabled);
     }
 
     RefPtr securityOrigin = this->securityOrigin();
@@ -1668,7 +1674,7 @@ void LocalDOMWindow::notifyActivated(MonotonicTime activationTime)
         if (!descendantSecurityOrigin || !descendantSecurityOrigin->isSameOriginAs(*securityOrigin))
             continue;
 
-        descendantWindow->setLastActivationTimestamp(activationTime);
+        updateActivationTimestampAndNotify(*descendantWindow, activationTime, closeWatcherEnabled);
     }
 
     if (frame->settings().siteIsolationEnabled())

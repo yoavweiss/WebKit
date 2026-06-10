@@ -1,18 +1,28 @@
 <!doctype html>
 <meta name="timeout" content="long">
-<link rel="author" href="mailto:wpt@keithcirkel.co.uk" />
+<link rel="author" href="mailto:lwarlow@igalia.com" />
 <script src="/resources/testharness.js"></script>
 <script src="/resources/testharnessreport.js"></script>
 <script src="/resources/testdriver.js"></script>
 <script src="/resources/testdriver-vendor.js"></script>
 <script src="/resources/testdriver-actions.js"></script>
 <script src="../resources/helpers.js"></script>
+<script src="/common/get-host-info.sub.js"></script>
 
 <body>
-  <iframe id="iframe1" src="resources/dialog-prevents-close.html"></iframe>
-  <iframe id="iframe2" src="resources/dialog-prevents-close.html"></iframe>
+  <iframe id="iframe1"></iframe>
+  <iframe id="iframe2"></iframe>
 
   <script>
+    const host_info = get_host_info();
+
+    iframe1.src =
+        `${host_info.HTTP_REMOTE_ORIGIN}` +
+        `/close-watcher/iframes/resources/dialog-prevents-close.html`;
+    iframe2.src =
+        `${host_info.HTTP_REMOTE_ORIGIN}` +
+        `/close-watcher/iframes/resources/dialog-prevents-close.html`;
+
     function awaitEvent(el, type, signal) {
       return new Promise((resolve) =>
         el.addEventListener(type, resolve, { once: true, signal }),
