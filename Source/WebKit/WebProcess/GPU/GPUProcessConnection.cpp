@@ -312,7 +312,7 @@ void GPUProcessConnection::didInitialize(std::optional<GPUProcessConnectionInfo>
         return;
     }
     m_hasInitialized = true;
-    RELEASE_LOG(Process, "%p - GPUProcessConnection::didInitialize", this);
+    RELEASE_LOG_FORWARDABLE(Process, GpuProcessConnectionDidInitialize, identifier().toUInt64());
 
 #if PLATFORM(COCOA)
 #if USE(LIBWEBRTC)
