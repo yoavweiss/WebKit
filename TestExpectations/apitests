@@ -320,3 +320,5 @@ webkit.org/b/315685 [ Debug ] TestWebKitAPI.PrivateClickMeasurement.ManualAttrib
 webkit.org/b/316420 [ ios ] TestWebKitAPI.HSTS.Preconnect [ Pass Timeout ]
 
 webkit.org/b/316706 [ ios ] TestWebKitAPI.WritingTools.CompositionWithMultipleChunks [ Pass Timeout ]
+
+webkit.org/b/316807 [ mac debug ] TestWebKitAPI.EnhancedSecurityPolicies.OpenerThenSelfNavigationWithSiteIsolation [ Pass Crash ]
