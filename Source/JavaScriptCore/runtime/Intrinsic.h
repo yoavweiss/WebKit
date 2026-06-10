@@ -110,7 +110,7 @@ namespace JSC {
     macro(Log2Intrinsic) \
     macro(RegExpExecIntrinsic) \
     macro(RegExpTestIntrinsic) \
-    macro(RegExpMatchFastIntrinsic) \
+    macro(RegExpMatchIntrinsic) \
     macro(RegExpSearchIntrinsic) \
     macro(ObjectAssignIntrinsic) \
     macro(ObjectCreateIntrinsic) \

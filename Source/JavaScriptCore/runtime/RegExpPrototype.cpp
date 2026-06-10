@@ -62,6 +62,7 @@ static JSC_DECLARE_HOST_FUNCTION(regExpProtoGetterFlags);
 static JSC_DECLARE_HOST_FUNCTION(regExpProtoFuncTest);
 static JSC_DECLARE_HOST_FUNCTION(regExpProtoFuncSearch);
 static JSC_DECLARE_HOST_FUNCTION(regExpProtoFuncReplace);
+static JSC_DECLARE_HOST_FUNCTION(regExpProtoFuncMatch);
 static JSC_DECLARE_HOST_FUNCTION(regExpProtoFuncMatchAll);
 
 const ClassInfo RegExpPrototype::s_info = { "Object"_s, &Base::s_info, nullptr, nullptr, CREATE_METHOD_TABLE(RegExpPrototype) };
@@ -88,7 +89,8 @@ void RegExpPrototype::finishCreation(VM& vm, JSGlobalObject* globalObject)
     JSC_NATIVE_INTRINSIC_GETTER_WITHOUT_TRANSITION(vm.propertyNames->unicodeSets, regExpProtoGetterUnicodeSets, PropertyAttribute::DontEnum | PropertyAttribute::Accessor, RegExpUnicodeSetsIntrinsic);
     JSC_NATIVE_GETTER_WITHOUT_TRANSITION(vm.propertyNames->source, regExpProtoGetterSource, PropertyAttribute::DontEnum | PropertyAttribute::Accessor);
     JSC_NATIVE_GETTER_WITHOUT_TRANSITION(vm.propertyNames->flags, regExpProtoGetterFlags, PropertyAttribute::DontEnum | PropertyAttribute::Accessor);
-    JSC_BUILTIN_FUNCTION_WITHOUT_TRANSITION(vm.propertyNames->matchSymbol, regExpPrototypeMatchCodeGenerator, static_cast<unsigned>(PropertyAttribute::DontEnum));
+    JSFunction* matchFunction = JSFunction::create(vm, globalObject, 1, "[Symbol.match]"_s, regExpProtoFuncMatch, ImplementationVisibility::Public, RegExpMatchIntrinsic);
+    putDirectWithoutTransition(vm, vm.propertyNames->matchSymbol, matchFunction, static_cast<unsigned>(PropertyAttribute::DontEnum));
     JSFunction* matchAllFunction = JSFunction::create(vm, globalObject, 1, "[Symbol.matchAll]"_s, regExpProtoFuncMatchAll, ImplementationVisibility::Public);
     putDirectWithoutTransition(vm, vm.propertyNames->matchAllSymbol, matchAllFunction, static_cast<unsigned>(PropertyAttribute::DontEnum));
     JSFunction* replaceFunction = JSFunction::create(vm, globalObject, 2, "[Symbol.replace]"_s, regExpProtoFuncReplace, ImplementationVisibility::Public);
@@ -100,6 +102,13 @@ void RegExpPrototype::finishCreation(VM& vm, JSGlobalObject* globalObject)
 }
 
 // ------------------------------ Functions ---------------------------
+
+static inline uint64_t NODELETE advanceStringIndex(StringView str, unsigned strSize, uint64_t index, bool isUnicode)
+{
+    if (!isUnicode)
+        return ++index;
+    return advanceStringUnicode(str, strSize, index);
+}
 
 static inline JSValue regExpExec(JSGlobalObject* globalObject, JSValue thisValue, JSString* str)
 {
@@ -197,11 +206,111 @@ JSValue regExpMatchFast(JSGlobalObject* globalObject, RegExpObject* regExpObject
     return regExpObject->matchGlobal(globalObject, string);
 }
 
-JSC_DEFINE_HOST_FUNCTION(regExpProtoFuncMatchFast, (JSGlobalObject* globalObject, CallFrame* callFrame))
+// https://tc39.es/ecma262/#sec-regexp.prototype-%symbol.match%
+static JSValue regExpMatchSlow(JSGlobalObject* globalObject, JSObject* thisObject, JSString* string)
 {
-    RegExpObject* thisObject = uncheckedDowncast<RegExpObject>(callFrame->thisValue());
-    JSString* string = uncheckedDowncast<JSString>(callFrame->uncheckedArgument(0));
-    return JSValue::encode(regExpMatchFast(globalObject, thisObject, string));
+    VM& vm = globalObject->vm();
+    auto scope = DECLARE_THROW_SCOPE(vm);
+
+    // 4. Let flags be ? ToString(? Get(regexp, "flags")).
+    JSValue flagsValue = thisObject->get(globalObject, vm.propertyNames->flags);
+    RETURN_IF_EXCEPTION(scope, { });
+    String flags = flagsValue.toWTFString(globalObject);
+    RETURN_IF_EXCEPTION(scope, { });
+
+    // 5. If flags does not contain "g", return ? RegExpExec(regexp, string).
+    if (!flags.contains('g'))
+        RELEASE_AND_RETURN(scope, regExpExec(globalObject, thisObject, string));
+
+    // 6. If flags contains "u" or flags contains "v", let fullUnicode be true; else let fullUnicode be false.
+    bool fullUnicode = flags.contains('u') || flags.contains('v');
+
+    // 7. Perform ? Set(regexp, "lastIndex", +0𝔽, true).
+    PutPropertySlot lastIndexSlot(thisObject, true);
+    thisObject->methodTable()->put(thisObject, globalObject, vm.propertyNames->lastIndex, jsNumber(0), lastIndexSlot);
+    RETURN_IF_EXCEPTION(scope, { });
+
+    // 8. Let array be ! ArrayCreate(0).
+    JSArray* resultArray = constructEmptyArray(globalObject, nullptr);
+    RETURN_IF_EXCEPTION(scope, { });
+
+    auto stringValue = string->view(globalObject);
+    RETURN_IF_EXCEPTION(scope, { });
+    unsigned stringLength = stringValue->length();
+
+    // 9. Let matchCount be 0.
+    uint64_t matchCount = 0;
+
+    // 10. Repeat,
+    while (true) {
+        // 10.a. Let result be ? RegExpExec(regexp, string).
+        JSValue result = regExpExec(globalObject, thisObject, string);
+        RETURN_IF_EXCEPTION(scope, { });
+
+        // 10.b. If result is null, then
+        if (result.isNull()) {
+            // 10.b.i. If matchCount = 0, return null.
+            if (!matchCount)
+                return jsNull();
+            // 10.b.ii. Return array.
+            return resultArray;
+        }
+
+        // 10.c. Let matchString be ? ToString(? Get(result, "0")).
+        JSValue matchValue = asObject(result)->get(globalObject, static_cast<unsigned>(0));
+        RETURN_IF_EXCEPTION(scope, { });
+        JSString* matchString = matchValue.toString(globalObject);
+        RETURN_IF_EXCEPTION(scope, { });
+
+        // 10.d. Perform ! CreateDataPropertyOrThrow(array, ! ToString(𝔽(matchCount)), matchString).
+        resultArray->putDirectIndex(globalObject, matchCount, matchString);
+        RETURN_IF_EXCEPTION(scope, { });
+
+        // 10.e. If matchString is the empty String, then
+        if (!matchString->length()) {
+            // 10.e.i. Let thisIndex be ℝ(? ToLength(? Get(regexp, "lastIndex"))).
+            JSValue lastIndexValue = thisObject->get(globalObject, vm.propertyNames->lastIndex);
+            RETURN_IF_EXCEPTION(scope, { });
+            uint64_t thisIndex = lastIndexValue.toLength(globalObject);
+            RETURN_IF_EXCEPTION(scope, { });
+
+            // 10.e.ii. Let nextIndex be AdvanceStringIndex(string, thisIndex, fullUnicode).
+            uint64_t nextIndex = advanceStringIndex(stringValue, stringLength, thisIndex, fullUnicode);
+
+            // 10.e.iii. Perform ? Set(regexp, "lastIndex", 𝔽(nextIndex), true).
+            PutPropertySlot slot(thisObject, true);
+            thisObject->methodTable()->put(thisObject, globalObject, vm.propertyNames->lastIndex, jsNumber(nextIndex), slot);
+            RETURN_IF_EXCEPTION(scope, { });
+        }
+
+        // 10.f. Set matchCount to matchCount + 1.
+        ++matchCount;
+    }
+}
+
+// https://tc39.es/ecma262/#sec-regexp.prototype-%symbol.match%
+JSC_DEFINE_HOST_FUNCTION(regExpProtoFuncMatch, (JSGlobalObject* globalObject, CallFrame* callFrame))
+{
+    VM& vm = globalObject->vm();
+    auto scope = DECLARE_THROW_SCOPE(vm);
+
+    // 1. Let regexp be the this value.
+    // 2. If regexp is not an Object, throw a TypeError exception.
+    JSValue thisValue = callFrame->thisValue();
+    if (!thisValue.isObject()) [[unlikely]]
+        return throwVMTypeError(globalObject, scope, "RegExp.prototype.@@match requires that |this| be an Object"_s);
+    JSObject* thisObject = asObject(thisValue);
+
+    // 3. Set string to ? ToString(string).
+    JSString* string = callFrame->argument(0).toString(globalObject);
+    RETURN_IF_EXCEPTION(scope, { });
+
+    // Fast path: receiver is a primordial RegExpObject with no observable side effects.
+    auto* regExpObject = dynamicDowncast<RegExpObject>(thisObject);
+    if (regExpObject && regExpObject->isSymbolMatchFastAndNonObservable()) [[likely]]
+        RELEASE_AND_RETURN(scope, JSValue::encode(regExpMatchFast(globalObject, regExpObject, string)));
+
+    RELEASE_AND_RETURN(scope, JSValue::encode(regExpMatchSlow(globalObject, thisObject, string)));
 }
 
 JSC_DEFINE_HOST_FUNCTION(regExpProtoFuncCompile, (JSGlobalObject* globalObject, CallFrame* callFrame))
@@ -535,13 +644,6 @@ JSC_DEFINE_HOST_FUNCTION(regExpProtoFuncSearch, (JSGlobalObject* globalObject, C
     RETURN_IF_EXCEPTION(scope, { });
 
     RELEASE_AND_RETURN(scope, JSValue::encode(regExpSearchGeneric(globalObject, thisObject, str)));
-}
-
-static inline uint64_t NODELETE advanceStringIndex(StringView str, unsigned strSize, uint64_t index, bool isUnicode)
-{
-    if (!isUnicode)
-        return ++index;
-    return advanceStringUnicode(str, strSize, index);
 }
 
 enum SplitControl {

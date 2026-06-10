@@ -53,7 +53,6 @@ private:
     void finishCreation(VM&, JSGlobalObject*);
 };
 
-JSC_DECLARE_HOST_FUNCTION(regExpProtoFuncMatchFast);
 JSC_DECLARE_HOST_FUNCTION(regExpProtoFuncSplitFast);
 
 class RegExpObject;

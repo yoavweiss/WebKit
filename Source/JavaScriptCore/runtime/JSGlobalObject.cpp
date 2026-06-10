@@ -2136,9 +2136,6 @@ capitalName ## Constructor* lowerName ## Constructor = featureFlag ? capitalName
     m_linkTimeConstants[static_cast<unsigned>(LinkTimeConstant::isRegExp)].initLater([] (const Initializer<JSCell>& init) {
             init.set(JSFunction::create(init.vm, init.owner, 1, "esSpecIsRegExp"_s, esSpecIsRegExp, ImplementationVisibility::Private));
         });
-    m_linkTimeConstants[static_cast<unsigned>(LinkTimeConstant::regExpMatchFast)].initLater([] (const Initializer<JSCell>& init) {
-            init.set(JSFunction::create(init.vm, init.owner, 1, "regExpMatchFast"_s, regExpProtoFuncMatchFast, ImplementationVisibility::Private, RegExpMatchFastIntrinsic));
-        });
     m_linkTimeConstants[static_cast<unsigned>(LinkTimeConstant::regExpSplitFast)].initLater([] (const Initializer<JSCell>& init) {
             init.set(JSFunction::create(init.vm, init.owner, 2, "regExpSplitFast"_s, regExpProtoFuncSplitFast, ImplementationVisibility::Private));
         });

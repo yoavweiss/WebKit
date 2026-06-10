@@ -117,7 +117,6 @@ class JSGlobalObject;
     v(regExpBuiltinExec, nullptr) \
     v(regExpCreate, nullptr) \
     v(isRegExp, nullptr) \
-    v(regExpMatchFast, nullptr) \
     v(regExpSearchFast, nullptr) \
     v(regExpSplitFast, nullptr) \
     v(regExpPrototypeSymbolMatch, nullptr) \
