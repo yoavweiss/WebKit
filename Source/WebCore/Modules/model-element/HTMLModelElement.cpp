@@ -795,7 +795,7 @@ void HTMLModelElement::reloadModelPlayer()
     auto transformState = modelPlayer->currentTransformState();
     ASSERT(animationState && transformState);
 
-#if ENABLE(MODEL_PROCESS)
+#if ENABLE(MODEL_PROCESS) || ENABLE(GPU_PROCESS_MODEL)
     if (!m_modelPlayerProvider)
         m_modelPlayerProvider = document().page()->modelPlayerProvider();
     if (RefPtr modelPlayerProvider = m_modelPlayerProvider) {

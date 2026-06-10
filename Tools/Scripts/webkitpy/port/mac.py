@@ -376,6 +376,7 @@ class MacPort(DarwinPort):
         worthless_patterns.append((re.compile('.*<<<< MediaValidator >>>>.*\n'), ''))
         worthless_patterns.append((re.compile('.*<<<< VMC >>>>.*\n'), ''))
         worthless_patterns.append((re.compile('.*<<< FFR_Common >>>.*\n'), ''))
+        worthless_patterns.append((re.compile('.*clock_get_time\\(\\) failed: \\(os/kern\\) denied by security policy.*\n'), ''))
         return worthless_patterns
 
     def configuration_for_upload(self, host=None):

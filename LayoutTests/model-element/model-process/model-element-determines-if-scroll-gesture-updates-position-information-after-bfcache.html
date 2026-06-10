@@ -3,9 +3,9 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <script src="../resources/js-test.js"></script>
-    <script src="../resources/basic-gestures.js"></script>
-    <script src="../resources/ui-helper.js"></script>
+    <script src="../../resources/js-test.js"></script>
+    <script src="../../resources/basic-gestures.js"></script>
+    <script src="../../resources/ui-helper.js"></script>
 </head>
 <script>
     jsTestIsAsync = true;
@@ -41,7 +41,7 @@
             "ensurePositionInformationIsUpToDate should still be called during scroll gestures.");
 
         await document.getElementById("model").ready;
-        window.location.href = "resources/go-back-on-load.html";
+        window.location.href = "../resources/go-back-on-load.html";
     });
 </script>
 <body>
@@ -49,7 +49,7 @@
         <div style="height: 600px;"></div>
     </div>
     <model id="model">
-        <source src="resources/cube.usdz" />
+        <source src="../resources/cube.usdz" />
     </model>
     <div id="console"></div>
 </body>

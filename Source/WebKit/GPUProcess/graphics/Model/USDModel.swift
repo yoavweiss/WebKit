@@ -2125,6 +2125,10 @@ final class USDModelLoader {
         endTime - startTime
     }
 
+    func treatZAsUpAxis() -> Bool {
+        stage?.upAxis == TfToken("Z")
+    }
+
     func currentTime() -> Double {
         time - startTime
     }
@@ -2309,6 +2313,10 @@ extension WKBridgeModelLoader {
             return 0.0
         }
         return loader.duration()
+    }
+
+    func treatZAsUpAxis() -> Bool {
+        loader?.treatZAsUpAxis() ?? false
     }
 
     func currentTime() -> Double {
@@ -2534,6 +2542,10 @@ extension WKBridgeModelLoader {
 
     func duration() -> Double {
         0.0
+    }
+
+    func treatZAsUpAxis() -> Bool {
+        false
     }
 
     func currentTime() -> Double {

@@ -30,6 +30,7 @@
 #include "Mesh.h"
 #include "RemoteDeviceProxy.h"
 #include "WebModelIdentifier.h"
+#include <WebCore/StageModeOperations.h>
 #include <wtf/HashMap.h>
 #include <wtf/TZoneMalloc.h>
 
@@ -130,7 +131,7 @@ private:
 #if ENABLE(GPU_PROCESS_MODEL)
     float m_viewportWidth { 0.f };
     float m_viewportHeight { 0.f };
-    WebCore::StageModeOperation m_stageMode;
+    WebCore::StageModeOperation m_stageMode { WebCore::StageModeOperation::None };
     bool m_entityTransformSetByScript { false };
 #endif
 };

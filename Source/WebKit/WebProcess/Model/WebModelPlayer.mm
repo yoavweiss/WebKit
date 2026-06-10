@@ -173,6 +173,8 @@ void WebModelPlayer::ensureOnMainThreadWithProtectedThis(Function<void(Ref<WebMo
 
 double WebModelPlayer::duration() const
 {
+    if (m_cachedAnimationState)
+        return m_cachedAnimationState->duration().seconds();
     return [m_modelLoader duration];
 }
 
@@ -268,10 +270,11 @@ void WebModelPlayer::load(WebCore::Model& modelSource, WebCore::LayoutSize size)
             if (RefPtr client = protectedThis->m_client.get(); client && !protectedThis->m_didFinishLoading) {
                 protectedThis->m_didFinishLoading = true;
                 [protectedThis->m_modelLoader setLoop:protectedThis->m_isLooping];
+                protectedThis->m_cachedAnimationState = protectedThis->currentAnimationState();
 
                 client->didFinishLoading(protectedThis.get());
-                auto [simdCenter, simdExtents] = model->getCenterAndExtents();
-                client->didUpdateBoundingBox(protectedThis.get(), WebCore::FloatPoint3D(simdCenter.x, simdCenter.y, simdCenter.z), WebCore::FloatPoint3D(simdExtents.x, simdExtents.y, simdExtents.z));
+                auto [center, extents] = protectedThis->boundingBoxCenterAndExtents();
+                client->didUpdateBoundingBox(protectedThis.get(), center, extents);
                 protectedThis->notifyEntityTransformUpdated();
 
                 if (auto environmentMap = protectedThis->m_environmentMap)
@@ -542,6 +545,10 @@ bool WebModelPlayer::simulate(float elapsedTime)
 void WebModelPlayer::setPlaybackRate(double newRate, CompletionHandler<void(double effectivePlaybackRate)>&& completion)
 {
     m_playbackRate = newRate;
+    if (m_cachedAnimationState) {
+        updateClockTimeOnAnimationState();
+        m_cachedAnimationState->setPlaybackRate(newRate);
+    }
     startUpdateLoopIfNeeded();
     completion(newRate);
 }
@@ -592,8 +599,15 @@ void WebModelPlayer::update()
     auto timeDelta = paused() ? 0.f : (m_playbackRate * elapsedTime);
 
     [m_modelLoader update:timeDelta];
-    if (!m_isLooping && !paused() && [m_modelLoader currentTime] >= [m_modelLoader duration])
+    double currentTime = [m_modelLoader currentTime];
+    bool reachedEnd = m_playbackRate < 0 ? currentTime <= 0 : currentTime >= [m_modelLoader duration];
+    if (!m_isLooping && !paused() && reachedEnd) {
         m_pauseState = PauseState::Paused;
+        if (m_cachedAnimationState) {
+            updateClockTimeOnAnimationState();
+            m_cachedAnimationState->setPaused(true);
+        }
+    }
 
     if (!render())
         m_isUpdating = false;
@@ -662,10 +676,17 @@ bool WebModelPlayer::supportsTransform(WebCore::TransformationMatrix transformat
 void WebModelPlayer::play(bool playing)
 {
     if (RefPtr model = m_currentModel) {
-        if (playing && !m_isLooping && [m_modelLoader currentTime] >= [m_modelLoader duration])
+        if (playing && !m_isLooping && currentTime() >= Seconds(duration())) {
             [m_modelLoader setCurrentTime:0];
+            if (m_cachedAnimationState)
+                m_cachedAnimationState->setCurrentTime(Seconds(0), MonotonicTime::now());
+        }
         model->play(playing);
         m_pauseState = playing ? PauseState::Playing : PauseState::Paused;
+        if (m_cachedAnimationState) {
+            updateClockTimeOnAnimationState();
+            m_cachedAnimationState->setPaused(!playing);
+        }
         if (playing)
             startUpdateLoopIfNeeded();
     }
@@ -677,6 +698,8 @@ void WebModelPlayer::setLoop(bool loop)
         return;
 
     m_isLooping = loop;
+    if (m_cachedAnimationState)
+        m_cachedAnimationState->setLoop(loop);
     [m_modelLoader setLoop:loop];
     startUpdateLoopIfNeeded();
 }
@@ -688,12 +711,17 @@ void WebModelPlayer::setAutoplay(bool autoplay)
 
     play(autoplay);
     m_pauseState = autoplay ? PauseState::Playing : PauseState::Paused;
+    if (m_cachedAnimationState) {
+        updateClockTimeOnAnimationState();
+        m_cachedAnimationState->setAutoplay(autoplay);
+        m_cachedAnimationState->setPaused(!autoplay);
+    }
 }
 
 void WebModelPlayer::setPaused(bool paused, CompletionHandler<void(bool succeeded)>&& completion)
 {
     play(!paused);
-    completion(!!m_currentModel);
+    completion(m_currentModel && (paused || duration() > 0));
 }
 
 bool WebModelPlayer::paused() const
@@ -703,12 +731,22 @@ bool WebModelPlayer::paused() const
 
 Seconds WebModelPlayer::currentTime() const
 {
+    if (m_cachedAnimationState)
+        return m_cachedAnimationState->currentTime();
     return Seconds([m_modelLoader currentTime]);
+}
+
+void WebModelPlayer::updateClockTimeOnAnimationState()
+{
+    if (m_cachedAnimationState)
+        m_cachedAnimationState->setCurrentTime(m_cachedAnimationState->currentTime(), MonotonicTime::now());
 }
 
 void WebModelPlayer::setCurrentTime(Seconds currentTime, CompletionHandler<void()>&& completion)
 {
     double clamped = std::clamp(currentTime.seconds(), 0.0, duration());
+    if (m_cachedAnimationState)
+        m_cachedAnimationState->setCurrentTime(Seconds(clamped), MonotonicTime::now());
     [m_modelLoader setCurrentTime:clamped];
     startUpdateLoopIfNeeded();
     completion();
@@ -746,16 +784,19 @@ void WebModelPlayer::setEntityTransform(WebCore::TransformationMatrix matrix)
 
 void WebModelPlayer::setEnvironmentMap(Ref<WebCore::SharedBuffer>&& data)
 {
-    bool success = false;
-    if (RefPtr currentModel = m_currentModel; currentModel && m_didFinishLoading && m_modelLoader) {
-        if (auto environmentMap = [m_modelLoader loadEnvironmentMap:data->createNSData().get()]) {
-            currentModel->setEnvironmentMap(convert(environmentMap));
-            m_environmentMap = std::nullopt;
-        }
-        success = true;
-        startUpdateLoopIfNeeded();
-    } else
+    RefPtr currentModel = m_currentModel;
+    if (!currentModel || !m_didFinishLoading || !m_modelLoader) {
         m_environmentMap = WTF::move(data);
+        return;
+    }
+
+    bool success = false;
+    if (auto environmentMap = [m_modelLoader loadEnvironmentMap:data->createNSData().get()]) {
+        currentModel->setEnvironmentMap(convert(environmentMap));
+        m_environmentMap = std::nullopt;
+        success = true;
+    }
+    startUpdateLoopIfNeeded();
 
     if (RefPtr client = m_client.get())
         client->didFinishEnvironmentMapLoading(*this, success);
@@ -803,6 +844,7 @@ void WebModelPlayer::reload(WebCore::Model& modelSource, WebCore::LayoutSize siz
         return;
 
     load(modelSource, size);
+    m_cachedAnimationState = animationState;
     if (transformState) {
         if (auto entityTransform = transformState->entityTransform())
             setEntityTransform(*entityTransform);
@@ -831,6 +873,14 @@ std::optional<WebCore::ModelPlayerAnimationState> WebModelPlayer::currentAnimati
     return WebCore::ModelPlayerAnimationState(autoplay, m_isLooping, paused, animationDuration, effectivePlaybackRate, lastCachedCurrentTime, lastCachedClockTimestamp);
 }
 
+std::pair<WebCore::FloatPoint3D, WebCore::FloatPoint3D> WebModelPlayer::boundingBoxCenterAndExtents() const
+{
+    auto [simdCenter, simdExtents] = m_currentModel->getCenterAndExtents();
+    if ([m_modelLoader treatZAsUpAxis])
+        return { WebCore::FloatPoint3D(simdCenter.x, -simdCenter.z, simdCenter.y), WebCore::FloatPoint3D(simdExtents.x, simdExtents.z, simdExtents.y) };
+    return { WebCore::FloatPoint3D(simdCenter.x, simdCenter.y, simdCenter.z), WebCore::FloatPoint3D(simdExtents.x, simdExtents.y, simdExtents.z) };
+}
+
 std::optional<std::unique_ptr<WebCore::ModelPlayerTransformState>> WebModelPlayer::currentTransformState() const
 {
     if (!m_currentModel) {
@@ -841,9 +891,7 @@ std::optional<std::unique_ptr<WebCore::ModelPlayerTransformState>> WebModelPlaye
 
     std::optional<WebCore::TransformationMatrix> transform = entityTransform();
 
-    auto [simdCenter, simdExtents] = m_currentModel->getCenterAndExtents();
-    std::optional<WebCore::FloatPoint3D> center = WebCore::FloatPoint3D(simdCenter.x, simdCenter.y, simdCenter.z);
-    std::optional<WebCore::FloatPoint3D> extents = WebCore::FloatPoint3D(simdExtents.x, simdExtents.y, simdExtents.z);
+    auto [center, extents] = boundingBoxCenterAndExtents();
 
     return ModelProcessModelPlayerTransformState::create(transform, center, extents, false, m_stageMode);
 }

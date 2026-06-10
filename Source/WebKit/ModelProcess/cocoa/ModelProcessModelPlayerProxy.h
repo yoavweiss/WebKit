@@ -221,6 +221,7 @@ private:
 
     RESRT m_transformSRT; // SRT=Scaling/Rotation/Translation. This is stricter than a WebCore::TransformationMatrix.
     bool m_transformNeedsUpdateAfterNextLayout { false };
+    bool m_entityTransformSetByScript { false };
 
     bool m_autoplay { false };
     bool m_loop { false };

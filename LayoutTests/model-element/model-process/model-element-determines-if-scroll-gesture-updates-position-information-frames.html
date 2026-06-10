@@ -3,9 +3,9 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <script src="../resources/js-test.js"></script>
-    <script src="../resources/basic-gestures.js"></script>
-    <script src="../resources/ui-helper.js"></script>
+    <script src="../../resources/js-test.js"></script>
+    <script src="../../resources/basic-gestures.js"></script>
+    <script src="../../resources/ui-helper.js"></script>
     <style>
         html, body {
             padding: 0;
@@ -95,9 +95,9 @@
 
             await UIHelper.clearEnsurePositionInformationIsUpToDateTracking();
 
-            modelContainer.innerHTML = "<iframe id='iframe' src='resources/models-frame.html'></iframe>"; // Page now has one model elements.
+            modelContainer.innerHTML = "<iframe id='iframe' src='../resources/models-frame.html'></iframe>"; // Page now has one model elements.
             var newFrame = document.createElement("iframe");
-            newFrame.setAttribute("src", "resources/models-frame.html");
+            newFrame.setAttribute("src", "../resources/models-frame.html");
             modelContainer.appendChild(newFrame); // Page now has two model elements.
             await scrollAndCheckIfPositionInformationUpdated(true);
             newFrame.remove(); // Page now has one model elements.
@@ -106,7 +106,7 @@
             await scrollAndCheckIfPositionInformationUpdated(false);
 
             newFrame = document.createElement("iframe");
-            newFrame.setAttribute("src", "resources/models-frame.html");
+            newFrame.setAttribute("src", "../resources/models-frame.html");
             newFrame.setAttribute("id", "frame");
 
             var secondFrame = newFrame.cloneNode(true);

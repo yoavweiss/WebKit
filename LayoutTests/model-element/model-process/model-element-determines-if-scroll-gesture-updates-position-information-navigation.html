@@ -3,9 +3,9 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <script src="../resources/js-test.js"></script>
-    <script src="../resources/basic-gestures.js"></script>
-    <script src="../resources/ui-helper.js"></script>
+    <script src="../../resources/js-test.js"></script>
+    <script src="../../resources/basic-gestures.js"></script>
+    <script src="../../resources/ui-helper.js"></script>
     <style>
         html, body {
             padding: 0;
@@ -38,56 +38,49 @@
         overflow_container.scrollTop = 0;
     }
 
+    var testPassesSoFar = true;
+
     async function scrollAndCheckIfPositionInformationUpdated(correctValue) {
         await scroll();
         didWait = await UIHelper.didCallEnsurePositionInformationIsUpToDateSinceLastCheck();
         const msg = "didCallEnsurePositionInformationIsUpToDateSinceLastCheck was " + didWait + ", expected " + correctValue;
         if (didWait == correctValue)
             testPassed(msg);
-        else
+        else {
             testFailed(msg);
+            testPassesSoFar = false;
+        }
     }
 
     addEventListener("load", async () => {
-        var didWait;
         var modelContainer = document.getElementById("model-container");
-        var editableDivClicked = false;
-        var buttonClicked = false;
 
         var initialScrollPosition = overflow_container.scrollTop;
 
         if (window.testRunner) {
-            await UIHelper.clearEnsurePositionInformationIsUpToDateTracking();
-
             description(`ensurePositionInformationIsUpToDate should only be called when a scroll gesture occurs if a model
-                element exists in the page.`);
+                element exists in the page. After navigating from a page with a model element to a page without one and
+                attempting to scroll, ensurePositionInformationIsUpToDate should not be called.`);
+
+            await UIHelper.clearEnsurePositionInformationIsUpToDateTracking();
 
             // Page has one model element.
             await scrollAndCheckIfPositionInformationUpdated(true);
 
             model.remove(); // Page now has no model elements.
-            await scrollAndCheckIfPositionInformationUpdated(false);
 
             var newModel = document.createElement("model");
-            modelContainer.appendChild(newModel); // Page now has one model element.
-
+            modelContainer.innerHTML = "<iframe id='iframe' src='../resources/models-frame.html'></iframe>"; // Page now has one model elements.
+            var newFrame = document.createElement("iframe");
+            newFrame.setAttribute("src", "../resources/models-frame.html");
+            modelContainer.appendChild(newFrame); // Page now has two model elements.
+            modelContainer.appendChild(newModel); // Page now has three model elements.
             await scrollAndCheckIfPositionInformationUpdated(true);
 
-            var anotherModel = document.createElement("model");
-            modelContainer.appendChild(anotherModel); // Page now has two model elements.
-            newModel.remove(); // Page now has one model elements.
-            await scrollAndCheckIfPositionInformationUpdated(true);
-
-            anotherModel.remove(); // Page now has zero model elements.
-            await scrollAndCheckIfPositionInformationUpdated(false);
-
-            modelContainer.innerHTML = "<model id='model'></model>" // Page now has one model elements.
-            await scrollAndCheckIfPositionInformationUpdated(true);
-
-            modelContainer.innerHTML = ""; // Page now has zero model elements.
-            await scrollAndCheckIfPositionInformationUpdated(false);
-
-            finishJSTest();
+            if (testPassesSoFar)
+                window.location.href = '../resources/finish-models-navigation.html';
+            else
+                testRunner.notifyDone();
         }
     });
 </script>

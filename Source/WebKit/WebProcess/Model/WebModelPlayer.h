@@ -105,6 +105,8 @@ private:
     std::optional<WebCore::ModelPlayerAnimationState> currentAnimationState() const final;
     std::optional<std::unique_ptr<WebCore::ModelPlayerTransformState>> currentTransformState() const final;
 
+    std::pair<WebCore::FloatPoint3D, WebCore::FloatPoint3D> boundingBoxCenterAndExtents() const;
+
     const MachSendRight* displayBuffer() const;
     WebCore::GraphicsLayerContentsDisplayDelegate* contentsDisplayDelegate();
 
@@ -122,6 +124,7 @@ private:
     void ensureOnMainThreadWithProtectedThis(Function<void(Ref<WebModelPlayer>)>&& task);
     void startUpdateLoopIfNeeded();
     void update();
+    void updateClockTimeOnAnimationState();
     bool render();
     void scheduleDisplayUpdate();
 

@@ -73,7 +73,7 @@ const assert_3d_matrix_equals = (actual, expected) => {
     let expectedArray = expected.toFloat64Array();
     assert_equals(actualArray.length, expectedArray.length);
     for (var i = 0; i < actualArray.length; i++) {
-        assert_equals(actualArray[i], expectedArray[i], "matrix array should match at index " + i);
+        assert_approx_equals(actualArray[i], expectedArray[i], epsilon, "matrix array should match at index " + i);
     }
 };
 

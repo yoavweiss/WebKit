@@ -38,6 +38,12 @@ promise_test(async t => {
 }, `<model> gets the expected bounding box after model content with center at (1, 1, 1) is ready.`);
 
 promise_test(async t => {
+    const [model, source] = createModelAndSource(t, "resources/heart.usdz");
+    await model.ready;
+    assert_points_are_equal(model.boundingBoxExtents, new DOMPointReadOnly(0.3698687, 0.360959, 0.107738));
+}, `<model> gets the expected bounding box of a model with a Y upAxis.`);
+
+promise_test(async t => {
     const [model, source] = createModelAndSource(t, "resources/2x2x2-at-100x50x200.usdz");
     await model.ready;
     assert_points_are_equal(model.boundingBoxCenter, new DOMPointReadOnly(100, 50, 200));

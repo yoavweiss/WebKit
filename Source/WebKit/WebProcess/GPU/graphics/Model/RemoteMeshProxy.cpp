@@ -364,10 +364,13 @@ void RemoteMeshProxy::setViewportSize(float width, float height)
 void RemoteMeshProxy::setStageMode(WebCore::StageModeOperation stageMode)
 {
 #if ENABLE(GPU_PROCESS_MODEL)
+    auto previousStageMode = m_stageMode;
     m_stageMode = stageMode;
     if (m_stageMode == WebCore::StageModeOperation::Orbit)
         m_entityTransformSetByScript = false;
-    computeTransform();
+    bool returningToNoneFromOrbit = m_stageMode == WebCore::StageModeOperation::None && previousStageMode != WebCore::StageModeOperation::None;
+    if (!returningToNoneFromOrbit)
+        computeTransform();
 #else
     UNUSED_PARAM(stageMode);
 #endif

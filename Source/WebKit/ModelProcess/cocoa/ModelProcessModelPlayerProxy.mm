@@ -602,8 +602,13 @@ void ModelProcessModelPlayerProxy::updateTransform()
 void ModelProcessModelPlayerProxy::updateTransformAfterLayout()
 {
     if (m_transformNeedsUpdateAfterNextLayout) {
-        updateForCurrentStageMode();
         m_transformNeedsUpdateAfterNextLayout = false;
+        if (m_stageModeOperation == WebCore::StageModeOperation::None) {
+            if (!m_entityTransformSetByScript)
+                computeTransform(false);
+            updateTransform();
+        } else
+            updateForCurrentStageMode();
         return;
     }
 
@@ -834,7 +839,7 @@ void ModelProcessModelPlayerProxy::sizeDidChange(WebCore::LayoutSize layoutSize)
 
     auto width = layoutSize.width().toDouble();
     auto height = layoutSize.height().toDouble();
-    if (!m_transformNeedsUpdateAfterNextLayout && m_stageModeOperation != WebCore::StageModeOperation::None && m_modelRKEntity && m_layer)
+    if (!m_transformNeedsUpdateAfterNextLayout && m_modelRKEntity && m_layer)
         m_transformNeedsUpdateAfterNextLayout = width != CGRectGetWidth([m_layer frame]) || height != CGRectGetHeight([m_layer frame]);
     [m_layer setFrame:CGRectMake(0, 0, width, height)];
 }
@@ -852,6 +857,7 @@ void ModelProcessModelPlayerProxy::setEntityTransform(WebCore::TransformationMat
 {
     RESRT newSRT = REMakeSRTFromMatrix(transform);
     m_transformSRT = modelLocalizedTransformSRT(newSRT);
+    m_entityTransformSetByScript = true;
     updateTransform();
 }
 
@@ -1123,6 +1129,9 @@ void ModelProcessModelPlayerProxy::setStageMode(WebCore::StageModeOperation stag
         return;
 
     m_stageModeOperation = stagemodeOp;
+
+    if (m_stageModeOperation != WebCore::StageModeOperation::None)
+        m_entityTransformSetByScript = false;
 
     updateForCurrentStageMode();
 }
