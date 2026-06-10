@@ -125,6 +125,7 @@ private:
     String m_resolvedCacheStoragePath;
     UnifiedOriginStorageLevel m_level;
     RefPtr<BackgroundFetchStoreManager> m_backgroundFetchManager;
+    String m_resolvedBackgroundFetchStoragePath;
     std::unique_ptr<ServiceWorkerStorageManager> m_serviceWorkerStorageManager;
 };
 
@@ -589,10 +590,10 @@ String OriginStorageManager::StorageBucket::resolvedCacheStoragePath()
 
 String OriginStorageManager::StorageBucket::resolvedBackgroundFetchStoragePath()
 {
-    if (m_resolvedCacheStoragePath.isNull())
-        m_resolvedCacheStoragePath = typeStoragePath(StorageType::BackgroundFetchStorage);
+    if (m_resolvedBackgroundFetchStoragePath.isNull())
+        m_resolvedBackgroundFetchStoragePath = typeStoragePath(StorageType::BackgroundFetchStorage);
 
-    return m_resolvedCacheStoragePath;
+    return m_resolvedBackgroundFetchStoragePath;
 }
 
 String OriginStorageManager::StorageBucket::resolvedPath(WebsiteDataType webisteDataType)
