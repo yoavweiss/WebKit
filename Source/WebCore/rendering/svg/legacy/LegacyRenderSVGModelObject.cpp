@@ -176,8 +176,11 @@ static void getElementCTM(SVGElement* element, AffineTransform& transform)
     RefPtr<Node> current = element;
 
     while (RefPtr currentElement = dynamicDowncast<SVGElement>(current.get())) {
-        localTransform = currentElement->renderer()->localToParentTransform();
-        transform = localTransform.multiply(transform);
+        // Elements with display:contents have no renderer (children are hoisted); skip them in the CTM walk.
+        if (CheckedPtr renderer = currentElement->renderer()) {
+            localTransform = renderer->localToParentTransform();
+            transform = localTransform.multiply(transform);
+        }
         // For getCTM() computation, stop at the nearest viewport element
         if (currentElement == stopAtElement.get())
             break;
