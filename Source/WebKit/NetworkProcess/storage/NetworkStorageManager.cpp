@@ -910,8 +910,7 @@ bool NetworkStorageManager::persistOrigin(const WebCore::ClientOrigin& origin)
         return false;
     }
 
-    FileSystem::overwriteEntireFile(persistedFilePath(origin), std::span<uint8_t> { });
-    return true;
+    return !!FileSystem::overwriteEntireFile(persistedFilePath(origin), std::span<uint8_t> { });
 }
 
 void NetworkStorageManager::persist(IPC::Connection& connection, const WebCore::ClientOrigin& origin, CompletionHandler<void(bool)>&& completionHandler)
