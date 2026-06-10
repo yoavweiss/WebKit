@@ -1038,6 +1038,10 @@ void Document::commonTeardown()
     if (RefPtr rtcNetworkManager = std::exchange(m_rtcNetworkManager, nullptr))
         rtcNetworkManager->close();
 #endif
+
+#if ENABLE(VIDEO)
+    m_lazyLoadVideoObserver = nullptr;
+#endif
 }
 
 Quirks& Document::ensureQuirks()
