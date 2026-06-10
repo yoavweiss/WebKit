@@ -3630,6 +3630,8 @@ void AXObjectCache::handleAttributeChange(Element* element, const QualifiedName&
         postNotification(element, AXNotification::AbbreviationChanged);
     else if (attrName == hiddenAttr)
         postNotification(element, AXNotification::HiddenStateChanged);
+    else if (attrName == typeAttr)
+        handleInputTypeChanged(*element);
 
     if (!attrName.localName().string().startsWith("aria-"_s))
         return;
@@ -3801,8 +3803,6 @@ void AXObjectCache::handleAttributeChange(Element* element, const QualifiedName&
     else if (attrName == aria_brailleroledescriptionAttr)
         postNotification(element, AXNotification::BrailleRoleDescriptionChanged);
 #endif // ENABLE(ACCESSIBILITY_ISOLATED_TREE)
-    else if (attrName == typeAttr)
-        handleInputTypeChanged(*element);
 }
 
 void AXObjectCache::updateCachedTextOfAssociatedObjects(AccessibilityObject& object)
