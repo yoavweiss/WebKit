@@ -2178,10 +2178,6 @@ void WebLocalFrameLoaderClient::didExceedNetworkUsageThreshold()
     if (url.isEmpty())
         return;
 
-    RefPtr frameDocument = coreFrame->document();
-    if (!frameDocument)
-        return;
-
     WebLocalFrameLoaderClient_RELEASE_LOG(ResourceMonitoring, "didExceedNetworkUsageThreshold host=%" SENSITIVE_LOG_STRING, url.host().utf8().data());
 
     auto action = [weakFrame = WeakPtr { m_frame->coreLocalFrame() }](bool wasGranted) {
@@ -2194,10 +2190,7 @@ void WebLocalFrameLoaderClient::didExceedNetworkUsageThreshold()
             frame->reportResourceMonitoringWarning();
     };
 
-    if (frameDocument->shouldSkipResourceMonitorThrottling())
-        action(true);
-    else
-        WebProcess::singleton().ensureNetworkProcessConnection().connection().sendWithAsyncReply(Messages::NetworkConnectionToWebProcess::ShouldOffloadIFrameForHost(url.host().toStringWithoutCopying()), WTF::move(action), 0);
+    WebProcess::singleton().ensureNetworkProcessConnection().connection().sendWithAsyncReply(Messages::NetworkConnectionToWebProcess::ShouldOffloadIFrameForHost(url.host().toStringWithoutCopying()), WTF::move(action), 0);
 }
 
 #endif

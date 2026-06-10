@@ -1668,11 +1668,6 @@ public:
     void NODELETE setResourceCachingDisabledByWebInspector(bool);
     ExceptionOr<void> lowerAllFrameMemoryMonitorLimits();
 
-#if ENABLE(CONTENT_EXTENSIONS)
-    bool NODELETE shouldSkipResourceMonitorThrottling() const;
-    void NODELETE setShouldSkipResourceMonitorThrottling(bool);
-#endif
-
 #if ENABLE(DAMAGE_TRACKING)
     struct FrameDamage {
         unsigned sequenceId { 0 };

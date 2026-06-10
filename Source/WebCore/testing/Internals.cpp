@@ -8537,22 +8537,6 @@ void Internals::setTopDocumentURLForQuirks(const String& urlString)
     document->quirks().setTopDocumentURLForTesting(URL { urlString });
 }
 
-#if ENABLE(CONTENT_EXTENSIONS)
-bool Internals::shouldSkipResourceMonitorThrottling() const
-{
-    if (auto* document = contextDocument())
-        return document->shouldSkipResourceMonitorThrottling();
-
-    return false;
-}
-
-void Internals::setShouldSkipResourceMonitorThrottling(bool flag)
-{
-    if (auto* document = contextDocument())
-        document->setShouldSkipResourceMonitorThrottling(flag);
-}
-#endif
-
 #if ENABLE(DAMAGE_TRACKING)
 ExceptionOr<Vector<Internals::FrameDamage>> Internals::getFrameDamageHistory() const
 {

@@ -1535,10 +1535,6 @@ enum ContentsFormat {
 
     undefined setTopDocumentURLForQuirks(DOMString urlString);
 
-#if defined(ENABLE_CONTENT_EXTENSIONS) && ENABLE_CONTENT_EXTENSIONS
-    attribute boolean shouldSkipResourceMonitorThrottling;
-#endif
-
     [CallWith=CurrentGlobalObject] ReadableStream readableStreamFromMessagePort(MessagePort port);
     [CallWith=CurrentGlobalObject] WritableStream writableStreamFromMessagePort(MessagePort port);
 
