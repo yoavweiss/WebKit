@@ -218,7 +218,7 @@ RefPtr<MutableStyleProperties> SubstitutionResolver::resolveAndRegisterDashedFun
     };
 
     auto argumentStyles = Style::ComputedStyle::createPtr();
-    Builder argumentBuilder(*argumentStyles, WTF::move(builderContext), argumentMatchResult.get());
+    Builder argumentBuilder(*argumentStyles, WTF::move(builderContext), argumentMatchResult);
     argumentBuilder.state().addGuardedFunctionContexts(m_styleBuilder.state());
     for (auto& parameter : parameters)
         argumentBuilder.applyCustomProperty(parameter.name);
@@ -329,7 +329,7 @@ bool SubstitutionResolver::substituteDashedFunction(StringView functionName, CSS
     };
 
     auto bodyStyles = Style::ComputedStyle::createPtr();
-    Builder bodyBuilder(*bodyStyles, WTF::move(builderContext), bodyMatchResult.get());
+    Builder bodyBuilder(*bodyStyles, WTF::move(builderContext), bodyMatchResult);
     bodyBuilder.state().addGuardedFunctionContexts(m_styleBuilder.state());
 
     // "Return the value of the result property in body styles."

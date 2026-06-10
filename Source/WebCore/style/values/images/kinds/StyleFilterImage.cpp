@@ -139,7 +139,7 @@ RefPtr<WebCore::Image> FilterImage::image(const RenderElement* renderElement, co
     if (!styleImage)
         return &WebCore::Image::nullImage();
 
-    auto image = styleImage->image(renderer.get(), size, destinationContext, isForFirstLine);
+    auto image = styleImage->image(renderer, size, destinationContext, isForFirstLine);
     if (!image || image->isNull())
         return &WebCore::Image::nullImage();
 
