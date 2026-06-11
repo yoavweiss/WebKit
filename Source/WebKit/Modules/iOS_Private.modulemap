@@ -1706,11 +1706,6 @@ framework module WebKit_Private [system] {
     export *
   }
 
-  explicit module WKSpeechRecognitionPermissionCallback {
-    header "WKSpeechRecognitionPermissionCallback.h"
-    export *
-  }
-
   explicit module WKString {
     header "WKString.h"
     export *

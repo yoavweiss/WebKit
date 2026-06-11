@@ -1883,7 +1883,6 @@
 		93D6B787254CCD8C0058DD3A /* WebSpeechRecognitionConnectionMessages.h in Headers */ = {isa = PBXBuildFile; fileRef = 93D6B786254CCD8B0058DD3A /* WebSpeechRecognitionConnectionMessages.h */; };
 		93D6B7B4255268D50058DD3A /* SpeechRecognitionPermissionRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 93D6B7AF255268A10058DD3A /* SpeechRecognitionPermissionRequest.h */; };
 		93D6B7B5255268D70058DD3A /* SpeechRecognitionPermissionManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 93D6B7B2255268A20058DD3A /* SpeechRecognitionPermissionManager.h */; };
-		93D6B7B925534A170058DD3A /* WKSpeechRecognitionPermissionCallback.h in Headers */ = {isa = PBXBuildFile; fileRef = 93D6B7B725534A110058DD3A /* WKSpeechRecognitionPermissionCallback.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		93E05E40282CD560000B69EB /* ProcessStateMonitor.h in Headers */ = {isa = PBXBuildFile; fileRef = 93E05E3E282CD55D000B69EB /* ProcessStateMonitor.h */; };
 		93E6A4EE1BC5DD3900F8A0E7 /* _WKHitTestResult.h in Headers */ = {isa = PBXBuildFile; fileRef = 93E6A4ED1BC5DD3900F8A0E7 /* _WKHitTestResult.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		93E799882756FAC20074008A /* WebFileSystemStorageConnectionMessages.h in Headers */ = {isa = PBXBuildFile; fileRef = 93E799812756FA530074008A /* WebFileSystemStorageConnectionMessages.h */; };
@@ -7523,8 +7522,6 @@
 		93D6B7AF255268A10058DD3A /* SpeechRecognitionPermissionRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpeechRecognitionPermissionRequest.h; sourceTree = "<group>"; };
 		93D6B7B0255268A10058DD3A /* SpeechRecognitionPermissionManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SpeechRecognitionPermissionManager.cpp; sourceTree = "<group>"; };
 		93D6B7B2255268A20058DD3A /* SpeechRecognitionPermissionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpeechRecognitionPermissionManager.h; sourceTree = "<group>"; };
-		93D6B7B725534A110058DD3A /* WKSpeechRecognitionPermissionCallback.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WKSpeechRecognitionPermissionCallback.h; sourceTree = "<group>"; };
-		93D6B7B825534A120058DD3A /* WKSpeechRecognitionPermissionCallback.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WKSpeechRecognitionPermissionCallback.cpp; sourceTree = "<group>"; };
 		93E05E3E282CD55D000B69EB /* ProcessStateMonitor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProcessStateMonitor.h; sourceTree = "<group>"; };
 		93E05E3F282CD55F000B69EB /* ProcessStateMonitor.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ProcessStateMonitor.mm; sourceTree = "<group>"; };
 		93E6A4ED1BC5DD3900F8A0E7 /* _WKHitTestResult.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = _WKHitTestResult.h; sourceTree = "<group>"; };
@@ -16237,8 +16234,6 @@
 				FA8B4F6B2E46A93500E419CD /* WKScriptMessageRef.h */,
 				1ADE46B01954EC61000F7985 /* WKSessionStateRef.cpp */,
 				1ADE46B11954EC61000F7985 /* WKSessionStateRef.h */,
-				93D6B7B825534A120058DD3A /* WKSpeechRecognitionPermissionCallback.cpp */,
-				93D6B7B725534A110058DD3A /* WKSpeechRecognitionPermissionCallback.h */,
 				51F886A31F2C214A00C193EF /* WKTestingSupport.cpp */,
 				51F886A41F2C214A00C193EF /* WKTestingSupport.h */,
 				314888FE1D91B11D00377042 /* WKTextChecker.cpp */,
@@ -19642,7 +19637,6 @@
 				93F549B41E3174B7000E7239 /* WKSnapshotConfiguration.h in Headers */,
 				DF7A231C291B088D00B98DF3 /* WKSnapshotConfigurationPrivate.h in Headers */,
 				57FD318722B35170008D0E8B /* WKSOAuthorizationDelegate.h in Headers */,
-				93D6B7B925534A170058DD3A /* WKSpeechRecognitionPermissionCallback.h in Headers */,
 				073A63CD2DC33DA00057A3F5 /* WKStageMode.h in Headers */,
 				B61F9E812F742CFE005CE453 /* WKStageModeOrbitSimulator.h in Headers */,
 				7A78FF32224191960096483E /* WKStorageAccessAlert.h in Headers */,

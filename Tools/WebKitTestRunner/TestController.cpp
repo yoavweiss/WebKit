@@ -74,7 +74,6 @@
 #include <WebKit/WKRetainPtr.h>
 #include <WebKit/WKScriptMessageRef.h>
 #include <WebKit/WKSecurityOriginRef.h>
-#include <WebKit/WKSpeechRecognitionPermissionCallback.h>
 #include <WebKit/WKTextChecker.h>
 #include <WebKit/WKURL.h>
 #include <WebKit/WKUserContentControllerRef.h>
