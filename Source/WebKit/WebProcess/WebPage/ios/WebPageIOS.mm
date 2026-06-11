@@ -1722,7 +1722,7 @@ void WebPage::extendSelectionForReplacement(CompletionHandler<void()>&& completi
     if (!container)
         return;
 
-    auto markerRanges = protect(document->markers())->markersFor(*container, { DocumentMarkerType::DictationAlternatives, DocumentMarkerType::CorrectionIndicator }).map([&](auto& marker) {
+    auto markerRanges = protect(document->markers())->markersFor(*container, { DocumentMarkerType::DictationAlternatives, DocumentMarkerType::CorrectionIndicator, DocumentMarkerType::Grammar }).map([&](auto& marker) {
         return makeSimpleRange(*container, *marker);
     });
 
