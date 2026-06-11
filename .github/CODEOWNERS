@@ -57,6 +57,7 @@ AllowedSPI*.toml @emw-apple
 /Tools/TestWebKitAPI/Tests/WebKitGtk/ @WebKit/glib-reviewers
 /Tools/TestWebKitAPI/WebKitGLib/ @WebKit/glib-reviewers
 /Tools/TestWebKitAPI/WebKitGtk/ @WebKit/glib-reviewers
+/Tools/TestWebKitAPI/Tests/WebKit/WKWebView/ScreenTime.mm @jesxilin
 
 /Tools/gstreamer/ @WebKit/glib-reviewers
 /Tools/jhbuild/ @WebKit/glib-reviewers
@@ -168,6 +169,7 @@ AllowedSPI*.toml @emw-apple
 /Source/WebKit/UIProcess/Inspector @dcrousso @patrickangle @burg
 /Source/WebKit/WebKitSwift @rr-codes
 /Source/WebKit/UIProcess/DigitalCredentials @marcoscaceres
+/Source/WebKit/UIProcess/WebsiteData/Cocoa/ScreenTimeWebsiteDataSupport.* @jesxilin
 /Source/WebKit/WebProcess @cdumez
 /Source/WebKit/WebProcess/DigitalCredentials @marcoscaceres
 /Source/WebKit/WebKitSwift/IdentityDocumentServices @marcoscaceres
