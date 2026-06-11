@@ -363,6 +363,10 @@ public:
 
     void determineRelevantQuirks();
 
+#if PLATFORM(IOS_FAMILY) && ENABLE(IOS_TOUCH_EVENTS)
+    WEBCORE_EXPORT bool shouldAllowNativeTapsOnMediaElements(const Node*) const;
+#endif
+
 #if PLATFORM(IOS_FAMILY)
     bool NODELETE shouldSendFakeTouchForceChangeEvent() const;
 #endif
