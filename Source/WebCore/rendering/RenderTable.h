@@ -160,11 +160,11 @@ public:
     // Return the first column or column-group.
     RenderTableCol* firstColumn() const;
 
-    RenderTableCol* colElement(unsigned col, bool* startEdge = 0, bool* endEdge = 0) const
+    RenderTableCol* colElement(unsigned col, bool* startEdge = nullptr, bool* endEdge = nullptr) const
     {
         // The common case is to not have columns, make that case fast.
         if (!m_hasColElements)
-            return 0;
+            return nullptr;
         return slowColElement(col, startEdge, endEdge);
     }
 

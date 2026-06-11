@@ -864,7 +864,7 @@ void RenderTable::paintObject(PaintInfo& paintInfo, const LayoutPoint& paintOffs
                 section->paint(info, childPoint);
             }
         }
-        m_currentBorder = 0;
+        m_currentBorder = nullptr;
     }
 
     // Paint outline.
@@ -889,7 +889,7 @@ void RenderTable::paintCollapsedBordersForRow(PaintInfo& paintInfo, RenderTableR
             }
         }
     }
-    m_currentBorder = { };
+    m_currentBorder = nullptr;
 }
 
 void RenderTable::adjustBorderBoxRectForPainting(LayoutRect& rect)
