@@ -662,6 +662,11 @@ http/tests/resourceLoadStatistics/non-prevalent-resources-can-access-cookies-in-
 http/tests/resourceLoadStatistics/cap-cache-max-age-for-prevalent-resource.html [ Skip ]
 http/tests/resourceLoadStatistics/capped-lifetime-for-cookie-set-with-link-query-using-cookiestore-api.https.html [ Skip ]
 
+# These are only supported on macOS Tahoe+ / iOS 26
+http/tests/resourceLoadStatistics/only-partitioned-third-party-cookies.https.html [ Skip ]
+http/tests/resourceLoadStatistics/only-partitioned-cookies-after-redirect.https.html [ Skip ]
+http/tests/resourceLoadStatistics/only-partitioned-cookies-after-redirect-fetch.https.html [ Skip ]
+
 # This feature is currently disabled by default and unfinished <rdar://problem/38925077>.
 http/tests/navigation/process-swap-window-open.html [ Skip ]
 

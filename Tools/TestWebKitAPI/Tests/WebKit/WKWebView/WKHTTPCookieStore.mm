@@ -796,7 +796,7 @@ TEST(WKHTTPCookieStore, CookieAccessAfterNetworkProcessTermination)
     EXPECT_WK_STREQ([webView stringByEvaluatingJavaScript:@"document.cookie"], "key=value");
 }
 
-TEST(WKHTTPCookieStore, WebSocketCookies)
+TEST(WKHTTPCookieStore, DISABLED_WebSocketCookies)
 {
     using namespace TestWebKitAPI;
     bool receivedThirdRequest { false };

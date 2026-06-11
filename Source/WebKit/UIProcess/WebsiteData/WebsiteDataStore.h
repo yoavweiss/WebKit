@@ -199,7 +199,7 @@ public:
 #if ENABLE(OPT_IN_PARTITIONED_COOKIES)
     bool computeIsOptInCookiePartitioningEnabled() const;
 #endif
-    void NODELETE propagateSettingUpdates();
+    void propagateSettingUpdates();
 
 #if PLATFORM(IOS_FAMILY)
     String resolvedCookieStorageDirectory();
