@@ -8442,3 +8442,5 @@ webkit.org/b/316118 imported/w3c/web-platform-tests/url/IdnaTestV2.any.html [ Fa
 fast/events/pointerleave-after-ancestor-removal.html [ Skip ]
 
 webkit.org/b/316446 imported/w3c/web-platform-tests/css/css-borders/border-width-rounding.tentative.html [ Failure ]
+
+webkit.org/b/316830 fast/forms/datalist/datalist-textinput-suggestions-order.html [ Pass Timeout ]
