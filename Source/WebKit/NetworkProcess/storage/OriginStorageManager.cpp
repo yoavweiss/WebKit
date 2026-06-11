@@ -747,11 +747,12 @@ CacheStorageManager* OriginStorageManager::existingCacheStorageManager()
 
 CacheStorageManager& OriginStorageManager::cacheStorageManager(CacheStorageRegistry& registry, const WebCore::ClientOrigin& origin, Ref<WorkQueue>&& queue)
 {
-    return defaultBucket().cacheStorageManager(registry, origin, [quotaManager = ThreadSafeWeakPtr { this->quotaManager() }](uint64_t spaceRequested, CompletionHandler<void(bool)>&& completionHandler) mutable {
-        if (!quotaManager.get())
+    return defaultBucket().cacheStorageManager(registry, origin, [weakQuotaManager = ThreadSafeWeakPtr { this->quotaManager() }](uint64_t spaceRequested, CompletionHandler<void(bool)>&& completionHandler) mutable {
+        RefPtr quotaManager = weakQuotaManager;
+        if (!quotaManager)
             return completionHandler(false);
 
-        quotaManager.get()->requestSpace(spaceRequested, [completionHandler = WTF::move(completionHandler)](auto decision) mutable {
+        quotaManager->requestSpace(spaceRequested, [completionHandler = WTF::move(completionHandler)](auto decision) mutable {
             completionHandler(decision == OriginQuotaManager::Decision::Grant);
         });
     }, WTF::move(queue));
@@ -759,11 +760,12 @@ CacheStorageManager& OriginStorageManager::cacheStorageManager(CacheStorageRegis
 
 BackgroundFetchStoreManager& OriginStorageManager::backgroundFetchManager(Ref<WorkQueue>&& queue)
 {
-    return defaultBucket().backgroundFetchManager(WTF::move(queue), [quotaManager = ThreadSafeWeakPtr { this->quotaManager() }](uint64_t spaceRequested, CompletionHandler<void(bool)>&& completionHandler) mutable {
-        if (!quotaManager.get())
+    return defaultBucket().backgroundFetchManager(WTF::move(queue), [weakQuotaManager = ThreadSafeWeakPtr { this->quotaManager() }](uint64_t spaceRequested, CompletionHandler<void(bool)>&& completionHandler) mutable {
+        RefPtr quotaManager = weakQuotaManager;
+        if (!quotaManager)
             return completionHandler(false);
 
-        quotaManager.get()->requestSpace(spaceRequested, [completionHandler = WTF::move(completionHandler)](auto decision) mutable {
+        quotaManager->requestSpace(spaceRequested, [completionHandler = WTF::move(completionHandler)](auto decision) mutable {
             completionHandler(decision == OriginQuotaManager::Decision::Grant);
         });
     });
