@@ -2908,7 +2908,7 @@ sub generateBuildSystemFromCMakeProject
     push @args, '-DSHOW_BINDINGS_GENERATION_PROGRESS=1' unless ($willUseNinja && -t STDOUT);
 
     # Some ports have production mode, but build-webkit should always use developer mode.
-    push @args, "-DDEVELOPER_MODE=ON" unless isAppleWebKit();
+    push @args, "-DDEVELOPER_MODE=ON" if isCMakeBuild();
 
     if (architecture() eq "x86_64" && shouldBuild32Bit()) {
         # CMAKE_LIBRARY_ARCHITECTURE is needed to get the right .pc
