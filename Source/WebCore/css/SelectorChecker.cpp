@@ -103,7 +103,7 @@ struct SelectorChecker::LocalContext {
     { }
 
     const CSSSelector* selector;
-    const Element* element;
+    CheckedPtr<const Element> element;
     VisitedMatchType visitedMatchType;
     const CSSSelector* firstSelectorOfTheFragment;
     std::optional<Style::PseudoElementIdentifier> requestedPseudoElement;
