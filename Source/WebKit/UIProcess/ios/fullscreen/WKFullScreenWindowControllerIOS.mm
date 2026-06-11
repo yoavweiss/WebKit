@@ -170,7 +170,7 @@ static constexpr auto baseScale = 1;
 static constexpr auto baseMinimumEffectiveDeviceWidth = 0;
 
 #if PLATFORM(VISION)
-static void configureElementFullscreenLayer(CALayer *) { }
+static void setLightspillEnabledForElementFullscreenLayer(CALayer *, bool) { }
 #endif
 #endif
 
@@ -1122,7 +1122,7 @@ ALLOW_DEPRECATED_DECLARATIONS_END
         [_window setNeedsLayout];
         [_window layoutIfNeeded];
     }
-    WebKit::configureElementFullscreenLayer([_window layer]);
+    WebKit::setLightspillEnabledForElementFullscreenLayer([_window layer], self.prefersSceneDimming);
 #endif
 
     _rootViewController = adoptNS([[UIViewController alloc] init]);
@@ -2318,6 +2318,7 @@ ALLOW_DEPRECATED_DECLARATIONS_END
         WKSurroundingsEffectType target = updatedPrefersSceneDimming ? WKSurroundingsEffectTypeDark : (_parentWindowState ? [_parentWindowState preferredSurroundingsEffect] : WKSurroundingsEffectTypeNone);
         if ([WKSurroundingsEffectManager shared].currentEffect != target)
             [WKSurroundingsEffectManager shared].currentEffect = target;
+        WebKit::setLightspillEnabledForElementFullscreenLayer([_window layer], updatedPrefersSceneDimming);
     }
 }
 
