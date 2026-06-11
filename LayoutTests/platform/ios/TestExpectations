@@ -2894,7 +2894,6 @@ webkit.org/b/171617 perf/object-keys.html [ Pass Failure ]
 # WebGL tests which need triaging https://bugs.webkit.org/b/174100
 fast/canvas/webgl/webgl-compressed-texture-size-limit.html [ Failure ]
 fast/canvas/webgl/webgl2-texture-upload-enums.html [ Failure ]
-fast/canvas/webgl/read-pixels-test.html [ Skip ]
 
 fast/canvas/webgl/texImage2D-mse-flipY-false.html [ Skip ]
 fast/canvas/webgl/texImage2D-mse-flipY-true.html [ Skip ]
@@ -7820,7 +7819,7 @@ imported/w3c/web-platform-tests/css/CSS2/stacking-context/composite-change-after
 
 webkit.org/b/288518 fast/text/emoji-num-glyphs.html [ Failure ]
 
-webkit.org/b/294142 fast/canvas/webgl/gl-teximage.html [ Failure ]
+  fast/canvas/webgl/gl-teximage.html [ Failure ]
 
 webkit.org/b/294152 http/tests/misc/timer-vs-loading.html [ Timeout ]
 

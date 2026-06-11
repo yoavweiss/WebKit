@@ -478,7 +478,6 @@ webkit.org/b/112176 compositing/overflow/composited-scrolling-paint-phases.html 
 webkit.org/b/112176 compositing/overflow/scrolling-without-painting.html [ Failure Pass ]
 webkit.org/b/112176 compositing/overflow/updating-scrolling-content.html [ Failure Pass ]
 webkit.org/b/112176 fast/canvas/canvas-composite-alpha.html [ Failure Pass ]
-webkit.org/b/112176 fast/canvas/webgl/read-pixels-test.html [ Failure Pass ]
 
 # Baseline Alignment tests affected by 1px diff failures only on Mac and iOS platforms
 webkit.org/b/170293 fast/css-grid-layout/grid-align-baseline-vertical.html [ Failure ]
