@@ -3422,8 +3422,14 @@ enum class TextUnit {
 {
     if (AXObjectCache::useAXThreadTextApis()) {
         auto rangeType = LineRangeType::Current;
+        auto includeTrailingLineBreak = IncludeTrailingLineBreak::No;
         switch (textUnit) {
         case TextUnit::Line:
+            // Match the live-tree path below (lineRangeForPosition), which returns the current line's
+            // range including its trailing line break. The left/right-line variants intentionally keep
+            // IncludeTrailingLineBreak::No to match leftLineVisiblePositionRange /
+            // rightLineVisiblePositionRange, which end at endOfLine (before the break).
+            includeTrailingLineBreak = IncludeTrailingLineBreak::Yes;
             break;
         case TextUnit::LeftLine:
             rangeType = LineRangeType::Left;
@@ -3435,7 +3441,7 @@ enum class TextUnit {
             AX_ASSERT_NOT_REACHED();
             break;
         }
-        return AXTextMarker { textMarker }.lineRange(rangeType).platformData().bridgingAutorelease();
+        return AXTextMarker { textMarker }.lineRange(rangeType, includeTrailingLineBreak).platformData().bridgingAutorelease();
     }
 
     return (id)Accessibility::retrieveAutoreleasedValueFromMainThread<AXTextMarkerRangeRef>([textMarker = retainPtr(textMarker), &textUnit, protectedSelf = retainPtr(self)] () ->  RetainPtr<AXTextMarkerRangeRef> {
