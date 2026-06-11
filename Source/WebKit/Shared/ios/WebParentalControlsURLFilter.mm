@@ -100,7 +100,10 @@ void WebParentalControlsURLFilter::isURLAllowedImpl(WebCore::IsMainFrameLoad isM
 #endif
 #endif
         [filter evaluateURL:url.createNSURL().get() completionHandler:makeBlockPtr([completionHandler = WTF::move(completionHandler)](BOOL shouldBlock, NSData *replacementData) mutable {
-            completionHandler(!shouldBlock, replacementData);
+            // Make sure we don't crash even if [BEWebContentFilter evaluateURL:completionHandler:] calls its
+            // completion handler more than once (which seems to happen in practice).
+            if (completionHandler)
+                completionHandler(!shouldBlock, replacementData);
         }).get()];
     });
 }
