@@ -2776,11 +2776,11 @@ void WebProcessPool::observeScriptTrackingPrivacyUpdatesIfNeeded()
 
 void WebProcessPool::observeConsistentQueryParameterFilteringQuirkUpdatesIfNeeded()
 {
-    if (m_scriptTrackingPrivacyDataUpdateObserver)
+    if (m_consistentPrivacyQuirkDataUpdateObserver)
         return;
 
     Ref controller = ConsistentPrivacyQuirkController::sharedSingleton();
-    m_scriptTrackingPrivacyDataUpdateObserver = controller->observeUpdates([weakThis = WeakPtr { *this }] {
+    m_consistentPrivacyQuirkDataUpdateObserver = controller->observeUpdates([weakThis = WeakPtr { *this }] {
         RefPtr protectedThis = weakThis.get();
         if (!protectedThis)
             return;
