@@ -171,7 +171,8 @@ LayoutUnit RenderMathMLScripts::spaceAfterScript()
     Ref primaryFont = style().fontCascade().primaryFont();
     if (RefPtr mathData = primaryFont->mathData())
         return LayoutUnit(mathData->getMathConstant(primaryFont, OpenTypeMathData::MathConstant::SpaceAfterScript));
-    return LayoutUnit(style().fontCascade().size() / 5);
+    // https://w3c.github.io/mathml-core/#layout-constants-mathconstants suggests 1/24em.
+    return LayoutUnit(style().fontCascade().size() / 24);
 }
 
 LayoutUnit RenderMathMLScripts::italicCorrection(const ReferenceChildren& reference)
@@ -259,12 +260,15 @@ auto RenderMathMLScripts::verticalParameters() const -> VerticalParameters
         parameters.superscriptBottomMaxWithSubscript = mathData->getMathConstant(primaryFont, OpenTypeMathData::MathConstant::SuperscriptBottomMaxWithSubscript);
     } else {
         // Default heuristic values when you do not have a font.
+        // https://w3c.github.io/mathml-core/#layout-constants-mathconstants specifies fallback
+        // values for these constants; subscriptShiftDown/superscriptShiftUp fall back to the
+        // OS/2 sub/superscript Y offsets, which are approximated here with the x-height.
         float xHeight = style().metricsOfPrimaryFont().xHeight().value_or(0);
         parameters.subscriptShiftDown = xHeight / 3;
         parameters.superscriptShiftUp = xHeight;
-        parameters.subscriptBaselineDropMin = xHeight / 2;
-        parameters.superScriptBaselineDropMax = xHeight / 2;
-        parameters.subSuperscriptGapMin = style().fontCascade().size() / 5;
+        parameters.subscriptBaselineDropMin = 0;
+        parameters.superScriptBaselineDropMax = 0;
+        parameters.subSuperscriptGapMin = 4 * ruleThicknessFallback();
         parameters.superscriptBottomMin = xHeight / 4;
         parameters.subscriptTopMax = 4 * xHeight / 5;
         parameters.superscriptBottomMaxWithSubscript = 4 * xHeight / 5;
