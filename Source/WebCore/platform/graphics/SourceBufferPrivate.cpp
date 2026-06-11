@@ -50,14 +50,6 @@
 
 namespace WebCore {
 
-// Do not enqueue samples spanning a significant unbuffered gap.
-// NOTE: one second is somewhat arbitrary. MediaSource::monitorSourceBuffers() is run
-// on the playbackTimer, which is effectively every 350ms. Allowing > 350ms gap between
-// enqueued samples allows for situations where we overrun the end of a buffered range
-// but don't notice for 350ms of playback time, and the client can enqueue data for the
-// new current time without triggering this early return.
-// FIXME(135867): Make this gap detection logic less arbitrary.
-static const MediaTime discontinuityTolerance = MediaTime(1, 1);
 static const unsigned evictionAlgorithmInitialTimeChunk = 30000;
 static const unsigned evictionAlgorithmTimeChunkLowThreshold = 3000;
 
@@ -792,13 +784,14 @@ void SourceBufferPrivate::addTrackBuffer(TrackID trackId, RefPtr<MediaDescriptio
         buffer.m_hasVideo = buffer.m_hasVideo || description->isVideo();
 
         // 5.2.9 Add the track description for this track to the track buffer.
-        auto trackBuffer = TrackBuffer::create(WTF::move(description), discontinuityTolerance);
+        RefPtr mediaSource = buffer.m_mediaSource.get();
+        auto trackBuffer = TrackBuffer::create(WTF::move(description), mediaSource ? mediaSource->timeFudgeFactor() : PlatformTimeRanges::timeFudgeFactor());
 #if !RELEASE_LOG_DISABLED
         // False positive see webkit.org/b/302520
         SUPPRESS_UNCOUNTED_ARG trackBuffer->setLogger(protect(buffer.logger()), buffer.logIdentifier());
 #endif
         buffer.m_trackBufferMap.try_emplace(trackId, WTF::move(trackBuffer));
-        if (RefPtr mediaSource = buffer.m_mediaSource.get()) {
+        if (mediaSource) {
             MediaSourcePrivate::TracksType tracksType;
             if (buffer.m_hasAudio)
                 tracksType |= TrackInfoTrackType::Audio;

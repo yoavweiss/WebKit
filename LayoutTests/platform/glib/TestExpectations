@@ -4354,6 +4354,9 @@ webkit.org/b/224067 media/media-source/media-source-timestampoffset-trim.html [ 
 webkit.org/b/254207 media/media-source/media-source-remove-readystate.html [ Pass Timeout ]
 webkit.org/b/160119 media/video-object-fit-change.html [ Pass ImageOnlyFailure Timeout ]
 
+webkit.org/b/316875 imported/w3c/web-platform-tests/media-source/mediasource-config-change-mp4-av-audio-bitrate.html [ Failure Timeout ]
+webkit.org/b/316875 imported/w3c/web-platform-tests/media-source/mediasource-config-change-mp4-av-video-bitrate.html [ Failure Timeout ]
+
 webkit.org/b/61487 http/tests/media/video-cross-site.html [ Failure Timeout ]
 
 webkit.org/b/306026 media/video-unmuted-after-play-holds-sleep-assertion.html [ Failure Timeout ]
