@@ -28,6 +28,7 @@
 
 #include "JSReadableStream.h"
 #include "JSReadableStreamBYOBRequest.h"
+#include "JSValueInWrappedObjectInlines.h"
 #include "ReadableByteStreamController.h"
 #include "ReadableStream.h"
 #include <JavaScriptCore/ArrayBufferView.h>

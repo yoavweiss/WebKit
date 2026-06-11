@@ -31,7 +31,7 @@
 #include "MixedContentChecker.h"
 
 #include "ContentFilter.h"
-#include "Document.h"
+#include "DocumentQuirks.h"
 #include "FrameLoader.h"
 #include "LegacySchemeRegistry.h"
 #include "LocalFrameInlines.h"
