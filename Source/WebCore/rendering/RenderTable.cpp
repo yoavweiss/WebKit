@@ -1165,8 +1165,8 @@ LayoutUnit RenderTable::offsetLeftForColumn(const RenderTableCol& column) const
 LayoutUnit RenderTable::offsetWidthForColumn(const RenderTableCol& column) const
 {
     const RenderTableCol* currentColumn = &column;
-    bool hasColumnChildren;
-    if ((hasColumnChildren = currentColumn->isTableColumnGroupWithColumnChildren()))
+    bool hasColumnChildren = currentColumn->isTableColumnGroupWithColumnChildren();
+    if (hasColumnChildren)
         currentColumn = currentColumn->nextColumn(); // First column in column-group
     unsigned numberOfEffectiveColumns = numEffCols();
     ASSERT_WITH_SECURITY_IMPLICATION(m_columnPos.size() >= numberOfEffectiveColumns + 1);
