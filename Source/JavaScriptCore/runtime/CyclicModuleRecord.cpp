@@ -507,39 +507,47 @@ static void gatherAvailableAncestors(CyclicModuleRecord* module, Vector<CyclicMo
     // "m.[[PendingAsyncDependencies]] != 0" so the loop is O(N) instead of O(N^2).
     // Within a single gather call, the two are equivalent under the spec's invariants;
     // see commit message for the proof. The ASSERT below verifies this at runtime.
+    //
+    // The spec specifies this as a recursion, but we use a worklist loop to avoid
+    // stack overflow crashes.
 
-    // 1. For each Cyclic Module Record m of module.[[AsyncParentModules]], do
-    for (const WriteBarrier<AbstractModuleRecord>& barrier : module->asyncParentModules()) {
-        auto* m = uncheckedDowncast<CyclicModuleRecord>(barrier.get());
-        // 1.a. If execList does not contain m and m.[[CycleRoot]].[[EvaluationError]] is empty, then
-        // (Probable spec bug (https://github.com/tc39/ecma262/issues/3766). We need an additional check here that m.[[CycleRoot]] isn't empty.)
-        ASSERT_IMPLIES(!m->cycleRoot(), m->evaluationError());
-        CyclicModuleRecord* root = m->cycleRoot();
-        if (!root || root->evaluationError() != nullptr)
-            continue;
-        auto pending = m->pendingAsyncDependencies();
-        // Verify the invariant in debug: execList ∋ m  iff  pending == 0 (under cycleRoot OK).
-        ASSERT(pending);
-        ASSERT(execList.contains(m) == !*pending);
-        if (!*pending)
-            continue;
-        // 1.a.i. Assert: m.[[Status]] is EVALUATING-ASYNC.
-        ASSERT(m->status() == CyclicModuleRecord::Status::EvaluatingAsync);
-        // 1.a.ii. Assert: m.[[EvaluationError]] is EMPTY.
-        ASSERT(m->evaluationError() == nullptr);
-        // 1.a.iii. Assert: m.[[AsyncEvaluationOrder]] is an integer.
-        ASSERT(m->asyncEvaluationOrder().hasOrder());
-        // 1.a.iv. Assert: m.[[PendingAsyncDependencies]] > 0. (Implied by *pending != 0 above.)
-        // 1.a.v. Set m.[[PendingAsyncDependencies]] to m.[[PendingAsyncDependencies]] - 1.
-        int newDependencies = *pending - 1;
-        m->setPendingAsyncDependencies(newDependencies);
-        // 1.a.vi. If m.[[PendingAsyncDependencies]] = 0, then
-        if (!newDependencies) {
-            // 1.a.vi.1. Append m to execList.
-            execList.append(m);
-            // 1.a.vi.2. If m.[[HasTLA]] is false, perform GatherAvailableAncestors(m, execList).
-            if (!m->hasTLA())
-                gatherAvailableAncestors(m, execList);
+    Vector<CyclicModuleRecord*, 8> worklist;
+    worklist.append(module);
+    while (!worklist.isEmpty()) {
+        CyclicModuleRecord* record = worklist.takeLast();
+        // 1. For each Cyclic Module Record m of module.[[AsyncParentModules]], do
+        for (const WriteBarrier<AbstractModuleRecord>& barrier : record->asyncParentModules()) {
+            auto* m = uncheckedDowncast<CyclicModuleRecord>(barrier.get());
+            // 1.a. If execList does not contain m and m.[[CycleRoot]].[[EvaluationError]] is empty, then
+            // (Probable spec bug (https://github.com/tc39/ecma262/issues/3766). We need an additional check here that m.[[CycleRoot]] isn't empty.)
+            ASSERT_IMPLIES(!m->cycleRoot(), m->evaluationError());
+            CyclicModuleRecord* root = m->cycleRoot();
+            if (!root || root->evaluationError() != nullptr)
+                continue;
+            auto pending = m->pendingAsyncDependencies();
+            // Verify the invariant in debug: execList ∋ m  iff  pending == 0 (under cycleRoot OK).
+            ASSERT(pending);
+            ASSERT(execList.contains(m) == !*pending);
+            if (!*pending)
+                continue;
+            // 1.a.i. Assert: m.[[Status]] is EVALUATING-ASYNC.
+            ASSERT(m->status() == CyclicModuleRecord::Status::EvaluatingAsync);
+            // 1.a.ii. Assert: m.[[EvaluationError]] is EMPTY.
+            ASSERT(m->evaluationError() == nullptr);
+            // 1.a.iii. Assert: m.[[AsyncEvaluationOrder]] is an integer.
+            ASSERT(m->asyncEvaluationOrder().hasOrder());
+            // 1.a.iv. Assert: m.[[PendingAsyncDependencies]] > 0. (Implied by *pending != 0 above.)
+            // 1.a.v. Set m.[[PendingAsyncDependencies]] to m.[[PendingAsyncDependencies]] - 1.
+            int newDependencies = *pending - 1;
+            m->setPendingAsyncDependencies(newDependencies);
+            // 1.a.vi. If m.[[PendingAsyncDependencies]] = 0, then
+            if (!newDependencies) {
+                // 1.a.vi.1. Append m to execList.
+                execList.append(m);
+                // 1.a.vi.2. If m.[[HasTLA]] is false, perform GatherAvailableAncestors(m, execList).
+                if (!m->hasTLA())
+                    worklist.append(m);
+            }
         }
     }
     // 2. Return UNUSED.
@@ -552,37 +560,43 @@ void CyclicModuleRecord::asyncExecutionRejected(JSGlobalObject* globalObject, JS
 
     VM& vm = globalObject->vm();
 
-    // 1. If module.[[Status]] is EVALUATED, then
-    if (status() == CyclicModuleRecord::Status::Evaluated) {
-        // 1.a. Assert: module.[[EvaluationError]] is not EMPTY.
-        ASSERT(evaluationError() != nullptr);
-        // 1.b. Return UNUSED.
-        return;
-    }
-    // 2. Assert: module.[[Status]] is EVALUATING-ASYNC.
-    ASSERT(status() == CyclicModuleRecord::Status::EvaluatingAsync);
-    // 3. Assert: module.[[AsyncEvaluationOrder]] is an integer.
-    ASSERT(asyncEvaluationOrder().hasOrder());
-    // 4. Assert: module.[[EvaluationError]] is EMPTY.
-    ASSERT(evaluationError() == nullptr);
-    // 5. Set module.[[EvaluationError]] to ThrowCompletion(error).
-    setEvaluationError(vm, error);
-    // 6. Set module.[[Status]] to EVALUATED.
-    setStatus(CyclicModuleRecord::Status::Evaluated);
-    // 7. Set module.[[AsyncEvaluationOrder]] to DONE.
-    setAsyncEvaluationOrder(AbstractModuleRecord::AsyncEvaluationOrder::done());
-    // 8. NOTE: module.[[AsyncEvaluationOrder]] is set to DONE for symmetry with AsyncModuleExecutionFulfilled. In InnerModuleEvaluation, the value of a module's [[AsyncEvaluationOrder]] internal slot is unused when its [[EvaluationError]] internal slot is not EMPTY.
-    // 9. If module.[[TopLevelCapability]] is not EMPTY, then
-    if (auto* topLevel = topLevelCapability()) {
-        // 9.a. Assert: module.[[CycleRoot]] and module are the same Module Record.
-        ASSERT(cycleRoot() == this);
-        // 9.b. Perform ! Call(module.[[TopLevelCapability]].[[Reject]], undefined, « error »).
-        topLevel->reject(vm, error);
-    }
-    // 10. For each Cyclic Module Record m of module.[[AsyncParentModules]], do
-    for (const WriteBarrier<AbstractModuleRecord>& m : asyncParentModules()) {
-        // 10.a. Perform AsyncModuleExecutionRejected(m, error).
-        uncheckedDowncast<CyclicModuleRecord>(m.get())->asyncExecutionRejected(globalObject, error);
+    // The spec specifies this as a recursion, but we use a worklist loop to avoid
+    // stack overflow crashes.
+    Vector<CyclicModuleRecord*, 8> stack;
+    stack.append(this);
+    while (!stack.isEmpty()) {
+        CyclicModuleRecord* module = stack.takeLast();
+        // 1. If module.[[Status]] is EVALUATED, then
+        if (module->status() == CyclicModuleRecord::Status::Evaluated) {
+            // 1.a. Assert: module.[[EvaluationError]] is not EMPTY.
+            ASSERT(module->evaluationError() != nullptr);
+            // 1.b. Return UNUSED.
+            continue;
+        }
+        // 2. Assert: module.[[Status]] is EVALUATING-ASYNC.
+        ASSERT(module->status() == CyclicModuleRecord::Status::EvaluatingAsync);
+        // 3. Assert: module.[[AsyncEvaluationOrder]] is an integer.
+        ASSERT(module->asyncEvaluationOrder().hasOrder());
+        // 4. Assert: module.[[EvaluationError]] is EMPTY.
+        ASSERT(module->evaluationError() == nullptr);
+        // 5. Set module.[[EvaluationError]] to ThrowCompletion(error).
+        module->setEvaluationError(vm, error);
+        // 6. Set module.[[Status]] to EVALUATED.
+        module->setStatus(CyclicModuleRecord::Status::Evaluated);
+        // 7. Set module.[[AsyncEvaluationOrder]] to DONE.
+        module->setAsyncEvaluationOrder(AbstractModuleRecord::AsyncEvaluationOrder::done());
+        // 8. NOTE: module.[[AsyncEvaluationOrder]] is set to DONE for symmetry with AsyncModuleExecutionFulfilled. In InnerModuleEvaluation, the value of a module's [[AsyncEvaluationOrder]] internal slot is unused when its [[EvaluationError]] internal slot is not EMPTY.
+        // 9. If module.[[TopLevelCapability]] is not EMPTY, then
+        if (auto* topLevel = module->topLevelCapability()) {
+            // 9.a. Assert: module.[[CycleRoot]] and module are the same Module Record.
+            ASSERT(module->cycleRoot() == module);
+            // 9.b. Perform ! Call(module.[[TopLevelCapability]].[[Reject]], undefined, « error »).
+            topLevel->reject(vm, error);
+        }
+        // 10. For each Cyclic Module Record m of module.[[AsyncParentModules]], do
+        //     10.a. Perform AsyncModuleExecutionRejected(m, error).
+        for (const WriteBarrier<AbstractModuleRecord>& m : module->asyncParentModules() | std::views::reverse)
+            stack.append(uncheckedDowncast<CyclicModuleRecord>(m.get()));
     }
     // 11. Return UNUSED.
 }
