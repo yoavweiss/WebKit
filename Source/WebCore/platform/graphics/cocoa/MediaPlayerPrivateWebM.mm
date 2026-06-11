@@ -1252,8 +1252,13 @@ void MediaPlayerPrivateWebM::reenqueueMediaForTime(const MediaTime& time)
 void MediaPlayerPrivateWebM::reenqueueMediaForTime(TrackBuffer& trackBuffer, TrackID trackId, const MediaTime& time, NeedsFlush needsFlush)
 {
     assertIsCurrent(runningQueue());
+
+    auto trackIdentifier = maybeTrackIdentifierFor(trackId);
+    if (!trackIdentifier)
+        return; // Track not selected.
+
     if (needsFlush == NeedsFlush::Yes)
-        m_renderer->flushTrack(trackIdentifierFor(trackId));
+        m_renderer->flushTrack(*trackIdentifier);
 
     if (trackBuffer.reenqueueMediaForTime(time, timeFudgeFactor(), m_loadFinished))
         provideMediaData(trackBuffer, trackId);
@@ -1433,7 +1438,11 @@ void MediaPlayerPrivateWebM::trackDidChangeEnabled(AudioTrackPrivate& track, boo
         return;
     }
 
-    m_renderer->removeTrack(trackIdentifierFor(trackId));
+    auto trackIdentifier = maybeTrackIdentifierFor(trackId);
+    if (!trackIdentifier)
+        return;
+
+    m_renderer->removeTrack(*trackIdentifier);
     m_trackIdentifiers.erase(trackId);
     m_readyForMoreSamplesMap.erase(trackId);
 }
