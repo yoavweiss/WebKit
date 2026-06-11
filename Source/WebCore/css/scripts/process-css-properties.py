@@ -168,6 +168,7 @@ class Schema:
 class Name(object):
     special_case_name_to_id = {
         "url": "URL",
+        "-infinity": "NegativeInfinity",
     }
 
     def __init__(self, name):
