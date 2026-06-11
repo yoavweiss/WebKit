@@ -352,6 +352,10 @@ WI.CSSManager = class CSSManager extends WI.Object
     set layoutContextTypeChangedMode(layoutContextTypeChangedMode)
     {
         for (let target of WI.targets) {
+            // FIXME <https://webkit.org/b/314148> Use FrameCSSAgent in the frontend.
+            if (target instanceof WI.FrameTarget)
+                continue;
+
             // COMPATIBILITY (iOS 14.5): CSS.setLayoutContextTypeChangedMode did not exist.
             if (target.hasCommand("CSS.setLayoutContextTypeChangedMode"))
                 target.CSSAgent.setLayoutContextTypeChangedMode(layoutContextTypeChangedMode);
@@ -586,7 +590,12 @@ WI.CSSManager = class CSSManager extends WI.Object
 
     styleSheetAdded(styleSheetInfo)
     {
-        console.assert(!this._styleSheetIdentifierMap.has(styleSheetInfo.styleSheetId), "Attempted to add a CSSStyleSheet but identifier was already in use");
+        // FIXME <https://webkit.org/b/310164>: Under Site Isolation, different targets independently generate
+        // stylesheet IDs starting from "1", causing collisions. Skip duplicates to avoid overwriting an existing
+        // stylesheet with data from a different target. This will be resolved by deterministic process-qualified IDs.
+        if (this._styleSheetIdentifierMap.has(styleSheetInfo.styleSheetId))
+            return;
+
         let styleSheet = this.styleSheetForIdentifier(styleSheetInfo.styleSheetId);
         let parentFrame = WI.networkManager.frameForIdentifier(styleSheetInfo.frameId);
         let origin = WI.CSSManager.protocolStyleSheetOriginToEnum(styleSheetInfo.origin);

@@ -39,6 +39,8 @@
 #include "Document.h"
 #include "DocumentLoader.h"
 #include "Event.h"
+#include "EventTargetInlines.h"
+#include "FrameCSSAgent.h"
 #include "FrameDOMAgent.h"
 #include "FrameDebuggerAgent.h"
 #include "FrameInspectorController.h"
@@ -279,6 +281,11 @@ void InspectorInstrumentation::documentDetachedImpl(InstrumentingAgents& instrum
 {
     if (CheckedPtr cssAgent = instrumentingAgents.enabledCSSAgent())
         cssAgent->documentDetached(document);
+
+    if (RefPtr frame = document.frame()) {
+        if (CheckedPtr frameCSSAgent = frame->inspectorController().instrumentingAgents().enabledFrameCSSAgent())
+            frameCSSAgent->documentDetached(document);
+    }
 }
 
 void InspectorInstrumentation::frameWindowDiscardedImpl(InstrumentingAgents& instrumentingAgents, LocalDOMWindow* window)
@@ -293,16 +300,26 @@ void InspectorInstrumentation::frameWindowDiscardedImpl(InstrumentingAgents& ins
         consoleAgent->frameWindowDiscarded(*window);
 }
 
-void InspectorInstrumentation::mediaQueryResultChangedImpl(InstrumentingAgents& instrumentingAgents)
+void InspectorInstrumentation::mediaQueryResultChangedImpl(InstrumentingAgents& instrumentingAgents, Document& document)
 {
     if (CheckedPtr cssAgent = instrumentingAgents.enabledCSSAgent())
         cssAgent->mediaQueryResultChanged();
+
+    if (RefPtr frame = document.frame()) {
+        if (CheckedPtr frameCSSAgent = frame->inspectorController().instrumentingAgents().enabledFrameCSSAgent())
+            frameCSSAgent->mediaQueryResultChanged();
+    }
 }
 
 void InspectorInstrumentation::activeStyleSheetsUpdatedImpl(InstrumentingAgents& instrumentingAgents, Document& document)
 {
     if (CheckedPtr cssAgent = instrumentingAgents.enabledCSSAgent())
         cssAgent->activeStyleSheetsUpdated(document);
+
+    if (RefPtr frame = document.frame()) {
+        if (CheckedPtr frameCSSAgent = frame->inspectorController().instrumentingAgents().enabledFrameCSSAgent())
+            frameCSSAgent->activeStyleSheetsUpdated(document);
+    }
 }
 
 void InspectorInstrumentation::didPushShadowRootImpl(InstrumentingAgents& instrumentingAgents, Element& host, ShadowRoot& root)

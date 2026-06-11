@@ -25,9 +25,12 @@
 
 #pragma once
 
+#include "InspectorStyleSheet.h"
 #include "InspectorWebAgentBase.h"
 #include <JavaScriptCore/InspectorBackendDispatchers.h>
 #include <wtf/CheckedPtr.h>
+#include <wtf/HashMap.h>
+#include <wtf/HashSet.h>
 #include <wtf/TZoneMalloc.h>
 #include <wtf/WeakRef.h>
 
@@ -37,9 +40,11 @@ class CSSFrontendDispatcher;
 
 namespace WebCore {
 
+class CSSStyleSheet;
+class Document;
 class LocalFrame;
 
-class FrameCSSAgent final : public InspectorAgentBase, public Inspector::CSSBackendDispatcherHandler, public CanMakeCheckedPtr<FrameCSSAgent> {
+class FrameCSSAgent final : public InspectorAgentBase, public Inspector::CSSBackendDispatcherHandler, public InspectorStyleSheet::Listener, public CanMakeCheckedPtr<FrameCSSAgent> {
     WTF_MAKE_NONCOPYABLE(FrameCSSAgent);
     WTF_MAKE_TZONE_ALLOCATED(FrameCSSAgent);
     WTF_OVERRIDE_DELETE_FOR_CHECKED_PTR(FrameCSSAgent);
@@ -72,10 +77,34 @@ public:
     Inspector::CommandResult<void> forcePseudoState(Inspector::Protocol::DOM::NodeId, Ref<JSON::Array>&& forcedPseudoClasses) override;
     Inspector::CommandResult<void> setLayoutContextTypeChangedMode(Inspector::Protocol::CSS::LayoutContextTypeChangedMode) override;
 
+    // InspectorStyleSheet::Listener
+    void styleSheetChanged(InspectorStyleSheet*) override;
+
+    // InspectorInstrumentation
+    void documentDetached(Document&);
+    void mediaQueryResultChanged();
+    void activeStyleSheetsUpdated(Document&);
+
 private:
+    void reset();
+    InspectorStyleSheet& bindStyleSheet(CSSStyleSheet*);
+    InspectorStyleSheet* assertStyleSheetForId(Inspector::Protocol::ErrorString&, const Inspector::Protocol::CSS::StyleSheetId&);
+    void collectAllDocumentStyleSheets(Document&, Vector<CSSStyleSheet*>&);
+    void collectStyleSheets(CSSStyleSheet*, Vector<CSSStyleSheet*>&);
+    void setActiveStyleSheetsForDocument(Document&, Vector<CSSStyleSheet*>&);
+    InspectorStyleSheet* createInspectorStyleSheetForDocument(Document&);
+    Inspector::Protocol::CSS::StyleSheetOrigin detectOrigin(CSSStyleSheet*, Document*);
+
     UniqueRef<Inspector::CSSFrontendDispatcher> m_frontendDispatcher;
     Ref<Inspector::CSSBackendDispatcher> m_backendDispatcher;
     WeakRef<LocalFrame> m_inspectedFrame;
+
+    HashMap<Inspector::Protocol::CSS::StyleSheetId, Ref<InspectorStyleSheet>> m_idToInspectorStyleSheet;
+    HashMap<CSSStyleSheet*, Ref<InspectorStyleSheet>> m_cssStyleSheetToInspectorStyleSheet;
+    HashMap<Ref<Document>, Vector<Ref<InspectorStyleSheet>>> m_documentToInspectorStyleSheet;
+    HashMap<Document*, HashSet<CSSStyleSheet*>> m_documentToKnownCSSStyleSheets;
+    int m_lastStyleSheetId { 1 };
+    bool m_creatingViaInspectorStyleSheet { false };
 };
 
 } // namespace WebCore

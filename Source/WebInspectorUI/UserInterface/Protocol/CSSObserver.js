@@ -29,21 +29,37 @@ WI.CSSObserver = class CSSObserver extends InspectorBackend.Dispatcher
 
     mediaQueryResultChanged()
     {
+        // FIXME <https://webkit.org/b/314148> Use FrameCSSAgent in the frontend.
+        if (this._target instanceof WI.FrameTarget)
+            return;
+
         WI.cssManager.mediaQueryResultChanged();
     }
 
     styleSheetChanged(styleSheetId)
     {
+        // FIXME <https://webkit.org/b/314148> Use FrameCSSAgent in the frontend.
+        if (this._target instanceof WI.FrameTarget)
+            return;
+
         WI.cssManager.styleSheetChanged(styleSheetId);
     }
 
     styleSheetAdded(styleSheetInfo)
     {
+        // FIXME <https://webkit.org/b/314148> Use FrameCSSAgent in the frontend.
+        if (this._target instanceof WI.FrameTarget)
+            return;
+
         WI.cssManager.styleSheetAdded(styleSheetInfo);
     }
 
     styleSheetRemoved(id)
     {
+        // FIXME <https://webkit.org/b/314148> Use FrameCSSAgent in the frontend.
+        if (this._target instanceof WI.FrameTarget)
+            return;
+
         WI.cssManager.styleSheetRemoved(id);
     }
 

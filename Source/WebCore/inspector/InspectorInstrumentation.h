@@ -375,7 +375,7 @@ private:
     static void didInvalidateStyleAttrImpl(InstrumentingAgents&, Element&);
     static void documentDetachedImpl(InstrumentingAgents&, Document&);
     static void frameWindowDiscardedImpl(InstrumentingAgents&, LocalDOMWindow*);
-    static void mediaQueryResultChangedImpl(InstrumentingAgents&);
+    static void mediaQueryResultChangedImpl(InstrumentingAgents&, Document&);
     static void activeStyleSheetsUpdatedImpl(InstrumentingAgents&, Document&);
     static void didPushShadowRootImpl(InstrumentingAgents&, Element& host, ShadowRoot&);
     static void willPopShadowRootImpl(InstrumentingAgents&, Element& host, ShadowRoot&);
@@ -690,7 +690,7 @@ inline void InspectorInstrumentation::mediaQueryResultChanged(Document& document
 {
     FAST_RETURN_IF_NO_FRONTENDS(void());
     if (RefPtr agents = instrumentingAgents(document))
-        mediaQueryResultChangedImpl(*agents);
+        mediaQueryResultChangedImpl(*agents, document);
 }
 
 inline void InspectorInstrumentation::activeStyleSheetsUpdated(Document& document)

@@ -437,9 +437,9 @@
         {
             "name": "createStyleSheet",
             "description": "Creates a new special \"inspector\" stylesheet in the frame with given <code>frameId</code>.",
-            "targetTypes": ["page"],
+            "targetTypes": ["frame", "page"],
             "parameters": [
-                { "name": "frameId", "$ref": "Network.FrameId", "description": "Identifier of the frame where the new \"inspector\" stylesheet should be created." }
+                { "name": "frameId", "$ref": "Network.FrameId", "description": "Identifier of the frame where the new \"inspector\" stylesheet should be created. Ignored when dispatched to a FrameTarget; the receiving frame is used implicitly." }
             ],
             "returns": [
                 { "name": "styleSheetId", "$ref": "StyleSheetId", "description": "Identifier of the created \"inspector\" stylesheet." }
@@ -505,7 +505,7 @@
         {
             "name": "styleSheetAdded",
             "description": "Fired whenever an active document stylesheet is added.",
-            "targetTypes": ["page"],
+            "targetTypes": ["frame", "page"],
             "parameters": [
                 { "name": "header", "$ref": "CSSStyleSheetHeader", "description": "Added stylesheet metainfo." }
             ]
@@ -513,7 +513,7 @@
         {
             "name": "styleSheetRemoved",
             "description": "Fired whenever an active document stylesheet is removed.",
-            "targetTypes": ["page"],
+            "targetTypes": ["frame", "page"],
             "parameters": [
                 { "name": "styleSheetId", "$ref": "StyleSheetId", "description": "Identifier of the removed stylesheet." }
             ]
