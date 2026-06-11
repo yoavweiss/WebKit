@@ -3643,6 +3643,23 @@ std::optional<EditorState::PostLayoutData> WebViewImpl::postLayoutDataForContent
     return editorState.postLayoutData;
 }
 
+bool WebViewImpl::inputMethodUsesCorrectKeyEventOrder()
+{
+    if (!m_page->editorState().inputMethodUsesCorrectKeyEventOrder)
+        return false;
+
+    RefPtr frame = m_page->mainFrame();
+    if (!frame)
+        return false;
+
+    if (m_page->editorState().inputMethodMustUseCompositionEvents) {
+        String selectedInputSource = [protect(inputContext()) selectedKeyboardInputSource];
+        if (selectedInputSource == "com.apple.inputmethod.VietnameseIM.VietnameseSimpleTelex" || selectedInputSource == "com.apple.inputmethod.Korean.2SetKorean")
+            return false;
+    }
+    return true;
+}
+
 void WebViewImpl::handleRequestedCandidates(NSInteger sequenceNumber, NSArray<NSTextCheckingResult *> *candidates)
 {
     if (!shouldRequestCandidates())
@@ -5613,7 +5630,7 @@ void WebViewImpl::interpretKeyEvent(NSEvent *event, void(^completionHandler)(BOO
     }
 
 #if PLATFORM(MAC)
-    if (m_page->editorState().inputMethodUsesCorrectKeyEventOrder) {
+    if (inputMethodUsesCorrectKeyEventOrder()) {
         // Keydowns flow through to the IM directly. Each gets its own queue at the BACK
         // of the deque; the IM serializes its handleEventByInputMethod: processing on its
         // main thread, so its setMarkedText:/insertText:/doCommandBySelector: callbacks
@@ -5665,7 +5682,7 @@ void WebViewImpl::interpretKeyEvent(NSEvent *event, void(^completionHandler)(BOO
 
         Vector<WebCore::KeypressCommand> commands;
 #if PLATFORM(MAC)
-        if (checkedThis->m_page->editorState().inputMethodUsesCorrectKeyEventOrder && [capturedEvent type] == NSEventTypeKeyDown) {
+        if (checkedThis->inputMethodUsesCorrectKeyEventOrder() && [capturedEvent type] == NSEventTypeKeyDown) {
             ASSERT(!checkedThis->m_collectedKeypressCommands.isEmpty());
             commands = checkedThis->m_collectedKeypressCommands.takeFirst();
             checkedThis->m_stagedMarkedRange = std::nullopt;
@@ -6247,7 +6264,7 @@ void WebViewImpl::setMarkedText(id string, NSRange selectedRange, NSRange replac
     }
 
 #if PLATFORM(MAC)
-    if (m_page->editorState().inputMethodUsesCorrectKeyEventOrder && !m_collectedKeypressCommands.isEmpty()) {
+    if (inputMethodUsesCorrectKeyEventOrder() && !m_collectedKeypressCommands.isEmpty()) {
         WebCore::KeypressCommand command("setMarkedText:"_s, text.get(), WTF::move(underlines), WTF::move(highlights),
             EditingRange { selectedRange }.toCharacterRange(), EditingRange { replacementRange }.toCharacterRange());
         m_collectedKeypressCommands.first().append(command);
