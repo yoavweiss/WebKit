@@ -1370,6 +1370,7 @@ private:
     ControlsState m_controlsState { ControlsState::None };
 
     AutoplayEventPlaybackState m_autoplayEventPlaybackState { AutoplayEventPlaybackState::None };
+    bool m_isDispatchingAutoplayPlayPauseQuirkEvents { false };
 
     String m_subtitleTrackLanguage;
     std::optional<String> m_languageOfPrimaryAudioTrack;
