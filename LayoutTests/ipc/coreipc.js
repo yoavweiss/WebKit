@@ -545,6 +545,7 @@ export class ArgumentSerializer {
         if (argumentType.includes("<")) {
             const [ templateType, innerType ] = ArgumentSerializer.parseTemplate(argumentType);
             switch (templateType) {
+                case 'Box':
                 case 'RefPtr':
                 case 'std::unique_ptr':
                 case 'RetainPtr':
@@ -1048,6 +1049,7 @@ export class ArgumentParser {
         if (argumentType.includes("<")) {
             const [ templateType, innerType ] = ArgumentSerializer.parseTemplate(argumentType);
             switch (templateType) {
+                case 'Box':
                 case 'RefPtr':
                 case 'std::unique_ptr':
                 case 'RetainPtr':
