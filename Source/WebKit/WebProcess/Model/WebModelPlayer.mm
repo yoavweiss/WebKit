@@ -380,8 +380,17 @@ void WebModelPlayer::enterFullscreen()
 void WebModelPlayer::handleMouseDown(const WebCore::LayoutPoint& startingPoint, MonotonicTime)
 {
     m_initialPoint = startingPoint;
-    if (!m_orbitSimulator)
+    if (!m_orbitSimulator) {
         m_orbitSimulator = adoptNS([[WKStageModeOrbitSimulator alloc] init]);
+        // Seed from the current pose so a gesture after reload doesn't snap to default.
+        if (auto transform = entityTransform()) {
+            auto matrix = static_cast<simd_float4x4>(*transform);
+            simd_float3 c0 = simd_normalize(simd_make_float3(matrix.columns[0]));
+            simd_float3 c1 = simd_normalize(simd_make_float3(matrix.columns[1]));
+            simd_float3 c2 = simd_normalize(simd_make_float3(matrix.columns[2]));
+            [m_orbitSimulator setCurrentYaw:std::atan2(-c2.x, c0.x) pitch:std::atan2(-c1.z, c1.y)];
+        }
+    }
     [m_orbitSimulator gestureDidBegin];
     startUpdateLoopIfNeeded();
 }
@@ -850,6 +859,7 @@ void WebModelPlayer::reload(WebCore::Model& modelSource, WebCore::LayoutSize siz
     load(modelSource, size);
     m_cachedAnimationState = animationState;
     if (transformState) {
+        setStageMode(transformState->stageMode());
         if (auto entityTransform = transformState->entityTransform())
             setEntityTransform(*entityTransform);
     }
