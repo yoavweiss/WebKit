@@ -143,6 +143,38 @@ TEST(ContextMenuTests, ProposedMenuContainsSpellingMenu)
     EXPECT_NOT_NULL([spellingSubmenu itemWithIdentifier:_WKMenuItemIdentifierCheckGrammarWithSpelling]);
 }
 
+TEST(ContextMenuTests, ProposedMenuContainsSubstitutionsMenu)
+{
+    RetainPtr delegate = adoptNS([[TestUIDelegate alloc] init]);
+
+    __block RetainPtr<NSMenu> proposedMenu;
+    __block bool gotProposedMenu = false;
+    [delegate setGetContextMenuFromProposedMenu:^(NSMenu *menu, _WKContextMenuElementInfo *, id<NSSecureCoding>, void (^completion)(NSMenu *)) {
+        proposedMenu = menu;
+        completion(nil);
+        gotProposedMenu = true;
+    }];
+
+    RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:NSMakeRect(0, 0, 400, 400)]);
+    [webView setUIDelegate:delegate];
+    [webView _setEditable:YES];
+    [webView synchronouslyLoadTestPageNamed:@"simple"];
+    [webView mouseDownAtPoint:NSMakePoint(10, 10) simulatePressure:NO withFlags:0 eventType:NSEventTypeRightMouseDown];
+    [webView mouseUpAtPoint:NSMakePoint(10, 10) withFlags:0 eventType:NSEventTypeRightMouseUp];
+    Util::run(&gotProposedMenu);
+
+    RetainPtr substitutionsMenuItem = [proposedMenu itemWithIdentifier:_WKMenuItemIdentifierSubstitutionsMenu];
+    EXPECT_NOT_NULL(substitutionsMenuItem.get());
+
+    RetainPtr substitutionsSubmenu = [substitutionsMenuItem submenu];
+    EXPECT_NOT_NULL([substitutionsSubmenu itemWithIdentifier:_WKMenuItemIdentifierShowSubstitutions]);
+    EXPECT_NOT_NULL([substitutionsSubmenu itemWithIdentifier:_WKMenuItemIdentifierSmartCopyPaste]);
+    EXPECT_NOT_NULL([substitutionsSubmenu itemWithIdentifier:_WKMenuItemIdentifierSmartQuotes]);
+    EXPECT_NOT_NULL([substitutionsSubmenu itemWithIdentifier:_WKMenuItemIdentifierSmartDashes]);
+    EXPECT_NOT_NULL([substitutionsSubmenu itemWithIdentifier:_WKMenuItemIdentifierSmartLinks]);
+    EXPECT_NOT_NULL([substitutionsSubmenu itemWithIdentifier:_WKMenuItemIdentifierTextReplacement]);
+}
+
 TEST(ContextMenuTests, NavigationTypeWhenOpeningLink)
 {
     RetainPtr navigationDelegate = adoptNS([[TestNavigationDelegate alloc] init]);
