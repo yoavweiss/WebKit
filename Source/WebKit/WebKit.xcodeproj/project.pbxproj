@@ -20729,7 +20729,6 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
-				"$(SRCROOT)/Scripts/update-info-plist-for-runningboard.sh",
 				"$(BUILT_PRODUCTS_DIR)/$(INFOPLIST_PATH)",
 			);
 			name = "Update Info.plist for RunningBoard management";
@@ -20750,7 +20749,6 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
-				"$(SRCROOT)/Scripts/update-info-plist-for-runningboard.sh",
 				"$(BUILT_PRODUCTS_DIR)/$(INFOPLIST_PATH)",
 			);
 			name = "Update Info.plist for RunningBoard management";
@@ -20771,7 +20769,6 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
-				"$(SRCROOT)/Scripts/update-info-plist-for-runningboard.sh",
 				"$(BUILT_PRODUCTS_DIR)/$(INFOPLIST_PATH)",
 			);
 			name = "Update Info.plist for RunningBoard management";
@@ -20792,7 +20789,6 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
-				"$(SRCROOT)/Scripts/update-info-plist-for-runningboard.sh",
 				"$(BUILT_PRODUCTS_DIR)/$(INFOPLIST_PATH)",
 			);
 			name = "Update Info.plist for RunningBoard management";
@@ -20986,7 +20982,6 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
-				"$(SRCROOT)/Scripts/update-info-plist-for-runningboard.sh",
 				"$(BUILT_PRODUCTS_DIR)/$(INFOPLIST_PATH)",
 			);
 			name = "Update Info.plist for RunningBoard management";
