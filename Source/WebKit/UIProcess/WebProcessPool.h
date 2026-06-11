@@ -423,8 +423,6 @@ public:
     static void NODELETE setInvalidMessageCallback(void (*)(WKStringRef));
     static void didReceiveInvalidMessage(IPC::MessageName);
 
-    bool isURLKnownHSTSHost(const String& urlString) const;
-
     static void registerGlobalURLSchemeAsHavingCustomProtocolHandlers(const String&);
     static void unregisterGlobalURLSchemeAsHavingCustomProtocolHandlers(const String&);
 

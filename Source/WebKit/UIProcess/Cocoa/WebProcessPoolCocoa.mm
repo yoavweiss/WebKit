@@ -1111,13 +1111,6 @@ void WebProcessPool::setNotifyState(const String& name, int status, uint64_t sta
 
 #endif
 
-bool WebProcessPool::isURLKnownHSTSHost(const String& urlString) const
-{
-    RetainPtr<CFURLRef> url = URL { urlString }.createCFURL();
-
-    return _CFNetworkIsKnownHSTSHostWithSession(url.get(), nullptr);
-}
-
 // FIXME: Deprecated. Left here until a final decision is made.
 void WebProcessPool::setCookieStoragePartitioningEnabled(bool enabled)
 {

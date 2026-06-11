@@ -891,7 +891,6 @@ symbols = [
     "SecTrustSetClientAuditToken",
     "_AXSEnhanceTextLegibilityEnabled",
     "_CFNetworkHTTPConnectionCacheSetLimit",
-    "_CFNetworkIsKnownHSTSHostWithSession",
     "_CFURLStorageSessionCopyCookieStorage",
     "_kCFURLConnectionPropertyShouldSniff",
     "kAXSEnhanceTextLegibilityChangedNotification",
