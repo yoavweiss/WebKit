@@ -503,8 +503,9 @@ auto IntersectionObserver::computeIntersectionState(const IntersectionObserverRe
 {
     bool isFirstObservation = !registration.previousThresholdIndex;
 
-    // This is only set for explicit roots.
-    // FIXME: remove one remaining place that needs this to work with implicit root.
+    // This is not set if the root is implicit (meaning the root is the main frame),
+    // it's cross-origin with the target, and Site Isolation is enabled. In that case,
+    // the renderer is in another process and can't be accessed.
     CheckedPtr<RenderBox> rootRenderer;
 
     CheckedPtr<RenderElement> targetRenderer;
@@ -564,12 +565,8 @@ auto IntersectionObserver::computeIntersectionState(const IntersectionObserverRe
             return;
         }
 
-        // This is needed to get the root's renderer to compute the root bounds.
-        // FIXME: remove this when computing root bounds no longer requires rootRenderer.
-        RefPtr hostLocalFrameView = dynamicDowncast<LocalFrameView>(hostFrameView);
-        if (!hostLocalFrameView)
-            return;
-        rootRenderer = hostLocalFrameView->renderView();
+        if (RefPtr hostLocalFrameView = dynamicDowncast<LocalFrameView>(hostFrameView))
+            rootRenderer = hostLocalFrameView->renderView();
 
         intersectionState.canComputeIntersection = true;
         intersectionState.rootBounds = layoutViewportRectForIntersection();
@@ -582,25 +579,11 @@ auto IntersectionObserver::computeIntersectionState(const IntersectionObserverRe
     }
 
     if (applyRootMargin == ApplyRootMargin::Yes) {
-        auto rootUsedZoom = [&] () -> float {
-            if (rootRenderer)
-                return rootRenderer->style().usedZoom();
-
-            // If applyRootMargin is Yes, the root and target frames are same-origin.
-            // Therefore the root frame should be in the same process as the target frame
-            // (with or without Site Isolation)
-            auto* hostLocalFrameView = dynamicDowncast<LocalFrameView>(hostFrameView);
-            ASSERT(hostLocalFrameView);
-            if (!hostLocalFrameView)
-                return 1;
-
-            CheckedPtr hostRenderView = hostLocalFrameView->renderView();
-            ASSERT(hostRenderView);
-            if (!hostRenderView)
-                return 1;
-
-            return hostRenderView->style().usedZoom();
-        }();
+        // If applyRootMargin is Yes, the root and target frames are same-origin.
+        // Therefore the root renderer should be available, as the root is in the
+        // same process as the target (with or without Site Isolation)
+        ASSERT(rootRenderer);
+        float rootUsedZoom = rootRenderer ? rootRenderer->style().usedZoom() : 1;
 
         expandRootBoundsWithRootMargin(intersectionState.rootBounds, scrollMarginBox(), rootUsedZoom);
         expandRootBoundsWithRootMargin(intersectionState.rootBounds, rootMarginBox(), rootUsedZoom);
@@ -662,8 +645,30 @@ auto IntersectionObserver::computeIntersectionState(const IntersectionObserverRe
     if (isFirstObservation || intersectionState.isIntersecting)
         intersectionState.absoluteTargetRect = targetRenderer->localToAbsoluteQuad(FloatRect(localTargetBounds)).boundingBox();
 
+    auto rootLocalToAbsoluteRect = [&] (FloatRect rect) {
+        if (rootRenderer)
+            return rootRenderer->localToAbsoluteQuad(rect).boundingBox();
+
+        // The below codepath is specific to implicit root, where the root is the main frame.
+        ASSERT(!root());
+
+        // When page scale is > 1 (e.g by pinch-to-zoom), a scale transform is applied on the
+        // main frame's RenderView in Style::resolveForDocument(). Therefore we have to apply
+        // this transform to the local coordinate to turn it into absolute.
+        // This is identical to calling localToAbsoluteQuad() on the main frame's RenderView,
+        // as it'll apply the same transform.
+        // Not applicable on iOS family as they apply page scale differently.
+        // FIXME: replace the platform ifdef with something else.
+#if !PLATFORM(IOS_FAMILY)
+        if (RefPtr hostPage = hostFrameView.frame().page())
+            rect.scale(hostPage->pageScaleFactor());
+#endif
+
+        return rect;
+    };
+
     if (intersectionState.isIntersecting) {
-        auto rootAbsoluteIntersectionRect = rootRenderer->localToAbsoluteQuad(rootLocalIntersectionRect).boundingBox();
+        auto rootAbsoluteIntersectionRect = rootLocalToAbsoluteRect(rootLocalIntersectionRect);
 
         if (root() && &targetRenderer->frame() == &rootRenderer->frame())
             intersectionState.absoluteIntersectionRect = rootAbsoluteIntersectionRect;
@@ -694,7 +699,7 @@ auto IntersectionObserver::computeIntersectionState(const IntersectionObserverRe
 
     intersectionState.observationChanged = isFirstObservation || intersectionState.thresholdIndex != registration.previousThresholdIndex;
     if (intersectionState.observationChanged) {
-        intersectionState.absoluteRootBounds = rootRenderer->localToAbsoluteQuad(intersectionState.rootBounds).boundingBox();
+        intersectionState.absoluteRootBounds = rootLocalToAbsoluteRect(intersectionState.rootBounds);
 
         if (!intersectionState.absoluteTargetRect)
             intersectionState.absoluteTargetRect = targetRenderer->localToAbsoluteQuad(FloatRect(localTargetBounds)).boundingBox();
