@@ -224,8 +224,9 @@ public:
     bool allowsFollowingLink(const URL&) const;
 
     String provisionalURL() const;
-    String suggestedFilenameForResourceWithURL(const URL&) const;
-    String mimeTypeForResourceWithURL(const URL&) const;
+    enum class ResourceType : uint8_t { Generic, Image };
+    String suggestedFilenameForResourceWithURL(const URL&, ResourceType = ResourceType::Generic) const;
+    String mimeTypeForResourceWithURL(const URL&, ResourceType = ResourceType::Generic) const;
 
     void setTextDirection(const String&);
     void updateFrameRectFromRemote(WebCore::IntRect);

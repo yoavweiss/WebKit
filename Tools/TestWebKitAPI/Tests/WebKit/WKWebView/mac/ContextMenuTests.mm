@@ -27,6 +27,7 @@
 
 #if PLATFORM(MAC)
 
+#import "Helpers/cocoa/HTTPServer.h"
 #import "Helpers/mac/AppKitSPI.h"
 #import "InstanceMethodSwizzler.h"
 #import "Helpers/cocoa/PasteboardUtilities.h"
@@ -756,6 +757,66 @@ TEST(ContextMenuTests, HitTestResultImageSuggestedFilename)
     [webView mouseDownAtPoint:NSMakePoint(200, 200) simulatePressure:NO withFlags:0 eventType:NSEventTypeRightMouseDown];
     [webView mouseUpAtPoint:NSMakePoint(200, 200) withFlags:0 eventType:NSEventTypeRightMouseUp];
     Util::run(&gotProposedMenu);
+}
+
+static RetainPtr<NSString> imageSuggestedFilenameFromCollidingImageURL(HashMap<String, String> imageResponseHeaders)
+{
+    using namespace TestWebKitAPI;
+
+    RetainPtr imageData = [NSData dataWithContentsOfFile:[NSBundle.test_resourcesBundle pathForResource:@"sunset-in-cupertino-200px" ofType:@"png"]];
+
+    HTTPServer server([imageData, imageResponseHeaders](Connection connection) {
+        connection.receiveHTTPRequest([connection, imageData, imageResponseHeaders](Vector<char>&&) {
+            connection.send(HTTPResponse({ { "Content-Type"_s, "text/html"_s } },
+                "<img id='collision' src='collision.gifv' style='width:300px;height:300px'>"_s).serialize(), [connection, imageData, imageResponseHeaders] {
+                connection.receiveHTTPRequest([connection, imageData, imageResponseHeaders](Vector<char>&&) {
+                    HashMap<String, String> headers = imageResponseHeaders;
+                    connection.send(HTTPResponse(WTF::move(headers), imageData).serialize());
+                });
+            });
+        });
+    });
+
+    RetainPtr delegate = adoptNS([[TestUIDelegate alloc] init]);
+    __block bool gotProposedMenu = false;
+    __block RetainPtr<NSString> capturedFilename;
+    [delegate setGetContextMenuFromProposedMenu:^(NSMenu *menu, _WKContextMenuElementInfo *elementInfo, id<NSSecureCoding>, void (^completion)(NSMenu *)) {
+        EXPECT_NOT_NULL(elementInfo.hitTestResult);
+        capturedFilename = elementInfo.hitTestResult.imageSuggestedFilename;
+        completion(nil);
+        gotProposedMenu = true;
+    }];
+
+    RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:NSMakeRect(0, 0, 400, 400)]);
+    [webView setUIDelegate:delegate];
+    RetainPtr collisionURL = [NSURL URLWithString:[NSString stringWithFormat:@"http://127.0.0.1:%d/collision.gifv", server.port()]];
+    [webView synchronouslyLoadRequest:[NSURLRequest requestWithURL:collisionURL]];
+
+    auto midpoint = [webView getElementMidpoint:@"#collision"].value();
+    [webView mouseDownAtPoint:midpoint simulatePressure:NO withFlags:0 eventType:NSEventTypeRightMouseDown];
+    [webView mouseUpAtPoint:midpoint withFlags:0 eventType:NSEventTypeRightMouseUp];
+    Util::run(&gotProposedMenu);
+
+    return capturedFilename;
+}
+
+TEST(ContextMenuTests, HitTestResultImageSuggestedFilenameWhenURLCollidesWithMainResource)
+{
+    RetainPtr filename = imageSuggestedFilenameFromCollidingImageURL({
+        { "Content-Type"_s, "image/png"_s },
+        { "Content-Disposition"_s, "inline; filename=\"collision.png\""_s },
+    });
+    EXPECT_FALSE([filename hasSuffix:@".html"]);
+    EXPECT_TRUE([filename hasSuffix:@".png"]);
+}
+
+TEST(ContextMenuTests, HitTestResultImageSuggestedFilenameWhenURLCollidesAndNoContentDisposition)
+{
+    RetainPtr filename = imageSuggestedFilenameFromCollidingImageURL({
+        { "Content-Type"_s, "image/png"_s },
+    });
+    EXPECT_FALSE([filename hasSuffix:@".html"]);
+    EXPECT_GT([filename length], 0u);
 }
 
 TEST(ContextMenuTests, HitTestResultLinkWithInvalidURL)
