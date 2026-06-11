@@ -23,47 +23,6 @@
 webkit_platform_headers: <WebCore/Color.h> <WebCore/ColorTypes.h> <WebCore/DoublePoint.h> <WebCore/DoubleRect.h> <WebCore/DoubleSize.h>
 
 header: <WebCore/DOMCacheEngine.h>
-[CustomHeader] struct WebCore::DOMCacheEngine::CacheInfo {
-    WebCore::DOMCacheIdentifier identifier
-    String name
-}
-
-[CustomHeader] struct WebCore::DOMCacheEngine::CacheInfos {
-    Vector<WebCore::DOMCacheEngine::CacheInfo> infos;
-    uint64_t updateCounter;
-};
-
-[CustomHeader] struct WebCore::DOMCacheEngine::CacheIdentifierOperationResult {
-    WebCore::DOMCacheIdentifier identifier;
-    bool hadStorageError;
-};
-
-#if ENABLE(APPLE_PAY)
-
-enum class WebCore::ApplePayPaymentTiming : uint8_t {
-    Immediate,
-#if ENABLE(APPLE_PAY_RECURRING_LINE_ITEM)
-    Recurring,
-#endif
-#if ENABLE(APPLE_PAY_DEFERRED_LINE_ITEM)
-    Deferred,
-#endif
-#if ENABLE(APPLE_PAY_AUTOMATIC_RELOAD_LINE_ITEM)
-    AutomaticReload,
-#endif
-};
-
-#endif // ENABLE(APPLE_PAY)
-
-#if ENABLE(APPLE_PAY_RECURRING_LINE_ITEM)
-enum class WebCore::ApplePayRecurringPaymentDateUnit : uint8_t {
-    Year,
-    Month,
-    Day,
-    Hour,
-    Minute,
-};
-#endif // ENABLE(APPLE_PAY_RECURRING_LINE_ITEM)
 
 enum class WebCore::ContactProperty : uint8_t {
     Email,
@@ -72,91 +31,8 @@ enum class WebCore::ContactProperty : uint8_t {
 };
 
 header: <WebCore/IDBResultData.h>
-enum class WebCore::IDBResultType : uint8_t {
-    Error,
-    OpenDatabaseSuccess,
-    OpenDatabaseUpgradeNeeded,
-    DeleteDatabaseSuccess,
-    CreateObjectStoreSuccess,
-    DeleteObjectStoreSuccess,
-    ClearObjectStoreSuccess,
-    PutOrAddSuccess,
-    GetRecordSuccess,
-    GetAllRecordsSuccess,
-    GetCountSuccess,
-    DeleteRecordSuccess,
-    CreateIndexSuccess,
-    DeleteIndexSuccess,
-    OpenCursorSuccess,
-    IterateCursorSuccess,
-    RenameObjectStoreSuccess,
-    RenameIndexSuccess,
-};
-
-enum class WebCore::IDBTransactionDurability : uint8_t {
-    Strict,
-    Relaxed,
-    Default
-};
-
-enum class WebCore::IDBTransactionMode : uint8_t {
-    Readonly,
-    Readwrite,
-    Versionchange
-};
 
 enum class WebCore::IPAddressSpace : bool;
-
-#if ENABLE(MEDIA_SESSION)
-header: <WebCore/MediaSessionPlaybackState.h>
-enum class WebCore::MediaSessionPlaybackState : uint8_t {
-    None,
-    Paused,
-    Playing,
-};
-#endif // ENABLE(MEDIA_SESSION)
-
-#if ENABLE(MEDIA_SESSION_COORDINATOR)
-header: <WebCore/MediaSessionCoordinatorState.h>
-enum class WebCore::MediaSessionCoordinatorState : uint8_t {
-    Waiting,
-    Joined,
-    Closed,
-};
-
-header: <WebCore/MediaSessionReadyState.h>
-enum class WebCore::MediaSessionReadyState : uint8_t {
-    Havenothing,
-    Havemetadata,
-    Havecurrentdata,
-    Havefuturedata,
-    Haveenoughdata,
-};
-#endif // ENABLE(MEDIA_SESSION_COORDINATOR)
-
-#if ENABLE(WEB_RTC)
-header: <WebCore/RTCErrorDetailType.h>
-enum class WebCore::RTCErrorDetailType : uint8_t {
-    DataChannelFailure,
-    DtlsFailure,
-    FingerprintFailure,
-    SctpFailure,
-    SdpSyntaxError
-};
-
-header: <WebCore/RTCIceComponent.h>
-enum class WebCore::RTCIceComponent : uint8_t {
-     Rtp,
-     Rtcp
-};
-
-header: <WebCore/RTCIceProtocol.h>
-enum class WebCore::RTCIceProtocol : uint8_t {
-     Udp,
-     Tcp
-};
-
-#endif // ENABLE(WEB_RTC)
 
 enum class WebCore::NotificationEventType : bool;
 
@@ -365,19 +241,6 @@ enum class WebCore::ScrollGranularity : uint8_t {
     Pixel
 };
 
-[CustomHeader] struct WebCore::DOMCacheEngine::CrossThreadRecord {
-    uint64_t identifier;
-    uint64_t updateResponseCounter;
-    WebCore::FetchHeadersGuard requestHeadersGuard;
-    WebCore::ResourceRequest request;
-    WebCore::FetchOptions options;
-    String referrer;
-    WebCore::FetchHeadersGuard responseHeadersGuard;
-    WebCore::ResourceResponseData response;
-    Variant<std::nullptr_t, Ref<WebCore::FormData>, Ref<WebCore::SharedBuffer>> responseBody;
-    uint64_t responseBodySize;
-};
-
 [AdditionalEncoder=StreamConnectionEncoder] class WebCore::TransformationMatrix {
     double m11()
     double m12()
@@ -445,186 +308,7 @@ class WebCore::FloatQuad {
     WebCore::FloatPoint p4();
 }
 
-struct WebCore::IDBCursorRecord {
-    WebCore::IDBKeyData key;
-    WebCore::IDBKeyData primaryKey;
-    WebCore::IDBValue value;
-}
-
-class WebCore::IDBCursorInfo {
-    WebCore::IDBResourceIdentifier identifier();
-    WebCore::IDBResourceIdentifier transactionIdentifier();
-    WebCore::IDBObjectStoreIdentifier objectStoreIdentifier();
-    Variant<WebCore::IDBObjectStoreIdentifier, WebCore::IDBIndexIdentifier> sourceIdentifier();
-
-    WebCore::IDBKeyRangeData range();
-
-    WebCore::IndexedDB::CursorSource cursorSource();
-    WebCore::IndexedDB::CursorDirection cursorDirection();
-    WebCore::IndexedDB::CursorType cursorType();
-};
-
-class WebCore::IDBError {
-    std::optional<WebCore::ExceptionCode> code()
-    String messageForSerialization()
-}
-
-struct WebCore::IDBGetAllRecordsData {
-    WebCore::IDBKeyRangeData keyRangeData;
-    WebCore::IndexedDB::GetAllType getAllType;
-    std::optional<uint32_t> count;
-    WebCore::IndexedDB::CursorDirection cursorDirection;
-    WebCore::IDBObjectStoreIdentifier objectStoreIdentifier;
-    std::optional<WebCore::IDBIndexIdentifier> indexIdentifier;
-}
-
-class WebCore::IDBGetResult {
-    WebCore::IDBKeyData keyData()
-    WebCore::IDBKeyData primaryKeyData()
-    WebCore::IDBValue value()
-    std::optional<WebCore::IDBKeyPath> keyPath()
-    Vector<WebCore::IDBCursorRecord> prefetchedRecords()
-    bool isDefined()
-}
-
-class WebCore::IDBGetAllResult {
-    WebCore::IndexedDB::GetAllType type()
-    Vector<WebCore::IDBKeyData> keys()
-    Vector<WebCore::IDBKeyData> primaryKeys()
-    Vector<WebCore::IDBValue> values()
-    std::optional<WebCore::IDBKeyPath> keyPath()
-}
-
-class WebCore::IDBDatabaseInfo {
-    String m_name
-    uint64_t m_version
-    uint64_t m_maxIndexID
-    HashMap<WebCore::IDBObjectStoreIdentifier, WebCore::IDBObjectStoreInfo> m_objectStoreMap
-}
-
-struct WebCore::IDBKeyRangeData {
-    WebCore::IDBKeyData lowerKey;
-    WebCore::IDBKeyData upperKey;
-
-    bool lowerOpen;
-    bool upperOpen;
-};
-
-class WebCore::IDBTransactionInfo {
-    WebCore::IDBResourceIdentifier identifier();
-    WebCore::IDBTransactionMode mode();
-    WebCore::IDBTransactionDurability durability();
-    uint64_t newVersion();
-    Vector<String> objectStores();
-    std::unique_ptr<WebCore::IDBDatabaseInfo> originalDatabaseInfo();
-};
-
-enum class WebCore::IDBGetRecordDataType : bool;
-
-struct WebCore::IDBGetRecordData {
-    WebCore::IDBKeyRangeData keyRangeData;
-    WebCore::IDBGetRecordDataType type;
-}
-
-class WebCore::IDBIndexInfo {
-    WebCore::IDBIndexIdentifier identifier()
-    WebCore::IDBObjectStoreIdentifier objectStoreIdentifier()
-    String name()
-    WebCore::IDBKeyPath keyPath()
-    bool unique()
-    bool multiEntry()
-}
-
-class WebCore::IDBObjectStoreInfo {
-    WebCore::IDBObjectStoreIdentifier identifier()
-    String name()
-    std::optional<WebCore::IDBKeyPath> keyPath()
-    bool autoIncrement()
-    HashMap<WebCore::IDBIndexIdentifier, WebCore::IDBIndexInfo> indexMap()
-}
-
-struct WebCore::IDBIterateCursorData {
-    WebCore::IDBKeyData keyData;
-    WebCore::IDBKeyData primaryKeyData;
-    unsigned count;
-    WebCore::IndexedDB::CursorIterateOption option;
-}
-
-class WebCore::IDBResourceIdentifier {
-    Markable<WebCore::IDBConnectionIdentifier> m_idbConnectionIdentifier
-    Markable<WebCore::IDBResourceObjectIdentifier> m_resourceNumber
-}
-
-class WebCore::IDBValue {
-    WebCore::ThreadSafeDataBuffer data()
-    Vector<String> blobURLs()
-    Vector<String> blobFilePaths()
-    Vector<WebCore::FileSystemHandleGlobalIdentifier> fileSystemHandleGlobalIdentifiers()
-};
-
-class WebCore::IDBOpenRequestData {
-    WebCore::IDBConnectionIdentifier m_serverConnectionIdentifier;
-    [Validator='!m_requestIdentifier->isEmpty()'] WebCore::IDBResourceIdentifier m_requestIdentifier;
-    [Validator='m_databaseIdentifier->isValid()'] WebCore::IDBDatabaseIdentifier m_databaseIdentifier;
-    uint64_t m_requestedVersion;
-    WebCore::IndexedDB::RequestType m_requestType;
-}
-
-class WebCore::IDBRequestData {
-    WebCore::IDBConnectionIdentifier m_serverConnectionIdentifier;
-    [Validator='!m_requestIdentifier->isEmpty()'] WebCore::IDBResourceIdentifier m_requestIdentifier;
-    [Validator='!m_transactionIdentifier->isEmpty()'] WebCore::IDBResourceIdentifier m_transactionIdentifier;
-    std::optional<WebCore::IDBResourceIdentifier> m_cursorIdentifier;
-    Markable<WebCore::IDBObjectStoreIdentifier> m_objectStoreIdentifier;
-    Markable<WebCore::IDBIndexIdentifier> m_indexIdentifier;
-    WebCore::IndexedDB::IndexRecordType m_indexRecordType;
-    uint64_t m_requestedVersion;
-    WebCore::IndexedDB::RequestType m_requestType;
-}
-
 # FIXME: When decoding from IPC, databaseName can be null, and the non-empty constructor asserts that this is not the case.
-[LegacyPopulateFromEmptyConstructor] class WebCore::IDBDatabaseIdentifier {
-    String m_databaseName
-    WebCore::ClientOrigin m_origin
-    bool m_isTransient
-}
-
-struct WebCore::IDBDatabaseNameAndVersion {
-    String name;
-    uint64_t version;
-}
-
-[LegacyPopulateFromEmptyConstructor] class WebCore::IDBResultData {
-    WebCore::IDBResultType m_type;
-    WebCore::IDBResourceIdentifier m_requestIdentifier;
-    WebCore::IDBError m_error;
-    std::optional<WebCore::IDBDatabaseConnectionIdentifier> m_databaseConnectionIdentifier;
-    std::unique_ptr<WebCore::IDBDatabaseInfo> m_databaseInfo;
-    std::unique_ptr<WebCore::IDBTransactionInfo> m_transactionInfo;
-    std::unique_ptr<WebCore::IDBKeyData> m_resultKey;
-    std::unique_ptr<WebCore::IDBGetResult> m_getResult;
-    std::unique_ptr<WebCore::IDBGetAllResult> m_getAllResult;
-    uint64_t m_resultInteger;
-    [NotSerialized] std::unique_ptr<WebCore::ClientOrigin> m_clientOrigin;
-}
-
-class WebCore::IDBKeyData {
-    bool isPlaceholder()
-    [Validator='WebCore::IDBKeyData::isValidValue(*value)'] Variant<std::nullptr_t, WebCore::IDBKeyData::Invalid, Vector<WebCore::IDBKeyData>, String, double, WebCore::IDBKeyData::Date, WebCore::ThreadSafeDataBuffer, WebCore::IDBKeyData::Min, WebCore::IDBKeyData::Max> value()
-}
-
-[Nested] struct WebCore::IDBKeyData::Invalid {
-}
-
-[Nested] struct WebCore::IDBKeyData::Min {
-}
-
-[Nested] struct WebCore::IDBKeyData::Max {
-}
-
-[Nested] struct WebCore::IDBKeyData::Date {
-    double value
-}
 
 class WebCore::IndexKey {
     Variant<std::nullptr_t, WebCore::IDBKeyData, Vector<WebCore::IDBKeyData>> data()
@@ -700,38 +384,6 @@ enum class WebCore::IndexedDB::RequestType : uint8_t {
     double stiffness()
     double damping()
     double initialVelocity()
-};
-
-[LegacyPopulateFromEmptyConstructor] struct WebCore::ResourceLoadStatistics {
-    WebCore::RegistrableDomain registrableDomain;
-    WallTime lastSeen;
-    bool hadUserInteraction;
-    WallTime mostRecentUserInteractionTime;
-    bool grandfathered;
-    HashSet<WebCore::RegistrableDomain> storageAccessUnderTopFrameDomains;
-    HashSet<WebCore::RegistrableDomain> topFrameUniqueRedirectsTo;
-    HashSet<WebCore::RegistrableDomain> topFrameUniqueRedirectsToSinceSameSiteStrictEnforcement;
-    HashSet<WebCore::RegistrableDomain> topFrameUniqueRedirectsFrom;
-    HashSet<WebCore::RegistrableDomain> topFrameLinkDecorationsFrom;
-    bool gotLinkDecorationFromPrevalentResource;
-    HashSet<WebCore::RegistrableDomain> topFrameLoadedThirdPartyScripts;
-    HashSet<WebCore::RegistrableDomain> subframeUnderTopFrameDomains;
-    HashSet<WebCore::RegistrableDomain> subresourceUnderTopFrameDomains;
-    HashSet<WebCore::RegistrableDomain> subresourceUniqueRedirectsTo;
-    HashSet<WebCore::RegistrableDomain> subresourceUniqueRedirectsFrom;
-    bool isPrevalentResource;
-    bool isVeryPrevalentResource;
-    unsigned dataRecordsRemoved;
-    unsigned timesAccessedAsFirstPartyDueToUserInteraction;
-    unsigned timesAccessedAsFirstPartyDueToStorageAccessAPI;
-#if ENABLE(WEB_API_STATISTICS)
-    HashSet<WebCore::RegistrableDomain> topFrameRegistrableDomainsWhichAccessedWebAPIs;
-    HashSet<String> fontsFailedToLoad;
-    HashSet<String> fontsSuccessfullyLoaded;
-    WebCore::CanvasActivityRecord canvasActivityRecord;
-    OptionSet<WebCore::NavigatorAPIsAccessed> navigatorFunctionsAccessed;
-    OptionSet<WebCore::ScreenAPIsAccessed> screenFunctionsAccessed;
-#endif
 };
 
 [OptionSet] enum class WebCore::NavigatorAPIsAccessed : uint64_t {
@@ -965,291 +617,6 @@ class WebCore::PrivateClickMeasurement {
     std::optional<WallTime> destinationEarliestTimeToSend;
 }
 
-#if ENABLE(APPLE_PAY_RECURRING_PAYMENTS)
-struct WebCore::ApplePayRecurringPaymentRequest {
-    String paymentDescription
-    WebCore::ApplePayLineItem regularBilling
-    std::optional<WebCore::ApplePayLineItem> trialBilling
-    String billingAgreement
-    String managementURL
-    String tokenNotificationURL
-};
-#endif
-
-#if ENABLE(APPLE_PAY_MULTI_MERCHANT_PAYMENTS)
-struct WebCore::ApplePayPaymentTokenContext {
-    String merchantIdentifier
-    String externalIdentifier
-    String merchantName
-    String merchantDomain
-    String amount
-}
-#endif
-
-#if ENABLE(APPLE_PAY_DEFERRED_PAYMENTS)
-struct WebCore::ApplePayDeferredPaymentRequest {
-    String billingAgreement
-    WebCore::ApplePayLineItem deferredBilling
-    WallTime freeCancellationDate
-    String freeCancellationDateTimeZone
-    String managementURL
-    String paymentDescription
-    String tokenNotificationURL
-};
-#endif
-
-#if ENABLE(APPLE_PAY_PAYMENT_ORDER_DETAILS)
-struct WebCore::ApplePayPaymentOrderDetails {
-    String orderTypeIdentifier
-    String orderIdentifier
-    String webServiceURL
-    String authenticationToken
-}
-#endif
-
-#if ENABLE(APPLE_PAY_AMS_UI) && ENABLE(PAYMENT_REQUEST)
-struct WebCore::ApplePayAMSUIRequest {
-    String engagementRequest
-}
-#endif
-
-#if ENABLE(APPLE_PAY_AUTOMATIC_RELOAD_PAYMENTS)
-struct WebCore::ApplePayAutomaticReloadPaymentRequest {
-    String paymentDescription
-    WebCore::ApplePayLineItem automaticReloadBilling
-    String billingAgreement
-    String managementURL
-    String tokenNotificationURL
-}
-#endif
-
-#if ENABLE(APPLE_PAY_SHIPPING_METHOD_DATE_COMPONENTS_RANGE)
-struct WebCore::ApplePayDateComponents {
-    std::optional<unsigned> years;
-    std::optional<unsigned> months;
-    std::optional<unsigned> days;
-    std::optional<unsigned> hours;
-}
-
-struct WebCore::ApplePayDateComponentsRange {
-    WebCore::ApplePayDateComponents startDateComponents;
-    WebCore::ApplePayDateComponents endDateComponents;
-}
-#endif // ENABLE(APPLE_PAY_SHIPPING_METHOD_DATE_COMPONENTS_RANGE)
-
-#if ENABLE(APPLE_PAY)
-struct WebCore::ApplePaySetupConfiguration {
-    String merchantIdentifier;
-    String referrerIdentifier;
-    String signature;
-    Vector<String> signedFields;
-};
-
-[Nested] enum class WebCore::ApplePayLineItem::Type : bool;
-#if ENABLE(APPLE_PAY_DISBURSEMENTS)
-[Nested] enum class WebCore::ApplePayLineItem::DisbursementLineItemType : uint8_t {
-    Disbursement,
-    InstantFundsOutFee
-};
-#endif
-
-struct WebCore::ApplePayLineItem {
-    WebCore::ApplePayLineItem::Type type
-    String label
-    String amount
-    WebCore::ApplePayPaymentTiming paymentTiming
-#if ENABLE(APPLE_PAY_RECURRING_LINE_ITEM)
-    WallTime recurringPaymentStartDate
-    WebCore::ApplePayRecurringPaymentDateUnit recurringPaymentIntervalUnit
-    unsigned recurringPaymentIntervalCount
-    WallTime recurringPaymentEndDate
-#endif
-#if ENABLE(APPLE_PAY_DEFERRED_LINE_ITEM)
-    WallTime deferredPaymentDate
-#endif
-#if ENABLE(APPLE_PAY_AUTOMATIC_RELOAD_LINE_ITEM)
-    String automaticReloadPaymentThresholdAmount
-#endif
-#if ENABLE(APPLE_PAY_DISBURSEMENTS)
-    std::optional<WebCore::ApplePayLineItem::DisbursementLineItemType> disbursementLineItemType
-#endif
-}
-
-struct WebCore::ApplePayShippingMethod {
-    String label
-    String detail
-    String amount
-    String identifier
-#if ENABLE(APPLE_PAY_SHIPPING_METHOD_DATE_COMPONENTS_RANGE)
-    std::optional<WebCore::ApplePayDateComponentsRange> dateComponentsRange
-#endif
-#if ENABLE(APPLE_PAY_SELECTED_SHIPPING_METHOD)
-    bool selected
-#endif
-}
-
-[Nested] enum class WebCore::ApplePayError::Domain : uint8_t {
-    Disbursement
-};
-
-[RefCounted] class WebCore::ApplePayError {
-    WebCore::ApplePayErrorCode code()
-    std::optional<WebCore::ApplePayErrorContactField> contactField()
-    String message()
-    std::optional<WebCore::ApplePayError::Domain> domain();
-}
-
-enum class WebCore::ApplePayLogoStyle : bool
-[RefCounted, AdditionalEncoder=StreamConnectionEncoder] class WebCore::ApplePayLogoSystemImage {
-    WebCore::ApplePayLogoStyle applePayLogoStyle()
-}
-
-struct WebCore::ApplePayDetailsUpdateBase {
-    WebCore::ApplePayLineItem newTotal;
-    Vector<WebCore::ApplePayLineItem> newLineItems;
-#if ENABLE(APPLE_PAY_RECURRING_PAYMENTS)
-    std::optional<WebCore::ApplePayRecurringPaymentRequest> newRecurringPaymentRequest;
-#endif
-#if ENABLE(APPLE_PAY_AUTOMATIC_RELOAD_PAYMENTS)
-    std::optional<WebCore::ApplePayAutomaticReloadPaymentRequest> newAutomaticReloadPaymentRequest;
-#endif
-#if ENABLE(APPLE_PAY_MULTI_MERCHANT_PAYMENTS)
-    std::optional<Vector<WebCore::ApplePayPaymentTokenContext>> newMultiTokenContexts;
-#endif
-#if ENABLE(APPLE_PAY_DEFERRED_PAYMENTS)
-    std::optional<WebCore::ApplePayDeferredPaymentRequest> newDeferredPaymentRequest;
-#endif
-#if ENABLE(APPLE_PAY_DISBURSEMENTS)
-    std::optional<WebCore::ApplePayDisbursementRequest> newDisbursementRequest;
-#endif
-}
-
-struct WebCore::ApplePayPaymentMethodUpdate : WebCore::ApplePayDetailsUpdateBase {
-#if ENABLE(APPLE_PAY_UPDATE_SHIPPING_METHODS_WHEN_CHANGING_LINE_ITEMS)
-    Vector<Ref<WebCore::ApplePayError>> errors;
-    Vector<WebCore::ApplePayShippingMethod> newShippingMethods;
-#endif
-#if ENABLE(APPLE_PAY_INSTALLMENTS)
-    String installmentGroupIdentifier;
-#endif
-};
-
-struct WebCore::ApplePayShippingContactUpdate : WebCore::ApplePayDetailsUpdateBase {
-    Vector<Ref<WebCore::ApplePayError>> errors;
-    Vector<WebCore::ApplePayShippingMethod> newShippingMethods;
-};
-
-struct WebCore::ApplePayShippingMethodUpdate : WebCore::ApplePayDetailsUpdateBase {
-#if ENABLE(APPLE_PAY_UPDATE_SHIPPING_METHODS_WHEN_CHANGING_LINE_ITEMS)
-    Vector<WebCore::ApplePayShippingMethod> newShippingMethods;
-#endif
-};
-
-struct WebCore::ApplePayPaymentAuthorizationResult {
-    unsigned short status;
-    Vector<Ref<WebCore::ApplePayError>> errors;
-#if ENABLE(APPLE_PAY_PAYMENT_ORDER_DETAILS)
-    std::optional<WebCore::ApplePayPaymentOrderDetails> orderDetails;
-#endif
-}
-
-enum class WebCore::ApplePayErrorContactField : uint8_t {
-    PhoneNumber,
-    EmailAddress,
-    Name,
-    PhoneticName,
-    PostalAddress,
-    AddressLines,
-    SubLocality,
-    Locality,
-    PostalCode,
-    SubAdministrativeArea,
-    AdministrativeArea,
-    Country,
-    CountryCode,
-};
-
-header: <WebCore/ApplePayContactField.h>
-enum class WebCore::ApplePayContactField : uint8_t {
-    Email,
-    Name,
-    PhoneticName,
-    Phone,
-    PostalAddress,
-};
-
-enum class WebCore::ApplePayErrorCode : uint8_t {
-    Unknown,
-    ShippingContactInvalid,
-    BillingContactInvalid,
-    AddressUnserviceable,
-#if ENABLE(APPLE_PAY_COUPON_CODE)
-    CouponCodeInvalid,
-    CouponCodeExpired,
-#endif
-#if ENABLE(APPLE_PAY_DISBURSEMENTS)
-    UnsupportedCard,
-    RecipientContactInvalid,
-#endif
-};
-#endif // ENABLE(APPLE_PAY)
-
-#if ENABLE(APPLE_PAY_DISBURSEMENTS)
-struct WebCore::ApplePayDisbursementRequest {
-    std::optional<Vector<WebCore::ApplePayContactField>> requiredRecipientContactFields
-};
-#endif
-
-#if ENABLE(APPLE_PAY_INSTALLMENTS)
-header: <WebCore/ApplePayInstallmentConfigurationWebCore.h>
-[CustomHeader, CreateUsing=fromInstallmentConfiguration] struct WebCore::ApplePayInstallmentConfiguration {
-    WebCore::ApplePaySetupFeatureType featureType;
-    [NotSerialized] String merchandisingImageData;
-    String openToBuyThresholdAmount;
-    String bindingTotalAmount;
-    String currencyCode;
-    bool isInStorePurchase;
-    String merchantIdentifier;
-    String referrerIdentifier;
-    Vector<WebCore::ApplePayInstallmentItem> items;
-    String applicationMetadata;
-    WebCore::ApplePayInstallmentRetailChannel retailChannel;
-};
-header: <WebCore/PaymentInstallmentConfigurationWebCore.h>
-[CustomHeader] class WebCore::PaymentInstallmentConfiguration {
-    std::optional<WebCore::ApplePayInstallmentConfiguration> applePayInstallmentConfiguration()
-}
-struct WebCore::ApplePayInstallmentItem {
-    WebCore::ApplePayInstallmentItemType type;
-    String amount;
-    String currencyCode;
-    String programIdentifier;
-    String apr;
-    String programTerms;
-};
-enum class WebCore::ApplePaySetupFeatureType : bool
-enum class WebCore::ApplePayInstallmentItemType : uint8_t {
-    Generic,
-    Phone,
-    Pad,
-    Watch,
-    Mac,
-};
-enum class WebCore::ApplePayInstallmentRetailChannel : uint8_t {
-    Unknown,
-    App,
-    Web,
-    InStore,
-};
-#endif // ENABLE(APPLE_PAY_INSTALLMENTS)
-
-#if ENABLE(APPLE_PAY_COUPON_CODE)
-struct WebCore::ApplePayCouponCodeUpdate : WebCore::ApplePayDetailsUpdateBase {
-    Vector<Ref<WebCore::ApplePayError>> errors;
-    Vector<WebCore::ApplePayShippingMethod> newShippingMethods;
-};
-#endif
-
 header: <WebCore/ScreenOrientationLockType.h>
 enum class WebCore::ScreenOrientationLockType : uint8_t {
     Any
@@ -1319,16 +686,6 @@ struct WebCore::ApplicationManifest {
 }
 #endif // ENABLE(APPLICATION_MANIFEST)
 
-enum class WebCore::DOMCacheEngine::Error : uint8_t {
-    NotImplemented,
-    ReadDisk,
-    WriteDisk,
-    QuotaExceeded,
-    Internal,
-    Stopped,
-    CORP
-};
-
 struct WebCore::RetrieveRecordsOptions {
     WebCore::ResourceRequest request;
     WebCore::CrossOriginEmbedderPolicy crossOriginEmbedderPolicy;
@@ -1351,44 +708,9 @@ struct WebCore::ContactsRequestData {
     String url;
 };
 
-#if ENABLE(MEDIA_SESSION)
-struct WebCore::MediaPositionState {
-    double duration;
-    double playbackRate;
-    double position;
-};
-#endif // ENABLE(MEDIA_SESSION)
-
-#if ENABLE(WEB_RTC)
-struct WebCore::DetachedRTCDataChannel {
-    WebCore::RTCDataChannelIdentifier identifier;
-    String label;
-    WebCore::RTCDataChannelInit options;
-    WebCore::RTCDataChannelState state;
-};
-#endif
-
 header: <WebCore/WebCodecsEncodedVideoChunk.h>
-#if ENABLE(WEB_CODECS)
-enum class WebCore::WebCodecsEncodedVideoChunkType : bool;
-struct WebCore::WebCodecsEncodedVideoChunkData {
-    WebCore::WebCodecsEncodedVideoChunkType type;
-    int64_t timestamp;
-    std::optional<uint64_t> duration;
-    Vector<uint8_t> buffer;
-};
-#endif
 
 header: <WebCore/WebCodecsEncodedAudioChunk.h>
-#if ENABLE(WEB_CODECS)
-enum class WebCore::WebCodecsEncodedAudioChunkType : bool;
-struct WebCore::WebCodecsEncodedAudioChunkData {
-    WebCore::WebCodecsEncodedAudioChunkType type;
-    int64_t timestamp;
-    std::optional<uint64_t> duration;
-    Vector<uint8_t> buffer;
-};
-#endif
 
 header: <WebCore/VideoEncoderScalabilityMode.h>
 enum class WebCore::VideoEncoderScalabilityMode : uint8_t {
@@ -1494,142 +816,9 @@ enum class WebCore::WebLockMode : bool;
 };
 
 #if ENABLE(WEB_AUTHN)
-
-[CustomHeader] struct WebCore::AuthenticatorResponseBaseData {
-    RefPtr<JSC::ArrayBuffer> rawId;
-    std::optional<WebCore::AuthenticationExtensionsClientOutputs> extensionOutputs;
-};
-
-[CustomHeader] struct WebCore::AuthenticatorAttestationResponseData {
-    RefPtr<JSC::ArrayBuffer> rawId;
-    std::optional<WebCore::AuthenticationExtensionsClientOutputs> extensionOutputs;
-    RefPtr<JSC::ArrayBuffer> clientDataJSON;
-    RefPtr<JSC::ArrayBuffer> attestationObject;
-    Vector<WebCore::AuthenticatorTransport> transports;
-};
-
-[CustomHeader] struct WebCore::AuthenticatorAssertionResponseData {
-    RefPtr<JSC::ArrayBuffer> rawId;
-    std::optional<WebCore::AuthenticationExtensionsClientOutputs> extensionOutputs;
-    RefPtr<JSC::ArrayBuffer> clientDataJSON;
-    RefPtr<JSC::ArrayBuffer> authenticatorData;
-    RefPtr<JSC::ArrayBuffer> signature;
-    RefPtr<JSC::ArrayBuffer> userHandle;
-};
-
-using WebCore::AuthenticatorResponseDataSerializableForm = Variant<std::nullptr_t, WebCore::AuthenticatorResponseBaseData, WebCore::AuthenticatorAttestationResponseData, WebCore::AuthenticatorAssertionResponseData>;
-
-struct WebCore::AuthenticatorResponseData {
-    WebCore::AuthenticatorResponseDataSerializableForm getSerializableForm();
-};
-
-[Nested] struct WebCore::AuthenticationExtensionsClientInputs::LargeBlobInputs {
-    String support;
-    std::optional<bool> read;
-    std::optional<WebCore::BufferSource> write;
-};
-
-[Nested] struct WebCore::AuthenticationExtensionsClientInputs::PRFValues {
-    WebCore::BufferSource first;
-    std::optional<WebCore::BufferSource> second;
-};
-
-[Nested] struct WebCore::AuthenticationExtensionsClientInputs::PRFInputs {
-    std::optional<WebCore::AuthenticationExtensionsClientInputs::PRFValues> eval;
-    std::optional<Vector<KeyValuePair<String, WebCore::AuthenticationExtensionsClientInputs::PRFValues>>> evalByCredential;
-};
-
-[LegacyPopulateFromEmptyConstructor] struct WebCore::AuthenticationExtensionsClientInputs {
-    String appid;
-    std::optional<bool> credProps;
-    std::optional<WebCore::AuthenticationExtensionsClientInputs::LargeBlobInputs> largeBlob;
-    std::optional<WebCore::AuthenticationExtensionsClientInputs::PRFInputs> prf;
-}
-
-struct WebCore::CredentialPropertiesOutput {
-    bool rk;
-};
-
-[Nested] struct WebCore::AuthenticationExtensionsClientOutputs::LargeBlobOutputs {
-    std::optional<bool> supported;
-    RefPtr<JSC::ArrayBuffer> blob;
-    std::optional<bool> written;
-};
-
-[Nested] struct WebCore::AuthenticationExtensionsClientOutputs::PRFValues {
-    Ref<JSC::ArrayBuffer> first;
-    RefPtr<JSC::ArrayBuffer> second;
-};
-
-[Nested] struct WebCore::AuthenticationExtensionsClientOutputs::PRFOutputs {
-    std::optional<bool> enabled;
-    std::optional<WebCore::AuthenticationExtensionsClientOutputs::PRFValues> results;
-};
-
-struct WebCore::AuthenticationExtensionsClientOutputs {
-    std::optional<bool> appid;
-    std::optional<WebCore::CredentialPropertiesOutput> credProps;
-    std::optional<WebCore::AuthenticationExtensionsClientOutputs::LargeBlobOutputs> largeBlob;
-    std::optional<WebCore::AuthenticationExtensionsClientOutputs::PRFOutputs> prf;
-}
-
 [Nested] struct WebCore::PublicKeyCredentialParameters {
     WebCore::PublicKeyCredentialType type;
     int64_t alg;
-};
-
-struct WebCore::UnknownCredentialOptions {
-    String rpId;
-    String credentialId;
-};
-
-struct WebCore::AllAcceptedCredentialsOptions {
-    String rpId;
-    String userId;
-    Vector<String> allAcceptedCredentialIds;
-};
-
-struct WebCore::CurrentUserDetailsOptions {
-    String rpId;
-    String userId;
-    String name;
-    String displayName;
-};
-
-struct WebCore::AuthenticatorSelectionCriteria {
-    std::optional<WebCore::AuthenticatorAttachment> authenticatorAttachment;
-    std::optional<WebCore::ResidentKeyRequirement> residentKey;
-    bool requireResidentKey;
-    WebCore::UserVerificationRequirement userVerification;
-};
-
-struct WebCore::PublicKeyCredentialEntity {
-    String name;
-    String icon;
-};
-
-struct WebCore::PublicKeyCredentialRpEntity : WebCore::PublicKeyCredentialEntity {
-    String id;
-};
-
-struct WebCore::PublicKeyCredentialUserEntity : WebCore::PublicKeyCredentialEntity {
-    WebCore::BufferSource id;
-    String displayName;
-};
-
-struct WebCore::PublicKeyCredentialDescriptor {
-    WebCore::PublicKeyCredentialType type;
-    WebCore::BufferSource id;
-    Vector<WebCore::AuthenticatorTransport> transports;
-};
-#endif // ENABLE(WEB_AUTHN)
-
-#if ENABLE(WEB_AUTHN)
-enum class WebCore::AttestationConveyancePreference : uint8_t {
-    None,
-    Indirect,
-    Direct,
-    Enterprise
 };
 #endif
 
@@ -1678,48 +867,7 @@ struct WebCore::PlatformMediaCapabilitiesAudioConfiguration {
     std::optional<bool> spatialRendering;
 };
 
-[Nested] enum class WebCore::Cookie::SameSitePolicy : uint8_t {
-    None
-    Lax
-    Strict
-};
-
-struct WebCore::Cookie {
-    String name;
-    String value;
-    String domain;
-    String path;
-    String partitionKey;
-    double created;
-    std::optional<double> expires;
-    bool httpOnly;
-    bool secure;
-    bool session;
-    String comment;
-    URL commentURL;
-    Vector<uint16_t> ports;
-    WebCore::Cookie::SameSitePolicy sameSite;
-};
-
 enum class WebCore::ShouldPartitionCookie : bool
-
-#if ENABLE(VIDEO)
-struct WebCore::VideoFrameMetadata {
-    double presentationTime;
-    double expectedDisplayTime;
-
-    unsigned width;
-    unsigned height;
-    double mediaTime;
-
-    unsigned presentedFrames;
-    std::optional<double> processingDuration;
-
-    std::optional<double> captureTime;
-    std::optional<double> receiveTime;
-    std::optional<unsigned> rtpTimestamp;
-};
-#endif // ENABLE(VIDEO)
 
 struct WebCore::NavigationPreloadState {
     bool enabled;
@@ -1951,21 +1099,8 @@ struct WebCore::ViewportArguments {
 #endif // ENABLE(META_VIEWPORT)
 
 header: <WebCore/HTTPHeaderMap.h>
-[Nested, CustomHeader] struct WebCore::HTTPHeaderMap::CommonHeader {
-    WebCore::HTTPHeaderName key;
-    String value;
-};
 
 header: <WebCore/HTTPHeaderMap.h>
-[Nested, CustomHeader] struct WebCore::HTTPHeaderMap::UncommonHeader {
-    String key;
-    String value;
-};
-
-class WebCore::HTTPHeaderMap {
-    Vector<WebCore::HTTPHeaderMap::CommonHeader, 0, CrashOnOverflow, 6> commonHeaders();
-    Vector<WebCore::HTTPHeaderMap::UncommonHeader, 0, CrashOnOverflow, 0> uncommonHeaders();
-}
 
 struct WebCore::ElementContext {
     WebCore::FloatRect boundingRect;
@@ -1986,6 +1121,7 @@ struct WebCore::SystemPreviewInfo {
 };
 
 header: <WebCore/ResourceRequest.h>
+
 [CustomHeader, Nested] class WebCore::ResourceRequest::RequestData {
     URL m_url;
     URL m_firstPartyForCookies;
@@ -2038,28 +1174,7 @@ header: <WebCore/ResourceRequest.h>
 };
 #endif
 
-[Nested] struct WebCore::ResourceError::IPCData {
-    [Validator='*type != WebCore::ResourceError::Type::Null'] WebCore::ResourceErrorBaseType type;
-#if PLATFORM(COCOA)
-    RetainPtr<NSError> nsError;
-    bool isSanitized;
-#endif // PLATFORM(COCOA)
-#if !PLATFORM(COCOA)
-    String domain;
-    int errorCode;
-    URL failingURL;
-    String localizedDescription;
-    WebCore::ResourceError::IsSanitized isSanitized;
-#endif // !PLATFORM(COCOA)
-#if USE(SOUP)
-    WebCore::CertificateInfo certificateInfo;
-#endif // USE(SOUP)
-};
-
 header: <WebCore/ResourceError.h>
-[CreateUsing=fromIPCData] class WebCore::ResourceError {
-    std::optional<WebCore::ResourceError::IPCData> ipcData();
-};
 
 header: <WebCore/DiagnosticLoggingDomain.h>
 enum class WebCore::DiagnosticLoggingDomain : uint8_t {
@@ -2285,41 +1400,7 @@ header: <WebCore/MediaStreamRequest.h>
     DisplayMedia,
     DisplayMediaWithAudio
 }
-#if ENABLE(MEDIA_STREAM)
-struct WebCore::MediaStreamRequest {
-    WebCore::MediaStreamRequest::Type type;
-    WebCore::MediaConstraints audioConstraints;
-    WebCore::MediaConstraints videoConstraints;
-    bool isUserGesturePriviledged;
-    Markable<WebCore::PageIdentifier> pageIdentifier;
-}
-[LegacyPopulateFromEmptyConstructor, CustomHeader] class WebCore::MediaTrackConstraintSetMap {
-    std::optional<WebCore::IntConstraint> m_width;
-    std::optional<WebCore::IntConstraint> m_height;
-    std::optional<WebCore::IntConstraint> m_sampleRate;
-    std::optional<WebCore::IntConstraint> m_sampleSize;
-    std::optional<WebCore::DoubleConstraint> m_aspectRatio;
-    std::optional<WebCore::DoubleConstraint> m_frameRate;
-    std::optional<WebCore::DoubleConstraint> m_volume;
-    std::optional<WebCore::BooleanConstraint> m_echoCancellation;
-    std::optional<WebCore::BooleanConstraint> m_displaySurface;
-    std::optional<WebCore::BooleanConstraint> m_logicalSurface;
-    std::optional<WebCore::StringConstraint> m_facingMode;
-    std::optional<WebCore::StringConstraint> m_deviceId;
-    std::optional<WebCore::StringConstraint> m_groupId;
-    std::optional<WebCore::StringConstraint> m_whiteBalanceMode;
-    std::optional<WebCore::DoubleConstraint> m_zoom;
-    std::optional<WebCore::BooleanConstraint> m_torch;
-    std::optional<WebCore::BooleanConstraint> m_backgroundBlur;
-    std::optional<WebCore::BooleanConstraint> m_powerEfficient;
-}
-#endif
 
-#if ! ENABLE(MEDIA_STREAM)
-struct WebCore::MediaStreamRequest {
-    WebCore::MediaStreamRequest::Type type;
-};
-#endif
 struct WebCore::PlatformMediaCapabilitiesDecodingInfo : WebCore::PlatformMediaCapabilitiesInfo {
     WebCore::PlatformMediaDecodingConfiguration configuration;
 }
@@ -2456,30 +1537,6 @@ class WebCore::PlatformTimeRanges {
     MediaTime end;
 }
 
-#if ENABLE(VIDEO)
-struct WebCore::VideoPlaybackQualityMetrics {
-    uint32_t totalVideoFrames;
-    uint32_t droppedVideoFrames;
-    uint32_t corruptedVideoFrames;
-    double totalFrameDelay;
-    uint32_t displayCompositedVideoFrames;
-}
-#endif
-
-#if ENABLE(WEB_AUTHN)
-enum class WebCore::AuthenticatorTransport : uint8_t {
-    Usb,
-    Nfc,
-    Ble,
-    Internal,
-    Cable,
-    Hybrid,
-    SmartCard
-};
-
-enum class WebCore::PublicKeyCredentialType : bool
-#endif
-
 enum class WebCore::SelectionRenderingBehavior : bool;
 
 class WebCore::SelectionGeometry {
@@ -2575,19 +1632,6 @@ header: <WebCore/FocusControllerTypes.h>
 #if USE(SOUP)
 header: "ArgumentCodersGLib.h"
 #endif
-class WebCore::CertificateInfo {
-#if PLATFORM(COCOA)
-    RetainPtr<SecTrustRef> trust()
-#endif
-#if USE(CURL)
-    int verificationError()
-    Vector<Vector<uint8_t>> certificateChain()
-#endif
-#if USE(SOUP)
-    GRefPtr<GTlsCertificate> certificate()
-    GTlsCertificateFlags tlsErrors()
-#endif
-}
 
 [Nested] struct WebCore::PasteboardCustomData::Entry {
     String type;
@@ -2645,14 +1689,6 @@ header: <WebCore/TextIndicator.h>
     OptionSet<WebCore::TextIndicatorOption> options;
     std::optional<WebCore::PlatformLayerIdentifier> enclosingGraphicsLayerID;
 }
-
-#if ENABLE(MEDIA_STREAM)
-struct WebCore::MediaConstraints {
-    WebCore::MediaTrackConstraintSetMap mandatoryConstraints;
-    Vector<WebCore::MediaTrackConstraintSetMap> advancedConstraints;
-    bool isValid;
-};
-#endif
 
 struct WebCore::PromisedAttachmentInfo {
 #if ENABLE(ATTACHMENT_ELEMENT)
@@ -3036,38 +2072,6 @@ header: <WebCore/TransformOperationData.h>
     bool isSVGRenderer;
 }
 
-#if ENABLE(WEB_AUTHN)
-enum class WebCore::UserVerificationRequirement : uint8_t {
-    Required,
-    Preferred,
-    Discouraged
-};
-
-enum class WebCore::ResidentKeyRequirement : uint8_t {
-    Required,
-    Preferred,
-    Discouraged
-};
-
-enum class WebCore::AuthenticatorAttachment : uint8_t {
-    Platform,
-    CrossPlatform
-};
-
-#endif // ENABLE(WEB_AUTHN)
-
-#if ENABLE(ENCRYPTED_MEDIA)
-struct WebCore::CDMKeySystemConfiguration {
-    String label;
-    Vector<AtomString> initDataTypes;
-    Vector<WebCore::CDMMediaCapability> audioCapabilities;
-    Vector<WebCore::CDMMediaCapability> videoCapabilities;
-    WebCore::CDMRequirement distinctiveIdentifier;
-    WebCore::CDMRequirement persistentState;
-    Vector<WebCore::CDMSessionType> sessionTypes;
-}
-#endif // ENABLE(ENCRYPTED_MEDIA)
-
 struct WebCore::PlatformMediaConfiguration {
     std::optional<WebCore::PlatformMediaCapabilitiesVideoConfiguration> video;
     std::optional<WebCore::PlatformMediaCapabilitiesAudioConfiguration> audio;
@@ -3086,107 +2090,9 @@ struct WebCore::PlatformMediaDecodingConfiguration : WebCore::PlatformMediaConfi
     bool canExposeVP9;
 };
 
-enum class WebCore::ResourceRequestCachePolicy : uint8_t {
-    UseProtocolCachePolicy,
-    ReloadIgnoringCacheData,
-    ReturnCacheDataElseLoad,
-    ReturnCacheDataDontLoad,
-    DoNotUseAnyCache,
-    RefreshAnyCacheData,
-};
-
-[Nested] enum class WebCore::ResourceRequestBase::SameSiteDisposition : uint8_t {
-    Unspecified,
-    SameSite,
-    CrossSite
-};
-
-[Nested] enum class WebCore::ResourceRequestRequester : uint8_t {
-    Unspecified,
-    Main,
-    XHR,
-    Fetch,
-    Media,
-    Model,
-    ImportScripts,
-    Ping,
-    Beacon,
-    EventSource
-};
-
-enum class WebCore::ResourceLoadPriority : uint8_t {
-    VeryLow,
-    Low,
-    Medium,
-    High,
-    VeryHigh,
-};
-
-[Nested] enum class WebCore::ResourceResponseBaseType : uint8_t {
-    Basic,
-    Cors,
-    Default,
-    Error,
-    Opaque,
-    Opaqueredirect
-};
-
-[Nested] enum class WebCore::ResourceResponseBaseTainting : uint8_t {
-    Basic,
-    Cors,
-    Opaque,
-    Opaqueredirect
-};
-
-[CustomHeader] enum class WebCore::ResourceResponseSource : uint8_t {
-    Unknown,
-    Network,
-    DiskCache,
-    DiskCacheAfterValidation,
-    MemoryCache,
-    MemoryCacheAfterValidation,
-    ServiceWorker,
-    LegacyApplicationCachePlaceholder,
-    DOMCache,
-    InspectorOverride
-};
-
-using WebCore::ResourceResponseBase::Type = WebCore::ResourceResponseBaseType;
-using WebCore::ResourceResponseBase::Tainting = WebCore::ResourceResponseBaseTainting;
-using WebCore::ResourceResponseBase::Source = WebCore::ResourceResponseSource;
-
-class WebCore::ResourceResponseBase {
-    std::optional<WebCore::ResourceResponseData> getResponseData()
-}
-
-class WebCore::ResourceResponse : WebCore::ResourceResponseBase {
-}
-
 header: <WebCore/ResourceResponseBase.h>
 enum class WebCore::UsedLegacyTLS : bool;
 enum class WebCore::WasPrivateRelayed : bool;
-
-[CustomHeader] struct WebCore::ResourceResponseData {
-    URL url;
-    String mimeType;
-    long long expectedContentLength;
-    String textEncodingName;
-    short httpStatusCode;
-    String httpStatusText;
-    String httpVersion;
-    WebCore::HTTPHeaderMap httpHeaderFields;
-    std::optional<WebCore::NetworkLoadMetrics> networkLoadMetrics;
-    WebCore::ResourceResponseBase::Source source;
-    WebCore::ResourceResponseBase::Type type;
-    WebCore::ResourceResponseBase::Tainting tainting;
-    bool isRedirected;
-    WebCore::UsedLegacyTLS usedLegacyTLS;
-    WebCore::WasPrivateRelayed wasPrivateRelayed;
-    String proxyName;
-    bool isRangeRequested;
-    std::optional<WebCore::CertificateInfo> certificateInfo;
-    WebCore::IPAddressSpace ipAddressSpace;
-};
 
 #if PLATFORM(COCOA)
 [RefCounted, CreateUsing=createWithData] class WebCore::ArchiveResource {
@@ -3453,41 +2359,6 @@ header: <WebCore/ImageControlsButtonPart.h>
 header: <WebCore/ColorWellPart.h>
 [RefCounted, AdditionalEncoder=StreamConnectionEncoder, DisableMissingMemberCheck] class WebCore::ColorWellPart {
 }
-
-#if ENABLE(APPLE_PAY)
-header: <WebCore/ApplePayButtonPart.h>
-enum class WebCore::ApplePayButtonType : uint8_t {
-    Plain,
-    Buy,
-    SetUp,
-    Donate,
-    CheckOut,
-    Book,
-    Subscribe,
-#if ENABLE(APPLE_PAY_NEW_BUTTON_TYPES)
-    Reload,
-    AddMoney,
-    TopUp,
-    Order,
-    Rent,
-    Support,
-    Contribute,
-    Tip,
-#endif
-}
-
-enum class WebCore::ApplePayButtonStyle : uint8_t {
-    White,
-    WhiteOutline,
-    Black,
-}
-
-[RefCounted, AdditionalEncoder=StreamConnectionEncoder] class WebCore::ApplePayButtonPart {
-    WebCore::ApplePayButtonType buttonType();
-    WebCore::ApplePayButtonStyle buttonStyle();
-    String locale();
-};
-#endif
 
 [Nested] enum class WebCore::MeterPart::GaugeRegion : uint8_t {
     Optimum,
@@ -3801,7 +2672,6 @@ header: <WebCore/ExceptionDetails.h>
 header: <WebCore/SecurityPolicyViolationEventDisposition.h>
 enum class WebCore::SecurityPolicyViolationEventDisposition : bool
 
-
 header: <WebCore/TextGranularity.h>
 enum class WebCore::TextGranularity : uint8_t {
     CharacterGranularity,
@@ -4001,26 +2871,6 @@ enum class WebCore::ScrollSnapStop : bool;
     Vector<size_t, 1> snapAreaIndices;
 };
 
-#if ENABLE(ENCRYPTED_MEDIA)
-
-enum class WebCore::CDMEncryptionScheme : bool;
-
-enum class WebCore::CDMKeyGroupingStrategy : bool;
-
-struct WebCore::CDMMediaCapability {
-    String contentType;
-    String robustness;
-    std::optional<WebCore::CDMEncryptionScheme> encryptionScheme;
-};
-
-enum class WebCore::CDMSessionType : uint8_t {
-    Temporary,
-    PersistentUsageRecord,
-    PersistentLicense
-};
-
-#endif
-
 struct WebCore::MediaSelectionOption {
     WebCore::MediaSelectionOption::MediaType mediaType;
     String displayName;
@@ -4165,52 +3015,6 @@ using WebCore::SharedStringHash = uint32_t
 struct WebCore::FourCC {
     uint32_t value;
 };
-
-#if ENABLE(VIDEO)
-header: <WebCore/MediaPlayer.h>
-[CustomHeader] struct WebCore::MediaEngineSupportParameters {
-    WebCore::PlatformMediaDecodingType platformType;
-    WebCore::ContentType type;
-    URL url;
-    bool requiresRemotePlayback;
-    bool supportsLimitedMatroska;
-    Vector<WebCore::ContentType> contentTypesRequiringHardwareSupport;
-    std::optional<Vector<String>> allowedMediaContainerTypes;
-    std::optional<Vector<String>> allowedMediaCodecTypes;
-    std::optional<Vector<WebCore::FourCC>> allowedMediaVideoCodecIDs;
-    std::optional<Vector<WebCore::FourCC>> allowedMediaAudioCodecIDs;
-    std::optional<Vector<WebCore::FourCC>> allowedMediaCaptionFormatTypes;
-#if ENABLE(WIRELESS_PLAYBACK_TARGET)
-    WebCore::MediaPlaybackTargetType playbackTargetType;
-#endif
-};
-
-header: <WebCore/MediaPlayer.h>
-[CustomHeader] struct WebCore::SeekTarget {
-    MediaTime time;
-    MediaTime negativeThreshold;
-    MediaTime positiveThreshold;
-};
-
-[OptionSet] enum class WebCore::VideoRendererPreference : uint8_t {
-    PrefersDecompressionSession,
-    ProtectedFallbackDisabled,
-    UseDecompressionSessionForProtectedContent,
-    UseStereoDecoding,
-#if PLATFORM(IOS_FAMILY)
-    CanShowWhileLocked
-#endif
-};
-
-header: <WebCore/MediaPlayer.h>
-[CustomHeader] struct WebCore::MediaPlayerLoadOptions {
-    WebCore::ContentType contentType;
-    bool requiresRemotePlayback;
-    bool supportsLimitedMatroska;
-    OptionSet<WebCore::VideoRendererPreference> videoRendererPreferences;
-};
-
-#endif
 
 enum class WebCore::MediaPlayerNetworkState : uint8_t {
     Empty,
@@ -4413,16 +3217,6 @@ class WebCore::SpeechRecognitionUpdate {
     High
 };
 
-#if ENABLE(VIDEO)
-header: <WebCore/VideoFrame.h>
-enum class WebCore::VideoFrameRotation : uint16_t {
-    None,
-    UpsideDown,
-    Right,
-    Left,
-};
-#endif
-
 [AdditionalEncoder=StreamConnectionEncoder] struct WebCore::GradientColorStop {
     float offset;
     WebCore::Color color;
@@ -4512,107 +3306,6 @@ header: <WebCore/ImageBuffer.h>
     WebCore::AlphaPremultiplication alphaPremultiplication;
 };
 
-#if USE(AUDIO_SESSION)
-header: <WebCore/AudioSession.h>
-[CustomHeader] enum class WebCore::RouteSharingPolicy : uint8_t {
-    Default,
-    LongFormAudio,
-    Independent,
-    LongFormVideo
-};
-
-enum class WebCore::AudioSessionCategory : uint8_t {
-    None,
-    AmbientSound,
-    SoloAmbientSound,
-    MediaPlayback,
-    RecordAudio,
-    PlayAndRecord,
-    AudioProcessing,
-};
-
-enum class WebCore::AudioSessionMode : uint8_t {
-    Default,
-    VideoChat,
-    MoviePlayback,
-};
-
-enum class WebCore::AudioSessionSoundStageSize : uint8_t {
-    Automatic,
-    Small,
-    Medium,
-    Large,
-};
-
-enum class WebCore::AudioSessionMayResume : bool;
-
-enum class WebCore::AudioSessionRoutingArbitrationError : uint8_t {
-    None,
-    Failed,
-    Cancelled
-};
-
-[Nested] enum class WebCore::AudioSessionRoutingArbitrationClient::DefaultRouteChanged : bool;
-#endif
-
-#if ENABLE(ENCRYPTED_MEDIA)
-enum class WebCore::CDMKeyStatus : uint8_t {
-    Usable,
-    Expired,
-    Released,
-    OutputRestricted,
-    OutputDownscaled,
-    StatusPending,
-    InternalError
-};
-
-enum class WebCore::CDMMessageType : uint8_t {
-    LicenseRequest,
-    LicenseRenewal,
-    LicenseRelease,
-    IndividualizationRequest
-};
-
-enum class WebCore::CDMRequirement : uint8_t {
-    Required,
-    Optional,
-    NotAllowed
-};
-
-header: <WebCore/CDMInstanceSession.h>
-enum class WebCore::CDMInstanceSessionLoadFailure : uint8_t {
-    None,
-    NoSessionData,
-    MismatchedSessionType,
-    QuotaExceeded,
-    Other,
-};
-
-header: <WebCore/CDMInstance.h>
-[Nested] enum class WebCore::CDMInstanceHDCPStatus : uint8_t {
-    Unknown,
-    Valid,
-    OutputRestricted,
-    OutputDownscaled,
-};
-#endif
-
-#if ENABLE(WEB_RTC)
-enum class WebCore::RTCDataChannelState : uint8_t {
-    Connecting,
-    Open,
-    Closing,
-    Closed
-};
-
-enum class WebCore::RTCPriorityType : uint8_t {
-    VeryLow,
-    Low,
-    Medium,
-    High
-};
-#endif
-
 [AdditionalEncoder=StreamConnectionEncoder] enum class WebCore::LineCap : uint8_t {
     Butt,
     Round,
@@ -4691,42 +3384,6 @@ header: <WebCore/PlatformMediaSession.h>
     std::optional<bool> fastSeek;
 }
 
-#if ENABLE(VIDEO)
-[Nested, AdditionalEncoder=StreamConnectionEncoder] enum class WebCore::GenericCueData::Alignment : uint8_t {
-    None,
-    Start,
-    Middle,
-    End
-};
-
-[Nested, AdditionalEncoder=StreamConnectionEncoder] enum class WebCore::GenericCueData::Status : uint8_t {
-    Uninitialized,
-    Partial,
-    Complete
-};
-
-header: <WebCore/InbandGenericCue.h>
-[CustomHeader, AdditionalEncoder=StreamConnectionEncoder] struct WebCore::GenericCueData {
-    Markable<WebCore::InbandGenericCueIdentifier> m_uniqueId;
-    MediaTime m_startTime;
-    MediaTime m_endTime;
-    AtomString m_id;
-    String m_content;
-    String m_fontName;
-    double m_line;
-    double m_position;
-    double m_size;
-    double m_baseFontSize;
-    double m_relativeFontSize;
-    WebCore::Color m_foregroundColor;
-    WebCore::Color m_backgroundColor;
-    WebCore::Color m_highlightColor;
-    WebCore::GenericCueData::Alignment m_positionAlign;
-    WebCore::GenericCueData::Alignment m_align;
-    WebCore::GenericCueData::Status m_status;
-};
-#endif
-
 header: <WebCore/ImageDecoder.h>
 [CustomHeader, AdditionalEncoder=StreamConnectionEncoder] struct WebCore::ImageDecoderFrameInfo {
     bool hasAlpha;
@@ -4798,11 +3455,6 @@ struct WebCore::CrossOriginOpenerPolicy {
 struct WebCore::CustomHeaderFields {
     Vector<WebCore::HTTPHeaderField> fields;
     Vector<String> thirdPartyDomains;
-};
-
-[CreateUsing=create] class WebCore::HTTPHeaderField {
-    String name();
-    String value();
 };
 
 struct WebCore::NavigationRequester {
@@ -5129,233 +3781,6 @@ header: <WebCore/SecurityPolicyViolationEvent.h>
     std::optional<uint16_t> port;
 };
 
-#if ENABLE(MEDIA_STREAM)
-
-[Nested] enum class WebCore::MediaConstraint::DataType : uint8_t {
-    Integer,
-    Double,
-    Boolean,
-    String
-};
-
-enum class WebCore::MediaConstraintType : uint8_t {
-    Unknown,
-    Width,
-    Height,
-    AspectRatio,
-    FrameRate,
-    FacingMode,
-    Volume,
-    SampleRate,
-    SampleSize,
-    EchoCancellation,
-    DeviceId,
-    GroupId,
-    DisplaySurface,
-    LogicalSurface,
-    WhiteBalanceMode,
-    Zoom,
-    Torch,
-};
-
-header: <WebCore/MediaConstraints.h>
-[CustomHeader] class WebCore::MediaConstraint {
-    WebCore::MediaConstraint::DataType dataType();
-};
-
-[CustomHeader] class WebCore::IntConstraint : WebCore::MediaConstraint {
-    std::optional<int> m_min;
-    std::optional<int> m_max;
-    std::optional<int> m_exact;
-    [Validator='*dataType == WebCore::MediaConstraint::DataType::Integer'] std::optional<int> m_ideal;
-};
-
-[CustomHeader] class WebCore::DoubleConstraint : WebCore::MediaConstraint {
-    std::optional<double> m_min;
-    std::optional<double> m_max;
-    std::optional<double> m_exact;
-    [Validator='*dataType == WebCore::MediaConstraint::DataType::Double'] std::optional<double> m_ideal;
-};
-
-[CustomHeader] class WebCore::BooleanConstraint : WebCore::MediaConstraint {
-    std::optional<bool> m_exact;
-    [Validator='*dataType == WebCore::MediaConstraint::DataType::Boolean'] std::optional<bool> m_ideal;
-};
-
-[CustomHeader] class WebCore::StringConstraint : WebCore::MediaConstraint {
-    Vector<String> m_exact;
-    [Validator='*dataType == WebCore::MediaConstraint::DataType::String'] Vector<String> m_ideal;
-};
-
-header: <WebCore/VideoPreset.h>
-[CustomHeader] struct WebCore::FrameRateRange {
-    double minimum;
-    double maximum;
-};
-
-[CustomHeader] struct WebCore::VideoPresetData {
-    WebCore::IntSize size;
-    Vector<WebCore::FrameRateRange> frameRateRanges;
-    double minZoom;
-    double maxZoom;
-    bool isEfficient;
-};
-
-class WebCore::RealtimeMediaSourceSupportedConstraints {
-    bool supportsWidth();
-    bool supportsHeight();
-    bool supportsAspectRatio();
-    bool supportsFrameRate();
-    bool supportsFacingMode();
-    bool supportsVolume();
-    bool supportsSampleRate();
-    bool supportsSampleSize();
-    bool supportsEchoCancellation();
-    bool supportsDeviceId();
-    bool supportsGroupId();
-    bool supportsDisplaySurface();
-    bool supportsLogicalSurface();
-    bool supportsFocusDistance();
-    bool supportsWhiteBalanceMode();
-    bool supportsZoom();
-    bool supportsTorch();
-    bool supportsBackgroundBlur();
-    bool supportsPowerEfficient();
-};
-
-[Nested] enum class WebCore::RealtimeMediaSource::Type : bool;
-
-enum class WebCore::VideoFacingMode : uint8_t {
-    Unknown,
-    User,
-    Environment,
-    Left,
-    Right
-};
-
-enum class WebCore::DisplaySurfaceType : uint8_t {
-    Monitor,
-    Window,
-    Application,
-    Browser,
-    Invalid,
-};
-
-header: <WebCore/MeteringMode.h>
-[CustomHeader] enum class WebCore::MeteringMode : uint8_t {
-    None,
-    Manual,
-    SingleShot,
-    Continuous,
-};
-
-class WebCore::RealtimeMediaSourceSettings {
-    uint32_t width();
-    uint32_t height();
-    float frameRate();
-    WebCore::VideoFacingMode facingMode();
-    double volume();
-    uint32_t sampleRate();
-    uint32_t sampleSize();
-    bool echoCancellation();
-    String deviceId();
-    String groupId();
-    String label();
-    WebCore::DisplaySurfaceType displaySurface();
-    bool logicalSurface();
-    WebCore::MeteringMode whiteBalanceMode();
-    double zoom();
-    bool torch();
-    bool backgroundBlur();
-    bool powerEfficient();
-    WebCore::RealtimeMediaSourceSupportedConstraints supportedConstraints();
-};
-
-[Nested] enum class WebCore::CaptureDevice::DeviceType : uint8_t {
-    Unknown,
-    Microphone,
-    Speaker,
-    Camera,
-    Screen,
-    Window,
-    SystemAudio
-};
-
-class WebCore::CaptureDevice {
-    String persistentId();
-    WebCore::CaptureDevice::DeviceType type();
-    String label();
-    String groupId();
-    bool enabled();
-    bool isDefault();
-    bool isMockDevice();
-    bool isEphemeral();
-};
-
-struct WebCore::CaptureDeviceWithCapabilities {
-    WebCore::CaptureDevice device;
-    WebCore::RealtimeMediaSourceCapabilities capabilities;
-};
-
-[Nested] enum class WebCore::RealtimeMediaSourceCapabilities::EchoCancellation : uint8_t {
-    Off,
-    On,
-    OnOrOff
-}
-
-[Nested] enum class WebCore::RealtimeMediaSourceCapabilities::BackgroundBlur : uint8_t {
-    Off,
-    On,
-    OnOff
-}
-
-header: <WebCore/RealtimeMediaSourceCapabilities.h>
-[CustomHeader] class WebCore::DoubleCapabilityRange {
-    double min();
-    [Validator='min <= max'] double max();
-};
-
-header: <WebCore/RealtimeMediaSourceCapabilities.h>
-[CustomHeader] class WebCore::LongCapabilityRange {
-    int min();
-    [Validator='min <= max'] int max();
-};
-
-class WebCore::RealtimeMediaSourceCapabilities {
-    WebCore::LongCapabilityRange width();
-    WebCore::LongCapabilityRange height();
-    WebCore::DoubleCapabilityRange aspectRatio();
-    WebCore::DoubleCapabilityRange frameRate();
-    Vector<WebCore::VideoFacingMode> facingMode();
-    WebCore::DoubleCapabilityRange volume();
-    WebCore::LongCapabilityRange sampleRate();
-    WebCore::LongCapabilityRange sampleSize();
-    WebCore::RealtimeMediaSourceCapabilities::EchoCancellation echoCancellation();
-    String deviceId();
-    String groupId();
-    WebCore::DoubleCapabilityRange focusDistance();
-    Vector<WebCore::MeteringMode> whiteBalanceModes();
-    WebCore::DoubleCapabilityRange zoom();
-    bool torch();
-    WebCore::RealtimeMediaSourceCapabilities::BackgroundBlur backgroundBlur();
-    bool powerEfficient();
-    WebCore::RealtimeMediaSourceSupportedConstraints supportedConstraints();
-};
-
-header: <WebCore/MockMediaDevice.h>
-[Nested, OptionSet] enum class WebCore::MockMediaDevice::Flag : uint8_t {
-    Ephemeral
-    Invalid
-};
-
-header: <WebCore/RealtimeMediaSourceCenter.h>
-[Nested] struct WebCore::RealtimeMediaSourceCenter::ValidDevices {
-    Vector<WebCore::CaptureDevice> audioDevices;
-    Vector<WebCore::CaptureDevice> videoDevices;
-};
-
-#endif // ENABLE(MEDIA_STREAM)
-
 enum class WebCore::PlatformVideoColorPrimaries : uint8_t {
     Bt709,
     Bt470bg,
@@ -5410,128 +3835,6 @@ enum class WebCore::PlatformVideoMatrixCoefficients : uint8_t {
     std::optional<WebCore::PlatformVideoMatrixCoefficients> matrix;
     std::optional<bool> fullRange;
 };
-
-#if ENABLE(VIDEO)
-header: <WebCore/ImmersiveVideoMetadata.h>
-enum class WebCore::HeroEye : uint8_t {
-    Left,
-    Right,
-};
-
-header: <WebCore/ImmersiveVideoMetadata.h>
-enum class WebCore::ViewPackingKind : uint8_t {
-    SideBySide,
-    OverUnder,
-};
-
-header: <WebCore/ImmersiveVideoMetadata.h>
-enum class WebCore::LensAlgorithmKind : uint8_t {
-    ParametricLens,
-};
-
-header: <WebCore/ImmersiveVideoMetadata.h>
-enum class WebCore::LensDomain : uint8_t {
-    Color,
-};
-
-header: <WebCore/ImmersiveVideoMetadata.h>
-enum class WebCore::LensRole : uint8_t {
-    Mono,
-    Left,
-    Right,
-};
-
-header: <WebCore/ImmersiveVideoMetadata.h>
-enum class WebCore::ExtrinsicOriginSource : uint8_t {
-    StereoCameraSystemBaseline,
-};
-
-using WebCore::RadialDistortionCoefficients = Vector<float, 4>;
-using WebCore::LensFrameAdjustmentsPolynomial = Vector<float, 3>;
-using WebCore::ExtrinsicOrientationQuaternion = Vector<float, 3>;
-using WebCore::IntrinsicMatrix = std::array<std::array<float, 4>, 3>;
-
-header: <WebCore/ImmersiveVideoMetadata.h>
-[CustomHeader] struct WebCore::CameraCalibration {
-    WebCore::LensAlgorithmKind lensAlgorithmKind;
-    WebCore::LensDomain lensDomain;
-    int32_t lensIdentifier;
-    WebCore::LensRole lensRole;
-    WebCore::RadialDistortionCoefficients lensDistortions;
-    WebCore::LensFrameAdjustmentsPolynomial lensFrameAdjustmentsPolynomialX;
-    WebCore::LensFrameAdjustmentsPolynomial lensFrameAdjustmentsPolynomialY;
-    float radialAngleLimit;
-    WebCore::IntrinsicMatrix intrinsicMatrix;
-    float intrinsicMatrixProjectionOffset;
-    WebCore::DoubleSize intrinsicMatrixReferenceDimensions;
-    WebCore::ExtrinsicOriginSource extrinsicOriginSource;
-    WebCore::ExtrinsicOrientationQuaternion extrinsicOrientationQuaternion;
-};
-
-enum class WebCore::VideoProjectionMetadataKind : uint8_t {
-    Unknown,
-    Rectilinear,
-    Equirectangular,
-    HalfEquirectangular,
-    EquiAngularCubemap,
-    Parametric,
-    Pyramid,
-    AppleImmersiveVideo,
-};
-
-header: <WebCore/ImmersiveVideoMetadata.h>
-struct WebCore::ImmersiveVideoMetadata {
-    WebCore::VideoProjectionMetadataKind kind;
-    WebCore::IntSize size;
-
-    std::optional<int32_t> horizontalFieldOfView;
-    std::optional<uint32_t> stereoCameraBaseline;
-    std::optional<int32_t> horizontalDisparityAdjustment;
-
-    std::optional<bool> hasLeftStereoEyeView;
-    std::optional<bool> hasRightStereoEyeView;
-    std::optional<WebCore::HeroEye> heroEye;
-    std::optional<WebCore::ViewPackingKind> viewPackingKind;
-    Vector<WebCore::CameraCalibration> cameraCalibrationDataLensCollection;
-    RefPtr<WTF::JSONImpl::Value> parameters;
-};
-
-struct WebCore::PlatformTrackConfiguration {
-    String codec;
-};
-
-struct WebCore::PlatformAudioTrackConfiguration : WebCore::PlatformTrackConfiguration {
-    uint32_t sampleRate;
-    uint32_t numberOfChannels;
-    uint64_t bitrate;
-};
-
-struct WebCore::PlatformVideoTrackConfiguration : WebCore::PlatformTrackConfiguration {
-    uint32_t width;
-    uint32_t height;
-    WebCore::PlatformVideoColorSpace colorSpace;
-    double framerate;
-    uint64_t bitrate;
-    std::optional<WebCore::ImmersiveVideoMetadata> immersiveVideoMetadata;
-    bool isProtected;
-};
-
-#endif
-
-#if ENABLE(WEB_RTC)
-
-header: <WebCore/RTCDataChannelHandler.h>
-[CustomHeader] struct WebCore::RTCDataChannelInit {
-    bool ordered;
-    std::optional<unsigned short> maxPacketLifeTime;
-    std::optional<unsigned short> maxRetransmits;
-    String protocol;
-    bool negotiated;
-    std::optional<unsigned short> id;
-    WebCore::RTCPriorityType priority;
-};
-
-#endif // ENABLE(WEB_RTC)
 
 #if ENABLE(CONTENT_EXTENSIONS)
 
@@ -5930,8 +4233,6 @@ enum class WebCore::TextIndicatorPresentationTransition : uint8_t {
     IncludeDocumentMarkers,
 };
 
-using WebCore::IDBConnectionIdentifier = WebCore::ProcessIdentifier;
-
 using WebCore::TransferredMessagePort = std::pair<WebCore::MessagePortIdentifier, WebCore::MessagePortIdentifier>;
 
 [Nested] enum class WebCore::InteractionRegion::Type : uint8_t {
@@ -5985,233 +4286,6 @@ header: <WebCore/ISOVTTCue.h>
     String sourceID();
     String originalStartTime();
 }
-
-#if ENABLE(WEB_AUTHN)
-
-[Nested] enum class WebCore::MockWebAuthenticationConfiguration::UserVerification : uint8_t {
-    No,
-    Yes,
-    Cancel,
-    Presence
-};
-
-[Nested] struct WebCore::MockWebAuthenticationConfiguration::LocalConfiguration {
-    WebCore::MockWebAuthenticationConfiguration::UserVerification userVerification;
-    bool acceptAttestation;
-    String privateKeyBase64;
-    String userCertificateBase64;
-    String intermediateCACertificateBase64;
-    String preferredCredentialIdBase64;
-};
-
-[Nested] enum class WebCore::MockWebAuthenticationConfiguration::HidStage : bool;
-
-[Nested] enum class WebCore::MockWebAuthenticationConfiguration::HidSubStage : bool;
-
-[Nested] enum class WebCore::MockWebAuthenticationConfiguration::HidError : uint8_t {
-    Success,
-    DataNotSent,
-    EmptyReport,
-    WrongChannelId,
-    MaliciousPayload,
-    UnsupportedOptions,
-    WrongNonce
-};
-
-[Nested] struct WebCore::MockWebAuthenticationConfiguration::HidConfiguration {
-    Vector<String> payloadBase64;
-    Vector<String> expectedCommandsBase64;
-    bool validateExpectedCommands;
-    WebCore::MockWebAuthenticationConfiguration::HidStage stage;
-    WebCore::MockWebAuthenticationConfiguration::HidSubStage subStage;
-    WebCore::MockWebAuthenticationConfiguration::HidError error;
-    bool isU2f;
-    bool keepAlive;
-    bool fastDataArrival;
-    bool continueAfterErrorData;
-    bool canDowngrade;
-    bool expectCancel;
-    bool supportClientPin;
-    bool supportInternalUV;
-    Vector<uint8_t> pinProtocols;
-    int64_t maxCredentialCountInList;
-    int64_t maxCredentialIdLength;
-};
-
-[Nested] enum class WebCore::MockWebAuthenticationConfiguration::NfcError : uint8_t {
-    Success,
-    NoTags,
-    WrongTagType,
-    NoConnections,
-    MaliciousPayload,
-    HardwareBusy
-};
-
-[Nested] struct WebCore::MockWebAuthenticationConfiguration::NfcConfiguration {
-    WebCore::MockWebAuthenticationConfiguration::NfcError error;
-    Vector<String> payloadBase64;
-    bool multipleTags;
-    bool multiplePhysicalTags;
-};
-
-[Nested] struct WebCore::MockWebAuthenticationConfiguration::CcidConfiguration {
-    Vector<String> payloadBase64;
-    String appletSelectionResponseBase64;
-    String u2fVersionResponseBase64;
-};
-
-struct WebCore::MockWebAuthenticationConfiguration {
-    bool silentFailure;
-    std::optional<WebCore::MockWebAuthenticationConfiguration::LocalConfiguration> local;
-    std::optional<WebCore::MockWebAuthenticationConfiguration::HidConfiguration> hid;
-    std::optional<WebCore::MockWebAuthenticationConfiguration::NfcConfiguration> nfc;
-    std::optional<WebCore::MockWebAuthenticationConfiguration::CcidConfiguration> ccid;
-};
-
-header: <WebCore/ISO18013.h>
-[Nested] struct WebCore::ISO18013ElementInfo {
-    bool isRetaining;
-};
-
-[Nested] struct WebCore::ISO18013Any {
-    Variant<std::monostate, int, bool, String, Vector<Box<WebCore::ISO18013Any>>, HashMap<String, Box<WebCore::ISO18013Any>>> data;
-};
-
-[Nested] struct WebCore::ISO18013ZkSystemSpec {
-    String zkSystemId;
-    String system;
-};
-
-[Nested] struct WebCore::ISO18013ZkRequest {
-    Vector<WebCore::ISO18013ZkSystemSpec> systemSpecs;
-    bool zkRequired;
-};
-
-[Nested] struct WebCore::ISO18013AlternativeDataElementsSet {
-    HashMap<String, String> requestedElement;
-    Vector<Vector<HashMap<String, String>>> alternativeElementSets;
-};
-
-[Nested] struct WebCore::ISO18013DocumentRequestInfo {
-    std::optional<WebCore::ISO18013AlternativeDataElementsSet> alternativeDataElements;
-    [Validator='!*issuerIdentifiers || (*issuerIdentifiers)->size() <= 1000'] std::optional<Vector<WebCore::X509SubjectKeyIdentifier>> issuerIdentifiers;
-    std::optional<bool> uniqueDocSetRequired;
-    std::optional<uint32_t> maximumResponseSize;
-    std::optional<WebCore::ISO18013ZkRequest> zkRequest;
-    std::optional<String> encryptionParameterBytes;
-    HashMap<String, WebCore::ISO18013Any> extension;
-};
-
-[Nested] struct WebCore::ISO18013DocumentRequest {
-    String documentType;
-    Vector<std::pair<String, Vector<std::pair<String, WebCore::ISO18013ElementInfo>>>> namespaces;
-    std::optional<WebCore::ISO18013DocumentRequestInfo> requestInfo;
-};
-
-[Nested] struct WebCore::ISO18013DocumentRequestSet {
-    Vector<WebCore::ISO18013DocumentRequest> requests;
-};
-
-[Nested] struct WebCore::ISO18013PresentmentRequest {
-    bool isMandatory;
-    Vector<WebCore::ISO18013DocumentRequestSet> documentRequestSets;
-};
-
-header: <WebCore/X509SubjectKeyIdentifier.h>
-struct WebCore::X509SubjectKeyIdentifier {
-    [Validator='!data->isEmpty() && data->size() <= WebCore::X509SubjectKeyIdentifier::maxSize'] Vector<uint8_t> data;
-}
-
-struct WebCore::MobileDocumentRequest {
-    String deviceRequest;
-    String encryptionInfo;
-};
-
-[Nested] struct WebCore::ValidatedMobileDocumentRequest {
-    Vector<WebCore::CertificateInfo> requestAuthentications;
-    Vector<WebCore::ISO18013PresentmentRequest> presentmentRequests;
-};
-
-header: <WebCore/DigitalCredentialsRequestData.h>
-[AdditionalEncoder=StreamConnectionEncoder] struct WebCore::DigitalCredentialsSecurityOriginData {
-    [Validator='!topOrigin->isNull()'] WebCore::SecurityOriginData topOrigin;
-    [Validator='!documentOrigin->isNull()'] WebCore::SecurityOriginData documentOrigin;
-}
-
-struct WebCore::DigitalCredentialsMobileDocumentRequestData : WebCore::DigitalCredentialsSecurityOriginData {
-    Vector<WebCore::ValidatedMobileDocumentRequest> requests;
-};
-
-#if ENABLE(ISO18013_DOCUMENT_REQUEST_INFO)
-[Nested] enum class WebCore::ResponseType : uint8_t {
-    Attestation,
-    Disclosure,
-};
-
-[AdditionalEncoder=StreamConnectionEncoder] struct WebCore::DigitalCredentialsMobileDocumentRequestDataWithRequestInfo : WebCore::DigitalCredentialsSecurityOriginData {
-    WebCore::ResponseType responseType;
-    String matchingHint;
-}
-#endif // ENABLE(ISO18013_DOCUMENT_REQUEST_INFO)
-
-struct WebCore::DigitalCredentialsResponseData {
-    WebCore::DigitalCredentialPresentationProtocol protocol;
-    String responseDataJSON;
-};
-
-[Nested] enum class WebCore::DigitalCredentialPresentationProtocol : uint8_t {
-    OrgIsoMdoc
-};
-
-#endif // ENABLE(WEB_AUTHN)
-
-#if ENABLE(MEDIA_STREAM)
-
-header: <WebCore/MockMediaDevice.h>
-[CustomHeader] struct WebCore::MockMicrophoneProperties {
-    int defaultSampleRate;
-    std::optional<bool> echoCancellation;
-    uint32_t deviceID;
-};
-
-header: <WebCore/MockMediaDevice.h>
-[CustomHeader] struct WebCore::MockSpeakerProperties {
-    String relatedMicrophoneId;
-    int defaultSampleRate;
-};
-
-header: <WebCore/MockMediaDevice.h>
-[CustomHeader] struct WebCore::MockCameraProperties {
-    double defaultFrameRate;
-    WebCore::VideoFacingMode facingMode;
-    Vector<WebCore::VideoPresetData> presets;
-    WebCore::Color fillColor;
-    Vector<WebCore::MeteringMode> whiteBalanceMode;
-    bool hasTorch;
-};
-
-header: <WebCore/MockMediaDevice.h>
-[CustomHeader] struct WebCore::MockDisplayProperties {
-    WebCore::CaptureDevice::DeviceType type;
-    WebCore::Color fillColor;
-    WebCore::IntSize defaultSize;
-};
-
-header: <WebCore/MockMediaDevice.h>
-[CustomHeader] struct WebCore::MockMediaDevice {
-    String persistentId;
-    String label;
-    OptionSet<WebCore::MockMediaDevice::Flag> flags;
-    bool isDefault;
-    Variant<WebCore::MockMicrophoneProperties, WebCore::MockSpeakerProperties, WebCore::MockCameraProperties, WebCore::MockDisplayProperties> properties;
-};
-
-[Nested] enum class WebCore::MockMediaDevice::Flag : uint8_t {
-    Ephemeral
-    Invalid
-};
-
-#endif // ENABLE(MEDIA_STREAM)
 
 header: <WebCore/StorageType.h>
 enum class WebCore::StorageType : uint8_t {
@@ -7132,64 +5206,6 @@ enum class WebCore::WebGPU::TextureFormat : uint8_t {
     Astc12x12UnormSRGB,
 };
 
-#if ENABLE(MEDIA_STREAM)
-enum class WebCore::MediaAccessDenialReason : uint8_t {
-    NoReason,
-    NoConstraints,
-    UserMediaDisabled,
-    NoCaptureDevices,
-    InvalidConstraint,
-    HardwareError,
-    PermissionDenied,
-    InvalidAccess,
-    OtherFailure
-};
-
-header: <WebCore/RealtimeMediaSource.h>
-[CustomHeader] struct WebCore::CaptureSourceError {
-    String errorMessage;
-    WebCore::MediaAccessDenialReason denialReason;
-    WebCore::MediaConstraintType invalidConstraint;
-};
-
-header: <WebCore/FillLightMode.h>
-enum class WebCore::FillLightMode : uint8_t {
-    Auto,
-    Off,
-    Flash,
-};
-
-header: <WebCore/RedEyeReduction.h>
-enum class WebCore::RedEyeReduction : uint8_t {
-    Never,
-    Always,
-    Controllable,
-};
-
-header: <WebCore/MediaSettingsRange.h>
-[CustomHeader] struct WebCore::MediaSettingsRange {
-    std::optional<double> max;
-    std::optional<double> min;
-    std::optional<double> step;
-};
-
-header: <WebCore/PhotoCapabilities.h>
-[CustomHeader] struct WebCore::PhotoCapabilities {
-    std::optional<WebCore::RedEyeReduction> redEyeReduction;
-    std::optional<WebCore::MediaSettingsRange> imageHeight;
-    std::optional<WebCore::MediaSettingsRange> imageWidth;
-    std::optional<Vector<WebCore::FillLightMode>> fillLightMode;
-};
-
-header: <WebCore/PhotoSettings.h>
-[CustomHeader] struct WebCore::PhotoSettings {
-    std::optional<WebCore::FillLightMode> fillLightMode;
-    std::optional<double> imageHeight;
-    std::optional<double> imageWidth;
-    std::optional<bool> redEyeReduction;
-};
-#endif
-
 header: <WebCore/WebGPUTextureAspect.h>
 enum class WebCore::WebGPU::TextureAspect : uint8_t {
     All,
@@ -7201,16 +5217,6 @@ enum class WebCore::WebGPU::PowerPreference : bool
 
 header: <WebCore/WebGPUPredefinedColorSpace.h>
 using WebCore::WebGPU::PredefinedColorSpace = WebCore::PredefinedColorSpace
-
-struct WebCore::CookieStoreGetOptions {
-    String name;
-    String url;
-};
-
-struct WebCore::CookieChangeSubscription {
-    String name;
-    String url;
-};
 
 [RefCounted] class WebCore::Model {
     Ref<WebCore::SharedBuffer> data()
@@ -7408,44 +5414,6 @@ header: <WebCore/InspectorFrontendClient.h>
     bool base64Encoded;
 };
 
-#if ENABLE(VIDEO)
-header: <WebCore/PlatformTextTrack.h>
-[Nested, CustomHeader] enum class WebCore::PlatformTextTrackData::TrackKind : uint8_t {
-    Subtitle,
-    Caption,
-    Description,
-    Chapter,
-    MetaData,
-    Forced,
-};
-
-header: <WebCore/PlatformTextTrack.h>
-[Nested, CustomHeader] enum class WebCore::PlatformTextTrackData::TrackType : uint8_t {
-    InBand,
-    OutOfBand,
-    Script,
-};
-
-header: <WebCore/PlatformTextTrack.h>
-[Nested, CustomHeader] enum class WebCore::PlatformTextTrackData::TrackMode : uint8_t {
-    Disabled,
-    Hidden,
-    Showing,
-};
-
-header: <WebCore/PlatformTextTrack.h>
-[CustomHeader] struct WebCore::PlatformTextTrackData {
-    String m_label;
-    String m_language;
-    String m_url;
-    WebCore::PlatformTextTrackData::TrackMode m_mode;
-    WebCore::PlatformTextTrackData::TrackKind m_kind;
-    WebCore::PlatformTextTrackData::TrackType m_type;
-    int m_uniqueId;
-    bool m_isDefault;
-}
-#endif // ENABLE(VIDEO)
-
 [WebKitPlatform] struct WebCore::NotificationPayload {
     URL defaultActionURL;
     String title;
@@ -7521,10 +5489,6 @@ header: <WebCore/NetworkLoadMetrics.h>
 }
 
 header: <WebCore/ResourceLoadTiming.h>
-class WebCore::ResourceLoadTiming {
-    MonotonicTime startTime();
-    MonotonicTime endTime();
-}
 
 header: <WebCore/ServerTiming.h>
 struct WebCore::ServerTiming {
@@ -7536,15 +5500,6 @@ struct WebCore::ServerTiming {
 }
 
 header: <WebCore/ResourceTiming.h>
-[CustomHeader] class WebCore::ResourceTiming {
-    URL url();
-    String initiatorType();
-    WebCore::ResourceLoadTiming resourceLoadTiming();
-    WebCore::NetworkLoadMetrics networkLoadMetrics();
-    Vector<WebCore::ServerTiming> serverTiming();
-    bool isLoadedFromServiceWorker();
-    bool isSameOriginRequest();
-}
 
 struct WebCore::DisplayUpdate {
     unsigned updateIndex;
@@ -7750,15 +5705,6 @@ header: <WebCore/WheelEventTestMonitor.h>
 };
 
 header: <WebCore/CrossOriginAccessControl.h>
-[OptionSet] enum class WebCore::HTTPHeadersToKeepFromCleaning : uint8_t {
-    AcceptEncoding,
-    CacheControl,
-    ContentType,
-    Origin,
-    Pragma,
-    Referer,
-    UserAgent,
-};
 
 enum class WebCore::ExceptionCode : uint8_t {
     IndexSizeError,
@@ -7818,14 +5764,6 @@ enum class WebCore::BackgroundFetchResult : uint8_t {
     Failure
 };
 
-enum class WebCore::ResourceErrorBaseType : uint8_t {
-     Null,
-     General,
-     AccessControl,
-     Cancellation,
-     Timeout,
-}
-
 enum class WebCore::CredentialPersistence : uint8_t {
      None,
      ForSession,
@@ -7864,46 +5802,6 @@ header: <WebCore/PixelBuffer.h>
     WebCore::IntSize size();
     std::span<const uint8_t> bytes();
 };
-
-#if ENABLE(WEB_AUTHN)
-header: <WebCore/MediationRequirement.h>
-enum class WebCore::MediationRequirement : uint8_t {
-    Silent,
-    Optional,
-    Required,
-    Conditional,
-};
-#endif
-
-#if ENABLE(VIDEO)
-header: <WebCore/VTTCue.h>
-[Nested] enum class WebCore::VTTDirectionSetting : uint8_t {
-    Horizontal,
-    VerticalGrowingLeft,
-    VerticalGrowingRight,
-};
-
-[Nested] enum class WebCore::VTTLineAlignSetting : uint8_t {
-    Start,
-    Center,
-    End,
-};
-
-[Nested] enum class WebCore::VTTPositionAlignSetting : uint8_t {
-    LineLeft,
-    Center,
-    LineRight,
-    Auto,
-};
-
-[Nested] enum class WebCore::VTTAlignSetting : uint8_t {
-    Start,
-    Center,
-    End,
-    Left,
-    Right,
-};
-#endif
 
 #if ENABLE(CONTEXT_MENUS)
 header: <WebCore/ContextMenuContext.h>
@@ -7956,16 +5854,6 @@ struct WebCore::MarkupExclusionRule {
     Vector<std::pair<AtomString, AtomString>> attributes;
 };
 
-#if ENABLE(VIDEO)
-header: <WebCore/CaptionUserPreferences.h>
-enum class WebCore::CaptionUserPreferencesDisplayMode : uint8_t {
-    Automatic,
-    ForcedOnly,
-    AlwaysOn,
-    Manual,
-};
-#endif
-
 header: <WebCore/InspectorBackendClient.h>
 enum class WebCore::InspectorBackendClientDeveloperPreference : uint8_t {
     PrivateClickMeasurementDebugModeEnabled,
@@ -7985,18 +5873,6 @@ enum class WebCore::InspectorBackendClientDeveloperPreference : uint8_t {
     WebCore::AppKitControlSystemImage
 #endif
 }
-
-#if ENABLE(WEB_CODECS)
-header: <WebCore/WebCodecsEncodedVideoChunk.h>
-[CustomHeader, RefCounted] class WebCore::WebCodecsEncodedVideoChunkStorage {
-    WebCore::WebCodecsEncodedVideoChunkData data();
-};
-
-header: <WebCore/WebCodecsEncodedAudioChunk.h>
-[CustomHeader, RefCounted] class WebCore::WebCodecsEncodedAudioChunkStorage {
-    WebCore::WebCodecsEncodedAudioChunkData data();
-};
-#endif
 
 #if USE(LIBRICE)
 header: <WebCore/RiceGatherResult.h>
@@ -8160,52 +6036,6 @@ header: <WebCore/AppleVisualEffect.h>
     WebCore::AppleVisualEffect contextEffect;
     WebCore::AppleVisualEffectData::ColorScheme colorScheme;
     std::optional<WebCore::FloatRoundedRect> borderRect;
-};
-
-#endif
-
-#if ENABLE(MEDIA_SOURCE)
-
-header: <WebCore/MediaSourcePrivate.h>
-enum class WebCore::MediaSourcePrivateAddStatus : uint8_t {
-    Ok,
-    NotSupported,
-    ReachedIdLimit,
-    InvalidState
-};
-
-header: <WebCore/MediaSourcePrivate.h>
-enum class WebCore::MediaSourcePrivateEndOfStreamStatus : uint8_t {
-    NoError,
-    NetworkError,
-    DecodeError
-};
-
-header: <WebCore/SourceBufferPrivate.h>
-enum class WebCore::SourceBufferAppendMode : uint8_t {
-    Segments,
-    Sequence
-};
-
-header: <WebCore/SourceBufferPrivateClient.h>
-[CustomHeader] struct WebCore::SourceBufferEvictionData {
-    uint64_t contentSize;
-    int64_t evictableSize;
-    uint64_t maximumBufferSize;
-    uint64_t numMediaSamples;
-};
-
-using WebCore::SourceBufferPrivate::SamplesPromise::Result = Expected<Vector<String>, WebCore::PlatformMediaError>
-
-header: <WebCore/MediaSourceConfiguration.h>
-struct WebCore::MediaSourceConfiguration {
-    bool textTracksEnabled;
-#if USE(MEDIAPARSERD)
-    bool demuxInProcess;
-#endif
-#if ENABLE(MEDIA_RECORDER_WEBM)
-    bool supportsLimitedMatroska;
-#endif
 };
 
 #endif
@@ -8436,32 +6266,6 @@ header: <WebCore/TextRecognitionResult.h>
     Vector<WebCore::FloatQuad> normalizedQuads;
 };
 #endif // ENABLE(IMAGE_ANALYSIS) && ENABLE(DATA_DETECTION)
-
-#if ENABLE(VIDEO)
-
-header: <WebCore/AudioTrackPrivate.h>
-[Nested] enum class WebCore::AudioTrackPrivate::Kind : uint8_t {
-    Alternative,
-    Description,
-    Main,
-    MainDesc,
-    Translation,
-    Commentary,
-    None
-};
-
-header: <WebCore/VideoTrackPrivate.h>
-[Nested] enum class WebCore::VideoTrackPrivate::Kind : uint8_t {
-    Alternative,
-    Captions,
-    Main,
-    Sign,
-    Subtitles,
-    Commentary,
-    None
-};
-
-#endif
 
 #if PLATFORM(COCOA)
 
@@ -8763,22 +6567,6 @@ header: <WebCore/FilterFunction.h>
     SourceGraphic
 };
 
-#if ENABLE(VIDEO)
-class WebCore::SerializedPlatformDataCueValue {
-    std::optional<WebCore::SerializedPlatformDataCueValue::Data> data()
-}
-
-[Nested] struct WebCore::SerializedPlatformDataCueValue::Data {
-#if PLATFORM(COCOA)
-    String type;
-    HashMap<String, String> otherAttributes;
-    String key;
-    RetainPtr<NSLocale> locale;
-    Variant<std::nullptr_t, RetainPtr<NSString>, RetainPtr<NSDate>, RetainPtr<NSNumber>, RetainPtr<NSData>> value;
-#endif
-};
-#endif
-
 header: <WebCore/SharedBuffer.h>
 [RefCounted, CustomHeader, CreateUsing=fromIPCData] class WebCore::FragmentedSharedBuffer {
     Variant<std::optional<WebCore::SharedMemoryHandle>, Vector<std::span<const uint8_t>>> toIPCData();
@@ -8799,18 +6587,8 @@ using WebCore::Glyph = unsigned short
 enum class WebCore::ContentExtensionDefaultEnablement : bool
 using WebCore::ContentExtensionEnablement = std::pair<WebCore::ContentExtensionDefaultEnablement, HashSet<String>>;
 
-using WebCore::DOMCacheEngine::CacheInfosOrError = Expected<WebCore::DOMCacheEngine::CacheInfos, WebCore::DOMCacheEngine::Error>;
-using WebCore::DOMCacheEngine::CacheIdentifierOrError = Expected<WebCore::DOMCacheEngine::CacheIdentifierOperationResult, WebCore::DOMCacheEngine::Error>
-using WebCore::DOMCacheEngine::RecordIdentifiersOrError = Expected<Vector<uint64_t>, WebCore::DOMCacheEngine::Error>
-using WebCore::DOMCacheEngine::CrossThreadRecordsOrError = Expected<Vector<WebCore::DOMCacheEngine::CrossThreadRecord>, WebCore::DOMCacheEngine::Error>
-using WebCore::DOMCacheEngine::RemoveCacheIdentifierOrError = Expected<bool, WebCore::DOMCacheEngine::Error>
-
 using WebCore::SVGFilterExpression = Vector<WebCore::SVGFilterExpressionTerm>;
 using WebCore::SandboxFlags = OptionSet<WebCore::SandboxFlag>;
-#if ENABLE(VIDEO)
-using WebCore::MediaPlayer::VideoFullscreenMode = uint32_t
-using WebCore::TrackID = uint64_t
-#endif
 using WebCore::EpochTimeStamp = uint64_t
 using WebCore::SharedMemory::Handle = WebCore::SharedMemoryHandle
 using WebCore::ServiceWorkerOrClientIdentifier = Variant<WebCore::ScriptExecutionContextIdentifier, WebCore::ServiceWorkerIdentifier>
@@ -8848,28 +6626,6 @@ using WebCore::PageOverlay::PageOverlayID = uint64_t
     SVG_MEETORSLICE_SLICE
 }
 
-#if ENABLE(VIDEO)
-enum class WebCore::PlatformMediaError : uint8_t {
-    AppendError,
-    ClientDisconnected,
-    BufferRemoved,
-    SourceRemoved,
-    IPCError,
-    ParsingError,
-    MemoryError,
-    Cancelled,
-    LogicError,
-    DecoderCreationError,
-    NotSupportedError,
-    NetworkError,
-    NotReady,
-    AudioDecodingError,
-    VideoDecodingError,
-    InvalidState,
-    CDMInstanceKeyNeeded,
-};
-#endif
-
 [WebKitPlatform] enum class WebCore::NotificationDirection : uint8_t {
     Auto,
     Ltr,
@@ -8887,7 +6643,6 @@ header: <WebCore/InspectorFrontendClient.h>
 using Inspector::ExtensionTabID = String
 #endif
 
-using WebCore::IDBKeyPath = Variant<String, Vector<String>>;
 using WebCore::ServiceWorkerOrClientData = Variant<WebCore::ServiceWorkerData, WebCore::ServiceWorkerClientData>
 enum class WebCore::CrossOriginMode : bool
 
@@ -8913,23 +6668,6 @@ enum class WebCore::ShouldRestoreFromBackForwardCache : uint8_t {
     Unspecified,
 };
 enum class WebCore::RestoredFromBackForwardCache : bool
-
-#if ENABLE(GPU_PROCESS) && ENABLE(ENCRYPTED_MEDIA)
-header: <WebCore/CDMPrivate.h>
-enum class WebCore::CDMPrivateLocalStorageAccess : bool
-enum class WebCore::CDMInstanceAllowPersistentState : bool
-enum class WebCore::CDMInstanceSuccessValue : bool
-enum class WebCore::CDMInstanceAllowDistinctiveIdentifiers : bool
-#endif
-
-#if ENABLE(GPU_PROCESS) && ENABLE(LEGACY_ENCRYPTED_MEDIA)
-header: <WebCore/LegacyCDMSession.h>
-using WebCore::LegacyCDMSessionClient::MediaKeyErrorCode = unsigned short
-#endif
-
-#if ENABLE(GPU_PROCESS) && ENABLE(VIDEO)
-enum class WebCore::ShouldContinuePolicyCheck : bool
-#endif
 
 #if ENABLE(GAMEPAD)
 enum class WebCore::EventMakesGamepadsVisible : bool
@@ -9114,20 +6852,6 @@ struct WebCore::CryptoKeyData {
     std::optional<WebCore::CryptoKeyType> type;
 };
 
-[Nested] enum class WebCore::ResourceError::IsSanitized : bool
-
-#if ENABLE(DOM_AUDIO_SESSION)
-header: <WebCore/DOMAudioSession.h>
-enum class WebCore::DOMAudioSessionType : uint8_t {
-    Auto,
-    Playback,
-    Transient,
-    TransientSolo,
-    Ambient,
-    PlayAndRecord
-};
-#endif
-
 header: <WebCore/TrackInfo.h>
 enum class WebCore::TrackInfoTrackType : uint8_t {
     Unknown,
@@ -9143,18 +6867,6 @@ enum class WebCore::EncryptionBoxType : uint8_t {
 };
 
 using WebCore::TrackInfoAtomData = std::pair<WebCore::FourCC, Ref<WebCore::SharedBuffer>>;
-
-#if ENABLE(ENCRYPTED_MEDIA)
-using WebCore::TrackInfoEncryptionData = std::pair<WebCore::EncryptionBoxType, Ref<WebCore::SharedBuffer>>;
-using WebCore::TrackInfoEncryptionInitData = WebCore::TrackInfoAtomData;
-
-header: <WebCore/TrackInfo.h>
-[CustomHeader] struct WebCore::EncryptionDataCollection {
-    WebCore::TrackInfoEncryptionData encryptionData;
-    std::optional<WebCore::FourCC> encryptionOriginalFormat;
-    Vector<WebCore::TrackInfoEncryptionInitData> encryptionInitDatas;
-};
-#endif
 
 header: <WebCore/TrackInfo.h>
 [CustomHeader] struct WebCore::TrackInfoData {

@@ -48,6 +48,13 @@ $(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/GeneratedSerializersModelProcess
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/GeneratedSerializersNetworkProcess.mm
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/GeneratedSerializersPlatform.mm
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/GeneratedSerializersShared.mm
+$(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/GeneratedSerializersSharedExtensions.mm
+$(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/GeneratedSerializersSharedWebCoreArgumentCodersAuth.mm
+$(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/GeneratedSerializersSharedWebCoreArgumentCodersMedia.mm
+$(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/GeneratedSerializersSharedWebCoreArgumentCodersNetwork.mm
+$(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/GeneratedSerializersSharedWebCoreArgumentCodersPayment.mm
+$(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/GeneratedSerializersSharedWebCoreArgumentCodersStorage.mm
+$(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/GeneratedSerializersSharedWebGPU.mm
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/GeneratedSerializersUIProcess.mm
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/GeneratedSerializersWebProcess.mm
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/GeneratedWebKitSecureCoding.h

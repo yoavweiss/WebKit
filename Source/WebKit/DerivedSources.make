@@ -825,6 +825,11 @@ SERIALIZATION_DESCRIPTION_FILES = \
 	Shared/WebBackForwardListCounts.serialization.in \
 	Shared/WebContextMenuItemData.serialization.in \
 	Shared/WebCoreArgumentCoders.serialization.in \
+	Shared/WebCoreArgumentCodersAuth.serialization.in \
+	Shared/WebCoreArgumentCodersMedia.serialization.in \
+	Shared/WebCoreArgumentCodersNetwork.serialization.in \
+	Shared/WebCoreArgumentCodersPayment.serialization.in \
+	Shared/WebCoreArgumentCodersStorage.serialization.in \
 	Shared/WebCoreFont.serialization.in \
 	Shared/WebEvent.serialization.in \
 	Shared/WebFindOptions.serialization.in \
@@ -993,11 +998,18 @@ WEBCORE_SERIALIZATION_DESCRIPTION_FILES = \
 
 WEBCORE_SERIALIZATION_DESCRIPTION_FILES_FULLPATH := $(foreach I,$(WEBCORE_SERIALIZATION_DESCRIPTION_FILES),$(WebCorePrivateHeaders)/$I)
 
-all : IPC/GeneratedSerializers.h IPC/GeneratedSerializersShared.mm IPC/GeneratedSerializersWebProcess.mm IPC/GeneratedSerializersGPUProcess.mm IPC/GeneratedSerializersNetworkProcess.mm IPC/GeneratedSerializersPlatform.mm IPC/GeneratedSerializersModelProcess.mm IPC/GeneratedSerializersUIProcess.mm IPC/GeneratedSerializersCommon.mm IPC/GeneratedWebKitSecureCoding.h IPC/GeneratedWebKitSecureCoding.mm IPC/SerializedTypeInfo.mm IPC/WebKitPlatformGeneratedSerializers.mm
+all : IPC/GeneratedSerializers.h IPC/GeneratedSerializersShared.mm IPC/GeneratedSerializersSharedExtensions.mm IPC/GeneratedSerializersSharedWebGPU.mm IPC/GeneratedSerializersSharedWebCoreArgumentCodersAuth.mm IPC/GeneratedSerializersSharedWebCoreArgumentCodersMedia.mm IPC/GeneratedSerializersSharedWebCoreArgumentCodersNetwork.mm IPC/GeneratedSerializersSharedWebCoreArgumentCodersPayment.mm IPC/GeneratedSerializersSharedWebCoreArgumentCodersStorage.mm IPC/GeneratedSerializersWebProcess.mm IPC/GeneratedSerializersGPUProcess.mm IPC/GeneratedSerializersNetworkProcess.mm IPC/GeneratedSerializersPlatform.mm IPC/GeneratedSerializersModelProcess.mm IPC/GeneratedSerializersUIProcess.mm IPC/GeneratedSerializersCommon.mm IPC/GeneratedWebKitSecureCoding.h IPC/GeneratedWebKitSecureCoding.mm IPC/SerializedTypeInfo.mm IPC/WebKitPlatformGeneratedSerializers.mm
 
 GENERATED_SERIALIZERS_OUTPUT_FILES = \
     IPC/GeneratedSerializers.h \
     IPC/GeneratedSerializersShared.mm \
+    IPC/GeneratedSerializersSharedExtensions.mm \
+    IPC/GeneratedSerializersSharedWebGPU.mm \
+    IPC/GeneratedSerializersSharedWebCoreArgumentCodersAuth.mm \
+    IPC/GeneratedSerializersSharedWebCoreArgumentCodersMedia.mm \
+    IPC/GeneratedSerializersSharedWebCoreArgumentCodersNetwork.mm \
+    IPC/GeneratedSerializersSharedWebCoreArgumentCodersPayment.mm \
+    IPC/GeneratedSerializersSharedWebCoreArgumentCodersStorage.mm \
     IPC/GeneratedSerializersWebProcess.mm \
     IPC/GeneratedSerializersGPUProcess.mm \
     IPC/GeneratedSerializersNetworkProcess.mm \

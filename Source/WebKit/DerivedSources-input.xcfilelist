@@ -417,6 +417,11 @@ $(PROJECT_DIR)/Shared/WebBackForwardListCounts.serialization.in
 $(PROJECT_DIR)/Shared/WebCompiledContentRuleListData.serialization.in
 $(PROJECT_DIR)/Shared/WebContextMenuItemData.serialization.in
 $(PROJECT_DIR)/Shared/WebCoreArgumentCoders.serialization.in
+$(PROJECT_DIR)/Shared/WebCoreArgumentCodersAuth.serialization.in
+$(PROJECT_DIR)/Shared/WebCoreArgumentCodersMedia.serialization.in
+$(PROJECT_DIR)/Shared/WebCoreArgumentCodersNetwork.serialization.in
+$(PROJECT_DIR)/Shared/WebCoreArgumentCodersPayment.serialization.in
+$(PROJECT_DIR)/Shared/WebCoreArgumentCodersStorage.serialization.in
 $(PROJECT_DIR)/Shared/WebCoreFont.serialization.in
 $(PROJECT_DIR)/Shared/WebEvent.serialization.in
 $(PROJECT_DIR)/Shared/WebExtensionContextParameters.serialization.in

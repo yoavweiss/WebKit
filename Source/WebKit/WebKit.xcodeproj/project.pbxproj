@@ -1761,6 +1761,13 @@
 		7CF47FF717275B71008ACB91 /* WKBundlePageBanner.h in Headers */ = {isa = PBXBuildFile; fileRef = 7CF47FF517275B71008ACB91 /* WKBundlePageBanner.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		7CF47FFB17275C57008ACB91 /* PageBanner.h in Headers */ = {isa = PBXBuildFile; fileRef = 7CF47FF917275C57008ACB91 /* PageBanner.h */; };
 		7CF47FFF17276AE3008ACB91 /* WKBundlePageBannerMac.h in Headers */ = {isa = PBXBuildFile; fileRef = 7CF47FFD17276AE3008ACB91 /* WKBundlePageBannerMac.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		7E0E785501701FB501FB7E03 /* GeneratedSerializersSharedExtensions.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7E0E785501701FB501FB7E04 /* GeneratedSerializersSharedExtensions.mm */; };
+		7E70A07B501701FB501FB510 /* GeneratedSerializersSharedWebCoreArgumentCodersAuth.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7E70A07B501701FB501FB511 /* GeneratedSerializersSharedWebCoreArgumentCodersAuth.mm */; };
+		7E70A07B501701FB501FB512 /* GeneratedSerializersSharedWebCoreArgumentCodersMedia.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7E70A07B501701FB501FB513 /* GeneratedSerializersSharedWebCoreArgumentCodersMedia.mm */; };
+		7E70A07B501701FB501FB514 /* GeneratedSerializersSharedWebCoreArgumentCodersNetwork.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7E70A07B501701FB501FB515 /* GeneratedSerializersSharedWebCoreArgumentCodersNetwork.mm */; };
+		7E70A07B501701FB501FB516 /* GeneratedSerializersSharedWebCoreArgumentCodersPayment.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7E70A07B501701FB501FB517 /* GeneratedSerializersSharedWebCoreArgumentCodersPayment.mm */; };
+		7E70A07B501701FB501FB518 /* GeneratedSerializersSharedWebCoreArgumentCodersStorage.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7E70A07B501701FB501FB519 /* GeneratedSerializersSharedWebCoreArgumentCodersStorage.mm */; };
+		7EB6760501701FB501FB7E05 /* GeneratedSerializersSharedWebGPU.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7EB6760501701FB501FB7E06 /* GeneratedSerializersSharedWebGPU.mm */; };
 		8310428B1BD6B66F00A715E4 /* NetworkCacheSubresourcesEntry.h in Headers */ = {isa = PBXBuildFile; fileRef = 831042891BD6B66F00A715E4 /* NetworkCacheSubresourcesEntry.h */; };
 		8313F7EC1F7DAE0800B944EB /* SharedStringHashStore.h in Headers */ = {isa = PBXBuildFile; fileRef = 8313F7E91F7DAE0300B944EB /* SharedStringHashStore.h */; };
 		8313F7EE1F7DAE0800B944EB /* SharedStringHashTable.h in Headers */ = {isa = PBXBuildFile; fileRef = 8313F7E71F7DAE0300B944EB /* SharedStringHashTable.h */; };
@@ -7258,6 +7265,13 @@
 		7DDEC9D32D4C5DDA000B1353 /* WebExtensionRegisteredScriptsSQLiteStore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WebExtensionRegisteredScriptsSQLiteStore.h; sourceTree = "<group>"; };
 		7DDEC9D42D4C5DDA000B1353 /* WebExtensionRegisteredScriptsSQLiteStore.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = WebExtensionRegisteredScriptsSQLiteStore.cpp; sourceTree = "<group>"; };
 		7DE4AC4A2E55521C00475DD8 /* WebExtensionDeclarativeNetRequestSQLiteStoreCocoa.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = WebExtensionDeclarativeNetRequestSQLiteStoreCocoa.mm; sourceTree = "<group>"; };
+		7E0E785501701FB501FB7E04 /* GeneratedSerializersSharedExtensions.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = GeneratedSerializersSharedExtensions.mm; sourceTree = "<group>"; };
+		7E70A07B501701FB501FB511 /* GeneratedSerializersSharedWebCoreArgumentCodersAuth.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = GeneratedSerializersSharedWebCoreArgumentCodersAuth.mm; sourceTree = "<group>"; };
+		7E70A07B501701FB501FB513 /* GeneratedSerializersSharedWebCoreArgumentCodersMedia.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = GeneratedSerializersSharedWebCoreArgumentCodersMedia.mm; sourceTree = "<group>"; };
+		7E70A07B501701FB501FB515 /* GeneratedSerializersSharedWebCoreArgumentCodersNetwork.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = GeneratedSerializersSharedWebCoreArgumentCodersNetwork.mm; sourceTree = "<group>"; };
+		7E70A07B501701FB501FB517 /* GeneratedSerializersSharedWebCoreArgumentCodersPayment.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = GeneratedSerializersSharedWebCoreArgumentCodersPayment.mm; sourceTree = "<group>"; };
+		7E70A07B501701FB501FB519 /* GeneratedSerializersSharedWebCoreArgumentCodersStorage.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = GeneratedSerializersSharedWebCoreArgumentCodersStorage.mm; sourceTree = "<group>"; };
+		7EB6760501701FB501FB7E06 /* GeneratedSerializersSharedWebGPU.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = GeneratedSerializersSharedWebGPU.mm; sourceTree = "<group>"; };
 		7EC4F0F918E4A945008056AF /* NetworkProcessCocoa.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = NetworkProcessCocoa.mm; sourceTree = "<group>"; };
 		816C18758ACB9F66D87FBE39 /* WKImmersiveEnvironmentInternal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WKImmersiveEnvironmentInternal.h; sourceTree = "<group>"; };
 		831042891BD6B66F00A715E4 /* NetworkCacheSubresourcesEntry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NetworkCacheSubresourcesEntry.h; sourceTree = "<group>"; };
@@ -17025,6 +17039,13 @@
 				013F2E794503F4590384FC8A /* GeneratedSerializersNetworkProcess.mm */,
 				438D8284ACE95050B4B6548D /* GeneratedSerializersPlatform.mm */,
 				26B02F14A5AB139519B02CA5 /* GeneratedSerializersShared.mm */,
+				7E0E785501701FB501FB7E04 /* GeneratedSerializersSharedExtensions.mm */,
+				7E70A07B501701FB501FB511 /* GeneratedSerializersSharedWebCoreArgumentCodersAuth.mm */,
+				7E70A07B501701FB501FB513 /* GeneratedSerializersSharedWebCoreArgumentCodersMedia.mm */,
+				7E70A07B501701FB501FB515 /* GeneratedSerializersSharedWebCoreArgumentCodersNetwork.mm */,
+				7E70A07B501701FB501FB517 /* GeneratedSerializersSharedWebCoreArgumentCodersPayment.mm */,
+				7E70A07B501701FB501FB519 /* GeneratedSerializersSharedWebCoreArgumentCodersStorage.mm */,
+				7EB6760501701FB501FB7E06 /* GeneratedSerializersSharedWebGPU.mm */,
 				F98D069BBFD9CAA8FCDA2943 /* GeneratedSerializersUIProcess.mm */,
 				F63855BEB2200C51A99E3053 /* GeneratedSerializersWebProcess.mm */,
 				51AD56812B1A8CF5001A0ECB /* GeneratedWebKitSecureCoding.h */,
@@ -22119,6 +22140,13 @@
 				D207D24EE184C36F71B22D8D /* GeneratedSerializersNetworkProcess.mm in Sources */,
 				116530B58849A3DC336C676D /* GeneratedSerializersPlatform.mm in Sources */,
 				4270E32751C161F793FD242A /* GeneratedSerializersShared.mm in Sources */,
+				7E0E785501701FB501FB7E03 /* GeneratedSerializersSharedExtensions.mm in Sources */,
+				7E70A07B501701FB501FB510 /* GeneratedSerializersSharedWebCoreArgumentCodersAuth.mm in Sources */,
+				7E70A07B501701FB501FB512 /* GeneratedSerializersSharedWebCoreArgumentCodersMedia.mm in Sources */,
+				7E70A07B501701FB501FB514 /* GeneratedSerializersSharedWebCoreArgumentCodersNetwork.mm in Sources */,
+				7E70A07B501701FB501FB516 /* GeneratedSerializersSharedWebCoreArgumentCodersPayment.mm in Sources */,
+				7E70A07B501701FB501FB518 /* GeneratedSerializersSharedWebCoreArgumentCodersStorage.mm in Sources */,
+				7EB6760501701FB501FB7E05 /* GeneratedSerializersSharedWebGPU.mm in Sources */,
 				ABCC0C21BBF7F90D362ECEB4 /* GeneratedSerializersUIProcess.mm in Sources */,
 				B0447A843DDAFA1CEF0B3F50 /* GeneratedSerializersWebProcess.mm in Sources */,
 				522F792A28D50EC60069B45B /* HidConnection.mm in Sources */,

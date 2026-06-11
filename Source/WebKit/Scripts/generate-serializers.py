@@ -31,33 +31,87 @@ import sys
 
 from webkit.opaque_ipc_types import is_opaque_type, opaque_ipc_types
 
-# Directories under Source/WebKit/ that get their own per-domain
-# GeneratedSerializers<Domain>.{mm,cpp} translation unit when invoked with
-# --split-by-directory. Anything not matching one of these falls into
-# GeneratedSerializersCommon.{mm,cpp} (the residual bucket).
-KNOWN_DOMAINS = ['Shared', 'WebProcess', 'GPUProcess', 'NetworkProcess', 'Platform', 'ModelProcess', 'UIProcess']
-RESIDUAL_DOMAIN = '__residual__'
+# Generated serializers are split into per-bundle translation units to keep
+# any single .{mm,cpp} from dominating the critical path. Each
+# .serialization.in input is matched against this prefix list and routed to
+# the bundle with the longest matching prefix; the bundle name is the prefix
+# with path separators stripped (e.g. 'Shared/WebGPU' -> 'SharedWebGPU').
+#
+# The match key is the input file's path relative to the repo root, with the
+# '.serialization.in' suffix stripped, so a directory entry like 'Shared'
+# captures everything under Shared/, and a file-level entry like
+# 'Shared/WebCoreArgumentCodersMedia' captures just that one file (because
+# 'Shared/WebCoreArgumentCodersMedia' is a longer match than 'Shared').
+#
+# Anything not matching any prefix lands in the 'Common' bundle. The Common
+# bundle is always emitted (even when empty) so build-system file lists stay
+# stable.
+BUNDLE_PREFIXES = [
+    'Shared',
+    'Shared/Extensions',
+    'Shared/WebGPU',
+    'Shared/WebCoreArgumentCodersAuth',
+    'Shared/WebCoreArgumentCodersMedia',
+    'Shared/WebCoreArgumentCodersNetwork',
+    'Shared/WebCoreArgumentCodersPayment',
+    'Shared/WebCoreArgumentCodersStorage',
+    'WebProcess',
+    'GPUProcess',
+    'NetworkProcess',
+    'Platform',
+    'ModelProcess',
+    'UIProcess',
+]
+
+COMMON_BUNDLE = 'Common'
+
+# Pre-sort by length descending so the first match in derive_bundle is the
+# longest one (longest-prefix-wins).
+_SORTED_BUNDLE_PREFIXES = sorted(BUNDLE_PREFIXES, key=len, reverse=True)
+
+# Bundle names used when emitting --split-by-directory output, in the order
+# they appear in BUNDLE_PREFIXES, with COMMON_BUNDLE last. Each named bundle
+# is emitted as GeneratedSerializers<name>.{mm,cpp}.
+ALL_BUNDLES = [p.replace('/', '') for p in BUNDLE_PREFIXES] + [COMMON_BUNDLE]
 
 
-def derive_source_directory(input_file_path):
-    """Return the top-level subdirectory under Source/WebKit/ for a .serialization.in path,
-    or None if the file doesn't live under Source/WebKit/<DIR>/...
+def derive_bundle(input_file_path):
+    """Return the bundle name for a .serialization.in input path.
+
+    The match key is <path-with-extensions-stripped> relative to the repo;
+    we look for the longest BUNDLE_PREFIXES entry that is a path-segment
+    prefix of that key, anchored under any 'Source/WebKit/' ancestor. Files
+    that don't live under Source/WebKit/ (e.g. WebCore-derived inputs) match
+    nothing and route to the Common bundle.
     """
     parts = os.path.normpath(input_file_path).split(os.sep)
+    # Locate Source/WebKit/ in the path; take everything after it (with the
+    # double-stripped basename) as the relative key.
+    rel_parts = None
     for i in range(len(parts) - 2):
         if parts[i] == 'Source' and parts[i + 1] == 'WebKit':
-            return parts[i + 2]
-    return None
+            rel_parts = parts[i + 2:]
+            break
+    if not rel_parts:
+        return COMMON_BUNDLE
+    # Strip both .in and .serialization from the trailing component so a
+    # file-level prefix like 'Shared/WebCoreArgumentCodersMedia' matches.
+    last = rel_parts[-1]
+    last = os.path.splitext(last)[0]
+    last = os.path.splitext(last)[0]
+    rel_parts = rel_parts[:-1] + [last]
+    rel_key = '/'.join(rel_parts)
+    for prefix in _SORTED_BUNDLE_PREFIXES:
+        if rel_key == prefix or rel_key.startswith(prefix + '/'):
+            return prefix.replace('/', '')
+    return COMMON_BUNDLE
 
 
-def matches_domain(item, domain_filter):
+def matches_bundle(item, bundle_filter):
     """Filter helper used by argument_coder_declarations and generate_impl."""
-    if domain_filter is None:
+    if bundle_filter is None:
         return True
-    source_directory = getattr(item, 'source_directory', None)
-    if domain_filter == RESIDUAL_DOMAIN:
-        return source_directory not in KNOWN_DOMAINS
-    return source_directory == domain_filter
+    return getattr(item, 'bundle', None) == bundle_filter
 
 # Supported type attributes:
 #
@@ -135,7 +189,7 @@ class SerializedType(object):
         self.disableMissingMemberCheck = False
         self.debug_decoding_failure = False
         self.generic_wrapper = None
-        self.source_directory = None
+        self.bundle = None
         if attributes is not None:
             for attribute in attributes.split(', '):
                 if '=' in attribute:
@@ -303,7 +357,7 @@ class SerializedEnum(object):
         self.valid_values = valid_values
         self.condition = condition
         self.attributes = attributes
-        self.source_directory = None
+        self.bundle = None
 
     def namespace_and_name(self):
         if self.namespace is None:
@@ -603,14 +657,14 @@ def one_argument_coder_declaration(type, template_argument):
     return result
 
 
-def argument_coder_declarations(serialized_types, skip_nested, webkit_platform, domain_filter=None):
+def argument_coder_declarations(serialized_types, skip_nested, webkit_platform, bundle_filter=None):
     result = []
     for type in serialized_types:
         if type.nested == skip_nested:
             continue
         if (webkit_platform is not None and type.webkit_platform != webkit_platform):
             continue
-        if not matches_domain(type, domain_filter):
+        if not matches_bundle(type, bundle_filter):
             continue
         if type.templates:
             for template in type.templates:
@@ -1190,7 +1244,7 @@ def generate_one_impl(type, template_argument, serialized_types):
     return result
 
 
-def generate_impl(serialized_types, serialized_enums, headers, generating_webkit_platform_impl, objc_wrapped_types, domain_filter=None):
+def generate_impl(serialized_types, serialized_enums, headers, generating_webkit_platform_impl, objc_wrapped_types, bundle_filter=None):
     result = []
     result.append(_license_header)
     result.append('#include "config.h"')
@@ -1251,13 +1305,13 @@ def generate_impl(serialized_types, serialized_enums, headers, generating_webkit
             result.append(f'#endif // {type.condition}')
         result.append('')
 
-    result = result + argument_coder_declarations(serialized_types, False, generating_webkit_platform_impl, domain_filter=domain_filter)
+    result = result + argument_coder_declarations(serialized_types, False, generating_webkit_platform_impl, bundle_filter=bundle_filter)
     result.append('')
 
     for type in serialized_types:
         if type.webkit_platform != generating_webkit_platform_impl:
             continue
-        if not matches_domain(type, domain_filter):
+        if not matches_bundle(type, bundle_filter):
             continue
         if type.templates:
             for template in type.templates:
@@ -1272,7 +1326,7 @@ def generate_impl(serialized_types, serialized_enums, headers, generating_webkit
             continue
         if not type.members_are_subclasses:
             continue
-        if not matches_domain(type, domain_filter):
+        if not matches_bundle(type, bundle_filter):
             continue
         result.append('')
         if type.condition is not None:
@@ -1298,7 +1352,7 @@ def generate_impl(serialized_types, serialized_enums, headers, generating_webkit
     for enum in serialized_enums:
         if enum.is_webkit_platform() != generating_webkit_platform_impl:
             continue
-        if not matches_domain(enum, domain_filter):
+        if not matches_bundle(enum, bundle_filter):
             continue
         result.append('')
         if enum.condition is not None:
@@ -2089,15 +2143,15 @@ def main(argv):
     input_files = args.input_files
 
     for input_file in input_files:
-        source_directory = derive_source_directory(input_file)
+        bundle = derive_bundle(input_file)
         with open(input_file) as file:
             new_types, new_enums, new_headers, new_using_statements, new_additional_forward_declarations, new_objc_wrapped_types = parse_serialized_types(file)
             for type in new_types:
                 type.enforce_opaque_ipc_types_usage()
-                type.source_directory = source_directory
+                type.bundle = bundle
                 serialized_types.append(type)
             for enum in new_enums:
-                enum.source_directory = source_directory
+                enum.bundle = bundle
                 serialized_enums.append(enum)
             for using_statement in new_using_statements:
                 using_statement.enforce_opaque_ipc_types_usage()
@@ -2123,15 +2177,13 @@ def main(argv):
     with open(output_path('GeneratedSerializers.h'), "w+") as output:
         output.write(generate_header(serialized_types, serialized_enums, additional_forward_declarations_list))
     if split_by_directory:
-        # Emit one .{ext} per known domain plus a residual Common bucket.
-        # Each known-domain file is always emitted (even if empty) so CMake/Xcode
-        # output lists stay deterministic. The residual bucket catches WebCore-
-        # generated inputs and other paths that aren't under Source/WebKit/<DIR>/.
-        for domain in KNOWN_DOMAINS:
-            with open(output_path(f'GeneratedSerializers{domain}.{file_extension}'), "w+") as output:
-                output.write(generate_impl(serialized_types, serialized_enums, headers, False, [], domain_filter=domain))
-        with open(output_path(f'GeneratedSerializersCommon.{file_extension}'), "w+") as output:
-            output.write(generate_impl(serialized_types, serialized_enums, headers, False, [], domain_filter=RESIDUAL_DOMAIN))
+        # Emit one .{ext} per bundle. Each bundle file is always emitted
+        # (even if empty) so CMake/Xcode output lists stay deterministic. The
+        # Common bundle catches inputs that don't match any prefix
+        # (e.g. WebCore-generated inputs that aren't under Source/WebKit/).
+        for bundle in ALL_BUNDLES:
+            with open(output_path(f'GeneratedSerializers{bundle}.{file_extension}'), "w+") as output:
+                output.write(generate_impl(serialized_types, serialized_enums, headers, False, [], bundle_filter=bundle))
     else:
         with open(output_path('GeneratedSerializers.%s' % file_extension), "w+") as output:
             output.write(generate_impl(serialized_types, serialized_enums, headers, False, []))
