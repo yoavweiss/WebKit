@@ -40,6 +40,7 @@
 #include "SVGTextPathElement.h"
 #include "Settings.h"
 #include "StyleTransformResolver.h"
+#include "TransformationMatrix.h"
 #include <wtf/TZoneMallocInlines.h>
 
 namespace WebCore {

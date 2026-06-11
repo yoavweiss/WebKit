@@ -74,6 +74,8 @@ void RenderSVGModelObject::updateFromStyle()
 {
     RenderLayerModelObject::updateFromStyle();
     updateHasSVGTransformFlags();
+    if (!hasLayer())
+        updateLocalTransform();
 }
 
 void RenderSVGModelObject::updateLocalTransform()

@@ -86,6 +86,10 @@ public:
 
     SVGRootInlineBox* legacyRootBox() const;
 
+    void updateLocalTransform();
+    AffineTransform computeLocalTransform() const;
+    AffineTransform localTransform() const override { return m_localTransform; }
+
 private:
     void graphicsElement() const = delete;
 
@@ -116,7 +120,6 @@ private:
     // FIXME: [LBSE] Begin code only needed for legacy SVG engine.
     bool nodeAtFloatPoint(const HitTestRequest&, HitTestResult&, const FloatPoint& pointInParent, HitTestAction) override;
     const AffineTransform& localToParentTransform() const LIFETIME_BOUND override { return m_localTransform; }
-    AffineTransform localTransform() const override { return m_localTransform; }
     // FIXME: [LBSE] End code only needed for legacy SVG engine.
 
     bool NODELETE shouldHandleSubtreeMutations() const;

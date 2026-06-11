@@ -91,6 +91,7 @@
 #include "SelectionGeometry.h"
 #include "Settings.h"
 #include "StyleResolver.h"
+#include "StyleTransformResolver.h"
 #include "TransformState.h"
 #include "ViewTransition.h"
 #include <algorithm>
@@ -1541,12 +1542,11 @@ void RenderObject::getTransformFromContainer(const LayoutSize& offsetInContainer
     CheckedPtr<RenderLayer> layer;
     if (hasLayer() && (layer = downcast<RenderLayerModelObject>(*this).layer()) && layer->transform())
         transform.multiply(layer->currentTransform());
-    else if (document().settings().layerBasedSVGEngineEnabled()) {
-        // Non-layered SVG elements: use the renderer's cached local SVG transform.
-        if (auto* svgModel = dynamicDowncast<RenderSVGModelObject>(*this)) {
-            if (auto svgTransform = svgModel->localTransform(); !svgTransform.isIdentity())
-                transform.multiply(TransformationMatrix(svgTransform));
-        }
+    else if (document().settings().layerBasedSVGEngineEnabled() && isSVGLayerAwareRenderer()) {
+        // Non-layered SVG elements: use the cached local transform. localTransform() is virtual,
+        // returning m_localTransform for RenderSVGModelObject and RenderSVGText, identity otherwise.
+        if (auto svgTransform = localTransform(); !svgTransform.isIdentity())
+            transform.multiply(TransformationMatrix(svgTransform));
     }
 
     CheckedPtr perspectiveObject = parent();

@@ -704,18 +704,35 @@ void RenderLayerModelObject::updateTransformAndRepaintForSVGAfterAttributeChange
 
     updateHasSVGTransformFlags();
 
-    // Refresh the layer transform, returning the (previous, current) pair. Shared by the text
-    // fast-path and the non-text layered branch. Forces a stacking context on an identity to
-    // non-identity transition (the batched flush skips RenderLayer::styleChanged), then marks the
-    // layer subtree for a position update.
-    auto refreshLayerTransform = [&]() -> std::pair<AffineTransform, AffineTransform> {
-        auto previousTransform = layerTransform() ? layerTransform()->toAffineTransform() : identity;
-        updateLayerTransform();
-        auto currentTransform = layerTransform() ? layerTransform()->toAffineTransform() : identity;
-        if (previousTransform.isIdentity() && !currentTransform.isIdentity())
-            layer()->forceStackingContextIfNeeded();
-        layer()->setSelfAndDescendantsNeedPositionUpdate();
-        return { previousTransform, currentTransform };
+    // A layer is neither created nor destroyed below, so probe it once up front.
+    const bool isLayered = hasLayer();
+
+    // Refresh the transform, returning the (previous, current) pair. For layered renderers this
+    // forces a stacking context on an identity-to-non-identity transition (the batched flush skips
+    // RenderLayer::styleChanged) and marks the layer subtree for a position update. A non-layered
+    // RenderSVGModelObject updates its cached m_localTransform in place, while a non-layered
+    // RenderSVGText is only probed (see the branch below).
+    auto refreshTransform = [&]() -> std::pair<AffineTransform, AffineTransform> {
+        if (isLayered) {
+            auto previousTransform = layerTransform() ? layerTransform()->toAffineTransform() : identity;
+            updateLayerTransform();
+            auto currentTransform = layerTransform() ? layerTransform()->toAffineTransform() : identity;
+            if (previousTransform.isIdentity() && !currentTransform.isIdentity())
+                layer()->forceStackingContextIfNeeded();
+            layer()->setSelfAndDescendantsNeedPositionUpdate();
+            return { previousTransform, currentTransform };
+        }
+        if (auto* svgModel = dynamicDowncast<RenderSVGModelObject>(this)) {
+            auto previousTransform = svgModel->localTransform();
+            svgModel->updateLocalTransform();
+            return { previousTransform, svgModel->localTransform() };
+        }
+        // RenderSVGText is probed, not cached: writing m_localTransform before layout would feed
+        // updateScaledFont() a reference box that is only final after layout. The caller writes it
+        // once the scale is known unchanged, or leaves it for layout on a scale change.
+        if (auto* text = dynamicDowncast<RenderSVGText>(this))
+            return { text->localTransform(), text->computeLocalTransform() };
+        return { identity, identity };
     };
 
     // A re-layout is only necessary when the effective x/y scale changes: the next RenderSVGText
@@ -726,63 +743,48 @@ void RenderLayerModelObject::updateTransformAndRepaintForSVGAfterAttributeChange
                 || !WTF::areEssentiallyEqual(previousTransform.yScale(), currentTransform.yScale()));
     };
 
-    // RenderSVGText fast-path: do not refresh the cached repaint rect between the transform
-    // write and the text relayout. Composing the new transform with pre-relayout text metrics
-    // would cache an intermediate-state rect and cause a spurious repaint - the post-layout
-    // walk diffs the pre-mutation rect against the post-relayout rect instead.
-    if (is<RenderSVGText>(*this)) {
-        AffineTransform previousTransform;
-        AffineTransform currentTransform;
-        if (hasLayer())
-            std::tie(previousTransform, currentTransform) = refreshLayerTransform();
+    auto [previousTransform, currentTransform] = refreshTransform();
 
-        if (scaleChangedBetween(previousTransform, currentTransform)) {
-            auto& text = downcast<RenderSVGText>(*this);
+    // A scale change re-measures the text at the new on-screen font size (SVG sizes glyphs by the
+    // transform scale). Mark the affected text - this renderer when the transform is on a <text>,
+    // otherwise the transformed container's text descendants - and let layout recompute its metrics,
+    // refresh its cached transform and repaint. setNeedsLayout() also defers the flush's position
+    // update, which would otherwise run with the new transform but pre-relayout metrics.
+    if (scaleChangedBetween(previousTransform, currentTransform)) {
+        auto markTextForRelayout = [](RenderSVGText& text) {
             text.setNeedsTextMetricsUpdate();
-            // Dirty layout so the flush's deferToLayoutPass guard fires, otherwise the early
-            // position walk caches an intermediate-state rect against pre-relayout metrics.
             text.setNeedsLayout();
+        };
+        if (auto* text = dynamicDowncast<RenderSVGText>(this)) {
+            markTextForRelayout(*text);
+            repaintClientsOfReferencedSVGResources();
             return;
         }
-
-        repaintClientsOfReferencedSVGResources();
-        return;
-    }
-
-    // Non-text path: dirty the position-update bit and let the batched flush emit the delta
-    // repaints, in place of per-element computeRepaintRectsIncludingDescendants() + repaint().
-    AffineTransform previousTransform;
-    AffineTransform currentTransform;
-
-    bool isLayered = hasLayer();
-    if (isLayered) {
-        // Non-layered old-position repaint runs in the Pass 1 loop of the batched flush.
-        std::tie(previousTransform, currentTransform) = refreshLayerTransform();
-    } else if (auto* svgModel = dynamicDowncast<RenderSVGModelObject>(this)) {
-        previousTransform = svgModel->localTransform();
-        svgModel->updateLocalTransform();
-        currentTransform = svgModel->localTransform();
-    }
-
-    if (scaleChangedBetween(previousTransform, currentTransform)) {
         bool markedAny = false;
-        for (auto& textDescendantAffectedByTransformChange : descendantsOfType<RenderSVGText>(*this)) {
-            textDescendantAffectedByTransformChange.setNeedsTextMetricsUpdate();
-            // Dirty layout so the flush's deferToLayoutPass guard fires, otherwise the early
-            // position walk caches an intermediate-state rect (new container transform composed
-            // with pre-relayout text metrics).
-            textDescendantAffectedByTransformChange.setNeedsLayout();
+        for (auto& text : descendantsOfType<RenderSVGText>(*this)) {
+            markTextForRelayout(text);
             markedAny = true;
         }
-
-        if (markedAny)
+        if (markedAny) {
+            repaintClientsOfReferencedSVGResources();
             return;
+        }
     }
 
-    // New-position repaint: layered renderers ride the batched flush. Non-layered renderers
-    // either issue a full repaint here, or - when the caller has snapshotted a pre-mutation
-    // rect - defer to repaintAfterLayoutIfNeeded() for a corner/edge-strip delta repaint.
-    if (!isLayered && repaintMode == SVGAttributeChangeRepaintMode::Issue)
+    // Scale unchanged, so no relayout is needed - just repaint the move. For a non-layered renderer
+    // the batched transform flush repaints the moved region by comparing the renderer's repaint rect
+    // from before and after the change, but it skips RenderSVGText because a text rect depends on
+    // metrics the flush does not recompute. So non-layered text caches its transform here
+    // (refreshTransform() only probed it) and compares its own before and after rects. Other
+    // non-layered renderers were already cached by refreshTransform() and repainted by the flush.
+    // Layered renderers repaint through their layer position update.
+    if (auto* text = dynamicDowncast<RenderSVGText>(this); text && !isLayered) {
+        auto repaintContainer = containerForRepaint().renderer;
+        auto oldRects = rectsForRepaintingAfterLayout(repaintContainer.get(), RepaintOutlineBounds::Yes);
+        text->updateLocalTransform();
+        auto newRects = rectsForRepaintingAfterLayout(repaintContainer.get(), RepaintOutlineBounds::Yes);
+        repaintAfterLayoutIfNeeded(SingleThreadWeakPtr<const RenderLayerModelObject> { repaintContainer.get() }, RequiresFullRepaint::No, oldRects, newRects);
+    } else if (!isLayered && repaintMode == SVGAttributeChangeRepaintMode::Issue)
         repaint();
 
     // Renderers inside <clipPath>/<mask>/<pattern>/etc. don't paint directly - a transform

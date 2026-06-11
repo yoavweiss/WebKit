@@ -303,6 +303,19 @@ static inline void updateFontInAllDescendants(RenderSVGText& text)
     }
 }
 
+AffineTransform RenderSVGText::computeLocalTransform() const
+{
+    ASSERT(document().settings().layerBasedSVGEngineEnabled());
+    TransformationMatrix transform;
+    applyTransform(transform, style(), transformReferenceBoxRect(style()), Style::TransformResolver::allTransformOperations);
+    return transform.toAffineTransform();
+}
+
+void RenderSVGText::updateLocalTransform()
+{
+    m_localTransform = computeLocalTransform();
+}
+
 void RenderSVGText::layout()
 {
     auto isLayerBasedSVGEngineEnabled = [&]() {
@@ -409,6 +422,11 @@ void RenderSVGText::layout()
 
     if (isLayerBasedSVGEngineEnabled()) {
         updateLayerTransform();
+        // Non-layered text caches its transform in m_localTransform (read via localTransform()
+        // by getCTM()/getScreenCTM(), hit-testing and the transform-recursion paint path),
+        // mirroring RenderSVGModelObject::updateLocalTransform(). Layered text uses its RenderLayer.
+        if (!hasLayer())
+            updateLocalTransform();
         updateCachedBoundariesInParents = false; // No longer needed for LBSE.
         layoutChanged = false; // No longer needed for LBSE.
     } else {
