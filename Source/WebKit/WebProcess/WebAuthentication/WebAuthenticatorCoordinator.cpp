@@ -70,8 +70,10 @@ WebAuthenticatorCoordinator::WebAuthenticatorCoordinator(WebPage& webPage)
 void WebAuthenticatorCoordinator::makeCredential(const LocalFrame& frame, const PublicKeyCredentialCreationOptions& options, MediationRequirement mediation, RequestCompletionHandler&& handler)
 {
     RefPtr webFrame = WebFrame::fromCoreFrame(frame);
-    if (!webFrame)
+    if (!webFrame) {
+        handler({ }, (AuthenticatorAttachment)0, ExceptionData { ExceptionCode::NotAllowedError, "Operation failed."_s });
         return;
+    }
 
     protect(m_webPage)->sendWithAsyncReply(Messages::WebAuthenticatorCoordinatorProxy::MakeCredential(webFrame->frameID(), webFrame->info(), options, mediation), WTF::move(handler));
 }
@@ -79,8 +81,10 @@ void WebAuthenticatorCoordinator::makeCredential(const LocalFrame& frame, const 
 void WebAuthenticatorCoordinator::getAssertion(const LocalFrame& frame, const PublicKeyCredentialRequestOptions& options, MediationRequirement mediation, const ScopeAndCrossOriginParent& scopeAndCrossOriginParent, RequestCompletionHandler&& handler)
 {
     RefPtr webFrame = WebFrame::fromCoreFrame(frame);
-    if (!webFrame)
+    if (!webFrame) {
+        handler({ }, (AuthenticatorAttachment)0, ExceptionData { ExceptionCode::NotAllowedError, "Operation failed."_s });
         return;
+    }
 
     protect(m_webPage)->sendWithAsyncReply(Messages::WebAuthenticatorCoordinatorProxy::GetAssertion(webFrame->frameID(), webFrame->info(), options, mediation, scopeAndCrossOriginParent.second), WTF::move(handler));
 }
