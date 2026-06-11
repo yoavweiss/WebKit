@@ -439,10 +439,8 @@ std::optional<InteractionRegion> interactionRegionForRenderedRegion(const Render
     bool hasPointer = hasInteractiveCursorType(*matchedElement) || shouldAllowNonInteractiveCursorForElement(*matchedElement);
 
     RefPtr localMainFrame = dynamicDowncast<LocalFrame>(regionRenderer.document().frame()->mainFrame());
-    if (!localMainFrame) {
-        ASSERT_NOT_REACHED();
+    if (!localMainFrame)
         return std::nullopt;
-    }
     RefPtr pageView = localMainFrame->view();
     if (!pageView) {
         ASSERT_NOT_REACHED();

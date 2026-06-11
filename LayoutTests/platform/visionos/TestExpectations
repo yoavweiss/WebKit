@@ -197,8 +197,6 @@ overlay-region/full-page-scrolling.html [ Failure ]
 overlay-region/overlay-element.html [ Failure ]
 overlay-region/sticky.html [ Failure ]
 
-webkit.org/b/316544 [ Debug ] http/tests/security/model-element/exit-immersive-by-navigating-iframe.html [ Skip ]
-
 ### END OF Triaged failures
 ###################################################################################################
 
