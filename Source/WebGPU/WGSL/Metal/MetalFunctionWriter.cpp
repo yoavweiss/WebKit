@@ -2376,7 +2376,12 @@ void FunctionDefinitionWriter::visit(const Type* type, AST::CallExpression& call
         return;
     }
 
-    visit(type);
+    if (call.isFloatToIntConversion()) {
+        m_body.append("__wgslFtoi<"_s);
+        visit(type);
+        m_body.append(">"_s);
+    } else
+        visit(type);
     visitArguments(this, call);
 }
 

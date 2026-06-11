@@ -269,7 +269,19 @@ template<Constraint constraint, typename Functor>
 template<typename U>
 struct StaticCast {
     template<typename T>
-    static U cast(T t) { return static_cast<U>(t); }
+    static U cast(T t)
+    {
+        if constexpr (std::is_integral_v<U> && !std::is_same_v<U, bool> && (std::is_floating_point_v<T> || std::is_same_v<T, half>)) {
+            if constexpr (std::is_same_v<T, half>) {
+                static const half max = 0x1.ffcp15;
+                static const half lowest = -max;
+                return U(std::clamp(t, std::max(T(std::numeric_limits<U>::min()), lowest), max));
+            } else if (std::is_same_v<T, float>)
+                return U(std::clamp(t, T(std::numeric_limits<U>::min()), T(std::numeric_limits<U>::max() - ((128 << (!std::is_signed_v<U>)) - 1))));
+        }
+
+        return static_cast<U>(t);
+    }
 };
 
 template<typename U>
