@@ -123,9 +123,12 @@ ThreadedCompositor::ThreadedCompositor(WebPage& webPage, LayerTreeHost& layerTre
 
         glGetIntegerv(GL_MAX_TEXTURE_SIZE, &m_maxTextureSize);
 
-        if (m_useSkia)
+        if (m_useSkia) {
             PlatformDisplay::sharedDisplay().setSkiaGLContextForCurrentThread(WTF::move(context));
-        else {
+            const auto disableDDL = CStringView::unsafeFromUTF8(getenv("WEBKIT_SKIA_DISABLE_DDL"));
+            if (!disableDDL || disableDDL == "0"_s)
+                m_threadSafeGrContext = PlatformDisplay::sharedDisplay().skiaGrContext()->threadSafeProxy();
+        } else {
             m_context = WTF::move(context);
             m_textureMapper = TextureMapper::create();
             if (!nativeSurfaceHandle)

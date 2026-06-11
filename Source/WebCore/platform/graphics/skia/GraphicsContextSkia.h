@@ -34,6 +34,7 @@ WTF_IGNORE_WARNINGS_IN_THIRD_PARTY_CODE_BEGIN
 #include <skia/core/SkImage.h>
 #include <skia/core/SkPath.h>
 #include <skia/effects/SkDashPathEffect.h>
+#include <skia/gpu/ganesh/GrContextThreadSafeProxy.h>
 WTF_IGNORE_WARNINGS_IN_THIRD_PARTY_CODE_END
 #include <wtf/CompletionHandler.h>
 #include <wtf/HashMap.h>
@@ -58,7 +59,7 @@ public:
     const DestinationColorSpace& colorSpace() const final;
 
     enum class RecordingMode : bool { Tile, Canvas };
-    void beginRecording(RecordingMode);
+    void beginRecording(RecordingMode, const sk_sp<GrContextThreadSafeProxy>& = nullptr);
     SkiaRecordingData endRecording();
 
     void replayStateOnCanvas(SkCanvas&) const;
@@ -133,6 +134,7 @@ private:
     bool makeGLContextCurrentIfNeeded() const;
     void trackAcceleratedRenderingFenceIfNeeded(const sk_sp<SkImage>&, GrDirectContext*);
     void trackAcceleratedRenderingFenceIfNeeded(Pattern&);
+    sk_sp<SkImage> imageForCurrentThread(const sk_sp<SkImage>&) const;
 
     void setupFillSource(SkPaint&);
     void setupStrokeSource(SkPaint&);
@@ -197,6 +199,7 @@ private:
     CompletionHandler<void()> m_destroyNotify;
     SkiaState m_skiaState;
     Vector<SkiaState, 1> m_skiaStateStack;
+    sk_sp<GrContextThreadSafeProxy> m_threadSafeGrContext;
     SkiaImageToFenceMap m_imageToFenceMap;
     bool m_enableStateReplayTracking : 1 { false };
     std::unique_ptr<SkiaImageAtlasLayoutBuilder> m_atlasLayoutBuilder;

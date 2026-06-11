@@ -34,37 +34,32 @@
 
 namespace WebCore {
 
-SkiaReplayCanvas::SkiaReplayCanvas(const IntSize& size, const RefPtr<SkiaRecordingResult>& recording)
+SkiaReplayCanvas::SkiaReplayCanvas(const IntSize& size, const Ref<SkiaRecordingResult>& recording, const sk_sp<GrContextThreadSafeProxy>& threadSafeGrContext)
     : SkNWayCanvas(size.width(), size.height())
     , m_recording(recording)
+    , m_threadSafeGrContext(threadSafeGrContext)
 {
     // Create atlas wrappers from pre-prepared GPU atlases.
     // GPU atlases were uploaded on main thread; we just rewrap for this worker's context.
-    if (m_recording && m_recording->hasGPUAtlases()) {
-        auto* glContext = PlatformDisplay::sharedDisplay().skiaGLContext();
-        if (!glContext || !glContext->makeContextCurrent())
-            return;
-
+    if (m_recording->hasGPUAtlases()) {
         const auto& gpuAtlases = m_recording->gpuAtlases();
         m_atlases.reserveInitialCapacity(gpuAtlases.size());
 
-        for (const auto& gpuAtlas : gpuAtlases) {
-            if (auto atlas = SkiaReplayAtlas::create(gpuAtlas))
-                m_atlases.append(WTF::move(atlas));
-        }
+        for (const auto& gpuAtlas : gpuAtlases)
+            m_atlases.append(SkiaReplayAtlas::create(gpuAtlas));
     }
 }
 
 SkiaReplayCanvas::~SkiaReplayCanvas() = default;
 
-Ref<SkiaReplayCanvas> SkiaReplayCanvas::create(const IntSize& size, const RefPtr<SkiaRecordingResult>& recordingResult)
+Ref<SkiaReplayCanvas> SkiaReplayCanvas::create(const IntSize& size, const Ref<SkiaRecordingResult>& recordingResult, const sk_sp<GrContextThreadSafeProxy>& threadSafeGrContext)
 {
-    return adoptRef(*new SkiaReplayCanvas(size, recordingResult));
+    return adoptRef(*new SkiaReplayCanvas(size, recordingResult, threadSafeGrContext));
 }
 
 sk_sp<SkImage> SkiaReplayCanvas::waitForRenderingCompletionAndRewrapImageIfNeeded(const SkImage* image)
 {
-    if (!image || !image->isTextureBacked())
+    if (!image || !image->isTextureBacked() || m_threadSafeGrContext)
         return nullptr;
 
     auto* glContext = PlatformDisplay::sharedDisplay().skiaGLContext();

@@ -34,6 +34,7 @@ WTF_IGNORE_WARNINGS_IN_THIRD_PARTY_CODE_BEGIN
 #include <skia/core/SkImage.h>
 #include <skia/core/SkRect.h>
 #include <skia/gpu/ganesh/GrBackendSurface.h>
+#include <skia/gpu/ganesh/GrContextThreadSafeProxy.h>
 WTF_IGNORE_WARNINGS_IN_THIRD_PARTY_CODE_END
 
 #include <wtf/Condition.h>
@@ -90,7 +91,7 @@ class SkiaGPUAtlas : public ThreadSafeRefCounted<SkiaGPUAtlas, WTF::DestructionT
     WTF_MAKE_TZONE_ALLOCATED(SkiaGPUAtlas);
     WTF_MAKE_NONCOPYABLE(SkiaGPUAtlas);
 public:
-    static RefPtr<SkiaGPUAtlas> create(const SkiaImageAtlasLayout&, Ref<BitmapTexture>&&, Ref<AtlasUploadCondition>&&);
+    static RefPtr<SkiaGPUAtlas> create(const SkiaImageAtlasLayout&, Ref<BitmapTexture>&&, Ref<AtlasUploadCondition>&&, const sk_sp<GrContextThreadSafeProxy>&);
 
     // Upload images into the atlas texture. Can run from any thread for dma-buf backed textures.
     void uploadImages();
@@ -103,7 +104,7 @@ public:
     sk_sp<SkImage> atlasImageForCurrentThread() const;
 
 private:
-    SkiaGPUAtlas(Ref<BitmapTexture>&&, GrBackendTexture&&, Ref<AtlasUploadCondition>&&, const SkiaImageAtlasLayout&, const IntSize&);
+    SkiaGPUAtlas(Ref<BitmapTexture>&&, GrBackendTexture&&, Ref<AtlasUploadCondition>&&, const sk_sp<GrContextThreadSafeProxy>&, const SkiaImageAtlasLayout&, const IntSize&);
 
     void waitForUpload() const;
 
@@ -111,6 +112,7 @@ private:
     GrBackendTexture m_backendTexture;
     Ref<AtlasUploadCondition> m_uploadCondition;
     std::unique_ptr<GLFence> m_uploadFence;
+    sk_sp<GrContextThreadSafeProxy> m_threadSafeGrContext;
     ImageToRectMap m_imageToRect;
     Ref<const SkiaImageAtlasLayout> m_layout;
     IntSize m_size;

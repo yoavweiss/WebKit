@@ -956,15 +956,14 @@ Ref<SkiaRecordingResult> CoordinatedPlatformLayer::record(const IntRect& recordR
     return paintingEngine.record(*m_owner, recordRect, m_contentsOpaque, m_contentsScale);
 }
 
-Ref<CoordinatedTileBuffer> CoordinatedPlatformLayer::replay(const RefPtr<SkiaRecordingResult>& recording, const IntRect& dirtyRect)
+Ref<CoordinatedTileBuffer> CoordinatedPlatformLayer::replay(Ref<SkiaRecordingResult>&& recording, const IntRect& dirtyRect)
 {
     ASSERT(m_lock.isHeld());
     ASSERT(m_client);
     ASSERT(m_owner);
-    ASSERT(recording);
     auto& paintingEngine = m_client->paintingEngine();
     ASSERT(paintingEngine.useThreadedRendering());
-    return paintingEngine.replay(*m_owner, recording, dirtyRect);
+    return paintingEngine.replay(*m_owner, WTF::move(recording), dirtyRect);
 }
 #endif
 

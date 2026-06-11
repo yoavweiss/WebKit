@@ -35,6 +35,10 @@
 #include <WebCore/TextureMapperDamageVisualizer.h>
 #include <atomic>
 #include <optional>
+WTF_IGNORE_WARNINGS_IN_THIRD_PARTY_CODE_BEGIN
+#include <skia/gpu/ganesh/GrContextThreadSafeProxy.h>
+#include <skia/gpu/ganesh/GrDirectContext.h>
+WTF_IGNORE_WARNINGS_IN_THIRD_PARTY_CODE_END
 #include <wtf/Atomics.h>
 #include <wtf/CheckedPtr.h>
 #include <wtf/Noncopyable.h>
@@ -99,6 +103,8 @@ public:
 
     void fillGLInformation(RenderProcessInfo&&, CompletionHandler<void(RenderProcessInfo&&)>&&);
 
+    sk_sp<GrContextThreadSafeProxy> threadSafeGrContext() const { return m_threadSafeGrContext; }
+
 private:
     ThreadedCompositor(WebPage&, LayerTreeHost&, CoordinatedSceneState&);
 
@@ -131,6 +137,7 @@ private:
     RefPtr<AcceleratedSurface> m_surface;
     RefPtr<CoordinatedSceneState> m_sceneState;
     std::unique_ptr<WebCore::GLContext> m_context;
+    sk_sp<GrContextThreadSafeProxy> m_threadSafeGrContext;
 
     bool m_flipY { false };
     int m_maxTextureSize { 0 };

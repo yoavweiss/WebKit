@@ -28,6 +28,7 @@
 
 #if USE(SKIA)
 #include "BitmapTexture.h"
+#include "GLContext.h"
 #include "PlatformDisplay.h"
 #include "SkiaImageAtlasLayout.h"
 #if USE(GBM)
@@ -40,16 +41,19 @@ WTF_IGNORE_WARNINGS_IN_THIRD_PARTY_CODE_BEGIN
 #include <skia/core/SkPixmap.h>
 #include <skia/gpu/ganesh/GrDirectContext.h>
 #include <skia/gpu/ganesh/SkImageGanesh.h>
+#include <skia/private/chromium/GrPromiseImageTexture.h>
+#include <skia/private/chromium/SkImageChromium.h>
 WTF_IGNORE_WARNINGS_IN_THIRD_PARTY_CODE_END
 
 namespace WebCore {
 
 WTF_MAKE_TZONE_ALLOCATED_IMPL(SkiaGPUAtlas);
 
-SkiaGPUAtlas::SkiaGPUAtlas(Ref<BitmapTexture>&& atlasTexture, GrBackendTexture&& backendTexture, Ref<AtlasUploadCondition>&& uploadCondition, const SkiaImageAtlasLayout& layout, const IntSize& size)
+SkiaGPUAtlas::SkiaGPUAtlas(Ref<BitmapTexture>&& atlasTexture, GrBackendTexture&& backendTexture, Ref<AtlasUploadCondition>&& uploadCondition, const sk_sp<GrContextThreadSafeProxy>& threadSafeGrContext, const SkiaImageAtlasLayout& layout, const IntSize& size)
     : m_atlasTexture(WTF::move(atlasTexture))
     , m_backendTexture(WTF::move(backendTexture))
     , m_uploadCondition(WTF::move(uploadCondition))
+    , m_threadSafeGrContext(threadSafeGrContext)
     , m_layout(layout)
     , m_size(size)
 {
@@ -62,7 +66,7 @@ SkiaGPUAtlas::SkiaGPUAtlas(Ref<BitmapTexture>&& atlasTexture, GrBackendTexture&&
 
 SkiaGPUAtlas::~SkiaGPUAtlas() = default;
 
-RefPtr<SkiaGPUAtlas> SkiaGPUAtlas::create(const SkiaImageAtlasLayout& layout, Ref<BitmapTexture>&& atlasTexture, Ref<AtlasUploadCondition>&& uploadCondition)
+RefPtr<SkiaGPUAtlas> SkiaGPUAtlas::create(const SkiaImageAtlasLayout& layout, Ref<BitmapTexture>&& atlasTexture, Ref<AtlasUploadCondition>&& uploadCondition, const sk_sp<GrContextThreadSafeProxy>& threadSafeGrContext)
 {
     const auto& atlasSize = layout.atlasSize();
     if (atlasSize.isEmpty())
@@ -74,7 +78,7 @@ RefPtr<SkiaGPUAtlas> SkiaGPUAtlas::create(const SkiaImageAtlasLayout& layout, Re
     if (!backendTexture.isValid())
         return nullptr;
 
-    return adoptRef(*new SkiaGPUAtlas(WTF::move(atlasTexture), WTF::move(backendTexture), WTF::move(uploadCondition), layout, atlasSize));
+    return adoptRef(*new SkiaGPUAtlas(WTF::move(atlasTexture), WTF::move(backendTexture), WTF::move(uploadCondition), threadSafeGrContext, layout, atlasSize));
 }
 
 void SkiaGPUAtlas::uploadImages()
@@ -139,13 +143,31 @@ void SkiaGPUAtlas::waitForUpload() const
 
 sk_sp<SkImage> SkiaGPUAtlas::atlasImageForCurrentThread() const
 {
-    if (!m_backendTexture.isValid())
+    if (m_threadSafeGrContext) {
+        ref();
+        auto backendFormat = m_threadSafeGrContext->defaultBackendFormat(kRGBA_8888_SkColorType, GrRenderable::kYes);
+        ASSERT(backendFormat.isValid());
+        return SkImages::PromiseTextureFrom(m_threadSafeGrContext, backendFormat, SkISize::Make(m_atlasTexture->size().width(), m_atlasTexture->size().height()), skgpu::Mipmapped::kNo,
+            kTopLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType, kPremul_SkAlphaType, SkColorSpace::MakeSRGB(),
+            +[](void* userData) -> sk_sp<GrPromiseImageTexture> {
+                auto& atlas = *static_cast<SkiaGPUAtlas*>(userData);
+                atlas.waitForUpload();
+                return GrPromiseImageTexture::Make(atlas.m_backendTexture);
+            },
+            +[](void* userData) {
+                static_cast<SkiaGPUAtlas*>(userData)->deref();
+            }, const_cast<SkiaGPUAtlas*>(this));
+    }
+
+    auto* glContext = PlatformDisplay::sharedDisplay().skiaGLContext();
+    if (!glContext || !glContext->makeContextCurrent())
         return nullptr;
 
     waitForUpload();
 
     auto* grContext = PlatformDisplay::sharedDisplay().skiaGrContext();
-    RELEASE_ASSERT(grContext);
+    ASSERT(grContext);
+    ASSERT(m_backendTexture.isValid());
     return SkImages::BorrowTextureFrom(grContext, m_backendTexture, kTopLeft_GrSurfaceOrigin, kBGRA_8888_SkColorType, kPremul_SkAlphaType, SkColorSpace::MakeSRGB());
 }
 

@@ -71,6 +71,7 @@ private:
 
         float m_scale { 1. };
         FloatRect m_rect;
+        sk_sp<SkSurface> m_surface;
         RefPtr<BitmapTexture> m_texture;
         mutable sk_sp<SkImage> m_cachedImage;
     };
