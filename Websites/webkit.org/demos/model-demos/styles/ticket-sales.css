@@ -275,7 +275,8 @@ body {
     pointer-events: none;
 }
 
-.preview-backdrop.visible .preview-overlay > * {
+.preview-backdrop.visible .preview-top,
+.preview-backdrop.visible .preview-bar {
     pointer-events: auto;
 }
 
