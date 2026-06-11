@@ -116,6 +116,11 @@ using namespace HTMLNames;
 RenderTheme::RenderTheme() = default;
 RenderTheme::~RenderTheme() = default;
 
+float RenderTheme::usedZoomForComputedStyle(const Style::ComputedStyle& renderStyle) const
+{
+    return renderStyle.evaluationTimeZoomEnabled() ? 1.0f : renderStyle.usedZoom();
+}
+
 StyleAppearance RenderTheme::adjustAppearanceForElement(Style::ComputedStyle& style, const Style::ComputedStyle& parentStyle, const Element* element, StyleAppearance autoAppearance) const
 {
     if (!element) {

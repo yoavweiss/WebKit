@@ -76,7 +76,6 @@
 #include <WebCore/PageInlines.h>
 #include <WebCore/PlatformMouseEvent.h>
 #include <WebCore/ProtectionSpace.h>
-#include <WebCore/RenderBoxModelObjectInlines.h>
 #include <WebCore/RenderEmbeddedObject.h>
 #include <WebCore/ScriptController.h>
 #include <WebCore/ScrollView.h>
@@ -1028,7 +1027,7 @@ void PluginView::invalidateRect(const IntRect& dirtyRect)
         return;
 
     auto contentRect = dirtyRect;
-    contentRect.move(renderer->borderLeft() + renderer->paddingLeft(), renderer->borderTop() + renderer->paddingTop());
+    contentRect.move(borderLeft(*renderer) + paddingLeft(*renderer), borderTop(*renderer) + paddingTop(*renderer));
     renderer->repaintRectangle(contentRect);
 }
 

@@ -92,8 +92,8 @@ private:
     GraphicsContext& m_context;
     bool m_isPrinting { false };
     WritingMode m_writingMode;
-    const Style::TextShadows& m_shadow;
-    const Style::AppleColorFilter& m_shadowColorFilter;
+    SUPPRESS_FORWARD_DECL_MEMBER const Style::TextShadows& m_shadow;
+    SUPPRESS_FORWARD_DECL_MEMBER const Style::AppleColorFilter& m_shadowColorFilter;
     const FontCascade& m_font;
 };
 

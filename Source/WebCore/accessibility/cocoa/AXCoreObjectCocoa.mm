@@ -31,7 +31,7 @@
 #import "AXTreeStoreInlines.h"
 #import "AccessibilityObjectInlines.h"
 #import "ColorCocoa.h"
-#import "RenderObjectInlines.h"
+#import "StyleSpeakAs.h"
 #import "WebAccessibilityObjectWrapperBase.h"
 #import "Widget.h"
 

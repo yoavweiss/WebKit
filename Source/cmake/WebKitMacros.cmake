@@ -36,6 +36,7 @@ macro(WEBKIT_COMPUTE_SOURCES _framework)
     endforeach ()
 
     set(gusb_args --derived-sources-path ${_derivedSourcesPath} --source-tree-path ${CMAKE_CURRENT_SOURCE_DIR})
+    list(APPEND gusb_args --ignore-header-groups)
     # Windows needs a larger bundle size because that helps keep WebCore.lib's size below the 4GB maximum in debug builds.
     if (MSVC AND ${_framework} STREQUAL "WebCore" AND ${_framework}_LIBRARY_TYPE STREQUAL "STATIC")
         list(APPEND gusb_args --max-bundle-size 16)

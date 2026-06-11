@@ -744,7 +744,7 @@ public:
 
     inline Document& document() const; // Defined in RenderObjectDocument.h
     inline TreeScope& treeScopeForSVGReferences() const; // Defined in RenderObjectInlines.h
-    inline LocalFrame& frame() const; // Defined in RenderObjectInlines.h
+    inline LocalFrame& frame() const; // Defined in RenderObjectDocument.h
     inline Page& page() const; // Defined in RenderObjectInlines.h
     inline const Settings& settings() const; // Defined in RenderObjectDocument.h
 
@@ -1480,6 +1480,13 @@ std::partial_ordering renderTreeOrder(const RenderObject&, const RenderObject&);
 
 WTF::TextStream& operator<<(WTF::TextStream&, const RenderObject&);
 WTF::TextStream& operator<<(WTF::TextStream&, const RenderObject::RepaintRects&);
+
+enum class ScrollbarWidth : uint8_t;
+WEBCORE_EXPORT IntRect absoluteInteractionBounds(const RenderObject&);
+WEBCORE_EXPORT ScrollbarWidth scrollbarWidth(const RenderObject&);
+#if ENABLE(CSS_TAP_HIGHLIGHT_COLOR)
+WEBCORE_EXPORT Color tapHighlightColor(const RenderObject&);
+#endif
 
 #if ENABLE(TREE_DEBUGGING)
 void printAccessibilityTreeForLiveDocuments();

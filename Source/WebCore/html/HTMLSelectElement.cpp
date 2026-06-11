@@ -78,6 +78,9 @@
 #include "Settings.h"
 #include "ShadowRoot.h"
 #include "SlotAssignment.h"
+#include "StyleComputedStyle+GettersInlines.h"
+#include "StyleDisplay.h"
+#include "UnicodeBidi.h"
 #include <JavaScriptCore/ConsoleTypes.h>
 #include <wtf/TZoneMallocInlines.h>
 #include <wtf/text/MakeString.h>

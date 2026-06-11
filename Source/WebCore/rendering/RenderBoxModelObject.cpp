@@ -85,6 +85,26 @@ using namespace HTMLNames;
 
 WTF_MAKE_TZONE_ALLOCATED_IMPL(RenderBoxModelObject);
 
+LayoutUnit borderLeft(const RenderBoxModelObject& renderer)
+{
+    return renderer.borderLeft();
+}
+
+LayoutUnit borderTop(const RenderBoxModelObject& renderer)
+{
+    return renderer.borderTop();
+}
+
+LayoutUnit paddingLeft(const RenderBoxModelObject& renderer)
+{
+    return renderer.paddingLeft();
+}
+
+LayoutUnit paddingTop(const RenderBoxModelObject& renderer)
+{
+    return renderer.paddingTop();
+}
+
 using FirstLetterRemainingTextMap = SingleThreadWeakHashMap<const RenderBoxModelObject, SingleThreadWeakPtr<RenderTextFragment>>;
 
 static FirstLetterRemainingTextMap& NODELETE firstLetterRemainingTextMap()

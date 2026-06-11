@@ -42,8 +42,8 @@
 #include <WebCore/LocalFrameView.h>
 #include <WebCore/NodeDocument.h>
 #include <WebCore/Range.h>
+#include <WebCore/RenderObjectStyle.h>
 #include <WebCore/RenderView.h>
-#include <WebCore/StyleComputedStyle+GettersInlines.h>
 #include <WebCore/TextIterator.h>
 #include <ranges>
 #include <wtf/HashCountedSet.h>
@@ -203,7 +203,7 @@ std::optional<std::pair<double, double>> ViewGestureGeometryCollector::computeTe
         if (!textLength || !textNode->renderer() || allTextNodes.contains(*textNode))
             continue;
 
-        unsigned fontSizeBin = fontSizeBinningInterval * round(textNode->renderer()->style().fontCascade().size() / fontSizeBinningInterval);
+        unsigned fontSizeBin = fontSizeBinningInterval * round(textNode->renderer()->style().fontDescription().computedSize() / fontSizeBinningInterval);
         if (!FontSizeCounter::isValidValue(fontSizeBin))
             continue;
 

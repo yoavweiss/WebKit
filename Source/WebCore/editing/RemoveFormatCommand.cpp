@@ -36,7 +36,6 @@
 #include "MutableStyleProperties.h"
 #include "NodeName.h"
 #include "SimpleRange.h"
-#include "RenderObjectInlines.h"
 #include <wtf/NeverDestroyed.h>
 #include <wtf/RobinHoodHashSet.h>
 

@@ -87,6 +87,7 @@
 #import <WebCore/ImmediateActionStage.h>
 #import <WebCore/KeyboardEvent.h>
 #import <WebCore/LocalFrame.h>
+#import <WebCore/LocalFrameInlines.h>
 #import <WebCore/LocalFrameView.h>
 #import <WebCore/MIMETypeRegistry.h>
 #import <WebCore/NetworkStorageSession.h>
@@ -105,6 +106,7 @@
 #import <WebCore/RenderObject.h>
 #import <WebCore/RenderView.h>
 #import <WebCore/ScrollView.h>
+#import <WebCore/Settings.h>
 #import <WebCore/StyleComputedStyle.h>
 #import <WebCore/TextIterator.h>
 #import <WebCore/VisibleUnits.h>

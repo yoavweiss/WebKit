@@ -126,7 +126,6 @@
 #import <WebCore/RenderView.h>
 #import <WebCore/RenderWidget.h>
 #import <WebCore/SharedBuffer.h>
-#import <WebCore/StyleComputedStyle+GettersInlines.h>
 #import <WebCore/StyleDocumentScope.h>
 #import <WebCore/StyleProperties.h>
 #import <WebCore/Text.h>
@@ -6251,7 +6250,7 @@ ALLOW_DEPRECATED_DECLARATIONS_END
     if (!frame || !frame->document() || !frame->document()->documentElement() || !frame->document()->documentElement()->renderer())
         return WebCore::ScrollbarWidth::Auto;
 
-    return WebCore::Style::toPlatform(frame->document()->documentElement()->renderer()->style().scrollbarWidth());
+    return WebCore::scrollbarWidth(*frame->document()->documentElement()->renderer());
 }
 
 @end

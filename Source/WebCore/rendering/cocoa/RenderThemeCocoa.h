@@ -36,6 +36,8 @@ struct AttachmentLayout;
 
 namespace WebCore {
 
+class Node;
+
 #if ENABLE(FORM_CONTROL_REFRESH)
 
 enum class CornerType : uint8_t {

@@ -57,6 +57,7 @@
 #include "ScriptDisallowedScope.h"
 #include "Settings.h"
 #include "StyleBuilder.h"
+#include "StyleComputedStyle+GettersInlines.h"
 #include "StyleFontSizeFunctions.h"
 #include "StyleProperties.h"
 #include "StyleResolveForFont.h"

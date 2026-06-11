@@ -45,7 +45,7 @@
 #include "Page.h"
 #include "RemoteFrameView.h"
 #include "RenderElement.h"
-#include "RenderObjectInlines.h"
+#include "RenderObjectStyle.h"
 #include "Widget.h"
 
 namespace WebCore {
@@ -639,7 +639,7 @@ bool AccessibilityScrollView::isHostingFrameInert() const
 
     RefPtr frameOwner = frameOwnerElement();
     if (auto* renderer = frameOwner ? frameOwner->renderer() : nullptr)
-        return renderer->style().effectiveInert();
+        return Style::effectiveInert(renderer->style());
 
     return false;
 }

@@ -30,6 +30,7 @@
 #include "CSSProperty.h"
 #include "CSSValueList.h"
 #include "Document.h"
+#include "DocumentPage.h"
 #include "DocumentView.h"
 #include "ElementInlines.h"
 #include "HTMLImageElement.h"

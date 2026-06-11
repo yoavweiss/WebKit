@@ -70,16 +70,16 @@ WTF_MAKE_TZONE_ALLOCATED_IMPL(FrameDOMAgent);
 
 // FIXME: <https://webkit.org/b/298980> Extract shared tree-building and node-binding logic into a base class shared with InspectorDOMAgent.
 
-static const size_t maxTextSize = 10000;
-static const char16_t horizontalEllipsisUTF16[] = { horizontalEllipsis, 0 };
+static const size_t frameMaxTextSize = 10000;
+static const char16_t frameHorizontalEllipsisUTF16[] = { horizontalEllipsis, 0 };
 
-static bool containsOnlyASCIIWhitespace(Node* node)
+static bool frameContainsOnlyASCIIWhitespace(Node* node)
 {
     auto* text = dynamicDowncast<Text>(node);
     return text && text->containsOnlyASCIIWhitespace();
 }
 
-static Inspector::Protocol::DOM::ShadowRootType shadowRootType(ShadowRootMode mode)
+static Inspector::Protocol::DOM::ShadowRootType frameShadowRootType(ShadowRootMode mode)
 {
     switch (mode) {
     case ShadowRootMode::UserAgent:
@@ -93,7 +93,7 @@ static Inspector::Protocol::DOM::ShadowRootType shadowRootType(ShadowRootMode mo
     return Inspector::Protocol::DOM::ShadowRootType::UserAgent;
 }
 
-static Inspector::Protocol::DOM::CustomElementState customElementState(const Element& element)
+static Inspector::Protocol::DOM::CustomElementState frameCustomElementState(const Element& element)
 {
     if (element.isDefinedCustomElement())
         return Inspector::Protocol::DOM::CustomElementState::Custom;
@@ -104,7 +104,7 @@ static Inspector::Protocol::DOM::CustomElementState customElementState(const Ele
     return Inspector::Protocol::DOM::CustomElementState::Builtin;
 }
 
-static bool pseudoElementType(PseudoElementType pseudoElementType, Inspector::Protocol::DOM::PseudoType* type)
+static bool framePseudoElementType(PseudoElementType pseudoElementType, Inspector::Protocol::DOM::PseudoType* type)
 {
     switch (pseudoElementType) {
     case PseudoElementType::Before:
@@ -118,7 +118,7 @@ static bool pseudoElementType(PseudoElementType pseudoElementType, Inspector::Pr
     }
 }
 
-static String computeContentSecurityPolicySHA256Hash(const Element& element)
+static String frameComputeContentSecurityPolicySHA256Hash(const Element& element)
 {
     Ref document = element.document();
     PAL::TextEncoding documentEncoding = document->textEncoding();
@@ -258,8 +258,8 @@ Ref<Inspector::Protocol::DOM::Node> FrameDOMAgent::buildObjectForNode(Node* node
     case NodeType::Comment:
     case NodeType::CDATASection:
         nodeValue = node->nodeValue();
-        if (nodeValue.length() > maxTextSize)
-            nodeValue = makeString(StringView(nodeValue).left(maxTextSize), horizontalEllipsisUTF16);
+        if (nodeValue.length() > frameMaxTextSize)
+            nodeValue = makeString(StringView(nodeValue).left(frameMaxTextSize), frameHorizontalEllipsisUTF16);
         break;
     case NodeType::Attribute:
         localName = node->localName();
@@ -308,15 +308,15 @@ Ref<Inspector::Protocol::DOM::Node> FrameDOMAgent::buildObjectForNode(Node* node
             value->setTemplateContent(buildObjectForNode(protect(templateElement->content()).ptr(), 0));
 
         if (is<HTMLStyleElement>(element) || (is<HTMLScriptElement>(element) && !element->hasAttributeWithoutSynchronization(HTMLNames::srcAttr)))
-            value->setContentSecurityPolicyHash(computeContentSecurityPolicySHA256Hash(*element));
+            value->setContentSecurityPolicyHash(frameComputeContentSecurityPolicySHA256Hash(*element));
 
-        auto state = customElementState(*element);
+        auto state = frameCustomElementState(*element);
         if (state != Inspector::Protocol::DOM::CustomElementState::Builtin)
             value->setCustomElementState(state);
 
         if (element->pseudoElementIdentifier()) {
             Inspector::Protocol::DOM::PseudoType pseudoType;
-            if (pseudoElementType(element->pseudoElementIdentifier()->type, &pseudoType))
+            if (framePseudoElementType(element->pseudoElementIdentifier()->type, &pseudoType))
                 value->setPseudoType(pseudoType);
         } else {
             if (auto pseudoElements = buildArrayForPseudoElements(*element))
@@ -332,7 +332,7 @@ Ref<Inspector::Protocol::DOM::Node> FrameDOMAgent::buildObjectForNode(Node* node
         value->setName(attribute->name());
         value->setValue(attribute->value());
     } else if (RefPtr shadowRoot = dynamicDowncast<ShadowRoot>(*node))
-        value->setShadowRootType(shadowRootType(shadowRoot->mode()));
+        value->setShadowRootType(frameShadowRootType(shadowRoot->mode()));
 
     return value;
 }
@@ -578,7 +578,7 @@ Inspector::CommandResult<Ref<JSON::ArrayOf<int>>> FrameDOMAgent::requestAssigned
 
 void FrameDOMAgent::didInsertDOMNode(Node& node)
 {
-    if (containsOnlyASCIIWhitespace(&node))
+    if (frameContainsOnlyASCIIWhitespace(&node))
         return;
 
     unbind(node);
@@ -601,7 +601,7 @@ void FrameDOMAgent::didInsertDOMNode(Node& node)
 
 void FrameDOMAgent::didRemoveDOMNode(Node& node)
 {
-    if (containsOnlyASCIIWhitespace(&node))
+    if (frameContainsOnlyASCIIWhitespace(&node))
         return;
 
     RefPtr parent = node.parentNode();
@@ -619,7 +619,7 @@ void FrameDOMAgent::didRemoveDOMNode(Node& node)
 
 void FrameDOMAgent::willDestroyDOMNode(Node& node)
 {
-    if (containsOnlyASCIIWhitespace(&node))
+    if (frameContainsOnlyASCIIWhitespace(&node))
         return;
 
     auto nodeId = m_nodeToId.take(node);
@@ -724,7 +724,7 @@ void FrameDOMAgent::didChangeCustomElementState(Element& element)
     if (!elementId)
         return;
 
-    m_frontendDispatcher->customElementStateChanged(elementId, customElementState(element));
+    m_frontendDispatcher->customElementStateChanged(elementId, frameCustomElementState(element));
 }
 
 void FrameDOMAgent::pseudoElementCreated(PseudoElement& pseudoElement)

@@ -48,8 +48,8 @@
 #import "Logging.h"
 #import "NodeRenderStyle.h"
 #import "Page.h"
-#import "StyleComputedStyle+GettersInlines.h"
 #import "RenderedDocumentMarker.h"
+#import "StyleComputedStyle.h"
 #import "TextAnimationTypes.h"
 #import "TextIterator.h"
 #import "VisibleUnits.h"
@@ -486,7 +486,7 @@ void WritingToolsController::proofreadingSessionDidUpdateStateForSuggestion(cons
         auto rect = document->view()->contentsToRootView(unionRect(RenderObject::absoluteTextRects(rangeToReplace)));
 
         if (CheckedPtr renderStyle = node.renderStyle()) {
-            CheckedRef font = renderStyle->fontCascade();
+            CheckedRef font = Style::fontCascade(*renderStyle);
             auto [_, height] = DocumentMarkerController::markerYPositionAndHeightForFont(font);
 
             rect.setY(rect.y() + std::round(height / 2.0));

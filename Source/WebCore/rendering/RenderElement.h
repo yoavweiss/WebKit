@@ -488,6 +488,8 @@ private:
     Style::ComputedStyle m_style;
 };
 
+WEBCORE_EXPORT float opacity(const RenderElement&);
+
 inline void RenderElement::setChildNeedsLayout(MarkingBehavior markParents)
 {
     ASSERT(!isSetNeedsLayoutForbidden());

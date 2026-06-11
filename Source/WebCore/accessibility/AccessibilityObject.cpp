@@ -2823,7 +2823,7 @@ struct RoleEntry {
     AccessibilityRole webcoreRole;
 };
 
-static void initializeRoleMap()
+static void initializeAriaRoleMap()
 {
     if (gAriaRoleMap)
         return;
@@ -2989,13 +2989,13 @@ static void initializeRoleMap()
 
 static ARIARoleMap& ariaRoleMap()
 {
-    initializeRoleMap();
+    initializeAriaRoleMap();
     return *gAriaRoleMap;
 }
 
 static ARIAReverseRoleMap& reverseAriaRoleMap()
 {
-    initializeRoleMap();
+    initializeAriaRoleMap();
     return *gAriaReverseRoleMap;
 }
 

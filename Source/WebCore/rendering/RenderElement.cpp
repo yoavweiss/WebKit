@@ -65,6 +65,7 @@
 #include "RenderDeprecatedFlexibleBox.h"
 #include "RenderDescendantIterator.h"
 #include "RenderElementInlines.h"
+#include "RenderElementStyleInlines.h"
 #include "RenderFlexibleBox.h"
 #include "RenderFragmentContainer.h"
 #include "RenderFragmentedFlow.h"
@@ -132,6 +133,11 @@ struct SameSizeAsRenderElement : public RenderObject {
     unsigned bitfields2 : 13;
     Style::ComputedStyle style;
 };
+
+float opacity(const RenderElement& renderer)
+{
+    return renderer.opacity();
+}
 
 static_assert(sizeof(RenderElement) == sizeof(SameSizeAsRenderElement), "RenderElement should stay small");
 

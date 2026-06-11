@@ -54,7 +54,7 @@
 #import "QualifiedName.h"
 #import "Range.h"
 #import "RenderObject.h"
-#import "StyleComputedStyle+GettersInlines.h"
+#import "StyleComputedStyle.h"
 #import "StyleProperties.h"
 #import "Text.h"
 #import "TextIterator.h"

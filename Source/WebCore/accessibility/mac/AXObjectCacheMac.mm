@@ -40,6 +40,7 @@
 #import "CocoaAccessibilityConstants.h"
 #import "DeprecatedGlobalSettings.h"
 #import "DocumentView.h"
+#import "LocalFrameInlines.h"
 #import "LocalFrameView.h"
 #import "RenderObject.h"
 #import "RenderView.h"

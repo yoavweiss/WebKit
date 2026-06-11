@@ -886,6 +886,39 @@ LayoutRoundedRect::Radii RenderBox::borderRadii() const
     return borderShape.deprecatedRoundedRect().radii();
 }
 
+IntRect absoluteInteractionBounds(const RenderObject& renderer)
+{
+    if (CheckedPtr box = dynamicDowncast<RenderBox>(renderer)) {
+        FloatRect rect;
+        // FIXME: want borders or not?
+        if (box->style().isOverflowVisible())
+            rect = box->layoutOverflowRect();
+        else
+            rect = box->clientBoxRect();
+        return box->localToAbsoluteQuad(rect).enclosingBoundingBox();
+    }
+
+    auto& style = renderer.style();
+    FloatRect boundingBox = renderer.absoluteBoundingBoxRect(true /* use transforms*/);
+    // This is wrong. It's subtracting borders after converting to absolute coords on something that probably doesn't represent a rectangular element.
+    boundingBox.move(Style::evaluate<float>(style.usedBorderLeftWidth(), Style::ZoomNeeded { }), Style::evaluate<float>(style.usedBorderTopWidth(), Style::ZoomNeeded { }));
+    boundingBox.setWidth(boundingBox.width() - Style::evaluate<float>(style.usedBorderLeftWidth(), Style::ZoomNeeded { }) - Style::evaluate<float>(style.usedBorderRightWidth(), Style::ZoomNeeded { }));
+    boundingBox.setHeight(boundingBox.height() - Style::evaluate<float>(style.usedBorderBottomWidth(), Style::ZoomNeeded { }) - Style::evaluate<float>(style.usedBorderTopWidth(), Style::ZoomNeeded { }));
+    return enclosingIntRect(boundingBox);
+}
+
+#if ENABLE(CSS_TAP_HIGHLIGHT_COLOR)
+Color tapHighlightColor(const RenderObject& renderer)
+{
+    return renderer.style().tapHighlightColorResolvingCurrentColor();
+}
+#endif
+
+ScrollbarWidth scrollbarWidth(const RenderObject& renderer)
+{
+    return Style::toPlatform(renderer.style().scrollbarWidth());
+}
+
 LayoutRect RenderBox::paddingBoxRect() const
 {
     auto offsetForScrollbar = 0_lu;

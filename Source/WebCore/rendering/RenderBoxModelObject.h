@@ -254,6 +254,11 @@ private:
     RenderBlock* containingBlockForAutoHeightDetectionGeneric(const auto& logicalHeight) const;
 };
 
+WEBCORE_EXPORT LayoutUnit borderLeft(const RenderBoxModelObject&);
+WEBCORE_EXPORT LayoutUnit borderTop(const RenderBoxModelObject&);
+WEBCORE_EXPORT LayoutUnit paddingLeft(const RenderBoxModelObject&);
+WEBCORE_EXPORT LayoutUnit paddingTop(const RenderBoxModelObject&);
+
 } // namespace WebCore
 
 SPECIALIZE_TYPE_TRAITS_RENDER_OBJECT(RenderBoxModelObject, isRenderBoxModelObject())

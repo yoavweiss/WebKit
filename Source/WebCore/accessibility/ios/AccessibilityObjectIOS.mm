@@ -37,6 +37,8 @@
 #import "HTMLNames.h"
 #import "LocalFrameView.h"
 #import "RenderObject.h"
+#import "RenderObjectStyle.h"
+#import "StyleTextDecorationLine.h"
 #import "WAKView.h"
 #import "WebAccessibilityObjectWrapperIOS.h"
 #import <pal/ios/UIKitSoftLink.h>
@@ -247,9 +249,9 @@ static void attributeStringSetStyle(NSMutableAttributedString *attrString, Rende
     auto& style = renderer->style();
 
     // Set basic font info.
-    attributedStringSetFont(attrString, style.fontCascade().primaryFont().ctFont(), range);
+    attributedStringSetFont(attrString, Style::fontCascade(style).primaryFont().ctFont(), range);
 
-    if (style.textDecorationLineInEffect().hasUnderline())
+    if (Style::textDecorationLineInEffect(style).hasUnderline())
         attributedStringSetNumber(attrString, AccessibilityTokenUnderline, @YES, range);
 
     // Add code context if this node is within a <code> block.

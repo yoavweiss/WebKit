@@ -129,10 +129,9 @@
 #import <WebCore/RemoteFrameGeometryTransformer.h>
 #import <WebCore/RemoteFrameView.h>
 #import <WebCore/RemoteUserInputEventData.h>
-#import <WebCore/RenderBoxInlines.h>
+#import <WebCore/RenderBox.h>
 #import <WebCore/RenderElement.h>
 #import <WebCore/RenderLayer.h>
-#import <WebCore/RenderObjectInlines.h>
 #import <WebCore/RenderedDocumentMarker.h>
 #import <WebCore/SVGImage.h>
 #import <WebCore/Settings.h>
@@ -2606,23 +2605,7 @@ IntRect WebPage::absoluteInteractionBounds(const Node& node)
     if (!renderer)
         return { };
 
-    if (CheckedPtr box = dynamicDowncast<RenderBox>(*renderer)) {
-        FloatRect rect;
-        // FIXME: want borders or not?
-        if (box->style().isOverflowVisible())
-            rect = box->layoutOverflowRect();
-        else
-            rect = box->clientBoxRect();
-        return box->localToAbsoluteQuad(rect).enclosingBoundingBox();
-    }
-
-    CheckedRef style = renderer->style();
-    FloatRect boundingBox = renderer->absoluteBoundingBoxRect(true /* use transforms*/);
-    // This is wrong. It's subtracting borders after converting to absolute coords on something that probably doesn't represent a rectangular element.
-    boundingBox.move(WebCore::Style::evaluate<float>(style->usedBorderLeftWidth(), WebCore::Style::ZoomNeeded { }), WebCore::Style::evaluate<float>(style->usedBorderTopWidth(), WebCore::Style::ZoomNeeded { }));
-    boundingBox.setWidth(boundingBox.width() - WebCore::Style::evaluate<float>(style->usedBorderLeftWidth(), WebCore::Style::ZoomNeeded { }) - WebCore::Style::evaluate<float>(style->usedBorderRightWidth(), WebCore::Style::ZoomNeeded { }));
-    boundingBox.setHeight(boundingBox.height() - WebCore::Style::evaluate<float>(style->usedBorderBottomWidth(), WebCore::Style::ZoomNeeded { }) - WebCore::Style::evaluate<float>(style->usedBorderTopWidth(), WebCore::Style::ZoomNeeded { }));
-    return enclosingIntRect(boundingBox);
+    return WebCore::absoluteInteractionBounds(*renderer);
 }
 
 static IntRect elementBoundsInFrame(const LocalFrame& frame, const Element& focusedElement)
@@ -3224,7 +3207,7 @@ void WebPage::sendTapHighlightForNodeIfNecessary(WebKit::TapIdentifier requestID
     if (CheckedPtr renderer = updatedNode->renderer()) {
         renderer->absoluteQuads(quads);
 #if ENABLE(CSS_TAP_HIGHLIGHT_COLOR)
-        auto highlightColor = renderer->style().tapHighlightColorResolvingCurrentColor();
+        auto highlightColor = WebCore::tapHighlightColor(*renderer);
 #else
         auto highlightColor = Color::transparentBlack;
 #endif

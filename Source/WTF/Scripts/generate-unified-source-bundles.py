@@ -87,7 +87,8 @@ class SourceFile:
                 elif attribute == 'nonARC':
                     self._non_arc = True
                 elif attribute.startswith('header:'):
-                    self._header_group = attribute[7:]
+                    if not args.ignore_header_groups:
+                        self._header_group = attribute[7:]
                 elif attribute.startswith('cost:'):
                     if args.enforce_cost:
                         self.cost = int(attribute[5:])
@@ -256,6 +257,9 @@ def parse_args():
                         help='The number of files to merge into a single bundle (default: 8).')
     parser.add_argument('--enforce-cost', action='store_true', default=False,
                         help='Honor @cost annotations when packing bundles.')
+    parser.add_argument('--ignore-header-groups', action='store_true', default=False,
+                        help='Ignore @header annotations and bundle those files by directory '
+                             '(the prefix they need is carried by the build PCH instead).')
     parser.add_argument('--dense-bundle-filter', action='append', default=[],
                         help='Densely bundle files matching the given path glob (repeatable). '
                              'Use GLOB=NAME to set the bundle filename tag explicitly.')

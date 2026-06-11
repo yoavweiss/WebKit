@@ -81,6 +81,8 @@
 #include "PlatformControl.h"
 #include "ProgressResolutionData.h"
 #include "StyleAppearance.h"
+#include "StyleComputedStyle+GettersInlines.h"
+#include "StyleComputedStyle+SettersInlines.h"
 #include "Styleable.h"
 #include "WebAnimationTypes.h"
 

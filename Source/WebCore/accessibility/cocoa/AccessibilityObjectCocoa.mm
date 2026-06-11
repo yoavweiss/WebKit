@@ -31,8 +31,10 @@
 
 #import "AXObjectCacheInlines.h"
 #import "FontCascadeInlines.h"
-#import "StyleComputedStyle+GettersInlines.h"
+#import "StyleComputedStyle.h"
 #import "StyleShadow.h"
+#import "StyleSpeakAs.h"
+#import "StyleTextShadow.h"
 #import "StyleVerticalAlign.h"
 #import "TextIterator.h"
 #import <wtf/cocoa/TypeCastsCocoa.h>
@@ -50,7 +52,7 @@ namespace WebCore {
 Style::SpeakAs AccessibilityObject::speakAs() const
 {
     if (auto* style = this->style())
-        return style->speakAs();
+        return Style::speakAs(*style);
     return CSS::Keyword::Normal { };
 }
 
@@ -194,7 +196,7 @@ RetainPtr<NSAttributedString> AccessibilityObject::attributedStringForRange(cons
 
 RetainPtr<CTFontRef> fontFrom(const Style::ComputedStyle& style)
 {
-    return style.fontCascade().primaryFont().ctFont();
+    return Style::fontCascade(style).primaryFont().ctFont();
 }
 
 Color textColorFrom(const Style::ComputedStyle& style)
@@ -237,19 +239,19 @@ Color AccessibilityObject::backgroundColor() const
 bool AccessibilityObject::isSubscript() const
 {
     const CheckedPtr style = this->style();
-    return style && WTF::holdsAlternative<CSS::Keyword::Sub>(style->verticalAlign());
+    return style && WTF::holdsAlternative<CSS::Keyword::Sub>(Style::verticalAlign(*style));
 }
 
 bool AccessibilityObject::isSuperscript() const
 {
     const CheckedPtr style = this->style();
-    return style && WTF::holdsAlternative<CSS::Keyword::Super>(style->verticalAlign());
+    return style && WTF::holdsAlternative<CSS::Keyword::Super>(Style::verticalAlign(*style));
 }
 
 bool AccessibilityObject::hasTextShadow() const
 {
     const CheckedPtr style = this->style();
-    return style && !style->textShadow().isNone();
+    return style && !Style::textShadow(*style).isNone();
 }
 
 LineDecorationStyle AccessibilityObject::lineDecorationStyle() const
@@ -264,14 +266,14 @@ AttributedStringStyle AccessibilityObject::stylesForAttributedString() const
     if (!style)
         return { };
 
-    auto& alignment = style->verticalAlign();
+    auto& alignment = Style::verticalAlign(*style);
     return {
         fontFrom(*style),
         textColorFrom(*style),
         backgroundColorFrom(*style),
         WTF::holdsAlternative<CSS::Keyword::Sub>(alignment),
         WTF::holdsAlternative<CSS::Keyword::Super>(alignment),
-        !style->textShadow().isNone(),
+        !Style::textShadow(*style).isNone(),
         lineDecorationStyle()
     };
 }

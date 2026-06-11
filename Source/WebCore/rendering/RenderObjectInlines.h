@@ -71,11 +71,6 @@ inline CheckedRef<const Style::ComputedStyle> RenderObject::firstLineStyle() con
     return downcast<RenderElement>(*this).firstLineStyle();
 }
 
-inline LocalFrame& RenderObject::frame() const
-{
-    return *document().frame();
-}
-
 inline Page& RenderObject::page() const
 {
     // The render tree will always be torn down before Frame is disconnected from Page,

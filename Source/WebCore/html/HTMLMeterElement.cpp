@@ -35,6 +35,7 @@
 #include "RenderMeter.h"
 #include "RenderTheme.h"
 #include "ScriptDisallowedScope.h"
+#include "Settings.h"
 #include "ShadowRoot.h"
 #include "UserAgentParts.h"
 #include "UserAgentStyleSheets.h"
