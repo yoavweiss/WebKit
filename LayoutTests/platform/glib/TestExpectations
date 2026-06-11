@@ -5550,8 +5550,6 @@ webkit.org/b/316197 imported/w3c/web-platform-tests/media-source/mediasource-add
 
 webkit.org/b/316421 media/track/in-band/track-in-band-srt-mkv-addtrack.html [ Pass Failure ]
 
-webkit.org/b/316424 fast/mediastream/enumerateDevices-camera-denied-expose-with-capture.html [ Pass Failure ]
-
 webkit.org/b/316427 animations/restart-after-scroll.html [ Pass Failure ]
 
 webkit.org/b/316428 imported/w3c/web-platform-tests/html/semantics/popovers/popover-focus-inert-invoker.html [ Pass Failure ]
