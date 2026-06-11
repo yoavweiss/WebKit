@@ -340,8 +340,6 @@ void WebFrameProxy::didFailProvisionalLoad()
 void WebFrameProxy::didCommitLoad(const String& contentType, const WebCore::CertificateInfo& certificateInfo, bool containsPluginDocument, DocumentSecurityPolicy&& documentSecurityPolicy, HashSet<WebCore::SecurityOriginData>&& cspOriginsThatUpgradeInsecureNavigations)
 {
     m_frameLoadState.didCommitLoad();
-    if (RefPtr page = m_page)
-        protect(process())->didCommitLoadClientOrigin(ClientOrigin { SecurityOriginData::fromURL(page->mainFrame()->url()), SecurityOriginData::fromURL(m_frameLoadState.url()) });
 
     if (m_isShowingInitialAboutBlank && !url().isAboutBlank())
         m_isShowingInitialAboutBlank = false;
@@ -352,7 +350,14 @@ void WebFrameProxy::didCommitLoad(const String& contentType, const WebCore::Cert
     m_containsPluginDocument = containsPluginDocument;
     m_documentSecurityPolicy = WTF::move(documentSecurityPolicy);
     m_cspOriginsThatUpgradeInsecureNavigations = WTF::move(cspOriginsThatUpgradeInsecureNavigations);
-    updateDocumentSecurityOrigin(nullptr);
+
+    RefPtr creator = parentFrame() ? parentFrame() : opener();
+    updateDocumentSecurityOrigin(creator.get());
+
+    if (RefPtr page = m_page) {
+        RefPtr mainFrame = page->mainFrame();
+        protect(process())->didCommitLoadClientOrigin(ClientOrigin { mainFrame ? mainFrame->documentSecurityOriginData() : SecurityOriginData { }, documentSecurityOriginData() });
+    }
 
     RefPtr webPage = page();
     if (webPage && protect(webPage->preferences())->siteIsolationEnabled())
