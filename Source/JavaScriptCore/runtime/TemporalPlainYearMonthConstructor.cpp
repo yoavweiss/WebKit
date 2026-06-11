@@ -98,20 +98,20 @@ JSC_DEFINE_HOST_FUNCTION(constructTemporalPlainYearMonth, (JSGlobalObject* globa
     double isoYear = 0;
     if (argumentCount > 0) {
         auto value = callFrame->uncheckedArgument(0).toIntegerWithTruncation(globalObject);
+        RETURN_IF_EXCEPTION(scope, { });
         if (!std::isfinite(value)) [[unlikely]]
             return throwVMRangeError(globalObject, scope, "Temporal.PlainYearMonth year property must be finite"_s);
         isoYear = value;
-        RETURN_IF_EXCEPTION(scope, { });
     }
 
     // Step 4: Let m be ?ToIntegerWithTruncation(isoMonth).
     double isoMonth = 1;
     if (argumentCount > 1) {
         auto value = callFrame->uncheckedArgument(1).toIntegerWithTruncation(globalObject);
+        RETURN_IF_EXCEPTION(scope, { });
         if (!std::isfinite(value)) [[unlikely]]
             return throwVMRangeError(globalObject, scope, "Temporal.PlainYearMonth month property must be finite"_s);
         isoMonth = value;
-        RETURN_IF_EXCEPTION(scope, { });
     }
 
     if (argumentCount < 2) [[unlikely]]
@@ -142,10 +142,10 @@ JSC_DEFINE_HOST_FUNCTION(constructTemporalPlainYearMonth, (JSGlobalObject* globa
         JSValue refArg = callFrame->uncheckedArgument(3);
         if (!refArg.isUndefined()) {
             auto value = refArg.toIntegerWithTruncation(globalObject);
+            RETURN_IF_EXCEPTION(scope, { });
             if (!std::isfinite(value)) [[unlikely]]
                 return throwVMRangeError(globalObject, scope, "Temporal.PlainYearMonth reference day must be finite"_s);
             referenceDay = value;
-            RETURN_IF_EXCEPTION(scope, { });
         }
     }
 

@@ -99,26 +99,26 @@ JSC_DEFINE_HOST_FUNCTION(constructTemporalPlainDate, (JSGlobalObject* globalObje
 
     if (argumentCount > 0) {
         auto value = callFrame->uncheckedArgument(0).toIntegerWithTruncation(globalObject);
+        RETURN_IF_EXCEPTION(scope, { });
         if (!std::isfinite(value)) [[unlikely]]
             return throwVMRangeError(globalObject, scope, "Temporal.PlainDate year property must be finite"_s);
         duration.setField(TemporalUnit::Year, value);
-        RETURN_IF_EXCEPTION(scope, { });
     }
 
     if (argumentCount > 1) {
         auto value = callFrame->uncheckedArgument(1).toIntegerWithTruncation(globalObject);
+        RETURN_IF_EXCEPTION(scope, { });
         if (!std::isfinite(value)) [[unlikely]]
             return throwVMRangeError(globalObject, scope, "Temporal.PlainDate month property must be finite"_s);
         duration.setField(TemporalUnit::Month, value);
-        RETURN_IF_EXCEPTION(scope, { });
     }
 
     if (argumentCount > 2) {
         auto value = callFrame->uncheckedArgument(2).toIntegerWithTruncation(globalObject);
+        RETURN_IF_EXCEPTION(scope, { });
         if (!std::isfinite(value)) [[unlikely]]
             return throwVMRangeError(globalObject, scope, "Temporal.PlainDate day property must be finite"_s);
         duration.setField(TemporalUnit::Day, value);
-        RETURN_IF_EXCEPTION(scope, { });
     }
 
     // Steps 5-7: if calendar undefined → "iso8601"; if not String → TypeError; CanonicalizeCalendar.

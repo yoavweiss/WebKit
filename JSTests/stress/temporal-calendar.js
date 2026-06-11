@@ -1,6 +1,4 @@
 //@ requireOptions("--useTemporal=1")
-// FIXME: toLocaleString requires IntlDateTimeFormat Temporal support, implemented in the next patch.
-//@ skip
 
 function shouldBe(actual, expected) {
     if (actual !== expected)
