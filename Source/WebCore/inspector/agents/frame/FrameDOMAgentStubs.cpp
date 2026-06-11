@@ -72,16 +72,6 @@ Inspector::CommandResult<String> FrameDOMAgent::getAssociatedDataForNode(int)
 }
 #endif
 
-Inspector::CommandResult<Ref<JSON::ArrayOf<Inspector::Protocol::DOM::EventListener>>> FrameDOMAgent::getEventListenersForNode(int, std::optional<bool>&&)
-{
-    return makeUnexpected("Not yet implemented for frame targets"_s);
-}
-
-Inspector::CommandResult<void> FrameDOMAgent::setEventListenerDisabled(int, bool)
-{
-    return makeUnexpected("Not yet implemented for frame targets"_s);
-}
-
 Inspector::CommandResult<void> FrameDOMAgent::setBreakpointForEventListener(int, RefPtr<JSON::Object>&&)
 {
     return makeUnexpected("Not supported for frame targets"_s);
@@ -229,11 +219,6 @@ Inspector::CommandResult<void> FrameDOMAgent::focus(int)
 Inspector::CommandResult<void> FrameDOMAgent::setInspectedNode(int)
 {
     return makeUnexpected("Not supported for frame targets"_s);
-}
-
-Inspector::CommandResult<void> FrameDOMAgent::setAllowEditingUserAgentShadowTrees(bool)
-{
-    return makeUnexpected("Not yet implemented for frame targets"_s);
 }
 
 Inspector::CommandResult<Ref<Inspector::Protocol::DOM::MediaStats>> FrameDOMAgent::getMediaStats(int)

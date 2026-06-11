@@ -33,6 +33,8 @@
 #include "DocumentInlines.h"
 #include "DocumentType.h"
 #include "ElementInlines.h"
+#include "Event.h"
+#include "EventListener.h"
 #include "EventNames.h"
 #include "FrameInlines.h"
 #include "HTMLFrameOwnerElement.h"
@@ -44,16 +46,22 @@
 #include "InspectorDOMAgent.h"
 #include "InspectorNodeFinder.h"
 #include "InstrumentingAgents.h"
+#include "JSEventListener.h"
+#include "LocalDOMWindow.h"
 #include "LocalFrame.h"
 #include "LocalFrameInlines.h"
 #include "NodeList.h"
 #include "PseudoElement.h"
+#include "RegisteredEventListener.h"
+#include "ScriptController.h"
 #include "ShadowRoot.h"
 #include "Text.h"
 #include "TextNodeTraversal.h"
 #include "markup.h"
 #include <JavaScriptCore/IdentifiersFactory.h>
 #include <JavaScriptCore/InspectorProtocolObjects.h>
+#include <JavaScriptCore/JSCInlines.h>
+#include <JavaScriptCore/TopExceptionScope.h>
 #include <pal/crypto/CryptoDigest.h>
 #include <pal/text/TextEncoding.h>
 #include <wtf/TZoneMallocInlines.h>
@@ -480,6 +488,8 @@ void FrameDOMAgent::reset()
     discardBindings();
     m_document = nullptr;
     m_searchResults.clear();
+    m_eventListenerEntries.clear();
+    m_lastEventListenerId = 1;
 
     m_destroyedDetachedNodeIdentifiers.clear();
     m_destroyedAttachedNodeIdentifiers.clear();
@@ -943,6 +953,212 @@ Inspector::CommandResult<int> FrameDOMAgent::pushNodeByPathToFrontend(const Stri
     }
 
     return makeUnexpected("Missing node for given path"_s);
+}
+
+Inspector::CommandResult<void> FrameDOMAgent::setAllowEditingUserAgentShadowTrees(bool allow)
+{
+    m_allowEditingUserAgentShadowTrees = allow;
+    return { };
+}
+
+Inspector::CommandResult<Ref<JSON::ArrayOf<Inspector::Protocol::DOM::EventListener>>> FrameDOMAgent::getEventListenersForNode(int nodeId, std::optional<bool>&& includeAncestors)
+{
+    Inspector::Protocol::ErrorString errorString;
+
+    RefPtr node = assertNode(errorString, nodeId);
+    if (!node)
+        return makeUnexpected(errorString);
+
+    Vector<RefPtr<EventTarget>> ancestors;
+    ancestors.append(node.get());
+    if (includeAncestors.value_or(true)) {
+        for (RefPtr ancestor = node->parentOrShadowHostNode(); ancestor; ancestor = ancestor->parentOrShadowHostNode())
+            ancestors.append(ancestor.get());
+        if (RefPtr window = node->document().window())
+            ancestors.append(window.get());
+    }
+
+    struct EventListenerInfo {
+        RefPtr<EventTarget> eventTarget;
+        const AtomString eventType;
+        const EventListenerVector eventListeners;
+    };
+
+    Vector<EventListenerInfo> eventInformation;
+    for (size_t i = ancestors.size(); i; --i) {
+        auto& ancestor = ancestors[i - 1];
+        for (auto& eventType : ancestor->eventTypes()) {
+            EventListenerVector filteredListeners;
+            for (auto& listener : ancestor->eventListeners(eventType)) {
+                if (listener->callback().type() == EventListener::JSEventListenerType)
+                    filteredListeners.append(listener);
+            }
+            if (!filteredListeners.isEmpty())
+                eventInformation.append({ ancestor, eventType, WTF::move(filteredListeners) });
+        }
+    }
+
+    auto listeners = JSON::ArrayOf<Inspector::Protocol::DOM::EventListener>::create();
+
+    auto addListener = [&](const Ref<RegisteredEventListener>& listener, const EventListenerInfo& info) {
+        Inspector::Protocol::DOM::EventListenerId identifier = 0;
+        bool disabled = false;
+
+        Ref eventTarget = *info.eventTarget;
+
+        for (auto& inspectorEventListener : m_eventListenerEntries.values()) {
+            if (inspectorEventListener.matches(eventTarget, info.eventType, listener->callback(), listener->useCapture())) {
+                identifier = inspectorEventListener.identifier;
+                disabled = inspectorEventListener.disabled;
+                break;
+            }
+        }
+
+        if (!identifier) {
+            InspectorEventListener inspectorEventListener(m_lastEventListenerId++, eventTarget, info.eventType, listener->callback(), listener->useCapture());
+
+            identifier = inspectorEventListener.identifier;
+            disabled = inspectorEventListener.disabled;
+
+            m_eventListenerEntries.add(identifier, inspectorEventListener);
+        }
+
+        listeners->addItem(buildObjectForEventListener(listener, identifier, eventTarget, info.eventType, disabled));
+    };
+
+    // Get Capturing Listeners (in this order)
+    size_t eventInformationLength = eventInformation.size();
+    for (auto& info : eventInformation) {
+        for (auto& listener : info.eventListeners) {
+            if (listener->useCapture())
+                addListener(listener, info);
+        }
+    }
+
+    // Get Bubbling Listeners (reverse order)
+    for (size_t i = eventInformationLength; i; --i) {
+        const EventListenerInfo& info = eventInformation[i - 1];
+        for (auto& listener : info.eventListeners) {
+            if (!listener->useCapture())
+                addListener(listener, info);
+        }
+    }
+
+    return listeners;
+}
+
+Inspector::CommandResult<void> FrameDOMAgent::setEventListenerDisabled(int eventListenerId, bool disabled)
+{
+    auto it = m_eventListenerEntries.find(eventListenerId);
+    if (it == m_eventListenerEntries.end())
+        return makeUnexpected("Missing event listener for given eventListenerId"_s);
+
+    it->value.disabled = disabled;
+
+    return { };
+}
+
+bool FrameDOMAgent::isEventListenerDisabled(EventTarget& target, const AtomString& eventType, EventListener& listener, bool capture)
+{
+    for (auto& inspectorEventListener : m_eventListenerEntries.values()) {
+        if (inspectorEventListener.matches(target, eventType, listener, capture))
+            return inspectorEventListener.disabled;
+    }
+    return false;
+}
+
+Ref<Inspector::Protocol::DOM::EventListener> FrameDOMAgent::buildObjectForEventListener(const Ref<RegisteredEventListener>& registeredEventListener, Inspector::Protocol::DOM::EventListenerId identifier, EventTarget& eventTarget, const AtomString& eventType, bool disabled)
+{
+    Ref<EventListener> eventListener = registeredEventListener->callback();
+
+    String handlerName;
+    int lineNumber = 0;
+    int columnNumber = 0;
+    String scriptID;
+    if (RefPtr scriptListener = dynamicDowncast<JSEventListener>(eventListener); scriptListener && scriptListener->isolatedWorld()) {
+        RefPtr<Document> document;
+        if (RefPtr scriptExecutionContext = eventTarget.scriptExecutionContext())
+            document = dynamicDowncast<Document>(*scriptExecutionContext);
+        else if (RefPtr node = dynamicDowncast<Node>(eventTarget))
+            document = node->document();
+
+        JSC::JSObject* handlerObject = nullptr;
+        JSC::JSGlobalObject* globalObject = nullptr;
+
+        RefPtr isolatedWorld = scriptListener->isolatedWorld();
+        JSC::JSLockHolder lock(isolatedWorld->vm());
+
+        if (document) {
+            handlerObject = scriptListener->ensureJSFunction(*document);
+            if (RefPtr frame = document->frame()) {
+                CheckedRef script = frame->script();
+                // FIXME: Why do we need the canExecuteScripts check here?
+                if (script->canExecuteScripts(ReasonForCallingCanExecuteScripts::NotAboutToExecuteScript))
+                    globalObject = script->globalObject(*isolatedWorld);
+            }
+        }
+
+        if (handlerObject && globalObject) {
+            JSC::VM& vm = globalObject->vm();
+            JSC::JSFunction* handlerFunction = dynamicDowncast<JSC::JSFunction>(handlerObject);
+
+            if (!handlerFunction) {
+                auto scope = DECLARE_TOP_EXCEPTION_SCOPE(vm);
+
+                // If the handler is not actually a function, see if it implements the EventListener interface and use that.
+                auto handleEventValue = handlerObject->get(globalObject, JSC::Identifier::fromString(vm, "handleEvent"_s));
+
+                if (scope.exception()) [[unlikely]]
+                    scope.clearException();
+
+                if (handleEventValue)
+                    handlerFunction = dynamicDowncast<JSC::JSFunction>(handleEventValue);
+            }
+
+            if (handlerFunction && !handlerFunction->isHostOrBuiltinFunction()) {
+                // If the listener implements the EventListener interface, use the class name instead of
+                // "handleEvent", unless it is a plain object.
+                if (handlerFunction != handlerObject)
+                    handlerName = JSC::JSObject::calculatedClassName(handlerObject);
+                if (handlerName.isEmpty() || handlerName == "Object"_s)
+                    handlerName = handlerFunction->calculatedDisplayName(vm);
+
+                if (auto executable = handlerFunction->jsExecutable()) {
+                    lineNumber = executable->firstLine() - 1;
+                    columnNumber = executable->startColumn() - 1;
+                    scriptID = executable->sourceID() == JSC::SourceProvider::nullID ? emptyString() : String::number(executable->sourceID());
+                }
+            }
+        }
+    }
+
+    auto value = Inspector::Protocol::DOM::EventListener::create()
+        .setEventListenerId(identifier)
+        .setType(eventType)
+        .setUseCapture(registeredEventListener->useCapture())
+        .setIsAttribute(eventListener->isAttribute())
+        .release();
+    if (RefPtr node = dynamicDowncast<Node>(eventTarget))
+        value->setNodeId(pushNodePathToFrontend(node.get()));
+    else if (is<LocalDOMWindow>(eventTarget))
+        value->setOnWindow(true);
+    if (!scriptID.isNull()) {
+        auto location = Inspector::Protocol::Debugger::Location::create()
+            .setScriptId(scriptID)
+            .setLineNumber(lineNumber)
+            .release();
+        location->setColumnNumber(columnNumber);
+        value->setLocation(WTF::move(location));
+    }
+    if (!handlerName.isEmpty())
+        value->setHandlerName(handlerName);
+    if (registeredEventListener->isPassive())
+        value->setPassive(true);
+    if (registeredEventListener->isOnce())
+        value->setOnce(true);
+    if (disabled)
+        value->setDisabled(disabled);
+    return value;
 }
 
 } // namespace WebCore
