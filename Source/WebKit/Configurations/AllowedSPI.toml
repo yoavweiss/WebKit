@@ -261,6 +261,13 @@ selectors = [
     { name = "requestProofreadingReviewOfString:range:language:options:completionHandler:", class = "UITextChecker" },
 ]
 
+ [[temporary-usage]]
+ request = "rdar://165789536"
+ cleanup = "rdar://179184814"
+ selectors = [
+     { name = "requestGrammarCheckingOfString:range:waitForAllResults:completionHandler:", class = "UITextChecker" },
+ ]
+
 [[temporary-usage]]
 request = "rdar://165789536"
 cleanup = "rdar://165842824"
