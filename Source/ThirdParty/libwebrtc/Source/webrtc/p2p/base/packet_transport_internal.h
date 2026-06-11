@@ -92,6 +92,9 @@ class RTC_EXPORT PacketTransportInternal {
   void SubscribeReceivingState(
       void* tag,
       absl::AnyInvocable<void(PacketTransportInternal*)> callback);
+#if WEBRTC_WEBKIT_BUILD
+  void UnsubscribeReceivingState(void* tag);
+#endif
   void NotifyReceivingState(PacketTransportInternal* packet_transport);
 
   // Callback is invoked each time a packet is received on this channel.

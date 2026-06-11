@@ -288,6 +288,10 @@ DtlsTransportInternalImpl::DtlsTransportInternalImpl(
 DtlsTransportInternalImpl::~DtlsTransportInternalImpl() {
   ice_transport()->ResetDtlsStunPiggybackCallbacks();
   ice_transport()->DeregisterReceivedPacketCallback(this);
+#if WEBRTC_WEBKIT_BUILD
+  ice_transport()->UnsubscribeReceivingState(this);
+  ice_transport()->UnsubscribeWritableState(this);
+#endif
 }
 
 DtlsTransportState DtlsTransportInternalImpl::dtls_state() const {
