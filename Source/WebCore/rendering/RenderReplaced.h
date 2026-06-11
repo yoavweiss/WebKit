@@ -72,6 +72,7 @@ protected:
 
     std::pair<LayoutUnit, LayoutUnit> computeIntrinsicLogicalWidths() const final;
     std::pair<LayoutUnit, LayoutUnit> computeIntrinsicKeywordLogicalWidths() const final;
+    std::pair<LayoutUnit, LayoutUnit> computeAspectRatioAdjustedIntrinsicLogicalWidths() const;
 
     virtual LayoutUnit minimumReplacedHeight() const { return 0_lu; }
 

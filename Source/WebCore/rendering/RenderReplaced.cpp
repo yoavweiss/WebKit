@@ -841,34 +841,27 @@ std::pair<LayoutUnit, LayoutUnit> RenderReplaced::computeIntrinsicKeywordLogical
     return RenderBox::computeIntrinsicKeywordLogicalWidths();
 }
 
-static bool canDeriveIntrinsicWidthFromAspectRatio(const RenderReplaced& replacedRenderer)
+std::pair<LayoutUnit, LayoutUnit> RenderReplaced::computeAspectRatioAdjustedIntrinsicLogicalWidths() const
 {
-    // Determines whether a replaced element with a percentage width can derive its
-    // preferred width from its aspect ratio and a definite block size.
-    // This mirrors shouldComputeLogicalWidthFromAspectRatio() on RenderBox, but also
-    // covers replaced elements that have an intrinsic aspect ratio without a CSS
-    // aspect-ratio property (shouldIgnoreAspectRatio blocks those on the RenderBox path).
+    auto [minLogicalWidth, maxLogicalWidth] = computeIntrinsicLogicalWidths();
 
-    if (!replacedRenderer.hasIntrinsicAspectRatio())
-        return false;
+    if (!hasIntrinsicAspectRatio())
+        return { minLogicalWidth, maxLogicalWidth };
 
-    // Elements with a CSS aspect-ratio already go through shouldComputeLogicalWidthFromAspectRatio.
-    if (replacedRenderer.shouldComputeLogicalWidthFromAspectRatio())
-        return true;
+    auto& style = this->style();
+    auto computedAspectRatio = preferredAspectRatioAsSize().aspectRatioDouble();
+    auto computedIntrinsicLogicalWidth = minLogicalWidth;
 
-    // Flex/grid items may have an overriding cross-axis size set before preferred width computation.
-    if (replacedRenderer.overridingBorderBoxLogicalHeight())
-        return true;
+    if (auto fixedLogicalHeight = style.logicalHeight().tryFixed())
+        computedIntrinsicLogicalWidth = LayoutUnit { fixedLogicalHeight->resolveZoom(style.usedZoomForLength()) * computedAspectRatio };
 
-    // Fixed height is always definite regardless of layout context.
-    if (replacedRenderer.style().logicalHeight().isFixed())
-        return true;
+    if (auto fixedLogicalMaxHeight = style.logicalMaxHeight().tryFixed())
+        computedIntrinsicLogicalWidth = std::min(computedIntrinsicLogicalWidth, LayoutUnit { fixedLogicalMaxHeight->resolveZoom(style.usedZoomForLength()) * computedAspectRatio });
 
-    // Percentage height that resolves against a definite containing block (via flex/grid override).
-    if (replacedRenderer.style().logicalHeight().isPercentOrCalculated() && replacedRenderer.percentageLogicalHeightIsResolvable())
-        return true;
+    if (auto fixedLogicalMinHeight = style.logicalMinHeight().tryFixed())
+        computedIntrinsicLogicalWidth = std::max(computedIntrinsicLogicalWidth, LayoutUnit { fixedLogicalMinHeight->resolveZoom(style.usedZoomForLength()) * computedAspectRatio });
 
-    return false;
+    return { computedIntrinsicLogicalWidth, computedIntrinsicLogicalWidth };
 }
 
 void RenderReplaced::computeIntrinsicLogicalWidthContributions()
@@ -877,16 +870,9 @@ void RenderReplaced::computeIntrinsicLogicalWidthContributions()
 
     // We cannot resolve any percent logical width here as the available logical
     // width may not be set on our containing block.
-    if (style().logicalWidth().isPercentOrCalculated()) {
-        if (canDeriveIntrinsicWidthFromAspectRatio(*this)) {
-            m_maxContentLogicalWidthContribution = computeLogicalWidthFromAspectRatio() - borderAndPaddingLogicalWidth();
-            m_minContentLogicalWidthContribution = m_maxContentLogicalWidthContribution;
-        } else {
-            std::tie(m_minContentLogicalWidthContribution, m_maxContentLogicalWidthContribution) = computeIntrinsicLogicalWidths();
-            if (preferredAspectRatio())
-                applyTransferredMinMaxSizesFromAspectRatio(m_minContentLogicalWidthContribution, m_maxContentLogicalWidthContribution);
-        }
-    } else {
+    if (style().logicalWidth().isPercentOrCalculated())
+        std::tie(m_minContentLogicalWidthContribution, m_maxContentLogicalWidthContribution) = computeAspectRatioAdjustedIntrinsicLogicalWidths();
+    else {
         m_maxContentLogicalWidthContribution = computeReplacedLogicalWidth(ShouldComputePreferred::ComputePreferred);
         m_minContentLogicalWidthContribution = m_maxContentLogicalWidthContribution;
         if (preferredAspectRatio() && !style().logicalWidth().isFixed())
