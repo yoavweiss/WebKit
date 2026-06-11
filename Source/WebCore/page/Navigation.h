@@ -66,16 +66,21 @@ public:
     void setKey(const String& key) { m_key = key; }
     JSValueInWrappedObject& info() { return m_info; }
     SerializedScriptValue* serializedState() const { return m_serializedState.get(); }
-    void setSerializedState(RefPtr<SerializedScriptValue>&& state) { m_serializedState = WTF::move(state); }
-    RefPtr<SerializedScriptValue> takeSerializedState() { return WTF::move(m_serializedState); }
-    NavigationHistoryEntry* committedToEntry() const { return m_committedToEntry.get(); }
-    void setCommittedToEntry(NavigationHistoryEntry* entry) { m_committedToEntry = entry; }
     DeferredPromise& committedPromise() { return m_committedPromise; }
     const DeferredPromise& committedPromise() const { return m_committedPromise; }
     DeferredPromise& finishedPromise() { return m_finishedPromise; }
     const DeferredPromise& finishedPromise() const { return m_finishedPromise; }
-    bool finishedBeforeCommit() const { return m_finishedBeforeCommit; }
-    void setFinishedBeforeCommit(bool value) { m_finishedBeforeCommit = value; }
+
+    bool hasCommitted() const { return !!m_committedToEntry; }
+    bool isSettled() const { return m_state == State::Settled; }
+
+    // https://html.spec.whatwg.org/multipage/nav-history-apis.html#notify-about-the-committed-to-entry
+    void commitTo(NavigationHistoryEntry&, NavigationNavigationType);
+    // https://html.spec.whatwg.org/multipage/nav-history-apis.html#resolve-the-finished-promise
+    void resolveFinished();
+    // https://html.spec.whatwg.org/multipage/nav-history-apis.html#reject-the-finished-promise
+    void rejectFinished(const Exception&, JSC::JSValue exceptionObject);
+    void rejectFinished(JSC::JSValue error);
 
 private:
     NavigationAPIMethodTracker(JSC::JSGlobalObject&, Ref<DeferredPromise>&& committed, Ref<DeferredPromise>&& finished, JSC::JSValue&& info, RefPtr<SerializedScriptValue>&& serializedState);
@@ -83,7 +88,15 @@ private:
     enum class IdentifierType { };
     using Identifier = ObjectIdentifier<IdentifierType>;
 
-    bool m_finishedBeforeCommit { false };
+    // The commit and finish signals can arrive in either order; each promise settles exactly once.
+    enum class State : uint8_t {
+        Pending,
+        FinishedBeforeCommit,
+        Committed,
+        Settled,
+    };
+
+    State m_state { State::Pending };
     String m_key;
     JSValueInWrappedObject m_info;
     RefPtr<SerializedScriptValue> m_serializedState;
