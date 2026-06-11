@@ -196,7 +196,8 @@ static TemporalPlainMonthDay* fromMonthDayString(JSGlobalObject* globalObject, W
     // Step 4: ParseISODateTime(item, {TemporalMonthDayString}).
     auto dateTime = ISO8601::parseCalendarDateTime(string, TemporalDateFormat::MonthDay);
     if (!dateTime || (std::get<2>(dateTime.value()) && std::get<2>(dateTime.value())->m_z)) [[unlikely]] {
-        throwRangeError(globalObject, scope, makeString("Temporal.PlainMonthDay.from: invalid date string "_s, string));
+        String message = tryMakeString("Temporal.PlainMonthDay.from: invalid date string "_s, string);
+        throwRangeError(globalObject, scope, message.isNull() ? "Temporal.PlainMonthDay.from: invalid date string"_s : message);
         return { };
     }
     auto [plainDate, plainTimeOptional, timeZoneOptional, calendarOptional] = WTF::move(*dateTime);
@@ -266,7 +267,8 @@ static TemporalPlainMonthDay* fromMonthDayString(JSGlobalObject* globalObject, W
         }
     }
 
-    throwRangeError(globalObject, scope, makeString("Temporal.PlainMonthDay.from: invalid date string "_s, string));
+    String message = tryMakeString("Temporal.PlainMonthDay.from: invalid date string "_s, string);
+    throwRangeError(globalObject, scope, message.isNull() ? "Temporal.PlainMonthDay.from: invalid date string"_s : message);
     return { };
 }
 
