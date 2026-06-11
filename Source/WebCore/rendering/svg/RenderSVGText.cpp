@@ -67,6 +67,7 @@
 #include "SVGVisitedRendererTracking.h"
 #include "Settings.h"
 #include "StyleTextShadow.h"
+#include "StyleTransformResolver.h"
 #include "TransformState.h"
 #include "VisiblePosition.h"
 #include <tuple>
