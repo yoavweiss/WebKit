@@ -250,6 +250,14 @@
 		0F8A806A25EECC1D00790B4A /* bmalloc_heap_ref.h in Headers */ = {isa = PBXBuildFile; fileRef = 0F8A806325EECC1D00790B4A /* bmalloc_heap_ref.h */; };
 		BB00000005000000000000BB /* bmalloc_heap_utils.h in Headers */ = {isa = PBXBuildFile; fileRef = BB00000006000000000000BB /* bmalloc_heap_utils.h */; };
 		0F8A806B25EECC1D00790B4A /* bmalloc_heap_innards.h in Headers */ = {isa = PBXBuildFile; fileRef = 0F8A806425EECC1D00790B4A /* bmalloc_heap_innards.h */; };
+		EF8A806525EECC1D00790B4A /* tagged_bmalloc_heap_inlines.h in Headers */ = {isa = PBXBuildFile; fileRef = EF8A805E25EECC1C00790B4A /* tagged_bmalloc_heap_inlines.h */; };
+		EB00000001000000000000BB /* tagged_bmalloc_heap_utils.c in Sources */ = {isa = PBXBuildFile; fileRef = EB00000002000000000000BB /* tagged_bmalloc_heap_utils.c */; };
+		EB00000005000000000000BB /* tagged_bmalloc_heap_utils.h in Headers */ = {isa = PBXBuildFile; fileRef = EB00000006000000000000BB /* tagged_bmalloc_heap_utils.h */; };
+		EF8A806625EECC1D00790B4A /* tagged_bmalloc_heap.c in Sources */ = {isa = PBXBuildFile; fileRef = EF8A805F25EECC1C00790B4A /* tagged_bmalloc_heap.c */; };
+		EF8A806725EECC1D00790B4A /* tagged_bmalloc_heap.h in Headers */ = {isa = PBXBuildFile; fileRef = EF8A806025EECC1C00790B4A /* tagged_bmalloc_heap.h */; };
+		EF8A806825EECC1D00790B4A /* tagged_bmalloc_heap_config.c in Sources */ = {isa = PBXBuildFile; fileRef = EF8A806125EECC1C00790B4A /* tagged_bmalloc_heap_config.c */; };
+		EF8A806925EECC1D00790B4A /* tagged_bmalloc_heap_config.h in Headers */ = {isa = PBXBuildFile; fileRef = EF8A806225EECC1C00790B4A /* tagged_bmalloc_heap_config.h */; };
+		0F8A806B25EECC1D00790B4A /* tagged_bmalloc_heap_innards.h in Headers */ = {isa = PBXBuildFile; fileRef = EF8A806425EECC1D00790B4A /* tagged_bmalloc_heap_innards.h */; };
 		0F8A809325F6A44F00790B4A /* libpas.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 0FDEA5D92295FC8C0085E340 /* libpas.dylib */; };
 		0F8A80B425F6A46C00790B4A /* mbmalloc_hotbit.c in Sources */ = {isa = PBXBuildFile; fileRef = 0F8A80B325F6A46C00790B4A /* mbmalloc_hotbit.c */; };
 		0F8A810125F6A79500790B4A /* hotbit_heap_config.c in Sources */ = {isa = PBXBuildFile; fileRef = 0F8A80FB25F6A79500790B4A /* hotbit_heap_config.c */; };
@@ -977,6 +985,14 @@
 		0F8A806425EECC1D00790B4A /* bmalloc_heap_innards.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bmalloc_heap_innards.h; sourceTree = "<group>"; };
 		AA00000006000000000000AA /* bmalloc_heap_iso.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = bmalloc_heap_iso.c; sourceTree = "<group>"; };
 		AA00000008000000000000AA /* bmalloc_heap_iso_internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bmalloc_heap_iso_internal.h; sourceTree = "<group>"; };
+		EF8A805E25EECC1C00790B4A /* tagged_bmalloc_heap_inlines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tagged_bmalloc_heap_inlines.h; sourceTree = "<group>"; };
+		EF8A805F25EECC1C00790B4A /* tagged_bmalloc_heap.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = tagged_bmalloc_heap.c; sourceTree = "<group>"; };
+		EF8A806025EECC1C00790B4A /* tagged_bmalloc_heap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tagged_bmalloc_heap.h; sourceTree = "<group>"; };
+		EF8A806125EECC1C00790B4A /* tagged_bmalloc_heap_config.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = tagged_bmalloc_heap_config.c; sourceTree = "<group>"; };
+		EF8A806225EECC1C00790B4A /* tagged_bmalloc_heap_config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tagged_bmalloc_heap_config.h; sourceTree = "<group>"; };
+		EB00000002000000000000BB /* tagged_bmalloc_heap_utils.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = tagged_bmalloc_heap_utils.c; sourceTree = "<group>"; };
+		EB00000006000000000000BB /* tagged_bmalloc_heap_utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tagged_bmalloc_heap_utils.h; sourceTree = "<group>"; };
+		EF8A806425EECC1D00790B4A /* tagged_bmalloc_heap_innards.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tagged_bmalloc_heap_innards.h; sourceTree = "<group>"; };
 		0F8A809725F6A44F00790B4A /* libmbmalloc_hotbit.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libmbmalloc_hotbit.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		0F8A80B325F6A46C00790B4A /* mbmalloc_hotbit.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mbmalloc_hotbit.c; sourceTree = "<group>"; };
 		0F8A80FB25F6A79500790B4A /* hotbit_heap_config.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = hotbit_heap_config.c; sourceTree = "<group>"; };
@@ -1509,6 +1525,14 @@
 				BB00000006000000000000BB /* bmalloc_heap_utils.h */,
 				2C11E8902728A893002162D0 /* bmalloc_type.c */,
 				2C11E88C2728A783002162D0 /* bmalloc_type.h */,
+				EF8A805F25EECC1C00790B4A /* tagged_bmalloc_heap.c */,
+				EF8A806025EECC1C00790B4A /* tagged_bmalloc_heap.h */,
+				EF8A806125EECC1C00790B4A /* tagged_bmalloc_heap_config.c */,
+				EF8A806225EECC1C00790B4A /* tagged_bmalloc_heap_config.h */,
+				EF8A805E25EECC1C00790B4A /* tagged_bmalloc_heap_inlines.h */,
+				EF8A806425EECC1D00790B4A /* tagged_bmalloc_heap_innards.h */,
+				EB00000002000000000000BB /* tagged_bmalloc_heap_utils.c */,
+				EB00000006000000000000BB /* tagged_bmalloc_heap_utils.h */,
 				0F8A80FE25F6A79500790B4A /* hotbit_heap.c */,
 				0F8A80FF25F6A79500790B4A /* hotbit_heap.h */,
 				0F8A80FB25F6A79500790B4A /* hotbit_heap_config.c */,
@@ -2128,6 +2152,11 @@
 				0F8A806A25EECC1D00790B4A /* bmalloc_heap_ref.h in Headers */,
 				BB00000005000000000000BB /* bmalloc_heap_utils.h in Headers */,
 				2C11E88E2728A783002162D0 /* bmalloc_type.h in Headers */,
+				EF8A806725EECC1D00790B4A /* tagged_bmalloc_heap.h in Headers */,
+				EF8A806925EECC1D00790B4A /* tagged_bmalloc_heap_config.h in Headers */,
+				EF8A806525EECC1D00790B4A /* tagged_bmalloc_heap_inlines.h in Headers */,
+				EF8A806B25EECC1D00790B4A /* tagged_bmalloc_heap_innards.h in Headers */,
+				EB00000005000000000000BB /* tagged_bmalloc_heap_utils.h in Headers */,
 				0F8A810525F6A79500790B4A /* hotbit_heap.h in Headers */,
 				0F8A810325F6A79500790B4A /* hotbit_heap_config.h in Headers */,
 				0F8A810625F6A79500790B4A /* hotbit_heap_inlines.h in Headers */,
@@ -2800,6 +2829,9 @@
 				AA00000005000000000000AA /* bmalloc_heap_iso.c in Sources */,
 				BB00000001000000000000BB /* bmalloc_heap_utils.c in Sources */,
 				2C11E8912728A893002162D0 /* bmalloc_type.c in Sources */,
+				EF8A806625EECC1D00790B4A /* tagged_bmalloc_heap.c in Sources */,
+				EF8A806825EECC1D00790B4A /* tagged_bmalloc_heap_config.c in Sources */,
+				EB00000001000000000000BB /* tagged_bmalloc_heap_utils.c in Sources */,
 				0F8A810425F6A79500790B4A /* hotbit_heap.c in Sources */,
 				0F8A810125F6A79500790B4A /* hotbit_heap_config.c in Sources */,
 				0FE7EE76229F010F004F4166 /* iso_heap.c in Sources */,

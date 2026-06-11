@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Apple Inc. All rights reserved.
+ * Copyright (c) 2026 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -23,19 +23,45 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
  */
 
-#ifndef PAS_ALL_HEAP_CONFIGS_H
-#define PAS_ALL_HEAP_CONFIGS_H
+#include "pas_config.h"
 
-#include "bmalloc_heap_config.h"
-#include "hotbit_heap_config.h"
-#include "iso_heap_config.h"
-#include "iso_test_heap_config.h"
-#include "jit_heap_config.h"
-#include "minalign32_heap_config.h"
-#include "pagesize64k_heap_config.h"
-#include "pas_utility_heap_config.h"
+#if LIBPAS_ENABLED
+
 #include "tagged_bmalloc_heap_config.h"
-#include "thingy_heap_config.h"
 
-#endif /* PAS_ALL_HEAP_CONFIG_H */
+#if PAS_ENABLE_BMALLOC
 
+#include "tagged_bmalloc_heap_innards.h"
+#include "pas_designated_intrinsic_heap.h"
+#include "pas_heap_config_utils_inlines.h"
+#include "pas_root.h"
+
+PAS_BEGIN_EXTERN_C;
+
+const pas_heap_config tagged_bmalloc_heap_config = TAGGED_BMALLOC_HEAP_CONFIG;
+
+PAS_BASIC_HEAP_CONFIG_DEFINITIONS(
+    tagged_bmalloc, TAGGED_BMALLOC,
+    .allocate_page_should_zero = false,
+    .intrinsic_view_cache_capacity = pas_heap_runtime_config_aggressive_view_cache_capacity);
+
+void tagged_bmalloc_heap_config_activate(void)
+{
+#if PAS_OS(DARWIN)
+    static const bool register_with_libmalloc = true;
+#endif
+    
+    // FIXME: Find a way to install our heap as the designated intrinsic heap instead of, or alongside,
+    // the regular bmalloc heap's intrinsic heap. For now leave bmalloc's hot path undisturbed.
+
+#if PAS_OS(DARWIN)
+    if (register_with_libmalloc && !pas_system_heap_should_supplant_bmalloc(pas_heap_config_kind_bmalloc))
+        pas_root_ensure_for_libmalloc_enumeration();
+#endif
+}
+
+PAS_END_EXTERN_C;
+
+#endif /* PAS_ENABLE_BMALLOC */
+
+#endif /* LIBPAS_ENABLED */

@@ -20,7 +20,7 @@
 			isa = PBXAggregateTarget;
 			buildConfigurationList = 537CF84622EFD64100C6EBB3 /* Build configuration list for PBXAggregateTarget "Apply Configuration to XCFileLists" */;
 			buildPhases = (
-				537CF84722EFD65000C6EBB3 /* ShellScript */,
+				537CF84722EFD65000C6EBB3 /* Run Sublaunch Script */,
 			);
 			name = "Apply Configuration to XCFileLists";
 			productName = "Apply Configuration to XCFileLists";
@@ -29,7 +29,7 @@
 			isa = PBXAggregateTarget;
 			buildConfigurationList = 5C9D921922D7DA02008E9266 /* Build configuration list for PBXAggregateTarget "Generate Unified Sources" */;
 			buildPhases = (
-				5C9D921C22D7DA33008E9266 /* ShellScript */,
+				5C9D921C22D7DA33008E9266 /* Generate Unified Sources */,
 			);
 			name = "Generate Unified Sources";
 			productName = All;
@@ -171,6 +171,7 @@
 			);
 			script = (
 				"\"${SCRIPT_INPUT_FILE_0}\"",
+				"",
 				"",
 				"",
 				"",

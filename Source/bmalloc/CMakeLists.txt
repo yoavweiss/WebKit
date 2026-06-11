@@ -38,6 +38,9 @@ set(bmalloc_SOURCES
     libpas/src/libpas/pas_bitfit_page_config_kind.c
     libpas/src/libpas/pas_heap_config_kind.c
     libpas/src/libpas/pas_segregated_page_config_kind.c
+    libpas/src/libpas/tagged_bmalloc_heap.c
+    libpas/src/libpas/tagged_bmalloc_heap_config.c
+    libpas/src/libpas/tagged_bmalloc_heap_utils.c
 )
 
 set_source_files_properties(
@@ -50,6 +53,9 @@ set_source_files_properties(
     libpas/src/libpas/pas_bitfit_page_config_kind.c
     libpas/src/libpas/pas_heap_config_kind.c
     libpas/src/libpas/pas_segregated_page_config_kind.c
+    libpas/src/libpas/tagged_bmalloc_heap.c
+    libpas/src/libpas/tagged_bmalloc_heap_config.c
+    libpas/src/libpas/tagged_bmalloc_heap_utils.c
     PROPERTIES LANGUAGE CXX
 )
 
@@ -561,6 +567,11 @@ set(bmalloc_PUBLIC_HEADERS
     libpas/src/libpas/pas_virtual_range_min_heap.h
     libpas/src/libpas/pas_zero_memory.h
     libpas/src/libpas/pas_zero_mode.h
+    libpas/src/libpas/tagged_bmalloc_heap_config.h
+    libpas/src/libpas/tagged_bmalloc_heap.h
+    libpas/src/libpas/tagged_bmalloc_heap_inlines.h
+    libpas/src/libpas/tagged_bmalloc_heap_innards.h
+    libpas/src/libpas/tagged_bmalloc_heap_utils.h
     libpas/src/libpas/thingy_heap_config.h
 )
 
