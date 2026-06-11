@@ -2021,11 +2021,15 @@ private:
 
                         if (argument.isType(SpecPromiseObject)) {
                             if (m_graph.isWatchingPromiseSpeciesWatchpoint(node)) {
-                                m_interpreter.execute(indexInBlock); // Push CFA over this node after we get the state before.
-                                alreadyHandled = true; // Don't allow the default constant folder to do things to this.
-                                node->convertToIdentityOn(node->child2().node());
-                                changed = true;
-                                break;
+                                if (auto structure = argument.m_structure.onlyStructure()) {
+                                    if (structure.get() == globalObject->promiseStructure()) {
+                                        m_interpreter.execute(indexInBlock); // Push CFA over this node after we get the state before.
+                                        alreadyHandled = true; // Don't allow the default constant folder to do things to this.
+                                        node->convertToIdentityOn(node->child2().node());
+                                        changed = true;
+                                        break;
+                                    }
+                                }
                             }
                         }
 
