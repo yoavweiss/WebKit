@@ -343,6 +343,7 @@ NetworkProcessProxy& WebsiteDataStore::networkProcess()
         Ref networkProcess = networkProcessForSession(m_sessionID);
         m_networkProcess = networkProcess.copyRef();
         networkProcess->addSession(*this, NetworkProcessProxy::SendParametersToNetworkProcess::Yes);
+        propagateSettingUpdates();
     }
 
     return *m_networkProcess;
@@ -2850,12 +2851,16 @@ void WebsiteDataStore::addPage(WebPageProxy& page)
 {
     m_pages.add(page);
 
+    propagateSettingUpdates();
+
     updateServiceWorkerInspectability();
 }
 
 void WebsiteDataStore::removePage(WebPageProxy& page)
 {
     m_pages.remove(page);
+
+    propagateSettingUpdates();
 
     updateServiceWorkerInspectability();
 }
