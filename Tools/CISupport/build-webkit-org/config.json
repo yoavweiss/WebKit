@@ -285,17 +285,12 @@
                   { "name": "Apple-Tahoe-Release-Build", "factory": "BuildFactory",
                   "platform": "mac-tahoe", "configuration": "release", "architectures": ["x86_64", "arm64"],
                   "triggers": [
-                      "tahoe-release-tests-wk1", "tahoe-release-tests-wk2", "tahoe-release-perf-tests",
-                      "tahoe-release-applesilicon-tests-wk1", "tahoe-release-applesilicon-tests-wk2",
+                      "tahoe-release-tests-wk2", "tahoe-release-perf-tests",
+                      "tahoe-release-applesilicon-tests-wk2",
                       "tahoe-applesilicon-release-tests-test262", "tahoe-release-tests-wk2-accessibility-isolated-tree", 
                       "tahoe-release-world-leaks-tests"
                   ],
                   "workernames": ["bot678", "bot10004"]
-                  },
-                  { "name": "Apple-Tahoe-Release-WK1-Tests", "factory": "TestWebKit1AllButJSCFactory",
-                  "platform": "mac-tahoe", "configuration": "release", "architectures": ["x86_64", "arm64"],
-                  "additionalArguments": ["--no-retry-failures"],
-                  "workernames": ["bot669"]
                   },
                   { "name": "Apple-Tahoe-Release-World-Leaks-Tests", "factory": "TestWorldLeaksFactory",
                   "platform": "mac-tahoe", "configuration": "release", "architectures": ["x86_64", "arm64"],
@@ -304,18 +299,13 @@
                   },
                   { "name": "Apple-Tahoe-Release-AppleSilicon-WK2-Tests", "factory": "TestAllButJSCFactory",
                   "platform": "mac-tahoe", "configuration": "release", "architectures": ["x86_64", "arm64"],
-                  "additionalArguments": ["--no-retry-failures"],
-                  "workernames": ["bot246", "bot10003"]
-                  },
-                  { "name": "Apple-Tahoe-Release-AppleSilicon-WK1-Tests", "factory": "TestWebKit1AllButJSCFactory",
-                  "platform": "mac-tahoe", "configuration": "release", "architectures": ["x86_64", "arm64"],
-                  "additionalArguments": ["--no-retry-failures"],
-                  "workernames": ["bot187"]
+                  "additionalArguments": ["--no-retry-failures", "-2", "-1"],
+                  "workernames": ["bot246", "bot10003", "bot187"]
                   },
                   { "name": "Apple-Tahoe-Release-WK2-Tests", "factory": "TestAllButJSCFactory",
                   "platform": "mac-tahoe", "configuration": "release", "architectures": ["x86_64", "arm64"],
-                  "additionalArguments": ["--no-retry-failures"],
-                  "workernames": ["bot616"]
+                  "additionalArguments": ["--no-retry-failures", "-2", "-1"],
+                  "workernames": ["bot616", "bot669"]
                   },
                   { "name": "Apple-Tahoe-Release-AppleSilicon-Test262-Tests", "factory": "Test262Factory",
                   "platform": "mac-tahoe", "configuration": "release", "architectures": ["x86_64", "arm64"],
@@ -333,30 +323,20 @@
                   { "name": "Apple-Tahoe-Debug-Build", "factory": "BuildFactory",
                   "platform": "mac-tahoe", "configuration": "debug", "architectures": ["x86_64", "arm64"],
                   "triggers": [
-                      "tahoe-debug-tests-wk1", "tahoe-debug-tests-wk2", "tahoe-debug-applesilicon-tests-wk1",
+                      "tahoe-debug-tests-wk2",
                       "tahoe-debug-applesilicon-tests-wk2", "tahoe-debug-tests-wk2-site-isolation-tree"
                   ],
                   "workernames": ["bot621", "bot10002"]
                   },
-                  { "name": "Apple-Tahoe-Debug-WK1-Tests", "factory": "TestWebKit1AllButJSCFactory",
-                  "platform": "mac-tahoe", "configuration": "debug", "architectures": ["x86_64", "arm64"],
-                  "additionalArguments": ["--no-retry-failures"],
-                  "workernames": ["bot676"]
-                  },
                   { "name": "Apple-Tahoe-Debug-WK2-Tests", "factory": "TestAllButJSCFactory",
                   "platform": "mac-tahoe", "configuration": "debug", "architectures": ["x86_64", "arm64"],
-                  "additionalArguments": ["--no-retry-failures"],
-                  "workernames": ["bot675"]
-                  },
-                  { "name": "Apple-Tahoe-Debug-AppleSilicon-WK1-Tests", "factory": "TestWebKit1AllButJSCFactory",
-                  "platform": "mac-tahoe", "configuration": "debug", "architectures": ["x86_64", "arm64"],
-                  "additionalArguments": ["--no-retry-failures"],
-                  "workernames": ["bot132", "bot10000"]
+                  "additionalArguments": ["--no-retry-failures", "-2", "-1"],
+                  "workernames": ["bot675", "bot676"]
                   },
                   { "name": "Apple-Tahoe-Debug-AppleSilicon-WK2-Tests", "factory": "TestAllButJSCFactory",
                   "platform": "mac-tahoe", "configuration": "debug", "architectures": ["x86_64", "arm64"],
-                  "additionalArguments": ["--no-retry-failures"],
-                  "workernames": ["bot257", "bot10001"]
+                  "additionalArguments": ["--no-retry-failures", "-2", "-1"],
+                  "workernames": ["bot257", "bot10001", "bot132", "bot10000"]
                   },
                   { "name": "Apple-Tahoe-LLINT-CLoop-BuildAndTest", "factory": "BuildAndTestLLINTCLoopFactory",
                   "platform": "mac-tahoe", "configuration": "debug", "architectures": ["x86_64", "arm64"],
@@ -376,7 +356,7 @@
                   "platform": "mac-sequoia", "configuration": "release", "architectures": ["x86_64", "arm64"],
                   "deployment_target": "15.4",
                   "triggers": [
-                      "sequoia-release-tests-wk1", "sequoia-release-tests-wk2",
+                      "sequoia-release-tests-wk2",
                       "sequoia-release-applesilicon-tests-wk2",
                       "sequoia-release-tests-test262", "sequoia-applesilicon-release-tests-jsc", 
                       "sequoia-intel-release-tests-jsc", "sequoia-release-tests-wk2-site-isolation-tree"
@@ -388,43 +368,33 @@
                   "additionalArguments": ["--no-retry-failures", "--site-isolation-enabled-by-default"],
                   "workernames": ["bot10005", "bot10006", "bot10007", "bot10008"]
                   },
-                  { "name": "Apple-Sequoia-Release-WK1-Tests", "factory": "TestWebKit1AllButJSCFactory",
-                  "platform": "mac-sequoia", "configuration": "release", "architectures": ["x86_64", "arm64"],
-                  "additionalArguments": ["--no-retry-failures"],
-                  "workernames": ["bot1026"]
-                  },
                   { "name": "Apple-Sequoia-Release-AppleSilicon-WK2-Tests", "factory": "TestAllButJSCFactory",
                   "platform": "mac-sequoia", "configuration": "release", "architectures": ["x86_64", "arm64"],
-                  "additionalArguments": ["--no-retry-failures"],
+                  "additionalArguments": ["--no-retry-failures", "-2", "-1"],
                   "workernames": ["bot185"]
                   },
                   { "name": "Apple-Sequoia-Release-WK2-Tests", "factory": "TestAllButJSCFactory",
                   "platform": "mac-sequoia", "configuration": "release", "architectures": ["x86_64", "arm64"],
-                  "additionalArguments": ["--no-retry-failures"],
-                  "workernames": ["bot1025"]
+                  "additionalArguments": ["--no-retry-failures", "-2", "-1"],
+                  "workernames": ["bot1025", "bot1026"]
                   },
                   { "name": "Apple-Sequoia-Debug-Build", "factory": "BuildFactory",
                   "platform": "mac-sequoia", "configuration": "debug", "architectures": ["x86_64", "arm64"],
                   "deployment_target": "15.4",
                   "triggers": [
-                      "sequoia-debug-tests-wk1", "sequoia-debug-tests-wk2",
+                      "sequoia-debug-tests-wk2",
                       "sequoia-debug-applesilicon-tests-wk2", "sequoia-debug-tests-test262"
                   ],
                   "workernames": ["bot131", "bot141"]
                   },
-                  { "name": "Apple-Sequoia-Debug-WK1-Tests", "factory": "TestWebKit1AllButJSCFactory",
-                  "platform": "mac-sequoia", "configuration": "debug", "architectures": ["x86_64", "arm64"],
-                  "additionalArguments": ["--no-retry-failures"],
-                  "workernames": ["bot1021"]
-                  },
                   { "name": "Apple-Sequoia-Debug-WK2-Tests", "factory": "TestAllButJSCFactory",
                   "platform": "mac-sequoia", "configuration": "debug", "architectures": ["x86_64", "arm64"],
-                  "additionalArguments": ["--no-retry-failures"],
-                  "workernames": ["bot614"]
+                  "additionalArguments": ["--no-retry-failures", "-2", "-1"],
+                  "workernames": ["bot614", "bot1021"]
                   },
                   { "name": "Apple-Sequoia-Debug-AppleSilicon-WK2-Tests", "factory": "TestAllButJSCFactory",
                   "platform": "mac-sequoia", "configuration": "debug", "architectures": ["x86_64", "arm64"],
-                  "additionalArguments": ["--no-retry-failures"],
+                  "additionalArguments": ["--no-retry-failures", "-2", "-1"],
                   "workernames": ["bot130"]
                   },
                   { "name": "Apple-Sequoia-Release-Test262-Tests", "factory": "Test262Factory",
@@ -819,26 +789,14 @@
                   { "type": "PlatformSpecificScheduler", "platform": "mac-tahoe", "branch": "main", "treeStableTimer": 45.0,
                   "builderNames": ["Apple-Tahoe-Release-Build", "Apple-Tahoe-Debug-Build", "Apple-Tahoe-LLINT-CLoop-BuildAndTest", "Apple-Tahoe-Safer-CPP-Checks"]
                   },
-                  { "type": "Triggerable", "name": "tahoe-release-tests-wk1",
-                  "builderNames": ["Apple-Tahoe-Release-WK1-Tests"]
-                  },
                   { "type": "Triggerable", "name": "tahoe-release-tests-wk2",
                   "builderNames": ["Apple-Tahoe-Release-WK2-Tests"]
-                  },
-                  { "type": "Triggerable", "name": "tahoe-release-applesilicon-tests-wk1",
-                  "builderNames": ["Apple-Tahoe-Release-AppleSilicon-WK1-Tests"]
                   },
                   { "type": "Triggerable", "name": "tahoe-release-applesilicon-tests-wk2",
                   "builderNames": ["Apple-Tahoe-Release-AppleSilicon-WK2-Tests"]
                   },
-                  { "type": "Triggerable", "name": "tahoe-debug-tests-wk1",
-                  "builderNames": ["Apple-Tahoe-Debug-WK1-Tests"]
-                  },
                   { "type": "Triggerable", "name": "tahoe-debug-tests-wk2",
                   "builderNames": ["Apple-Tahoe-Debug-WK2-Tests"]
-                  },
-                  { "type": "Triggerable", "name": "tahoe-debug-applesilicon-tests-wk1",
-                  "builderNames": ["Apple-Tahoe-Debug-AppleSilicon-WK1-Tests"]
                   },
                   { "type": "Triggerable", "name": "tahoe-debug-applesilicon-tests-wk2",
                   "builderNames": ["Apple-Tahoe-Debug-AppleSilicon-WK2-Tests"]
@@ -864,17 +822,11 @@
                   { "type": "Triggerable", "name": "sequoia-release-tests-wk2-site-isolation-tree",
                   "builderNames": ["Apple-Sequoia-Release-WK2-Site-Isolation-Tree-Tests"]
                   },
-                  { "type": "Triggerable", "name": "sequoia-release-tests-wk1",
-                  "builderNames": ["Apple-Sequoia-Release-WK1-Tests"]
-                  },
                   { "type": "Triggerable", "name": "sequoia-release-tests-wk2",
                   "builderNames": ["Apple-Sequoia-Release-WK2-Tests"]
                   },
                   { "type": "Triggerable", "name": "sequoia-release-applesilicon-tests-wk2",
                   "builderNames": ["Apple-Sequoia-Release-AppleSilicon-WK2-Tests"]
-                  },
-                  { "type": "Triggerable", "name": "sequoia-debug-tests-wk1",
-                  "builderNames": ["Apple-Sequoia-Debug-WK1-Tests"]
                   },
                   { "type": "Triggerable", "name": "sequoia-debug-tests-wk2",
                   "builderNames": ["Apple-Sequoia-Debug-WK2-Tests"]
