@@ -92,6 +92,9 @@
 #include <JavaScriptCore/ArrayConventions.h>
 #include <JavaScriptCore/BigIntObject.h>
 #include <JavaScriptCore/BooleanObject.h>
+#include <JavaScriptCore/CloneBase.h>
+#include <JavaScriptCore/CloneDeserializerBase.h>
+#include <JavaScriptCore/CloneSerializerBase.h>
 #include <JavaScriptCore/DateInstance.h>
 #include <JavaScriptCore/Error.h>
 #include <JavaScriptCore/ErrorInstance.h>
@@ -119,6 +122,7 @@
 #include <JavaScriptCore/RegExp.h>
 #include <JavaScriptCore/RegExpObject.h>
 #include <JavaScriptCore/Strong.h>
+#include <JavaScriptCore/StructuredCloneTags.h>
 #include <JavaScriptCore/TopExceptionScope.h>
 #include <JavaScriptCore/TypedArrayInlines.h>
 #include <JavaScriptCore/TypedArrays.h>
@@ -151,308 +155,22 @@
 #include "OffscreenCanvas.h"
 #endif
 
-#if CPU(BIG_ENDIAN) || CPU(MIDDLE_ENDIAN) || CPU(NEEDS_ALIGNED_ACCESS)
-#define ASSUME_LITTLE_ENDIAN 0
-#else
-#define ASSUME_LITTLE_ENDIAN 1
-#endif
-
 namespace WebCore {
 
 WTF_MAKE_STRUCT_TZONE_ALLOCATED_IMPL(SerializedScriptValueInternals);
 
 using namespace JSC;
 
-namespace SerializationHelper {
-
-static constexpr bool verboseTrace = false;
-
-} // namespace SerializationHelper
-
-
 DEFINE_ALLOCATOR_WITH_HEAP_IDENTIFIER(SerializedScriptValue);
 
 static constexpr unsigned maximumFilterRecursion = 40000;
 static constexpr uint64_t autoLengthMarker = UINT64_MAX;
-
-enum class SerializationReturnCode {
-    SuccessfullyCompleted,
-    StackOverflowError,
-    InterruptedExecutionError,
-    ValidationError,
-    ExistingExceptionError,
-    DataCloneError,
-    UnspecifiedError
-};
 
 enum WalkerState { StateUnknown, ArrayStartState, ArrayStartVisitIndexedMember, ArrayEndVisitIndexedMember,
     ArrayStartVisitNamedMember, ArrayEndVisitNamedMember,
     ObjectStartState, ObjectStartVisitNamedMember, ObjectEndVisitNamedMember,
     MapDataStartVisitEntry, MapDataEndVisitKey, MapDataEndVisitValue,
     SetDataStartVisitEntry, SetDataEndVisitKey };
-
-// These can't be reordered, and any new types must be added to the end of the list
-// When making changes to these lists please cover your new type(s) in the API test "IndexedDB.StructuredCloneBackwardCompatibility"
-enum SerializationTag {
-    ArrayTag = 1,
-    ObjectTag = 2,
-    UndefinedTag = 3,
-    NullTag = 4,
-    IntTag = 5,
-    ZeroTag = 6,
-    OneTag = 7,
-    FalseTag = 8,
-    TrueTag = 9,
-    DoubleTag = 10,
-    DateTag = 11,
-    FileTag = 12,
-    FileListTag = 13,
-    ImageDataTag = 14,
-    BlobTag = 15,
-    StringTag = 16,
-    EmptyStringTag = 17,
-    RegExpTag = 18,
-    ObjectReferenceTag = 19,
-    MessagePortReferenceTag = 20,
-    ArrayBufferTag = 21,
-    ArrayBufferViewTag = 22,
-    ArrayBufferTransferTag = 23,
-    TrueObjectTag = 24,
-    FalseObjectTag = 25,
-    StringObjectTag = 26,
-    EmptyStringObjectTag = 27,
-    NumberObjectTag = 28,
-    SetObjectTag = 29,
-    MapObjectTag = 30,
-    NonMapPropertiesTag = 31,
-    NonSetPropertiesTag = 32,
-    CryptoKeyTag = 33,
-    SharedArrayBufferTag = 34,
-#if ENABLE(WEBASSEMBLY)
-    WasmModuleTag = 35,
-#endif
-    DOMPointReadOnlyTag = 36,
-    DOMPointTag = 37,
-    DOMRectReadOnlyTag = 38,
-    DOMRectTag = 39,
-    DOMMatrixReadOnlyTag = 40,
-    DOMMatrixTag = 41,
-    DOMQuadTag = 42,
-    ImageBitmapTransferTag = 43,
-#if ENABLE(WEB_RTC)
-    RTCCertificateTag = 44,
-#endif
-    ImageBitmapTag = 45,
-#if ENABLE(OFFSCREEN_CANVAS_IN_WORKERS)
-    OffscreenCanvasTransferTag = 46,
-#endif
-    BigIntTag = 47,
-    BigIntObjectTag = 48,
-#if ENABLE(WEBASSEMBLY)
-    WasmMemoryTag = 49,
-#endif
-#if ENABLE(WEB_RTC)
-    RTCDataChannelTransferTag = 50,
-#endif
-    DOMExceptionTag = 51,
-#if ENABLE(WEB_CODECS)
-    WebCodecsEncodedVideoChunkTag = 52,
-    WebCodecsVideoFrameTag = 53,
-#endif
-    ResizableArrayBufferTag = 54,
-    ErrorInstanceTag = 55,
-#if ENABLE(OFFSCREEN_CANVAS_IN_WORKERS)
-    InMemoryOffscreenCanvasTag = 56,
-#endif
-    InMemoryMessagePortTag = 57,
-#if ENABLE(WEB_CODECS)
-    WebCodecsEncodedAudioChunkTag = 58,
-    WebCodecsAudioDataTag = 59,
-#endif
-#if ENABLE(MEDIA_STREAM)
-    MediaStreamTrackTag = 60,
-#endif
-#if ENABLE(MEDIA_SOURCE_IN_WORKERS)
-    MediaSourceHandleTransferTag = 61,
-#endif
-#if ENABLE(WEB_RTC)
-    RTCEncodedAudioFrameTag = 62,
-    RTCEncodedVideoFrameTag = 63,
-#endif
-#if ENABLE(MEDIA_STREAM)
-    MediaStreamTrackHandleTag = 64,
-#endif
-    ReadableStreamTag = 65,
-    WritableStreamTag = 66,
-    TransformStreamTag = 67,
-    FileSystemHandleTag = 68,
-    ErrorTag = 255
-};
-
-enum ArrayBufferViewSubtag {
-    DataViewTag = 0,
-    Int8ArrayTag = 1,
-    Uint8ArrayTag = 2,
-    Uint8ClampedArrayTag = 3,
-    Int16ArrayTag = 4,
-    Uint16ArrayTag = 5,
-    Int32ArrayTag = 6,
-    Uint32ArrayTag = 7,
-    Float32ArrayTag = 8,
-    Float64ArrayTag = 9,
-    BigInt64ArrayTag = 10,
-    BigUint64ArrayTag = 11,
-    Float16ArrayTag = 12,
-};
-
-static ASCIILiteral name(SerializationTag tag)
-{
-    switch (tag) {
-    case ArrayTag: return "ArrayTag"_s;
-    case ObjectTag: return "ObjectTag"_s;
-    case UndefinedTag: return "UndefinedTag"_s;
-    case NullTag: return "NullTag"_s;
-    case IntTag: return "IntTag"_s;
-    case ZeroTag: return "ZeroTag"_s;
-    case OneTag: return "OneTag"_s;
-    case FalseTag: return "FalseTag"_s;
-    case TrueTag: return "TrueTag"_s;
-    case DoubleTag: return "DoubleTag"_s;
-    case DateTag: return "DateTag"_s;
-    case FileTag: return "FileTag"_s;
-    case FileListTag: return "FileListTag"_s;
-    case ImageDataTag: return "ImageDataTag"_s;
-    case BlobTag: return "BlobTag"_s;
-    case StringTag: return "StringTag"_s;
-    case EmptyStringTag: return "EmptyStringTag"_s;
-    case RegExpTag: return "RegExpTag"_s;
-    case ObjectReferenceTag: return "ObjectReferenceTag"_s;
-    case MessagePortReferenceTag: return "MessagePortReferenceTag"_s;
-    case ArrayBufferTag: return "ArrayBufferTag"_s;
-    case ArrayBufferViewTag: return "ArrayBufferViewTag"_s;
-    case ArrayBufferTransferTag: return "ArrayBufferTransferTag"_s;
-    case TrueObjectTag: return "TrueObjectTag"_s;
-    case FalseObjectTag: return "FalseObjectTag"_s;
-    case StringObjectTag: return "StringObjectTag"_s;
-    case EmptyStringObjectTag: return "EmptyStringObjectTag"_s;
-    case NumberObjectTag: return "NumberObjectTag"_s;
-    case SetObjectTag: return "SetObjectTag"_s;
-    case MapObjectTag: return "MapObjectTag"_s;
-    case NonMapPropertiesTag: return "NonMapPropertiesTag"_s;
-    case NonSetPropertiesTag: return "NonSetPropertiesTag"_s;
-    case CryptoKeyTag: return "CryptoKeyTag"_s;
-    case SharedArrayBufferTag: return "SharedArrayBufferTag"_s;
-#if ENABLE(WEBASSEMBLY)
-    case WasmModuleTag: return "WasmModuleTag"_s;
-#endif
-    case DOMPointReadOnlyTag: return "DOMPointReadOnlyTag"_s;
-    case DOMPointTag: return "DOMPointTag"_s;
-    case DOMRectReadOnlyTag: return "DOMRectReadOnlyTag"_s;
-    case DOMRectTag: return "DOMRectTag"_s;
-    case DOMMatrixReadOnlyTag: return "DOMMatrixReadOnlyTag"_s;
-    case DOMMatrixTag: return "DOMMatrixTag"_s;
-    case DOMQuadTag: return "DOMQuadTag"_s;
-    case ImageBitmapTransferTag: return "ImageBitmapTransferTag"_s;
-#if ENABLE(WEB_RTC)
-    case RTCCertificateTag: return "RTCCertificateTag"_s;
-#endif
-    case ImageBitmapTag: return "ImageBitmapTag"_s;
-#if ENABLE(OFFSCREEN_CANVAS_IN_WORKERS)
-    case OffscreenCanvasTransferTag: return "OffscreenCanvasTransferTag"_s;
-#endif
-    case BigIntTag: return "BigIntTag"_s;
-    case BigIntObjectTag: return "BigIntObjectTag"_s;
-#if ENABLE(WEBASSEMBLY)
-    case WasmMemoryTag: return "WasmMemoryTag"_s;
-#endif
-#if ENABLE(WEB_RTC)
-    case RTCDataChannelTransferTag: return "RTCDataChannelTransferTag"_s;
-#endif
-    case DOMExceptionTag: return "DOMExceptionTag"_s;
-#if ENABLE(WEB_CODECS)
-    case WebCodecsEncodedVideoChunkTag: return "WebCodecsEncodedVideoChunkTag"_s;
-    case WebCodecsVideoFrameTag: return "WebCodecsVideoFrameTag"_s;
-#endif
-    case ResizableArrayBufferTag: return "ResizableArrayBufferTag"_s;
-    case ErrorInstanceTag: return "ErrorInstanceTag"_s;
-#if ENABLE(OFFSCREEN_CANVAS_IN_WORKERS)
-    case InMemoryOffscreenCanvasTag: return "InMemoryOffscreenCanvasTag"_s;
-#endif
-    case InMemoryMessagePortTag: return "InMemoryMessagePortTag"_s;
-#if ENABLE(WEB_CODECS)
-    case WebCodecsEncodedAudioChunkTag: return "WebCodecsEncodedAudioChunkTag"_s;
-    case WebCodecsAudioDataTag: return "WebCodecsAudioDataTag"_s;
-#endif
-#if ENABLE(MEDIA_STREAM)
-    case MediaStreamTrackTag: return "MediaStreamTrackTag"_s;
-    case MediaStreamTrackHandleTag: return "MediaStreamTrackHandleTag"_s;
-#endif
-#if ENABLE(MEDIA_SOURCE_IN_WORKERS)
-    case MediaSourceHandleTransferTag: return "MediaSourceHandleTransferTag"_s;
-#endif
-#if ENABLE(WEB_RTC)
-    case RTCEncodedAudioFrameTag: return "RTCEncodedAudioFrameTag"_s;
-    case RTCEncodedVideoFrameTag: return "RTCEncodedVideoFrameTag"_s;
-#endif
-    case ReadableStreamTag: return "ReadableStreamTag"_s;
-    case WritableStreamTag: return "WritableStreamTag"_s;
-    case TransformStreamTag : return "TransformStreamTag"_s;
-    case FileSystemHandleTag: return "FileSystemHandleTag"_s;
-    case ErrorTag: return "ErrorTag"_s;
-    }
-    return "<unknown tag>"_s;
-}
-
-} // namespace WebCore
-
-namespace WTF {
-
-void printInternal(PrintStream&, WebCore::SerializationTag);
-
-void printInternal(PrintStream& out, WebCore::SerializationTag tag)
-{
-    auto tagName = WebCore::name(tag);
-    if (tagName[0U] != '<')
-        out.print(tagName);
-    else
-        out.print("<unknown tag "_s, static_cast<unsigned>(tag), ">"_s);
-}
-
-} // namespace WTF
-
-namespace WebCore {
-
-// This function is only used for a sanity check mechanism used in
-// CloneSerializer::addToObjectPoolIfNotDupe() and CloneDeserializer::addToObjectPool().
-static constexpr bool NODELETE canBeAddedToObjectPool(SerializationTag tag)
-{
-    // If you add a type to the allow ist (i.e. returns true) here, it means
-    // that both the serializer and deserializer will push objects of this
-    // type onto their m_objectPool. This is important because the order of
-    // the objects in the m_objectPool must match for both the serializer and
-    // deserializer.
-    switch (tag) {
-    case ArrayTag:
-    case ArrayBufferTag:
-    case ArrayBufferViewTag:
-    case BigIntObjectTag:
-    case EmptyStringObjectTag:
-    case FalseObjectTag:
-    case MapObjectTag:
-    case NumberObjectTag:
-    case ObjectTag:
-    case ResizableArrayBufferTag:
-    case SetObjectTag:
-    case SharedArrayBufferTag:
-    case StringObjectTag:
-    case TrueObjectTag:
-        return true;
-    default:
-        break;
-    }
-    return false;
-}
-
 
 static bool NODELETE isTypeExposedToGlobalObject(JSC::JSGlobalObject& globalObject, SerializationTag tag)
 {
@@ -672,11 +390,6 @@ enum class ImageBitmapSerializationFlags : uint8_t {
 
 }
 
-#define SERIALIZE_TRACE(...) do { \
-        if constexpr (SerializationHelper::verboseTrace) \
-            dataLogLn("TRACE ", __VA_ARGS__, " @ ", __LINE__); \
-    } while (false)
-
 static String agentClusterIDFromGlobalObject(JSGlobalObject& globalObject)
 {
     auto& domGlobalObject = downcast<JSDOMGlobalObject>(globalObject);
@@ -770,288 +483,12 @@ enum class CryptoKeyOKPOpNameTag : bool {
     ED25519 = 1,
 };
 const uint8_t cryptoKeyOKPOpNameTagMaximumValue = 1;
-static constexpr unsigned CurrentMajorVersion = 15;
-static constexpr unsigned CurrentMinorVersion = 0;
-static constexpr unsigned NODELETE majorVersionFor(unsigned version) { return version & 0x00FFFFFF; }
-static constexpr unsigned NODELETE minorVersionFor(unsigned version) { return version >> 24; }
-static constexpr unsigned NODELETE makeVersion(unsigned major, unsigned minor)
-{
-    ASSERT_UNDER_CONSTEXPR_CONTEXT(major < (1u << 24));
-    ASSERT_UNDER_CONSTEXPR_CONTEXT(minor < (1u << 8));
-    return (minor << 24) | major;
-}
-/* currentVersion tracks the serialization version so that persistent stores
- * are able to correctly bail out in the case of encountering newer formats.
- *
- * Initial version was 1.
- * Version 2. added the ObjectReferenceTag and support for serialization of cyclic graphs.
- * Version 3. added the FalseObjectTag, TrueObjectTag, NumberObjectTag, StringObjectTag
- * and EmptyStringObjectTag for serialization of Boolean, Number and String objects.
- * Version 4. added support for serializing non-index properties of arrays.
- * Version 5. added support for Map and Set types.
- * Version 6. added support for 8-bit strings.
- * Version 7. added support for File's lastModified attribute.
- * Version 8. added support for ImageData's colorSpace attribute.
- * Version 9. added support for ImageBitmap color space.
- * Version 10. changed the length (and offsets) of ArrayBuffers (and ArrayBufferViews) from 32 to 64 bits.
- * Version 11. added support for Blob's memory cost.
- * Version 12. added support for agent cluster ID.
- * Version 12.1. changed the terminator of the indexed property section in array.
- * Version 13. added support for ErrorInstance objects.
- * Version 14. encode booleans as uint8_t instead of int32_t.
- * Version 15. changed the terminator of the indexed property section in array.
- */
-static constexpr unsigned NODELETE currentVersion() { return makeVersion(CurrentMajorVersion, CurrentMinorVersion); }
-static constexpr unsigned TerminatorTag = 0xFFFFFFFF;
-static constexpr unsigned StringPoolTag = 0xFFFFFFFE;
-static constexpr unsigned NonIndexPropertiesTag = 0xFFFFFFFD;
-static constexpr uint32_t ImageDataPoolTag = 0xFFFFFFFE;
 
-// The high bit of a StringData's length determines the character size.
-static constexpr unsigned StringDataIs8BitFlag = 0x80000000;
-
-static_assert(TerminatorTag > MAX_ARRAY_INDEX);
-
-/*
- * Object serialization is performed according to the following grammar, all tags
- * are recorded as a single uint8_t.
- *
- * IndexType (used for the object pool and StringData's constant pool) is the
- * minimum sized unsigned integer type required to represent the maximum index
- * in the constant pool.
- *
- * SerializedValue :- <version:uint32_t> Value
- * Value :- Array | Object | Map | Set | Terminal
- *
- * Array :-
- *     ArrayTag <length:uint32_t>(<index:uint32_t><value:Value>)* TerminatorTag (NonIndexPropertiesTag (<name:StringData><value:Value>)*) TerminatorTag
- *
- * Object :-
- *     ObjectTag (<name:StringData><value:Value>)* TerminatorTag
- *
- * Map :- MapObjectTag MapData
- *
- * Set :- SetObjectTag SetData
- *
- * MapData :- (<key:Value><value:Value>)* NonMapPropertiesTag (<name:StringData><value:Value>)* TerminatorTag
- * SetData :- (<key:Value>)* NonSetPropertiesTag (<name:StringData><value:Value>)* TerminatorTag
- *
- * Terminal :-
- *      UndefinedTag
- *    | NullTag
- *    | IntTag <value:int32_t>
- *    | ZeroTag
- *    | OneTag
- *    | FalseTag
- *    | TrueTag
- *    | FalseObjectTag
- *    | TrueObjectTag
- *    | DoubleTag <value:double>
- *    | NumberObjectTag <value:double>
- *    | DateTag <value:double>
- *    | String
- *    | EmptyStringTag
- *    | EmptyStringObjectTag
- *    | BigInt
- *    | File
- *    | FileList
- *    | ImageData
- *    | Blob
- *    | ObjectReference
- *    | MessagePortReferenceTag <value:uint32_t>
- *    | ArrayBuffer
- *    | ArrayBufferViewTag ArrayBufferViewSubtag <byteOffset:uint64_t> <byteLength:uint64_t> (ArrayBuffer | ObjectReference)
- *    | CryptoKeyTag <wrappedKeyLength:uint32_t> <factor:byte{wrappedKeyLength}>
- *    | DOMPoint
- *    | DOMRect
- *    | DOMMatrix
- *    | DOMQuad
- *    | ImageBitmapTransferTag <value:uint32_t>
- *    | RTCCertificateTag
- *    | ImageBitmapTag <imageBitmapSerializationFlags:uint8_t> <logicalWidth:int32_t> <logicalHeight:int32_t> <resolutionScale:double> DestinationColorSpace <byteLength:uint32_t>(<imageByteData:uint8_t>)
- *    | OffscreenCanvasTransferTag <value:uint32_t>
- *    | WasmMemoryTag <value:uint32_t>
- *    | RTCDataChannelTransferTag <identifier:uint32_t>
- *    | DOMExceptionTag <message:String> <name:String>
- *    | WebCodecsEncodedVideoChunkTag <identifier:uint32_t>
- *    | MediaStreamTrackTag <identifier:uint32_t>
- *    | MediaSourceHandleTransferTag <identifier:uint32_t>
- *    | RTCEncodedAudioFrameTag <identifier:uint32_t>
- *    | RTCEncodedVideoFrameTag <identifier:uint32_t>
- *    | ReadableStreamTag <identifier:uint32_t><messagePortIdentifier:uint32_t>
- *    | WritableStreamTag <identifier:uint32_t><messagePortIdentifier:uint32_t>
- *    | TransformStreamTag <identifier:uint32_t><messagePortIdentifiers:uint32_t>
- *
- * Inside certificate, data is serialized in this format as per spec:
- *
- * <expires:double> <certificate:StringData> <origin:StringData> <keyingMaterial:StringData>
- * We also add fingerprints to make sure we expose to JavaScript the same information.
- *
- * Inside wrapped crypto key, data is serialized in this format:
- *
- * <keyFormatVersion:uint32_t> <extractable:int32_t> <usagesCount:uint32_t> <usages:byte{usagesCount}> CryptoKeyClassSubtag (CryptoKeyHMAC | CryptoKeyAES | CryptoKeyRSA)
- *
- * String :-
- *      EmptyStringTag
- *      StringTag StringData
- *
- * StringObject:
- *      EmptyStringObjectTag
- *      StringObjectTag StringData
- *
- * StringData :-
- *      StringPoolTag <cpIndex:IndexType>
- *      (not (TerminatorTag | StringPoolTag))<is8Bit:uint32_t:1><length:uint32_t:31><characters:CharType{length}> // Added to constant pool when seen, string length 0xFFFFFFFF is disallowed
- *
- * BigInt :-
- *      BigIntTag BigIntData
- *      BigIntObjectTag BigIntData
- *
- * BigIntData :-
- *      <sign:uint8_t> <numberOfUint64Elements:uint32_t> <contents:uint64_t{numberOfUint64Elements}>
- *
- * File :-
- *    FileTag FileData
- *
- * FileData :-
- *    <path:StringData> <url:StringData> <type:StringData> <name:StringData> <lastModified:double>
- *
- * FileList :-
- *    FileListTag <length:uint32_t>(<file:FileData>){length}
- *
- * ImageData :-
- *    ImageDataTag <width:int32_t> <height:int32_t> <length:uint32_t> <data:uint8_t{length}> <colorSpace:PredefinedColorSpaceTag>
- *
- * Blob :-
- *    BlobTag <url:StringData><type:StringData><size:long long><memoryCost:long long>
- *
- * RegExp :-
- *    RegExpTag <pattern:StringData><flags:StringData>
- *
- * ObjectReference :-
- *    ObjectReferenceTag <opIndex:IndexType>
- *
- * ArrayBuffer :-
- *    ArrayBufferTag <byteLength:uint64_t> <contents:byte{length}>
- *    ResizableArrayBufferTag <byteLength:uint64_t> <maxLength:uint64_t> <contents:byte{length}>
- *    ArrayBufferTransferTag <value:uint32_t>
- *    SharedArrayBufferTag <value:uint32_t>
- *
- * CryptoKeyHMAC :-
- *    <keySize:uint32_t> <keyData:byte{keySize}> CryptoAlgorithmIdentifierTag // Algorithm tag inner hash function.
- *
- * CryptoKeyAES :-
- *    CryptoAlgorithmIdentifierTag <keySize:uint32_t> <keyData:byte{keySize}>
- *
- * CryptoKeyRSA :-
- *    CryptoAlgorithmIdentifierTag <isRestrictedToHash:int32_t> CryptoAlgorithmIdentifierTag? CryptoKeyAsymmetricTypeSubtag CryptoKeyRSAPublicComponents CryptoKeyRSAPrivateComponents?
- *
- * CryptoKeyRSAPublicComponents :-
- *    <modulusSize:uint32_t> <modulus:byte{modulusSize}> <exponentSize:uint32_t> <exponent:byte{exponentSize}>
- *
- * CryptoKeyRSAPrivateComponents :-
- *    <privateExponentSize:uint32_t> <privateExponent:byte{privateExponentSize}> <primeCount:uint32_t> FirstPrimeInfo? PrimeInfo{primeCount - 1}
- *
- * // CRT data could be computed from prime factors. It is only serialized to reuse a code path that's needed for JWK.
- * FirstPrimeInfo :-
- *    <factorSize:uint32_t> <factor:byte{factorSize}> <crtExponentSize:uint32_t> <crtExponent:byte{crtExponentSize}>
- *
- * PrimeInfo :-
- *    <factorSize:uint32_t> <factor:byte{factorSize}> <crtExponentSize:uint32_t> <crtExponent:byte{crtExponentSize}> <crtCoefficientSize:uint32_t> <crtCoefficient:byte{crtCoefficientSize}>
- *
- * CryptoKeyEC :-
- *    CryptoAlgorithmIdentifierTag <namedCurve:StringData> CryptoKeyAsymmetricTypeSubtag <keySize:uint32_t> <keyData:byte{keySize}>
- *
- * CryptoKeyRaw :-
- *    CryptoAlgorithmIdentifierTag <keySize:uint32_t> <keyData:byte{keySize}>
- *
- * DOMPoint :-
- *        DOMPointReadOnlyTag DOMPointData
- *      | DOMPointTag DOMPointData
- *
- * DOMPointData :-
- *      <x:double> <y:double> <z:double> <w:double>
- *
- * DOMRect :-
- *        DOMRectReadOnlyTag DOMRectData
- *      | DOMRectTag DOMRectData
- *
- * DOMRectData :-
- *      <x:double> <y:double> <width:double> <height:double>
- *
- * DOMMatrix :-
- *        DOMMatrixReadOnlyTag DOMMatrixData
- *      | DOMMatrixTag DOMMatrixData
- *
- * DOMMatrixData :-
- *        <is2D:uint8_t:true> <m11:double> <m12:double> <m21:double> <m22:double> <m41:double> <m42:double>
- *      | <is2D:uint8_t:false> <m11:double> <m12:double> <m13:double> <m14:double> <m21:double> <m22:double> <m23:double> <m24:double> <m31:double> <m32:double> <m33:double> <m34:double> <m41:double> <m42:double> <m43:double> <m44:double>
- *
- * DOMQuad :-
- *      DOMQuadTag DOMQuadData
- *
- * DOMQuadData :-
- *      <p1:DOMPointData> <p2:DOMPointData> <p3:DOMPointData> <p4:DOMPointData>
- *
- * PredefinedColorSpaceTag :
- *        PredefinedColorSpaceTag::SRGB
- *      | PredefinedColorSpaceTag::DisplayP3
- *      | PredefinedColorSpaceTag::SRGBLinear
- *      | PredefinedColorSpaceTag::DisplayP3Linear
- *
- * DestinationColorSpace :-
- *        DestinationColorSpaceSRGBTag
- *      | DestinationColorSpaceLinearSRGBTag
- *      | DestinationColorSpaceDisplayP3Tag
- *      | DestinationColorSpaceCGColorSpaceNameTag <nameDataLength:uint32_t> <nameData:uint8_t>{nameDataLength}
- *      | DestinationColorSpaceCGColorSpacePropertyListTag <propertyListDataLength:uint32_t> <propertyListData:uint8_t>{propertyListDataLength}
- *      | DestinationColorSpaceLinearDisplayP3Tag
- */
+// See JavaScriptCore's StructuredCloneTags.h for a description of the wire format.
 
 struct DeserializationResult {
     JSC::JSValue value;
     SerializationReturnCode code;
-};
-
-class CloneBase {
-    WTF_FORBID_HEAP_ALLOCATION;
-protected:
-    CloneBase(JSGlobalObject* lexicalGlobalObject)
-        : m_lexicalGlobalObject(lexicalGlobalObject)
-        , m_failed(false)
-    {
-    }
-
-    void NODELETE fail()
-    {
-        m_failed = true;
-    }
-
-#if ASSERT_ENABLED
-public:
-    const Vector<SerializationTag>& objectPoolTags() const { return m_objectPoolTags; }
-
-protected:
-    void appendObjectPoolTag(SerializationTag tag)
-    {
-        m_objectPoolTags.append(tag);
-    }
-#else
-    ALWAYS_INLINE void appendObjectPoolTag(SerializationTag) { }
-#endif
-    bool isSafeToRecurse()
-    {
-        return m_stackCheck.isSafeToRecurse();
-    }
-
-    JSGlobalObject* const m_lexicalGlobalObject;
-    bool m_failed;
-    MarkedArgumentBuffer m_keepAliveBuffer;
-    MarkedArgumentBuffer m_objectPool;
-#if ASSERT_ENABLED
-    Vector<SerializationTag> m_objectPoolTags;
-#endif
-    StackCheck m_stackCheck;
 };
 
 static std::optional<Vector<uint8_t>> serializeAndWrapCryptoKey(JSGlobalObject* lexicalGlobalObject, WebCore::CryptoKeyData&& key)
@@ -1072,51 +509,6 @@ static std::optional<Vector<uint8_t>> unwrapCryptoKey(JSGlobalObject* lexicalGlo
     return context->unwrapCryptoKey(wrappedKey);
 }
 
-#if ASSUME_LITTLE_ENDIAN
-template <typename T> static void writeLittleEndian(Vector<uint8_t>& buffer, T value)
-{
-    buffer.append(asByteSpan(value));
-}
-#else
-template <typename T> static void writeLittleEndian(Vector<uint8_t>& buffer, T value)
-{
-    for (unsigned i = 0; i < sizeof(T); i++) {
-        buffer.append(value & 0xFF);
-        value >>= 8;
-    }
-}
-#endif
-
-template <> void writeLittleEndian<uint8_t>(Vector<uint8_t>& buffer, uint8_t value)
-{
-    buffer.append(value);
-}
-
-template <typename T> static bool writeLittleEndian(Vector<uint8_t>& buffer, std::span<const T> values)
-{
-    if (values.size() > std::numeric_limits<uint32_t>::max() / sizeof(T))
-        return false;
-
-#if ASSUME_LITTLE_ENDIAN
-    buffer.append(asBytes(values));
-#else
-    for (unsigned i = 0; i < values.size(); i++) {
-        T value = values[i];
-        for (unsigned j = 0; j < sizeof(T); j++) {
-            buffer.append(static_cast<uint8_t>(value & 0xFF));
-            value >>= 8;
-        }
-    }
-#endif
-    return true;
-}
-
-template <> bool writeLittleEndian<uint8_t>(Vector<uint8_t>& buffer, std::span<const uint8_t> values)
-{
-    buffer.append(values);
-    return true;
-}
-
 Ref<SerializedScriptValue> SerializedScriptValue::createFromWireBytes(Vector<uint8_t>&& data)
 {
     Internals internals;
@@ -1129,7 +521,9 @@ class CloneSerializer;
 static void validateSerializedResult(CloneSerializer&, SerializationReturnCode, Vector<uint8_t>& result, JSGlobalObject*, Vector<Ref<MessagePort>>&, ArrayBufferContentsArray&, ArrayBufferContentsArray& sharedBuffers, Vector<Ref<MessagePort>>&);
 #endif
 
-class CloneSerializer : public CloneBase {
+class CloneSerializer : public JSC::CloneSerializerBase<CloneSerializer> {
+    using Base = JSC::CloneSerializerBase<CloneSerializer>;
+
     WTF_FORBID_HEAP_ALLOCATION;
 public:
     static Vector<uint8_t> serializeCryptoKey(const CryptoKey& key)
@@ -1282,18 +676,18 @@ public:
 
     static bool serialize(StringView string, Vector<uint8_t>& out)
     {
-        writeLittleEndian(out, currentVersion());
+        JSC::StructuredCloneInternal::writeLittleEndian(out, currentVersion());
         if (string.isEmpty()) {
-            writeLittleEndian<uint8_t>(out, EmptyStringTag);
+            JSC::StructuredCloneInternal::writeLittleEndian<uint8_t>(out, EmptyStringTag);
             return true;
         }
-        writeLittleEndian<uint8_t>(out, StringTag);
+        JSC::StructuredCloneInternal::writeLittleEndian<uint8_t>(out, StringTag);
         if (string.is8Bit()) {
-            writeLittleEndian(out, string.length() | StringDataIs8BitFlag);
-            return writeLittleEndian(out, string.span8());
+            JSC::StructuredCloneInternal::writeLittleEndian(out, string.length() | StringDataIs8BitFlag);
+            return JSC::StructuredCloneInternal::writeLittleEndian(out, string.span8());
         }
-        writeLittleEndian(out, string.length());
-        return writeLittleEndian(out, string.span16());
+        JSC::StructuredCloneInternal::writeLittleEndian(out, string.length());
+        return JSC::StructuredCloneInternal::writeLittleEndian(out, string.span16());
     }
 
 #if ASSERT_ENABLED
@@ -1338,8 +732,7 @@ private:
             WasmMemoryHandleArray& wasmMemoryHandles,
 #endif
         Vector<URLKeepingBlobAlive>& blobHandles, Vector<uint8_t>& out, SerializationContext context, ArrayBufferContentsArray& sharedBuffers, SerializationForStorage forStorage)
-        : CloneBase(lexicalGlobalObject)
-        , m_buffer(out)
+        : Base(lexicalGlobalObject, out)
         , m_blobHandles(blobHandles)
 #if ENABLE(WEB_RTC)
         , m_serializedRTCEncodedAudioFrames(serializedRTCEncodedAudioFrames)
@@ -1498,51 +891,6 @@ private:
         if (object->methodTable()->getOwnPropertySlot(object, m_lexicalGlobalObject, propertyName, slot))
             return slot.getValue(m_lexicalGlobalObject, propertyName);
         return JSValue();
-    }
-
-    void dumpImmediate(JSValue value, SerializationReturnCode& code)
-    {
-        if (value.isNull()) {
-            write(NullTag);
-            return;
-        }
-        if (value.isUndefined()) {
-            write(UndefinedTag);
-            return;
-        }
-        if (value.isNumber()) {
-            if (value.isInt32()) {
-                if (!value.asInt32())
-                    write(ZeroTag);
-                else if (value.asInt32() == 1)
-                    write(OneTag);
-                else {
-                    write(IntTag);
-                    write(static_cast<uint32_t>(value.asInt32()));
-                }
-            } else {
-                write(DoubleTag);
-                write(value.asDouble());
-            }
-            return;
-        }
-        if (value.isBoolean()) {
-            if (value.isTrue())
-                write(TrueTag);
-            else
-                write(FalseTag);
-            return;
-        }
-#if USE(BIGINT32)
-        if (value.isBigInt32()) {
-            write(BigIntTag);
-            dumpBigIntData(value);
-            return;
-        }
-#endif
-
-        // Make any new primitive extension safe by throwing an error.
-        code = SerializationReturnCode::DataCloneError;
     }
 
     void dumpString(const String& string)
@@ -2055,10 +1403,22 @@ private:
         code = SerializationReturnCode::DataCloneError;
     }
 
-    bool dumpIfTerminal(JSValue value, SerializationReturnCode& code)
+public:
+    bool dumpDerivedTerminal(JSValue value, SerializationReturnCode& code)
     {
         if (!value.isCell()) {
-            dumpImmediate(value, code);
+            // The JSC base handles every other immediate JSValue (null,
+            // undefined, int, double, boolean). The only residual non-cell
+            // case here is BigInt32; anything else is an unrecognized
+            // primitive.
+#if USE(BIGINT32)
+            if (value.isBigInt32()) {
+                write(BigIntTag);
+                dumpBigIntData(value);
+                return true;
+            }
+#endif
+            code = SerializationReturnCode::DataCloneError;
             return true;
         }
         ASSERT(value.isCell());
@@ -2455,90 +1815,42 @@ private:
         return true;
     }
 
+private:
+    using Base::write;
+
     void write(SerializableErrorType errorType)
     {
         write(std::to_underlying(errorType));
     }
 
-    void write(SerializationTag tag)
-    {
-        SERIALIZE_TRACE("serialize ", tag);
-        writeLittleEndian<uint8_t>(m_buffer, static_cast<uint8_t>(tag));
-    }
-
-    void write(ArrayBufferViewSubtag tag)
-    {
-        writeLittleEndian<uint8_t>(m_buffer, static_cast<uint8_t>(tag));
-    }
-
     void write(DestinationColorSpaceTag tag)
     {
-        writeLittleEndian<uint8_t>(m_buffer, static_cast<uint8_t>(tag));
+        JSC::StructuredCloneInternal::writeLittleEndian<uint8_t>(m_buffer, static_cast<uint8_t>(tag));
     }
 
     void write(CryptoKeyClassSubtag tag)
     {
-        writeLittleEndian<uint8_t>(m_buffer, static_cast<uint8_t>(tag));
+        JSC::StructuredCloneInternal::writeLittleEndian<uint8_t>(m_buffer, static_cast<uint8_t>(tag));
     }
 
     void write(CryptoKeyAsymmetricTypeSubtag tag)
     {
-        writeLittleEndian<uint8_t>(m_buffer, static_cast<uint8_t>(tag));
+        JSC::StructuredCloneInternal::writeLittleEndian<uint8_t>(m_buffer, static_cast<uint8_t>(tag));
     }
 
     void write(CryptoKeyUsageTag tag)
     {
-        writeLittleEndian<uint8_t>(m_buffer, static_cast<uint8_t>(tag));
+        JSC::StructuredCloneInternal::writeLittleEndian<uint8_t>(m_buffer, static_cast<uint8_t>(tag));
     }
 
     void write(CryptoAlgorithmIdentifierTag tag)
     {
-        writeLittleEndian<uint8_t>(m_buffer, static_cast<uint8_t>(tag));
+        JSC::StructuredCloneInternal::writeLittleEndian<uint8_t>(m_buffer, static_cast<uint8_t>(tag));
     }
 
     void write(CryptoKeyOKPOpNameTag tag)
     {
-        writeLittleEndian<uint8_t>(m_buffer, static_cast<uint8_t>(tag));
-    }
-
-    void write(bool b)
-    {
-        write(static_cast<uint8_t>(b));
-    }
-
-    void write(uint8_t c)
-    {
-        writeLittleEndian(m_buffer, c);
-    }
-
-    void write(uint32_t i)
-    {
-        writeLittleEndian(m_buffer, i);
-    }
-
-    void write(double d)
-    {
-        union {
-            double d;
-            int64_t i;
-        } u;
-        u.d = d;
-        writeLittleEndian(m_buffer, u.i);
-    }
-
-    void write(int32_t i)
-    {
-        writeLittleEndian(m_buffer, i);
-    }
-
-    void write(uint64_t i)
-    {
-        writeLittleEndian(m_buffer, i);
-    }
-    
-    void write(uint16_t ch)
-    {
-        writeLittleEndian(m_buffer, ch);
+        JSC::StructuredCloneInternal::writeLittleEndian<uint8_t>(m_buffer, static_cast<uint8_t>(tag));
     }
 
     void writeStringIndex(unsigned i)
@@ -2586,18 +1898,18 @@ private:
         }
 
         if (str.is8Bit())
-            writeLittleEndian<uint32_t>(m_buffer, length | StringDataIs8BitFlag);
+            JSC::StructuredCloneInternal::writeLittleEndian<uint32_t>(m_buffer, length | StringDataIs8BitFlag);
         else
-            writeLittleEndian<uint32_t>(m_buffer, length);
+            JSC::StructuredCloneInternal::writeLittleEndian<uint32_t>(m_buffer, length);
 
         if (!length)
             return;
         if (str.is8Bit()) {
-            if (!writeLittleEndian(m_buffer, str.span8()))
+            if (!JSC::StructuredCloneInternal::writeLittleEndian(m_buffer, str.span8()))
                 fail();
             return;
         }
-        if (!writeLittleEndian(m_buffer, str.span16()))
+        if (!JSC::StructuredCloneInternal::writeLittleEndian(m_buffer, str.span16()))
             fail();
     }
 
@@ -2621,7 +1933,7 @@ private:
     {
         uint32_t size = vector.size();
         write(size);
-        writeLittleEndian(m_buffer, vector.span());
+        JSC::StructuredCloneInternal::writeLittleEndian(m_buffer, vector.span());
     }
 
     void write(const File& file)
@@ -2645,17 +1957,17 @@ private:
     {
         switch (colorSpace) {
         case PredefinedColorSpace::SRGB:
-            writeLittleEndian<uint8_t>(m_buffer, static_cast<uint8_t>(PredefinedColorSpaceTag::SRGB));
+            JSC::StructuredCloneInternal::writeLittleEndian<uint8_t>(m_buffer, static_cast<uint8_t>(PredefinedColorSpaceTag::SRGB));
             break;
         case PredefinedColorSpace::SRGBLinear:
-            writeLittleEndian<uint8_t>(m_buffer, static_cast<uint8_t>(PredefinedColorSpaceTag::SRGBLinear));
+            JSC::StructuredCloneInternal::writeLittleEndian<uint8_t>(m_buffer, static_cast<uint8_t>(PredefinedColorSpaceTag::SRGBLinear));
             break;
 #if ENABLE(PREDEFINED_COLOR_SPACE_DISPLAY_P3)
         case PredefinedColorSpace::DisplayP3:
-            writeLittleEndian<uint8_t>(m_buffer, static_cast<uint8_t>(PredefinedColorSpaceTag::DisplayP3));
+            JSC::StructuredCloneInternal::writeLittleEndian<uint8_t>(m_buffer, static_cast<uint8_t>(PredefinedColorSpaceTag::DisplayP3));
             break;
         case PredefinedColorSpace::DisplayP3Linear:
-            writeLittleEndian<uint8_t>(m_buffer, static_cast<uint8_t>(PredefinedColorSpaceTag::DisplayP3Linear));
+            JSC::StructuredCloneInternal::writeLittleEndian<uint8_t>(m_buffer, static_cast<uint8_t>(PredefinedColorSpaceTag::DisplayP3Linear));
             break;
 #endif
         }
@@ -2943,7 +2255,7 @@ private:
         write(data);
     }
 
-    Vector<uint8_t>& m_buffer;
+    // m_buffer lives in the JSC::CloneSerializerBase template.
     Vector<URLKeepingBlobAlive>& m_blobHandles;
     ObjectPoolMap m_objectPoolMap;
     ObjectPoolMap m_transferredMessagePorts;
@@ -2995,6 +2307,7 @@ private:
     bool m_didSeeComplexCases { false };
 #endif
 };
+static_assert(JSC::StructuredCloneSerializerHandler<CloneSerializer>);
 
 SerializationReturnCode CloneSerializer::serialize(JSValue in)
 {
@@ -3258,7 +2571,8 @@ SerializationReturnCode CloneSerializer::serialize(JSValue in)
     return SerializationReturnCode::SuccessfullyCompleted;
 }
 
-class CloneDeserializer : public CloneBase {
+class CloneDeserializer : public JSC::CloneDeserializerBase<CloneDeserializer> {
+    using Base = JSC::CloneDeserializerBase<CloneDeserializer>;
     WTF_FORBID_HEAP_ALLOCATION;
 public:
     enum class ShouldAtomize : bool { No, Yes };
@@ -3268,13 +2582,13 @@ public:
             return String();
         auto span = buffer.span();
         uint32_t version;
-        if (!readLittleEndian(span, version) || majorVersionFor(version) > CurrentMajorVersion)
+        if (!JSC::StructuredCloneInternal::readLittleEndian(span, version) || majorVersionFor(version) > CurrentMajorVersion)
             return String();
         uint8_t tag;
-        if (!readLittleEndian(span, tag) || tag != StringTag)
+        if (!JSC::StructuredCloneInternal::readLittleEndian(span, tag) || tag != StringTag)
             return String();
         uint32_t length;
-        if (!readLittleEndian(span, length))
+        if (!JSC::StructuredCloneInternal::readLittleEndian(span, length))
             return String();
         bool is8Bit = length & StringDataIs8BitFlag;
         length &= ~StringDataIs8BitFlag;
@@ -3461,11 +2775,10 @@ private:
         , Vector<std::unique_ptr<MediaStreamTrackHandle::DataHolder>>&& detachedMediaStreamTrackHandles = { }
 #endif
         )
-        : CloneBase(lexicalGlobalObject)
+        : Base(lexicalGlobalObject, buffer.span())
         , m_globalObject(globalObject)
         , m_isDOMGlobalObject(globalObject->inherits<JSDOMGlobalObject>())
         , m_canCreateDOMObject(m_isDOMGlobalObject && !globalObject->inherits<JSIDBSerializationGlobalObject>())
-        , m_data(buffer.span())
         , m_majorVersion(0xFFFFFFFF)
         , m_minorVersion(0xFFFFFFFF)
         , m_messagePorts(messagePorts)
@@ -3548,11 +2861,10 @@ private:
         , Vector<std::unique_ptr<MediaStreamTrackHandle::DataHolder>>&& detachedMediaStreamTrackHandles = { }
 #endif
         )
-        : CloneBase(lexicalGlobalObject)
+        : JSC::CloneDeserializerBase<CloneDeserializer>(lexicalGlobalObject, buffer.span())
         , m_globalObject(globalObject)
         , m_isDOMGlobalObject(globalObject->inherits<JSDOMGlobalObject>())
         , m_canCreateDOMObject(m_isDOMGlobalObject && !globalObject->inherits<JSIDBSerializationGlobalObject>())
-        , m_data(buffer.span())
         , m_majorVersion(0xFFFFFFFF)
         , m_minorVersion(0xFFFFFFFF)
         , m_messagePorts(messagePorts)
@@ -3720,41 +3032,7 @@ private:
         appendObjectPoolTag(tag);
     }
 
-    template <typename T> bool NODELETE readLittleEndian(T& value)
-    {
-        if (m_failed || !readLittleEndian(m_data, value)) {
-            SERIALIZE_TRACE("FAIL deserialize");
-            fail();
-            return false;
-        }
-        return true;
-    }
-#if ASSUME_LITTLE_ENDIAN
-    template <typename T> static bool NODELETE readLittleEndian(std::span<const uint8_t>& span, T& value)
-    {
-        if (span.size() < sizeof(value))
-            return false;
-
-        value = consumeAndReinterpretCastTo<const T>(span);
-        return true;
-    }
-#else
-    template <typename T> static bool NODELETE readLittleEndian(std::span<const uint8_t>& span, T& value)
-    {
-        if (span.size() < sizeof(value))
-            return false;
-
-        if constexpr (sizeof(T) == 1)
-            value = consume(span);
-        else {
-            value = 0;
-            for (size_t i = 0; i < sizeof(T); ++i)
-                value += static_cast<T>(span[i]) << (i * 8);
-            skip(span, sizeof(T));
-        }
-        return true;
-    }
-#endif
+    using Base::read;
 
     enum class ForceReadingAs8Bit : bool { No, Yes };
     bool NODELETE read(bool& b, ForceReadingAs8Bit forceReadingAs8Bit = ForceReadingAs8Bit::No)
@@ -3771,43 +3049,6 @@ private:
             b = !!integer;
         }
         return true;
-    }
-
-    bool NODELETE read(uint32_t& i)
-    {
-        return readLittleEndian(i);
-    }
-
-    bool NODELETE read(int32_t& i)
-    {
-        return readLittleEndian(*reinterpret_cast<uint32_t*>(&i));
-    }
-
-    bool NODELETE read(uint16_t& i)
-    {
-        return readLittleEndian(i);
-    }
-
-    bool NODELETE read(uint8_t& i)
-    {
-        return readLittleEndian(i);
-    }
-
-    bool NODELETE read(double& d)
-    {
-        union {
-            double d;
-            uint64_t i64;
-        } u;
-        if (!readLittleEndian(u.i64))
-            return false;
-        d = purifyNaN(u.d);
-        return true;
-    }
-
-    bool NODELETE read(uint64_t& i)
-    {
-        return readLittleEndian(i);
     }
 
     std::optional<uint32_t> NODELETE readStringIndex()
@@ -3859,7 +3100,7 @@ private:
         if (span.size() < size)
             return false;
 
-#if ASSUME_LITTLE_ENDIAN
+#if JSC_ASSUME_LITTLE_ENDIAN
         auto stringSpan = consumeSpan(span, size);
         if (shouldAtomize == ShouldAtomize::Yes)
             str = AtomString(spanReinterpretCast<const char16_t>(stringSpan));
@@ -3870,7 +3111,7 @@ private:
         str = String::createUninitialized(length, characters);
         for (unsigned i = 0; i < length; ++i) {
             uint16_t c;
-            readLittleEndian(span, c);
+            JSC::StructuredCloneInternal::readLittleEndian(span, c);
             characters[i] = c;
         }
         if (shouldAtomize == ShouldAtomize::Yes)
@@ -3931,17 +3172,6 @@ private:
         m_constantPool.append(WTF::move(str));
         cachedString = CachedStringRef(&m_constantPool, m_constantPool.size() - 1);
         return true;
-    }
-
-    SerializationTag readTag()
-    {
-        if (m_data.empty()) {
-            SERIALIZE_TRACE("FAIL deserialize");
-            return ErrorTag;
-        }
-        auto tag = static_cast<SerializationTag>(consume(m_data));
-        SERIALIZE_TRACE("deserialize ", tag);
-        return tag;
     }
 
     bool NODELETE readArrayBufferViewSubtag(ArrayBufferViewSubtag& tag)
@@ -5347,39 +4577,15 @@ private:
         return tryConvertToBigInt32(bigInt);
     }
 
-    JSValue readTerminal()
+public:
+    bool isTagExposed(SerializationTag tag) const
     {
-        if (!isSafeToRecurse()) {
-            SERIALIZE_TRACE("FAIL deserialize");
-            fail();
-            return JSValue();
-        }
-        auto originalData = m_data;
-        SerializationTag tag = readTag();
-        if (!isTypeExposedToGlobalObject(*m_globalObject, tag)) {
-            SERIALIZE_TRACE("FAIL deserialize");
-            fail();
-            return JSValue();
-        }
+        return isTypeExposedToGlobalObject(*m_globalObject, tag);
+    }
+
+    JSValue readDerivedTerminal(SerializationTag tag)
+    {
         switch (tag) {
-        case UndefinedTag:
-            return jsUndefined();
-        case NullTag:
-            return jsNull();
-        case IntTag: {
-            int32_t i;
-            if (!read(i))
-                return JSValue();
-            return jsNumber(i);
-        }
-        case ZeroTag:
-            return jsNumber(0);
-        case OneTag:
-            return jsNumber(1);
-        case FalseTag:
-            return jsBoolean(false);
-        case TrueTag:
-            return jsBoolean(true);
         case FalseObjectTag: {
             BooleanObject* obj = BooleanObject::create(m_lexicalGlobalObject->vm(), m_globalObject->booleanObjectStructure());
             obj->setInternalValue(m_lexicalGlobalObject->vm(), jsBoolean(false));
@@ -5391,12 +4597,6 @@ private:
             obj->setInternalValue(m_lexicalGlobalObject->vm(), jsBoolean(true));
             addToObjectPool<TrueObjectTag>(obj);
             return obj;
-        }
-        case DoubleTag: {
-            double d;
-            if (!read(d))
-                return JSValue();
-            return jsNumber(d);
         }
         case BigIntTag:
             return readBigInt();
@@ -5866,11 +5066,13 @@ private:
             return readFileSystemHandle();
 
         default:
-            SERIALIZE_TRACE("push back ", tag);
-            m_data = originalData; // Push the tag back
+            // Tag is not a terminal — let JSC::CloneDeserializerBase::readTerminal
+            // rewind m_data so the structural walker can re-read it.
             return JSValue();
         }
     }
+
+private:
 
     template<SerializationTag Tag>
     bool consumeCollectionDataTerminationIfPossible()
@@ -5885,7 +5087,6 @@ private:
     JSGlobalObject* const m_globalObject;
     const bool m_isDOMGlobalObject;
     const bool m_canCreateDOMObject;
-    std::span<const uint8_t> m_data;
     unsigned m_majorVersion;
     unsigned m_minorVersion;
     Vector<CachedString> m_constantPool;
@@ -5955,6 +5156,7 @@ private:
     friend void validateSerializedResult(CloneSerializer&, SerializationReturnCode, Vector<uint8_t>&, JSGlobalObject*, Vector<Ref<MessagePort>>&, ArrayBufferContentsArray&, ArrayBufferContentsArray&, Vector<Ref<MessagePort>>&);
 #endif
 };
+static_assert(JSC::StructuredCloneDeserializerHandler<CloneDeserializer>);
 
 DeserializationResult CloneDeserializer::deserialize()
 {

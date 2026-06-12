@@ -70,8 +70,6 @@ struct NonSerializedDataToken;
 struct SerializedScriptValueInternals;
 template<typename> class ExceptionOr;
 
-enum class SerializationReturnCode;
-
 enum class SerializationErrorMode : bool { NonThrowing, Throwing };
 enum class SerializationContext : bool { Default, CloneAcrossWorlds };
 enum class SerializationForStorage : bool { No, Yes };
