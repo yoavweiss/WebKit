@@ -1268,7 +1268,7 @@ private:
 #if ENABLE(FULLSCREEN_API)
     bool m_isChildOfElementFullscreen { false };
 #endif
-    bool m_preparedForInline;
+    bool m_preparedForInline { false };
     Function<void()> m_preparedForInlineCompletionHandler;
 
     bool m_temporarilyAllowingInlinePlaybackAfterFullscreen { false };
