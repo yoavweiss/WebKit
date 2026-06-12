@@ -43,7 +43,7 @@
 namespace JSC {
 namespace TemporalCore {
 
-class TimeZoneCacheEntry : public ThreadSafeRefCounted<TimeZoneCacheEntry> {
+class TimeZoneCacheEntry final : public ThreadSafeRefCounted<TimeZoneCacheEntry> {
     WTF_MAKE_TZONE_ALLOCATED(TimeZoneCacheEntry);
 public:
     Lock useLock;
