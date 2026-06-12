@@ -61,9 +61,12 @@ void RenderImageResource::initialize(RenderElement& renderer)
 
 void RenderImageResource::willBeDestroyed()
 {
-    image()->stopAnimation();
+    RefPtr cachedImage = this->cachedImage();
+    Ref image = this->image();
     if (m_styleImage && m_renderer)
         m_styleImage->removeClient(*m_renderer);
+    if (image->isAnimated() && cachedImage && !cachedImage->hasRendererClients())
+        image->stopAnimation();
 }
 
 void RenderImageResource::clearCachedImage()

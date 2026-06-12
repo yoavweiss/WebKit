@@ -1152,6 +1152,7 @@ private:
         void didRemoveCachedImageClient(CachedImage&) final;
         void imageContentChanged(CachedImage&) final;
         void scheduleRenderingUpdateForImage(CachedImage&) final;
+        bool isRendererClient() const final { return true; }
 
         explicit CachedImageListener(RenderObject&);
 

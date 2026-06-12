@@ -207,6 +207,16 @@ void CachedImage::removeAllClientsWaitingForAsyncDecoding()
     m_clientsWaitingForAsyncDecoding.clear();
 }
 
+bool CachedImage::hasRendererClients() const
+{
+    CachedResourceClientWalker<CachedImageClient> walker(*this);
+    while (RefPtr client = walker.next()) {
+        if (client->isRendererClient())
+            return true;
+    }
+    return false;
+}
+
 void CachedImage::switchClientsToRevalidatedResource()
 {
     ASSERT(is<CachedImage>(resourceToRevalidate()));
