@@ -281,7 +281,7 @@ void EnhancedSecuritySitesPersistence::trackEnhancedSecurityForDomain(WebCore::R
 
     if (!selectSiteStatement
         || selectSiteStatement->bindText(1, site.string()) != SQLITE_OK)
-        reportSQLError(__FUNCTION__, "Failed to query specific site"_s);
+        return reportSQLError(__FUNCTION__, "Failed to query specific site"_s);
 
     if (selectSiteStatement->step() == SQLITE_ROW) {
         if (static_cast<EnhancedSecurity>(selectSiteStatement->columnInt(0)) == EnhancedSecurity::Disabled)
