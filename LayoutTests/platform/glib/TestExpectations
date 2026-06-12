@@ -1001,6 +1001,7 @@ accessibility/dynamic-speak-as.html [ Failure ]
 
 # Missing AccessibilityUIElement::{ariaActionsElementAtIndex, invokeCustomActionAtIndex} implementations.
 accessibility/aria-actions.html [ Skip ]
+accessibility/aria-actions-ignored-target.html [ Skip ]
 
 # Missing AccessibilityUIElement::showMenu implementation.
 accessibility/show-menu-fires-contextmenu-event.html [ Skip ]
