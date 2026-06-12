@@ -38,6 +38,7 @@
 #include "MediaCapabilitiesEncodingInfo.h"
 #include "MediaDecodingConfiguration.h"
 #include "MediaEncodingConfiguration.h"
+#include "NavigatorBase.h"
 #include "PlatformMediaCapabilitiesLogging.h"
 #include "PlatformMediaEngineConfigurationFactory.h"
 #include "Settings.h"
