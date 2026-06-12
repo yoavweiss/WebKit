@@ -77,6 +77,7 @@
 #include "EventNames.h"
 #include "FocusController.h"
 #include "FrameLoader.h"
+#include "HTMLAnchorElement.h"
 #include "HTMLAreaElement.h"
 #include "HTMLButtonElement.h"
 #include "HTMLCanvasElement.h"
@@ -1498,14 +1499,12 @@ void AXObjectCache::onRendererCreated(Node& node)
     }
 }
 
-#if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
 static bool isClickEvent(const AtomString& eventType)
 {
     return eventType == eventNames().clickEvent
         || eventType == eventNames().mousedownEvent
         || eventType == eventNames().mouseupEvent;
 }
-#endif // ENABLE(ACCESSIBILITY_ISOLATED_TREE)
 
 void AXObjectCache::onDragElementChanged(Element* oldElement, Element* newElement)
 {
@@ -1551,33 +1550,31 @@ void AXObjectCache::onDraggingDropped(Element& dragTarget)
 
 void AXObjectCache::onEventListenerAdded(Node& node, const AtomString& eventType)
 {
-#if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
-    if (!isClickEvent(eventType))
-        return;
-
-    if (RefPtr tree = AXIsolatedTree::treeForFrameID(m_frameID)) {
-        if (RefPtr object = get(node))
-            tree->queueNodeUpdate(object->objectID(), { AXProperty::HasClickHandler });
-    }
-#else
-    UNUSED_PARAM(node);
-    UNUSED_PARAM(eventType);
-#endif // ENABLE(ACCESSIBILITY_ISOLATED_TREE)
+    handleClickHandlerChanged(node, eventType);
 }
 
 void AXObjectCache::onEventListenerRemoved(Node& node, const AtomString& eventType)
 {
-#if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
+    handleClickHandlerChanged(node, eventType);
+}
+
+void AXObjectCache::handleClickHandlerChanged(Node& node, const AtomString& eventType)
+{
     if (!isClickEvent(eventType))
         return;
 
-    if (RefPtr tree = AXIsolatedTree::treeForFrameID(m_frameID)) {
-        if (RefPtr object = get(node))
-            tree->queueNodeUpdate(object->objectID(), { AXProperty::HasClickHandler });
-    }
-#else
-    UNUSED_PARAM(node);
-    UNUSED_PARAM(eventType);
+    RefPtr object = get(node);
+    if (!object)
+        return;
+
+    // A hrefless anchor is exposed as a link only when it has a click handler, so adding or removing
+    // one can change its role. (An anchor with an href is a link regardless of its click handlers.)
+    if (RefPtr anchor = dynamicDowncast<HTMLAnchorElement>(node); anchor && !anchor->isLink())
+        object->updateRole();
+
+#if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
+    if (RefPtr tree = AXIsolatedTree::treeForFrameID(m_frameID))
+        tree->queueNodeUpdate(object->objectID(), { AXProperty::HasClickHandler });
 #endif // ENABLE(ACCESSIBILITY_ISOLATED_TREE)
 }
 
@@ -3519,6 +3516,16 @@ void AXObjectCache::handleAttributeChange(Element* element, const QualifiedName&
     if (relationAttributes().contains(attrName)) {
         m_elementsWithRelationAttributes.add(*element);
         updateRelations(*element, attrName);
+    }
+
+    if (attrName == hrefAttr) {
+        // An anchor's role depends on whether it is a link (Element::isLink(), i.e. whether it has an
+        // href). Recompute the role when href changes so a hrefless anchor with a click handler can
+        // become a link, and vice versa.
+        if (RefPtr anchor = dynamicDowncast<HTMLAnchorElement>(element)) {
+            if (RefPtr object = get(*anchor))
+                object->updateRole();
+        }
     }
 
     if (attrName == roleAttr)

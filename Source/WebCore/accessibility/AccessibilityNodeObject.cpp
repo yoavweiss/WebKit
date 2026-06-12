@@ -541,6 +541,10 @@ AccessibilityRole AccessibilityNodeObject::determineAccessibilityRoleFromNode(Tr
 
     if (element->isLink())
         return AccessibilityRole::Link;
+    // Element::isLink() is false for an anchor without an href, but other engines (e.g. Chrome, Firefox)
+    // still expose such an anchor as a link when it has a click handler, so match that behavior.
+    if (is<HTMLAnchorElement>(*element) && hasClickHandler())
+        return AccessibilityRole::Link;
     if (auto* selectElement = dynamicDowncast<HTMLSelectElement>(*element)) {
         UNUSED_VARIABLE(selectElement);
 #if PLATFORM(IOS_FAMILY)
