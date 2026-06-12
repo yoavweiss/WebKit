@@ -324,3 +324,5 @@ webkit.org/b/316706 [ ios ] TestWebKitAPI.WritingTools.CompositionWithMultipleCh
 webkit.org/b/316807 [ mac ] TestWebKitAPI.EnhancedSecurityPolicies.OpenerThenSelfNavigationWithSiteIsolation [ Pass Crash ]
 
 webkit.org/b/316819 [ mac debug ] TestWebKitAPI.SiteIsolation.MultiProcessBFCacheSameSiteWithCrossSiteIframe [ Pass Crash ]
+
+webkit.org/b/316931 [ ios ] TestWebKitAPI.CopyHTML.SanitizationPreservesCharacterSetInSelectedText [ Pass Failure Crash ]
