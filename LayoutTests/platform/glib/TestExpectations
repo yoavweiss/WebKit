@@ -1817,6 +1817,7 @@ webkit.org/b/265919 media/track/media-source-audio-track.html [ Failure ]
 media/media-source/media-managedmse-memorypressure.html [ Timeout ]
 media/media-source/media-managedmse-memorypressure-inactive.html [ Timeout ]
 media/media-source/media-managedmse-eviction.html [ Timeout ]
+media/media-source/media-source-evict-invalid-time-crash.html [ Timeout ]
 
 webkit.org/b/211995 fast/images/animated-image-mp4.html [ Timeout ]
 
