@@ -1299,7 +1299,6 @@ webkit.org/b/315615 media/media-vp8-hiddenframes.html [ ImageOnlyFailure Pass ]
 webkit.org/b/315825 [ Release arm64 ] editing/spelling/spelling-marker-includes-hyphen.html [ ImageOnlyFailure ]
 
 webkit.org/b/315994 [ x86_64 ] html5lib/generated/run-adoption01-data.html [ Crash Pass ]
-webkit.org/b/315994 [ x86_64 ] animations/restart-after-scroll.html [ Crash Pass ]
 
 webkit.org/b/316418 imported/w3c/web-platform-tests/html/semantics/popovers/popover-events.html [ Pass Failure ]
 webkit.org/b/316419 imported/w3c/web-platform-tests/html/semantics/embedded-content/media-elements/src_object_blob.html [ Pass Failure ]
@@ -1319,3 +1318,11 @@ webkit.org/b/316572 [ x86_64 ] webaudio/require-transient-activation.html [ Pass
 webkit.org/b/316574 [ x86_64 ] fast/parser/entities-in-html.html [ Pass Timeout ]
 
 webkit.org/b/316709 scrollbars/scrollbar-drag-thumb-with-large-content.html [ Failure ]
+
+webkit.org/b/309744 [ arm64 ] fast/events/monotonic-event-time.html [ Pass Failure ]
+webkit.org/b/311654 [ arm64 ] imported/w3c/web-platform-tests/event-timing/gap-keydown-keyup.html [ Pass Failure ]
+webkit.org/b/317019 [ arm64 ] imported/w3c/web-platform-tests/svg/path/property/d-interpolation-relative-absolute.svg [ Failure ]
+webkit.org/b/317019 [ arm64 ] imported/w3c/web-platform-tests/svg/path/property/d-interpolation-single.svg [ Failure ]
+webkit.org/b/317020 [ arm64 ] fast/events/site-isolation/event-timing-back-forward-cache-duration.html [ Pass Failure ]
+webkit.org/b/252878 [ arm64 ] fast/frames/lots-of-objects.html [ Pass Timeout ]
+webkit.org/b/317021 [ arm64 ] fast/parser/elementstack-nesting-depth.html [ Pass Timeout ]
