@@ -7299,24 +7299,12 @@ String Document::referrer()
 
 String Document::referrerForBindings()
 {
-    RefPtr mainFrameDocument = this->mainFrameDocument();
-    if (!mainFrameDocument) {
-        LOG_ONCE(SiteIsolation, "Unable to fully calculate Document::referrerForBindings() without access to the main frame document ");
-        return referrer();
-    }
-
-    RefPtr policySourceLoader = mainFrameDocument->loader();
-    if (!policySourceLoader)
-        return referrer();
-
-    if (!policySourceLoader->request().url().hasSpecialScheme() && url().protocolIsInHTTPFamily())
-        policySourceLoader = loader();
-
     bool shouldHideFromBindings = [&] {
-        if (!policySourceLoader || RegistrableDomain { URL { frame()->loader().referrer() } }.matches(securityOrigin().data()))
+        RefPtr loader = this->loader();
+        if (!loader || RegistrableDomain { URL { frame()->loader().referrer() } }.matches(securityOrigin().data()))
             return false;
 
-        auto policies = policySourceLoader->navigationalAdvancedPrivacyProtections();
+        auto policies = loader->navigationalAdvancedPrivacyProtections();
         if (policies.contains(AdvancedPrivacyProtections::ScriptTrackingPrivacy) && requiresScriptTrackingPrivacyProtection(ScriptTrackingPrivacyCategory::Referrer))
             return true;
 
