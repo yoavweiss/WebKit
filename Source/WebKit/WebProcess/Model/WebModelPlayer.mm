@@ -856,7 +856,7 @@ void WebModelPlayer::reload(WebCore::Model& modelSource, WebCore::LayoutSize siz
     if (disableReloading())
         return;
 
-    load(modelSource, size);
+    load(modelSource, size, false);
     m_cachedAnimationState = animationState;
     if (transformState) {
         setStageMode(transformState->stageMode());
