@@ -8191,10 +8191,6 @@ void WebPage::didFinishLoad(WebFrame& frame)
 #if ENABLE(VIEWPORT_RESIZING)
     shrinkToFitContent(ZoomToInitialScale::Yes);
 #endif
-
-#if ENABLE(WEB_PAGE_SPATIAL_BACKDROP)
-    spatialBackdropSourceChanged();
-#endif
 }
 
 void WebPage::didSameDocumentNavigationForFrame(WebFrame& frame)
@@ -8351,15 +8347,6 @@ void WebPage::flushPendingSampledPageTopColorChange()
 
     send(Messages::WebPageProxy::SampledPageTopColorChanged(protect(corePage())->sampledPageTopColor()));
 }
-
-#if ENABLE(WEB_PAGE_SPATIAL_BACKDROP)
-void WebPage::spatialBackdropSourceChanged()
-{
-    RefPtr page = m_page;
-    if (page->settings().webPageSpatialBackdropEnabled())
-        send(Messages::WebPageProxy::SpatialBackdropSourceChanged(page->spatialBackdropSource()));
-}
-#endif
 
 #if ENABLE(MODEL_ELEMENT_IMMERSIVE)
 void WebPage::allowImmersiveElement(CompletionHandler<void(bool)>&& completion)

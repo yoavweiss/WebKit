@@ -1714,14 +1714,6 @@ void WebChromeClient::sampledPageTopColorChanged() const
         page->sampledPageTopColorChanged();
 }
 
-#if ENABLE(WEB_PAGE_SPATIAL_BACKDROP)
-void WebChromeClient::spatialBackdropSourceChanged() const
-{
-    if (RefPtr page = m_page.get())
-        page->spatialBackdropSourceChanged();
-}
-#endif
-
 #if ENABLE(MODEL_ELEMENT_IMMERSIVE)
 void WebChromeClient::allowImmersiveElement(CompletionHandler<void(bool)>&& completion) const
 {

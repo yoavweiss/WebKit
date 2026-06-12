@@ -1425,7 +1425,6 @@ dom/SimpleRange.cpp
 dom/SimulatedClick.cpp
 dom/SlotAssignment.cpp @header:RenderStyleGetters
 dom/SpaceSplitString.cpp
-dom/SpatialBackdropSource.cpp
 dom/SpeculationRulesMatcher.cpp
 dom/StaticNodeList.cpp
 dom/StaticRange.cpp

@@ -51,7 +51,6 @@
 #include <WebCore/RenderPtr.h>
 #include <WebCore/ReportingClient.h>
 #include <WebCore/ScriptExecutionContext.h>
-#include <WebCore/SpatialBackdropSource.h>
 #include <WebCore/StringWithDirection.h>
 #include <WebCore/Supplementable.h>
 #include <WebCore/Timer.h>
@@ -977,10 +976,6 @@ public:
 
     const Color& themeColor();
 
-#if ENABLE(WEB_PAGE_SPATIAL_BACKDROP)
-    const std::optional<SpatialBackdropSource>& spatialBackdropSource() const LIFETIME_BOUND { return m_cachedSpatialBackdropSource; }
-#endif
-
     void setTextColor(const Color& color) { m_textColor = color; }
     const Color& textColor() const LIFETIME_BOUND { return m_textColor; }
 
@@ -1179,10 +1174,6 @@ public:
     void processReferrerPolicy(const String& policy, ReferrerPolicySource);
 
     void metaElementThemeColorChanged(HTMLMetaElement&);
-
-#if ENABLE(WEB_PAGE_SPATIAL_BACKDROP)
-    void spatialBackdropLinkElementChanged();
-#endif
 
 #if ENABLE(DARK_MODE_CSS)
     void processColorScheme(const String& colorScheme);
@@ -2174,11 +2165,6 @@ private:
     WeakPtr<HTMLMetaElement, WeakPtrImplWithEventTargetData> determineActiveThemeColorMetaElement();
     void themeColorChanged();
 
-#if ENABLE(WEB_PAGE_SPATIAL_BACKDROP)
-    std::optional<SpatialBackdropSource> determineActiveSpatialBackdropSource() const;
-    void spatialBackdropSourceChanged();
-#endif
-
     void NODELETE invalidateAccessKeyCacheSlowCase();
     void buildAccessKeyCache();
 
@@ -2344,10 +2330,6 @@ private:
     WeakPtr<HTMLMetaElement, WeakPtrImplWithEventTargetData> m_activeThemeColorMetaElement;
     Color m_applicationManifestThemeColor;
     Color m_applicationManifestThemeColorDark;
-
-#if ENABLE(WEB_PAGE_SPATIAL_BACKDROP)
-    std::optional<SpatialBackdropSource> m_cachedSpatialBackdropSource;
-#endif
 
     Color m_textColor { Color::black };
     Color m_linkColor;

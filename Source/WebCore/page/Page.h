@@ -234,7 +234,6 @@ struct ClientOrigin;
 struct DocumentSyncSerializationData;
 struct FixedContainerEdges;
 struct ResolvedCaptionDisplaySettingsOptions;
-struct SpatialBackdropSource;
 struct SystemPreviewInfo;
 struct TextRecognitionResult;
 struct ViewportArguments;
@@ -930,10 +929,6 @@ public:
     WEBCORE_EXPORT void updateFixedContainerEdges(EnumSet<BoxSide>);
     const FixedContainerEdges& fixedContainerEdges() const LIFETIME_BOUND { return m_fixedContainerEdgesAndElements.first; }
     Element* NODELETE lastFixedContainer(BoxSide) const;
-
-#if ENABLE(WEB_PAGE_SPATIAL_BACKDROP)
-    WEBCORE_EXPORT std::optional<SpatialBackdropSource> spatialBackdropSource() const;
-#endif
 
 #if HAVE(APP_ACCENT_COLORS) && PLATFORM(MAC)
     WEBCORE_EXPORT void NODELETE setAppUsesCustomAccentColor(bool);

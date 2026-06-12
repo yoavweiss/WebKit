@@ -1417,47 +1417,6 @@ const Color& Document::themeColor()
     return m_cachedThemeColor;
 }
 
-#if ENABLE(WEB_PAGE_SPATIAL_BACKDROP)
-void Document::spatialBackdropLinkElementChanged()
-{
-    spatialBackdropSourceChanged();
-}
-
-void Document::spatialBackdropSourceChanged()
-{
-    if (!settings().webPageSpatialBackdropEnabled())
-        return;
-
-    auto newSpatialBackdropSource = determineActiveSpatialBackdropSource();
-    if (m_cachedSpatialBackdropSource == newSpatialBackdropSource)
-        return;
-    m_cachedSpatialBackdropSource = WTF::move(newSpatialBackdropSource);
-
-    if (RefPtr page = this->page())
-        page->chrome().client().spatialBackdropSourceChanged();
-}
-
-std::optional<SpatialBackdropSource> Document::determineActiveSpatialBackdropSource() const
-{
-    auto sourceURL = m_url.url();
-    if (!sourceURL.isValid())
-        return std::nullopt;
-
-    for (auto& linkElement : descendantsOfType<HTMLLinkElement>(*this)) {
-        if (!linkElement.isSpatialBackdrop())
-            continue;
-
-        auto modelURL = linkElement.href();
-        if (!modelURL.isValid())
-            return std::nullopt;
-
-        return SpatialBackdropSource { WTF::move(sourceURL), WTF::move(modelURL), linkElement.environmentMap() };
-    }
-
-    return std::nullopt;
-}
-#endif
-
 Color Document::linkColor(const Style::ComputedStyle& style) const
 {
     if (m_linkColor.isValid())
@@ -4649,10 +4608,6 @@ void Document::setURL(URL&& url)
     m_documentURI = m_url.url();
     m_adjustedURL = adjustedURL();
     updateBaseURL();
-
-#if ENABLE(WEB_PAGE_SPATIAL_BACKDROP)
-    spatialBackdropSourceChanged();
-#endif
 }
 
 const URL& Document::urlForBindings()

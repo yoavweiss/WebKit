@@ -54,7 +54,6 @@
 #include <WebCore/RegistrableDomain.h>
 #include <WebCore/ResourceRequest.h>
 #include <WebCore/SecurityOriginData.h>
-#include <WebCore/SpatialBackdropSource.h>
 #include <pal/HysteresisActivity.h>
 #include <wtf/UUID.h>
 
@@ -259,9 +258,6 @@ public:
 #endif
 #if PLATFORM(MAC)
     std::optional<WebCore::FloatBoxExtent> pendingObscuredContentInsets;
-#endif
-#if ENABLE(WEB_PAGE_SPATIAL_BACKDROP)
-    std::optional<WebCore::SpatialBackdropSource> spatialBackdropSource;
 #endif
     RunLoop::Timer tryCloseTimeoutTimer;
     WebCore::Color underPageBackgroundColorOverride;

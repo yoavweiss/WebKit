@@ -152,7 +152,6 @@
 #import "_WKPageLoadTimingInternal.h"
 #import "_WKRemoteObjectRegistryInternal.h"
 #import "_WKSessionStateInternal.h"
-#import "_WKSpatialBackdropSourceInternal.h"
 #import "_WKTargetedElementInfoInternal.h"
 #import "_WKTargetedElementRequestInternal.h"
 #import "_WKTextExtractionInternal.h"
@@ -191,7 +190,6 @@
 #import <WebCore/RunJavaScriptParameters.h>
 #import <WebCore/Settings.h>
 #import <WebCore/SharedBuffer.h>
-#import <WebCore/SpatialBackdropSource.h>
 #import <WebCore/StringUtilities.h>
 #import <WebCore/TextAnimationTypes.h>
 #import <WebCore/TextExtractionTypes.h>
@@ -2157,16 +2155,6 @@ inline OptionSet<WebKit::FindOptions> toFindOptions(WKFindConfiguration *configu
 }
 
 #endif // PLATFORM(MAC) && HAVE(NSWINDOW_SNAPSHOT_READINESS_HANDLER)
-
-#if ENABLE(WEB_PAGE_SPATIAL_BACKDROP)
-- (void)_spatialBackdropSourceDidChange
-{
-    if (auto spatialBackdropSource = _page->spatialBackdropSource())
-        _cachedSpatialBackdropSource = adoptNS([[_WKSpatialBackdropSource alloc] initWithSpatialBackdropSource:spatialBackdropSource.value()]);
-    else
-        _cachedSpatialBackdropSource = nil;
-}
-#endif
 
 #if ENABLE(MODEL_ELEMENT_IMMERSIVE)
 - (void)_allowImmersiveElement:(WKFrameInfo *)frameInfo completion:(CompletionHandler<void(bool)>&&)completion
@@ -6249,15 +6237,6 @@ static inline OptionSet<WebKit::FindOptions> NODELETE toFindOptions(_WKFindOptio
 - (WebCore::CocoaColor *)_sampledPageTopColor
 {
     return cocoaColorOrNil(_page->sampledPageTopColor()).autorelease();
-}
-
-- (_WKSpatialBackdropSource *)_spatialBackdropSource
-{
-#if ENABLE(WEB_PAGE_SPATIAL_BACKDROP)
-    return _cachedSpatialBackdropSource.get();
-#else
-    return nil;
-#endif
 }
 
 - (id <_WKInputDelegate>)_inputDelegate

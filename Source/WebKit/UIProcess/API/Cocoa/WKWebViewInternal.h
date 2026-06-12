@@ -528,10 +528,6 @@ struct PerWebProcessState {
     String _defaultSTSLabel;
 #endif
 
-#if ENABLE(WEB_PAGE_SPATIAL_BACKDROP)
-    RetainPtr<_WKSpatialBackdropSource> _cachedSpatialBackdropSource;
-#endif
-
     BOOL _didAccessBackForwardList;
     BOOL _dontResetTransientActivationAfterRunJavaScript;
 
@@ -591,10 +587,6 @@ struct PerWebProcessState {
 
 #if PLATFORM(MAC) && HAVE(NSWINDOW_SNAPSHOT_READINESS_HANDLER)
 - (void)_invalidateWindowSnapshotReadinessHandler;
-#endif
-
-#if ENABLE(WEB_PAGE_SPATIAL_BACKDROP)
-- (void)_spatialBackdropSourceDidChange;
 #endif
 
 #if ENABLE(MODEL_ELEMENT_IMMERSIVE)

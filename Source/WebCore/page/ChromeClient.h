@@ -348,9 +348,6 @@ public:
     virtual void themeColorChanged() const { }
     virtual void pageExtendedBackgroundColorDidChange() const { }
     virtual void sampledPageTopColorChanged() const { }
-#if ENABLE(WEB_PAGE_SPATIAL_BACKDROP)
-    virtual void spatialBackdropSourceChanged() const { }
-#endif
 
 #if ENABLE(MODEL_ELEMENT_IMMERSIVE)
     virtual void allowImmersiveElement(CompletionHandler<void(bool)>&& completion) const { completion(false); }
