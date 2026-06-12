@@ -184,13 +184,9 @@ UserGestureIndicator::UserGestureIndicator(std::optional<IsProcessingUserGesture
 
     if (isProcessingUserGesture && document && currentToken(vm)->processingUserGesture()) {
         document->updateLastHandledUserGestureTimestamp(currentToken(vm)->startTime());
-        if (processInteractionStyle == ProcessInteractionStyle::Immediate) {
-            RefPtr mainFrameDocument = document->mainFrameDocument();
-            if (mainFrameDocument)
-                ResourceLoadObserver::singleton().logUserInteractionWithReducedTimeResolution(*mainFrameDocument);
-            else
-                LOG_ONCE(SiteIsolation, "Unable to properly construct UserGestureIndicator::UserGestureIndicator() without access to the main frame document ");
-        }
+        if (processInteractionStyle == ProcessInteractionStyle::Immediate)
+            ResourceLoadObserver::singleton().logUserInteractionWithReducedTimeResolution(*document);
+
         if (RefPtr page = document->page()) {
             page->setUserDidInteractWithPage(true);
             page->setUserDidInteractWithPageExcludingForcedUserGestures(processInteractionStyle != ProcessInteractionStyle::Never);
