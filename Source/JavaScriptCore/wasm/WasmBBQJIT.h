@@ -127,6 +127,8 @@ public:
 
         static Location NODELETE fromArgumentLocation(ArgumentLocation argLocation, TypeKind type);
 
+        static bool rangesOverlap(Location a, uint32_t aSize, Location b, uint32_t bSize);
+
         bool NODELETE isNone() const;
 
         bool NODELETE isGPR() const;
