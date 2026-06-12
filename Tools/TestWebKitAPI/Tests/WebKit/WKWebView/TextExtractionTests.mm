@@ -415,7 +415,7 @@ TEST(TextExtractionTests, InteractionResultSummary)
         [interaction setText:@"squirrelfish@webkit.org"];
         RetainPtr result = [webView synchronouslyPerformInteraction:interaction.get()];
         EXPECT_NULL([result error]);
-        EXPECT_WK_STREQ("Inserted text by simulating paste with plain text", [result summary]);
+        EXPECT_WK_STREQ("Inserted text into input of type email with placeholder “Recipient address”", [result summary]);
     }
     {
         RetainPtr interaction = adoptNS([[_WKTextExtractionInteraction alloc] initWithAction:_WKTextExtractionActionSelectMenuItem]);
