@@ -192,5 +192,3 @@ shouldBe(arrFromIter("a\u{1F600}b".matchAll(/./gv)), [["a"], ["\u{1F600}"], ["b"
     shouldBe(m2.index, 7);
     shouldBe(m2.input, "abc1def2");
 }
-
-print("PASSED");

@@ -1,22 +1,17 @@
 //@ runDefault
 
 function tryCompileAndRun(label, buildPattern, testInput) {
-    // print(`\n[*] ${label}`);
     let pattern;
     try {
         pattern = buildPattern();
-        // print(`    Pattern length: ${pattern.length} chars`);
     } catch(e) {
-        print(`    BUILD ERROR: ${e.message}`);
         return;
     }
 
     let re;
     try {
         re = new RegExp(pattern, 'g');
-        // print(`    RegExp constructed OK`);
     } catch(e) {
-        print(`    REGEXP CONSTRUCTION ERROR (likely limit hit): ${e.message}`);
         return;
     }
 
@@ -26,9 +21,7 @@ function tryCompileAndRun(label, buildPattern, testInput) {
             re.lastIndex = 0;
             re.exec(testInput);
         }
-        // print(`    exec() completed without crash — check for SP corruption artifacts`);
     } catch(e) {
-        print(`    RUNTIME ERROR: ${e.message}`);
     }
 }
 

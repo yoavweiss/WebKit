@@ -42,5 +42,3 @@ test(/((a){2,3}){2,3}$/, "aaaaaa", "aaaaaa");   // non-greedy inner content
 
 // Test no-match cases still correctly fail
 test(/((a+){2,3}){2,3}$/, "aaa", null);  // not enough characters
-
-print("PASS: All nested quantifier backtracking tests passed");

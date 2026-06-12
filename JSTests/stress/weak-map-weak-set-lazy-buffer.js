@@ -150,5 +150,3 @@ for (var i = 0; i < 1e4; ++i) {
     assert(!readHas(emptyMap, warmKey), "optimized has on empty map");
     assert(!readSetHas(emptySet, warmKey), "optimized has on empty set");
 }
-
-print("PASS");

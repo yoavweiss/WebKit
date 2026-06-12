@@ -185,5 +185,3 @@ function shouldBe(actual, expected) {
     }
     shouldBe(threw, true);
 })();
-
-print("PASSED");

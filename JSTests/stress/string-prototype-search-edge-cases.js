@@ -156,5 +156,3 @@ shouldBe(typeof RegExp.prototype[Symbol.search], "function");
     shouldBe(descriptor.enumerable, false);
     shouldBe(descriptor.configurable, true);
 }
-
-print("PASSED");

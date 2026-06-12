@@ -13,9 +13,5 @@ it.next();
 it.next();
 `;
 
-try {
-    eval(code);
-    print("Done");
-} catch(e) {
-    print("Error: " + e);
-}
+eval(code);
+
