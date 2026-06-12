@@ -223,25 +223,11 @@ class IncrementalBuild6(PatchIncrementalBuild):
     name = 'webkit-swift-interface'
     description = 'Apply a small patch that changes a Swift-C++ class\'s public initializer and rebuild.'
     patch = '''\
-diff --git a/Source/WebKit/UIProcess/WebBackForwardList.swift b/Source/WebKit/UIProcess/WebBackForwardList.swift
-index 5ddc84b79cb2..1e447dc476c0 100644
---- a/Source/WebKit/UIProcess/WebBackForwardList.swift
-+++ b/Source/WebKit/UIProcess/WebBackForwardList.swift
-@@ -135,7 +135,8 @@ final class WebBackForwardList {
-         #endif
-     }()
-
--    init(page: WebKit.WeakPtrWebPageProxy) {
-+    init(page: WebKit.WeakPtrWebPageProxy, addedByMeasureBuildTimeDoNotCommit: Bool = true) {
-+        print(addedByMeasureBuildTimeDoNotCommit)
-         self.page = page
-         self.messageForwarder = WebKit.WebBackForwardListMessageForwarder.create(target: self)
-         backForwardLog("(Back/Forward) Created WebBackForwardList \(ObjectIdentifier(self))")
 diff --git a/Source/WebKit/UIProcess/WebBackForwardList.cpp b/Source/WebKit/UIProcess/WebBackForwardList.cpp
-index 1c90c5556c38..8da62b88edf6 100644
+index 5fbcb767a0f5..b251202181fd 100644
 --- a/Source/WebKit/UIProcess/WebBackForwardList.cpp
 +++ b/Source/WebKit/UIProcess/WebBackForwardList.cpp
-@@ -946,7 +946,7 @@ String WebBackForwardList::loggingString() const
+@@ -968,7 +968,7 @@ void WebBackForwardList::didReceiveProvisionalMessage(IPC::Connection& connectio
  #else // ENABLE(BACK_FORWARD_LIST_SWIFT)
  
  WebBackForwardListWrapper::WebBackForwardListWrapper(WebPageProxy& webPageProxy)
@@ -250,7 +236,20 @@ index 1c90c5556c38..8da62b88edf6 100644
  {
  }
  
-
+diff --git a/Source/WebKit/UIProcess/WebBackForwardList.swift b/Source/WebKit/UIProcess/WebBackForwardList.swift
+index 3e1247fdf3d3..8b243cd79c1e 100644
+--- a/Source/WebKit/UIProcess/WebBackForwardList.swift
++++ b/Source/WebKit/UIProcess/WebBackForwardList.swift
+@@ -137,7 +137,8 @@ final class WebBackForwardList {
+ 
+     // @used ensures these are retained even under -O -wmo: rdar://179098545
+     @used
+-    init(page: WebKit.WeakPtrWebPageProxy) {
++    init(page: WebKit.WeakPtrWebPageProxy, addedByMeasureBuildTimeDoNotCommit: Bool = true) {
++        print(addedByMeasureBuildTimeDoNotCommit)
+         self.page = page
+         self.messageForwarder = WebKit.WebBackForwardListMessageForwarder.create(target: self)
+         backForwardLog("(Back/Forward) Created WebBackForwardList \(ObjectIdentifier(self))")
 '''
 
 
