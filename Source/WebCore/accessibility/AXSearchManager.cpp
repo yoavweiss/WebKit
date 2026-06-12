@@ -434,6 +434,32 @@ AccessibilitySearchResultStream AXSearchManager::findMatchingObjectsInternalAsSt
     }
 #endif // PLATFORM(COCOA)
 
+    // Handle the case where the startObject we received is ignored, because the search algorithm only
+    // walks the unignored tree. This happens when the start becomes ignored after a dynamic update,
+    // for example in response to a focus handler the assistive technology triggered by moving onto a
+    // new element. Resolve the positioning start to the nearest unignored element in the resume direction:
+    // the unignored element just before the start for a forward search, just after it for a backward search.
+    //
+    // criteria.startObject is deliberately left unchanged, so relative search keys (SameType, DifferentType,
+    // HeadingSameLevel, BlockquoteSameLevel, TableSameLevel, FontChange, FontColorChange, StyleChange) still
+    // compare candidates against the original start. Once the positioning start is resolved, the normal
+    // parent-walk below handles everything.
+    if (startObject && startObject != anchorObject && startObject->isIgnored()) {
+        // The neighbor is almost always a few steps away; the bound just guards against a pathologically
+        // large run of ignored elements rather than walking the whole document.
+        constexpr unsigned ignoredStartResolveStepLimit = 250;
+        RefPtr<AXCoreObject> resolved = startObject;
+        for (unsigned step = 0; step < ignoredStartResolveStepLimit; ++step) {
+            resolved = isForward
+                ? resolved->previousInPreOrder(/* updateChildrenIfNeeded */ true, anchorObject.get(), /* includeCrossFrame */ true)
+                : resolved->nextInPreOrder(/* updateChildrenIfNeeded */ true, anchorObject.get(), /* includeCrossFrame */ true);
+            if (!resolved || !resolved->isIgnored())
+                break;
+        }
+        if (resolved && !resolved->isIgnored())
+            startObject = resolved;
+    }
+
     // The first iteration of the outer loop will examine the children of the start object for matches. However, when
     // iterating backwards, the start object children should not be considered, so the loop is skipped ahead. We make an
     // exception when no start object was specified because we want to search everything regardless of search direction.
