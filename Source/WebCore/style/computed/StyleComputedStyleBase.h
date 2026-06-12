@@ -307,6 +307,7 @@ struct OffsetPosition;
 struct OffsetRotate;
 struct Opacity;
 struct Orphans;
+struct ObjectViewBox;
 struct OutlineOffset;
 struct OverflowClipMargin;
 struct PaddingEdge;

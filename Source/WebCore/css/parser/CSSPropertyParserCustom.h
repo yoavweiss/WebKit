@@ -74,6 +74,7 @@
 #include "CSSPropertyParserConsumer+Masking.h"
 #include "CSSPropertyParserConsumer+Motion.h"
 #include "CSSPropertyParserConsumer+NumberDefinitions.h"
+#include "CSSPropertyParserConsumer+ObjectViewBox.h"
 #include "CSSPropertyParserConsumer+Overflow.h"
 #include "CSSPropertyParserConsumer+Percentage.h"
 #include "CSSPropertyParserConsumer+PercentageDefinitions.h"

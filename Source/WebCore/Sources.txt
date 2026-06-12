@@ -1088,6 +1088,7 @@ css/parser/CSSPropertyParserConsumer+Inline.cpp
 css/parser/CSSPropertyParserConsumer+Lists.cpp
 css/parser/CSSPropertyParserConsumer+Masking.cpp
 css/parser/CSSPropertyParserConsumer+Motion.cpp
+css/parser/CSSPropertyParserConsumer+ObjectViewBox.cpp
 css/parser/CSSPropertyParserConsumer+Overflow.cpp
 css/parser/CSSPropertyParserConsumer+Percentage.cpp
 css/parser/CSSPropertyParserConsumer+Position.cpp
@@ -3406,6 +3407,7 @@ style/values/images/StyleGradient.cpp @header:RenderStyleGetters @cost:6
 style/values/images/StyleImageOrNone.cpp
 style/values/images/StyleImageOrientation.cpp
 style/values/images/StyleImageWrapper.cpp
+style/values/images/StyleObjectViewBox.cpp
 style/values/inline/StyleLineHeight.cpp @header:RenderStyleGetters @cost:5
 style/values/inline/StyleVerticalAlign.cpp
 style/values/inline/StyleWebKitInitialLetter.cpp

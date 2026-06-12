@@ -232,6 +232,7 @@ PASS min-width
 PASS mix-blend-mode
 PASS object-fit
 PASS object-position
+PASS object-view-box
 PASS offset-anchor
 PASS offset-distance
 PASS offset-path

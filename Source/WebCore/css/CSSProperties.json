@@ -6849,6 +6849,23 @@
                 "url": "https://www.w3.org/TR/css3-images/#object-position"
             }
         },
+        "object-view-box": {
+            "animation-type": "see prose",
+            "initial": "none",
+            "codegen-properties": {
+                "settings-flag": "cssObjectViewBoxEnabled",
+                "computed-style-storage-path": ["m_nonInheritedData", "miscData"],
+                "computed-style-storage-kind": "reference",
+                "computed-style-type": "Style::ObjectViewBox",
+                "parser-function": "consumeObjectViewBox",
+                "parser-grammar-unused": "none | <basic-shape-rect>",
+                "parser-grammar-unused-reason": "Needs support for transforming parsed input to minimal form and the strong value representation."
+            },
+            "specification": {
+                "category": "css-images",
+                "url": "https://drafts.csswg.org/css-images-5/#the-object-view-box"
+            }
+        },
         "offset-path": {
             "animation-type": "by computed value",
             "initial": "none",
