@@ -48,6 +48,16 @@
 
 namespace WebCore {
 
+MediaCapabilities::MediaCapabilities(NavigatorBase& navigator)
+    : m_navigator(navigator)
+{
+}
+
+NavigatorBase* MediaCapabilities::navigator()
+{
+    return m_navigator.get();
+}
+
 static bool isValidMediaMIMEType(const ContentType& contentType)
 {
     // A "bucket" MIME types is one whose container type does not uniquely specify a codec.
