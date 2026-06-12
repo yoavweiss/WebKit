@@ -333,6 +333,14 @@ String ShorthandSerializer::serialize()
     case CSSPropertyBorderInlineWidth:
     case CSSPropertyBorderSpacing:
     case CSSPropertyContainIntrinsicSize:
+    case CSSPropertyCornerBlockEndShape:
+    case CSSPropertyCornerBlockStartShape:
+    case CSSPropertyCornerBottomShape:
+    case CSSPropertyCornerInlineEndShape:
+    case CSSPropertyCornerInlineStartShape:
+    case CSSPropertyCornerLeftShape:
+    case CSSPropertyCornerRightShape:
+    case CSSPropertyCornerTopShape:
     case CSSPropertyGap:
     case CSSPropertyInsetBlock:
     case CSSPropertyInsetInline:

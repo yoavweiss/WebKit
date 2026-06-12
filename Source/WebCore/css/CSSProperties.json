@@ -4288,6 +4288,134 @@
                 "url": "https://drafts.csswg.org/css-borders-4/#corner-shaping"
             }
         },
+        "corner-top-shape": {
+            "codegen-properties": {
+                "settings-flag": "cssCornerShapeEnabled",
+                "longhands": [
+                    "corner-top-left-shape",
+                    "corner-top-right-shape"
+                ],
+                "shorthand-pattern": "CoalescingPair",
+                "parser-grammar-unused": "<'corner-top-left-shape'>{1,2}",
+                "parser-grammar-unused-reason": "Needs support for shorthand grammars."
+            },
+            "specification": {
+                "category": "css-borders",
+                "url": "https://drafts.csswg.org/css-borders-4/#corner-shaping"
+            }
+        },
+        "corner-right-shape": {
+            "codegen-properties": {
+                "settings-flag": "cssCornerShapeEnabled",
+                "longhands": [
+                    "corner-top-right-shape",
+                    "corner-bottom-right-shape"
+                ],
+                "shorthand-pattern": "CoalescingPair",
+                "parser-grammar-unused": "<'corner-top-right-shape'>{1,2}",
+                "parser-grammar-unused-reason": "Needs support for shorthand grammars."
+            },
+            "specification": {
+                "category": "css-borders",
+                "url": "https://drafts.csswg.org/css-borders-4/#corner-shaping"
+            }
+        },
+        "corner-bottom-shape": {
+            "codegen-properties": {
+                "settings-flag": "cssCornerShapeEnabled",
+                "longhands": [
+                    "corner-bottom-left-shape",
+                    "corner-bottom-right-shape"
+                ],
+                "shorthand-pattern": "CoalescingPair",
+                "parser-grammar-unused": "<'corner-bottom-left-shape'>{1,2}",
+                "parser-grammar-unused-reason": "Needs support for shorthand grammars."
+            },
+            "specification": {
+                "category": "css-borders",
+                "url": "https://drafts.csswg.org/css-borders-4/#corner-shaping"
+            }
+        },
+        "corner-left-shape": {
+            "codegen-properties": {
+                "settings-flag": "cssCornerShapeEnabled",
+                "longhands": [
+                    "corner-top-left-shape",
+                    "corner-bottom-left-shape"
+                ],
+                "shorthand-pattern": "CoalescingPair",
+                "parser-grammar-unused": "<'corner-top-left-shape'>{1,2}",
+                "parser-grammar-unused-reason": "Needs support for shorthand grammars."
+            },
+            "specification": {
+                "category": "css-borders",
+                "url": "https://drafts.csswg.org/css-borders-4/#corner-shaping"
+            }
+        },
+        "corner-block-start-shape": {
+            "codegen-properties": {
+                "settings-flag": "cssCornerShapeEnabled",
+                "longhands": [
+                    "corner-start-start-shape",
+                    "corner-start-end-shape"
+                ],
+                "shorthand-pattern": "CoalescingPair",
+                "parser-grammar-unused": "<'corner-start-start-shape'>{1,2}",
+                "parser-grammar-unused-reason": "Needs support for shorthand grammars."
+            },
+            "specification": {
+                "category": "css-borders",
+                "url": "https://drafts.csswg.org/css-borders-4/#corner-shaping"
+            }
+        },
+        "corner-block-end-shape": {
+            "codegen-properties": {
+                "settings-flag": "cssCornerShapeEnabled",
+                "longhands": [
+                    "corner-end-start-shape",
+                    "corner-end-end-shape"
+                ],
+                "shorthand-pattern": "CoalescingPair",
+                "parser-grammar-unused": "<'corner-end-start-shape'>{1,2}",
+                "parser-grammar-unused-reason": "Needs support for shorthand grammars."
+            },
+            "specification": {
+                "category": "css-borders",
+                "url": "https://drafts.csswg.org/css-borders-4/#corner-shaping"
+            }
+        },
+        "corner-inline-start-shape": {
+            "codegen-properties": {
+                "settings-flag": "cssCornerShapeEnabled",
+                "longhands": [
+                    "corner-start-start-shape",
+                    "corner-end-start-shape"
+                ],
+                "shorthand-pattern": "CoalescingPair",
+                "parser-grammar-unused": "<'corner-start-start-shape'>{1,2}",
+                "parser-grammar-unused-reason": "Needs support for shorthand grammars."
+            },
+            "specification": {
+                "category": "css-borders",
+                "url": "https://drafts.csswg.org/css-borders-4/#corner-shaping"
+            }
+        },
+        "corner-inline-end-shape": {
+            "codegen-properties": {
+                "settings-flag": "cssCornerShapeEnabled",
+                "longhands": [
+                    "corner-start-end-shape",
+                    "corner-end-end-shape"
+                ],
+                "shorthand-pattern": "CoalescingPair",
+                "parser-grammar-unused": "<'corner-start-end-shape'>{1,2}",
+                "parser-grammar-unused-reason": "Needs support for shorthand grammars."
+            },
+            "specification": {
+                "category": "css-borders",
+                "url": "https://drafts.csswg.org/css-borders-4/#corner-shaping"
+            }
+        },
         "corner-top-left-shape": {
             "animation-type": "see prose",
             "initial": "round",
