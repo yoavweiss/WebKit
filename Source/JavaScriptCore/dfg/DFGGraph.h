@@ -1256,6 +1256,12 @@ public:
     ObjectPropertyConditionSet tryEnsureAbsence(JSGlobalObject*, const StructureSet&, CacheableIdentifier);
 
     bool canDoFastSpread(Node*, const AbstractValue&);
+    bool canDoFastSpreadWithStructureCheck(Node*);
+    static constexpr IndexingType originalArrayShapesForSpread[] = {
+        CopyOnWriteArrayWithContiguous, ArrayWithContiguous,
+        ArrayWithInt32, CopyOnWriteArrayWithInt32,
+        ArrayWithDouble, CopyOnWriteArrayWithDouble,
+    };
     
     void registerFrozenValues();
 

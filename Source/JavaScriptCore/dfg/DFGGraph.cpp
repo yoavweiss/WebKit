@@ -2044,6 +2044,16 @@ bool Graph::canDoFastSpread(Node* node, const AbstractValue& value)
     return allGood;
 }
 
+bool Graph::canDoFastSpreadWithStructureCheck(Node* node)
+{
+    ASSERT(node->op() == Spread);
+
+    if (m_plan.isUnlinked())
+        return false;
+
+    return node->child1().useKind() == ArrayUse;
+}
+
 bool Graph::isNeverResizableOrGrowableSharedTypedArrayIncludingDataView(const AbstractValue& value)
 {
     auto& structureSet = value.m_structure;

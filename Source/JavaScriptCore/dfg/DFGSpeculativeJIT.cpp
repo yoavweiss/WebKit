@@ -9440,7 +9440,10 @@ void SpeculativeJIT::compileSpread(Node* node)
     else if (node->child1().useKind() == SetObjectUse)
         speculateSetObject(node->child1(), argument);
 
-    if (m_graph.canDoFastSpread(node, m_state.forNode(node->child1()))) {
+    bool fastSpreadProven = m_graph.canDoFastSpread(node, m_state.forNode(node->child1()));
+    bool fastSpreadWithStructureCheck = !fastSpreadProven && m_graph.canDoFastSpreadWithStructureCheck(node);
+
+    if (fastSpreadProven || fastSpreadWithStructureCheck) {
 #if USE(JSVALUE64)
         GPRTemporary result(this);
         GPRTemporary scratch1(this);
@@ -9456,6 +9459,18 @@ void SpeculativeJIT::compileSpread(Node* node)
 
         JumpList slowPath;
         JumpList done;
+
+        if (fastSpreadWithStructureCheck) {
+            JSGlobalObject* childGlobalObject = m_graph.globalObjectFor(node->child1()->origin.semantic);
+            load32(Address(argument, JSCell::structureIDOffset()), scratch1GPR);
+            JumpList structureMatched;
+            for (IndexingType indexingType : Graph::originalArrayShapesForSpread) {
+                RegisteredStructure registered = m_graph.registerStructure(childGlobalObject->originalArrayStructureForIndexingType(indexingType));
+                structureMatched.append(branchWeakStructure(Equal, scratch1GPR, registered));
+            }
+            slowPath.append(jump());
+            structureMatched.link(this);
+        }
 
         load8(Address(argument, JSCell::indexingTypeAndMiscOffset()), scratch1GPR);
         and32(TrustedImm32(IndexingModeMask), scratch1GPR);
@@ -9516,8 +9531,11 @@ void SpeculativeJIT::compileSpread(Node* node)
             branchTest32(NonZero, lengthGPR).linkTo(loopStart, this);
             done.append(jump());
         }
-        
-        addSlowPathGenerator(slowPathCall(slowPath, this, operationSpreadFastArray, resultGPR, LinkableConstant::globalObject(*this, node), argument));
+
+        if (fastSpreadProven)
+            addSlowPathGenerator(slowPathCall(slowPath, this, operationSpreadFastArray, resultGPR, LinkableConstant::globalObject(*this, node), argument));
+        else
+            addSlowPathGenerator(slowPathCall(slowPath, this, operationSpreadGeneric, resultGPR, LinkableConstant::globalObject(*this, node), argument));
 
         done.link(this);
         mutatorFence(vm());
@@ -9527,7 +9545,10 @@ void SpeculativeJIT::compileSpread(Node* node)
 
         GPRFlushedCallResult result(this);
         GPRReg resultGPR = result.gpr();
-        callOperation(operationSpreadFastArray, resultGPR, LinkableConstant::globalObject(*this, node), argument);
+        if (fastSpreadProven)
+            callOperation(operationSpreadFastArray, resultGPR, LinkableConstant::globalObject(*this, node), argument);
+        else
+            callOperation(operationSpreadGeneric, resultGPR, LinkableConstant::globalObject(*this, node), argument);
         cellResult(resultGPR, node);
 #endif // USE(JSVALUE64)
     } else if (node->child1().useKind() == SetObjectUse) {

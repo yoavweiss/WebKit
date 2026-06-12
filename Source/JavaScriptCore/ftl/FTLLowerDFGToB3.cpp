@@ -10647,7 +10647,11 @@ IGNORE_CLANG_WARNINGS_END
         else if (m_node->child1().useKind() == SetObjectUse)
             speculateSetObject(m_node->child1());
 
-        if (m_graph.canDoFastSpread(m_node, m_state.forNode(m_node->child1()))) {
+        bool fastSpreadProven = m_graph.canDoFastSpread(m_node, m_state.forNode(m_node->child1()));
+        bool fastSpreadWithStructureCheck = !fastSpreadProven && m_graph.canDoFastSpreadWithStructureCheck(m_node);
+
+        if (fastSpreadProven || fastSpreadWithStructureCheck) {
+            LBasicBlock indexingTypeCheck = fastSpreadWithStructureCheck ? m_out.newBlock() : nullptr;
             LBasicBlock copyOnWriteContiguousCheck = m_out.newBlock();
             LBasicBlock copyOnWritePropagation = m_out.newBlock();
             LBasicBlock preLoop = m_out.newBlock();
@@ -10658,6 +10662,24 @@ IGNORE_CLANG_WARNINGS_END
             LBasicBlock slowPath = m_out.newBlock();
             LBasicBlock continuation = m_out.newBlock();
 
+            LBasicBlock lastNext = nullptr;
+
+            if (fastSpreadWithStructureCheck) {
+                JSGlobalObject* childGlobalObject = m_graph.globalObjectFor(m_node->child1()->origin.semantic);
+                LValue structureID = m_out.load32(argument, m_heaps.JSCell_structureID);
+                constexpr size_t numShapes = std::size(Graph::originalArrayShapesForSpread);
+                for (size_t i = 0; i < numShapes; ++i) {
+                    RegisteredStructure registered = m_graph.registerStructure(childGlobalObject->originalArrayStructureForIndexingType(Graph::originalArrayShapesForSpread[i]));
+                    bool isLast = (i + 1 == numShapes);
+                    LBasicBlock nextCompare = isLast ? slowPath : m_out.newBlock();
+                    m_out.branch(m_out.equal(structureID, weakStructureID(registered)),
+                        unsure(indexingTypeCheck), unsure(nextCompare));
+                    if (!isLast)
+                        m_out.appendTo(nextCompare);
+                }
+                lastNext = m_out.appendTo(indexingTypeCheck, copyOnWriteContiguousCheck);
+            }
+
             LValue indexingMode = m_out.load8ZeroExt32(argument, m_heaps.JSCell_indexingTypeAndMisc);
             LValue indexingShape = m_out.bitAnd(indexingMode, m_out.constInt32(IndexingShapeMask));
             LValue isOKIndexingType = m_out.belowOrEqual(
@@ -10665,7 +10687,10 @@ IGNORE_CLANG_WARNINGS_END
                 m_out.constInt32(ContiguousShape - Int32Shape));
 
             m_out.branch(isOKIndexingType, unsure(copyOnWriteContiguousCheck), unsure(slowPath));
-            LBasicBlock lastNext = m_out.appendTo(copyOnWriteContiguousCheck, copyOnWritePropagation);
+            if (fastSpreadProven)
+                lastNext = m_out.appendTo(copyOnWriteContiguousCheck, copyOnWritePropagation);
+            else
+                m_out.appendTo(copyOnWriteContiguousCheck, copyOnWritePropagation);
             LValue butterfly = m_out.loadPtr(argument, m_heaps.JSObject_butterfly);
             m_out.branch(m_out.equal(m_out.bitAnd(indexingMode, m_out.constInt32(IndexingModeMask)), m_out.constInt32(CopyOnWriteArrayWithContiguous)), unsure(copyOnWritePropagation), unsure(preLoop));
 
@@ -10732,7 +10757,7 @@ IGNORE_CLANG_WARNINGS_END
             }
 
             m_out.appendTo(slowPath, continuation);
-            ValueFromBlock slowResult = m_out.anchor(vmCall(pointerType(), operationSpreadFastArray, weakPointer(globalObject), argument));
+            ValueFromBlock slowResult = m_out.anchor(vmCall(pointerType(), fastSpreadProven ? operationSpreadFastArray : operationSpreadGeneric, weakPointer(globalObject), argument));
             m_out.jump(continuation);
 
             m_out.appendTo(continuation, lastNext);
