@@ -499,7 +499,7 @@ void PointerCaptureController::pointerEventWillBeDispatched(const PointerEvent& 
         setPointerCapture(&element, event.pointerId());
     }
     element.document().handlePopoverLightDismiss(event, element);
-    if (element.document().settings().closedbyAttributeEnabled())
+    if (element.document().settings().closeWatcherEnabled())
         element.document().handleDialogLightDismiss(event, element);
 }
 

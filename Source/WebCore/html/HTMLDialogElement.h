@@ -100,7 +100,7 @@ private:
 
     void setupSteps();
     void cleanupSteps();
-    void setTheCloseWatcher();
+    void setCloseWatcher();
     void setCloseWatcherEnabledState();
 
     String m_returnValue;

@@ -373,7 +373,7 @@ Node::NeedsPostConnectionSteps HTMLDialogElement::insertionSteps(InsertionType i
     if (!insertionType.connectedToDocument)
         return NeedsPostConnectionSteps::No;
     Ref document = this->document();
-    if (document->settings().closedbyAttributeEnabled() || document->settings().closeWatcherEnabled())
+    if (document->settings().closeWatcherEnabled())
         return NeedsPostConnectionSteps::Yes;
 
     return NeedsPostConnectionSteps::No;
@@ -383,7 +383,7 @@ void HTMLDialogElement::postConnectionSteps()
 {
     HTMLElement::postConnectionSteps();
     Ref document = this->document();
-    ASSERT(document->settings().closedbyAttributeEnabled() || document->settings().closeWatcherEnabled());
+    ASSERT(document->settings().closeWatcherEnabled());
     if (!document->isFullyActive())
         return;
     if (isOpen() && isConnected())
@@ -393,7 +393,7 @@ void HTMLDialogElement::postConnectionSteps()
 void HTMLDialogElement::removingSteps(RemovalType removalType, ContainerNode& oldParentOfRemovedTree)
 {
     HTMLElement::removingSteps(removalType, oldParentOfRemovedTree);
-    if ((document().settings().closedbyAttributeEnabled() || document().settings().closeWatcherEnabled()) && isOpen())
+    if (document().settings().closeWatcherEnabled() && isOpen())
         cleanupSteps();
     setIsModal(false);
 }
@@ -407,7 +407,7 @@ void HTMLDialogElement::attributeChanged(const QualifiedName& name, const AtomSt
         Style::PseudoClassChangeInvalidation styleInvalidation(*this, CSSSelector::PseudoClass::Open, isOpen);
         m_isOpen = isOpen;
 
-        if (document->settings().closedbyAttributeEnabled() || document->settings().closeWatcherEnabled()) {
+        if (document->settings().closeWatcherEnabled()) {
             if (newValue.isNull() && !oldValue.isNull())
                 cleanupSteps();
             if (!document->isFullyActive())
@@ -418,7 +418,7 @@ void HTMLDialogElement::attributeChanged(const QualifiedName& name, const AtomSt
                 setupSteps();
         }
     } else if (name == closedbyAttr) {
-        if (document->settings().closedbyAttributeEnabled() && document->settings().closeWatcherEnabled()) {
+        if (document->settings().closeWatcherEnabled()) {
             if (m_isOpen && newValue != oldValue)
                 setCloseWatcherEnabledState();
         }
@@ -443,7 +443,7 @@ void HTMLDialogElement::setupSteps()
 #endif
 
     if (document->settings().closeWatcherEnabled())
-        setTheCloseWatcher();
+        setCloseWatcher();
 }
 
 void HTMLDialogElement::cleanupSteps()
@@ -463,7 +463,8 @@ void HTMLDialogElement::cleanupSteps()
     }
 }
 
-void HTMLDialogElement::setTheCloseWatcher()
+// https://html.spec.whatwg.org/multipage/interactive-elements.html#set-the-dialog-close-watcher
+void HTMLDialogElement::setCloseWatcher()
 {
     Ref document = this->document();
     ASSERT(document->settings().closeWatcherEnabled());

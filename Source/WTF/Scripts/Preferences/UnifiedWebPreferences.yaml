@@ -1840,24 +1840,10 @@ ClearSiteDataHTTPHeaderEnabled:
 
 CloseWatcherEnabled:
   type: bool
-  status: testable
-  category: html
-  humanReadableName: "Close Watcher API"
-  humanReadableDescription: "Enable Close Watcher API"
-  defaultValue:
-    WebKitLegacy:
-      default: false
-    WebKit:
-      default: false
-    WebCore:
-      default: false
-
-ClosedbyAttributeEnabled:
-  type: bool
   status: preview
   category: html
-  humanReadableName: "HTML closedby attribute"
-  humanReadableDescription: "Enable HTML closedby attribute support"
+  humanReadableName: "Close Watcher API"
+  humanReadableDescription: "Enable Close Watcher API including dialog closedby attribute"
   defaultValue:
     WebKitLegacy:
       default: false

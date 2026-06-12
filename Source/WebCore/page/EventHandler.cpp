@@ -4550,10 +4550,7 @@ void EventHandler::defaultKeyboardEventHandler(KeyboardEvent& event)
                 if (event.isTrusted())
                     frame->document()->window()->closeWatcherManager().processCloseWatchers();
             } else {
-                if (frame->settings().closedbyAttributeEnabled()) {
-                    if (RefPtr activeCloseableDialog = frame->document()->activeCloseableDialog())
-                        activeCloseableDialog->requestClose(nullString(), nullptr);
-                } else if (RefPtr activeModalDialog = frame->document()->activeModalDialog())
+                if (RefPtr activeModalDialog = frame->document()->activeModalDialog())
                     activeModalDialog->queueCancelTask();
                 if (RefPtr topmostAutoPopover = frame->document()->topmostAutoPopover())
                     topmostAutoPopover->hidePopover();
