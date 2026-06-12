@@ -268,6 +268,9 @@ List of files:
 /LayoutTests/imported/w3c/web-platform-tests/css/css-grid/subgrid/subgrid-no-items-on-edges-002-expected.xht
 /LayoutTests/imported/w3c/web-platform-tests/css/css-grid/subgrid/subgrid-no-items-on-edges-002.html
 /LayoutTests/imported/w3c/web-platform-tests/css/css-grid/subgrid/subgrid-paint-containment-change-crash.html
+/LayoutTests/imported/w3c/web-platform-tests/css/css-grid/subgrid/subgrid-scroller-auto-height-padding-expected.html
+/LayoutTests/imported/w3c/web-platform-tests/css/css-grid/subgrid/subgrid-scroller-auto-height-padding-ref.html
+/LayoutTests/imported/w3c/web-platform-tests/css/css-grid/subgrid/subgrid-scroller-auto-height-padding.html
 /LayoutTests/imported/w3c/web-platform-tests/css/css-grid/subgrid/subgrid-stretch-expected.html
 /LayoutTests/imported/w3c/web-platform-tests/css/css-grid/subgrid/subgrid-stretch-ref.html
 /LayoutTests/imported/w3c/web-platform-tests/css/css-grid/subgrid/subgrid-stretch.html
