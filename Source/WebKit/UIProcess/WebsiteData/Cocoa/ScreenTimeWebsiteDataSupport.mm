@@ -68,7 +68,7 @@ void getScreenTimeURLs(std::optional<WTF::UUID> identifier, CompletionHandler<vo
     }).get()];
 }
 
-void removeScreenTimeData(const HashSet<URL>& websitesToRemove, const WebsiteDataStoreConfiguration& configuration)
+void removeScreenTimeData(const HashSet<URL>& websitesToRemove, const WebsiteDataStoreConfiguration& configuration, CompletionHandler<void()>&& completionHandler)
 {
     RetainPtr<NSString> profileIdentifier;
     if (configuration.identifier())
@@ -81,17 +81,20 @@ void removeScreenTimeData(const HashSet<URL>& websitesToRemove, const WebsiteDat
         if (RetainPtr host = url.host().createNSString())
             [websitesToRemoveDomains addObject:host.get()];
 
-    [webHistory fetchAllHistoryWithCompletionHandler:^(NSSet<NSURL *> *urls, NSError *error) {
-        if (error)
-            return;
-
-        for (NSURL *url in urls) {
-            for (NSString *domainString in websitesToRemoveDomains.get()) {
-                if ([[url host] hasSuffix:domainString])
-                    [webHistory deleteHistoryForURL:url];
+    [webHistory fetchAllHistoryWithCompletionHandler:makeBlockPtr([webHistory, websitesToRemoveDomains, completionHandler = WTF::move(completionHandler)](NSSet<NSURL *> *urls, NSError *error) mutable {
+        if (!error) {
+            for (NSURL *url in urls) {
+                for (NSString *domainString in websitesToRemoveDomains.get()) {
+                    if ([[url host] hasSuffix:domainString])
+                        [webHistory deleteHistoryForURL:url];
+                }
             }
         }
-    }];
+
+        ensureOnMainRunLoop([completionHandler = WTF::move(completionHandler)] mutable {
+            completionHandler();
+        });
+    }).get()];
 }
 
 void removeScreenTimeDataWithInterval(WallTime modifiedSince, const WebsiteDataStoreConfiguration& configuration)
