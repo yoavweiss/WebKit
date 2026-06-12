@@ -411,6 +411,8 @@ public:
         gst_pad_remove_probe(m_pad.get(), m_id);
     }
 
+    const GRefPtr<GstPad>& pad() const { return m_pad; }
+
 private:
     PadProbeHandle(const T& owner, GRefPtr<GstPad>&& pad, GstPadProbeType probeType, PadProbeCallback&& callback)
         : m_pad(WTF::move(pad))
