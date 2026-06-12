@@ -34,6 +34,7 @@
 #include "JSDOMGlobalObjectInlines.h"
 #include "JSDOMWrapperCache.h"
 #include "JSTestSubObj.h"
+#include "JSTestSubObjEnabledForContext.h"
 #include "ScriptExecutionContext.h"
 #include "Settings.h"
 #include "WebCoreJSClientData.h"

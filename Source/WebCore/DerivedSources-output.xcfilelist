@@ -856,6 +856,7 @@ $(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/JSDOMWindow+WebDatabase.cpp
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/JSDOMWindow+WebDatabase.h
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/JSDOMWindow.cpp
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/JSDOMWindow.h
+$(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/JSDOMWindowConstructorAttributes.cpp
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/JSDataCue.cpp
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/JSDataCue.h
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/JSDataTransfer.cpp

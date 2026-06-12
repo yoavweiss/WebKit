@@ -47,10 +47,20 @@ option(SHOW_BINDINGS_GENERATION_PROGRESS "Show progress of generating bindings" 
 #   SUPPLEMENTAL_DEPFILE is a value of --supplementalDependencyFile. (optional)
 #   PP_EXTRA_OUTPUT is extra outputs of preprocess-idls.pl. (optional)
 #   PP_EXTRA_ARGS is extra arguments for preprocess-idls.pl. (optional)
+#   EXTRA_OUTPUT is extra source files emitted by the bindings generator that
+#       aren't derived from a single IDL via the JS<name>.cpp/.h convention
+#       (e.g. JSDOMWindowConstructorAttributes.cpp, the sibling translation
+#       unit emitted for any interface tagged [StandaloneConstructorAttributes]
+#       in IDL). Declared as BYPRODUCTS so ninja knows the custom command
+#       produces them; callers add the file to their source list via
+#       Sources.txt (the unified-source machinery) like any other compiled
+#       .cpp. CMake passes --ignoreStandaloneConstructorAttributes so the file
+#       is emitted as an empty TU here, since jumbo bundles negate the split's
+#       parallelism win.
 function(GENERATE_BINDINGS target)
     set(options)
     set(oneValueArgs OUTPUT_SOURCE BASE_DIR FEATURES DESTINATION GENERATOR SUPPLEMENTAL_DEPFILE)
-    set(multiValueArgs INPUT_FILES SUPPLEMENTAL_IDL_FILES PP_INPUT_FILES INCLUDED_FILES PP_EXTRA_OUTPUT PP_EXTRA_ARGS)
+    set(multiValueArgs INPUT_FILES SUPPLEMENTAL_IDL_FILES PP_INPUT_FILES INCLUDED_FILES PP_EXTRA_OUTPUT PP_EXTRA_ARGS EXTRA_OUTPUT)
     cmake_parse_arguments(arg "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
     set(binding_generator ${WEBCORE_DIR}/bindings/scripts/generate-bindings-all.pl)
     set(idl_attributes_file ${WEBCORE_DIR}/bindings/scripts/IDLAttributes.json)
@@ -118,6 +128,7 @@ function(GENERATE_BINDINGS target)
         --idlFileNamesList ${included_idl_files_list}
         --ppIDLFilesList ${pp_idl_files_list}
         --idlAttributesFile ${idl_attributes_file}
+        --ignoreStandaloneConstructorAttributes
     )
     if (arg_SUPPLEMENTAL_DEPFILE)
         list(APPEND args --supplementalDependencyFile ${arg_SUPPLEMENTAL_DEPFILE})
@@ -179,6 +190,9 @@ function(GENERATE_BINDINGS target)
     set(_byproducts ${gen_sources} ${gen_headers} ${supplemental_stubs})
     if (arg_PP_EXTRA_OUTPUT)
         list(APPEND _byproducts ${arg_PP_EXTRA_OUTPUT})
+    endif ()
+    if (arg_EXTRA_OUTPUT)
+        list(APPEND _byproducts ${arg_EXTRA_OUTPUT})
     endif ()
     if (arg_SUPPLEMENTAL_DEPFILE)
         list(APPEND _byproducts ${arg_SUPPLEMENTAL_DEPFILE})

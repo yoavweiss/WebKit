@@ -4125,7 +4125,8 @@ JSDOMStringList.cpp
 JSDOMStringMap.cpp
 JSDOMTokenList.cpp
 JSDOMURL.cpp
-JSDOMWindow.cpp @no-unify-when(bundle<=8) @cost:44
+JSDOMWindow.cpp @no-unify-when(bundle<=8) @cost:22
+JSDOMWindowConstructorAttributes.cpp @no-unify-when(bundle<=8) @cost:22
 JSDataCue.cpp
 JSDataTransfer.cpp
 JSDataTransferItem.cpp

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2020 Apple Inc. All rights reserved.
+ * Copyright (C) 2006-2026 Apple Inc. All rights reserved.
  * Copyright (C) 2011 Google Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,8 @@
     JSLegacyParent=JSDOMWindowBase,
     LegacyUnenumerableNamedProperties,
     Global=Window,
-    Exposed=Window
+    Exposed=Window,
+    StandaloneConstructorAttributes
 ] interface DOMWindow : EventTarget {
 
     // Properties accessible from DOMWindows that are either remote or local

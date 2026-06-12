@@ -50,6 +50,15 @@ my %headerTrailingIncludes = ();
 my @implContentHeader = ();
 my @implContent = ();
 my %implIncludes = ();
+# Content destined for an auxiliary .cpp split out from the main impl file. Used for interfaces
+# tagged with [StandaloneConstructorAttributes]. The constructor-attribute getter definitions
+# are routed here so the main JS<name>.cpp doesn't sit on the build's critical path.
+my @auxImplContent = ();
+my %auxImplIncludes = ();
+# When set, AddToImplIncludes routes to %auxImplIncludes instead of %implIncludes.
+# Used while emitting the split-out getter definitions so their header
+# dependencies travel with the moved code rather than polluting the main file.
+my $auxImplActive = 0;
 my @depsContent = ();
 my $hasNonTrivialFinishCreation = 0;
 my $hasNonDefaultFinishCreation = 0;
@@ -722,7 +731,18 @@ sub AddToImplIncludes
 {
     my ($header, $conditional) = @_;
 
+    if ($auxImplActive) {
+        AddToIncludes($header, \%auxImplIncludes, $conditional);
+        return;
+    }
     AddToIncludes($header, \%implIncludes, $conditional);
+}
+
+sub AddToAuxImplIncludes
+{
+    my ($header, $conditional) = @_;
+
+    AddToIncludes($header, \%auxImplIncludes, $conditional);
 }
 
 sub AddToIncludes
@@ -746,6 +766,16 @@ sub IsReadonly
 {
     my $attribute = shift;
     return $attribute->isReadOnly && !$attribute->extendedAttributes->{Replaceable} && !$attribute->extendedAttributes->{PutForwards} && !$attribute->extendedAttributes->{LegacyLenientSetter};
+}
+
+# True when an interface opts into emitting its constructor-attribute getter definitions in
+# a sibling JS<name>ConstructorAttributes.cpp instead of the main JS<name>.cpp. CMake's jumbo
+# build can suppress it via --ignoreStandaloneConstructorAttributes
+sub UseStandaloneConstructorAttributes
+{
+    my $interface = shift;
+    return 0 if $codeGenerator->IgnoreStandaloneConstructorAttributes();
+    return $interface->extendedAttributes->{StandaloneConstructorAttributes} ? 1 : 0;
 }
 
 sub AddClassForwardIfNeeded
@@ -4531,6 +4561,11 @@ sub GenerateRuntimeEnableConditionalString
 
         my $contextRef = "*" . $jsDOMGlobalObjectExpr . "->scriptExecutionContext()";
         my $name = $context->name;
+        # The ${name}::enabledForContext(...) call needs the implementation type
+        # complete at the call site. Bring in JS${name}.h, which transitively
+        # provides ${name}.h. This used to flow in via the constructor-getter
+        # body, but DOMWindow's bodies now live in a sibling translation unit.
+        AddToImplIncludes("JS${name}.h");
         push(@conjuncts,  "${name}::enabledForContext(" . $contextRef . ")");
     }
 
@@ -5758,7 +5793,13 @@ sub GenerateAttributeGetterAndSetterDeclaration
     my $conditionalString = $codeGenerator->GenerateConditionalString($attribute);
     push(@$outputArray, "#if ${conditionalString}\n") if $conditionalString;
     my $getter = GetAttributeGetterName($interface, $className, $attribute);
-    push(@$outputArray, "static JSC_DECLARE_CUSTOM_GETTER(${getter});\n");
+    # When this interface opts into [StandaloneConstructorAttributes], its
+    # constructor-attribute getter definitions live in JS<name>ConstructorAttributes.cpp,
+    # so the forward declaration in JS<name>.cpp must have external linkage to
+    # match the definition in the sibling translation unit. See
+    # GenerateAttributeGetterDefinition / WriteData.
+    my $linkage = (UseStandaloneConstructorAttributes($interface) && $codeGenerator->IsConstructorType($attribute->type)) ? "" : "static ";
+    push(@$outputArray, "${linkage}JSC_DECLARE_CUSTOM_GETTER(${getter});\n");
     unless (IsReadonly($attribute) || $codeGenerator->IsConstructorType($attribute->type)) {
         my $readWriteConditional = $attribute->extendedAttributes->{ConditionallyReadWrite};
         if ($readWriteConditional) {
@@ -5997,17 +6038,42 @@ sub GenerateAttributeGetterDefinition
 
     my $attributeGetterName = GetAttributeGetterName($interface, $className, $attribute);
     my $attributeGetterBodyName = $attributeGetterName . "Getter";
-    
+
+    # Interfaces tagged with [StandaloneConstructorAttributes] (e.g. DOMWindow,
+    # whose generated JS<name>.cpp sits on the build's critical path) split
+    # their constructor-attribute getter definitions into a sibling translation
+    # unit. The main file only needs a forward declaration of each getter so
+    # the property hash table can take its address.
+    my $useStandaloneConstructorAttributes = UseStandaloneConstructorAttributes($interface) && $codeGenerator->IsConstructorType($attribute->type);
+
     my $conditional = $attribute->extendedAttributes->{Conditional};
+    my $conditionalString;
     if ($conditional) {
-        my $conditionalString = $codeGenerator->GenerateConditionalStringFromAttributeValue($conditional);
-        push(@$outputArray, "#if ${conditionalString}\n");;
+        $conditionalString = $codeGenerator->GenerateConditionalStringFromAttributeValue($conditional);
+        push(@$outputArray, "#if ${conditionalString}\n") unless $useStandaloneConstructorAttributes;
+        push(@auxImplContent, "#if ${conditionalString}\n") if $useStandaloneConstructorAttributes;
     }
-    
-    GenerateAttributeGetterBodyDefinition($outputArray, $interface, $className, $attribute, $attributeGetterBodyName, $conditional, $enumerations);
-    GenerateAttributeGetterTrampolineDefinition($outputArray, $interface, $className, $attribute, $attributeGetterName, $attributeGetterBodyName, $conditional);
-    
-    push(@$outputArray, "#endif\n\n") if $conditional;
+
+    if ($useStandaloneConstructorAttributes) {
+        # The forward declaration with external linkage is already emitted in
+        # the main JS<name>.cpp by GenerateAttributeGetterAndSetterDeclaration so
+        # the property hash table can take the function's address. Emit a
+        # matching declaration alongside the moved definition so
+        # -Wmissing-prototypes is satisfied for an externally-linked function.
+        push(@auxImplContent, "JSC_DECLARE_CUSTOM_GETTER(${attributeGetterName});\n");
+        $auxImplActive = 1;
+        GenerateAttributeGetterBodyDefinition(\@auxImplContent, $interface, $className, $attribute, $attributeGetterBodyName, $conditional, $enumerations);
+        GenerateAttributeGetterTrampolineDefinition(\@auxImplContent, $interface, $className, $attribute, $attributeGetterName, $attributeGetterBodyName, $conditional);
+        $auxImplActive = 0;
+    } else {
+        GenerateAttributeGetterBodyDefinition($outputArray, $interface, $className, $attribute, $attributeGetterBodyName, $conditional, $enumerations);
+        GenerateAttributeGetterTrampolineDefinition($outputArray, $interface, $className, $attribute, $attributeGetterName, $attributeGetterBodyName, $conditional);
+    }
+
+    if ($conditional) {
+        push(@$outputArray, "#endif\n\n") unless $useStandaloneConstructorAttributes;
+        push(@auxImplContent, "#endif\n\n") if $useStandaloneConstructorAttributes;
+    }
 }
 
 sub AttributeSetterNeedsPropertyName
@@ -8472,9 +8538,70 @@ sub WriteData
     $contents .= join "", @implContent;
     $codeGenerator->UpdateFile($implFileName, $contents);
 
+    # Emit the auxiliary impl file (JS<name>ConstructorAttributes.cpp) whenever
+    # the interface opts into [StandaloneConstructorAttributes], so the build
+    # system finds the same set of files regardless of whether
+    # --ignoreStandaloneConstructorAttributes was passed. The file mirrors the
+    # main file's config/copyright/JS<name>.h include scaffolding and brings in
+    # only the headers its moved definitions need (collected via
+    # $auxImplActive). When the marker is being ignored, no definitions are
+    # routed here and the file ends up as an empty TU.
+    if ($interface->extendedAttributes->{StandaloneConstructorAttributes}) {
+        my $auxImplFileName = "$outputDir/JS${name}ConstructorAttributes.cpp";
+        # The aux TU pulls in JSEventTarget.h via JSDOMWindow.h, which transitively
+        # references the toJSDOMGlobalObject<JSClass> template inline. The template's
+        # body lives in JSDOMGlobalObjectInlines.h, so add it explicitly here to
+        # avoid -Wundefined-inline.
+        $auxImplIncludes{"JSDOMGlobalObjectInlines.h"} = 1 unless $auxImplIncludes{"JSDOMGlobalObjectInlines.h"};
+        my $auxContents = join "", GenerateImplementationContentHeader($interface);
+
+        my @auxIncludes = ();
+        my %auxImplIncludeConditions = ();
+        foreach my $include (keys %auxImplIncludes) {
+            next if $headerIncludes{$include};
+            next if $headerTrailingIncludes{$include};
+
+            my $condition = $auxImplIncludes{$include};
+
+            my $checkType = $include;
+            $checkType =~ s/\.h//;
+            next if $codeGenerator->IsSVGAnimatedTypeName($checkType);
+
+            $include = "\"$include\"" unless $include =~ /^["<]/; # "
+
+            if ($condition eq 1) {
+                push @auxIncludes, $include;
+            } else {
+                push @{$auxImplIncludeConditions{$codeGenerator->GenerateConditionalStringFromAttributeValue($condition)}}, $include;
+            }
+        }
+
+        foreach my $include (sort @auxIncludes) {
+            $auxContents .= "#include $include\n";
+        }
+        foreach my $condition (sort keys %auxImplIncludeConditions) {
+            $auxContents .= "\n#if " . $condition . "\n";
+            foreach my $include (sort @{$auxImplIncludeConditions{$condition}}) {
+                $auxContents .= "#include $include\n";
+            }
+            $auxContents .= "#endif\n";
+        }
+
+        $auxContents .= "\nnamespace WebCore {\nusing namespace JSC;\n\n";
+        $auxContents .= join "", @auxImplContent;
+        $auxContents .= "} // namespace WebCore\n";
+
+        my $conditionalString = $codeGenerator->GenerateConditionalString($interface);
+        $auxContents .= "\n#endif\n" if $conditionalString;
+
+        $codeGenerator->UpdateFile($auxImplFileName, $auxContents);
+    }
+
     @implContentHeader = ();
     @implContent = ();
     %implIncludes = ();
+    @auxImplContent = ();
+    %auxImplIncludes = ();
 
     # Update a .h file if the contents are changed.
     $contents = join "", @headerContentHeader;
