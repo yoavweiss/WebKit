@@ -156,7 +156,7 @@ if (NOT CMAKE_OSX_DEPLOYMENT_TARGET)
     unset(_host_os_major_minor)
 endif ()
 
-set(_sdk_prefix "macosx")
+set(WEBKIT_SDK_NAME "macosx")
 set(WEBKIT_PLATFORM_NAME "MacOSX")
 
 include(OptionsCocoa)

@@ -60,8 +60,8 @@ find_package(Threads REQUIRED)
 
 string(REGEX MATCH "^[0-9]+" _sdk_major "${_sdk_version}")
 set(_additions_candidates
-    "${CMAKE_SOURCE_DIR}/WebKitLibraries/SDKs/${_sdk_prefix}${_sdk_major}.0-additions.sdk/usr/local/include"
-    "${CMAKE_SOURCE_DIR}/WebKitLibraries/SDKs/${_sdk_prefix}${_sdk_major_minor}-additions.sdk/usr/local/include"
+    "${CMAKE_SOURCE_DIR}/WebKitLibraries/SDKs/${WEBKIT_SDK_NAME}${_sdk_major}.0-additions.sdk/usr/local/include"
+    "${CMAKE_SOURCE_DIR}/WebKitLibraries/SDKs/${WEBKIT_SDK_NAME}${_sdk_major_minor}-additions.sdk/usr/local/include"
 )
 set(_additions_found FALSE)
 foreach (_additions IN LISTS _additions_candidates)
@@ -73,7 +73,7 @@ foreach (_additions IN LISTS _additions_candidates)
     endif ()
 endforeach ()
 if (NOT _additions_found)
-    file(GLOB _all_additions "${CMAKE_SOURCE_DIR}/WebKitLibraries/SDKs/${_sdk_prefix}*-additions.sdk")
+    file(GLOB _all_additions "${CMAKE_SOURCE_DIR}/WebKitLibraries/SDKs/${WEBKIT_SDK_NAME}*-additions.sdk")
     list(SORT _all_additions)
     list(REVERSE _all_additions)
     foreach (_additions_sdk IN LISTS _all_additions)
@@ -94,7 +94,6 @@ endif ()
 unset(_sdk_version)
 unset(_sdk_major)
 unset(_sdk_major_minor)
-unset(_sdk_prefix)
 unset(_additions_candidates)
 unset(_additions)
 unset(_additions_found)
