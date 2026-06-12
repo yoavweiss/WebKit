@@ -1830,7 +1830,7 @@ endif ()
 if (${JavaScriptCore_LIBRARY_TYPE} STREQUAL "OBJECT")
     list(APPEND JavaScriptCore_PRIVATE_LIBRARIES $<TARGET_OBJECTS:LowLevelInterpreterLib>)
 else ()
-    list(APPEND JavaScriptCore_PRIVATE_LIBRARIES LowLevelInterpreterLib)
+    list(APPEND JavaScriptCore_SOURCES $<TARGET_OBJECTS:LowLevelInterpreterLib>)
 endif ()
 
 WEBKIT_COMPUTE_SOURCES(JavaScriptCore)
