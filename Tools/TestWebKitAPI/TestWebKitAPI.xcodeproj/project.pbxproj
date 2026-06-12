@@ -1382,7 +1382,6 @@
 				WebKit/WKWebView/InjectedBundleHitTestPlugIn.mm,
 				WebKit/WKWebView/InjectedBundleNodeHandleIsSelectElement.mm,
 				WebKit/WKWebView/InjectedBundleNodeHandleIsTextField.mm,
-				WebKit/WKWebView/JSHandlePlugIn.mm,
 				WebKit/WKWebView/PageOverlayPlugin.mm,
 				WebKit/WKWebView/ParserYieldTokenPlugIn.mm,
 				WebKit/WKWebView/RemoteObjectRegistryPlugIn.mm,

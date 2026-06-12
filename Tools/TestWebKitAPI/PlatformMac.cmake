@@ -323,7 +323,6 @@ add_library(TestWebKitAPIWebProcessPlugIn MODULE
     ${TESTWEBKITAPI_DIR}/Tests/WebKit/WKWebView/DisableSpellcheckPlugIn.mm
     ${TESTWEBKITAPI_DIR}/Tests/WebKit/WKWebView/GetComputedStyleAfterIframeRemovalPlugIn.mm
     ${TESTWEBKITAPI_DIR}/Tests/WebKit/WKWebView/InjectedBundleHitTestPlugIn.mm
-    ${TESTWEBKITAPI_DIR}/Tests/WebKit/WKWebView/JSHandlePlugIn.mm
     ${TESTWEBKITAPI_DIR}/Tests/WebKit/WKWebView/PageOverlayPlugin.mm
     ${TESTWEBKITAPI_DIR}/Tests/WebKit/WKWebView/ParserYieldTokenPlugIn.mm
     ${TESTWEBKITAPI_DIR}/Tests/WebKit/WKWebView/RemoteObjectRegistryPlugIn.mm

@@ -54,7 +54,6 @@
 #import <WebKit/WKWebViewPrivateForTesting.h>
 #import <WebKit/WebKit.h>
 #import <WebKit/_WKContentWorldConfiguration.h>
-#import <WebKit/_WKJSHandle.h>
 #import <WebKit/_WKProcessPoolConfiguration.h>
 #import <WebKit/_WKTextPreview.h>
 #import <pal/spi/cocoa/WritingToolsSPI.h>

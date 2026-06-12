@@ -29,7 +29,6 @@
 #import "Helpers/cocoa/HTTPServer.h"
 #import "Helpers/cocoa/PDFTestHelpers.h"
 #import "InstanceMethodSwizzler.h"
-#import "JSHandlePlugInProtocol.h"
 #import "Helpers/PlatformUtilities.h"
 #import "SafeBrowsingSPI.h"
 #import "Helpers/cocoa/SafeBrowsingTestUtilities.h"
@@ -219,16 +218,6 @@ SOFT_LINK_CLASS(SafariSafeBrowsing, SSBLookupContext);
     return result.autorelease();
 }
 
-@end
-
-@interface JSHandleReceiver : NSObject<JSHandlePlugInProtocol>
-@property (nonatomic, copy) void (^dictionaryReceiver)(NSDictionary *);
-@end
-@implementation JSHandleReceiver
-- (void)receiveDictionaryFromWebProcess:(NSDictionary *)dictionary
-{
-    _dictionaryReceiver(dictionary);
-}
 @end
 
 namespace TestWebKitAPI {
@@ -1242,31 +1231,6 @@ TEST(TextExtractionTests, SubframeOriginInDebugText)
     EXPECT_TRUE([debugText containsString:crossOriginExpected.createNSString()]);
     EXPECT_FALSE([debugText containsString:@"origin=http://localhost"]);
     EXPECT_FALSE([debugText containsString:@"origin=127.0.0.1"]);
-}
-
-TEST(TextExtractionTests, InjectedBundle)
-{
-    WKWebViewConfiguration *configuration = [WKWebViewConfiguration _test_configurationWithTestPlugInClassName:@"JSHandlePlugIn"];
-    RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 800, 600) configuration:configuration]);
-    RetainPtr receiver = adoptNS([JSHandleReceiver new]);
-    __block RetainPtr<_WKJSHandle> handle;
-    __block RetainPtr<_WKJSHandle> decodedHandle;
-    receiver.get().dictionaryReceiver = ^(NSDictionary *dictionary) {
-        handle = dynamic_objc_cast<_WKJSHandle>(dictionary[@"testkey"]);
-        decodedHandle = [NSKeyedUnarchiver _strictlyUnarchivedObjectOfClasses:[NSSet setWithObject:_WKJSHandle.class] fromData:dynamic_objc_cast<NSData>(dictionary[@"testdatakey"]) error:nil];
-    };
-
-    _WKRemoteObjectInterface *interface = [_WKRemoteObjectInterface remoteObjectInterfaceWithProtocol:@protocol(JSHandlePlugInProtocol)];
-    [interface setClasses:[NSSet setWithObjects:NSDictionary.class, NSString.class, _WKJSHandle.class, nil] forSelector:@selector(receiveDictionaryFromWebProcess:) argumentIndex:0 ofReply:NO];
-    [[webView _remoteObjectRegistry] registerExportedObject:receiver.get() interface:interface];
-
-    [webView loadHTMLString:@"text outside <div id='testelement'> text inside </div>" baseURL:nil];
-    while (!handle)
-        Util::spinRunLoop();
-    EXPECT_NOT_NULL(handle.get().frame._documentIdentifier);
-    EXPECT_TRUE([handle.get().frame._documentIdentifier isEqual:decodedHandle.get().frame._documentIdentifier]);
-    EXPECT_TRUE([handle.get().frame._documentIdentifier isEqual:[webView mainFrame].info._documentIdentifier]);
-    EXPECT_TRUE([handle.get().frame _isSameFrame:[webView mainFrame].info]);
 }
 
 TEST(TextExtractionTests, ClickInteractionWithTextOnly)
