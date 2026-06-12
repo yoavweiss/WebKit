@@ -467,6 +467,7 @@ void JSCustomElementInterface::visitJSFunctionsInGCThread(Visitor& visitor) cons
     visitor.append(m_constructor);
     visitor.append(m_connectedCallback);
     visitor.append(m_disconnectedCallback);
+    visitor.append(m_connectedMoveCallback);
     visitor.append(m_adoptedCallback);
     visitor.append(m_attributeChangedCallback);
     visitor.append(m_formAssociatedCallback);
