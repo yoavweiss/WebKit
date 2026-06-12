@@ -168,6 +168,8 @@ void ThreadedCompositor::invalidate()
         m_textureMapper = nullptr;
         m_surface->willDestroyGLContext();
         m_context = nullptr;
+        if (m_useSkia)
+            PlatformDisplay::sharedDisplay().setSkiaGLContextForCurrentThread(nullptr);
     });
     m_sceneState = nullptr;
     m_layerTreeHost = nullptr;

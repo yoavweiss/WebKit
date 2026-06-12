@@ -315,6 +315,10 @@ GLContext* PlatformDisplay::skiaGLContext()
 
 void PlatformDisplay::setSkiaGLContextForCurrentThread(std::unique_ptr<GLContext>&& glContext)
 {
+    if (!glContext) {
+        clearSkiaGLContext();
+        return;
+    }
     ASSERT(!s_skiaGLContext);
     s_skiaGLContext = SkiaGLContext::create(WTF::move(glContext));
     m_skiaGLContexts.add(*s_skiaGLContext);
