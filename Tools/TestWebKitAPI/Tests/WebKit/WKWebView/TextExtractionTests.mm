@@ -950,6 +950,48 @@ TEST(TextExtractionTests, RequestContainerJSHandleForSearchTextsFallsBackToBodyW
     EXPECT_FALSE([debugText containsString:@"Customer Reviews"]);
 }
 
+TEST(TextExtractionTests, RequestJSHandleForNodeInDetachedSubframe)
+{
+    RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 800, 600) configuration:^{
+        RetainPtr configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
+        [[configuration preferences] _setTextExtractionEnabled:YES];
+        return configuration.autorelease();
+    }()]);
+
+    __block RetainPtr subframes = adoptNS([NSMutableArray new]);
+    RetainPtr navigationDelegate = adoptNS([TestNavigationDelegate new]);
+    [navigationDelegate setDidCommitLoadWithRequestInFrame:^(WKWebView *, NSURLRequest *, WKFrameInfo *frame) {
+        if (!frame.mainFrame && ![frame.request.URL.scheme isEqualToString:@"about"])
+            [subframes addObject:frame];
+    }];
+    [webView setNavigationDelegate:navigationDelegate];
+
+    [webView loadHTMLString:@"<h1>Subframe</h1> <iframe id='child' srcdoc=\"<button id='target'>subframe target</p>\"></iframe>" baseURL:nil];
+    [navigationDelegate waitForDidFinishNavigation];
+
+    Util::waitForConditionWithLogging([webView] {
+        return [[webView objectByEvaluatingJavaScript:@"!!document.getElementById('child').contentDocument && document.getElementById('child').contentDocument.readyState === 'complete'"] boolValue];
+    }, 3, @"Expected subframe to finish loading.");
+
+    RetainPtr extractionResult = [webView synchronouslyExtractDebugTextResult:^{
+        RetainPtr configuration = adoptNS([_WKTextExtractionConfiguration new]);
+        [configuration setAdditionalFrames:subframes];
+        return configuration.autorelease();
+    }()];
+
+    RetainPtr buttonIdentifier = extractNodeIdentifier([extractionResult textContent], @"subframe target");
+    EXPECT_NOT_NULL(buttonIdentifier);
+
+    [webView objectByEvaluatingJavaScript:@"document.querySelector('iframe').remove()"];
+    [webView waitForNextPresentationUpdate];
+
+    RetainPtr buttonHandle = [extractionResult jsHandleForNodeIdentifier:buttonIdentifier searchText:nil];
+    EXPECT_NULL(buttonHandle);
+
+    RetainPtr headingText = [webView stringByEvaluatingJavaScript:@"document.querySelector('h1').textContent"];
+    EXPECT_WK_STREQ(@"Subframe", headingText);
+}
+
 TEST(TextExtractionTests, ResolveTargetNodeFromSelectorData)
 {
     RetainPtr configuration = adoptNS([[WKWebViewConfiguration alloc] init]);

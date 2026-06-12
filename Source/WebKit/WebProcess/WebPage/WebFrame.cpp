@@ -1589,22 +1589,28 @@ String WebFrame::frameTextForTesting(bool includeSubframes)
     return builder.toString();
 }
 
-static Ref<WebKitJSHandle> createJSHandle(Node& node)
+static RefPtr<WebKitJSHandle> createJSHandle(Node& node)
 {
     Ref document = node.document();
     auto* lexicalGlobalObject = document->globalObject();
+    if (!lexicalGlobalObject)
+        return { };
+
     RELEASE_ASSERT(lexicalGlobalObject->template inherits<JSDOMGlobalObject>());
     auto* domGlobalObject = downcast<JSDOMGlobalObject>(lexicalGlobalObject);
     JSC::JSLockHolder locker { lexicalGlobalObject };
     return WebKitJSHandle::create(toJS(lexicalGlobalObject, domGlobalObject, node).toObject(lexicalGlobalObject));
 }
 
-std::pair<Ref<WebKitJSHandle>, JSHandleInfo> WebFrame::createAndPrepareToSendJSHandle(Node& node) const
+std::optional<std::pair<Ref<WebKitJSHandle>, JSHandleInfo>> WebFrame::createAndPrepareToSendJSHandle(Node& node) const
 {
-    Ref handle = createJSHandle(node);
+    RefPtr handle = createJSHandle(node);
+    if (!handle)
+        return std::nullopt;
+
     WebKitJSHandle::jsHandleSentToAnotherProcess(handle->identifier());
     JSHandleInfo handleInfo { handle->identifier(), pageContentWorldIdentifier(), info(), handle->windowFrameIdentifier() };
-    return { WTF::move(handle), WTF::move(handleInfo) };
+    return { { handle.releaseNonNull(), WTF::move(handleInfo) } };
 }
 
 WebFrame* WebFrame::webFrame(std::optional<WebCore::FrameIdentifier> frameID)
@@ -1811,8 +1817,11 @@ void WebFrame::requestJSHandleForExtractedText(TextExtraction::ExtractedText&& e
     if (!element)
         return completion({ });
 
-    auto [handle, info] = createAndPrepareToSendJSHandle(*element);
-    completion({ WTF::move(info) });
+    auto handleAndInfo = createAndPrepareToSendJSHandle(*element);
+    if (!handleAndInfo)
+        return completion({ });
+
+    completion({ WTF::move(handleAndInfo->second) });
 }
 
 void WebFrame::requestContainerJSHandleForExtractedText(TextExtraction::ExtractedText&& extractedText, CompletionHandler<void(std::optional<JSHandleInfo>&&)>&& completion)
@@ -1825,8 +1834,11 @@ void WebFrame::requestContainerJSHandleForExtractedText(TextExtraction::Extracte
     if (!element)
         return completion({ });
 
-    auto [handle, info] = createAndPrepareToSendJSHandle(*element);
-    completion({ WTF::move(info) });
+    auto handleAndInfo = createAndPrepareToSendJSHandle(*element);
+    if (!handleAndInfo)
+        return completion({ });
+
+    completion({ WTF::move(handleAndInfo->second) });
 }
 
 void WebFrame::requestContainerJSHandleForSearchTexts(Vector<String>&& searchTexts, std::optional<NodeIdentifier>&& targetNodeIdentifier, CompletionHandler<void(std::optional<JSHandleInfo>&&)>&& completion)
@@ -1839,8 +1851,11 @@ void WebFrame::requestContainerJSHandleForSearchTexts(Vector<String>&& searchTex
     if (!element)
         return completion({ });
 
-    auto [handle, info] = createAndPrepareToSendJSHandle(*element);
-    completion({ WTF::move(info) });
+    auto handleAndInfo = createAndPrepareToSendJSHandle(*element);
+    if (!handleAndInfo)
+        return completion({ });
+
+    completion({ WTF::move(handleAndInfo->second) });
 }
 
 void WebFrame::getSelectorPathsForNode(JSHandleInfo&& handle, CompletionHandler<void(Vector<HashSet<String>>&&)>&& completion)
@@ -1870,8 +1885,11 @@ void WebFrame::getNodeForSelectorPaths(Vector<HashSet<String>>&& selectors, Comp
     if (!element)
         return completion({ });
 
-    auto [handle, info] = createAndPrepareToSendJSHandle(*element);
-    completion({ WTF::move(info) });
+    auto handleAndInfo = createAndPrepareToSendJSHandle(*element);
+    if (!handleAndInfo)
+        return completion({ });
+
+    completion({ WTF::move(handleAndInfo->second) });
 }
 
 } // namespace WebKit

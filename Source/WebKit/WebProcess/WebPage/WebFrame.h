@@ -271,7 +271,7 @@ public:
 
     String frameTextForTesting(bool);
 
-    std::pair<Ref<WebCore::WebKitJSHandle>, JSHandleInfo> createAndPrepareToSendJSHandle(WebCore::Node&) const;
+    std::optional<std::pair<Ref<WebCore::WebKitJSHandle>, JSHandleInfo>> createAndPrepareToSendJSHandle(WebCore::Node&) const;
 
     void markAsRemovedInAnotherProcess() { m_wasRemovedInAnotherProcess = true; }
     bool wasRemovedInAnotherProcess() const { return m_wasRemovedInAnotherProcess; }
