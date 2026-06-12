@@ -276,15 +276,6 @@ selectors = [
 ]
 requires = ["ENABLE_WRITING_TOOLS_EXTENDED_PROOFREADING"]
 
-[[staging]]
-request = "rdar://163791929"
-cleanup = "rdar://165836164"
-selectors = [
- { name = "setIsDelegatedRequest:", class = "PKPaymentRequest" },
-]
-requires = ["HAVE_PASSKIT_DELEGATED_REQUEST"]
-requires-sdk = ["iOS < 26.4"]
-
 [[not-web-essential]]
 request = "rdar://165006869"
 selectors = [
