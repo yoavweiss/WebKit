@@ -243,6 +243,7 @@ struct Result {
 
     Item rootItem;
     unsigned visibleTextLength { 0 };
+    std::optional<String> pdfMarkdownContent;
 };
 
 struct PageResults {

@@ -1733,6 +1733,25 @@ void WebFrame::requestTextExtraction(TextExtraction::Request&& request, Completi
     if (!frame)
         return completion({ });
 
+#if ENABLE(PDF_PLUGIN)
+    if (RefPtr pluginView = WebPage::pluginViewForFrame(frame.get())) {
+        if (auto pdfText = pluginView->fullDocumentString(); !pdfText.isEmpty()) {
+            TextExtraction::Result result;
+            TextExtraction::ScrollableItemData scrollableData;
+            if (RefPtr view = frame->view()) {
+                scrollableData.contentSize = view->contentsSize();
+                scrollableData.scrollPosition = view->scrollPosition();
+            }
+            scrollableData.isRoot = true;
+            result.rootItem.data = WTF::move(scrollableData);
+            result.rootItem.frameIdentifier = frame->frameID();
+            result.visibleTextLength = pdfText.length();
+            result.pdfMarkdownContent = WTF::move(pdfText);
+            return completion(WTF::move(result));
+        }
+    }
+#endif
+
     completion(TextExtraction::extractItem(WTF::move(request), *frame));
 }
 

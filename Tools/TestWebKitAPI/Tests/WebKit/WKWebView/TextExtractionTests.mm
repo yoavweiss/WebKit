@@ -27,6 +27,7 @@
 
 #import "ClassMethodSwizzler.h"
 #import "Helpers/cocoa/HTTPServer.h"
+#import "Helpers/cocoa/PDFTestHelpers.h"
 #import "InstanceMethodSwizzler.h"
 #import "JSHandlePlugInProtocol.h"
 #import "Helpers/PlatformUtilities.h"
@@ -1949,5 +1950,101 @@ TEST(TextExtractionTests, FilterExtractedStringEmptyInput)
 }
 
 #endif // ENABLE(TEXT_EXTRACTION_FILTER) && HAVE(SAFARI_SAFE_BROWSING_NAMESPACED_LISTS)
+
+#if ENABLE(UNIFIED_PDF)
+
+static RetainPtr<TestWKWebView> loadPDFInWebView()
+{
+    RetainPtr configuration = configurationForWebViewTestingUnifiedPDF();
+    [[configuration preferences] _setTextExtractionEnabled:YES];
+
+    RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 800, 600) configuration:configuration.get()]);
+    [webView loadData:testPDFData() MIMEType:@"application/pdf" characterEncodingName:@"" baseURL:[NSURL URLWithString:@"https://www.example.com/test.pdf"]];
+    [webView _test_waitForDidFinishNavigation];
+    return webView;
+}
+
+TEST(TextExtractionTests, ExtractFromPDFAsMarkdown)
+{
+    RetainPtr webView = loadPDFInWebView();
+
+    RetainPtr text = [webView synchronouslyGetDebugText:^{
+        RetainPtr configuration = adoptNS([_WKTextExtractionConfiguration new]);
+        [configuration setOutputFormat:_WKTextExtractionOutputFormatMarkdown];
+        return configuration.autorelease();
+    }()];
+
+    EXPECT_TRUE([text containsString:@"Test PDF Content"]);
+    EXPECT_TRUE([text containsString:@"555-555-1234"]);
+}
+
+TEST(TextExtractionTests, ExtractFromPDFAsTextTree)
+{
+    RetainPtr webView = loadPDFInWebView();
+
+    RetainPtr text = [webView synchronouslyGetDebugText:^{
+        RetainPtr configuration = adoptNS([_WKTextExtractionConfiguration new]);
+        [configuration setOutputFormat:_WKTextExtractionOutputFormatTextTree];
+        return configuration.autorelease();
+    }()];
+
+    EXPECT_TRUE([text hasPrefix:@"root"]);
+    EXPECT_TRUE([text containsString:@"Test PDF Content"]);
+    EXPECT_TRUE([text containsString:@"555-555-1234"]);
+}
+
+TEST(TextExtractionTests, ExtractFromPDFAsHTML)
+{
+    RetainPtr webView = loadPDFInWebView();
+
+    RetainPtr text = [webView synchronouslyGetDebugText:^{
+        RetainPtr configuration = adoptNS([_WKTextExtractionConfiguration new]);
+        [configuration setOutputFormat:_WKTextExtractionOutputFormatHTML];
+        return configuration.autorelease();
+    }()];
+
+    EXPECT_TRUE([text hasPrefix:@"<body>"]);
+    EXPECT_TRUE([text hasSuffix:@"</body>"]);
+    EXPECT_TRUE([text containsString:@"Test PDF Content"]);
+    EXPECT_TRUE([text containsString:@"555-555-1234"]);
+}
+
+TEST(TextExtractionTests, ExtractFromPDFAsJSON)
+{
+    RetainPtr webView = loadPDFInWebView();
+
+    RetainPtr text = [webView synchronouslyGetDebugText:^{
+        RetainPtr configuration = adoptNS([_WKTextExtractionConfiguration new]);
+        [configuration setOutputFormat:_WKTextExtractionOutputFormatJSON];
+        return configuration.autorelease();
+    }()];
+
+    NSError *error = nil;
+    NSDictionary *json = [NSJSONSerialization JSONObjectWithData:[text dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&error];
+    EXPECT_NULL(error);
+    EXPECT_WK_STREQ("root", [json objectForKey:@"type"]);
+    NSArray *children = [json objectForKey:@"children"];
+    EXPECT_EQ([children count], 1u);
+    EXPECT_WK_STREQ("text", [[children firstObject] objectForKey:@"type"]);
+    NSString *content = [[children firstObject] objectForKey:@"content"];
+    EXPECT_TRUE([content containsString:@"Test PDF Content"]);
+    EXPECT_TRUE([content containsString:@"555-555-1234"]);
+}
+
+TEST(TextExtractionTests, ExtractFromPDFAsPlainText)
+{
+    RetainPtr webView = loadPDFInWebView();
+
+    RetainPtr text = [webView synchronouslyGetDebugText:^{
+        RetainPtr configuration = adoptNS([_WKTextExtractionConfiguration new]);
+        [configuration setOutputFormat:_WKTextExtractionOutputFormatPlainText];
+        return configuration.autorelease();
+    }()];
+
+    EXPECT_TRUE([text containsString:@"Test PDF Content"]);
+    EXPECT_TRUE([text containsString:@"555-555-1234"]);
+}
+
+#endif // ENABLE(UNIFIED_PDF)
 
 } // namespace TestWebKitAPI
