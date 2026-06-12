@@ -241,7 +241,7 @@ void CtapAuthenticator::continueMakeCredentialAfterCheckExcludedCredentials(bool
     Vector<String> authenticatorSupportedExtensions;
     if (m_info.extensions())
         authenticatorSupportedExtensions = *m_info.extensions();
-    if (m_isKeyStoreFull || (m_info.remainingDiscoverableCredentials() && !m_info.remainingDiscoverableCredentials())) {
+    if (m_isKeyStoreFull) {
         if (options.authenticatorSelection && (options.authenticatorSelection->requireResidentKey || options.authenticatorSelection->residentKey == ResidentKeyRequirement::Required)) {
             protect(observer())->authenticatorStatusUpdated(WebAuthenticationStatus::KeyStoreFull);
             return;
