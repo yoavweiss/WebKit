@@ -4346,6 +4346,16 @@ bool MediaPlayerPrivateGStreamer::isHolePunchRenderingEnabled() const
     if (m_quirksManagerForTesting)
         return m_quirksManagerForTesting->supportsVideoHolePunchRendering();
 
+#if ENABLE(MEDIA_STREAM)
+    if (m_streamPrivate) {
+        auto* videoTrack = m_streamPrivate->activeVideoTrack();
+        if (!videoTrack)
+            return false;
+
+        return videoTrack->deviceType() != CaptureDevice::DeviceType::Canvas && GStreamerQuirksManager::singleton().supportsVideoHolePunchRendering();
+    }
+#endif
+
     auto& quirksManager = GStreamerQuirksManager::singleton();
     return quirksManager.supportsVideoHolePunchRendering();
 }

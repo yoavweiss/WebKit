@@ -215,6 +215,7 @@ private:
         case CaptureDevice::DeviceType::Microphone:
             return process->allowsAudioCapture();
         case CaptureDevice::DeviceType::Camera:
+        case CaptureDevice::DeviceType::Canvas:
             return process->allowsVideoCapture();
         case CaptureDevice::DeviceType::Screen:
             return process->allowsDisplayCapture();
