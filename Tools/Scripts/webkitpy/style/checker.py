@@ -42,6 +42,7 @@ from webkitpy.port.config import apple_additions
 from webkitpy.style.checkers.basexcconfig import BaseXcconfigChecker
 from webkitpy.style.checkers.common import categories as CommonCategories
 from webkitpy.style.checkers.common import CarriageReturnChecker
+from webkitpy.style.checkers.computed_style_inline_includes import categories as ComputedStyleInlineIncludesCategories
 from webkitpy.style.checkers.contributors import ContributorsChecker
 from webkitpy.style.checkers.changelog import ChangeLogChecker
 from webkitpy.style.checkers.cpp import CppChecker
@@ -663,6 +664,7 @@ def _all_categories():
     categories = CommonCategories.union(CppChecker.categories)
     categories = categories.union(CMakeChecker.categories)
     categories = categories.union(DeprecatedJSTestIncludesCategories)
+    categories = categories.union(ComputedStyleInlineIncludesCategories)
     categories = categories.union(JSChecker.categories)
     categories = categories.union(JSONChecker.categories)
     categories = categories.union(JSTestChecker.categories)
