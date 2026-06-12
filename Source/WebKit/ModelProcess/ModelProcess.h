@@ -82,6 +82,7 @@ public:
     void requestSharedSimulationConnection(WebCore::ProcessIdentifier, CompletionHandler<void(std::optional<IPC::SharedFileHandle>)>&&);
 #endif
     std::optional<int> debugEntityMemoryLimit() const { return m_debugEntityMemoryLimit; }
+    std::optional<int> debugImmersiveEntityMemoryLimit() const { return m_debugImmersiveEntityMemoryLimit; }
 
     void webProcessConnectionCountForTesting(CompletionHandler<void(uint64_t)>&&);
     void modelPlayerCountForTesting(CompletionHandler<void(uint64_t)>&&);
@@ -123,6 +124,7 @@ private:
     WebCore::Timer m_idleExitTimer;
     String m_applicationVisibleName;
     std::optional<int> m_debugEntityMemoryLimit;
+    std::optional<int> m_debugImmersiveEntityMemoryLimit;
 };
 
 } // namespace WebKit

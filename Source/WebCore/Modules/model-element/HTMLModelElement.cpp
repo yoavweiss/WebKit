@@ -697,7 +697,11 @@ void HTMLModelElement::createModelPlayer()
 
     // FIXME: We need to tell the player if the size changes as well, so passing this
     // in with load probably doesn't make sense.
-    modelPlayer->load(*model, contentSize());
+    bool isForImmersive = false;
+#if ENABLE(MODEL_ELEMENT_IMMERSIVE)
+    isForImmersive = m_detachedForImmersive;
+#endif
+    modelPlayer->load(*model, contentSize(), isForImmersive);
 
 #if ENABLE(MODEL_ELEMENT_ENVIRONMENT_MAP)
     if (m_environmentMapData)

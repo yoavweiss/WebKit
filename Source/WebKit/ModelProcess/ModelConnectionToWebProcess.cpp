@@ -234,6 +234,11 @@ std::optional<int> ModelConnectionToWebProcess::debugEntityMemoryLimit() const
     return m_modelProcess->debugEntityMemoryLimit();
 }
 
+std::optional<int> ModelConnectionToWebProcess::debugImmersiveEntityMemoryLimit() const
+{
+    return m_modelProcess->debugImmersiveEntityMemoryLimit();
+}
+
 } // namespace WebKit
 
 #undef MESSAGE_CHECK

@@ -70,7 +70,7 @@ public:
     virtual bool NODELETE isPlaceholder() const;
 
     // Loading.
-    virtual void load(Model&, LayoutSize) = 0;
+    virtual void load(Model&, LayoutSize, bool) = 0;
     virtual void NODELETE reload(Model&, LayoutSize, ModelPlayerAnimationState&, std::unique_ptr<ModelPlayerTransformState>&&);
 
     // Graphics.

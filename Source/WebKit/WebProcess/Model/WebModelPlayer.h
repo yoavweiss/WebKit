@@ -77,7 +77,7 @@ private:
     void updateScene();
 
     // ModelPlayer finals.
-    void load(WebCore::Model&, WebCore::LayoutSize) final;
+    void load(WebCore::Model&, WebCore::LayoutSize, bool) final;
     void sizeDidChange(WebCore::LayoutSize) final;
     void configureGraphicsLayer(WebCore::GraphicsLayer&, WebCore::ModelPlayerGraphicsLayerConfiguration&&) final;
     void enterFullscreen() final;

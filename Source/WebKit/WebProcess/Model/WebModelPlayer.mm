@@ -197,7 +197,7 @@ static WebCore::ContentsFormat contentsFormatForDynamicRange(bool isStandard)
 
 // MARK: - ModelPlayer overrides.
 
-void WebModelPlayer::load(WebCore::Model& modelSource, WebCore::LayoutSize size)
+void WebModelPlayer::load(WebCore::Model& modelSource, WebCore::LayoutSize size, bool)
 {
     RefPtr corePage = m_page.get();
     if (!corePage)

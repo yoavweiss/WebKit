@@ -103,7 +103,7 @@ class ModelProcessModelPlayerProxy final
     , private IPC::MessageReceiver {
     WTF_MAKE_TZONE_ALLOCATED(ModelProcessModelPlayerProxy);
 public:
-    static Ref<ModelProcessModelPlayerProxy> create(ModelProcessModelPlayerManagerProxy&, WebCore::ModelPlayerIdentifier, Ref<IPC::Connection>&&, const std::optional<String>&, std::optional<int> debugEntityMemoryLimit);
+    static Ref<ModelProcessModelPlayerProxy> create(ModelProcessModelPlayerManagerProxy&, WebCore::ModelPlayerIdentifier, Ref<IPC::Connection>&&, const std::optional<String>&, std::optional<int>, std::optional<int>);
     ~ModelProcessModelPlayerProxy();
 
     void ref() const final { WebCore::ModelPlayer::ref(); }
@@ -123,7 +123,7 @@ public:
 
     // Messages
     void createLayer();
-    void loadModel(Ref<WebCore::Model>&&, WebCore::LayoutSize);
+    void loadModel(Ref<WebCore::Model>&&, WebCore::LayoutSize, bool);
     void reloadModel(Ref<WebCore::Model>&&, WebCore::LayoutSize, std::optional<WebCore::TransformationMatrix> transformToRestore, std::optional<WebCore::ModelPlayerAnimationState> animationStateToRestore);
     void modelVisibilityDidChange(bool isVisible);
 
@@ -133,7 +133,7 @@ public:
 
     // WebCore::ModelPlayer overrides.
     WebCore::ModelPlayerIdentifier identifier() const final { return m_id; }
-    void load(WebCore::Model&, WebCore::LayoutSize) final;
+    void load(WebCore::Model&, WebCore::LayoutSize, bool) final;
     void sizeDidChange(WebCore::LayoutSize) final;
     void configureGraphicsLayer(WebCore::GraphicsLayer&, WebCore::ModelPlayerGraphicsLayerConfiguration&&) final;
     void setEntityTransform(WebCore::TransformationMatrix) final;
@@ -183,7 +183,7 @@ public:
     static uint64_t objectCountForTesting() { return gObjectCountForTesting; }
 
 private:
-    ModelProcessModelPlayerProxy(ModelProcessModelPlayerManagerProxy&, WebCore::ModelPlayerIdentifier, Ref<IPC::Connection>&&, const std::optional<String>&, std::optional<int> debugEntityMemoryLimit);
+    ModelProcessModelPlayerProxy(ModelProcessModelPlayerManagerProxy&, WebCore::ModelPlayerIdentifier, Ref<IPC::Connection>&&, const std::optional<String>&, std::optional<int>, std::optional<int>);
 
     RESRT modelStandardizedTransformSRT(RESRT originalSRT);
     RESRT modelLocalizedTransformSRT(RESRT originalSRT);
@@ -197,6 +197,7 @@ private:
     void applyDefaultIBL();
     void updateForCurrentStageMode();
     std::optional<WebCore::LayerHostingContextIdentifier> layerHostingContextIdentifier();
+    int entityMemoryLimit(bool) const;
 
     WebCore::ModelPlayerIdentifier m_id;
     bool m_isVisible { true };
@@ -236,6 +237,7 @@ private:
 
     std::optional<String> m_attributionTaskID;
     std::optional<int> m_debugEntityMemoryLimit;
+    std::optional<int> m_debugImmersiveEntityMemoryLimit;
     std::optional<WebCore::TransformationMatrix> m_entityTransformToRestore;
     std::optional<WebCore::ModelPlayerAnimationState> m_animationStateToRestore;
     RunLoop::Timer m_unloadModelTimer;
@@ -247,11 +249,16 @@ private:
 #if ENABLE(MODEL_ELEMENT_IMMERSIVE)
     bool m_immersivePresentation { false };
     WebCore::LayoutSize m_layoutSize { };
+    RefPtr<WebCore::Model> m_currentModel;
+    RefPtr<WebCore::SharedBuffer> m_persistedEnvironmentMapData;
+    std::optional<int> m_loadedEntityMemoryLimit;
     Vector<CompletionHandler<void(bool)>> m_modelLoadedCallbacks;
 
     void triggerModelLoadedCallbacks(bool);
     void ensureModelLoaded(CompletionHandler<void(bool)>&&);
     void setImmersivePresentation(bool);
+    void teardownEntity();
+    void captureStateForReload();
 #endif
 };
 

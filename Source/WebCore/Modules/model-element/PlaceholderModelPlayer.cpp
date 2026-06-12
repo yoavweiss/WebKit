@@ -79,7 +79,7 @@ std::optional<std::unique_ptr<ModelPlayerTransformState>> PlaceholderModelPlayer
     return m_transformState->clone();
 }
 
-void PlaceholderModelPlayer::load(Model&, LayoutSize)
+void PlaceholderModelPlayer::load(Model&, LayoutSize, bool)
 {
     RELEASE_ASSERT_NOT_REACHED();
 }

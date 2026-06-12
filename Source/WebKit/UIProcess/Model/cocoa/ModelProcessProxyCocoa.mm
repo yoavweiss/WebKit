@@ -57,6 +57,11 @@ void ModelProcessProxy::updateModelProcessCreationParameters(ModelProcessCreatio
     value = [NSUserDefaults.standardUserDefaults objectForKey:memoryLimitFlag];
     if ([value isKindOfClass:NSNumber.class])
         parameters.debugEntityMemoryLimit = [value integerValue];
+
+    NSString * const immersiveMemoryLimitFlag = @"WebKitDebugModelImmersiveEntityMemoryLimit";
+    value = [NSUserDefaults.standardUserDefaults objectForKey:immersiveMemoryLimitFlag];
+    if ([value isKindOfClass:NSNumber.class])
+        parameters.debugImmersiveEntityMemoryLimit = [value integerValue];
 }
 
 #if PLATFORM(VISION) && ENABLE(GPU_PROCESS) && ENABLE(MODEL_PROCESS) && HAVE(CORE_RE)

@@ -207,6 +207,7 @@ void ModelProcess::initializeModelProcess(ModelProcessCreationParameters&& param
     CompletionHandlerCallingScope callCompletionHandler(WTF::move(completionHandler));
 
     m_debugEntityMemoryLimit = parameters.debugEntityMemoryLimit;
+    m_debugImmersiveEntityMemoryLimit = parameters.debugImmersiveEntityMemoryLimit;
 #if HAVE(CORE_RE)
     WKREEngine::enableRestrictiveRenderingMode(parameters.restrictiveRenderingMode);
 #endif
