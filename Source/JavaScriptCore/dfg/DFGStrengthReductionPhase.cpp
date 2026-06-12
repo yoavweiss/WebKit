@@ -1343,7 +1343,7 @@ private:
                 break;
 
             int32_t startValue = m_node->child2()->asInt32();
-            std::optional<int32_t> endValue = std::nullopt;
+            std::optional<int32_t> endValue;
             if (m_node->child3()) {
                 if (!m_node->child3()->isInt32Constant())
                     break;
@@ -1386,7 +1386,7 @@ private:
                 break;
 
             int32_t startValue = m_node->child2()->asInt32();
-            std::optional<int32_t> lengthValue = std::nullopt;
+            std::optional<int32_t> lengthValue;
             if (m_node->child3()) {
                 if (!m_node->child3()->isInt32Constant())
                     break;

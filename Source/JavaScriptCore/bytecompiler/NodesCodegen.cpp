@@ -677,7 +677,7 @@ RegisterID* PropertyListNode::emitBytecode(BytecodeGenerator& generator, Registe
     auto makeClassElementDefinition = [](const PropertyListNode* p) {
         using Kind = UnlinkedFunctionExecutable::ClassElementDefinition::Kind;
 
-        std::optional<JSTextPosition> initializerPosition = std::nullopt;
+        std::optional<JSTextPosition> initializerPosition;
         if (ExpressionNode* initializer = p->m_node->m_assign)
             initializerPosition = initializer->position();
 
