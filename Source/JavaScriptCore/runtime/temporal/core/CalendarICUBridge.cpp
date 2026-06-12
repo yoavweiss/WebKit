@@ -61,7 +61,7 @@ static CString buildICULocale(StringView calendarId)
 
 // buildCalendarTemplate — internal: opens ICU UCalendar for the given CalendarID, set to UTC.
 // NOTE: For Gregory/ISO/Japanese/Buddhist/Roc: sets Gregorian change date to -infinity for proleptic Gregorian arithmetic.
-static std::unique_ptr<UCalendar, ICUDeleter<ucal_close>> buildCalendarTemplate(CalendarID calendarId)
+static std::unique_ptr<UCalendar, ICUDeleter<ucal_close>> buildCalendarTemplate(const AbstractLocker&, CalendarID calendarId)
 {
     auto str = calendarIDToString(calendarId);
     auto locale = buildICULocale(str);
@@ -85,9 +85,8 @@ static std::unique_ptr<UCalendar, ICUDeleter<ucal_close>> buildCalendarTemplate(
 }
 
 struct CalendarCacheEntry {
-    WTF::Lock useLock;
-    std::atomic<bool> initialized { false };
-    UCalendar* cal { nullptr };
+    Lock useLock;
+    std::unique_ptr<UCalendar, ICUDeleter<ucal_close>> cal;
 };
 
 static CalendarCacheEntry& calendarCacheEntry(CalendarID calendarId)
@@ -100,27 +99,16 @@ static CalendarCacheEntry& calendarCacheEntry(CalendarID calendarId)
     return cache.get()[calendarId];
 }
 
-static void ensureCalendar(CalendarCacheEntry& entry, CalendarID calendarId)
-{
-    if (entry.initialized.load(std::memory_order_acquire))
-        return;
-    WTF::Locker locker { entry.useLock };
-    if (!entry.initialized.load(std::memory_order_relaxed)) {
-        auto owned = buildCalendarTemplate(calendarId);
-        entry.cal = owned.release();
-        entry.initialized.store(true, std::memory_order_release);
-    }
-}
-
 template<typename F>
 static auto withCalendar(CalendarID calendarId, F&& fn) -> decltype(fn(static_cast<UCalendar*>(nullptr)))
 {
     CalendarCacheEntry& entry = calendarCacheEntry(calendarId);
-    ensureCalendar(entry, calendarId);
-    WTF::Locker locker { entry.useLock };
+    Locker locker { entry.useLock };
+    if (!entry.cal)
+        entry.cal = buildCalendarTemplate(locker, calendarId);
     if (entry.cal)
-        ucal_clear(entry.cal);
-    return fn(entry.cal);
+        ucal_clear(entry.cal.get());
+    return fn(entry.cal.get());
 }
 
 // lunarCalendarExtendedYearFor1972 — probes UCAL_EXTENDED_YEAR for the given lunisolar calendar
@@ -1307,22 +1295,16 @@ TemporalResult<ISO8601::Duration> calendarDateUntil(CalendarID calendarId, const
         if (U_FAILURE(status)) [[unlikely]]
             return makeUnexpected(rangeError(icuCalendarArithmeticFailed));
 
-        // Clone for surpassesMonths iteration.
-        UErrorCode cloneStatus = U_ZERO_ERROR;
-        auto trialCalOwned = std::unique_ptr<UCalendar, ICUDeleter<ucal_close>>(ucal_clone(cal, &cloneStatus));
-        if (!trialCalOwned || U_FAILURE(cloneStatus)) [[unlikely]]
-            return makeUnexpected(rangeError(icuOpenCalendarFailed));
-
         for (;;) {
-            auto surpasses = surpassesMonths(trialCalOwned.get(), calendarId, sign, source.day, target.year, target.monthCode, target.ordinalMonth, target.day);
+            auto surpasses = surpassesMonths(cal, calendarId, sign, source.day, target.year, target.monthCode, target.ordinalMonth, target.day);
             if (!surpasses) [[unlikely]]
                 return makeUnexpected(rangeError(icuCalendarArithmeticFailed));
             if (*surpasses)
                 break;
             months = candidateMonths;
             candidateMonths += sign;
-            // trialCal already advanced by surpassesMonths — no reset needed.
-            // (Resetting to cal's fixed position would cause infinite loop since cal never moves.)
+            // cal already advanced by surpassesMonths — no reset needed here.
+            // ucal_setMillis(cal, startMs) below resets it before applying the final months count.
         }
 
         // Restore cal to (one + years), apply total months in one ucal_add (avoids undo asymmetry).
@@ -1762,33 +1744,30 @@ TemporalResult<ISO8601::PlainDate> calendarDateFromFields(CalendarID calendarId,
             ucal_set(cal, UCAL_DAY_OF_MONTH, 1);
             ucal_getMillis(cal, &status);
             if (U_FAILURE(status)) [[unlikely]]
-                return makeUnexpected(rangeError("Failed to resolve lunisolar calendar"_s)); // Use a separate calendar to count months in year.
-            // Clone: need an independent copy to advance months while cal stays at its current date.
-            UErrorCode cloneStatus = U_ZERO_ERROR;
-            auto countCal = std::unique_ptr<UCalendar, ICUDeleter<ucal_close>>(ucal_clone(cal, &cloneStatus));
-            if (U_FAILURE(cloneStatus)) [[unlikely]]
-                return makeUnexpected(rangeError("Failed to open counting calendar"_s));
+                return makeUnexpected(rangeError("Failed to resolve lunisolar calendar"_s));
+            // Count months in year by walking cal forward, then reset to year start.
             double calMs = ucal_getMillis(cal, &status);
             if (U_FAILURE(status)) [[unlikely]]
                 return makeUnexpected(rangeError(icuReadCalendarFailed));
-            ucal_setMillis(countCal.get(), calMs, &status);
-            if (U_FAILURE(status)) [[unlikely]]
-                return makeUnexpected(rangeError(icuSetCalendarFailed));
-            int32_t savedYear = ucal_get(countCal.get(), UCAL_EXTENDED_YEAR, &status);
+            int32_t savedYear = ucal_get(cal, UCAL_EXTENDED_YEAR, &status);
             if (U_FAILURE(status)) [[unlikely]]
                 return makeUnexpected(rangeError(icuReadCalendarFailed));
             int32_t monthsInYear = 1;
             for (int i = 0; i < 14; i++) {
-                ucal_add(countCal.get(), UCAL_MONTH, 1, &status);
+                ucal_add(cal, UCAL_MONTH, 1, &status);
                 if (U_FAILURE(status)) [[unlikely]]
                     return makeUnexpected(rangeError(icuCalendarArithmeticFailed));
-                int32_t curYear = ucal_get(countCal.get(), UCAL_EXTENDED_YEAR, &status);
+                int32_t curYear = ucal_get(cal, UCAL_EXTENDED_YEAR, &status);
                 if (U_FAILURE(status)) [[unlikely]]
                     return makeUnexpected(rangeError(icuReadCalendarFailed));
                 if (curYear != savedYear)
                     break;
                 monthsInYear++;
             }
+            // Reset to year start before advancing to target month.
+            ucal_setMillis(cal, calMs, &status);
+            if (U_FAILURE(status)) [[unlikely]]
+                return makeUnexpected(rangeError(icuSetCalendarFailed));
 
             // Clamp or reject month against monthsInYear.
             uint8_t resolvedMonth = month;
