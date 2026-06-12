@@ -28,6 +28,7 @@
 
 #include "CSSBasicShapeValue.h"
 #include "CSSKeywordValue.h"
+#include "CSSValuePool.h"
 #include "StyleBasicShape.h"
 #include "StyleBuilderState.h"
 #include "StyleComputedStyle.h"

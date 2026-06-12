@@ -36,6 +36,7 @@
 #include "Event.h"
 #include "EventListener.h"
 #include "EventNames.h"
+#include "FrameDestructionObserverInlines.h"
 #include "FrameInlines.h"
 #include "HTMLFrameOwnerElement.h"
 #include "HTMLNames.h"

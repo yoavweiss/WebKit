@@ -28,6 +28,7 @@
 #include "RemoveFormatCommand.h"
 
 #include "ApplyStyleCommand.h"
+#include "Document.h"
 #include "EditingStyle.h"
 #include "Element.h"
 #include "FrameSelection.h"

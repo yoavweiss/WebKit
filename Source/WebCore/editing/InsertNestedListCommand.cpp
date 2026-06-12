@@ -26,6 +26,7 @@
 #include "config.h"
 #include "InsertNestedListCommand.h"
 
+#include "Document.h"
 #include "Editing.h"
 #include "HTMLLIElement.h"
 #include "HTMLNames.h"

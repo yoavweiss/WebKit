@@ -35,6 +35,7 @@
 #include "Chrome.h"
 #include "ChromeClient.h"
 #include "ContainerNodeInlines.h"
+#include "DocumentPage.h"
 #include "DocumentView.h"
 #include "FrameDestructionObserverInlines.h"
 #include "FrameInlines.h"

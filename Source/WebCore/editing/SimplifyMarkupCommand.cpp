@@ -27,6 +27,7 @@
 #include "SimplifyMarkupCommand.h"
 
 #include "ContainerNodeInlines.h"
+#include "HTMLElement.h"
 #include "HTMLNames.h"
 #include "NodeRenderStyle.h"
 #include "NodeTraversal.h"
