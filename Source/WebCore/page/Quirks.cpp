@@ -2573,6 +2573,35 @@ bool Quirks::needsHideSelectionDuringOverflowScrollQuirk() const
     QUIRKS_EARLY_RETURN_IF_DISABLED_WITH_VALUE(false);
     return m_quirksData.quirkIsEnabled(QuirksData::SiteSpecificQuirk::NeedsHideSelectionDuringOverflowScrollQuirk);
 }
+
+// amazon.design rdar://175953409
+bool Quirks::needsAmazonDesignMenuViewportUnitQuirk(const Style::ComputedStyle& style, const Style::ComputedStyle& parentStyle) const
+{
+    QUIRKS_EARLY_RETURN_IF_DISABLED_WITH_VALUE(false);
+
+    if (!m_quirksData.quirkIsEnabled(QuirksData::SiteSpecificQuirk::NeedsAmazonDesignMenuViewportUnitQuirk))
+        return false;
+
+    if (style.display() != Style::DisplayType::BlockFlex)
+        return false;
+
+    if (!style.usesViewportUnits())
+        return false;
+
+    auto fixedPaddingTop = parentStyle.paddingTop().tryFixed();
+    if (!fixedPaddingTop)
+        return false;
+
+    auto fixedHeight = style.height().tryFixed();
+    if (!fixedHeight)
+        return false;
+
+    auto resolvedPaddingTop = fixedPaddingTop->resolveZoom(Style::ZoomFactor::none());
+    auto resolvedHeight = fixedHeight->resolveZoom(Style::ZoomFactor::none());
+    auto dynamicViewportHeight = m_document->renderView()->sizeForCSSDynamicViewportUnits().height();
+
+    return (resolvedPaddingTop + resolvedHeight) > dynamicViewportHeight;
+}
 #endif
 
 bool Quirks::needsLimitedMatroskaSupport() const
@@ -3293,7 +3322,7 @@ static void handleRedditQuirks(QuirksData& quirksData, const URL& /* quirksURL *
 }
 #endif
 
-static void handleAmazonQuirks(QuirksData& quirksData, const URL& /* quirksURL */, const String& /* quirksDomainString */, const URL&  /* documentURL */)
+static void handleAmazonQuirks(QuirksData& quirksData, const URL& /* quirksURL */, const String& quirksDomainString, const URL&  /* documentURL */)
 {
     // Note: There is a userAgent override for rdar://117771731, see needsCustomUserAgentOverride()
     quirksData.isAmazon = true;
@@ -3306,6 +3335,13 @@ static void handleAmazonQuirks(QuirksData& quirksData, const URL& /* quirksURL *
         QuirksData::SiteSpecificQuirk::NeedsPrimeVideoUserSelectNoneQuirk,
 #endif
     });
+
+#if PLATFORM(IOS_FAMILY)
+    if (quirksDomainString == "amazon.design"_s)
+        quirksData.enableQuirk(QuirksData::SiteSpecificQuirk::NeedsAmazonDesignMenuViewportUnitQuirk);
+#else
+    UNUSED_PARAM(quirksDomainString);
+#endif
 }
 
 static void handleBBCQuirks(QuirksData& quirksData, const URL& /* quirksURL */, const String& quirksDomainString, const URL&  /* documentURL */)

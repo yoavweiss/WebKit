@@ -299,6 +299,7 @@ public:
     WEBCORE_EXPORT bool needsPointerTouchCompatibility(const Element&) const;
     WEBCORE_EXPORT bool shouldHideSoftTopScrollEdgeEffectDuringFocus(const Element&) const;
 
+    bool needsAmazonDesignMenuViewportUnitQuirk(const Style::ComputedStyle&, const Style::ComputedStyle& parentStyle) const;
     bool needsClaudeSidebarViewportUnitQuirk(Element&, const Style::ComputedStyle&) const;
     WEBCORE_EXPORT bool needsHideSelectionDuringOverflowScrollQuirk() const;
     bool needsChromeOSNavigatorUserAgentQuirk(const Document&) const;

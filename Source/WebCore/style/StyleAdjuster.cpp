@@ -1114,6 +1114,15 @@ void Adjuster::adjustForSiteSpecificQuirks(Style::ComputedStyle& style) const
 #if PLATFORM(IOS_FAMILY)
     if (documentQuirks.needsClaudeSidebarViewportUnitQuirk(*m_element, style))
         style.setHeight(PreferredSize::Fixed { m_document->renderView()->sizeForCSSDynamicViewportUnits().height() });
+
+    if (documentQuirks.needsAmazonDesignMenuViewportUnitQuirk(style, m_parentStyle)) {
+        if (auto fixedHeight = style.height().tryFixed()) {
+            auto resolvedHeight = fixedHeight->resolveZoom(ZoomFactor::none());
+            auto defaultViewportHeight = m_document->renderView()->sizeForCSSDefaultViewportUnits().height();
+            auto dynamicViewportHeight = m_document->renderView()->sizeForCSSDynamicViewportUnits().height();
+            style.setHeight(PreferredSize::Fixed { resolvedHeight - (defaultViewportHeight - dynamicViewportHeight) });
+        }
+    }
 #endif
 
 #if PLATFORM(MAC)

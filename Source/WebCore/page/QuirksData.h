@@ -85,6 +85,7 @@ struct QuirksData {
         NeedsChromeMediaControlsPseudoElementQuirk,
         NeedsLogoutCookieCleanupQuirk,
 #if PLATFORM(IOS_FAMILY)
+        NeedsAmazonDesignMenuViewportUnitQuirk,
         NeedsClaudeSidebarViewportUnitQuirk,
         NeedsHideSelectionDuringOverflowScrollQuirk,
 #endif
