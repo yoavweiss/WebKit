@@ -1075,7 +1075,7 @@ AXTextMarkerRef textMarkerForCharacterOffset(AXObjectCache* cache, const Charact
         return nil;
 
     auto textMarkerData = cache->textMarkerDataForCharacterOffset(characterOffset, origin);
-    if (!textMarkerData.objectID || textMarkerData.ignored)
+    if (!textMarkerData.objectID || textMarkerData.isRedacted)
         return nil;
     return adoptCF(AXTextMarkerCreate(kCFAllocatorDefault, (const UInt8*)&textMarkerData, sizeof(textMarkerData))).autorelease();
 }

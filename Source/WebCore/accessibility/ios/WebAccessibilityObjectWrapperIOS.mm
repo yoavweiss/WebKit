@@ -187,7 +187,7 @@ static AccessibilityObjectWrapper* AccessibilityUnignoredAncestor(AccessibilityO
         return nil;
 
     auto textMarkerData = cache->textMarkerDataForCharacterOffset(characterOffset);
-    if (!textMarkerData.objectID && !textMarkerData.ignored)
+    if (!textMarkerData.objectID && !textMarkerData.isRedacted)
         return nil;
     return adoptNS([[WebAccessibilityTextMarker alloc] initWithTextMarker:&textMarkerData cache:cache]).autorelease();
 }
@@ -220,7 +220,7 @@ static AccessibilityObjectWrapper* AccessibilityUnignoredAncestor(AccessibilityO
 
 - (BOOL)isIgnored
 {
-    return _textMarkerData.ignored;
+    return _textMarkerData.isRedacted;
 }
 
 - (RefPtr<AccessibilityObject>)accessibilityObject

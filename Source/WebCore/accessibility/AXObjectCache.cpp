@@ -3943,7 +3943,7 @@ VisiblePosition AXObjectCache::visiblePositionForTextMarkerData(const TextMarker
 
 CharacterOffset AXObjectCache::characterOffsetForTextMarkerData(const TextMarkerData& textMarkerData)
 {
-    if (textMarkerData.ignored)
+    if (textMarkerData.isRedacted)
         return { };
 
     RefPtr node = nodeForID(textMarkerData.axObjectID());
@@ -4222,9 +4222,9 @@ TextMarkerData AXObjectCache::textMarkerDataForCharacterOffset(const CharacterOf
         return { };
 
     if (RefPtr input = dynamicDowncast<HTMLInputElement>(characterOffset.node.get()); input && input->isSecureField())
-        return { *this, { }, true, origin };
+        return { *this, { }, /* isRedacted */ true, origin };
 
-    return { *this, characterOffset, false, origin };
+    return { *this, characterOffset, /* isRedacted */ false, origin };
 }
 
 CharacterOffset AXObjectCache::startOrEndCharacterOffsetForRange(const SimpleRange& range, bool isStart, bool enterTextControls)
@@ -4355,7 +4355,7 @@ TextMarkerData AXObjectCache::textMarkerDataForNextCharacterOffset(const Charact
         if (!range || !lengthForRange(*range))
             shouldContinue = true;
         previous = next;
-    } while (data.ignored || shouldContinue);
+    } while (data.isRedacted || shouldContinue);
     return data;
 }
 
@@ -4387,7 +4387,7 @@ TextMarkerData AXObjectCache::textMarkerDataForPreviousCharacterOffset(const Cha
         if (!range || !lengthForRange(*range))
             shouldContinue = true;
         next = previous;
-    } while (data.ignored || shouldContinue);
+    } while (data.isRedacted || shouldContinue);
     return data;
 }
 
@@ -4484,7 +4484,7 @@ CharacterOffset AXObjectCache::characterOffsetFromVisiblePosition(const VisibleP
 
 AccessibilityObject* AXObjectCache::objectForTextMarkerData(const TextMarkerData& textMarkerData)
 {
-    if (textMarkerData.ignored)
+    if (textMarkerData.isRedacted)
         return nullptr;
 
     RefPtr object = m_objects.get(*textMarkerData.axObjectID());
@@ -4509,7 +4509,12 @@ std::optional<TextMarkerData> AXObjectCache::textMarkerDataForVisiblePosition(co
     if (!node)
         return std::nullopt;
 
-    if (RefPtr input = dynamicDowncast<HTMLInputElement>(node); input && input->isSecureField())
+    auto isSecureField = [&node] () {
+        auto* input = dynamicDowncast<HTMLInputElement>(node.get());
+        return input && input->isSecureField();
+    };
+
+    if (isSecureField())
         return std::nullopt;
 
 #if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
@@ -4518,12 +4523,15 @@ std::optional<TextMarkerData> AXObjectCache::textMarkerDataForVisiblePosition(co
         // the rendered, post-whitespace-collapse text.
         unsigned domOffset = position.deprecatedEditingOffset();
 
-        auto createFromRendererAndOffset = [&origin, &visiblePosition] (RenderObject& renderer, unsigned offset) -> std::optional<TextMarkerData> {
+        auto createFromRendererAndOffset = [&] (RenderObject& renderer, unsigned offset) -> std::optional<TextMarkerData> {
             CheckedPtr cache = renderer.document().axObjectCache();
             RefPtr object = cache ? cache->getOrCreate(renderer) : nullptr;
             if (!object)
                 return std::nullopt;
 
+            // We hardcode isRedacted to false below because we early-return for secure fields above.
+            // Assert here in case the check gets moved or changed.
+            AX_ASSERT(!isSecureField());
             return std::optional(TextMarkerData {
                 cache->treeID(),
                 object->objectID(),
@@ -4532,7 +4540,7 @@ std::optional<TextMarkerData> AXObjectCache::textMarkerDataForVisiblePosition(co
                 visiblePosition.affinity(),
                 0,
                 offset,
-                object->isIgnored(),
+                /* isRedacted */ false,
                 origin
             });
         };
@@ -4589,7 +4597,7 @@ std::optional<TextMarkerData> AXObjectCache::textMarkerDataForVisiblePosition(co
     if (!cache)
         return std::nullopt;
     return { { *cache, visiblePosition,
-        characterOffset.startIndex, characterOffset.offset, false, origin } };
+        characterOffset.startIndex, characterOffset.offset, /* isRedacted */ false, origin } };
 }
 
 CharacterOffset AXObjectCache::nextCharacterOffset(const CharacterOffset& characterOffset, bool ignoreNextNodeStart)

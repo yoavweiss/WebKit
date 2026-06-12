@@ -65,7 +65,6 @@ accessibility/mac/text-marker-for-index-2.html [ Failure ]
 accessibility/mac/text-marker-word-nav.html [ Failure ]
 accessibility/mac/selected-visible-position-range.html [ Failure ]
 accessibility/mac/text-marker-word-nav.html [ Timeout ]
-accessibility/mac/text-operation/text-operation-replace-across-multiple-fields.html [ Failure ]
 accessibility/textarea-insertion-point-line-number.html [ Failure ]
 
 # We compute the wrong line index relative to what is actually visually laid out.
