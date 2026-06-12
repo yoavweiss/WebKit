@@ -2095,7 +2095,7 @@ typedef NS_ENUM(NSInteger, EndEditingReason) {
         };
 
         if (shouldBlurFocusedElement()) {
-            protect(_page)->blurFocusedElement();
+            protect(_page)->blurFocusedElement(_focusedElementInformation.frameID());
             // Don't wait for WebPageProxy::blurFocusedElement() to round-trip back to us to hide the keyboard
             // because we know that the user explicitly requested us to do so.
             [self _elementDidBlur];
@@ -5864,7 +5864,7 @@ static void logTextInteraction(const char* methodName, UIGestureRecognizer *loup
     if (!stayingWithinFocusedElement && self._hasFocusedElement) {
         _blurringFocusedElementForLoupeSelection = YES;
         cancelPotentialTapIfNecessary(self);
-        protect(_page)->blurFocusedElement();
+        protect(_page)->blurFocusedElement(_focusedElementInformation.frameID());
         BOOL isInteractingWithFocusedElement = false;
         [self.textInteractionLoupeGestureRecognizer _wk_cancel];
         protect(_page)->selectWithGesture(WebCore::IntPoint(point), WebKit::GestureType::Loupe, WebKit::GestureRecognizerState::Began, isInteractingWithFocusedElement,
@@ -9248,12 +9248,12 @@ static bool canUseQuickboardControllerFor(UITextContentType type)
 - (void)focusedFormControlViewDidSubmit:(WKFocusedFormControlView *)view
 {
     [self insertText:@"\n"];
-    _page->blurFocusedElement();
+    _page->blurFocusedElement(_focusedElementInformation.frameID());
 }
 
 - (void)focusedFormControlViewDidCancel:(WKFocusedFormControlView *)view
 {
-    _page->blurFocusedElement();
+    _page->blurFocusedElement(_focusedElementInformation.frameID());
 }
 
 - (void)focusedFormControlViewDidBeginEditing:(WKFocusedFormControlView *)view
@@ -12149,7 +12149,7 @@ static WebKit::DocumentEditingContextRequest toWebRequest(id request)
             [focusedFormController engageFocusedFormControlNavigation];
         }];
     } else
-        _page->blurFocusedElement();
+        _page->blurFocusedElement(_focusedElementInformation.frameID());
 
     bool shouldDismissViewController = [controller isKindOfClass:UIViewController.class]
 #if HAVE(QUICKBOARD_CONTROLLER)

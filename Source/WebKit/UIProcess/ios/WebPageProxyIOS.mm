@@ -832,9 +832,9 @@ void WebPageProxy::inspectorNodeSearchEndedAtPosition(const WebCore::FloatPoint&
     protect(legacyMainFrameProcess())->send(Messages::WebPage::InspectorNodeSearchEndedAtPosition(position), webPageIDInMainFrameProcess());
 }
 
-void WebPageProxy::blurFocusedElement()
+void WebPageProxy::blurFocusedElement(std::optional<WebCore::FrameIdentifier> frameID)
 {
-    protect(legacyMainFrameProcess())->send(Messages::WebPage::BlurFocusedElement(), webPageIDInMainFrameProcess());
+    sendToProcessContainingFrame(frameID, Messages::WebPage::BlurFocusedElement());
 }
 
 FloatSize WebPageProxy::screenSize()
