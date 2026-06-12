@@ -1117,6 +1117,8 @@ bool WebChromeClient::shouldNotifyOnFormChanges()
 RefPtr<PopupMenu> WebChromeClient::createPopupMenu(PopupMenuClient& client) const
 {
     RefPtr page = m_page.get();
+    if (!page)
+        return nullptr;
     return WebPopupMenu::create(page.get(), &client);
 }
 

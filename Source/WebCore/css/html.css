@@ -1187,6 +1187,55 @@ select optgroup legend {
     min-block-size: 1lh;
 }
 
+select::-internal-fallback-popup-menu {
+    min-width: 200px;
+    background-color: Canvas;
+    color: CanvasText;
+    border: 1px solid color-mix(in srgb, CanvasText 25%, transparent);
+    border-radius: 6px;
+    box-shadow: 0 4px 12px color-mix(in srgb, CanvasText 15%, transparent);
+    padding-block: 4px;
+    overflow: auto;
+    max-height: 50vh;
+    box-sizing: border-box;
+    z-index: 2147483647;
+}
+
+select::-internal-fallback-popup-menu-item,
+select::-internal-fallback-popup-menu-item-selected {
+    padding-block: 4px;
+    padding-inline: 12px;
+    cursor: default;
+    border-radius: 4px;
+    margin-inline: 4px;
+}
+
+select::-internal-fallback-popup-menu-item-selected {
+    background-color: color-mix(in srgb, Highlight 25%, Canvas);
+    font-weight: bold;
+}
+
+select::-internal-fallback-popup-menu-item:hover,
+select::-internal-fallback-popup-menu-item-selected:hover {
+    /* Items can have custom colors set but we want to always overrule them. */
+    background-color: Highlight !important;
+    color: HighlightText !important;
+}
+
+select::-internal-fallback-popup-menu-group-label {
+    padding-block: 4px;
+    padding-inline: 12px;
+    font-weight: bold;
+    color: color-mix(in srgb, CanvasText 60%, transparent);
+}
+
+select::-internal-fallback-popup-menu-separator {
+    border: none;
+    border-top: 1px solid color-mix(in srgb, CanvasText 20%, transparent);
+    margin-block: 4px;
+    margin-inline: 8px;
+}
+
 output {
     display: inline;
 }

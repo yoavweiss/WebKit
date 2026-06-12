@@ -424,7 +424,7 @@ public:
 #if !PLATFORM(COCOA)
     void setTextFromItemForPopupMenu(WebPopupMenuProxy*, int32_t index) final;
 #endif
-#if PLATFORM(GTK)
+#if PLATFORM(GTK) || PLATFORM(WPE)
     void failedToShowPopupMenu() final;
 #endif
 

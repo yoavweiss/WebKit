@@ -27,6 +27,7 @@
 
 #if ENABLE(VIDEO)
 
+#include "IntersectionObserver.h"
 #include <wtf/RefPtr.h>
 #include <wtf/TZoneMalloc.h>
 

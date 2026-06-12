@@ -143,6 +143,9 @@ public:
     PopupMenuStyle menuStyle() const override;
     int listSize() const override;
     void popupDidHide() override;
+#if PLATFORM(WPE)
+    void showFallbackPopupMenu() override;
+#endif
     bool itemIsSeparator(unsigned listIndex) const override;
     bool itemIsLabel(unsigned listIndex) const override;
     bool itemIsSelected(unsigned listIndex) const override;

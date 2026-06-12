@@ -6474,13 +6474,20 @@ void WebPage::setTextForActivePopupMenu(int32_t index)
 }
 #endif
 
-#if PLATFORM(GTK)
+#if PLATFORM(GTK) || PLATFORM(WPE)
 void WebPage::failedToShowPopupMenu()
 {
     if (!m_activePopupMenu)
         return;
 
-    m_activePopupMenu->client()->popupDidHide();
+    auto activePopupMenu = std::exchange(m_activePopupMenu, nullptr);
+    if (auto* popupClient = activePopupMenu->client()) {
+#if PLATFORM(WPE)
+        popupClient->showFallbackPopupMenu();
+#else
+        popupClient->popupDidHide();
+#endif
+    }
 }
 #endif
 

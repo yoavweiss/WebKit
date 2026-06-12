@@ -2524,7 +2524,7 @@ private:
     void setTextForActivePopupMenu(int32_t index);
 #endif
 
-#if PLATFORM(GTK)
+#if PLATFORM(GTK) || PLATFORM(WPE)
     void failedToShowPopupMenu();
 #endif
 

@@ -1591,6 +1591,7 @@ html/DirectoryFileListCreator.cpp
 html/EmailInputType.cpp
 html/EnterKeyHint.cpp
 html/FTPDirectoryDocument.cpp
+html/FallbackPopupMenu.cpp
 html/FileInputType.cpp
 html/FormAssociatedCustomElement.cpp
 html/FormAssociatedElement.cpp

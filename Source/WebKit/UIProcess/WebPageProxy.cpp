@@ -11874,7 +11874,7 @@ void WebPageProxy::postMessageToInjectedBundle(const String& messageName, API::O
     send(Messages::WebPage::PostInjectedBundleMessage(messageName, UserData(protect(legacyMainFrameProcess())->transformObjectsToHandles(messageBody).get())));
 }
 
-#if PLATFORM(GTK)
+#if PLATFORM(GTK) || PLATFORM(WPE)
 void WebPageProxy::Internals::failedToShowPopupMenu()
 {
     protect(page)->send(Messages::WebPage::FailedToShowPopupMenu());
