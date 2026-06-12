@@ -9481,6 +9481,46 @@ TEST(SiteIsolation, MultiProcessBFCacheSameSiteWithDifferentCrossSiteIframes)
     });
 }
 
+TEST(SiteIsolation, IframePushStateBackForwardRoutesToIframe)
+{
+    HTTPServer server({
+        { "/main"_s, { "<iframe src='https://a.com/frame'></iframe>"_s } },
+        { "/frame"_s, { "iframe content"_s } },
+    }, HTTPServer::Protocol::HttpsProxy);
+
+    auto [webView, navigationDelegate] = siteIsolatedViewAndDelegate(server);
+
+    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://a.com/main"]]];
+    [navigationDelegate waitForDidFinishNavigationAndLoadInSubframe];
+
+    WKFrameInfo *iframe = [webView firstChildFrame];
+
+    [webView objectByEvaluatingJavaScript:@"history.pushState(null, '', '?1')" inFrame:iframe];
+    [webView objectByEvaluatingJavaScript:@"history.pushState(null, '', '?2')" inFrame:iframe];
+    [webView objectByEvaluatingJavaScript:@"history.pushState(null, '', '?3')" inFrame:iframe];
+
+    EXPECT_WK_STREQ(@"?3", [webView objectByEvaluatingJavaScript:@"location.search" inFrame:iframe]);
+    EXPECT_WK_STREQ(@"https://a.com/main", [webView URL].absoluteString);
+
+    [webView objectByEvaluatingJavaScript:@"history.back()" inFrame:iframe];
+    while (![[webView objectByEvaluatingJavaScript:@"location.search" inFrame:iframe] isEqualToString:@"?2"])
+        TestWebKitAPI::Util::spinRunLoop();
+    EXPECT_WK_STREQ(@"?2", [webView objectByEvaluatingJavaScript:@"location.search" inFrame:iframe]);
+    EXPECT_WK_STREQ(@"https://a.com/main", [webView URL].absoluteString);
+
+    [webView objectByEvaluatingJavaScript:@"history.back()" inFrame:iframe];
+    while (![[webView objectByEvaluatingJavaScript:@"location.search" inFrame:iframe] isEqualToString:@"?1"])
+        TestWebKitAPI::Util::spinRunLoop();
+    EXPECT_WK_STREQ(@"?1", [webView objectByEvaluatingJavaScript:@"location.search" inFrame:iframe]);
+    EXPECT_WK_STREQ(@"https://a.com/main", [webView URL].absoluteString);
+
+    [webView objectByEvaluatingJavaScript:@"history.back()" inFrame:iframe];
+    while (![[webView objectByEvaluatingJavaScript:@"location.search" inFrame:iframe] isEqualToString:@""])
+        TestWebKitAPI::Util::spinRunLoop();
+    EXPECT_WK_STREQ(@"", [webView objectByEvaluatingJavaScript:@"location.search" inFrame:iframe]);
+    EXPECT_WK_STREQ(@"https://a.com/main", [webView URL].absoluteString);
+}
+
 TEST(SiteIsolation, ClearSiteDataClearsRemoteProcessMemoryCache)
 {
     HTTPServer server({

@@ -1079,8 +1079,7 @@ void HistoryController::pushState(RefPtr<SerializedScriptValue>&& stateObject, c
 
     bool shouldRestoreScrollPosition = currentItem->shouldRestoreScrollPosition();
 
-    // Get a HistoryItem tree for the current frame tree.
-    Ref topItem = frame->rootFrame().loader().history().createItemTree(page->historyItemClient(), frame, false, BackForwardItemIdentifier::generate());
+    Ref topItem = frame->loader().history().createItemTree(page->historyItemClient(), frame, false, BackForwardItemIdentifier::generate());
 
     RefPtr document = frame->document();
     if (document && !document->hasRecentUserInteractionForNavigationFromJS())
