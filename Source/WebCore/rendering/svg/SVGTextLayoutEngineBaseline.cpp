@@ -148,26 +148,50 @@ float SVGTextLayoutEngineBaseline::calculateAlignmentBaselineShift(bool isVertic
 
 float SVGTextLayoutEngineBaseline::calculateGlyphOrientationAngle(bool isVerticalText, const Style::ComputedStyle& style, const char32_t& character) const
 {
-    if (isVerticalText) {
-        return Style::valueRepresentation(style.glyphOrientationVertical(),
-            [&](const CSS::Keyword::Auto&) {
-                auto verticalOrientation = static_cast<UVerticalOrientation>(u_getIntPropertyValue(character, UCHAR_VERTICAL_ORIENTATION));
-                switch (verticalOrientation) {
-                case U_VO_UPRIGHT:
-                case U_VO_TRANSFORMED_UPRIGHT:
-                    return 0.0f;
-                case U_VO_ROTATED:
-                case U_VO_TRANSFORMED_ROTATED:
-                    return 90.0f;
-                }
-                RELEASE_ASSERT_NOT_REACHED();
-            },
-            [](const Style::Angle<>& angle) {
-                return Style::evaluate<float>(angle);
-            }
-        );
-    } else
+    if (!isVerticalText)
         return 0.0f;
+
+    auto writingMode = style.writingMode();
+
+    // In the sideways-* writing modes every glyph is typeset rotated a quarter
+    // turn toward the block direction, independent of 'text-orientation' and the
+    // character's intrinsic vertical orientation. sideways-rl rotates clockwise
+    // (90deg); sideways-lr rotates counter-clockwise (reported as -90deg).
+    if (!writingMode.isVerticalTypographic())
+        return writingMode.isBlockFlipped() ? 90.0f : 270.0f;
+
+    // In the vertical typographic modes (vertical-rl / vertical-lr) the CSS
+    // 'text-orientation' property (SVG2 / CSS Writing Modes 3) determines the
+    // glyph orientation, superseding the deprecated 'glyph-orientation-vertical'.
+    // The initial 'mixed' value falls back to 'glyph-orientation-vertical' so the
+    // legacy property keeps working when 'text-orientation' is unset.
+    // https://drafts.csswg.org/css-writing-modes-3/#text-orientation
+    switch (writingMode.computedTextOrientation()) {
+    case TextOrientation::Upright:
+        return 0.0f;
+    case TextOrientation::Sideways:
+        return 90.0f;
+    case TextOrientation::Mixed:
+        break;
+    }
+
+    return Style::valueRepresentation(style.glyphOrientationVertical(),
+        [&](const CSS::Keyword::Auto&) {
+            auto verticalOrientation = static_cast<UVerticalOrientation>(u_getIntPropertyValue(character, UCHAR_VERTICAL_ORIENTATION));
+            switch (verticalOrientation) {
+            case U_VO_UPRIGHT:
+            case U_VO_TRANSFORMED_UPRIGHT:
+                return 0.0f;
+            case U_VO_ROTATED:
+            case U_VO_TRANSFORMED_ROTATED:
+                return 90.0f;
+            }
+            RELEASE_ASSERT_NOT_REACHED();
+        },
+        [](const Style::Angle<>& angle) {
+            return Style::evaluate<float>(angle);
+        }
+    );
 }
 
 static inline bool glyphOrientationIsMultiplyOf180Degrees(float orientationAngle)
