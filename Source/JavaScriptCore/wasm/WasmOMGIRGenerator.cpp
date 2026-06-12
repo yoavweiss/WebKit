@@ -485,7 +485,6 @@ public:
     }
 
     // SIMD
-    bool NODELETE usesSIMD() { return m_info.usesSIMD(m_functionIndex); }
     void NODELETE notifyFunctionUsesSIMD() { ASSERT(m_info.usesSIMD(m_functionIndex)); }
     [[nodiscard]] PartialResult addSIMDLoad(ExpressionType pointer, uint32_t offset, ExpressionType& result, uint8_t memoryIndex);
     [[nodiscard]] PartialResult addSIMDStore(ExpressionType value, ExpressionType pointer, uint32_t offset, uint8_t memoryIndex);
@@ -1108,13 +1107,8 @@ private:
     const unsigned m_loopIndexForOSREntry { UINT_MAX };
     InliningNode* m_inlining { nullptr };
 
-    struct RootBlock {
-        BasicBlock* block;
-        bool usesSIMD;
-    };
-
     Procedure& m_proc;
-    Vector<RootBlock> m_rootBlocks;
+    Vector<BasicBlock*> m_rootBlocks;
     BasicBlock* m_topLevelBlock;
     BasicBlock* m_currentBlock { nullptr };
 
@@ -1274,8 +1268,8 @@ OMGIRGenerator::OMGIRGenerator(AbstractHeapRepository& heaps, CompilationContext
     , m_callSiteIndex(0)
 {
     m_topLevelBlock = m_proc.addBlock();
-    m_rootBlocks.append({ m_proc.addBlock(), m_info.usesSIMD(m_functionIndex) });
-    m_currentBlock = m_rootBlocks[0].block;
+    m_rootBlocks.append(m_proc.addBlock());
+    m_currentBlock = m_rootBlocks[0];
     m_instanceValue = rootCaller.m_instanceValue;
     m_vmValue = rootCaller.m_vmValue;
     m_baseMemoryValue = rootCaller.m_baseMemoryValue;
@@ -1307,8 +1301,8 @@ OMGIRGenerator::OMGIRGenerator(AbstractHeapRepository& heaps, CompilationContext
     , m_numImportFunctions(info.importFunctionCount())
 {
     m_topLevelBlock = m_proc.addBlock();
-    m_rootBlocks.append({ m_proc.addBlock(), m_info.usesSIMD(m_functionIndex) });
-    m_currentBlock = m_rootBlocks[0].block;
+    m_rootBlocks.append(m_proc.addBlock());
+    m_currentBlock = m_rootBlocks[0];
 
     // FIXME we don't really need to pin registers here if there's no memory. It makes wasm -> wasm thunks simpler for now. https://bugs.webkit.org/show_bug.cgi?id=166623
 
@@ -1541,7 +1535,7 @@ void OMGIRGenerator::insertEntrySwitch()
 
     m_currentBlock = m_topLevelBlock;
     m_currentBlock->appendNew<Value>(m_proc, EntrySwitch, Origin());
-    for (auto [block, _] : m_rootBlocks)
+    for (auto block : m_rootBlocks)
         m_currentBlock->appendSuccessor(FrequentedBlock(block));
 }
 
@@ -4582,8 +4576,8 @@ auto OMGIRGenerator::addLoop(BlockSignature&& signature, Stack& enclosingStack, 
         ASSERT(!m_inlineParent);
         materializeExpressionStackIntoVariables();
 
-        m_currentBlock = m_rootBlocks[0].block;
-        Value* pointer = m_rootBlocks[0].block->appendNew<ArgumentRegValue>(m_proc, Origin(), GPRInfo::argumentGPR0);
+        m_currentBlock = m_rootBlocks[0];
+        Value* pointer = m_rootBlocks[0]->appendNew<ArgumentRegValue>(m_proc, Origin(), GPRInfo::argumentGPR0);
 
         unsigned indexInBuffer = 0;
 
@@ -4931,7 +4925,7 @@ auto OMGIRGenerator::addCatchAllToUnreachable(ControlType& data) -> PartialResul
 Value* OMGIRGenerator::emitCatchImpl(CatchKind kind, ControlType& data, unsigned exceptionIndex)
 {
     m_currentBlock = m_proc.addBlock();
-    m_rootBlocks.append({ m_currentBlock, usesSIMD() });
+    m_rootBlocks.append(m_currentBlock);
 
     if (ControlType::isTry(data)) {
         if (kind == CatchKind::Catch)
@@ -4962,7 +4956,7 @@ Value* OMGIRGenerator::emitCatchImpl(CatchKind kind, ControlType& data, unsigned
 auto OMGIRGenerator::emitCatchTableImpl(ControlData& data, const ControlData::TryTableTarget& target) -> void
 {
     auto block = m_proc.addBlock();
-    m_rootBlocks.append({ block, usesSIMD() });
+    m_rootBlocks.append(block);
     auto oldBlock = m_currentBlock;
     m_currentBlock = block;
 
@@ -6033,15 +6027,15 @@ auto OMGIRGenerator::emitInlineDirectCall(InliningNode* inlining, FunctionCodeIn
     irGenerator.insertConstants();
     for (unsigned i = 1; i < irGenerator.m_rootBlocks.size(); ++i) {
         auto block = irGenerator.m_rootBlocks[i];
-        dataLogLnIf(WasmOMGIRGeneratorInternal::verboseInlining, "Block (", i, ")", block.block, " is an inline catch handler");
-        m_rootBlocks.append({ block.block, block.usesSIMD || irGenerator.usesSIMD() });
+        dataLogLnIf(WasmOMGIRGeneratorInternal::verboseInlining, "Block (", i, ")", block, " is an inline catch handler");
+        m_rootBlocks.append(block);
     }
     m_exceptionHandlers.appendVector(WTF::move(irGenerator.m_exceptionHandlers));
     if (irGenerator.m_exceptionHandlers.size())
         m_hasExceptionHandlers = true;
     RELEASE_ASSERT(!irGenerator.m_callSiteIndex);
 
-    irGenerator.m_topLevelBlock->appendNewControlValue(m_proc, B3::Jump, origin(), FrequentedBlock(irGenerator.m_rootBlocks[0].block));
+    irGenerator.m_topLevelBlock->appendNewControlValue(m_proc, B3::Jump, origin(), FrequentedBlock(irGenerator.m_rootBlocks[0]));
     m_makesCalls |= irGenerator.m_makesCalls;
     ASSERT(&irGenerator.m_proc == &m_proc);
 
