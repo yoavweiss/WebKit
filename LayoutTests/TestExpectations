@@ -8229,3 +8229,5 @@ imported/w3c/web-platform-tests/css/css-shapes/shape-outside/supported-shapes/sh
 imported/w3c/web-platform-tests/css/css-shapes/shape-outside/supported-shapes/shape/shape-outside-shape-001.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-shapes/shape-outside/supported-shapes/shape/shape-outside-shape-002.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-shapes/shape-outside/supported-shapes/shape/shape-outside-shape-003.html [ ImageOnlyFailure ]
+
+webkit.org/b/317017 imported/w3c/web-platform-tests/largest-contentful-paint/multiple-redirects-TAO.html [ Pass Failure ]
