@@ -784,6 +784,76 @@ TEST(ScreenTime, RemoveData)
         EXPECT_TRUE([deletedURLs containsObject:url]);
 }
 
+TEST(ScreenTime, RemoveDataDoesNotMatchUnanchoredHostSuffix)
+{
+    __block bool childRestrictionsDone = false;
+
+    RetainPtr exactMatchURL = adoptNS([[NSURL alloc] initWithString:@"https://github.com/WebKit/WebKit"]);
+    RetainPtr subdomainURL = adoptNS([[NSURL alloc] initWithString:@"https://www.github.com/apple"]);
+    RetainPtr unrelatedSuffixURL = adoptNS([[NSURL alloc] initWithString:@"https://notgithub.com/"]);
+
+    __block RetainPtr<NSSet<NSURL *>> fetchedURLs = adoptNS([[NSSet alloc] initWithArray:@[
+        exactMatchURL.get(),
+        subdomainURL.get(),
+        unrelatedSuffixURL.get()
+    ]]);
+
+    InstanceMethodSwizzler fetchHistorySwizzler {
+        PAL::getSTWebHistoryClassSingleton(),
+        @selector(fetchAllHistoryWithCompletionHandler:),
+        imp_implementationWithBlock(^(id object, void (^completionHandler)(NSSet<NSURL *> *urls, NSError *error)) {
+            completionHandler(fetchedURLs.get(), nil);
+        })
+    };
+
+    __block RetainPtr<NSMutableSet<NSURL *>> deletedURLs = adoptNS([[NSMutableSet alloc] init]);
+    InstanceMethodSwizzler deleteHistorySwizzler {
+        PAL::getSTWebHistoryClassSingleton(),
+        @selector(deleteHistoryForURL:),
+        imp_implementationWithBlock(^(id object, NSURL *url) {
+            [deletedURLs addObject:url];
+        })
+    };
+
+    RetainPtr dataTypeScreenTime = adoptNS([[NSSet alloc] initWithArray:@[ WKWebsiteDataTypeScreenTime ]]);
+
+    RetainPtr configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
+
+    RetainPtr websiteDataStore = [WKWebsiteDataStore defaultDataStore];
+    [configuration setWebsiteDataStore:websiteDataStore.get()];
+
+    RetainPtr webView = webViewForScreenTimeTests(configuration.get());
+
+    RetainPtr request = [NSURLRequest requestWithURL:exactMatchURL.get()];
+    auto swizzle = swizzleEnforcesChildRestrictions(childRestrictionsDone);
+    [webView synchronouslyLoadSimulatedRequest:request.get() responseHTMLString:@""];
+    TestWebKitAPI::Util::run(&childRestrictionsDone);
+
+    __block bool done = false;
+    [websiteDataStore fetchDataRecordsOfTypes:dataTypeScreenTime.get() completionHandler:^(NSArray<WKWebsiteDataRecord *> *dataRecords) {
+        // Remove data only for "github.com". The unrelated "notgithub.com" record is left in place;
+        // it must not be deleted just because its host ends with the literal "github.com".
+        RetainPtr<NSMutableArray<WKWebsiteDataRecord *>> recordsToRemove = adoptNS([[NSMutableArray alloc] init]);
+        for (WKWebsiteDataRecord *record in dataRecords) {
+            if ([record.displayName isEqualToString:@"github.com"])
+                [recordsToRemove addObject:record];
+        }
+
+        [websiteDataStore removeDataOfTypes:[WKWebsiteDataStore allWebsiteDataTypes] forDataRecords:recordsToRemove.get() completionHandler:^{
+            done = true;
+        }];
+    }];
+
+    TestWebKitAPI::Util::run(&done);
+
+    // "github.com" and its subdomain "www.github.com" should be deleted, but "notgithub.com"
+    // must survive: a bare hasSuffix: check would have incorrectly matched and deleted it.
+    EXPECT_EQ([deletedURLs count], 2u);
+    EXPECT_TRUE([deletedURLs containsObject:exactMatchURL.get()]);
+    EXPECT_TRUE([deletedURLs containsObject:subdomainURL.get()]);
+    EXPECT_FALSE([deletedURLs containsObject:unrelatedSuffixURL.get()]);
+}
+
 TEST(ScreenTime, OffscreenSystemScreenTimeBlockingView)
 {
     __block bool childRestrictionsDone = false;

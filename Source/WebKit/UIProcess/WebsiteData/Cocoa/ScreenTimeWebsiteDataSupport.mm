@@ -68,6 +68,15 @@ void getScreenTimeURLs(std::optional<WTF::UUID> identifier, CompletionHandler<vo
     }).get()];
 }
 
+static bool hostIsInDomain(NSString *host, NSString *domain)
+{
+    if (![host hasSuffix:domain])
+        return false;
+
+    NSUInteger suffixOffset = host.length - domain.length;
+    return !suffixOffset || [host characterAtIndex:suffixOffset - 1] == '.';
+}
+
 void removeScreenTimeData(const HashSet<URL>& websitesToRemove, const WebsiteDataStoreConfiguration& configuration, CompletionHandler<void()>&& completionHandler)
 {
     RetainPtr<NSString> profileIdentifier;
@@ -77,16 +86,19 @@ void removeScreenTimeData(const HashSet<URL>& websitesToRemove, const WebsiteDat
     RetainPtr webHistory = adoptNS([PAL::allocSTWebHistoryInstance() initWithProfileIdentifier:profileIdentifier.get()]);
 
     RetainPtr<NSMutableSet<NSString *>> websitesToRemoveDomains = [NSMutableSet set];
-    for (auto& url : websitesToRemove)
-        if (RetainPtr host = url.host().createNSString())
+    for (auto& url : websitesToRemove) {
+        if (RetainPtr host = url.host().createNSString(); host && [host length])
             [websitesToRemoveDomains addObject:host.get()];
+    }
 
     [webHistory fetchAllHistoryWithCompletionHandler:makeBlockPtr([webHistory, websitesToRemoveDomains, completionHandler = WTF::move(completionHandler)](NSSet<NSURL *> *urls, NSError *error) mutable {
         if (!error) {
             for (NSURL *url in urls) {
                 for (NSString *domainString in websitesToRemoveDomains.get()) {
-                    if ([[url host] hasSuffix:domainString])
+                    if (hostIsInDomain([url host], domainString)) {
                         [webHistory deleteHistoryForURL:url];
+                        break;
+                    }
                 }
             }
         }
