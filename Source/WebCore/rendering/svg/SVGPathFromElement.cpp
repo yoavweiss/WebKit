@@ -18,7 +18,7 @@
  */
 
 #include "config.h"
-#include "SVGPathData.h"
+#include "SVGPathFromElement.h"
 
 #include "ContainerNodeInlines.h"
 #include "NodeName.h"

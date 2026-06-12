@@ -128,7 +128,7 @@ rendering/svg/RenderSVGRoot.cpp
 rendering/svg/RenderSVGText.cpp
 rendering/svg/SVGContainerLayout.cpp
 rendering/svg/SVGPaintServerHandlingInlines.h
-rendering/svg/SVGPathData.cpp
+rendering/svg/SVGPathFromElement.cpp
 rendering/svg/SVGRenderSupport.cpp
 rendering/svg/SVGRenderTreeAsText.cpp
 rendering/svg/SVGRenderingContext.cpp

@@ -42,7 +42,7 @@
 #include "LegacyRenderSVGShapeInlines.h"
 #include "PointerEventsHitRules.h"
 #include "SVGElementTypeHelpers.h"
-#include "SVGPathData.h"
+#include "SVGPathFromElement.h"
 #include "SVGRenderingContext.h"
 #include "SVGResources.h"
 #include "SVGResourcesCache.h"

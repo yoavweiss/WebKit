@@ -42,7 +42,7 @@
 #include "SVGImageElement.h"
 #include "SVGMatrix.h"
 #include "SVGNames.h"
-#include "SVGPathData.h"
+#include "SVGPathFromElement.h"
 #include "SVGRect.h"
 #include "SVGRenderSupport.h"
 #include "SVGSVGElement.h"
