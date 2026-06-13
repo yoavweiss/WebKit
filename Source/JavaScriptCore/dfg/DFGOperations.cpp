@@ -4104,13 +4104,13 @@ JSC_DEFINE_JIT_OPERATION(operationStringSplitRegExp, EncodedJSValue, (JSGlobalOb
         OPERATION_RETURN(scope, JSValue::encode(result));
     }
     // No @@split — ToString the separator and use the string-separator engine.
-    JSString* separatorString = separator->toString(globalObject);
-    OPERATION_RETURN_IF_EXCEPTION(scope, encodedJSValue());
     unsigned limit = 0xFFFFFFFFu;
     if (!limitValue.isUndefined()) {
         limit = limitValue.toUInt32(globalObject);
         OPERATION_RETURN_IF_EXCEPTION(scope, encodedJSValue());
     }
+    JSString* separatorString = separator->toString(globalObject);
+    OPERATION_RETURN_IF_EXCEPTION(scope, encodedJSValue());
     OPERATION_RETURN(scope, JSValue::encode(stringSplitFast(globalObject, thisString, separatorString, limit)));
 }
 

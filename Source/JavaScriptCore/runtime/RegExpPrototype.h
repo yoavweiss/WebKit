@@ -59,6 +59,7 @@ class RegExpObject;
 class JSString;
 
 JSValue regExpMatchFast(JSGlobalObject*, RegExpObject*, JSString* inputString);
+JSValue regExpReplaceGeneric(JSGlobalObject*, JSObject* thisObject, JSString* inputString, JSValue replaceValue);
 JSValue regExpSearchFast(JSGlobalObject*, RegExpObject*, JSString* inputString);
 JSValue regExpSearchGeneric(JSGlobalObject*, JSObject* thisObject, JSString* inputString);
 JSCell* regExpSplitFast(JSGlobalObject*, RegExpObject*, JSString* inputString, unsigned limit);

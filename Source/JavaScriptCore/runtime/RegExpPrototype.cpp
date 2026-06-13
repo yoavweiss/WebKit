@@ -1074,24 +1074,11 @@ static inline String getSubstitution(JSGlobalObject* globalObject, const String&
     return result.toString();
 }
 
-// 22.2.6.11 RegExp.prototype [ %Symbol.replace% ] ( string, replaceValue )
-// https://tc39.es/ecma262/#sec-regexp.prototype-%25symbol.replace%25
-JSC_DEFINE_HOST_FUNCTION(regExpProtoFuncReplace, (JSGlobalObject* globalObject, CallFrame* callFrame))
+JSValue regExpReplaceGeneric(JSGlobalObject* globalObject, JSObject* thisObject, JSString* string, JSValue replaceValue)
 {
     VM& vm = globalObject->vm();
     auto scope = DECLARE_THROW_SCOPE(vm);
 
-    // 1. Let rx be the this value.
-    JSValue thisValue = callFrame->thisValue();
-
-    // 2. If Type(rx) is not Object, throw a TypeError exception.
-    if (!thisValue.isObject()) [[unlikely]]
-        return throwVMTypeError(globalObject, scope, "RegExp.prototype.@@replace requires that |this| be an Object"_s);
-    JSObject* thisObject = asObject(thisValue);
-
-    // 3. Let S be ? ToString(string).
-    JSString* string = callFrame->argument(0).toString(globalObject);
-    RETURN_IF_EXCEPTION(scope, { });
     String str = string->value(globalObject);
     RETURN_IF_EXCEPTION(scope, { });
 
@@ -1099,7 +1086,6 @@ JSC_DEFINE_HOST_FUNCTION(regExpProtoFuncReplace, (JSGlobalObject* globalObject, 
 
     // 4. Let lengthS be the number of code unit elements in S.
     // 5. Let functionalReplace be IsCallable(replaceValue).
-    JSValue replaceValue = callFrame->argument(1);
     auto callData = JSC::getCallData(replaceValue);
     bool functionalReplace = callData.type != CallData::Type::None;
 
@@ -1138,7 +1124,7 @@ JSC_DEFINE_HOST_FUNCTION(regExpProtoFuncReplace, (JSGlobalObject* globalObject, 
     // 12. Repeat, while done is false,
     while (true) {
         // a. Let result be ? RegExpExec(rx, S).
-        JSValue result = regExpExec(globalObject, thisValue, string);
+        JSValue result = regExpExec(globalObject, thisObject, string);
         RETURN_IF_EXCEPTION(scope, { });
 
         // b. If result is null, then
@@ -1318,7 +1304,7 @@ JSC_DEFINE_HOST_FUNCTION(regExpProtoFuncReplace, (JSGlobalObject* globalObject, 
             throwOutOfMemoryError(globalObject, scope);
             return { };
         }
-        return JSValue::encode(jsString(vm, accumulatedResult.toString()));
+        return jsString(vm, accumulatedResult.toString());
     }
 
     // 17. Return the string-concatenation of accumulatedResult and the substring of S from nextSourcePosition.
@@ -1327,7 +1313,25 @@ JSC_DEFINE_HOST_FUNCTION(regExpProtoFuncReplace, (JSGlobalObject* globalObject, 
         throwOutOfMemoryError(globalObject, scope);
         return { };
     }
-    return JSValue::encode(jsString(vm, accumulatedResult.toString()));
+    return jsString(vm, accumulatedResult.toString());
+}
+
+// 22.2.6.11 RegExp.prototype [ %Symbol.replace% ] ( string, replaceValue )
+// https://tc39.es/ecma262/#sec-regexp.prototype-%25symbol.replace%25
+JSC_DEFINE_HOST_FUNCTION(regExpProtoFuncReplace, (JSGlobalObject* globalObject, CallFrame* callFrame))
+{
+    VM& vm = globalObject->vm();
+    auto scope = DECLARE_THROW_SCOPE(vm);
+
+    JSValue thisValue = callFrame->thisValue();
+    if (!thisValue.isObject()) [[unlikely]]
+        return throwVMTypeError(globalObject, scope, "RegExp.prototype.@@replace requires that |this| be an Object"_s);
+    JSObject* thisObject = asObject(thisValue);
+
+    JSString* string = callFrame->argument(0).toString(globalObject);
+    RETURN_IF_EXCEPTION(scope, { });
+
+    RELEASE_AND_RETURN(scope, JSValue::encode(regExpReplaceGeneric(globalObject, thisObject, string, callFrame->argument(1))));
 }
 
 // https://tc39.es/ecma262/#sec-regexp.prototype-%symbol.matchall%

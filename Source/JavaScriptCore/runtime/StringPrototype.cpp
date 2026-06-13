@@ -615,7 +615,9 @@ JSC_DEFINE_HOST_FUNCTION(stringProtoFuncReplace, (JSGlobalObject* globalObject, 
         if (regExpObject && regExpObject->isSymbolReplaceFastAndNonObservable()) [[likely]] {
             JSString* string = thisValue.toString(globalObject);
             RETURN_IF_EXCEPTION(scope, { });
-            RELEASE_AND_RETURN(scope, JSValue::encode(replaceUsingRegExpSearch(vm, globalObject, string, regExpObject, callFrame->argument(1))));
+            if (regExpObject->isSymbolReplaceFastAndNonObservable()) [[likely]]
+                RELEASE_AND_RETURN(scope, JSValue::encode(replaceUsingRegExpSearch(vm, globalObject, string, regExpObject, callFrame->argument(1))));
+            RELEASE_AND_RETURN(scope, JSValue::encode(regExpReplaceGeneric(globalObject, regExpObject, string, callFrame->argument(1))));
         }
 
         JSObject* searchObject = asObject(searchValue);
@@ -676,7 +678,9 @@ JSC_DEFINE_HOST_FUNCTION(stringProtoFuncReplaceAll, (JSGlobalObject* globalObjec
                 return throwVMTypeError(globalObject, scope, "String.prototype.replaceAll argument must not be a non-global regular expression"_s);
             JSString* string = thisValue.toString(globalObject);
             RETURN_IF_EXCEPTION(scope, { });
-            RELEASE_AND_RETURN(scope, JSValue::encode(replaceUsingRegExpSearch(vm, globalObject, string, regExpObject, callFrame->argument(1))));
+            if (regExpObject->isSymbolReplaceFastAndNonObservable()) [[likely]]
+                RELEASE_AND_RETURN(scope, JSValue::encode(replaceUsingRegExpSearch(vm, globalObject, string, regExpObject, callFrame->argument(1))));
+            RELEASE_AND_RETURN(scope, JSValue::encode(regExpReplaceGeneric(globalObject, regExpObject, string, callFrame->argument(1))));
         }
 
         bool searchValueIsRegExp = isRegExp(vm, globalObject, searchValue);
