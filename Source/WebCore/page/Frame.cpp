@@ -442,4 +442,5 @@ TextStream& operator<<(TextStream& ts, const Frame& frame)
     return ts;
 }
 
+
 } // namespace WebCore

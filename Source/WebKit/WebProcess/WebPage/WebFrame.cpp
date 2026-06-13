@@ -302,9 +302,7 @@ FrameInfoData WebFrame::info(WithCertificateInfo withCertificateInfo) const
     RefPtr loadingFrame = m_provisionalFrame ? m_provisionalFrame : coreLocalFrame;
 
     WebFrameMetrics metrics;
-    SecurityOriginData securityOriginData;
     FrameType frameType = FrameType::Local;
-    String frameName;
     if (coreFrame) {
         if (RefPtr coreView = coreFrame->virtualView()) {
             IsScrollable isScrollable = hasHorizontalScrollbar() || hasVerticalScrollbar() ? IsScrollable::Yes : IsScrollable::No;
@@ -313,10 +311,8 @@ FrameInfoData WebFrame::info(WithCertificateInfo withCertificateInfo) const
             auto visibleContentSizeExcludingScrollbars = coreView->visibleContentRect().size();
             metrics = { isScrollable, contentSize, visibleContentSize, visibleContentSizeExcludingScrollbars };
         }
-        securityOriginData = SecurityOriginData::fromFrame(*coreFrame);
         if (coreFrame->frameType() == WebCore::Frame::FrameType::Remote)
             frameType = FrameType::Remote;
-        frameName = coreFrame->tree().specifiedName().string();
     }
 
     return {
@@ -324,8 +320,9 @@ FrameInfoData WebFrame::info(WithCertificateInfo withCertificateInfo) const
         frameType,
         // FIXME: This should use the full request.
         ResourceRequest(url()),
-        WTF::move(securityOriginData),
-        WTF::move(frameName),
+        coreFrame ? SecurityOriginData::fromFrame(*coreFrame) : SecurityOriginData { },
+        coreFrame ? coreFrame->topOrigin().data() : SecurityOriginData { },
+        coreFrame ? coreFrame->tree().specifiedName().string() : String(),
         frameID(),
         page ? std::optional { page->webPageProxyIdentifier() } : std::nullopt,
         parent ? std::optional { parent->frameID() } : std::nullopt,
