@@ -153,7 +153,7 @@ FloatRect SVGBoundingBoxComputation::handleRootOrContainer(const SVGBoundingBoxC
         ASSERT(child.isSVGLayerAwareRenderer());
         ASSERT(!child.isRenderSVGRoot());
 
-        auto transform = SVGTransformComputation(child).computeAccumulatedTransform(m_renderer.ptr(), TransformState::TrackSVGCTMMatrix);
+        auto transform = SVGTransformComputation(child).computeAccumulatedTransform(m_renderer.ptr(), TransformState::TrackSVGCTMMatrix, StopAtRendererTransform::Exclude);
         return transform.isIdentity() ? std::nullopt : std::make_optional(WTF::move(transform));
     };
 
@@ -239,9 +239,9 @@ FloatRect SVGBoundingBoxComputation::handleRootOrContainer(const SVGBoundingBoxC
         ASSERT(is<RenderSVGViewportContainer>(m_renderer) || is<RenderSVGResourceMarker>(m_renderer) || is<RenderSVGRoot>(m_renderer));
 
         LayoutRect overflowClipRect;
-        if (CheckedPtr svgModelObject = dynamicDowncast<RenderSVGModelObject>(m_renderer.get()))
-            overflowClipRect = svgModelObject->overflowClipRect(svgModelObject->currentSVGLayoutLocation());
-        else if (CheckedPtr box = dynamicDowncast<RenderBox>(m_renderer.get()))
+        if (CheckedPtr svgModelObject = dynamicDowncast<RenderSVGModelObject>(m_renderer.get())) {
+            overflowClipRect = svgModelObject->overflowClipRect(LayoutPoint());
+        } else if (CheckedPtr box = dynamicDowncast<RenderBox>(m_renderer.get()))
             overflowClipRect = box->overflowClipRect(box->location());
         else {
             ASSERT_NOT_REACHED();
@@ -322,14 +322,19 @@ void SVGBoundingBoxComputation::adjustBoxForClippingAndEffects(const SVGBounding
 
 LayoutRect SVGBoundingBoxComputation::computeVisualOverflowRect(const RenderLayerModelObject& renderer)
 {
-    DecorationOptions options = repaintBoundingBoxDecoration | DecorationOption::IncludeOutline | DecorationOption::IgnoreTransformations;
+    // Visual overflow must include descendant transforms: a non-layer transformed descendant paints
+    // directly into this renderer, so its transformed bounds belong here. (The transform-ignored
+    // variant is reserved for objectBoundingBoxWithoutTransformations, which defines the SVG layout
+    // location and must stay flattened.) The result is expressed relative to nominalSVGLayoutLocation(),
+    // so a container whose content is shifted by a descendant transform is bounded where it paints.
+    DecorationOptions options = repaintBoundingBoxDecoration | DecorationOption::IncludeOutline;
     if (is<RenderSVGContainer>(renderer))
         options = options | DecorationOption::UseFilterBoxOnEmptyRect;
-    auto repaintBoundingBoxWithoutTransformations = computeDecoratedBoundingBox(renderer, options);
-    if (repaintBoundingBoxWithoutTransformations.isEmpty())
+    auto decoratedBoundingBox = computeDecoratedBoundingBox(renderer, options);
+    if (decoratedBoundingBox.isEmpty())
         return { };
 
-    auto visualOverflowRect = enclosingLayoutRect(repaintBoundingBoxWithoutTransformations);
+    auto visualOverflowRect = enclosingLayoutRect(decoratedBoundingBox);
     visualOverflowRect.moveBy(-renderer.nominalSVGLayoutLocation());
     return visualOverflowRect;
 }

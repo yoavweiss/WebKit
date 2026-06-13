@@ -29,6 +29,8 @@
 
 namespace WebCore {
 
+enum class StopAtRendererTransform : bool { Exclude, Include };
+
 class SVGTransformComputation {
     WTF_MAKE_NONCOPYABLE(SVGTransformComputation);
 public:
@@ -39,7 +41,7 @@ public:
 
     ~SVGTransformComputation() = default;
 
-    AffineTransform computeAccumulatedTransform(const RenderLayerModelObject* stopAtRenderer, TransformState::TransformMatrixTracking trackingMode) const
+    AffineTransform computeAccumulatedTransform(const RenderLayerModelObject* stopAtRenderer, TransformState::TransformMatrixTracking trackingMode, StopAtRendererTransform stopAtRendererTransform = StopAtRendererTransform::Include) const
     {
         // The mapping into parent coordinate systems stops at this renderer,
         // as mapLocalContainer exits if "ancestorContainer == this" is fulfilled.
@@ -63,8 +65,11 @@ public:
             if (!stopAtRenderer) {
                 if (auto* svgRoot = ancestorsOfType<RenderSVGRoot>(*renderer).first())
                     ancestorContainer = svgRoot->viewportContainer();
-            } else if (const auto* enclosingLayerRenderer = ancestorsOfType<RenderLayerModelObject>(*stopAtRenderer).first())
-                ancestorContainer = enclosingLayerRenderer;
+            } else if (stopAtRendererTransform == StopAtRendererTransform::Include) {
+                if (const auto* enclosingLayerRenderer = ancestorsOfType<RenderLayerModelObject>(*stopAtRenderer).first())
+                    ancestorContainer = enclosingLayerRenderer;
+            } else
+                ancestorContainer = stopAtRenderer;
         } else if (trackingMode == TransformState::TrackSVGScreenCTMMatrix && stopAtRenderer) {
             ASSERT(stopAtRenderer->isComposited());
             ancestorContainer = ancestorsOfType<RenderLayerModelObject>(*stopAtRenderer).first();
