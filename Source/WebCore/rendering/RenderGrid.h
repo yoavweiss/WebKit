@@ -166,6 +166,7 @@ private:
     friend class GridTrackSizingAlgorithmStrategy;
     friend class GridMasonryLayout;
     friend class PositionedLayoutConstraints;
+    friend class LayoutIntegration::GridLayout;
 
     inline void updateGridAreaWithEstimate(RenderBox& gridItem, const GridTrackSizingAlgorithm&) const;
     inline void updateGridAreaIncludingAlignment(RenderBox& gridItem) const;
