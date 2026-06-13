@@ -703,6 +703,10 @@ bool RenderSVGText::nodeAtPoint(const HitTestRequest& request, HitTestResult& re
 
     auto adjustedLocation = accumulatedOffset + location();
 
+    // SVG text is hit per glyph in the foreground phase only, like RenderSVGShape.
+    if (hitTestAction != HitTestAction::Foreground)
+        return false;
+
     PointerEventsHitRules hitRules(PointerEventsHitRules::HitTestingTargetType::SVGText, request, style().pointerEvents());
     if (request.isVisibleForStyle(style()) || !hitRules.requireVisible) {
         if ((hitRules.canHitStroke && (!style().stroke().isNone() || !hitRules.requireStroke))
@@ -715,14 +719,18 @@ bool RenderSVGText::nodeAtPoint(const HitTestRequest& request, HitTestResult& re
 
             SVGVisitedRendererTracking::Scope recursionScope(recursionTracking, *this);
 
-            auto localPoint = locationInContainer.point();
+            // The inline text fragments are positioned in this element's SVG coordinate system, so
+            // the query point and the offset that places the line boxes must both be expressed there.
+            // coordinateSystemOriginTranslation maps the caller's space into it, and is non-zero for
+            // a text layer whose origin differs from the SVG coordinate system. Shift both the
+            // location and the offset by it.
             auto coordinateSystemOriginTranslation = nominalSVGLayoutLocation() - adjustedLocation;
-            localPoint.move(coordinateSystemOriginTranslation);
+            HitTestLocation localLocation(locationInContainer, coordinateSystemOriginTranslation);
 
-            if (!pointInSVGClippingArea(localPoint))
+            if (!pointInSVGClippingArea(localLocation.point()))
                 return false;
 
-            return RenderBlock::nodeAtPoint(request, result, locationInContainer, accumulatedOffset, hitTestAction);
+            return RenderBlock::nodeAtPoint(request, result, localLocation, accumulatedOffset + coordinateSystemOriginTranslation, hitTestAction);
         }
     }
 
