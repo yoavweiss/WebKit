@@ -506,6 +506,7 @@ public:
     const Ref<WatchpointSet> m_varInjectionWatchpointSet;
     const Ref<WatchpointSet> m_varReadOnlyWatchpointSet;
     const Ref<WatchpointSet> m_regExpRecompiledWatchpointSet;
+    const Ref<WatchpointSet> m_regExpLastIndexWritableWatchpointSet;
     const Ref<WatchpointSet> m_arrayBufferDetachWatchpointSet;
 
     struct RareData;
@@ -1147,6 +1148,7 @@ public:
     WatchpointSet& varInjectionWatchpointSet() { return m_varInjectionWatchpointSet.get(); }
     WatchpointSet& varReadOnlyWatchpointSet() { return m_varReadOnlyWatchpointSet.get(); }
     WatchpointSet& regExpRecompiledWatchpointSet() { return m_regExpRecompiledWatchpointSet.get(); }
+    WatchpointSet& regExpLastIndexWritableWatchpointSet() { return m_regExpLastIndexWritableWatchpointSet.get(); }
     WatchpointSet& arrayBufferDetachWatchpointSet() { return m_arrayBufferDetachWatchpointSet.get(); }
 
     bool isHavingABadTime() const

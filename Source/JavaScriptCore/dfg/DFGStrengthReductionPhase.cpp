@@ -760,6 +760,7 @@ private:
 
             Node* regExpObjectNode = nullptr;
             RegExp* regExp = nullptr;
+            JSGlobalObject* regExpRealm = nullptr;
             bool regExpObjectNodeIsConstant = false;
             if (m_node->op() == RegExpExec || m_node->op() == RegExpTest || m_node->op() == RegExpMatchFast || m_node->op() == RegExpSearch) {
                 regExpObjectNode = m_node->child2().node();
@@ -771,6 +772,7 @@ private:
                     }
                     m_graph.watchpoints().addLazily(globalObject->regExpRecompiledWatchpointSet());
                     regExp = regExpObject->regExp();
+                    regExpRealm = globalObject;
                     regExpObjectNodeIsConstant = true;
                 } else if (regExpObjectNode->op() == NewRegExp) {
                     JSGlobalObject* globalObject = m_graph.globalObjectFor(regExpObjectNode->origin.semantic);
@@ -780,6 +782,7 @@ private:
                     }
                     m_graph.watchpoints().addLazily(globalObject->regExpRecompiledWatchpointSet());
                     regExp = regExpObjectNode->castOperand<RegExp*>();
+                    regExpRealm = globalObject;
                 } else {
                     dataLogLnIf(verbose, "Giving up because the regexp is unknown.");
                     break;
@@ -1070,7 +1073,28 @@ private:
                 // Because SetRegExpObjectLastIndex may exit and it clobbers exit state, we do that
                 // first.
 
-                if (regExp->globalOrSticky() && !wasSearch) {
+                if (wasSearch) {
+                    ASSERT(regExpObjectNode);
+                    ASSERT(regExpRealm);
+                    WatchpointSet& lastIndexWritableWatchpointSet = regExpRealm->regExpLastIndexWritableWatchpointSet();
+                    if (lastIndexWritableWatchpointSet.isStillValid())
+                        m_graph.watchpoints().addLazily(lastIndexWritableWatchpointSet);
+                    else {
+                        // The watchpoint has already fired, so guard at runtime instead: storing
+                        // lastIndex back to itself is a no-op when it is writable, and exits when
+                        // it is not, so that @@search throws the TypeError the spec requires.
+                        Node* lastIndexNode = m_insertionSet.insertNode(
+                            m_nodeIndex, SpecNone, GetRegExpObjectLastIndex, origin,
+                            Edge(regExpObjectNode, RegExpObjectUse));
+                        m_insertionSet.insertNode(
+                            m_nodeIndex, SpecNone, SetRegExpObjectLastIndex, origin,
+                            OpInfo(false),
+                            Edge(regExpObjectNode, RegExpObjectUse),
+                            Edge(lastIndexNode, UntypedUse));
+
+                        origin = origin.withInvalidExit();
+                    }
+                } else if (regExp->globalOrSticky()) {
                     ASSERT(regExpObjectNode);
                     m_insertionSet.insertNode(
                         m_nodeIndex, SpecNone, SetRegExpObjectLastIndex, origin,
