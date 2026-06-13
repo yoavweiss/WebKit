@@ -3016,7 +3016,8 @@ private:
             break;
         }
 
-        case StringIteratorNext: {
+        case StringIteratorNext:
+        case StringIteratorNextWithUndefined: {
             fixEdge<StringUse>(node->child1());
             fixEdge<Int32Use>(node->child2());
             m_graph.m_tupleData.at(node->tupleOffset()).resultFlags = NodeResultJS;

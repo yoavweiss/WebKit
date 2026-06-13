@@ -2362,6 +2362,7 @@ void clobberize(Graph& graph, Node* node, const ReadFunctor& read, const WriteFu
         return;
 
     case StringIteratorNext:
+    case StringIteratorNextWithUndefined:
         // Reads only immutable string contents and allocates the result string, so it is pure
         // with respect to the heap. It never touches the iterator object, so the
         // GetInternalField/PutInternalField pair around it stays visible to

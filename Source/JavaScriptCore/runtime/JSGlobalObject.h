@@ -982,6 +982,7 @@ public:
     Structure* stringObjectStructure() const { return m_stringObjectStructure.get(); }
     Structure* symbolObjectStructure() const { return m_symbolObjectStructure.get(); }
     Structure* iteratorResultObjectStructure() const { return m_iteratorResultObjectStructure.get(this); }
+    Structure* iteratorResultObjectStructureConcurrently() const { return m_iteratorResultObjectStructure.getConcurrently(); }
     Structure* dataPropertyDescriptorObjectStructure() const { return m_dataPropertyDescriptorObjectStructure.get(this); }
     Structure* accessorPropertyDescriptorObjectStructure() const { return m_accessorPropertyDescriptorObjectStructure.get(this); }
     Structure* promiseCapabilityObjectStructure() const { return m_promiseCapabilityObjectStructure.get(this); }

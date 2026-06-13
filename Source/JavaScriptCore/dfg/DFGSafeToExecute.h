@@ -338,6 +338,7 @@ bool safeToExecute(AbstractStateType& state, Graph& graph, Node* node, bool igno
     case MapIteratorKey:
     case MapIteratorValue:
     case StringIteratorNext:
+    case StringIteratorNextWithUndefined:
     case ExtractValueFromWeakMapGet:
     case WeakMapGet:
     case AtomicsIsLockFree:

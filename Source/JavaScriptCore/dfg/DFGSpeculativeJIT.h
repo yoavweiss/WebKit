@@ -969,6 +969,21 @@ public:
         info.initCell(node, refCount, reg);
     }
 
+#if USE(JSVALUE64)
+    void jsValueTupleResultWithoutUsingChildren(GPRReg reg, Node* node, unsigned index)
+    {
+        ASSERT(index < node->tupleSize());
+        unsigned refCount = m_graph.m_tupleData.at(node->tupleOffset() + index).refCount;
+        if (!refCount)
+            return;
+        ASSERT(refCount == 1);
+        VirtualRegister virtualRegister = m_graph.m_tupleData.at(node->tupleOffset() + index).virtualRegister;
+        GenerationInfo& info = generationInfoFromVirtualRegister(virtualRegister);
+        m_gprs.retain(reg, virtualRegister, SpillOrderJS);
+        info.initJSValue(node, refCount, reg, DataFormatJS);
+    }
+#endif
+
     template<typename OperationType>
     void operationExceptionCheck()
     {

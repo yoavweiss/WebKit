@@ -353,6 +353,7 @@ inline CapabilityLevel canCompile(DFG::Node* node)
     case GetPropertyEnumerator:
     case EnumeratorNextUpdateIndexAndMode:
     case StringIteratorNext:
+    case StringIteratorNextWithUndefined:
     case EnumeratorNextUpdatePropertyName:
     case EnumeratorGetByVal:
     case EnumeratorInByVal:

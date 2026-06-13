@@ -1798,6 +1798,7 @@ private:
             compileEnumeratorNextUpdateIndexAndMode();
             break;
         case StringIteratorNext:
+        case StringIteratorNextWithUndefined:
             compileStringIteratorNext();
             break;
         case EnumeratorNextUpdatePropertyName:
@@ -18190,6 +18191,7 @@ IGNORE_CLANG_WARNINGS_END
         JSGlobalObject* globalObject = m_graph.globalObjectFor(m_origin.semantic);
         LValue string = lowString(m_node->child1());
         LValue position = lowInt32(m_node->child2());
+        bool isStringIteratorNextWithUndefined = m_node->op() == StringIteratorNextWithUndefined;
 
         LBasicBlock notRope = m_out.newBlock();
         LBasicBlock is8BitCheck = m_out.newBlock();
@@ -18222,14 +18224,18 @@ IGNORE_CLANG_WARNINGS_END
         m_out.jump(continuation);
 
         m_out.appendTo(doneBlock, slowPath);
-        ValueFromBlock doneValue = m_out.anchor(weakPointer(jsEmptyString(vm())));
+        ValueFromBlock doneValue = m_out.anchor(isStringIteratorNextWithUndefined ? m_out.constInt64(JSValue::encode(jsUndefined())) : weakPointer(jsEmptyString(vm())));
         ValueFromBlock donePosition = m_out.anchor(m_out.constInt32(JSStringIterator::doneIndex));
         m_out.jump(continuation);
 
         m_out.appendTo(slowPath, continuation);
         LValue tuple = vmCall(toOperationType(pointerType()), operationStringIteratorNext, weakPointer(globalObject), string, position);
-        ValueFromBlock slowValue = m_out.anchor(m_out.extract(tuple, 0));
-        ValueFromBlock slowPosition = m_out.anchor(m_out.castToInt32(m_out.extract(tuple, 1)));
+        LValue slowResultValue = m_out.extract(tuple, 0);
+        LValue slowResultPosition = m_out.castToInt32(m_out.extract(tuple, 1));
+        if (isStringIteratorNextWithUndefined)
+            slowResultValue = m_out.select(m_out.equal(slowResultPosition, m_out.constInt32(JSStringIterator::doneIndex)), m_out.constInt64(JSValue::encode(jsUndefined())), slowResultValue);
+        ValueFromBlock slowValue = m_out.anchor(slowResultValue);
+        ValueFromBlock slowPosition = m_out.anchor(slowResultPosition);
         m_out.jump(continuation);
 
         m_out.appendTo(continuation, lastNext);

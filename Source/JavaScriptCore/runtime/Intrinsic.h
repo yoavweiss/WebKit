@@ -193,6 +193,7 @@ namespace JSC {
     macro(JSSetValuesIntrinsic) \
     macro(JSSetEntriesIntrinsic) \
     macro(JSStringIteratorIntrinsic) \
+    macro(JSStringIteratorNextIntrinsic) \
     macro(JSWeakMapGetIntrinsic) \
     macro(JSWeakMapHasIntrinsic) \
     macro(JSWeakMapSetIntrinsic) \

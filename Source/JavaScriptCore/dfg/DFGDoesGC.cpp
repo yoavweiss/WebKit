@@ -468,6 +468,7 @@ bool doesGC(Graph& graph, Node* node)
     case StringSubstring:
     case StringSubstr:
     case StringIteratorNext:
+    case StringIteratorNextWithUndefined:
     case StringValueOf:
     case CreateRest:
     case ToUpperCase:
