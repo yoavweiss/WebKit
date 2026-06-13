@@ -3800,6 +3800,32 @@ RegisterID* CoalesceNode::emitBytecode(BytecodeGenerator& generator, RegisterID*
     return generator.move(dst, temp.get());
 }
 
+void CoalesceNode::emitBytecodeInConditionContext(BytecodeGenerator& generator, Label& trueTarget, Label& falseTarget, FallThroughMode fallThroughMode)
+{
+    if (needsDebugHook()) [[unlikely]]
+        generator.emitDebugHook(this);
+
+    Ref<Label> nullishTarget = generator.newLabel();
+
+    if (m_hasAbsorbedOptionalChain)
+        generator.pushOptionalChainTarget(nullishTarget.get());
+    RefPtr<RegisterID> value = generator.emitNode(m_expr1);
+    generator.emitJumpIfTrue(generator.emitIsUndefinedOrNull(generator.newTemporary(), value.get()), nullishTarget.get());
+    if (m_hasAbsorbedOptionalChain)
+        generator.discardOptionalChainTarget();
+
+    if (fallThroughMode == FallThroughMeansTrue) {
+        generator.emitJumpIfFalse(value.get(), falseTarget);
+        generator.emitJump(trueTarget);
+    } else {
+        generator.emitJumpIfTrue(value.get(), trueTarget);
+        generator.emitJump(falseTarget);
+    }
+
+    generator.emitLabel(nullishTarget.get());
+    generator.emitNodeInConditionContext(m_expr2, trueTarget, falseTarget, fallThroughMode);
+}
+
 // ------------------------------ OptionalChainNode ----------------------------
 
 RegisterID* OptionalChainNode::emitBytecode(BytecodeGenerator& generator, RegisterID* dst)
