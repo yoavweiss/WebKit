@@ -88,7 +88,7 @@ public:
     bool isClipped() const { return m_clipped; }
 
     void NODELETE addLayoutDelta(LayoutSize);
-    LayoutSize layoutDelta() const { return m_layoutDelta; }
+    LayoutSize layoutDelta() const { return m_layoutDeltaForRepaint; }
 #if ASSERT_ENABLED
     bool layoutDeltaMatches(LayoutSize) const;
 #endif
@@ -117,8 +117,8 @@ private:
     // If our page height has changed, this will force all blocks to relayout.
     bool m_pageLogicalHeightChanged : 1 { false };
 #if ASSERT_ENABLED
-    bool m_layoutDeltaXSaturated : 1 { false };
-    bool m_layoutDeltaYSaturated : 1 { false };
+    bool m_layoutDeltaForRepaintXSaturated : 1 { false };
+    bool m_layoutDeltaForRepaintYSaturated : 1 { false };
 #endif
     bool m_marginTrimBlockStart : 1 { false };
 
@@ -133,10 +133,14 @@ private:
     LayoutSize m_paintOffset;
     // x/y offset from layout root. Does not include in-flow positioning or scroll offsets.
     LayoutSize m_layoutOffset;
-    // Transient offset from the final position of the object
-    // used to ensure that repaints happen in the correct place.
-    // This is a total delta accumulated from the root. 
-    LayoutSize m_layoutDelta;
+
+    // As boxes move during layout, we must invalidate both their _old_ position (where they were painted as of the last layout) and their _new_ one.
+    // Repaint needs those positions relative to the repaint container (e.g. the RenderView), and a repaint rect is built by walking up
+    // the containing-block chain to that container, accumulating each ancestor's position.
+    // During layout, though, some of those ancestors may have already moved, so their current positions can no longer be used to recover the _old_ rect.
+    // (We don't retain previous paint positions; the closest we have is each renderer's m_frameRect, and that is overwritten during layout.)
+    // This delta helps to recover the last layout's (paint) position by keeping track of position changes during _this_ layout.
+    LayoutSize m_layoutDeltaForRepaint;
 
     // The current page height for the pagination model that encloses us.
     LayoutUnit m_pageLogicalHeight;

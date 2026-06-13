@@ -103,10 +103,18 @@ void RenderLayoutState::computeOffsets(const RenderLayoutState& ancestor, Render
     if (renderer.hasNonVisibleOverflow())
         m_paintOffset -= toLayoutSize(renderer.scrollPosition());
 
-    m_layoutDelta = ancestor.layoutDelta();
+    // A repaint container (own backing store, a full-layer filter, or a fragmented flow) is the origin
+    // of its own repaint coordinate space, so a delta accumulated in the ancestor space must not leak
+    // into the subtree; reset it here and let in-container repositions accumulate onto the fresh value.
+    auto isRepaintContainer = [&] {
+        if (CheckedPtr layer = renderer.layer())
+            return compositedWithOwnBackingStore(*layer) || layer->requiresFullLayerImageForFilters();
+        return renderer.isRenderFragmentedFlow();
+    }();
+    m_layoutDeltaForRepaint = isRepaintContainer ? LayoutSize() : ancestor.layoutDelta();
 #if ASSERT_ENABLED
-    m_layoutDeltaXSaturated = ancestor.m_layoutDeltaXSaturated;
-    m_layoutDeltaYSaturated = ancestor.m_layoutDeltaYSaturated;
+    m_layoutDeltaForRepaintXSaturated = isRepaintContainer ? false : ancestor.m_layoutDeltaForRepaintXSaturated;
+    m_layoutDeltaForRepaintYSaturated = isRepaintContainer ? false : ancestor.m_layoutDeltaForRepaintYSaturated;
 #endif
 }
 
@@ -253,17 +261,17 @@ void RenderLayoutState::establishLineGrid(const LocalFrameViewLayoutContext::Lay
 
 void RenderLayoutState::addLayoutDelta(LayoutSize delta)
 {
-    m_layoutDelta += delta;
+    m_layoutDeltaForRepaint += delta;
 #if ASSERT_ENABLED
-    m_layoutDeltaXSaturated |= m_layoutDelta.width() == LayoutUnit::max() || m_layoutDelta.width() == LayoutUnit::min();
-    m_layoutDeltaYSaturated |= m_layoutDelta.height() == LayoutUnit::max() || m_layoutDelta.height() == LayoutUnit::min();
+    m_layoutDeltaForRepaintXSaturated |= m_layoutDeltaForRepaint.width() == LayoutUnit::max() || m_layoutDeltaForRepaint.width() == LayoutUnit::min();
+    m_layoutDeltaForRepaintYSaturated |= m_layoutDeltaForRepaint.height() == LayoutUnit::max() || m_layoutDeltaForRepaint.height() == LayoutUnit::min();
 #endif
 }
 
 #if ASSERT_ENABLED
 bool RenderLayoutState::layoutDeltaMatches(LayoutSize delta) const
 {
-    return (delta.width() == m_layoutDelta.width() || m_layoutDeltaXSaturated) && (delta.height() == m_layoutDelta.height() || m_layoutDeltaYSaturated);
+    return (delta.width() == m_layoutDeltaForRepaint.width() || m_layoutDeltaForRepaintXSaturated) && (delta.height() == m_layoutDeltaForRepaint.height() || m_layoutDeltaForRepaintYSaturated);
 }
 #endif
 
