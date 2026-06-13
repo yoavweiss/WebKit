@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2025 Apple Inc. All rights reserved.
+ * Copyright (C) 2007-2026 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -785,7 +785,9 @@ void ComplexTextController::adjustGlyphsAndAdvances()
                     advance.expand(-origins[0].x(), -origins[0].y());
             }
 
-            advance.expand(font->syntheticBoldOffset(), 0);
+            // Only embolden glyphs that advance the pen, like the "zero width lurkers" guard below.
+            if (advance.width())
+                advance.expand(font->syntheticBoldOffset(), 0);
 
             if (hasExtraSpacing) {
                 // If we're a glyph with an advance, add in letter-spacing.
