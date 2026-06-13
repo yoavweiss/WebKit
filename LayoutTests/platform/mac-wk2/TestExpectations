@@ -2441,3 +2441,7 @@ webkit.org/b/315982 [ Sequoia Release x86_64 ] webgl/pending/conformance/glsl/mi
 webkit.org/b/316089 [ Sequoia Release ] inspector/css/setLayoutContextTypeChangedMode.html [ Pass Failure ]
 
 webkit.org/b/317031 [ Release ] imported/w3c/web-platform-tests/web-locks/acquire.https.any.sharedworker.html  [ Pass Crash ]
+
+# webkit.org/b/317061 [macOS x86_64] imported/w3c/web-platform-tests/css/css-images tests are image diff failures
+imported/w3c/web-platform-tests/css/css-images/image-orientation/image-orientation-background-properties.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-images/tiled-radial-gradients.html [ ImageOnlyFailure ]
