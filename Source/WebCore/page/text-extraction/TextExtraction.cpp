@@ -479,16 +479,21 @@ static inline String labelText(HTMLElement& element)
     if (!labels)
         return { };
 
-    RefPtr<Element> firstRenderedLabel;
+    StringBuilder builder;
     for (unsigned index = 0; index < labels->length(); ++index) {
-        if (RefPtr label = dynamicDowncast<Element>(labels->item(index)); label && label->renderer())
-            firstRenderedLabel = WTF::move(label);
+        RefPtr label = dynamicDowncast<Element>(labels->item(index));
+        if (!label || !label->renderer())
+            continue;
+
+        auto text = label->textContent().simplifyWhiteSpace(isASCIIWhitespace);
+        if (text.isEmpty())
+            continue;
+
+        if (!builder.isEmpty())
+            builder.append(' ');
+        builder.append(WTF::move(text));
     }
-
-    if (firstRenderedLabel)
-        return firstRenderedLabel->textContent().simplifyWhiteSpace(isASCIIWhitespace);
-
-    return { };
+    return builder.toString();
 }
 
 static inline std::optional<FloatRect> visibleAssociatedLabelBounds(HTMLElement& element)
