@@ -1678,7 +1678,7 @@ void WebFrame::findFocusableElementContinuingFromFrame(WebCore::FocusDirection d
     }
 }
 
-static RefPtr<Node> NODELETE nodeFromJSHandleIdentifier(JSHandleIdentifier identifier)
+static RefPtr<Node> nodeFromJSHandleIdentifier(JSHandleIdentifier identifier)
 {
     auto* object = WebKitJSHandle::objectForIdentifier(identifier);
     if (!object)

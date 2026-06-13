@@ -455,6 +455,9 @@ void JSDOMGlobalObject::visitChildrenImpl(JSCell* cell, Visitor& visitor)
 
         for (auto& guarded : thisObject->m_guardedObjects)
             guarded->visitAggregateInGCThread(visitor);
+
+        for (auto& slot : thisObject->m_jsHandles.values())
+            visitor.append(slot.object);
     }
 
     if (thisObject->m_readableStreamByteStrategySize)
@@ -467,6 +470,47 @@ void JSDOMGlobalObject::visitChildrenImpl(JSCell* cell, Visitor& visitor)
 }
 
 DEFINE_VISIT_CHILDREN(JSDOMGlobalObject);
+
+void JSDOMGlobalObject::addJSHandle(JSHandleIdentifier identifier, JSObject& object)
+{
+    Locker locker { m_gcLock };
+    auto& vm = this->vm();
+    auto result = m_jsHandles.ensure(identifier, [&] {
+        return JSHandleSlot { WriteBarrier<JSObject> { vm, this, &object }, 0 };
+    });
+    ++result.iterator->value.refCount;
+}
+
+void JSDOMGlobalObject::refJSHandle(JSHandleIdentifier identifier)
+{
+    Locker locker { m_gcLock };
+    auto it = m_jsHandles.find(identifier);
+    if (it == m_jsHandles.end())
+        return;
+    ++it->value.refCount;
+}
+
+bool JSDOMGlobalObject::derefJSHandle(JSHandleIdentifier identifier)
+{
+    Locker locker { m_gcLock };
+    auto it = m_jsHandles.find(identifier);
+    if (it == m_jsHandles.end())
+        return false;
+    if (--it->value.refCount)
+        return false;
+    m_jsHandles.remove(it);
+    return true;
+}
+
+JSObject* JSDOMGlobalObject::jsHandle(JSHandleIdentifier identifier) const WTF_IGNORES_THREAD_SAFETY_ANALYSIS
+{
+    // We don't need to grab m_gcLock here because m_jsHandles is only mutated on the main thread.
+    // m_gcLock is only used to protect against the main thread mutating m_jsHandles at the same
+    // time as the GC thread reading from m_jsHandles.
+    ASSERT(!Thread::mayBeGCThread());
+    auto it = m_jsHandles.find(identifier);
+    return it == m_jsHandles.end() ? nullptr : it->value.object.get();
+}
 
 void JSDOMGlobalObject::promiseRejectionTracker(JSGlobalObject* jsGlobalObject, JSPromise* promise, JSPromiseRejectionOperation operation)
 {

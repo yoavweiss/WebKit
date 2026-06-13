@@ -750,6 +750,17 @@ static void dumpCALayer(TextStream& ts, CALayer *layer, bool traverse)
     });
 }
 
+- (void)_numberOfLiveDocumentsForTesting:(void (^)(NSUInteger count))completionHandler
+{
+    RefPtr pageForTesting = _page->pageForTesting();
+    if (!pageForTesting)
+        return completionHandler(0);
+
+    pageForTesting->numberOfLiveDocuments([completionHandler = makeBlockPtr(completionHandler)](uint64_t count) {
+        completionHandler(static_cast<NSUInteger>(count));
+    });
+}
+
 - (void)_computePagesForPrinting:(_WKFrameHandle *)handle completionHandler:(void(^)(void))completionHandler
 {
     WebKit::PrintInfo printInfo;
