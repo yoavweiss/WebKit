@@ -9720,4 +9720,33 @@ TEST(SiteIsolation, ScriptMessageHandlerDocumentIdentifierOnPageHide)
     EXPECT_NOT_NULL(message.frameInfo._documentIdentifier);
 }
 
+TEST(SiteIsolation, NonMainFrameProcessCrash)
+{
+    RetainPtr configuration = [WKWebViewConfiguration _test_configurationWithTestPlugInClassName:@"WebProcessPlugInWithInternals" configureJSCForTesting:YES];
+    enableSiteIsolation(configuration.get());
+    RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:NSMakeRect(0, 0, 800, 600) configuration:configuration.get()]);
+    RetainPtr delegate = adoptNS([TestNavigationDelegate new]);
+    delegate.get().webContentProcessDidTerminate = ^(WKWebView *, _WKProcessTerminationReason) {
+        // Test passes if this delegate is not called for iframe process crashes.
+        EXPECT_FALSE(true);
+    };
+    [webView setNavigationDelegate:delegate.get()];
+
+    auto html = "<script>onload = () => {"
+    "var iframe = document.createElement('iframe');"
+    "document.body.appendChild(iframe);"
+    "iframe.src = 'http://localhost:' + window.location.port + '/iframe';"
+    "}</script>"_s;
+
+    HTTPServer server({
+        { "/"_s, { html } },
+        { "/iframe"_s, { "<script>alert(internals.getpid())</script>"_s } },
+    });
+
+    [webView loadRequest:server.request()];
+    NSString *iframeProcessPort = [webView _test_waitForAlert];
+    kill([iframeProcessPort intValue], 9);
+    Util::runFor(0.1_s);
+}
+
 }

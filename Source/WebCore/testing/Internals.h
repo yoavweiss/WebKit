@@ -1174,6 +1174,7 @@ public:
     void terminateServiceWorker(ServiceWorker&, DOMPromiseDeferred<void>&&);
     void whenServiceWorkerIsTerminated(ServiceWorker&, DOMPromiseDeferred<void>&&);
     NO_RETURN_DUE_TO_CRASH void terminateWebContentProcess();
+    unsigned getpid() const;
 
     void numberOfWebSocketChannelsInNetworkProcess(DOMPromiseDeferred<IDLUnsignedLong>&&);
 

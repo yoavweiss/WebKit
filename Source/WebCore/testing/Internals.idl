@@ -1319,6 +1319,7 @@ enum ContentsFormat {
     Promise<undefined> terminateServiceWorker(ServiceWorker worker);
     Promise<undefined> whenServiceWorkerIsTerminated(ServiceWorker worker);
     undefined terminateWebContentProcess();
+    unsigned long getpid();
 
     Promise<unsigned long> numberOfWebSocketChannelsInNetworkProcess();
 

@@ -1296,6 +1296,9 @@ static _WKProcessTerminationReason wkProcessTerminationReason(ProcessTermination
 
 bool NavigationState::NavigationClient::processDidTerminate(WebPageProxy& page, ProcessTerminationReason reason)
 {
+    if (reason == ProcessTerminationReason::NonMainFrameWebContentProcessCrash)
+        return true;
+
     RefPtr navigationState = m_navigationState.get();
     if (!navigationState)
         return false;

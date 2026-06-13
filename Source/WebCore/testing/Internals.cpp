@@ -7181,6 +7181,11 @@ void Internals::terminateWebContentProcess()
     exit(0);
 }
 
+unsigned Internals::getpid() const
+{
+    return static_cast<unsigned>(getCurrentProcessID());
+}
+
 #if ENABLE(APPLE_PAY)
 ExceptionOr<Ref<MockPaymentCoordinator>> Internals::mockPaymentCoordinator(Document& document)
 {
