@@ -301,6 +301,10 @@ private:
     void reportNetworkUsageToAllServiceWorkerClients(WebCore::ServiceWorkerIdentifier, size_t bytesTransferredOverNetworkDelta);
 #endif
 
+#if ENABLE(BLOCKING_OF_LOCAL_FILE_LOADS_WITHOUT_SANDBOX_EXTENSION)
+    bool isLocalFileLoadAllowedWithoutSandboxExtension(const URL& url);
+#endif
+
     NetworkResourceLoadParameters m_parameters;
     Vector<Ref<SandboxExtension>> m_extensionsToRevoke;
 

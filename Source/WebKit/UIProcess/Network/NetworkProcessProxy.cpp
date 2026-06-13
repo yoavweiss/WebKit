@@ -234,6 +234,10 @@ void NetworkProcessProxy::sendCreationParametersToNewProcess()
     parameters.isParentProcessFullWebBrowserOrRunningTest = isFullWebBrowserOrRunningTest();
 #endif
 
+#if PLATFORM(IOS_FAMILY)
+    parameters.containerTemporaryDirectory = WebsiteDataStore::defaultResolvedContainerTemporaryDirectory();
+#endif
+
 #if ENABLE(ADVANCED_PRIVACY_PROTECTIONS)
     parameters.storageAccessPromptQuirksData = StorageAccessPromptQuirkController::sharedSingleton().cachedListData();
 #endif

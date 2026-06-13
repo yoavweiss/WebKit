@@ -486,7 +486,6 @@ ALLOW_DEPRECATED_DECLARATIONS_END
     parameters.focusRingColor = RenderThemeIOS::systemFocusRingColor();
     parameters.localizedDeviceModel = localizedDeviceModel();
     parameters.contentSizeCategory = contentSizeCategory();
-    parameters.containerTemporaryDirectory = WebsiteDataStore::defaultResolvedContainerTemporaryDirectory();
 #endif
 
 #if (PLATFORM(MAC) || PLATFORM(MACCATALYST)) && !ENABLE(LAUNCHSERVICES_SANDBOX_EXTENSION_BLOCKING)

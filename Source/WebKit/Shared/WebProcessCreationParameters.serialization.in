@@ -170,7 +170,6 @@ using WebCore::SystemSettings::State = WebCore::SystemSettingsState;
     WebCore::Color focusRingColor;
     String localizedDeviceModel;
     String contentSizeCategory;
-    String containerTemporaryDirectory;
 #endif
 
 #endif

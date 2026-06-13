@@ -554,10 +554,6 @@ public:
     void remoteAudioSessionConfigurationChanged(const RemoteAudioSessionConfiguration&);
 #endif
 
-#if PLATFORM(IOS_FAMILY)
-    const String& containerTemporaryDirectory() const { return m_containerTemporaryDirectory; }
-#endif
-
 private:
     WebProcess();
     ~WebProcess();
@@ -996,9 +992,6 @@ private:
 #endif
 #if ENABLE(INITIALIZE_ACCESSIBILITY_ON_DEMAND)
     bool m_shouldInitializeAccessibility { false };
-#endif
-#if PLATFORM(IOS_FAMILY)
-    String m_containerTemporaryDirectory;
 #endif
 };
 

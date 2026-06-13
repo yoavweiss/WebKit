@@ -390,9 +390,29 @@ bool NetworkResourceLoader::shouldSendResourceLoadMessages() const
     return false;
 }
 
+#if ENABLE(BLOCKING_OF_LOCAL_FILE_LOADS_WITHOUT_SANDBOX_EXTENSION)
+bool NetworkResourceLoader::isLocalFileLoadAllowedWithoutSandboxExtension(const URL& url)
+{
+    // Some applications are relying on using the fetch JS API to load local files they have created in their temp directory.
+    // In this case, the WebContent process will not provide the Networking process with a sandbox extension to that file, since it does not have access.
+    // This is because the load is not initiated from the UI process which would provide an extension, but from JS in the WebContent process.
+    // To continue supporting this undocumented feature, we should allow local file loads from that location.
+
+    String directory = connectionToWebProcess().networkProcess().containerTemporaryDirectory();
+    return !directory.isEmpty() && FileSystem::isAncestor(directory, FileSystem::realPath(url.fileSystemPath()));
+}
+#endif // ENABLE(BLOCKING_OF_LOCAL_FILE_LOADS_WITHOUT_SANDBOX_EXTENSION)
+
 void NetworkResourceLoader::startNetworkLoad(ResourceRequest&& request, FirstLoad load)
 {
     if (load == FirstLoad::Yes) {
+#if ENABLE(BLOCKING_OF_LOCAL_FILE_LOADS_WITHOUT_SANDBOX_EXTENSION)
+        if (request.url().protocolIsFile() && !m_parameters.resourceSandboxExtension.has_value() && !isLocalFileLoadAllowedWithoutSandboxExtension(request.url())) {
+            LOADER_RELEASE_LOG("startNetworkLoad: stop local file load because a sandbox extension is not provided");
+            didFailLoading(internalError(request.url()));
+            return;
+        }
+#endif // ENABLE(BLOCKING_OF_LOCAL_FILE_LOADS_WITHOUT_SANDBOX_EXTENSION)
         consumeSandboxExtensions();
 
         if (isSynchronous() || m_parameters.maximumBufferingTime > 0_s)

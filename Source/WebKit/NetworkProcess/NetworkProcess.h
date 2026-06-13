@@ -433,6 +433,10 @@ public:
     bool isParentProcessFullWebBrowserOrRunningTest() const { return m_isParentProcessFullWebBrowserOrRunningTest; }
 #endif
 
+#if PLATFORM(IOS_FAMILY)
+    String containerTemporaryDirectory() const { return m_containerTemporaryDirectory; }
+#endif
+
 #if ENABLE(WEB_RTC)
     RTCDataChannelRemoteManagerProxy& rtcDataChannelProxy();
 #endif
@@ -684,6 +688,9 @@ private:
 #if PLATFORM(COCOA)
     int m_mediaStreamingActivitityToken { NOTIFY_TOKEN_INVALID };
     bool m_isParentProcessFullWebBrowserOrRunningTest { false };
+#endif
+#if PLATFORM(IOS_FAMILY)
+    String m_containerTemporaryDirectory;
 #endif
     bool m_enableModernDownloadProgress { false };
 #if HAVE(ENHANCED_SECURITY_LINKS)

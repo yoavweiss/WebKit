@@ -796,6 +796,7 @@
 				WebKit/WKPage/cocoa/CustomBundleParameter.mm,
 				WebKit/WKPage/cocoa/EditorCommands.mm,
 				WebKit/WKPage/cocoa/EnableAccessibility.mm,
+				WebKit/WKPage/cocoa/FetchLocalFile.mm,
 				WebKit/WKPage/cocoa/FindMatches.mm,
 				WebKit/WKPage/cocoa/FontRegistrySandboxCheck.mm,
 				WebKit/WKPage/cocoa/ForceLightAppearanceInBundle.mm,
