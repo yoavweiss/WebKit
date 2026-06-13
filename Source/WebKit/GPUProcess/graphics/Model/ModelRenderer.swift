@@ -279,28 +279,6 @@ final class Renderer {
     func setBackgroundColor(_ color: simd_float3) {
         clearColor = MTLClearColor(red: Double(color.x), green: Double(color.y), blue: Double(color.z), alpha: 1.0)
     }
-
-    func setCameraTransformForModelTransform(_ modelTransform: simd_float4x4) {
-        // To keep the model stationary while achieving the same visual result as applying
-        // modelTransform to the model, derive the equivalent camera pose by composing the
-        // inverse model transform with the default camera matrix.
-        var defaultCameraMatrix = matrix_identity_float4x4
-        defaultCameraMatrix.columns.3 = [0, 0, Renderer.cameraDistance, 1]
-        let cameraMatrix = simd_inverse(modelTransform) * defaultCameraMatrix
-
-        let col0 = simd_float3(cameraMatrix.columns.0.x, cameraMatrix.columns.0.y, cameraMatrix.columns.0.z)
-        let col1 = simd_float3(cameraMatrix.columns.1.x, cameraMatrix.columns.1.y, cameraMatrix.columns.1.z)
-        let col2 = simd_float3(cameraMatrix.columns.2.x, cameraMatrix.columns.2.y, cameraMatrix.columns.2.z)
-        let scale = simd_float3(simd_length(col0), simd_length(col1), simd_length(col2))
-        let rotation = simd_quatf(simd_float3x3(col0 / scale.x, col1 / scale.y, col2 / scale.z))
-        let position = simd_float3(cameraMatrix.columns.3.x, cameraMatrix.columns.3.y, cameraMatrix.columns.3.z)
-        cameraPosition = position
-        cameraRotation = rotation
-        // Derive the near/far distance from the camera's world-space position.
-        // The model lives at its USD-space coordinates, so the camera can be far from
-        // origin for large or offset models; simd_length gives the actual view distance.
-        effectiveCameraDistance = max(simd_length(position), Self.cameraDistance)
-    }
 }
 
 #endif
