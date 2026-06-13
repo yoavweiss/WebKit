@@ -46,6 +46,7 @@
 #include <WebCore/Color.h>
 #include <WebCore/Document.h>
 #include <WebCore/DocumentLoader.h>
+#include <WebCore/ExceptionData.h>
 #include <WebCore/ExceptionOr.h>
 #include <WebCore/LoaderStrategy.h>
 #include <WebCore/LocalFrameInlines.h>
