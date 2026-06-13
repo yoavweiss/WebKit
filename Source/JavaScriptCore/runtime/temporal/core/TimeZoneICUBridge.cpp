@@ -248,7 +248,9 @@ static TemporalResult<PossibleEpochNanoseconds> getNamedTimeZoneEpochNanoseconds
                     return makeUnexpected(rangeError(icuTimeZoneOffsetFailed));
 
                 UDate transitionMs = 0;
-                auto result = ucal_getTimeZoneTransitionDate(cal, UCAL_TZ_TRANSITION_PREVIOUS, &transitionMs, &status);
+                // icuEpochMs can be the exact transition instant. UCAL_TZ_TRANSITION_PREVIOUS_INCLUSIVE is including icuEpochMs's instant itself.
+                // We use it instead of UCAL_TZ_TRANSITION_PREVIOUS as it is not including icuEpochMs itself.
+                auto result = ucal_getTimeZoneTransitionDate(cal, UCAL_TZ_TRANSITION_PREVIOUS_INCLUSIVE, &transitionMs, &status);
                 if (U_FAILURE(status)) [[unlikely]]
                     return makeUnexpected(rangeError(icuTimeZoneOffsetFailed));
 
