@@ -8212,6 +8212,11 @@ svg/compositing/foreground-layer-composited-svg-rect-and-foreignobject-interleav
 svg/compositing/foreground-layer-mixed-svg-and-foreignobject-composited.html [ ImageOnlyFailure ]
 svg/compositing/foreground-layer-multiple-foreignobjects-composited.html [ ImageOnlyFailure ]
 
+# webkit.org/b/59346 These tests depend on this PR to be merged to become fully functional
+svg/compositing/anonymous-RenderSVGViewportContainer-no-repaints.html [ Failure ]
+svg/compositing/transform-change-repainting-no-viewBox-repaintRects.html [ Failure ]
+svg/compositing/transform-change-repainting-viewBox-repaintRects.html [ Failure ]
+
 webkit.org/b/310217 imported/w3c/web-platform-tests/pointerevents/pointerevent_pointer_boundary_events_after_removing_last_over_element.html [ Pass Failure ]
 
 imported/w3c/web-platform-tests/html/browsers/browsing-the-web/navigating-across-documents/form-submit-and-window-stop.html [ Skip ] # timeout
