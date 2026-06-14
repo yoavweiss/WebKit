@@ -4728,7 +4728,7 @@ FontAttributes Editor::fontAttributesAtSelectionStart()
         [](const CSS::Keyword::TextTop&) { return FontAttributes::SubscriptOrSuperscript::None; },
         [](const CSS::Keyword::Top&) { return FontAttributes::SubscriptOrSuperscript::None; },
         [](const CSS::Keyword::WebkitBaselineMiddle&) { return FontAttributes::SubscriptOrSuperscript::None; },
-        [](const Style::VerticalAlign::Length&) { return FontAttributes::SubscriptOrSuperscript::None; }
+        [](const Style::VerticalAlign::LengthPercentage&) { return FontAttributes::SubscriptOrSuperscript::None; }
     );
 
     attributes.textLists = editableTextListsAtPositionInDescendingOrder(document().selection().selection().start());

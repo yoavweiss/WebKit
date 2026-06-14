@@ -30,6 +30,7 @@
 #include "RenderBox.h"
 #include "StyleInset.h"
 #include "StyleMargin.h"
+#include "StylePrimitiveNumericTypes+EvaluationMinimum.h"
 #include "StyleSelfAlignmentData.h"
 
 namespace WebCore {

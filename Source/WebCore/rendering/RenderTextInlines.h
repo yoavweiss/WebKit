@@ -23,6 +23,7 @@
 
 #include "RenderText.h"
 #include "StyleComputedStyle+GettersInlines.h"
+#include "StylePrimitiveNumericTypes+EvaluationMinimum.h"
 #include "WordTrailingSpace.h"
 
 namespace WebCore {

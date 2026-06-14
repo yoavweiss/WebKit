@@ -86,7 +86,7 @@ static ExceptionOr<IntersectionObserverMarginBox> parseMargin(String& margin, co
     tokenRange.consumeWhitespace();
 
     if (tokenRange.atEnd())
-        return IntersectionObserverMarginBox { IntersectionObserverMarginEdge::Fixed { 0 } };
+        return IntersectionObserverMarginBox { IntersectionObserverMarginEdge::Dimension { 0 } };
 
     auto consumeEdge = [&] -> ExceptionOr<IntersectionObserverMarginEdge> {
         auto parsedValue = MetaConsumer<CSS::LengthPercentage<CSS::All, float>>::consume(tokenRange, parserState);
@@ -106,7 +106,7 @@ static ExceptionOr<IntersectionObserverMarginBox> parseMargin(String& margin, co
                 // Spec states: "Similar to the CSS margin property, this is a string of 1-4 components, each either an *absolute length* or a percentage."
                 // https://w3c.github.io/IntersectionObserver/#dom-intersectionobserverinit-rootmargin
                 if (lengthUnit == CSS::LengthUnit::Px) {
-                    return { IntersectionObserverMarginEdge::Fixed {
+                    return { IntersectionObserverMarginEdge::Dimension {
                         Style::toStyle(CSS::LengthRaw<CSS::All, float> { lengthUnit, raw->value }, NoConversionDataRequiredToken { }).unresolvedValue()
                     } };
                 }
@@ -241,7 +241,7 @@ static String marginBoxToString(const IntersectionObserverMarginBox& marginBox)
         if (auto percentage = edge.tryPercentage())
             stringBuilder.append(static_cast<int>(percentage->value), "%"_s, side != BoxSide::Left ? " "_s : ""_s);
         else
-            stringBuilder.append(static_cast<int>(edge.tryFixed()->resolveZoom(Style::ZoomNeeded { })), "px"_s, side != BoxSide::Left ? " "_s : ""_s);
+            stringBuilder.append(static_cast<int>(edge.tryDimension()->resolveZoom(Style::ZoomNeeded { })), "px"_s, side != BoxSide::Left ? " "_s : ""_s);
     }
     return stringBuilder.toString();
 }
@@ -357,7 +357,7 @@ static void expandRootBoundsWithRootMargin(FloatRect& rootBounds, const Intersec
     auto zoomAdjustedLength = [](const IntersectionObserverMarginEdge& edge, float maximumValue, float zoomFactor) {
         if (auto percentage = edge.tryPercentage())
             return Style::evaluate<float>(*percentage, maximumValue);
-        return Style::evaluate<float>(*edge.tryFixed(), Style::ZoomNeeded { }) * zoomFactor;
+        return Style::evaluate<float>(*edge.tryDimension(), Style::ZoomNeeded { }) * zoomFactor;
     };
 
     auto rootMarginEdges = FloatBoxExtent {

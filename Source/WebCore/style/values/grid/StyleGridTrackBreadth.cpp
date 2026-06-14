@@ -29,8 +29,8 @@
 #include "AnimationUtilities.h"
 #include "CSSGridTrackBreadth.h"
 #include "CSSPrimitiveValue.h"
-#include "StyleLengthWrapper+Blending.h"
-#include "StyleLengthWrapper+CSSValueConversion.h"
+#include "StylePrimitiveNumericOrKeyword+Blending.h"
+#include "StylePrimitiveNumericOrKeyword+CSSValueConversion.h"
 #include "StylePrimitiveNumericTypes+Blending.h"
 #include "StylePrimitiveNumericTypes+CSSValueConversion.h"
 
@@ -41,7 +41,7 @@ namespace Style {
 
 auto ToCSS<GridTrackBreadth>::operator()(const GridTrackBreadth& value, const Style::ComputedStyle& style) -> CSS::GridTrackBreadth
 {
-    return value.switchOnUsingSpecified(
+    return value.switchOnUsingNumeric(
         [&](const LengthPercentage<CSS::Nonnegative>& lengthPercentage) -> CSS::GridTrackBreadth {
             return toCSS(lengthPercentage, style);
         },

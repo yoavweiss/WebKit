@@ -40,6 +40,7 @@
 #include "RenderImage.h"
 #include "RenderView.h"
 #include "StyleImage.h"
+#include "StylePrimitiveNumericTypes+Evaluation.h"
 #include <JavaScriptCore/ConsoleTypes.h>
 #include <wtf/TZoneMallocInlines.h>
 #include <wtf/text/MakeString.h>

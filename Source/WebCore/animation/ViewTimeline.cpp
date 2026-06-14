@@ -44,8 +44,8 @@
 #include "StyleableInlines.h"
 #include "StyleBuilderState.h"
 #include "StyleKeyword+Logging.h"
-#include "StyleLengthWrapper+CSSValueConversion.h"
-#include "StyleLengthWrapper+DeprecatedCSSValueConversion.h"
+#include "StylePrimitiveNumericOrKeyword+CSSValueConversion.h"
+#include "StylePrimitiveNumericOrKeyword+DeprecatedCSSValueConversion.h"
 #include "StylePrimitiveNumericTypes+Evaluation.h"
 #include "StylePrimitiveNumericTypes+Logging.h"
 #include "StyleScrollPadding.h"
@@ -351,8 +351,8 @@ void ViewTimeline::cacheCurrentTime()
 
             auto computedInset = [&](const CSSValue& specifiedInset) {
                 if (!conversionData)
-                    return Style::deprecatedToStyleFromCSSValue<Style::ViewTimelineInsetItem::Length>(specifiedInset).value_or(Style::ViewTimelineInsetItem::Length { CSS::Keyword::Auto { } });
-                return Style::toStyleFromCSSValue<Style::ViewTimelineInsetItem::Length>(*conversionData, specifiedInset);
+                    return Style::deprecatedToStyleFromCSSValue<Style::ViewTimelineInsetItem::Offset>(specifiedInset).value_or(Style::ViewTimelineInsetItem::Offset { CSS::Keyword::Auto { } });
+                return Style::toStyleFromCSSValue<Style::ViewTimelineInsetItem::Offset>(*conversionData, specifiedInset);
             };
 
             if (m_specifiedInsets->start && m_specifiedInsets->end) {
@@ -366,13 +366,13 @@ void ViewTimeline::cacheCurrentTime()
                 };
             } else if (m_specifiedInsets->end) {
                 m_insets = {
-                    Style::ViewTimelineInsetItem::Length { CSS::Keyword::Auto { } },
+                    Style::ViewTimelineInsetItem::Offset { CSS::Keyword::Auto { } },
                     computedInset(*m_specifiedInsets->end),
                 };
             } else {
                 m_insets = {
-                    Style::ViewTimelineInsetItem::Length { CSS::Keyword::Auto { } },
-                    Style::ViewTimelineInsetItem::Length { CSS::Keyword::Auto { } },
+                    Style::ViewTimelineInsetItem::Offset { CSS::Keyword::Auto { } },
+                    Style::ViewTimelineInsetItem::Offset { CSS::Keyword::Auto { } },
                 };
             }
         }

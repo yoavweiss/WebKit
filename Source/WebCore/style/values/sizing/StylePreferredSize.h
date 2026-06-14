@@ -24,7 +24,7 @@
 
 #pragma once
 
-#include <WebCore/StyleLengthWrapper.h>
+#include <WebCore/StylePrimitiveNumericOrKeyword.h>
 
 namespace WebCore {
 namespace Style {
@@ -49,7 +49,7 @@ struct MinimumSize;
 //
 // https://drafts.csswg.org/css-sizing-3/#preferred-size-properties
 // https://drafts.csswg.org/css-sizing-4/#sizing-values (additional values added)
-struct PreferredSize : LengthWrapperBase<LengthPercentage<CSS::NonnegativeLayoutUnitClampedUnzoomed>, CSS::Keyword::Auto, CSS::Keyword::MinContent, CSS::Keyword::MaxContent, CSS::Keyword::FitContent, CSS::Keyword::Stretch, CSS::Keyword::WebkitFillAvailable, CSS::Keyword::Intrinsic, CSS::Keyword::MinIntrinsic> {
+struct PreferredSize : PrimitiveNumericOrKeyword<LengthPercentage<CSS::NonnegativeLayoutUnitClampedUnzoomed>, CSS::Keyword::Auto, CSS::Keyword::MinContent, CSS::Keyword::MaxContent, CSS::Keyword::FitContent, CSS::Keyword::Stretch, CSS::Keyword::WebkitFillAvailable, CSS::Keyword::Intrinsic, CSS::Keyword::MinIntrinsic> {
     using Base::Base;
 
     // `PreferredSize` is a structural twin to `MinimumSize` and therefore can be losslessly converted.

@@ -24,14 +24,14 @@
 
 #pragma once
 
-#include <WebCore/StyleLengthWrapper.h>
+#include <WebCore/StylePrimitiveNumericOrKeyword.h>
 
 namespace WebCore {
 namespace Style {
 
 // <'text-underline-offset'> = auto | <length-percentage>
 // https://drafts.csswg.org/css-text-decor-4/#propdef-text-underline-offset
-struct TextUnderlineOffset : LengthWrapperBase<LengthPercentage<CSS::AllUnzoomed>, CSS::Keyword::Auto> {
+struct TextUnderlineOffset : PrimitiveNumericOrKeyword<LengthPercentage<CSS::AllUnzoomed>, CSS::Keyword::Auto> {
     using Base::Base;
 
     ALWAYS_INLINE bool isAuto() const { return holdsAlternative<CSS::Keyword::Auto>(); }

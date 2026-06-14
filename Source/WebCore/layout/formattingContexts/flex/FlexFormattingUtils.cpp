@@ -31,6 +31,7 @@
 #include "LayoutContext.h"
 #include "LogicalFlexItem.h"
 #include "StyleComputedStyle+GettersInlines.h"
+#include "StylePrimitiveNumericTypes+EvaluationMinimum.h"
 
 namespace WebCore {
 namespace Layout {

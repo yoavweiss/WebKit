@@ -3427,6 +3427,7 @@ style/values/masking/StyleMaskLayer.cpp
 style/values/masking/StyleMaskMode.cpp
 style/values/math/StyleMathDepth.cpp @header:RenderStyleGetters @cost:5
 style/values/motion/StyleOffsetAnchor.cpp
+style/values/motion/StyleOffsetDistance.cpp
 style/values/motion/StyleOffsetPath.cpp
 style/values/motion/StyleOffsetPosition.cpp
 style/values/motion/StyleOffsetRotate.cpp
@@ -3444,8 +3445,8 @@ style/values/page/StylePageSize.cpp
 style/values/pointerevents/StyleTouchAction.cpp
 style/values/primitives/StyleCustomIdent.cpp
 style/values/primitives/StyleLengthResolution.cpp @header:RenderStyleGetters @cost:6
-style/values/primitives/StyleLengthWrapperData.cpp
 style/values/primitives/StylePosition.cpp
+style/values/primitives/StylePrimitiveData.cpp
 style/values/primitives/StylePrimitiveNumericTypes+Conversions.cpp @header:RenderStyleGetters @cost:5
 style/values/primitives/StyleRatio.cpp
 style/values/primitives/StyleString.cpp

@@ -217,7 +217,7 @@ std::pair<LayoutUnit, LayoutUnit> InlineFormattingContext::minimumMaximumContent
     // This also undermines the idea of computing min/max values independently.
     if (*minimumContentSize > *maximumContentSize) {
         auto hasNegativeImplicitMargin = [](auto& style) {
-            auto textIndentFixedLength = style.textIndent().length.tryFixed();
+            auto textIndentFixedLength = style.textIndent().amount.tryFixed();
             return (textIndentFixedLength && textIndentFixedLength->isNegative()) || style.usedWordSpacing() < 0 || style.usedLetterSpacing() < 0;
         };
         auto contentHasNegativeImplicitMargin = hasNegativeImplicitMargin(root().style());

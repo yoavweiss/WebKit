@@ -41,8 +41,8 @@ template<typename PreferredLineHeightFunctor> InlineLevelBox::VerticalAlignment 
         [](CSS::SpecificKeyword auto const& keyword) -> InlineLevelBox::VerticalAlignment {
             return keyword;
         },
-        [&](const Style::VerticalAlign::Length& length) -> InlineLevelBox::VerticalAlignment {
-            return Style::evaluate<InlineLayoutUnit>(length, std::forward<PreferredLineHeightFunctor>(preferredLineHeightFunctor), Style::ZoomNeeded { });
+        [&](const Style::VerticalAlign::LengthPercentage& value) -> InlineLevelBox::VerticalAlignment {
+            return Style::evaluate<InlineLayoutUnit>(value, std::forward<PreferredLineHeightFunctor>(preferredLineHeightFunctor), Style::ZoomNeeded { });
         }
     );
 }

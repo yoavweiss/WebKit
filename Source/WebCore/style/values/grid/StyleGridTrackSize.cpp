@@ -32,8 +32,8 @@
 #include "CSSKeywordValue.h"
 #include "CSSPrimitiveValue.h"
 #include "StyleBuilderChecking.h"
-#include "StyleLengthWrapper+Blending.h"
-#include "StyleLengthWrapper+CSSValueConversion.h"
+#include "StylePrimitiveNumericOrKeyword+Blending.h"
+#include "StylePrimitiveNumericOrKeyword+CSSValueConversion.h"
 #include "StylePrimitiveNumericTypes+Blending.h"
 #include "StylePrimitiveNumericTypes+CSSValueCreation.h"
 #include "StylePrimitiveNumericTypes+Serialization.h"
@@ -70,13 +70,9 @@ auto ToStyle<CSS::GridMinMaxFunctionParameters>::operator()(const CSS::GridMinMa
 
 auto ToCSS<GridFitContentFunctionParameters>::operator()(const GridFitContentFunctionParameters& value, const Style::ComputedStyle& style) -> CSS::GridFitContentFunctionParameters
 {
-    return value.value.switchOnUsingSpecified(
-        [&](const LengthPercentage<CSS::Nonnegative>& lengthPercentage) -> CSS::GridFitContentFunctionParameters {
-            return {
-                .value = toCSS(lengthPercentage, style),
-            };
-        }
-    );
+    return {
+        .value = toCSS(value.value, style),
+    };
 }
 
 auto ToStyle<CSS::GridFitContentFunctionParameters>::operator()(const CSS::GridFitContentFunctionParameters& value, const BuilderState& state) -> GridFitContentFunctionParameters

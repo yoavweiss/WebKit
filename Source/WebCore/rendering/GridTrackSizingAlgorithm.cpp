@@ -37,6 +37,7 @@
 #include "RenderObjectInlines.h"
 #include "RenderStyleConstants.h"
 #include "StyleGridPositionsResolver.h"
+#include "StylePrimitiveNumericTypes+EvaluationMinimum.h"
 #include "StyleSelfAlignmentData.h"
 #include <ranges>
 #include <wtf/Range.h>

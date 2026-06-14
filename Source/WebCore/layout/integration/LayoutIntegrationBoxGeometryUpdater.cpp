@@ -72,6 +72,7 @@
 #include "RenderTheme.h"
 #include "RenderViewTransitionCapture.h"
 #include "Settings.h"
+#include "StylePrimitiveNumericTypes+EvaluationMinimum.h"
 
 namespace WebCore {
 namespace LayoutIntegration {

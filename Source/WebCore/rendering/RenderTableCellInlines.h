@@ -76,7 +76,7 @@ inline bool RenderTableCell::isBaselineAligned() const
         || WTF::holdsAlternative<CSS::Keyword::TextTop>(verticalAlign)
         || WTF::holdsAlternative<CSS::Keyword::Super>(verticalAlign)
         || WTF::holdsAlternative<CSS::Keyword::Sub>(verticalAlign)
-        || WTF::holdsAlternative<Style::VerticalAlign::Length>(verticalAlign);
+        || WTF::holdsAlternative<Style::VerticalAlign::LengthPercentage>(verticalAlign);
 }
 
 inline bool RenderTableCell::isOrthogonal() const

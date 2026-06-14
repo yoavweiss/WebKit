@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <WebCore/StyleLengthWrapper.h>
+#include <WebCore/StylePrimitiveNumeric.h>
 
 namespace WebCore {
 
@@ -35,13 +35,9 @@ struct MaskBorderWidth;
 
 namespace Style {
 
-struct MaskBorderWidthValueLength : LengthWrapperBase<LengthPercentage<CSS::Nonnegative, float>> {
-    using Base::Base;
-};
-
 // <mask-border-width-value> = <length-percentage [0,∞]> | <number [0,∞]> | auto
 struct MaskBorderWidthValue {
-    using LengthPercentage = MaskBorderWidthValueLength;
+    using LengthPercentage = Style::LengthPercentage<CSS::Nonnegative>;
     using Number = Style::Number<CSS::Nonnegative, float>;
 
     MaskBorderWidthValue(CSS::Keyword::Auto keyword)
@@ -184,5 +180,4 @@ template<> struct Blending<MaskBorderWidth> {
 } // namespace WebCore
 
 DEFINE_TUPLE_LIKE_CONFORMANCE_FOR_TYPE_WRAPPER(WebCore::Style::MaskBorderWidth)
-DEFINE_VARIANT_LIKE_CONFORMANCE(WebCore::Style::MaskBorderWidthValueLength)
 DEFINE_VARIANT_LIKE_CONFORMANCE(WebCore::Style::MaskBorderWidthValue)

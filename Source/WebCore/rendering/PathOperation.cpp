@@ -32,7 +32,6 @@
 #include "SVGElementTypeHelpers.h"
 #include "SVGPathElement.h"
 #include "SVGPathFromElement.h"
-#include "StyleLengthWrapper+Blending.h"
 #include "StylePrimitiveNumericTypes+Blending.h"
 #include "StylePrimitiveNumericTypes+Conversions.h"
 

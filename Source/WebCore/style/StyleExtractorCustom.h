@@ -70,6 +70,7 @@
 #include "StylePrimitiveNumericTypes+CSSValueCreation.h"
 #include "StylePrimitiveNumericTypes+Conversions.h"
 #include "StylePrimitiveNumericTypes+Evaluation.h"
+#include "StylePrimitiveNumericTypes+EvaluationMinimum.h"
 #include "StylePrimitiveNumericTypes+Serialization.h"
 #include "StylePropertyShorthand.h"
 #include "StylePropertyShorthandFunctions.h"
@@ -507,7 +508,7 @@ template<CSSPropertyID propertyID> struct PaddingEdgeSharedAdaptor {
     template<typename F> decltype(auto) computedValue(ExtractorState& state, const PaddingEdge& value, F&& functor) const
     {
         auto* renderBox = dynamicDowncast<RenderBox>(state.renderer);
-        if (!renderBox || value.isFixed())
+        if (!renderBox || value.value.isFixed())
             return functor(value);
 
         if constexpr (propertyID == CSSPropertyPaddingTop)

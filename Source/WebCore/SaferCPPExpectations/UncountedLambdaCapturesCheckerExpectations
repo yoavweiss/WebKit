@@ -59,13 +59,10 @@ style/StyleCustomProperty.cpp
 style/Styleable.cpp
 style/computed/data/StyleCustomPropertyData.cpp
 style/values/StyleValueTypes.h
-style/values/backgrounds/StyleBorderImageWidth.cpp
 style/values/backgrounds/StyleFillLayers.h
 style/values/filter-effects/StyleFilterInterpolation.h
 style/values/grid/StyleGridTrackBreadth.cpp
-style/values/grid/StyleGridTrackSize.cpp
 style/values/images/StyleGradient.cpp
-style/values/masking/StyleMaskBorderWidth.cpp
 style/values/primitives/StyleKeyword+CSSValueCreation.h
 style/values/primitives/StyleKeyword+Serialization.h
 [ Mac ] testing/MockMediaSessionCoordinator.cpp

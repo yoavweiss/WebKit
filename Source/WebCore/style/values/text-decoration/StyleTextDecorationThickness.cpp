@@ -32,8 +32,9 @@
 #include "FontMetrics.h"
 #include "StyleBuilderChecking.h"
 #include "StyleComputedStyle+GettersInlines.h"
-#include "StyleLengthWrapper+Blending.h"
-#include "StyleLengthWrapper+CSSValueConversion.h"
+#include "StylePrimitiveNumericTypes+Blending.h"
+#include "StylePrimitiveNumericTypes+CSSValueConversion.h"
+#include "StylePrimitiveNumericTypes+Evaluation.h"
 
 namespace WebCore {
 namespace Style {
@@ -49,8 +50,8 @@ float TextDecorationThickness::resolve(const Style::ComputedStyle& style) const
         [&](const CSS::Keyword::FromFont&) {
             return style.metricsOfPrimaryFont().underlineThickness().value_or(0);
         },
-        [&](const TextDecorationThicknessLength& length) {
-            return Style::evaluate<float>(length, style.computedFontSize(), style.usedZoomForLength());
+        [&](const LengthPercentage& value) {
+            return Style::evaluate<float>(value, style.computedFontSize(), style.usedZoomForLength());
         }
     );
 }
@@ -73,7 +74,7 @@ auto CSSValueConversion<TextDecorationThickness>::operator()(BuilderState& state
         return CSS::Keyword::Auto { };
     }
 
-    return toStyleFromCSSValue<TextDecorationThicknessLength>(state, value);
+    return toStyleFromCSSValue<TextDecorationThickness::LengthPercentage>(state, value);
 }
 
 // MARK: - Blending
@@ -92,7 +93,7 @@ auto Blending<TextDecorationThickness>::blend(const TextDecorationThickness& a, 
         return context.progress ? b : a;
     }
 
-    return TextDecorationThicknessLength { TextDecorationThicknessLength::Fixed { WebCore::blend(a.resolve(aStyle), b.resolve(bStyle), context) } };
+    return TextDecorationThickness::LengthPercentage { TextDecorationThickness::LengthPercentage::Fixed { WebCore::blend(a.resolve(aStyle), b.resolve(bStyle), context) } };
 }
 
 } // namespace Style

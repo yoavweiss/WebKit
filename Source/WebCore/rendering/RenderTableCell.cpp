@@ -317,7 +317,7 @@ bool RenderTableCell::computeIntrinsicPadding(LayoutUnit heightConstraint)
         [&](const CSS::Keyword::WebkitBaselineMiddle&) {
             // Do nothing.
         },
-        [&](const Style::VerticalAlign::Length&) {
+        [&](const Style::VerticalAlign::LengthPercentage&) {
             applyStandard();
         }
     );

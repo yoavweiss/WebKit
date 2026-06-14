@@ -3395,15 +3395,15 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     style/values/primitives/StyleCustomIdent.h
     style/values/primitives/StyleCoordinatedValueList.h
     style/values/primitives/StyleCoordinatedValueListValue.h
-    style/values/primitives/StyleLengthWrapper.h
-    style/values/primitives/StyleLengthWrapperData.h
     style/values/primitives/StylePosition.h
+    style/values/primitives/StylePrimitiveData.h
     style/values/primitives/StylePrimitiveNumeric+Forward.h
     style/values/primitives/StylePrimitiveNumeric.h
     style/values/primitives/StylePrimitiveNumericConcepts.h
     style/values/primitives/StylePrimitiveNumericOrKeyword.h
     style/values/primitives/StylePrimitiveNumericTypes+Calculation.h
     style/values/primitives/StylePrimitiveNumericTypes+Evaluation.h
+    style/values/primitives/StylePrimitiveNumericTypes+EvaluationMinimum.h
     style/values/primitives/StylePrimitiveNumericTypes+Rounding.h
     style/values/primitives/StylePrimitiveNumericTypes.h
     style/values/primitives/StyleRatio.h

@@ -6353,16 +6353,11 @@ Style::ComputedStyle RenderLayer::createReflectionStyle()
     
     auto reflection = renderer().style().boxReflect().tryReflection();
 
-    // FIXME: This should be removed when bare LengthPercentage<> is moved off of LengthWrapperBase.
-    auto toTranslateLengthPercentage = [](const auto& boxReflectOffset) {
-        return WTF::switchOn(boxReflectOffset, [](const auto& value) { return Style::TranslateLengthPercentage { value }; });
-    };
-
     switch (reflection->direction) {
     case ReflectionDirection::Below:
         newStyle.setTransform({
             { Style::TranslateTransformFunction::create(0_css_px, 100_css_percentage, Style::TransformFunctionType::Translate) },
-            { Style::TranslateTransformFunction::create(0_css_px, toTranslateLengthPercentage(reflection->offset), Style::TransformFunctionType::Translate) },
+            { Style::TranslateTransformFunction::create(0_css_px, reflection->offset, Style::TransformFunctionType::Translate) },
             { Style::ScaleTransformFunction::create(1_css_number, -1_css_number, Style::TransformFunctionType::Scale) },
         });
         break;
@@ -6370,13 +6365,13 @@ Style::ComputedStyle RenderLayer::createReflectionStyle()
         newStyle.setTransform({
             { Style::ScaleTransformFunction::create(1_css_number, -1_css_number, Style::TransformFunctionType::Scale) },
             { Style::TranslateTransformFunction::create(0_css_px, 100_css_percentage, Style::TransformFunctionType::Translate) },
-            { Style::TranslateTransformFunction::create(0_css_px, toTranslateLengthPercentage(reflection->offset), Style::TransformFunctionType::Translate) },
+            { Style::TranslateTransformFunction::create(0_css_px, reflection->offset, Style::TransformFunctionType::Translate) },
         });
         break;
     case ReflectionDirection::Right:
         newStyle.setTransform({
             { Style::TranslateTransformFunction::create(100_css_percentage, 0_css_px, Style::TransformFunctionType::Translate) },
-            { Style::TranslateTransformFunction::create(toTranslateLengthPercentage(reflection->offset), 0_css_px, Style::TransformFunctionType::Translate) },
+            { Style::TranslateTransformFunction::create(reflection->offset, 0_css_px, Style::TransformFunctionType::Translate) },
             { Style::ScaleTransformFunction::create(-1_css_number, 1_css_number, Style::TransformFunctionType::Scale) },
         });
         break;
@@ -6384,7 +6379,7 @@ Style::ComputedStyle RenderLayer::createReflectionStyle()
         newStyle.setTransform({
             { Style::ScaleTransformFunction::create(-1_css_number, 1_css_number, Style::TransformFunctionType::Scale) },
             { Style::TranslateTransformFunction::create(100_css_percentage, 0_css_px, Style::TransformFunctionType::Translate) },
-            { Style::TranslateTransformFunction::create(toTranslateLengthPercentage(reflection->offset), 0_css_px, Style::TransformFunctionType::Translate) },
+            { Style::TranslateTransformFunction::create(reflection->offset, 0_css_px, Style::TransformFunctionType::Translate) },
         });
         break;
     }

@@ -30,7 +30,6 @@
 #include "CSSWebkitBoxReflectValue.h"
 #include "StyleBuilderChecking.h"
 #include "StyleKeyword+Serialization.h"
-#include "StyleLengthWrapper+CSSValueConversion.h"
 #include "StylePrimitiveNumericTypes+CSSValueConversion.h"
 #include "StylePrimitiveNumericTypes+CSSValueCreation.h"
 #include "StylePrimitiveNumericTypes+Serialization.h"
@@ -69,32 +68,18 @@ auto ToStyle<CSS::WebkitBoxReflection::Direction>::operator()(const CSS::WebkitB
 
 auto ToCSS<WebkitBoxReflection>::operator()(const WebkitBoxReflection& value, const Style::ComputedStyle& style) -> CSS::WebkitBoxReflection
 {
-    auto convertOffset = [](auto& offset, auto& style) {
-        // FIXME: Support direct conversion from Style::LengthWrapperBase<LengthPercentage<...>> to CSS::LengthPercentage<...>.
-        return offset.switchOnUsingSpecified(
-            [&](const auto& specified) -> CSS::WebkitBoxReflection::Offset {
-                return toCSS(specified, style);
-            }
-        );
-    };
-
     return {
         .direction = toCSS(value.direction, style),
-        .offset = convertOffset(value.offset, style),
+        .offset = toCSS(value.offset, style),
         .mask = toCSS(value.mask, style),
     };
 }
 
 auto ToStyle<CSS::WebkitBoxReflection>::operator()(const CSS::WebkitBoxReflection& value, const BuilderState& state) -> WebkitBoxReflection
 {
-    auto convertOffset = [](auto& offset, auto& state) {
-        // FIXME: Support direct conversion from CSS::LengthPercentage<...> to Style::LengthWrapperBase<LengthPercentage<...>>.
-        return WebkitBoxReflection::Offset { toStyle(offset, state) };
-    };
-
     return {
         .direction = toStyle(value.direction, state),
-        .offset = convertOffset(value.offset, state),
+        .offset = toStyle(value.offset, state),
         .mask = toStyle(value.mask, state, MaskBorderSliceOverride::AlwaysFill),
     };
 }

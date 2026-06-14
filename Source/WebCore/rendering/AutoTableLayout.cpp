@@ -33,6 +33,7 @@
 #include "RenderTableSection.h"
 #include "RenderView.h"
 #include "StylePreferredSize.h"
+#include "StylePrimitiveNumericTypes+EvaluationMinimum.h"
 
 namespace WebCore {
 

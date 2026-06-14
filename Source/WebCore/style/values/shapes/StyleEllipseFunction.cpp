@@ -30,7 +30,7 @@
 #include "GeometryUtilities.h"
 #include "Path.h"
 #include "StyleGradient.h"
-#include "StyleLengthWrapper+Blending.h"
+#include "StylePrimitiveNumericOrKeyword+Blending.h"
 #include "StylePrimitiveNumericTypes+Blending.h"
 #include "StylePrimitiveNumericTypes+Evaluation.h"
 #include <WebCore/StylePosition.h>

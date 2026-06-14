@@ -31,7 +31,7 @@
 #include "StyleKeyword+CSSValueCreation.h"
 #include "StyleKeyword+Logging.h"
 #include "StyleKeyword+Serialization.h"
-#include "StyleLengthWrapper+CSSValueConversion.h"
+#include "StylePrimitiveNumericOrKeyword+CSSValueConversion.h"
 #include "StylePrimitiveNumericTypes+CSSValueCreation.h"
 #include "StylePrimitiveNumericTypes+Logging.h"
 #include "StylePrimitiveNumericTypes+Serialization.h"
@@ -66,13 +66,13 @@ auto CSSValueConversion<ViewFunction>::operator()(BuilderState& state, const CSS
 
     auto startInset = [&] {
         if (RefPtr startInsetValue = value.startInset())
-            return toStyleFromCSSValue<ViewTimelineInsetItem::Length>(state, *startInsetValue);
-        return ViewTimelineInsetItem::Length { CSS::Keyword::Auto { } };
+            return toStyleFromCSSValue<ViewTimelineInsetItem::Offset>(state, *startInsetValue);
+        return ViewTimelineInsetItem::Offset { CSS::Keyword::Auto { } };
     }();
 
     auto endInset = [&] {
         if (RefPtr endInsetValue = value.endInset())
-            return toStyleFromCSSValue<ViewTimelineInsetItem::Length>(state, *endInsetValue);
+            return toStyleFromCSSValue<ViewTimelineInsetItem::Offset>(state, *endInsetValue);
         return startInset;
     }();
 

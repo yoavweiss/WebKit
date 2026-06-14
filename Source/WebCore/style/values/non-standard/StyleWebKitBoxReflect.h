@@ -26,8 +26,8 @@
 #pragma once
 
 #include <WebCore/RenderStyleConstants.h>
-#include <WebCore/StyleLengthWrapper.h>
 #include <WebCore/StyleMaskBorder.h>
+#include <WebCore/StylePrimitiveNumeric.h>
 
 namespace WebCore {
 
@@ -37,13 +37,9 @@ struct WebkitBoxReflect;
 
 namespace Style {
 
-struct WebkitBoxReflectionOffset : LengthWrapperBase<LengthPercentage<CSS::All, float>> {
-    using Base::Base;
-};
-
 struct WebkitBoxReflection {
     using Direction = ReflectionDirection;
-    using Offset = WebkitBoxReflectionOffset;
+    using Offset = LengthPercentage<>;
     using Mask = MaskBorder;
 
     Direction direction { Direction::Below };
@@ -108,5 +104,4 @@ template<> struct Serialize<WebkitBoxReflection> { void operator()(StringBuilder
 } // namespace WebCore
 
 DEFINE_SPACE_SEPARATED_TUPLE_LIKE_CONFORMANCE(WebCore::Style::WebkitBoxReflection, 3)
-DEFINE_VARIANT_LIKE_CONFORMANCE(WebCore::Style::WebkitBoxReflectionOffset);
 DEFINE_VARIANT_LIKE_CONFORMANCE(WebCore::Style::WebkitBoxReflect);

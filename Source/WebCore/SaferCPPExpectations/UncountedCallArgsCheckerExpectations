@@ -666,7 +666,7 @@ style/values/images/kinds/StyleCursorImage.cpp
 style/values/images/kinds/StyleGeneratedImage.cpp
 style/values/images/kinds/StyleMultiImage.cpp
 style/values/images/kinds/StylePaintImage.cpp
-style/values/primitives/StyleLengthWrapperData.cpp
+style/values/primitives/StylePrimitiveData.cpp
 style/values/transforms/StyleRotate.cpp
 style/values/transforms/StyleRotate.h
 style/values/transforms/StyleScale.cpp

@@ -266,6 +266,14 @@ template<Numeric StyleType> struct ToCSS<StyleType> {
     }
 };
 
+// Partial specialization for wrapped numeric types.
+template<PrimitiveNumericWrapperBaseDerived StyleType> struct ToCSS<StyleType> {
+    auto operator()(const StyleType& value, const Style::ComputedStyle& style) -> typename StyleType::Wrapped::CSS
+    {
+        return toCSS(value.value, style);
+    }
+};
+
 // NumberOrPercentageResolvedToNumber requires specialization due to asymmetric representations.
 template<auto nR, auto pR, typename V> struct ToCSS<NumberOrPercentageResolvedToNumber<nR, pR, V>> {
     auto operator()(const NumberOrPercentageResolvedToNumber<nR, pR, V>& value, const Style::ComputedStyle& style) -> CSS::NumberOrPercentageResolvedToNumber<nR, pR, V>

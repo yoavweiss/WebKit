@@ -34,6 +34,7 @@
 #include "RenderView.h"
 #include "StyleComputedStyle+GettersInlines.h"
 #include "StylePrimitiveNumericTypes+Evaluation.h"
+#include "StylePrimitiveNumericTypes+EvaluationMinimum.h"
 #include <wtf/StackStats.h>
 #include <wtf/TZoneMallocInlines.h>
 

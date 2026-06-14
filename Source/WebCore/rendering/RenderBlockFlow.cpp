@@ -4164,7 +4164,7 @@ static bool NODELETE hasSimpleStaticPositionForInlineLevelOutOfFlowChildrenBySty
 {
     if (rootStyle.textAlign() != Style::TextAlign::Start)
         return false;
-    if (!rootStyle.textIndent().length.isKnownZero())
+    if (!rootStyle.textIndent().amount.isKnownZero())
         return false;
     return true;
 }
@@ -4942,7 +4942,7 @@ static inline LayoutUnit maximumWidth(LayoutUnit a, float b)
 static inline std::optional<LayoutUnit> textIndentForBlockContainer(const RenderBlockFlow& renderer)
 {
     auto& style = renderer.style();
-    if (auto fixedTextIndent = style.textIndent().length.tryFixed())
+    if (auto fixedTextIndent = style.textIndent().amount.tryFixed())
         return !fixedTextIndent->isZero() ? std::make_optional(LayoutUnit { fixedTextIndent->resolveZoom(style.usedZoomForLength()) }) : std::nullopt;
 
     auto indentValue = LayoutUnit { };
@@ -4951,7 +4951,7 @@ static inline std::optional<LayoutUnit> textIndentForBlockContainer(const Render
             auto containingBlockFixedLogicalWidthValue = Style::evaluate<LayoutUnit>(*containingBlockFixedLogicalWidth, containingBlock->style().usedZoomForLength());
             // At this point of the shrink-to-fit computation, we don't have a used value for the containing block width
             // (that's exactly to what we try to contribute here) unless the computed value is fixed.
-            indentValue = Style::evaluate<LayoutUnit>(style.textIndent().length, containingBlockFixedLogicalWidthValue, containingBlock->style().usedZoomForLength());
+            indentValue = Style::evaluate<LayoutUnit>(style.textIndent().amount, containingBlockFixedLogicalWidthValue, containingBlock->style().usedZoomForLength());
         }
     }
     return indentValue ? std::make_optional(indentValue) : std::nullopt;

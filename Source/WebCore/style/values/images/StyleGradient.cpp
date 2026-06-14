@@ -647,7 +647,7 @@ template<typename GradientAdapter, typename StyleGradient> GradientColorStops co
     };
 }
 
-static inline float positionFromValue(LengthWrapperBaseDerived auto const& coordinate, float widthOrHeight, ZoomFactor zoom)
+static inline float positionFromValue(SpecificPrimitiveNumericWrapperBaseDerived<CSS::Category::LengthPercentage> auto const& coordinate, float widthOrHeight, ZoomFactor zoom)
 {
     return evaluate<float>(coordinate, widthOrHeight, zoom);
 }

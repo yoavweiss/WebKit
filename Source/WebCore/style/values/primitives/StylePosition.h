@@ -26,18 +26,13 @@
 
 #include <WebCore/CSSPosition.h>
 #include <WebCore/FloatPoint.h>
-#include <WebCore/StyleLengthWrapper.h>
 #include <WebCore/StylePrimitiveNumericTypes.h>
 
 namespace WebCore {
 namespace Style {
 
-struct PositionX : LengthWrapperBase<LengthPercentage<CSS::AllUnzoomed>> {
-    using Base::Base;
-};
-struct PositionY : LengthWrapperBase<LengthPercentage<CSS::AllUnzoomed>> {
-    using Base::Base;
-};
+DEFINE_PRIMITIVE_NUMERIC_TYPE_WRAPPER(PositionX, LengthPercentage<CSS::AllUnzoomed>);
+DEFINE_PRIMITIVE_NUMERIC_TYPE_WRAPPER(PositionY, LengthPercentage<CSS::AllUnzoomed>);
 
 struct TwoComponentPositionHorizontal {
     PositionX offset;
@@ -140,8 +135,8 @@ template<> struct Evaluation<Position, FloatPoint> {
 } // namespace Style
 } // namespace WebCore
 
-DEFINE_VARIANT_LIKE_CONFORMANCE(WebCore::Style::PositionX)
-DEFINE_VARIANT_LIKE_CONFORMANCE(WebCore::Style::PositionY)
+DEFINE_TUPLE_LIKE_CONFORMANCE_FOR_TYPE_WRAPPER(WebCore::Style::PositionX)
+DEFINE_TUPLE_LIKE_CONFORMANCE_FOR_TYPE_WRAPPER(WebCore::Style::PositionY)
 DEFINE_TUPLE_LIKE_CONFORMANCE_FOR_TYPE_WRAPPER(WebCore::Style::TwoComponentPositionHorizontal)
 DEFINE_TUPLE_LIKE_CONFORMANCE_FOR_TYPE_WRAPPER(WebCore::Style::TwoComponentPositionVertical)
 DEFINE_SPACE_SEPARATED_TUPLE_LIKE_CONFORMANCE(WebCore::Style::Position, 2)
