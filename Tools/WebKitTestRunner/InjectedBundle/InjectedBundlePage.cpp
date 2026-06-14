@@ -1102,10 +1102,11 @@ void InjectedBundlePage::frameDidChangeLocation(WKBundleFrameRef frame)
             WKBundlePageForceRepaint(page->page());
     }
 
-    if (testRunner->shouldWaitUntilDone())
+    if (testRunner->isWaitingUntilDone())
         return;
 
-    if (injectedBundle.shouldProcessWorkQueue()) {
+    // Drain the work queue; once it's empty, ping it so any deferred NotifyDone gets delivered.
+    if (injectedBundle.shouldProcessWorkQueue() || testRunner->shouldWaitUntilDone()) {
         injectedBundle.processWorkQueue();
         return;
     }

@@ -239,6 +239,9 @@ public:
     JSRetainPtr<JSStringRef> lastProvisionalNavigationFailureURL() const;
 
     bool shouldWaitUntilDone() const;
+    // True until notifyDone() is called. Unlike shouldWaitUntilDone(), not held true by a
+    // deferred dump, so it can gate the work queue.
+    bool isWaitingUntilDone() const;
 
     // Downloads
     bool shouldFinishAfterDownload() const { return m_shouldFinishAfterDownload; }
