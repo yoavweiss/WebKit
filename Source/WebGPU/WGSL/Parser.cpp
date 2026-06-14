@@ -1943,3 +1943,15 @@ Result<AST::Expression::List> Parser<Lexer>::parseArgumentExpressionList()
 }
 
 } // namespace WGSL
+
+#undef START_PARSE
+#undef CURRENT_SOURCE_SPAN
+#undef MAKE_ARENA_NODE
+#undef RETURN_ARENA_NODE
+#undef FAIL
+#undef PARSE
+#undef PARSE_MOVE
+#undef CONSUME_TYPE_NAMED
+#undef CONSUME_TYPE
+#undef CONSUME_TYPES_NAMED
+#undef CHECK_RECURSION

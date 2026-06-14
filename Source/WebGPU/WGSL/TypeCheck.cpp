@@ -2685,3 +2685,9 @@ bool TypeChecker::isModuleScope() const
 
 
 } // namespace WGSL
+
+#undef TYPE_ERROR
+#undef UNWRAP
+#undef UNWRAP_ASSIGN
+#undef CHECK
+#undef CHECK_IMPL

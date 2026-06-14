@@ -72,9 +72,9 @@ macro(WEBKIT_COMPUTE_SOURCES _framework)
         unset(_sourceFileTmp)
 
         foreach (_file IN LISTS _outputTmp)
-            # rdar://177465799 (Move bare filenames in DerivedSources to logical sub-folders)
+            # Disambiguate top-level generated sources in DerivedSources vs top-level regular sources.
             get_filename_component(_fileDir "${_file}" DIRECTORY)
-            if (NOT _fileDir)
+            if (NOT _fileDir AND NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${_file}")
                 set(_file "${_derivedSourcesPath}/${_file}")
             endif ()
             if (_file MATCHES "\\.c$")

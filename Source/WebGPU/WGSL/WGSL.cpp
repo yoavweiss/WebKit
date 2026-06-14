@@ -358,3 +358,7 @@ std::optional<ConstantValue> evaluate(const ShaderModule& module, const AST::Exp
 }
 
 }
+
+#undef CHECK_PASS
+#undef RUN_PASS
+#undef RUN_PASS_WITH_RESULT

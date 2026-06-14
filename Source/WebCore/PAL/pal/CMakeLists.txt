@@ -34,29 +34,8 @@ set(PAL_PUBLIC_HEADERS
     text/UnencodableHandling.h
 )
 
-set(PAL_SOURCES
-    FileSizeFormatter.cpp
-    Logging.cpp
-    PALTZoneImpls.cpp
-    SessionID.cpp
-    ThreadGlobalData.cpp
-
-    system/SleepDisabler.cpp
-    system/SystemSleepListener.cpp
-
-    text/EncodingTables.cpp
-    text/TextCodec.cpp
-    text/TextCodecCJK.cpp
-    text/TextCodecICU.cpp
-    text/TextCodecLatin1.cpp
-    text/TextCodecReplacement.cpp
-    text/TextCodecSingleByte.cpp
-    text/TextCodecUTF16.cpp
-    text/TextCodecUTF8.cpp
-    text/TextCodecUserDefined.cpp
-    text/TextEncoding.cpp
-    text/TextEncodingDetectorICU.cpp
-    text/TextEncodingRegistry.cpp
+list(APPEND PAL_UNIFIED_SOURCE_LIST_FILES
+    "Sources.txt"
 )
 
 set(PAL_PRIVATE_INCLUDE_DIRECTORIES
@@ -88,6 +67,32 @@ WEBKIT_FRAMEWORK_DECLARE(PAL)
 WEBKIT_INCLUDE_CONFIG_FILES_IF_EXISTS()
 WEBKIT_ADD_TARGET_UNSAFE_BUFFER_WARNINGS(PAL)
 
+if (SWIFT_REQUIRED AND NOT (PORT STREQUAL GTK OR PORT STREQUAL WPE))
+    set(PAL_SWIFT_INTEROP_SOURCES
+        crypto/CryptoAlgorithmAESGCMCocoa.cpp
+        crypto/CryptoAlgorithmAESKWCocoaBridging.cpp
+        crypto/CryptoAlgorithmEd25519CocoaBridging.cpp
+        crypto/CryptoAlgorithmHKDFCocoaBridging.cpp
+        crypto/CryptoAlgorithmHMACCocoaBridging.cpp
+        crypto/CryptoAlgorithmX25519CocoaBridging.cpp
+        crypto/CryptoEDKeyBridging.cpp
+        crypto/PlatformECKey.cpp
+
+        crypto/commoncrypto/CryptoDigestCommonCrypto.cpp
+    )
+    foreach (_f IN LISTS PAL_SWIFT_INTEROP_SOURCES)
+        cmake_path(GET _f FILENAME _fn)
+        list(APPEND PAL_UNIFIED_SOURCE_EXCLUDES "(^|/)${_fn}( |$)")
+    endforeach ()
+endif ()
+
+WEBKIT_COMPUTE_SOURCES(PAL)
+
+if (DEFINED PAL_SWIFT_INTEROP_SOURCES)
+    list(REMOVE_ITEM PAL_SOURCES ${PAL_SWIFT_INTEROP_SOURCES})
+    list(APPEND PAL_INTERFACE_LIBRARIES "$<TARGET_OBJECTS:PAL_SwiftInterop>")
+endif ()
+
 WEBKIT_COPY_FILES(PAL_CopyHeaders
     DESTINATION ${PAL_FRAMEWORK_HEADERS_DIR}/pal
     FILES ${PAL_PUBLIC_HEADERS}
@@ -108,23 +113,6 @@ if (SWIFT_REQUIRED AND NOT (PORT STREQUAL GTK OR PORT STREQUAL WPE))
         # libSwiftScan pre-build PCMs with the right context.
         set(PAL_SWIFT_EXPLICIT_MODULE_BUILD TRUE)
     endif ()
-
-    # Create a separate sub-module for Swift interop so the rest of compilation
-    # doesn't have to wait on generating the Swift interop header.
-    set(PAL_SWIFT_INTEROP_SOURCES
-        crypto/CryptoAlgorithmAESGCMCocoa.cpp
-        crypto/CryptoAlgorithmAESKWCocoaBridging.cpp
-        crypto/CryptoAlgorithmEd25519CocoaBridging.cpp
-        crypto/CryptoAlgorithmHKDFCocoaBridging.cpp
-        crypto/CryptoAlgorithmHMACCocoaBridging.cpp
-        crypto/CryptoAlgorithmX25519CocoaBridging.cpp
-        crypto/CryptoEDKeyBridging.cpp
-        crypto/PlatformECKey.cpp
-
-        crypto/commoncrypto/CryptoDigestCommonCrypto.cpp
-    )
-    list(REMOVE_ITEM PAL_SOURCES ${PAL_SWIFT_INTEROP_SOURCES})
-    list(APPEND PAL_INTERFACE_LIBRARIES "$<TARGET_OBJECTS:PAL_SwiftInterop>")
 
     # FIXME(rdar://177840132): swiftc -emit-dependencies records imported
     # clang modulemaps, but sometimes skips individual C++ headers.

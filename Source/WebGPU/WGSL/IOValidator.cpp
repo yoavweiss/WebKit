@@ -439,3 +439,8 @@ std::optional<FailedCheck> validateIO(ShaderModule& shaderModule)
 } // namespace WGSL
 
 #undef CHECK
+#undef TYPE_CHECK
+#undef VEC_CHECK
+#undef CASE_
+#undef CASE
+#undef CASE2

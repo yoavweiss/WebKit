@@ -1,77 +1,10 @@
 # FIXME: Use the standard WEBKIT_FRAMEWORK family of macros to describe WebGPU.
 
-set(WebGPU_SOURCES
-    Adapter.mm
-    BindGroup.mm
-    BindGroupLayout.mm
-    Buffer.mm
-    CommandBuffer.mm
-    CommandEncoder.mm
-    CommandsMixin.mm
-    ComputePassEncoder.mm
-    ComputePipeline.mm
-    Device.mm
-    ExternalTexture.mm
-    HardwareCapabilities.mm
-    Instance.mm
-    Pipeline.mm
-    PipelineLayout.mm
-    PresentationContext.mm
-    PresentationContextIOSurface.mm
-    QuerySet.mm
-    Queue.mm
-    RenderBundle.mm
-    RenderBundleEncoder.mm
-    RenderPassEncoder.mm
-    RenderPipeline.mm
-    Sampler.mm
-    ShaderModule.mm
-    Texture.mm
-    TextureView.mm
-    XRBinding.mm
-    XRProjectionLayer.mm
-    XRSubImage.mm
-    XRView.mm
+list(APPEND WebGPU_UNIFIED_SOURCE_LIST_FILES
+    "Sources.txt"
 )
 
-# WGSL compiler sources are compiled into the WebGPU framework
 set(WGSL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../WGSL)
-set(WebGPU_WGSL_SOURCES
-    ${WGSL_DIR}/AliasAnalysis.cpp
-    ${WGSL_DIR}/AttributeValidator.cpp
-    ${WGSL_DIR}/BoundsCheck.cpp
-    ${WGSL_DIR}/CallGraph.cpp
-    ${WGSL_DIR}/CompilationMessage.cpp
-    ${WGSL_DIR}/CompilationScope.cpp
-    ${WGSL_DIR}/ConstantValue.cpp
-    ${WGSL_DIR}/Constraints.cpp
-    ${WGSL_DIR}/EntryPointRewriter.cpp
-    ${WGSL_DIR}/GlobalSorting.cpp
-    ${WGSL_DIR}/GlobalVariableRewriter.cpp
-    ${WGSL_DIR}/Lexer.cpp
-    ${WGSL_DIR}/MangleNames.cpp
-    ${WGSL_DIR}/Overload.cpp
-    ${WGSL_DIR}/Parser.cpp
-    ${WGSL_DIR}/PointerRewriter.cpp
-    ${WGSL_DIR}/Token.cpp
-    ${WGSL_DIR}/TypeCheck.cpp
-    ${WGSL_DIR}/Types.cpp
-    ${WGSL_DIR}/TypeStore.cpp
-    ${WGSL_DIR}/UniformityAnalysis.cpp
-    ${WGSL_DIR}/VisibilityValidator.cpp
-    ${WGSL_DIR}/WGSL.cpp
-    ${WGSL_DIR}/WGSLEnums.cpp
-    ${WGSL_DIR}/WGSLShaderModule.cpp
-    ${WGSL_DIR}/AST/ASTBinaryExpression.cpp
-    ${WGSL_DIR}/AST/ASTBuilder.cpp
-    ${WGSL_DIR}/AST/ASTDecrementIncrementStatement.cpp
-    ${WGSL_DIR}/AST/ASTStringDumper.cpp
-    ${WGSL_DIR}/AST/ASTUnaryExpression.cpp
-    ${WGSL_DIR}/AST/ASTVisitor.cpp
-    ${WGSL_DIR}/Metal/MetalCodeGenerator.cpp
-    ${WGSL_DIR}/IOValidator.cpp
-    ${WGSL_DIR}/Metal/MetalFunctionWriter.cpp
-)
 
 if (SWIFT_REQUIRED)
     set(WebGPU_SWIFT_INTEROP_SOURCES
@@ -79,14 +12,22 @@ if (SWIFT_REQUIRED)
         CommandEncoder.mm
         Queue.mm
     )
+    foreach (_f IN LISTS WebGPU_SWIFT_INTEROP_SOURCES)
+        cmake_path(GET _f FILENAME _fn)
+        list(APPEND WebGPU_UNIFIED_SOURCE_EXCLUDES "(^|/)${_fn}( |$)")
+    endforeach ()
+endif ()
+
+WEBKIT_COMPUTE_SOURCES(WebGPU)
+
+if (DEFINED WebGPU_SWIFT_INTEROP_SOURCES)
     list(REMOVE_ITEM WebGPU_SOURCES ${WebGPU_SWIFT_INTEROP_SOURCES})
 endif ()
 
-add_library(WebGPU SHARED ${WebGPU_SOURCES} ${WebGPU_WGSL_SOURCES})
+# WebGPU compiles uniformly with -fobjc-arc, so the bundler's ARC .mm bundles
+# (WebGPU_ARC_SOURCES) compile directly into the library alongside WebGPU_SOURCES.
+add_library(WebGPU SHARED ${WebGPU_SOURCES} ${WebGPU_ARC_SOURCES})
 
-# WGSL .cpp sources compile as ObjC++ via LANGUAGE OBJCXX so they share the
-# OBJCXX precompiled header with the .mm sources.
-set_source_files_properties(${WebGPU_WGSL_SOURCES} PROPERTIES LANGUAGE OBJCXX)
 WEBKIT_ADD_PREFIX_HEADER(WebGPU WebGPUPrefix.h PREFIX_LANGUAGES OBJCXX)
 
 set_target_properties(WebGPU PROPERTIES
@@ -129,6 +70,7 @@ target_link_libraries(WebGPU PRIVATE
     ${QUARTZCORE_FRAMEWORK}
     ICU::uc
     JavaScriptCore
+    WGSLCore
     INTERFACE WebKitAdditions
 )
 
