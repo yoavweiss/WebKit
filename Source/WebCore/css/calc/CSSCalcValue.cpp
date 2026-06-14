@@ -219,6 +219,10 @@ inline double Value::clampToPermittedRange(double value) const
     // it instead act as though the numeric part is 0.
     value = std::isnan(value) ? 0 : value;
 
+    // Signed zeros do not escape a top-level calculation; they are censored into the
+    // "unsigned" (positive) zero. https://drafts.csswg.org/css-values-4/#calc-ieee
+    value = value ? value : 0.0;
+
     // If an <angle> must be converted due to exceeding the implementation-defined range of supported values,
     // it must be clamped to the nearest supported multiple of 360deg.
     if (m_category == CSS::Category::Angle && std::isinf(value))

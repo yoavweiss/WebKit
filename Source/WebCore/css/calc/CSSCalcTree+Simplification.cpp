@@ -907,8 +907,11 @@ std::optional<Child> simplify(Negate& root, const SimplificationOptions&)
 
     return WTF::switchOn(root.a,
         [&]<Numeric T>(T& a) -> std::optional<Child> {
-            // 6.1. If root’s child is a numeric value, return an equivalent numeric value, but with the value negated (0 - value).
-            return makeChildWithValueBasedOn(0.0 - a.value, a);
+            // 6.1. If root’s child is a numeric value, return an equivalent numeric value, but with the value negated.
+            // NOTE: We use unary negation rather than the spec's literal "0 - value" so that the sign of a zero is
+            // flipped (negating +0 yields -0), matching IEEE 754 and the runtime Negate executor.
+            // https://drafts.csswg.org/css-values-4/#calc-ieee
+            return makeChildWithValueBasedOn(-a.value, a);
         },
         [](IndirectNode<Negate>& a) -> std::optional<Child> {
             // 6.2. If root’s child is a Negate node, return the child’s child.
