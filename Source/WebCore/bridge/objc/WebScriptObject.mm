@@ -55,7 +55,6 @@
 #import <wtf/Threading.h>
 #import <wtf/text/WTFString.h>
 
-using namespace JSC::Bindings;
 using namespace WebCore;
 
 using JSC::CallData;
@@ -66,6 +65,13 @@ using JSC::MarkedArgumentBuffer;
 using JSC::PutPropertySlot;
 using JSC::jsUndefined;
 using JSC::makeSource;
+
+using JSC::Bindings::ObjCRuntimeObject;
+using JSC::Bindings::ObjcInstance;
+using JSC::Bindings::ObjcObjectType;
+using JSC::Bindings::RootObject;
+using JSC::Bindings::convertObjcValueToValue;
+using JSC::Bindings::convertValueToObjcValue;
 
 namespace WebCore {
 

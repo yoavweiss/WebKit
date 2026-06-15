@@ -192,7 +192,7 @@ void ResourceHandle::createNSURLConnection(id delegate, bool shouldUseCredential
         // requests may get stuck waiting for delegate calls while we are in nested run loop, and the sync
         // request won't start because there are no available connections.
         // Connections are grouped by their socket stream properties, with each group having a separate count.
-        [streamProperties setObject:@TRUE forKey:@"_WebKitSynchronousRequest"];
+        [streamProperties setObject:@YES forKey:@"_WebKitSynchronousRequest"];
     }
 
     RetainPtr<CFDataRef> sourceApplicationAuditData = d->m_context->sourceApplicationAuditData();

@@ -34,6 +34,11 @@
 #if USE(AVFOUNDATION)
 
 #import <AVFoundation/AVFoundation.h>
+#if USE(APPLE_INTERNAL_SDK)
+// Load private headers before their declarations are redefined as macros
+// below.
+#import <pal/spi/cocoa/AVFoundationSPI.h>
+#endif
 #import <wtf/SoftLinking.h>
 #import <wtf/cocoa/TypeCastsCocoa.h>
 
