@@ -178,6 +178,7 @@ const TestFeatures& TestOptions::defaults()
         features.boolTestRunnerFeatures = {
             { "allowsLinkPreview", true },
             { "allowTestOnlyIPC", false },
+            { "allowTestOnlyMockContentFilterIPC", true },
             { "allowTestOnlyOriginAccessAllowListIPC", true },
             { "appHighlightsEnabled", false },
             { "dumpJSConsoleLogInStdErr", false },
@@ -264,6 +265,7 @@ const std::unordered_map<std::string, TestHeaderKeyType>& TestOptions::keyTypeMa
         { "allowsLinkPreview", TestHeaderKeyType::BoolTestRunner },
         { "appHighlightsEnabled", TestHeaderKeyType::BoolTestRunner },
         { "allowTestOnlyIPC", TestHeaderKeyType::BoolTestRunner },
+        { "allowTestOnlyMockContentFilterIPC", TestHeaderKeyType::BoolTestRunner },
         { "allowTestOnlyOriginAccessAllowListIPC", TestHeaderKeyType::BoolTestRunner },
         { "dumpJSConsoleLogInStdErr", TestHeaderKeyType::BoolTestRunner },
         { "dumpResourceLoadCallbacks", TestHeaderKeyType::BoolTestRunner },
