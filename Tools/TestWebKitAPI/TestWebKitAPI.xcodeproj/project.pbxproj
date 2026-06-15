@@ -1220,6 +1220,7 @@
 				WTF/Signals.cpp,
 				WTF/SmallSet.cpp,
 				WTF/SortedArrayMap.cpp,
+				WTF/SparseBitVector.cpp,
 				WTF/StackTraceTest.cpp,
 				WTF/StdLibExtrasTests.cpp,
 				WTF/StringBuilder.cpp,

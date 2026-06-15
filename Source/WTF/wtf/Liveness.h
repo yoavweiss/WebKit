@@ -25,9 +25,11 @@
 
 #pragma once
 
+#include <algorithm>
 #include <ranges>
 #include <wtf/BitVector.h>
 #include <wtf/IndexSparseSet.h>
+#include <wtf/SparseBitVector.h>
 #include <wtf/StdLibExtras.h>
 
 WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
@@ -260,94 +262,229 @@ public:
 protected:
     void compute()
     {
+        uint64_t denseMatrixBits = static_cast<uint64_t>(m_cfg.numNodes()) * Adapter::numIndices();
+        constexpr uint64_t denseMatrixBitBudget = 32 * 1024 * 1024; // 4 MB per live-set matrix.
+        bool useSparse = denseMatrixBits > denseMatrixBitBudget;
+#if ASSERT_ENABLED
+        // Most JSC stress test functions are small enough that the dense path would always win.
+        // Force the sparse path on roughly half of them in debug builds so the sparse implementation
+        // gets meaningful coverage from the regular test suite.
+        if (!useSparse && (m_cfg.numNodes() & 1))
+            useSparse = true;
+#endif
+        if (useSparse)
+            computeSparse();
+        else
+            computeDense();
+    }
+
+    void computeDense()
+    {
         Adapter::prepareToCompute();
 
-        // The liveAtTail of each block automatically contains the LateUse's of the terminal.
-        BitVector dirtyBlocks;
+        unsigned numNodes = m_cfg.numNodes();
+        unsigned numIndices = Adapter::numIndices();
+
+        // Per-block live sets are stored as a flat bit-matrix: a single Vector<uint64_t> of
+        // numNodes * wordsPerSet words, where block b's set occupies the contiguous slice
+        // [b * wordsPerSet, (b + 1) * wordsPerSet). Keeping each set as a span of machine words lets
+        // the whole dataflow run as plain word loops, with one allocation per matrix (rather than
+        // one per block) and no inline/out-of-line special-casing. This is what makes liveness fast
+        // on the very large functions (e.g. SQLite's VDBE) that dominate its cost.
+        constexpr unsigned wordBits = 64;
+        size_t wordsPerSet = (numIndices + wordBits - 1) / wordBits;
+        size_t matrixWords = static_cast<size_t>(numNodes) * wordsPerSet;
+
+        Vector<uint64_t> liveInStore(matrixWords);
+        Vector<uint64_t> liveOutStore(matrixWords);
+        Vector<uint64_t> genStore(matrixWords);
+        Vector<uint64_t> killStore(matrixWords);
+        // Vector's sized constructor does not zero POD storage, and the dataflow ORs into these
+        // sets, so they must start empty.
+        std::ranges::fill(liveInStore, 0);
+        std::ranges::fill(liveOutStore, 0);
+        std::ranges::fill(genStore, 0);
+        std::ranges::fill(killStore, 0);
+        std::span<uint64_t> liveInMatrix = liveInStore.mutableSpan();
+        std::span<uint64_t> liveOutMatrix = liveOutStore.mutableSpan();
+        std::span<uint64_t> genMatrix = genStore.mutableSpan();
+        std::span<uint64_t> killMatrix = killStore.mutableSpan();
+
+        auto setFor = [&] (std::span<uint64_t> matrix, unsigned blockIndex) -> std::span<uint64_t> {
+            return matrix.subspan(static_cast<size_t>(blockIndex) * wordsPerSet, wordsPerSet);
+        };
+        auto setBit = [] (std::span<uint64_t> set, unsigned index) {
+            set[index / wordBits] |= static_cast<uint64_t>(1) << (index % wordBits);
+        };
+
+        BitVector dirtyBlocks(numNodes);
         Vector<unsigned, 64> worklist;
-        for (unsigned blockIndex = 0; blockIndex < m_cfg.numNodes(); ++blockIndex) {
-            typename CFG::Node block = m_cfg.node(blockIndex);
+        for (unsigned blockIndex = 0; blockIndex < numNodes; ++blockIndex) {
+            auto block = m_cfg.node(blockIndex);
             if (!block)
                 continue;
 
-            IndexVector& liveAtTail = m_liveAtTail[block];
+            auto killSet = setFor(killMatrix, blockIndex);
+            auto genSet = setFor(genMatrix, blockIndex);
+            auto liveOutSet = setFor(liveOutMatrix, blockIndex);
 
-            Adapter::forEachUse(
-                block, Adapter::blockSize(block),
-                [&] (unsigned index) {
-                    liveAtTail.append(index);
+            // kill: every value defined anywhere in the block.
+            for (size_t boundary = 0; boundary <= Adapter::blockSize(block); ++boundary) {
+                Adapter::forEachDef(block, boundary, [&] (unsigned index) {
+                    setBit(killSet, index);
                 });
+            }
 
-            std::ranges::sort(liveAtTail);
-            removeRepeatedElements(liveAtTail);
-            dirtyBlocks.set(blockIndex);
+            // gen: the block's transfer function applied to an empty live-out, i.e. the uses that
+            // are exposed at the head. This is the only place we walk instructions; the fixpoint
+            // below works purely on gen/kill/liveOut.
+            m_workset.clear();
+            for (size_t instIndex = Adapter::blockSize(block); instIndex--;) {
+                Adapter::forEachDef(block, instIndex + 1, [&] (unsigned index) { m_workset.remove(index); });
+                Adapter::forEachUse(block, instIndex, [&] (unsigned index) { m_workset.add(index); });
+            }
+            Adapter::forEachDef(block, 0, [&] (unsigned index) { m_workset.remove(index); });
+            for (unsigned index : m_workset)
+                setBit(genSet, index);
+
+            // liveOut automatically contains the LateUse's of the terminal.
+            Adapter::forEachUse(block, Adapter::blockSize(block), [&] (unsigned index) {
+                setBit(liveOutSet, index);
+            });
+
+            dirtyBlocks.quickSet(blockIndex);
             worklist.append(blockIndex);
         }
-
-        IndexVector mergeBuffer;
 
         while (!worklist.isEmpty()) {
             unsigned blockIndex = worklist.takeLast();
             bool cleared = dirtyBlocks.quickClear(blockIndex);
             ASSERT_UNUSED(cleared, cleared);
 
-            typename CFG::Node block = m_cfg.node(blockIndex);
+            auto block = m_cfg.node(blockIndex);
             ASSERT(block);
 
-            LocalCalc localCalc(*this, block);
-            for (size_t instIndex = Adapter::blockSize(block); instIndex--;)
-                localCalc.execute(instIndex);
+            auto liveInSet = setFor(liveInMatrix, blockIndex);
+            auto liveOutSet = setFor(liveOutMatrix, blockIndex);
+            auto genSet = setFor(genMatrix, blockIndex);
+            auto killSet = setFor(killMatrix, blockIndex);
 
-            // Handle the early def's of the first instruction.
-            Adapter::forEachDef(
-                block, 0,
-                [&] (unsigned index) {
-                    m_workset.remove(index);
-                });
-
-            IndexVector& liveAtHead = m_liveAtHead[block];
-
-            // We only care about Tmps that were discovered in this iteration. It is impossible
-            // to remove a live value from the head.
-            // We remove all the values we already knew about so that we only have to deal with
-            // what is new in LiveAtHead.
-            if (m_workset.size() == liveAtHead.size())
-                m_workset.clear();
-            else {
-                for (unsigned liveIndexAtHead : liveAtHead)
-                    m_workset.remove(liveIndexAtHead);
+            // liveIn = gen | (liveOut & ~kill)
+            uint64_t changed = 0;
+            for (size_t i = 0; i < wordsPerSet; ++i) {
+                uint64_t newLiveIn = genSet[i] | (liveOutSet[i] & ~killSet[i]);
+                uint64_t oldLiveIn = liveInSet[i];
+                liveInSet[i] = newLiveIn;
+                changed |= newLiveIn ^ oldLiveIn;
             }
-
-            if (m_workset.isEmpty())
+            if (!changed)
                 continue;
 
-            liveAtHead.appendRange(m_workset.begin(), m_workset.end());
-
-            m_workset.sort();
-
-            for (typename CFG::Node predecessor : m_cfg.predecessors(block)) {
-                IndexVector& liveAtTail = m_liveAtTail[predecessor];
-
-                if (liveAtTail.isEmpty())
-                    liveAtTail = m_workset.values();
-                else {
-                    mergeBuffer.resize(liveAtTail.size() + m_workset.size());
-                    auto iter = mergeDeduplicatedSorted(
-                        liveAtTail.begin(), liveAtTail.end(),
-                        m_workset.begin(), m_workset.end(),
-                        mergeBuffer.begin());
-                    mergeBuffer.shrink(iter - mergeBuffer.begin());
-
-                    if (mergeBuffer.size() == liveAtTail.size())
-                        continue;
-
-                    RELEASE_ASSERT(mergeBuffer.size() > liveAtTail.size());
-                    std::swap(liveAtTail, mergeBuffer);
+            // Propagate this block's liveIn into each predecessor's liveOut, re-queuing a predecessor
+            // only when its liveOut actually grew.
+            for (auto predecessor : m_cfg.predecessors(block)) {
+                auto predLiveOut = setFor(liveOutMatrix, predecessor->index());
+                uint64_t predChanged = 0;
+                for (size_t i = 0; i < wordsPerSet; ++i) {
+                    uint64_t oldLiveOut = predLiveOut[i];
+                    uint64_t newLiveOut = oldLiveOut | liveInSet[i];
+                    predLiveOut[i] = newLiveOut;
+                    predChanged |= newLiveOut ^ oldLiveOut;
                 }
-
-                if (!dirtyBlocks.quickSet(predecessor->index()))
+                if (predChanged && !dirtyBlocks.quickSet(predecessor->index()))
                     worklist.append(predecessor->index());
             }
+        }
+
+        // Materialize the sorted IndexVector representation that the public API uses. WTF::forEachSetBit
+        // yields ascending indices, so the resulting vectors are already sorted.
+        for (unsigned blockIndex = 0; blockIndex < numNodes; ++blockIndex) {
+            auto block = m_cfg.node(blockIndex);
+            if (!block)
+                continue;
+            WTF::forEachSetBit(std::span<const uint64_t> { setFor(liveInMatrix, blockIndex) }, [&] (size_t index) { m_liveAtHead[block].append(index); });
+            WTF::forEachSetBit(std::span<const uint64_t> { setFor(liveOutMatrix, blockIndex) }, [&] (size_t index) { m_liveAtTail[block].append(index); });
+        }
+    }
+
+    // Sparse fallback for functions whose dense matrices would be too large. Memory is proportional
+    // to live values, at the cost of working bit by bit (SparseBitVector has no bulk word ops).
+    void computeSparse()
+    {
+        Adapter::prepareToCompute();
+
+        unsigned numNodes = m_cfg.numNodes();
+
+        Vector<SparseBitVector<>> tailBits(numNodes);
+        Vector<SparseBitVector<>> headBits(numNodes);
+
+        BitVector dirtyBlocks(numNodes);
+        Vector<unsigned, 64> worklist;
+        for (unsigned blockIndex = 0; blockIndex < numNodes; ++blockIndex) {
+            auto block = m_cfg.node(blockIndex);
+            if (!block)
+                continue;
+
+            // The liveAtTail of each block automatically contains the LateUse's of the terminal.
+            auto& liveAtTail = tailBits[blockIndex];
+            Adapter::forEachUse(
+                block, Adapter::blockSize(block),
+                [&] (unsigned index) {
+                    liveAtTail.set(index);
+                });
+
+            dirtyBlocks.quickSet(blockIndex);
+            worklist.append(blockIndex);
+        }
+
+        Vector<unsigned, 64> delta;
+        while (!worklist.isEmpty()) {
+            unsigned blockIndex = worklist.takeLast();
+            bool cleared = dirtyBlocks.quickClear(blockIndex);
+            ASSERT_UNUSED(cleared, cleared);
+
+            auto block = m_cfg.node(blockIndex);
+            ASSERT(block);
+
+            m_workset.clear();
+            tailBits[blockIndex].forEachSetBit(
+                [&] (size_t index) {
+                    m_workset.add(index);
+                });
+            for (size_t instIndex = Adapter::blockSize(block); instIndex--;) {
+                Adapter::forEachDef(block, instIndex + 1, [&] (unsigned index) { m_workset.remove(index); });
+                Adapter::forEachUse(block, instIndex, [&] (unsigned index) { m_workset.add(index); });
+            }
+            Adapter::forEachDef(block, 0, [&] (unsigned index) { m_workset.remove(index); });
+
+            auto& liveAtHead = headBits[blockIndex];
+            delta.shrink(0);
+            for (unsigned index : m_workset) {
+                if (liveAtHead.set(index))
+                    delta.append(index);
+            }
+
+            if (delta.isEmpty())
+                continue;
+
+            for (auto predecessor : m_cfg.predecessors(block)) {
+                auto& predTail = tailBits[predecessor->index()];
+                bool changed = false;
+                for (unsigned index : delta) {
+                    if (predTail.set(index))
+                        changed = true;
+                }
+                if (changed && !dirtyBlocks.quickSet(predecessor->index()))
+                    worklist.append(predecessor->index());
+            }
+        }
+
+        for (unsigned blockIndex = 0; blockIndex < numNodes; ++blockIndex) {
+            auto block = m_cfg.node(blockIndex);
+            if (!block)
+                continue;
+            headBits[blockIndex].forEachSetBit([&] (size_t index) { m_liveAtHead[block].append(index); });
+            tailBits[blockIndex].forEachSetBit([&] (size_t index) { m_liveAtTail[block].append(index); });
         }
     }
 

@@ -551,6 +551,7 @@
 		DD3DC96427A4BF8E007E5B61 /* CrossThreadTask.h in Headers */ = {isa = PBXBuildFile; fileRef = 515F794D1CFC9F4A00CCED93 /* CrossThreadTask.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		DD3DC96527A4BF8E007E5B61 /* FixedVector.h in Headers */ = {isa = PBXBuildFile; fileRef = E3E0F04F26197157004640FC /* FixedVector.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		DD3DC96627A4BF8E007E5B61 /* IndexSparseSet.h in Headers */ = {isa = PBXBuildFile; fileRef = 2684D4351C000D400081D663 /* IndexSparseSet.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		08982C1A106045F4A68DF4F1 /* SparseBitVector.h in Headers */ = {isa = PBXBuildFile; fileRef = 02F0B57890A842688F808D7C /* SparseBitVector.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		DD3DC96727A4BF8E007E5B61 /* ListDump.h in Headers */ = {isa = PBXBuildFile; fileRef = A70DA0831799F04D00529A9B /* ListDump.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		DD3DC96827A4BF8E007E5B61 /* MonotonicTime.h in Headers */ = {isa = PBXBuildFile; fileRef = 0F66B2831DC97BAB004A1D3F /* MonotonicTime.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		DD3DC9A027A5C0F0007E5B61 /* ReducedResolutionSeconds.h in Headers */ = {isa = PBXBuildFile; fileRef = DD3DC9A127A5C0F0007E5B61 /* ReducedResolutionSeconds.h */; settings = {ATTRIBUTES = (Private, ); }; };
@@ -1320,6 +1321,7 @@
 		26147B0815DDCCDC00DDB907 /* IntegerToStringConversion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IntegerToStringConversion.h; sourceTree = "<group>"; };
 		26299B6D17A9E5B800ADEBE5 /* Ref.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Ref.h; sourceTree = "<group>"; };
 		2684D4351C000D400081D663 /* IndexSparseSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IndexSparseSet.h; sourceTree = "<group>"; };
+		02F0B57890A842688F808D7C /* SparseBitVector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SparseBitVector.h; sourceTree = "<group>"; };
 		275DFB6B238BDF72001230E2 /* OptionSetHash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OptionSetHash.h; sourceTree = "<group>"; };
 		27C793CE2C40909D000E1BE8 /* PlatformEnableWin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlatformEnableWin.h; sourceTree = "<group>"; };
 		2A0CF001302E77880086000A /* CFTypeTraits.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CFTypeTraits.h; sourceTree = "<group>"; };
@@ -2757,6 +2759,7 @@
 				A30D412D1F0DE13F00B71954 /* SoftLinking.h */,
 				93156C8D262C982200EAE27B /* SortedArrayMap.h */,
 				79038E05224B05A7004C0738 /* SpanningTree.h */,
+				02F0B57890A842688F808D7C /* SparseBitVector.h */,
 				A8A4730D151A825B004123FF /* Spectrum.h */,
 				A8A4730F151A825B004123CF /* StackAllocation.h */,
 				A8A4730E151A825B004123FF /* StackBounds.cpp */,
@@ -3921,6 +3924,7 @@
 				DD3DC91F27A4BF8E007E5B61 /* SortedArrayMap.h in Headers */,
 				466D69112BA4E433005D43F4 /* SpanCocoa.h in Headers */,
 				DD3DC8CD27A4BF8E007E5B61 /* SpanningTree.h in Headers */,
+				08982C1A106045F4A68DF4F1 /* SparseBitVector.h in Headers */,
 				DD3DC87727A4BF8E007E5B61 /* Spectrum.h in Headers */,
 				DD3DC97F27A4BF8E007E5BC1 /* StackAllocation.h in Headers */,
 				DD3DC97F27A4BF8E007E5B61 /* StackBounds.h in Headers */,

@@ -325,6 +325,7 @@ set(WTF_PUBLIC_HEADERS
     SoftLinking.h
     SortedArrayMap.h
     SpanningTree.h
+    SparseBitVector.h
     Spectrum.h
     StackAllocation.h
     StackBounds.h
