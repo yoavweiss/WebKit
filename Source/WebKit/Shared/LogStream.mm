@@ -66,44 +66,43 @@ void LogStream::stopListeningForIPC()
 #endif
 }
 
-void LogStream::logOnBehalfOfWebContent(std::span<const uint8_t> logSubsystem, std::span<const uint8_t> logCategory, std::span<const uint8_t> nullTerminatedLogString, uint8_t logType)
+void LogStream::logOnBehalfOfWebContent(std::span<const uint8_t> subsystemSpan, std::span<const uint8_t> categorySpan, std::span<const uint8_t> stringSpan, uint8_t logType)
 {
 #if ENABLE(STREAMING_IPC_IN_LOG_FORWARDING)
     ASSERT(!isMainRunLoop());
 #endif
-    auto isNullTerminated = [](std::span<const uint8_t> view) {
-        return view.data() && !view.empty() && view.back() == '\0';
-    };
-
-    bool isValidLogType = logType == OS_LOG_TYPE_DEFAULT || logType == OS_LOG_TYPE_INFO || logType == OS_LOG_TYPE_DEBUG || logType == OS_LOG_TYPE_ERROR || logType == OS_LOG_TYPE_FAULT;
 
     RefPtr connection = m_connection.get();
-    MESSAGE_CHECK(isNullTerminated(nullTerminatedLogString) && isValidLogType, connection);
-    MESSAGE_CHECK(logSubsystem.size() <= logSubsystemMaxSize, connection);
-    MESSAGE_CHECK(logCategory.size() <= logCategoryMaxSize, connection);
-    MESSAGE_CHECK(nullTerminatedLogString.size() <= logStringMaxSize, connection);
+
+    bool isValidLogType = logType == OS_LOG_TYPE_DEFAULT || logType == OS_LOG_TYPE_INFO || logType == OS_LOG_TYPE_DEBUG || logType == OS_LOG_TYPE_ERROR || logType == OS_LOG_TYPE_FAULT;
+    MESSAGE_CHECK(isValidLogType, connection);
+
+    CString subsystem = subsystemSpan;
+    CString category = categorySpan;
+    CString string = stringSpan;
+    MESSAGE_CHECK(subsystem.length() < logSubsystemMaxSize, connection);
+    MESSAGE_CHECK(category.length() < logCategoryMaxSize, connection);
+    MESSAGE_CHECK(string.length() < logStringMaxSize, connection);
 
     // os_log_hook on sender side sends a null category and subsystem when logging to OS_LOG_DEFAULT.
     OSObjectPtr<os_log_t> osLog;
-    if (isNullTerminated(logSubsystem) && isNullTerminated(logCategory)) {
-        auto subsystem = byteCast<char>(logSubsystem.data());
-        auto category = byteCast<char>(logCategory.data());
-        if (equalSpans("Testing\0"_span, logCategory))
+    if (!subsystem.isEmpty() && !category.isEmpty()) {
+        if (category == "Testing"_s)
             globalLogCountForTesting++;
-        osLog = adoptOSObject(os_log_create(subsystem, category));
+        osLog = adoptOSObject(os_log_create(subsystem.data(), category.data()));
     }
     if (!osLog)
         osLog = OS_LOG_DEFAULT;
 
 #if HAVE(OS_SIGNPOST)
-    if (WTFSignpostHandleIndirectLog(osLog.get(), m_pid, byteCast<char>(nullTerminatedLogString)))
+    if (WTFSignpostHandleIndirectLog(osLog.get(), m_pid, string.spanIncludingNullTerminator()))
         return;
 #endif
 
     // Use '%{public}s' in the format string for the preprocessed string from the WebContent process.
     // This should not reveal any redacted information in the string, since it has already been composed in the WebContent process.
 WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
-    SUPPRESS_UNCOUNTED_LOCAL os_log_with_type(osLog.get(), static_cast<os_log_type_t>(logType), "WebContent[%d] %{public}s", m_pid, byteCast<char>(nullTerminatedLogString).data());
+    SUPPRESS_UNCOUNTED_LOCAL os_log_with_type(osLog.get(), static_cast<os_log_type_t>(logType), "WebContent[%d] %{public}s", m_pid, string.data());
 WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
 }
 
