@@ -34,6 +34,7 @@
 #include "HTMLLabelElement.h"
 #include "HTMLTableCellElement.h"
 #include "RenderElementInlines.h"
+#include "RenderLineBreak.h"
 #include "RenderObjectStyle.h"
 #include "StyleComputedStyle+GettersInlines.h"
 #include <wtf/Scope.h>
@@ -115,6 +116,11 @@ static bool isStitchBreakingElement(Element& element)
 
 StitchAction stitchActionFor(const RenderObject& renderer, const AccessibilityObject& object, StitchingContext& context)
 {
+    if (CheckedPtr lineBreak = dynamicDowncast<RenderLineBreak>(renderer); lineBreak && lineBreak->isBR()) {
+        // A <br> visually separates the text around it, so don't stitch across it.
+        return StitchAction::BreakAndSkip;
+    }
+
     auto isInsideLink = [] (const RenderObject& renderer) {
         return renderer.style().insideLink() != InsideLink::NotInside;
     };

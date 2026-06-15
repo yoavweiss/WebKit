@@ -981,6 +981,7 @@ accessibility/text-stitching-across-inline-elements.html [ Skip ]
 accessibility/text-stitching-after-atomic-inline.html [ Skip ]
 accessibility/text-stitching-end-text-marker.html [ Skip ]
 accessibility/text-stitching-inside-links.html [ Skip ]
+accessibility/text-stitching-line-break.html [ Skip ]
 
 webkit.org/b/316359 accessibility/aria-hidden-deep-dom-no-crash.html [ Timeout Pass ]
 
