@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2010-2023 Google Inc. All rights reserved.
- * Copyright (C) 2008-2024 Apple Inc. All rights reserved.
+ * Copyright (C) 2008-2026 Apple Inc. All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -961,10 +961,14 @@ LayoutRect ScrollableArea::getRectToExposeForScrollIntoView(const LayoutRect& vi
             scrollX = alignX.getHiddenBehavior();
     }
 
-    // If we're trying to align to the closest edge, and the exposeRect is further right
-    // than the visibleBounds, and not bigger than the visible area, then align with the right.
-    if (scrollX == ScrollAlignment::Behavior::AlignToClosestEdge && exposeRect.maxX() > visibleBounds.maxX() && exposeRect.width() < visibleBounds.width())
-        scrollX = ScrollAlignment::Behavior::AlignRight;
+    if (scrollX == ScrollAlignment::Behavior::AlignToClosestEdge) {
+        // The closest edge is the right in two cases:
+        // (1) exposeRect is to the right of and smaller than visibleBounds.
+        // (2) exposeRect is to the left of and larger than visibleBounds.
+        if ((exposeRect.maxX() > visibleBounds.maxX() && exposeRect.width() < visibleBounds.width())
+            || (exposeRect.maxX() < visibleBounds.maxX() && exposeRect.width() > visibleBounds.width()))
+            scrollX = ScrollAlignment::Behavior::AlignRight;
+    }
 
     // Given the X behavior, compute the X coordinate.
     LayoutUnit x;
@@ -1001,10 +1005,14 @@ LayoutRect ScrollableArea::getRectToExposeForScrollIntoView(const LayoutRect& vi
             scrollY = alignY.getHiddenBehavior();
     }
 
-    // If we're trying to align to the closest edge, and the exposeRect is further down
-    // than the visibleBounds, and not bigger than the visible area, then align with the bottom.
-    if (scrollY == ScrollAlignment::Behavior::AlignToClosestEdge && exposeRect.maxY() > visibleBounds.maxY() && exposeRect.height() < visibleBounds.height())
-        scrollY = ScrollAlignment::Behavior::AlignBottom;
+    if (scrollY == ScrollAlignment::Behavior::AlignToClosestEdge) {
+        // The closest edge is the bottom in two cases:
+        // (1) exposeRect is below and smaller than visibleBounds.
+        // (2) exposeRect is above and larger than visibleBounds.
+        if ((exposeRect.maxY() > visibleBounds.maxY() && exposeRect.height() < visibleBounds.height())
+            || (exposeRect.maxY() < visibleBounds.maxY() && exposeRect.height() > visibleBounds.height()))
+            scrollY = ScrollAlignment::Behavior::AlignBottom;
+    }
 
     // Given the Y behavior, compute the Y coordinate.
     LayoutUnit y;
