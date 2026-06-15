@@ -30,6 +30,7 @@
 #include "JSTestConditionalIncludes.h"
 #include "JSTestConditionallyReadWrite.h"
 #include "JSTestDefaultToJSON.h"
+#include "JSTestDefaultToJSONCustomGetter.h"
 #include "JSTestDefaultToJSONFilteredByExposed.h"
 #include "JSTestEnabledBySetting.h"
 #include "JSTestEnabledForContext.h"
@@ -126,6 +127,18 @@ static inline JSValue jsDOMWindow_TestDefaultToJSONConstructorGetter(JSGlobalObj
 JSC_DEFINE_CUSTOM_GETTER(jsDOMWindow_TestDefaultToJSONConstructor, (JSGlobalObject* lexicalGlobalObject, EncodedJSValue thisValue, PropertyName attributeName))
 {
     return IDLAttribute<JSDOMWindow>::get<jsDOMWindow_TestDefaultToJSONConstructorGetter>(*lexicalGlobalObject, thisValue, attributeName);
+}
+
+JSC_DECLARE_CUSTOM_GETTER(jsDOMWindow_TestDefaultToJSONCustomGetterConstructor);
+static inline JSValue jsDOMWindow_TestDefaultToJSONCustomGetterConstructorGetter(JSGlobalObject& lexicalGlobalObject, JSDOMWindow& thisObject)
+{
+    UNUSED_PARAM(lexicalGlobalObject);
+    return JSTestDefaultToJSONCustomGetter::getConstructor(JSC::getVM(&lexicalGlobalObject), &thisObject);
+}
+
+JSC_DEFINE_CUSTOM_GETTER(jsDOMWindow_TestDefaultToJSONCustomGetterConstructor, (JSGlobalObject* lexicalGlobalObject, EncodedJSValue thisValue, PropertyName attributeName))
+{
+    return IDLAttribute<JSDOMWindow>::get<jsDOMWindow_TestDefaultToJSONCustomGetterConstructorGetter>(*lexicalGlobalObject, thisValue, attributeName);
 }
 
 JSC_DECLARE_CUSTOM_GETTER(jsDOMWindow_TestDefaultToJSONFilteredByExposedConstructor);

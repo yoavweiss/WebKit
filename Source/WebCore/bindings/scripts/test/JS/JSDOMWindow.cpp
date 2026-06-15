@@ -58,6 +58,7 @@ JSC_DECLARE_CUSTOM_GETTER(jsDOMWindow_TestConditionalConstructor);
 JSC_DECLARE_CUSTOM_GETTER(jsDOMWindow_TestConditionalIncludesConstructor);
 JSC_DECLARE_CUSTOM_GETTER(jsDOMWindow_TestConditionallyReadWriteConstructor);
 JSC_DECLARE_CUSTOM_GETTER(jsDOMWindow_TestDefaultToJSONConstructor);
+JSC_DECLARE_CUSTOM_GETTER(jsDOMWindow_TestDefaultToJSONCustomGetterConstructor);
 JSC_DECLARE_CUSTOM_GETTER(jsDOMWindow_TestDefaultToJSONFilteredByExposedConstructor);
 JSC_DECLARE_CUSTOM_GETTER(jsDOMWindow_TestEnabledBySettingConstructor);
 JSC_DECLARE_CUSTOM_GETTER(jsDOMWindow_TestEnabledForContextConstructor);
@@ -72,31 +73,31 @@ using JSDOMWindowDOMConstructor = JSDOMConstructorNotConstructable<JSDOMWindow>;
 
 /* Hash table */
 
-static const struct CompactHashIndex JSDOMWindowTableIndex[34] = {
+static const struct CompactHashIndex JSDOMWindowTableIndex[35] = {
     { 5, 33 },
     { 3, -1 },
     { -1, -1 },
     { -1, -1 },
-    { 10, -1 },
-    { -1, -1 },
     { 11, -1 },
-    { -1, -1 },
-    { -1, -1 },
-    { -1, -1 },
-    { -1, -1 },
-    { 6, -1 },
-    { -1, -1 },
-    { 8, -1 },
-    { -1, -1 },
-    { 1, -1 },
     { -1, -1 },
     { 12, -1 },
     { -1, -1 },
     { -1, -1 },
     { -1, -1 },
     { -1, -1 },
+    { 6, -1 },
     { -1, -1 },
     { 9, -1 },
+    { -1, -1 },
+    { 1, -1 },
+    { -1, -1 },
+    { 13, -1 },
+    { -1, -1 },
+    { -1, -1 },
+    { -1, -1 },
+    { -1, -1 },
+    { -1, -1 },
+    { 10, -1 },
     { -1, -1 },
     { -1, -1 },
     { -1, -1 },
@@ -106,11 +107,12 @@ static const struct CompactHashIndex JSDOMWindowTableIndex[34] = {
     { 2, 32 },
     { -1, -1 },
     { 4, -1 },
-    { 7, -1 },
+    { 7, 34 },
+    { 8, -1 },
 };
 
 
-static const std::array<HashTableValue, 13> JSDOMWindowTableValues {
+static const std::array<HashTableValue, 14> JSDOMWindowTableValues {
     HashTableValue { "DOMWindow"_s, static_cast<unsigned>(JSC::PropertyAttribute::DontEnum), NoIntrinsic, { HashTableValue::GetterSetterType, jsDOMWindow_DOMWindowConstructor, 0 } },
     HashTableValue { "ExposedStar"_s, static_cast<unsigned>(JSC::PropertyAttribute::DontEnum), NoIntrinsic, { HashTableValue::GetterSetterType, jsDOMWindow_ExposedStarConstructor, 0 } },
     HashTableValue { "ExposedToWorkerAndWindow"_s, static_cast<unsigned>(JSC::PropertyAttribute::DontEnum), NoIntrinsic, { HashTableValue::GetterSetterType, jsDOMWindow_ExposedToWorkerAndWindowConstructor, 0 } },
@@ -118,6 +120,7 @@ static const std::array<HashTableValue, 13> JSDOMWindowTableValues {
     HashTableValue { "TestConditionalIncludes"_s, static_cast<unsigned>(JSC::PropertyAttribute::DontEnum), NoIntrinsic, { HashTableValue::GetterSetterType, jsDOMWindow_TestConditionalIncludesConstructor, 0 } },
     HashTableValue { "TestConditionallyReadWrite"_s, static_cast<unsigned>(JSC::PropertyAttribute::DontEnum), NoIntrinsic, { HashTableValue::GetterSetterType, jsDOMWindow_TestConditionallyReadWriteConstructor, 0 } },
     HashTableValue { "TestDefaultToJSON"_s, static_cast<unsigned>(JSC::PropertyAttribute::DontEnum), NoIntrinsic, { HashTableValue::GetterSetterType, jsDOMWindow_TestDefaultToJSONConstructor, 0 } },
+    HashTableValue { "TestDefaultToJSONCustomGetter"_s, static_cast<unsigned>(JSC::PropertyAttribute::DontEnum), NoIntrinsic, { HashTableValue::GetterSetterType, jsDOMWindow_TestDefaultToJSONCustomGetterConstructor, 0 } },
     HashTableValue { "TestDefaultToJSONFilteredByExposed"_s, static_cast<unsigned>(JSC::PropertyAttribute::DontEnum), NoIntrinsic, { HashTableValue::GetterSetterType, jsDOMWindow_TestDefaultToJSONFilteredByExposedConstructor, 0 } },
     HashTableValue { "TestEnabledBySetting"_s, static_cast<unsigned>(JSC::PropertyAttribute::DontEnum), NoIntrinsic, { HashTableValue::GetterSetterType, jsDOMWindow_TestEnabledBySettingConstructor, 0 } },
 #if ENABLE(Condition1) || ENABLE(Condition2)
@@ -130,7 +133,7 @@ static const std::array<HashTableValue, 13> JSDOMWindowTableValues {
     HashTableValue { "TestPromiseRejectionEvent"_s, static_cast<unsigned>(JSC::PropertyAttribute::DontEnum), NoIntrinsic, { HashTableValue::GetterSetterType, jsDOMWindow_TestPromiseRejectionEventConstructor, 0 } },
 };
 
-static const HashTable JSDOMWindowTable = { 13, 31, static_cast<uint8_t>(static_cast<unsigned>(JSC::PropertyAttribute::DontEnum)), JSDOMWindow::info(), JSDOMWindowTableValues.data(), JSDOMWindowTableIndex };
+static const HashTable JSDOMWindowTable = { 14, 31, static_cast<uint8_t>(static_cast<unsigned>(JSC::PropertyAttribute::DontEnum)), JSDOMWindow::info(), JSDOMWindowTableValues.data(), JSDOMWindowTableIndex };
 template<> const ClassInfo JSDOMWindowDOMConstructor::s_info = { "DOMWindow"_s, &Base::s_info, nullptr, nullptr, CREATE_METHOD_TABLE(JSDOMWindowDOMConstructor) };
 
 template<> JSValue JSDOMWindowDOMConstructor::prototypeForStructure(JSC::VM& vm, const JSDOMGlobalObject& globalObject)
