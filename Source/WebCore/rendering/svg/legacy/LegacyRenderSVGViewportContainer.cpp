@@ -36,9 +36,6 @@ WTF_MAKE_TZONE_ALLOCATED_IMPL(LegacyRenderSVGViewportContainer);
 
 LegacyRenderSVGViewportContainer::LegacyRenderSVGViewportContainer(SVGSVGElement& element, Style::ComputedStyle&& style)
     : LegacyRenderSVGContainer(Type::LegacySVGViewportContainer, element, WTF::move(style))
-    , m_didTransformToRootUpdate(false)
-    , m_isLayoutSizeChanged(false)
-    , m_needsTransformUpdate(true)
 {
     ASSERT(isLegacyRenderSVGViewportContainer());
 }

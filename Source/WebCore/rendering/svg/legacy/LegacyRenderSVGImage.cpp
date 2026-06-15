@@ -52,8 +52,6 @@ WTF_MAKE_TZONE_ALLOCATED_IMPL(LegacyRenderSVGImage);
 
 LegacyRenderSVGImage::LegacyRenderSVGImage(SVGImageElement& element, Style::ComputedStyle&& style)
     : LegacyRenderSVGModelObject(Type::LegacySVGImage, element, WTF::move(style), SVGModelObjectFlag::UsesBoundaryCaching)
-    , m_needsBoundariesUpdate(true)
-    , m_needsTransformUpdate(true)
     , m_imageResource(makeUniqueRef<RenderImageResource>())
 {
     imageResource().initialize(*this);

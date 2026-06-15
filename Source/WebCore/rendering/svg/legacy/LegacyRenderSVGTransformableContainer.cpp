@@ -36,8 +36,6 @@ WTF_MAKE_TZONE_ALLOCATED_IMPL(LegacyRenderSVGTransformableContainer);
 
 LegacyRenderSVGTransformableContainer::LegacyRenderSVGTransformableContainer(SVGGraphicsElement& element, Style::ComputedStyle&& style)
     : LegacyRenderSVGContainer(Type::LegacySVGTransformableContainer, element, WTF::move(style))
-    , m_needsTransformUpdate(true)
-    , m_didTransformToRootUpdate(false)
 {
     ASSERT(isLegacyRenderSVGTransformableContainer());
 }

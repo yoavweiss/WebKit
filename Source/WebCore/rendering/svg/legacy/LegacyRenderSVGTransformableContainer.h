@@ -47,8 +47,8 @@ private:
     bool calculateLocalTransform() override;
     AffineTransform localTransform() const override { return m_localTransform; }
 
-    bool m_needsTransformUpdate : 1;
-    bool m_didTransformToRootUpdate : 1;
+    bool m_needsTransformUpdate : 1 { true };
+    bool m_didTransformToRootUpdate : 1 { false };
     AffineTransform m_localTransform;
     FloatSize m_additionalTranslation;
     FloatRect m_lastTransformReferenceBoxRect;

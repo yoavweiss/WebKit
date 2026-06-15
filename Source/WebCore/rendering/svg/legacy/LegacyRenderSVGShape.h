@@ -152,9 +152,9 @@ protected:
 private:
     FloatRect m_repaintBoundingBox;
 
-    bool m_needsBoundariesUpdate : 1;
-    bool m_needsShapeUpdate : 1;
-    bool m_needsTransformUpdate : 1;
+    bool m_needsBoundariesUpdate : 1 { false }; // Default is false, the cached rects are empty from the beginning.
+    bool m_needsShapeUpdate : 1 { true }; // Default is true, so we grab a Path object once from SVGGraphicsElement.
+    bool m_needsTransformUpdate : 1 { true }; // Default is true, so we grab a AffineTransform object once from SVGGraphicsElement.
     bool m_fillRequiresClip : 1 { true };
 protected:
     ShapeType m_shapeType : 3 { ShapeType::Empty };

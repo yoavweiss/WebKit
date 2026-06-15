@@ -85,8 +85,8 @@ private:
 
     AffineTransform localTransform() const override { return m_localTransform; }
 
-    bool m_needsBoundariesUpdate : 1;
-    bool m_needsTransformUpdate : 1;
+    bool m_needsBoundariesUpdate : 1 { true };
+    bool m_needsTransformUpdate : 1 { true };
     AffineTransform m_localTransform;
     FloatRect m_objectBoundingBox;
     FloatRect m_repaintBoundingBox;
