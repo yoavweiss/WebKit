@@ -510,7 +510,7 @@ double AudioVideoRendererAVFObjC::effectiveRate() const
     if (m_startupGateObserver)
         return 0;
     // False positive see webkit.org/b/298024
-    SUPPRESS_UNRETAINED_ARG return PAL::CMTimebaseGetRate([m_synchronizer timebase]);
+    SUPPRESS_UNRETAINED_ARG return PAL::CMTimebaseGetEffectiveRate([m_synchronizer timebase]);
 }
 
 void AudioVideoRendererAVFObjC::stall()
@@ -711,7 +711,7 @@ void AudioVideoRendererAVFObjC::releaseStartupGateAndForwardRate()
 {
     ASSERT(isMainThread());
     cancelStartupGateObserver();
-    SUPPRESS_UNRETAINED_ARG double liveRate = PAL::CMTimebaseGetRate([m_synchronizer timebase]);
+    SUPPRESS_UNRETAINED_ARG double liveRate = PAL::CMTimebaseGetEffectiveRate([m_synchronizer timebase]);
     m_lastForwardedEffectiveRate = liveRate;
     if (m_effectiveRateChangedCallback)
         m_effectiveRateChangedCallback(liveRate);
