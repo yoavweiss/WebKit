@@ -26,17 +26,18 @@
 #import "config.h"
 
 #import "ClassMethodSwizzler.h"
+#import "Helpers/PlatformUtilities.h"
+#import "Helpers/Test.h"
+#import "Helpers/Utilities.h"
 #import "Helpers/cocoa/HTTPServer.h"
 #import "Helpers/cocoa/PDFTestHelpers.h"
-#import "InstanceMethodSwizzler.h"
-#import "Helpers/PlatformUtilities.h"
-#import "SafeBrowsingSPI.h"
 #import "Helpers/cocoa/SafeBrowsingTestUtilities.h"
-#import "Helpers/Test.h"
+#import "Helpers/cocoa/ScreenTimeExtras.h"
 #import "Helpers/cocoa/TestNavigationDelegate.h"
 #import "Helpers/cocoa/TestWKWebView.h"
-#import "Helpers/Utilities.h"
 #import "Helpers/cocoa/WKWebViewConfigurationExtras.h"
+#import "InstanceMethodSwizzler.h"
+#import "SafeBrowsingSPI.h"
 #import <WebKit/WKContentWorldPrivate.h>
 #import <WebKit/WKFrameInfoPrivate.h>
 #import <WebKit/WKPreferencesPrivate.h>
@@ -65,14 +66,6 @@
 #define TestWebKitAPI_SSBLookupContext_SoftLinked
 SOFT_LINK_PRIVATE_FRAMEWORK(SafariSafeBrowsing);
 SOFT_LINK_CLASS(SafariSafeBrowsing, SSBLookupContext);
-#endif
-
-#if ENABLE(SCREEN_TIME)
-
-@interface STWebpageController ()
-@property (setter=setURLIsBlocked:) BOOL URLIsBlocked;
-@end
-
 #endif
 
 @class WKTextExtractionItem;

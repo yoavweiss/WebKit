@@ -36,6 +36,7 @@ Helpers/cocoa/DecomposedAttributedText.mm @nonARC
 Helpers/cocoa/DragAndDropSimulator.mm @nonARC
 Helpers/cocoa/HostWindowManager.mm @nonARC
 Helpers/cocoa/ImageAnalysisTestingUtilities.mm @nonARC
+Helpers/cocoa/MediaRemoteSoftLink.mm @nonARC
 Helpers/cocoa/ModelLoadingMessageHandler.mm @nonARC
 Helpers/cocoa/NSItemProviderAdditions.mm @nonARC
 Helpers/cocoa/PlatformUtilitiesCocoa.mm @nonARC

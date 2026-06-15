@@ -224,7 +224,7 @@ TEST(Badging, APIWindow)
     EXPECT_EQ(badgeDelegate.get().appBadgeIndex, 5);
 }
 
-static constexpr auto workerMainBytes = R"TESTRESOURCE(
+static constexpr auto badgingWorkerMainBytes = R"TESTRESOURCE(
 <script>
 window.worker = new Worker('worker.js');
 worker.onerror = (event) => {
@@ -236,7 +236,7 @@ worker.onmessage = (event) => {
 </script>
 )TESTRESOURCE"_s;
 
-static constexpr auto workerBytes = R"TESTRESOURCE(
+static constexpr auto badingWorkerBytes = R"TESTRESOURCE(
 self.onmessage = (event) => {
     if (event.data != 'updateBadge')
         return;
@@ -253,8 +253,8 @@ self.postMessage('RUNNING');
 TEST(Badging, DedicatedWorker)
 {
     TestWebKitAPI::HTTPServer server({
-        { "/"_s, { workerMainBytes } },
-        { "/worker.js"_s, { { { "Content-Type"_s, "text/javascript"_s } }, workerBytes } }
+        { "/"_s, { badgingWorkerMainBytes } },
+        { "/worker.js"_s, { { { "Content-Type"_s, "text/javascript"_s } }, badingWorkerBytes } }
     });
 
     RetainPtr configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
