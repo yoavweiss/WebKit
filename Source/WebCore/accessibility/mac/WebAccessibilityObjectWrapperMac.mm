@@ -1968,8 +1968,11 @@ static id handleDisclosedByRowAttribute(WebAccessibilityObjectWrapper*, AXCoreOb
 static id handleStartTextMarkerAttribute(WebAccessibilityObjectWrapper* wrapper, AXCoreObject& backingObject)
 {
     if (AXObjectCache::useAXThreadTextApis()) {
-        if (RefPtr tree = std::get<RefPtr<AXIsolatedTree>>(axTreeForID(backingObject.treeID())))
-            return tree->firstMarker().platformData().bridgingAutorelease();
+        if (RefPtr tree = std::get<RefPtr<AXIsolatedTree>>(axTreeForID(backingObject.treeID()))) {
+            AXTextMarker startMarker = tree->firstMarker();
+            AXTextMarker textRunStartMarker = startMarker.toTextRunMarker();
+            return (textRunStartMarker.isValid() ? textRunStartMarker : startMarker).platformData().bridgingAutorelease();
+        }
     }
     return Accessibility::retrieveAutoreleasedValueFromMainThread<id>([protectedSelf = retainPtr(wrapper)] () -> RetainPtr<id> {
         RefPtr backingObject = downcast<AccessibilityObject>(protectedSelf.get().axBackingObject);
