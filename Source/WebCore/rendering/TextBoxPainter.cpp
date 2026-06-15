@@ -800,13 +800,18 @@ static inline CheckedRef<const Style::ComputedStyle> decoratingBoxStyleForInline
     return inlineBox.style();
 }
 
+static inline bool isAlwaysDecoratingBoxForBackground(const InlineIterator::InlineBox& inlineBox)
+{
+    // <font> and <a> are always considered decorating boxes, so a propagated under/overline is drawn at their
+    // position, not only at the root inline box.
+    RefPtr element = inlineBox.renderer().element();
+    return element && (is<HTMLAnchorElement>(*element) || element->hasTagName(HTMLNames::fontTag));
+}
+
 static inline bool isDecoratingBoxForBackground(const InlineIterator::InlineBox& inlineBox, const Style::ComputedStyle& styleToUse)
 {
-    RefPtr element = inlineBox.renderer().element();
-    if (element && (is<HTMLAnchorElement>(*element) || element->hasTagName(HTMLNames::fontTag))) {
-        // <font> and <a> are always considered decorating boxes.
+    if (isAlwaysDecoratingBoxForBackground(inlineBox))
         return true;
-    }
     return styleToUse.textDecorationLine().containsAny({ Style::TextDecorationLine::Flag::Underline, Style::TextDecorationLine::Flag::Overline })
         || (inlineBox.isRootInlineBox() && styleToUse.textDecorationLineInEffect().containsAny({ Style::TextDecorationLine::Flag::Underline, Style::TextDecorationLine::Flag::Overline }));
 }
@@ -864,10 +869,26 @@ void TextBoxPainter::collectDecoratingBoxesForBackgroundPainting(DecoratingBoxLi
         } else
             decoratingBoxLocation.moveBy(FloatPoint { 0.f, snap(textBoxEdgeAdjustmentForUnderline(inlineBox->style()), m_renderer) });
 
+        auto decorationStyles = [&] {
+            auto styles = isParentInlineBox ? overrideDecorationStyle : computedDecorationStyle;
+            if (inlineBox->isRootInlineBox() || isAlwaysDecoratingBoxForBackground(*inlineBox))
+                return styles;
+
+            // A non-root inline box only originates the decorations set on it directly. An underline or overline that
+            // propagates through it is painted by the box that introduced it (an ancestor, ultimately the root inline
+            // box; <a>/<font> are decorating boxes too), so this box must not paint it again at its own position.
+            auto ownDecorations = style->textDecorationLine();
+            if (!ownDecorations.hasUnderline() && (!isParentInlineBox || styles.underline == computedDecorationStyle.underline))
+                styles.underline = { };
+            if (!ownDecorations.hasOverline() && (!isParentInlineBox || styles.overline == computedDecorationStyle.overline))
+                styles.overline = { };
+            return styles;
+        };
+
         decoratingBoxList.append({
             inlineBox,
             style,
-            isParentInlineBox ? overrideDecorationStyle : computedDecorationStyle,
+            decorationStyles(),
             decoratingBoxLocation,
             decorationWidth
         });

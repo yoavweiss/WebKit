@@ -55,6 +55,8 @@ public:
             // override on a marked text that does not set a decoration); the painter then resolves auto against the
             // painting box.
             std::optional<Style::TextDecorationThickness> thickness;
+
+            bool operator==(const DecorationStyleAndColor&) const = default;
         };
         DecorationStyleAndColor underline;
         DecorationStyleAndColor overline;
