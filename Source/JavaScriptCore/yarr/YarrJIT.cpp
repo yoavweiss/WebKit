@@ -45,6 +45,7 @@
 #include <wtf/BitVector.h>
 #include <wtf/ListDump.h>
 #include <wtf/MathExtras.h>
+#include <wtf/SetForScope.h>
 #include <wtf/TZoneMallocInlines.h>
 #include <wtf/text/MakeString.h>
 
@@ -2112,6 +2113,11 @@ class YarrGenerator final : public YarrJITInfo {
 
         const MacroAssembler::RegisterID character = m_regs.regT0;
         const MacroAssembler::RegisterID scratch = m_regs.regT1;
+
+#if ENABLE(YARR_JIT_UNICODE_EXPRESSIONS) && ENABLE(YARR_JIT_UNICODE_CAN_INCREMENT_INDEX_FOR_NON_BMP)
+        // Prevent word boundary assertion reads from corrupting firstCharacterAdditionalReadSize.
+        SetForScope useOptimizationScope(m_useFirstNonBMPCharacterOptimization, false);
+#endif
 
         MacroAssembler::Jump atBegin;
         MacroAssembler::JumpList matchDest;
@@ -4616,9 +4622,20 @@ class YarrGenerator final : public YarrJITInfo {
                             // already correctly incremented, if more than one then decrement as appropriate.
                             unsigned delta = alternative->m_minimumSize - beginOp->m_alternative->m_minimumSize;
                             ASSERT(delta);
-                            if (delta != 1)
-                                m_jit.sub32(MacroAssembler::Imm32(delta - 1), m_regs.index);
-                            m_jit.jump(beginOp->m_reentry);
+#if ENABLE(YARR_JIT_UNICODE_EXPRESSIONS) && ENABLE(YARR_JIT_UNICODE_CAN_INCREMENT_INDEX_FOR_NON_BMP)
+                            if (m_useFirstNonBMPCharacterOptimization) {
+                                m_jit.add32(m_regs.firstCharacterAdditionalReadSize, m_regs.index);
+                                if (delta != 1)
+                                    m_jit.sub32(MacroAssembler::Imm32(delta - 1), m_regs.index);
+                                checkInput().linkTo(beginOp->m_reentry, &m_jit);
+                            } else {
+#endif
+                                if (delta != 1)
+                                    m_jit.sub32(MacroAssembler::Imm32(delta - 1), m_regs.index);
+                                m_jit.jump(beginOp->m_reentry);
+#if ENABLE(YARR_JIT_UNICODE_EXPRESSIONS) && ENABLE(YARR_JIT_UNICODE_CAN_INCREMENT_INDEX_FOR_NON_BMP)
+                            }
+#endif
                         } else {
                             // If the first alternative has minimum size 0xFFFFFFFFu, then there cannot
                             // be sufficent input available to handle this, so just fall through.
