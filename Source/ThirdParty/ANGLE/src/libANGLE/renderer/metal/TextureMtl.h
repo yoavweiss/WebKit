@@ -183,7 +183,7 @@ class TextureMtl : public TextureImpl
                                     GLenum format);
 
   private:
-    void deallocateNativeStorage(bool keepImages, bool keepSamplerStateAndFormat = false);
+    void deallocateNativeStorage(bool keepImages);
     angle::Result createNativeStorage(const gl::Context *context,
                                       gl::TextureType type,
                                       GLuint mips,
@@ -192,8 +192,6 @@ class TextureMtl : public TextureImpl
                                       const mtl::Format &format);
     angle::Result onBaseMaxLevelsChanged(const gl::Context *context);
     angle::Result ensureSamplerStateCreated(const gl::Context *context);
-    // Ensure image at given index is created:
-    angle::Result ensureImageCreated(const gl::Context *context, const gl::ImageIndex &index);
     // Ensure all image views at all faces/levels are retained.
     void retainImageDefinitions();
     mtl::TextureRef createImageViewFromTextureStorage(GLuint cubeFaceOrZero, GLuint glLevel);
