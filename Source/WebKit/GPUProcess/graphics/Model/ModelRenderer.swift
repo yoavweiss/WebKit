@@ -21,12 +21,11 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 // THE POSSIBILITY OF SUCH DAMAGE.
 
-#if ENABLE_GPU_PROCESS_MODEL && canImport(RealityCoreTextureProcessing, _version: 24) && canImport(_USDKit_RealityKit, _version: 42) && canImport(RealityCoreRenderer, _version: 22) && canImport(ShaderGraph, _version: 156) && arch(arm64)
+#if ENABLE_GPU_PROCESS_MODEL && canImport(RealityCoreDeformation, _version: 23.0.2) && canImport(USDKit, _version: 106.0.2) && arch(arm64)
 
 import QuartzCore
 import USDKit
-@_spi(UsdLoaderAPI) import _USDKit_RealityKit
-@_spi(Private) import RealityKit
+import RealityKit
 import simd
 
 final class Renderer {
@@ -172,7 +171,6 @@ final class Renderer {
     func createMaterialCompiler(resources: LowLevelRenderContextStandalone.Resources) throws {
         var configuration = LowLevelRenderContextStandalone.Configuration(device: device)
         configuration.memoryOwner = self.memoryOwner
-        configuration.residencySetBehavior = LowLevelRenderContextStandalone.Configuration.ResidencySetBehavior.disable
         let renderContext = try LowLevelRenderContextStandalone(configuration: configuration, resources: resources)
         self.renderContext = renderContext
     }

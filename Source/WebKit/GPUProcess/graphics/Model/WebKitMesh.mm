@@ -471,6 +471,12 @@ static WKBridgeConstant convert(const Constant constant)
         return WKBridgeConstantMatrix3f;
     case Constant::kMatrix4f:
         return WKBridgeConstantMatrix4f;
+    case Constant::kMatrix2h:
+        return WKBridgeConstantMatrix2h;
+    case Constant::kMatrix3h:
+        return WKBridgeConstantMatrix3h;
+    case Constant::kMatrix4h:
+        return WKBridgeConstantMatrix4h;
     case Constant::kQuatf:
         return WKBridgeConstantQuatf;
     case Constant::kQuath:

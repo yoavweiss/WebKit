@@ -636,6 +636,12 @@ static WebModel::Constant convert(WKBridgeConstant constant)
         return WebModel::Constant::kMatrix3f;
     case WKBridgeConstantMatrix4f:
         return WebModel::Constant::kMatrix4f;
+    case WKBridgeConstantMatrix2h:
+        return WebModel::Constant::kMatrix2h;
+    case WKBridgeConstantMatrix3h:
+        return WebModel::Constant::kMatrix3h;
+    case WKBridgeConstantMatrix4h:
+        return WebModel::Constant::kMatrix4h;
     case WKBridgeConstantQuatf:
         return WebModel::Constant::kQuatf;
     case WKBridgeConstantQuath:

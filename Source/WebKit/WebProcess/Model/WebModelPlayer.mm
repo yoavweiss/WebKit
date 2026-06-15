@@ -315,7 +315,7 @@ void WebModelPlayer::load(WebCore::Model& modelSource, WebCore::LayoutSize size,
     }];
 
     m_retainedData = modelSource.data()->createNSData();
-    if ([m_modelLoader loadModel:m_retainedData.get()])
+    if ([m_modelLoader loadModel:m_retainedData.get() mimeType:modelSource.mimeType().createNSString().get()])
         startUpdateLoopIfNeeded();
     else if (RefPtr client = m_client.get())
         client->didFailLoading(protectedThis.get(), { });

@@ -266,6 +266,9 @@ typedef NS_ENUM(NSInteger, WKBridgeConstant) {
     WKBridgeConstantMatrix2f,
     WKBridgeConstantMatrix3f,
     WKBridgeConstantMatrix4f,
+    WKBridgeConstantMatrix2h,
+    WKBridgeConstantMatrix3h,
+    WKBridgeConstantMatrix4h,
     WKBridgeConstantQuatf,
     WKBridgeConstantQuath,
     WKBridgeConstantFloat2,
@@ -519,8 +522,7 @@ NS_SWIFT_SENDABLE
 - (void)setCurrentTime:(double)newTime;
 - (double)duration;
 - (BOOL)treatZAsUpAxis;
-- (void)loadModelFrom:(NSURL *)url;
-- (BOOL)loadModel:(NSData *)data;
+- (BOOL)loadModel:(NSData *)data mimeType:(NSString *)mimeType;
 - (nullable WKBridgeUpdateTexture *)loadEnvironmentMap:(NSData *)data;
 - (void)update:(double)deltaTime;
 - (void)setLoop:(BOOL)loop;
@@ -679,6 +681,9 @@ enum class Constant : uint8_t {
     kMatrix2f,
     kMatrix3f,
     kMatrix4f,
+    kMatrix2h,
+    kMatrix3h,
+    kMatrix4h,
     kQuatf,
     kQuath,
     kFloat2,
