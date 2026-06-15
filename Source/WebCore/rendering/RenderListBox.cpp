@@ -67,6 +67,7 @@
 #include "ScrollbarTheme.h"
 #include "Settings.h"
 #include "SpatialNavigation.h"
+#include "StylePrimitiveNumericTypes+Evaluation.h"
 #include "StyleResolver.h"
 #include "StyleTreeResolver.h"
 #include "UnicodeBidi.h"

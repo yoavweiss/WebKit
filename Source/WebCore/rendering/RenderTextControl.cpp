@@ -36,6 +36,7 @@
 #include "RenderTextControlSingleLine.h"
 #include "RenderTheme.h"
 #include "ScrollbarTheme.h"
+#include "StylePrimitiveNumericTypes+Evaluation.h"
 #include "TextControlInnerElements.h"
 #include "VisiblePosition.h"
 #include <wtf/TZoneMallocInlines.h>

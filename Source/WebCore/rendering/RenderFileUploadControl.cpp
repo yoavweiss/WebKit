@@ -42,6 +42,7 @@
 #include "RenderTheme.h"
 #include "ShadowRoot.h"
 #include "StringTruncator.h"
+#include "StylePrimitiveNumericTypes+Evaluation.h"
 #include "TextRun.h"
 #include "VisiblePosition.h"
 #include <math.h>

@@ -86,6 +86,7 @@
 #include "ShadowRoot.h"
 #include "ShapeOutsideInfo.h"
 #include "StyleContainmentCheckerInlines.h"
+#include "StylePrimitiveNumericTypes+Evaluation.h"
 #include "StylePrimitiveNumericTypes+EvaluationMinimum.h"
 #include "TransformState.h"
 #include <wtf/NeverDestroyed.h>

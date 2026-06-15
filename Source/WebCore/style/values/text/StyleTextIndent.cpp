@@ -33,6 +33,8 @@
 namespace WebCore {
 namespace Style {
 
+using namespace CSS::Literals;
+
 auto CSSValueConversion<TextIndent>::operator()(BuilderState& state, const CSSValue& value) -> TextIndent
 {
     if (RefPtr primitiveValue = dynamicDowncast<CSSPrimitiveValue>(value))

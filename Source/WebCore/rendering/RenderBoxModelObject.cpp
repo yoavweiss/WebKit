@@ -66,6 +66,7 @@
 #include "ScrollingConstraints.h"
 #include "Settings.h"
 #include "StyleImage.h"
+#include "StylePrimitiveNumericTypes+Evaluation.h"
 #include "StylePrimitiveNumericTypes+EvaluationMinimum.h"
 #include "Styleable.h"
 #include "TextBoxPainter.h"

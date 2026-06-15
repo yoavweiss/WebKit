@@ -40,6 +40,7 @@
 #include "ShadowRoot.h"
 #include "SliderThumbElement.h"
 #include "StepRange.h"
+#include "StylePrimitiveNumericTypes+Evaluation.h"
 #include "StyleResolver.h"
 #include <wtf/MathExtras.h>
 #include <wtf/Ref.h>

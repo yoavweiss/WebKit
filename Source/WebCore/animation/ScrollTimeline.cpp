@@ -40,6 +40,7 @@
 #include "RenderView.h"
 #include "StyleableInlines.h"
 #include "StyleComputedStyle+InitialInlines.h"
+#include "StylePrimitiveNumericTypes+Evaluation.h"
 #include "StyleSingleAnimationRange.h"
 #include "WebAnimation.h"
 
