@@ -313,6 +313,8 @@ void JSTestIterable::analyzeHeap(JSCell* cell, HeapAnalyzer& analyzer)
     Base::analyzeHeap(cell, analyzer);
 }
 
+JSTestIterableOwner::JSTestIterableOwner(ClangVTableWorkaroundTag) { }
+
 bool JSTestIterableOwner::isReachableFromOpaqueRoots(JSC::Handle<JSC::Unknown> handle, void*, AbstractSlotVisitor& visitor, ASCIILiteral* reason)
 {
     UNUSED_PARAM(handle);

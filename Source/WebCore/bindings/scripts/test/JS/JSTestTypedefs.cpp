@@ -834,6 +834,8 @@ void JSTestTypedefs::analyzeHeap(JSCell* cell, HeapAnalyzer& analyzer)
     Base::analyzeHeap(cell, analyzer);
 }
 
+JSTestTypedefsOwner::JSTestTypedefsOwner(ClangVTableWorkaroundTag) { }
+
 bool JSTestTypedefsOwner::isReachableFromOpaqueRoots(JSC::Handle<JSC::Unknown> handle, void*, AbstractSlotVisitor& visitor, ASCIILiteral* reason)
 {
     UNUSED_PARAM(handle);

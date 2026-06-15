@@ -313,6 +313,11 @@ Element::Element(const QualifiedName& tagName, Document& document, OptionSet<Typ
 {
 }
 
+Element::Element(ClangVTableWorkaroundTag, const QualifiedName& tagName, Document& document)
+    : Element(tagName, document, { })
+{
+}
+
 Element::~Element()
 {
     ASSERT(!beforePseudoElement());

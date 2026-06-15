@@ -46,6 +46,7 @@
 #include "DOMAttributeGetterSetterInlines.h"
 #include "Debugger.h"
 #include "DeferredWorkTimer.h"
+#include "DeferredWorkTimerInlines.h"
 #include "Disassembler.h"
 #include "DoublePredictionFuzzerAgent.h"
 #include "ErrorInstance.h"

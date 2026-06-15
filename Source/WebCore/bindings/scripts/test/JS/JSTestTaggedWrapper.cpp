@@ -192,6 +192,8 @@ void JSTestTaggedWrapper::analyzeHeap(JSCell* cell, HeapAnalyzer& analyzer)
     Base::analyzeHeap(cell, analyzer);
 }
 
+JSTestTaggedWrapperOwner::JSTestTaggedWrapperOwner(ClangVTableWorkaroundTag) { }
+
 bool JSTestTaggedWrapperOwner::isReachableFromOpaqueRoots(JSC::Handle<JSC::Unknown> handle, void*, AbstractSlotVisitor& visitor, ASCIILiteral* reason)
 {
     UNUSED_PARAM(handle);

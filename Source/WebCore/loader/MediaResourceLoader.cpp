@@ -41,6 +41,7 @@
 #include "HTTPHeaderNames.h"
 #include "InspectorInstrumentation.h"
 #include "LocalFrameLoaderClient.h"
+#include "NodeInlinesLight.h"
 #include "OriginAccessPatterns.h"
 #include "SecurityOrigin.h"
 #include "Settings.h"

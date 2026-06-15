@@ -37,6 +37,7 @@
 #include "IntrinsicGetterAccessCase.h"
 #include "ModuleNamespaceAccessCase.h"
 #include "PropertyInlineCache.h"
+#include "PropertyNameInlines.h"
 #include <wtf/ListDump.h>
 
 namespace JSC {

@@ -38,7 +38,7 @@ class ContainerNode : public Node {
     WTF_MAKE_TZONE_ALLOCATED(ContainerNode);
     WTF_OVERRIDE_DELETE_FOR_CHECKED_PTR(ContainerNode);
 public:
-    virtual ~ContainerNode();
+    WEBCORE_EXPORT virtual ~ContainerNode();
 
     Node* firstChild() const { return m_firstChild; }
     static constexpr ptrdiff_t firstChildMemoryOffset() { return OBJECT_OFFSETOF(ContainerNode, m_firstChild); }
@@ -166,6 +166,7 @@ protected:
 
 private:
     friend struct SerializedNode;
+    ContainerNode(ClangVTableWorkaroundTag, Document&);
     void executePreparedChildrenRemoval();
     enum class DeferChildrenChanged : bool { No, Yes };
     enum class DidRemoveElements : bool { No, Yes };
@@ -192,12 +193,6 @@ private:
     CheckedPtr<Node> m_firstChild;
     CheckedPtr<Node> m_lastChild;
 };
-
-inline ContainerNode::ContainerNode(Document& document, NodeType type, OptionSet<TypeFlag> typeFlags)
-    : Node(document, type, typeFlags | TypeFlag::IsContainerNode)
-{
-    ASSERT(!isCharacterDataNode());
-}
 
 } // namespace WebCore
 

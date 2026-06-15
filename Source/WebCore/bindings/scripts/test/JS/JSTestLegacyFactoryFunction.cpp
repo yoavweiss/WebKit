@@ -257,6 +257,8 @@ void JSTestLegacyFactoryFunction::analyzeHeap(JSCell* cell, HeapAnalyzer& analyz
     Base::analyzeHeap(cell, analyzer);
 }
 
+JSTestLegacyFactoryFunctionOwner::JSTestLegacyFactoryFunctionOwner(ClangVTableWorkaroundTag) { }
+
 bool JSTestLegacyFactoryFunctionOwner::isReachableFromOpaqueRoots(JSC::Handle<JSC::Unknown> handle, void*, AbstractSlotVisitor& visitor, ASCIILiteral* reason)
 {
     SUPPRESS_UNCOUNTED_LOCAL auto* jsTestLegacyFactoryFunction = uncheckedDowncast<JSTestLegacyFactoryFunction>(handle.slot()->asCell());

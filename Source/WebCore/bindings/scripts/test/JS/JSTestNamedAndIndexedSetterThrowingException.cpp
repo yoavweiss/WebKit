@@ -426,6 +426,8 @@ void JSTestNamedAndIndexedSetterThrowingException::analyzeHeap(JSCell* cell, Hea
     Base::analyzeHeap(cell, analyzer);
 }
 
+JSTestNamedAndIndexedSetterThrowingExceptionOwner::JSTestNamedAndIndexedSetterThrowingExceptionOwner(ClangVTableWorkaroundTag) { }
+
 bool JSTestNamedAndIndexedSetterThrowingExceptionOwner::isReachableFromOpaqueRoots(JSC::Handle<JSC::Unknown> handle, void*, AbstractSlotVisitor& visitor, ASCIILiteral* reason)
 {
     UNUSED_PARAM(handle);

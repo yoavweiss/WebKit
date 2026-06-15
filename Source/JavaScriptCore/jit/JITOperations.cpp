@@ -75,6 +75,7 @@ WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
 #include "ObjectConstructor.h"
 #include "PropertyInlineCache.h"
 #include "PropertyName.h"
+#include "PropertyNameInlines.h"
 #include "RegExpObject.h"
 #include "RepatchInlines.h"
 #include "ShadowChicken.h"

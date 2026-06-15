@@ -355,6 +355,8 @@ void JSTestNamedDeleterThrowingException::analyzeHeap(JSCell* cell, HeapAnalyzer
     Base::analyzeHeap(cell, analyzer);
 }
 
+JSTestNamedDeleterThrowingExceptionOwner::JSTestNamedDeleterThrowingExceptionOwner(ClangVTableWorkaroundTag) { }
+
 bool JSTestNamedDeleterThrowingExceptionOwner::isReachableFromOpaqueRoots(JSC::Handle<JSC::Unknown> handle, void*, AbstractSlotVisitor& visitor, ASCIILiteral* reason)
 {
     UNUSED_PARAM(handle);

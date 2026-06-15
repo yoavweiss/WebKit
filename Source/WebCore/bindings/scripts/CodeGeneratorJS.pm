@@ -3633,8 +3633,15 @@ sub GenerateHeader
         }
         $headerIncludes{"<wtf/NeverDestroyed.h>"} = 1;
         push(@headerContent, "public:\n");
+        push(@headerContent, "    JS${interfaceName}Owner() = default;\n");
         push(@headerContent, "    bool isReachableFromOpaqueRoots(JSC::Handle<JSC::Unknown>, void* context, JSC::AbstractSlotVisitor&, ASCIILiteral*) ${overrideDecl};\n");
         push(@headerContent, "    void finalize(JSC::Handle<JSC::Unknown>, void* context) ${overrideDecl};\n");
+        push(@headerContent, "\n");
+        push(@headerContent, "private:\n");
+        # When -fpch-debuginfo is enabled, clang sometimes fails to emit the
+        # vtable (rdar://176736350). This unused out-of-line constructor reminds
+        # clang to emit it. See ClangVTableWorkaroundTag in wtf/Compiler.h.
+        push(@headerContent, "    explicit JS${interfaceName}Owner(ClangVTableWorkaroundTag);\n");
         push(@headerContent, "};\n");
         push(@headerContent, "\n");
         push(@headerContent, "inline JSC::WeakHandleOwner* wrapperOwner(DOMWrapperWorld&, $implType*)\n");
@@ -5547,6 +5554,10 @@ sub GenerateImplementation
             $implIncludes{"JSNode.h"} = 1;
             $implIncludes{"Node.h"} = 1;
         }
+    }
+
+    if (ShouldGenerateWrapperOwnerCode($hasParent, $interface)) {
+        push(@implContent, "JS${interfaceName}Owner::JS${interfaceName}Owner(ClangVTableWorkaroundTag) { }\n\n");
     }
 
     if (ShouldGenerateWrapperOwnerCode($hasParent, $interface) && !GetCustomIsReachable($interface)) {

@@ -388,6 +388,8 @@ void JSTestSerializedScriptValueInterface::analyzeHeap(JSCell* cell, HeapAnalyze
     Base::analyzeHeap(cell, analyzer);
 }
 
+JSTestSerializedScriptValueInterfaceOwner::JSTestSerializedScriptValueInterfaceOwner(ClangVTableWorkaroundTag) { }
+
 bool JSTestSerializedScriptValueInterfaceOwner::isReachableFromOpaqueRoots(JSC::Handle<JSC::Unknown> handle, void*, AbstractSlotVisitor& visitor, ASCIILiteral* reason)
 {
     UNUSED_PARAM(handle);

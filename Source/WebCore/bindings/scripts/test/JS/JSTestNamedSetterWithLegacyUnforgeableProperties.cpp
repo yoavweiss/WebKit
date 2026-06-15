@@ -444,6 +444,8 @@ void JSTestNamedSetterWithLegacyUnforgeableProperties::analyzeHeap(JSCell* cell,
     Base::analyzeHeap(cell, analyzer);
 }
 
+JSTestNamedSetterWithLegacyUnforgeablePropertiesOwner::JSTestNamedSetterWithLegacyUnforgeablePropertiesOwner(ClangVTableWorkaroundTag) { }
+
 bool JSTestNamedSetterWithLegacyUnforgeablePropertiesOwner::isReachableFromOpaqueRoots(JSC::Handle<JSC::Unknown> handle, void*, AbstractSlotVisitor& visitor, ASCIILiteral* reason)
 {
     UNUSED_PARAM(handle);

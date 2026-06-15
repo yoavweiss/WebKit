@@ -470,6 +470,8 @@ void JSTestCEReactions::analyzeHeap(JSCell* cell, HeapAnalyzer& analyzer)
     Base::analyzeHeap(cell, analyzer);
 }
 
+JSTestCEReactionsOwner::JSTestCEReactionsOwner(ClangVTableWorkaroundTag) { }
+
 bool JSTestCEReactionsOwner::isReachableFromOpaqueRoots(JSC::Handle<JSC::Unknown> handle, void*, AbstractSlotVisitor& visitor, ASCIILiteral* reason)
 {
     UNUSED_PARAM(handle);

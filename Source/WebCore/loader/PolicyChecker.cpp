@@ -59,6 +59,7 @@
 #include "Logging.h"
 #include "Navigation.h"
 #include "NodeDocument.h"
+#include "NodeInlinesLight.h"
 #include "Page.h"
 #include "PlatformStrategies.h"
 #include "ResourceLoadInfo.h"

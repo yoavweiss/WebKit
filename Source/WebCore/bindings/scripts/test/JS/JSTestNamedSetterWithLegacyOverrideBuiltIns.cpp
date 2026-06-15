@@ -360,6 +360,8 @@ void JSTestNamedSetterWithLegacyOverrideBuiltIns::analyzeHeap(JSCell* cell, Heap
     Base::analyzeHeap(cell, analyzer);
 }
 
+JSTestNamedSetterWithLegacyOverrideBuiltInsOwner::JSTestNamedSetterWithLegacyOverrideBuiltInsOwner(ClangVTableWorkaroundTag) { }
+
 bool JSTestNamedSetterWithLegacyOverrideBuiltInsOwner::isReachableFromOpaqueRoots(JSC::Handle<JSC::Unknown> handle, void*, AbstractSlotVisitor& visitor, ASCIILiteral* reason)
 {
     UNUSED_PARAM(handle);

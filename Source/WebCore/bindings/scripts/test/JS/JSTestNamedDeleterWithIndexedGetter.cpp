@@ -372,6 +372,8 @@ void JSTestNamedDeleterWithIndexedGetter::analyzeHeap(JSCell* cell, HeapAnalyzer
     Base::analyzeHeap(cell, analyzer);
 }
 
+JSTestNamedDeleterWithIndexedGetterOwner::JSTestNamedDeleterWithIndexedGetterOwner(ClangVTableWorkaroundTag) { }
+
 bool JSTestNamedDeleterWithIndexedGetterOwner::isReachableFromOpaqueRoots(JSC::Handle<JSC::Unknown> handle, void*, AbstractSlotVisitor& visitor, ASCIILiteral* reason)
 {
     UNUSED_PARAM(handle);

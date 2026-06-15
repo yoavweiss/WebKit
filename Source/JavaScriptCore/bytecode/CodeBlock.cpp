@@ -81,6 +81,7 @@
 #include "SlotVisitorInlines.h"
 #include "SourceProvider.h"
 #include "StackVisitor.h"
+#include "SymbolTableInlines.h"
 #include "TypeLocationCache.h"
 #include "TypeProfiler.h"
 #include "VMInlines.h"

@@ -48,6 +48,7 @@
 #include "PrivateFieldPutKind.h"
 #include "StrongInlines.h"
 #include "SuperSampler.h"
+#include "SymbolTableInlines.h"
 #include "TopExceptionScope.h"
 #include "UnlinkedCodeBlock.h"
 #include "UnlinkedEvalCodeBlock.h"
@@ -56,6 +57,7 @@
 #include "UnlinkedModuleProgramCodeBlock.h"
 #include "UnlinkedProgramCodeBlock.h"
 #include "VMTrapsInlines.h"
+#include "VariableEnvironmentInlines.h"
 #include <wtf/BitVector.h>
 #include <wtf/HashSet.h>
 #include <wtf/StdLibExtras.h>

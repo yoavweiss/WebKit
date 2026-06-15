@@ -39,6 +39,7 @@
 #include "JSPromise.h"
 #include "ModuleProgramExecutable.h"
 #include "SourceProfiler.h"
+#include "SymbolTableInlines.h"
 #include "UnlinkedModuleProgramCodeBlock.h"
 #include "WebAssemblyModuleRecord.h"
 #include <wtf/Scope.h>

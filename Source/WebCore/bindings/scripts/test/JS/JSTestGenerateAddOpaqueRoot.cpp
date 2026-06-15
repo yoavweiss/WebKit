@@ -221,6 +221,8 @@ void JSTestGenerateAddOpaqueRoot::analyzeHeap(JSCell* cell, HeapAnalyzer& analyz
     Base::analyzeHeap(cell, analyzer);
 }
 
+JSTestGenerateAddOpaqueRootOwner::JSTestGenerateAddOpaqueRootOwner(ClangVTableWorkaroundTag) { }
+
 bool JSTestGenerateAddOpaqueRootOwner::isReachableFromOpaqueRoots(JSC::Handle<JSC::Unknown> handle, void*, AbstractSlotVisitor& visitor, ASCIILiteral* reason)
 {
     UNUSED_PARAM(handle);

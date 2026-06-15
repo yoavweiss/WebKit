@@ -29,6 +29,7 @@
 #include "BuiltinNames.h"
 #include "DeferredWorkTimer.h"
 #include "ErrorInstance.h"
+#include "ErrorInstanceInlines.h"
 #include "GlobalObjectMethodTable.h"
 #include "JSCInlines.h"
 #include "JSFunctionWithFields.h"

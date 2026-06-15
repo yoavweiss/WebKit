@@ -100,6 +100,7 @@
 #include "StringConstructor.h"
 #include "StructureID.h"
 #include "SymbolConstructor.h"
+#include "SymbolTableInlines.h"
 #include "WeakMapConstructor.h"
 #include "WeakSetConstructor.h"
 #include <wtf/CommaPrinter.h>

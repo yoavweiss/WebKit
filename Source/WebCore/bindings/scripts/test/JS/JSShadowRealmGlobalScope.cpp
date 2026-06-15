@@ -181,6 +181,8 @@ void JSShadowRealmGlobalScope::analyzeHeap(JSCell* cell, HeapAnalyzer& analyzer)
     Base::analyzeHeap(cell, analyzer);
 }
 
+JSShadowRealmGlobalScopeOwner::JSShadowRealmGlobalScopeOwner(ClangVTableWorkaroundTag) { }
+
 bool JSShadowRealmGlobalScopeOwner::isReachableFromOpaqueRoots(JSC::Handle<JSC::Unknown> handle, void*, AbstractSlotVisitor& visitor, ASCIILiteral* reason)
 {
     UNUSED_PARAM(handle);

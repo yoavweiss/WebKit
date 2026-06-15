@@ -192,6 +192,8 @@ void JSTestEmbedderArrayLike::analyzeHeap(JSCell* cell, HeapAnalyzer& analyzer)
     Base::analyzeHeap(cell, analyzer);
 }
 
+JSTestEmbedderArrayLikeOwner::JSTestEmbedderArrayLikeOwner(ClangVTableWorkaroundTag) { }
+
 bool JSTestEmbedderArrayLikeOwner::isReachableFromOpaqueRoots(JSC::Handle<JSC::Unknown> handle, void*, AbstractSlotVisitor& visitor, ASCIILiteral* reason)
 {
     UNUSED_PARAM(handle);

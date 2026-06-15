@@ -50,6 +50,7 @@
 #include "LoaderStrategy.h"
 #include "LocalFrame.h"
 #include "MatchResultCache.h"
+#include "NodeInlinesLight.h"
 #include "NodeRenderStyle.h"
 #include "Page.h"
 #include "PlatformStrategies.h"

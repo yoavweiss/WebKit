@@ -29,6 +29,7 @@
 #include "ContainerNodeInlines.h"
 #include "ContentVisibilityAutoStateChangeEvent.h"
 #include "DocumentTimeline.h"
+#include "ElementInlinesLight.h"
 #include "EventNames.h"
 #include "FrameDestructionObserverInlines.h"
 #include "FrameSelection.h"

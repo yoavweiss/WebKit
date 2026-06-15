@@ -223,6 +223,8 @@ void JSTestScheduledAction::analyzeHeap(JSCell* cell, HeapAnalyzer& analyzer)
     Base::analyzeHeap(cell, analyzer);
 }
 
+JSTestScheduledActionOwner::JSTestScheduledActionOwner(ClangVTableWorkaroundTag) { }
+
 bool JSTestScheduledActionOwner::isReachableFromOpaqueRoots(JSC::Handle<JSC::Unknown> handle, void*, AbstractSlotVisitor& visitor, ASCIILiteral* reason)
 {
     UNUSED_PARAM(handle);

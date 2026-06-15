@@ -408,6 +408,8 @@ void JSTestMapLikeWithOverriddenOperations::analyzeHeap(JSCell* cell, HeapAnalyz
     Base::analyzeHeap(cell, analyzer);
 }
 
+JSTestMapLikeWithOverriddenOperationsOwner::JSTestMapLikeWithOverriddenOperationsOwner(ClangVTableWorkaroundTag) { }
+
 bool JSTestMapLikeWithOverriddenOperationsOwner::isReachableFromOpaqueRoots(JSC::Handle<JSC::Unknown> handle, void*, AbstractSlotVisitor& visitor, ASCIILiteral* reason)
 {
     UNUSED_PARAM(handle);

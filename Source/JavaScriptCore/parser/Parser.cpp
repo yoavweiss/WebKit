@@ -28,6 +28,7 @@
 #include "DebuggerParseData.h"
 #include "JSCJSValueInlines.h"
 #include "VM.h"
+#include "VariableEnvironmentInlines.h"
 #include <utility>
 #include <wtf/Scope.h>
 #include <wtf/SetForScope.h>

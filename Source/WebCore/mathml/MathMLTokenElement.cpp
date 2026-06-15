@@ -31,6 +31,7 @@
 #if ENABLE(MATHML)
 
 #include "ContainerNodeInlines.h"
+#include "ElementInlinesLight.h"
 #include "HTTPParsers.h"
 #include "MathMLNames.h"
 #include "RenderMathMLToken.h"

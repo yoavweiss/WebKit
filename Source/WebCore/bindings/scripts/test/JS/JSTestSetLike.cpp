@@ -368,6 +368,8 @@ void JSTestSetLike::analyzeHeap(JSCell* cell, HeapAnalyzer& analyzer)
     Base::analyzeHeap(cell, analyzer);
 }
 
+JSTestSetLikeOwner::JSTestSetLikeOwner(ClangVTableWorkaroundTag) { }
+
 bool JSTestSetLikeOwner::isReachableFromOpaqueRoots(JSC::Handle<JSC::Unknown> handle, void*, AbstractSlotVisitor& visitor, ASCIILiteral* reason)
 {
     UNUSED_PARAM(handle);

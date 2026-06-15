@@ -389,6 +389,8 @@ void JSTestLegacyOverrideBuiltIns::analyzeHeap(JSCell* cell, HeapAnalyzer& analy
     Base::analyzeHeap(cell, analyzer);
 }
 
+JSTestLegacyOverrideBuiltInsOwner::JSTestLegacyOverrideBuiltInsOwner(ClangVTableWorkaroundTag) { }
+
 bool JSTestLegacyOverrideBuiltInsOwner::isReachableFromOpaqueRoots(JSC::Handle<JSC::Unknown> handle, void*, AbstractSlotVisitor& visitor, ASCIILiteral* reason)
 {
     UNUSED_PARAM(handle);

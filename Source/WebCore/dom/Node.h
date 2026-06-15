@@ -131,7 +131,7 @@ public:
 
     static void NODELETE dumpStatistics();
 
-    virtual ~Node();
+    WEBCORE_EXPORT virtual ~Node();
     void willBeDeletedFrom(Document&);
 
     // DOM methods & attributes for Node
@@ -424,7 +424,7 @@ public:
     // Returns true if this node is associated with a document and is in its associated document's
     // node tree, false otherwise (https://dom.spec.whatwg.org/#connected).
     bool isConnected() const { return hasEventTargetFlag(EventTargetFlag::IsConnected); }
-    inline bool isInUserAgentShadowTree() const { return checkIsInUserAgentShadowTree(isInShadowTree() && hasBeenInUserAgentShadowTree()); }
+    inline bool isInUserAgentShadowTree() const; // Defined in NodeInlines.h
     bool isInShadowTree() const { return hasEventTargetFlag(EventTargetFlag::IsInShadowTree); }
     bool isInTreeScope() const { return isConnected() || isInShadowTree(); }
     bool hasBeenInUserAgentShadowTree() const { return hasEventTargetFlag(EventTargetFlag::HasBeenInUserAgentShadowTree); }
@@ -772,6 +772,8 @@ protected:
     ExceptionOr<NodeVector> convertNodesOrStringsIntoNodeVector(FixedVector<NodeOrString>&&);
 
 private:
+    Node(ClangVTableWorkaroundTag, Document&);
+
     WEBCORE_EXPORT void removedLastRef();
 
     void refEventTarget() final;

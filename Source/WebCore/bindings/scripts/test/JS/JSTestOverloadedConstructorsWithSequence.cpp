@@ -266,6 +266,8 @@ void JSTestOverloadedConstructorsWithSequence::analyzeHeap(JSCell* cell, HeapAna
     Base::analyzeHeap(cell, analyzer);
 }
 
+JSTestOverloadedConstructorsWithSequenceOwner::JSTestOverloadedConstructorsWithSequenceOwner(ClangVTableWorkaroundTag) { }
+
 bool JSTestOverloadedConstructorsWithSequenceOwner::isReachableFromOpaqueRoots(JSC::Handle<JSC::Unknown> handle, void*, AbstractSlotVisitor& visitor, ASCIILiteral* reason)
 {
     UNUSED_PARAM(handle);

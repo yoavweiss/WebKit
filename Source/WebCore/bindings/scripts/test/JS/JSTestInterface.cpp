@@ -1240,6 +1240,8 @@ void JSTestInterface::analyzeHeap(JSCell* cell, HeapAnalyzer& analyzer)
     Base::analyzeHeap(cell, analyzer);
 }
 
+JSTestInterfaceOwner::JSTestInterfaceOwner(ClangVTableWorkaroundTag) { }
+
 bool JSTestInterfaceOwner::isReachableFromOpaqueRoots(JSC::Handle<JSC::Unknown> handle, void*, AbstractSlotVisitor& visitor, ASCIILiteral* reason)
 {
     SUPPRESS_UNCOUNTED_LOCAL auto* jsTestInterface = uncheckedDowncast<JSTestInterface>(handle.slot()->asCell());

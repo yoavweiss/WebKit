@@ -495,6 +495,8 @@ void JSTestEnabledBySetting::analyzeHeap(JSCell* cell, HeapAnalyzer& analyzer)
     Base::analyzeHeap(cell, analyzer);
 }
 
+JSTestEnabledBySettingOwner::JSTestEnabledBySettingOwner(ClangVTableWorkaroundTag) { }
+
 bool JSTestEnabledBySettingOwner::isReachableFromOpaqueRoots(JSC::Handle<JSC::Unknown> handle, void*, AbstractSlotVisitor& visitor, ASCIILiteral* reason)
 {
     UNUSED_PARAM(handle);

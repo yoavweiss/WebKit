@@ -308,6 +308,8 @@ void JSTestReadOnlySetLike::analyzeHeap(JSCell* cell, HeapAnalyzer& analyzer)
     Base::analyzeHeap(cell, analyzer);
 }
 
+JSTestReadOnlySetLikeOwner::JSTestReadOnlySetLikeOwner(ClangVTableWorkaroundTag) { }
+
 bool JSTestReadOnlySetLikeOwner::isReachableFromOpaqueRoots(JSC::Handle<JSC::Unknown> handle, void*, AbstractSlotVisitor& visitor, ASCIILiteral* reason)
 {
     UNUSED_PARAM(handle);

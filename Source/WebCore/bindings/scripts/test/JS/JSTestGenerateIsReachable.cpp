@@ -220,6 +220,8 @@ void JSTestGenerateIsReachable::analyzeHeap(JSCell* cell, HeapAnalyzer& analyzer
     Base::analyzeHeap(cell, analyzer);
 }
 
+JSTestGenerateIsReachableOwner::JSTestGenerateIsReachableOwner(ClangVTableWorkaroundTag) { }
+
 bool JSTestGenerateIsReachableOwner::isReachableFromOpaqueRoots(JSC::Handle<JSC::Unknown> handle, void*, AbstractSlotVisitor& visitor, ASCIILiteral* reason)
 {
     auto* jsTestGenerateIsReachable = uncheckedDowncast<JSTestGenerateIsReachable>(handle.slot()->asCell());

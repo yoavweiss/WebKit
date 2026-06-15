@@ -355,6 +355,8 @@ void JSTestNamedDeleterNoIdentifier::analyzeHeap(JSCell* cell, HeapAnalyzer& ana
     Base::analyzeHeap(cell, analyzer);
 }
 
+JSTestNamedDeleterNoIdentifierOwner::JSTestNamedDeleterNoIdentifierOwner(ClangVTableWorkaroundTag) { }
+
 bool JSTestNamedDeleterNoIdentifierOwner::isReachableFromOpaqueRoots(JSC::Handle<JSC::Unknown> handle, void*, AbstractSlotVisitor& visitor, ASCIILiteral* reason)
 {
     UNUSED_PARAM(handle);

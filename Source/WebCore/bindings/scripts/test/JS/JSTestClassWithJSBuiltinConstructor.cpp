@@ -198,6 +198,8 @@ void JSTestClassWithJSBuiltinConstructor::analyzeHeap(JSCell* cell, HeapAnalyzer
     Base::analyzeHeap(cell, analyzer);
 }
 
+JSTestClassWithJSBuiltinConstructorOwner::JSTestClassWithJSBuiltinConstructorOwner(ClangVTableWorkaroundTag) { }
+
 bool JSTestClassWithJSBuiltinConstructorOwner::isReachableFromOpaqueRoots(JSC::Handle<JSC::Unknown> handle, void*, AbstractSlotVisitor& visitor, ASCIILiteral* reason)
 {
     UNUSED_PARAM(handle);

@@ -264,6 +264,7 @@
 #include "SymbolConstructorInlines.h"
 #include "SymbolObjectInlines.h"
 #include "SymbolPrototypeInlines.h"
+#include "SymbolTableInlines.h"
 #include "SyntheticModuleRecord.h"
 #include "TemporalCalendar.h"
 #include "TemporalDuration.h"

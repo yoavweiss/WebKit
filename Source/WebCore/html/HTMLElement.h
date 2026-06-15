@@ -199,6 +199,8 @@ protected:
     static const AtomString& NODELETE eventNameForEventHandlerAttribute(const QualifiedName& attributeName, const EventHandlerNameMap&);
 
 private:
+    HTMLElement(ClangVTableWorkaroundTag, const QualifiedName&, Document&);
+
     void setInvoker(HTMLElement*);
 
     String nodeName() const final;

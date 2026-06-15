@@ -365,6 +365,8 @@ void JSTestNamedGetterNoIdentifier::analyzeHeap(JSCell* cell, HeapAnalyzer& anal
     Base::analyzeHeap(cell, analyzer);
 }
 
+JSTestNamedGetterNoIdentifierOwner::JSTestNamedGetterNoIdentifierOwner(ClangVTableWorkaroundTag) { }
+
 bool JSTestNamedGetterNoIdentifierOwner::isReachableFromOpaqueRoots(JSC::Handle<JSC::Unknown> handle, void*, AbstractSlotVisitor& visitor, ASCIILiteral* reason)
 {
     UNUSED_PARAM(handle);

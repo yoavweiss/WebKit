@@ -33,6 +33,7 @@
 #include "ContainerNodeInlines.h"
 #include "Editor.h"
 #include "ElementChildIteratorInlines.h"
+#include "ElementInlinesLight.h"
 #include "ElementRareData.h"
 #include "EventLoop.h"
 #include "EventNames.h"

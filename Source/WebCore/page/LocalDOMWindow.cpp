@@ -111,6 +111,7 @@
 #include "Navigation.h"
 #include "NavigationScheduler.h"
 #include "Navigator.h"
+#include "NodeInlinesLight.h"
 #include "OriginAccessPatterns.h"
 #include "Page.h"
 #include "PageTransitionEvent.h"

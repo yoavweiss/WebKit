@@ -294,6 +294,8 @@ void JSTestDefaultToJSONFilteredByExposed::analyzeHeap(JSCell* cell, HeapAnalyze
     Base::analyzeHeap(cell, analyzer);
 }
 
+JSTestDefaultToJSONFilteredByExposedOwner::JSTestDefaultToJSONFilteredByExposedOwner(ClangVTableWorkaroundTag) { }
+
 bool JSTestDefaultToJSONFilteredByExposedOwner::isReachableFromOpaqueRoots(JSC::Handle<JSC::Unknown> handle, void*, AbstractSlotVisitor& visitor, ASCIILiteral* reason)
 {
     UNUSED_PARAM(handle);

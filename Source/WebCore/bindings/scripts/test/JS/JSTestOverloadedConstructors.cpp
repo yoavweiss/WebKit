@@ -332,6 +332,8 @@ void JSTestOverloadedConstructors::analyzeHeap(JSCell* cell, HeapAnalyzer& analy
     Base::analyzeHeap(cell, analyzer);
 }
 
+JSTestOverloadedConstructorsOwner::JSTestOverloadedConstructorsOwner(ClangVTableWorkaroundTag) { }
+
 bool JSTestOverloadedConstructorsOwner::isReachableFromOpaqueRoots(JSC::Handle<JSC::Unknown> handle, void*, AbstractSlotVisitor& visitor, ASCIILiteral* reason)
 {
     UNUSED_PARAM(handle);

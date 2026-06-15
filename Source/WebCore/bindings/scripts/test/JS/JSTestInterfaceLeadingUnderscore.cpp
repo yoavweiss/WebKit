@@ -209,6 +209,8 @@ void JSTestInterfaceLeadingUnderscore::analyzeHeap(JSCell* cell, HeapAnalyzer& a
     Base::analyzeHeap(cell, analyzer);
 }
 
+JSTestInterfaceLeadingUnderscoreOwner::JSTestInterfaceLeadingUnderscoreOwner(ClangVTableWorkaroundTag) { }
+
 bool JSTestInterfaceLeadingUnderscoreOwner::isReachableFromOpaqueRoots(JSC::Handle<JSC::Unknown> handle, void*, AbstractSlotVisitor& visitor, ASCIILiteral* reason)
 {
     UNUSED_PARAM(handle);

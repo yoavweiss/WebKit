@@ -819,6 +819,8 @@ void JSTestConditionalIncludes::analyzeHeap(JSCell* cell, HeapAnalyzer& analyzer
     Base::analyzeHeap(cell, analyzer);
 }
 
+JSTestConditionalIncludesOwner::JSTestConditionalIncludesOwner(ClangVTableWorkaroundTag) { }
+
 bool JSTestConditionalIncludesOwner::isReachableFromOpaqueRoots(JSC::Handle<JSC::Unknown> handle, void*, AbstractSlotVisitor& visitor, ASCIILiteral* reason)
 {
     UNUSED_PARAM(handle);

@@ -39,6 +39,7 @@
 #include "ModuleProgramExecutable.h"
 #include "SourceProfiler.h"
 #include "UnlinkedModuleProgramCodeBlock.h"
+#include "VariableEnvironmentInlines.h"
 #include <wtf/text/MakeString.h>
 
 namespace JSC {

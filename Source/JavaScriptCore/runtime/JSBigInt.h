@@ -130,13 +130,7 @@ public:
         return JSBigInt::createFrom(globalObject, value);
     }
 
-    ALWAYS_INLINE static JSValue makeHeapBigIntOrBigInt32(JSGlobalObject* globalObject, double value)
-    {
-        ASSERT(isInteger(value));
-        if (std::abs(value) <= maxSafeInteger())
-            return makeHeapBigIntOrBigInt32(globalObject, static_cast<int64_t>(value));
-        return JSBigInt::createFrom(globalObject, value);
-    }
+    ALWAYS_INLINE static JSValue makeHeapBigIntOrBigInt32(JSGlobalObject* globalObject, double value);
 
     enum class ErrorParseMode {
         ThrowExceptions,
@@ -181,13 +175,13 @@ public:
     template <typename BigIntImpl>
     static ComparisonResult compareToDouble(double x, BigIntImpl y) { return flip(compareToDouble(y, x)); }
     static ComparisonResult compareToDouble(int32_t x, double y);
-    static ComparisonResult compareToDouble(double x, int32_t y) { return flip(compareToDouble(y, x)); }
+    static ComparisonResult compareToDouble(double x, int32_t y);
     static ComparisonResult compareToDouble(int64_t x, double y);
-    static ComparisonResult compareToDouble(double x, int64_t y) { return flip(compareToDouble(y, x)); }
+    static ComparisonResult compareToDouble(double x, int64_t y);
     static ComparisonResult compareToDouble(uint64_t x, double y);
-    static ComparisonResult compareToDouble(double x, uint64_t y) { return flip(compareToDouble(y, x)); }
+    static ComparisonResult compareToDouble(double x, uint64_t y);
     static ComparisonResult compareToDouble(JSValue x, double y);
-    static ComparisonResult compareToDouble(double x, JSValue y) { return flip(compareToDouble(y, x)); }
+    static ComparisonResult compareToDouble(double x, JSValue y);
 
 private:
     static JSBigInt* tryCreateFromImpl(JSGlobalObject*, VM&, bool sign, std::span<const Digit>);

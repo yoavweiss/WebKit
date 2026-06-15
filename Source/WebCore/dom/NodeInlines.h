@@ -30,6 +30,7 @@
 #include <WebCore/LayoutRect.h>
 #include <WebCore/Node.h>
 #include <WebCore/NodeDocument.h>
+#include <WebCore/NodeInlinesLight.h>
 #include <WebCore/PseudoElement.h>
 #include <WebCore/RenderBox.h>
 #include <WebCore/ShadowRoot.h>

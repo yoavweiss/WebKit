@@ -62,6 +62,7 @@
 #include "InspectorResourceUtilities.h"
 #include "MediaList.h"
 #include "Node.h"
+#include "NodeInlinesLight.h"
 #include "SVGElementTypeHelpers.h"
 #include "SVGStyleElement.h"
 #include "StyleProperties.h"

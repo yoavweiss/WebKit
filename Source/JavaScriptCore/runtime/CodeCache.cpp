@@ -31,6 +31,7 @@
 #include "IndirectEvalExecutable.h"
 #include "ModuleProgramExecutable.h"
 #include "ProgramExecutable.h"
+#include "VariableEnvironmentInlines.h"
 #include <wtf/TZoneMallocInlines.h>
 
 namespace JSC {

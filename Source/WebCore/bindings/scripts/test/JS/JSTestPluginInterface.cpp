@@ -298,6 +298,8 @@ void JSTestPluginInterface::analyzeHeap(JSCell* cell, HeapAnalyzer& analyzer)
     Base::analyzeHeap(cell, analyzer);
 }
 
+JSTestPluginInterfaceOwner::JSTestPluginInterfaceOwner(ClangVTableWorkaroundTag) { }
+
 bool JSTestPluginInterfaceOwner::isReachableFromOpaqueRoots(JSC::Handle<JSC::Unknown> handle, void*, AbstractSlotVisitor& visitor, ASCIILiteral* reason)
 {
     UNUSED_PARAM(handle);

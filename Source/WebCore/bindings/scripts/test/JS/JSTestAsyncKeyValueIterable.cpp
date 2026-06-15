@@ -309,6 +309,8 @@ void JSTestAsyncKeyValueIterable::analyzeHeap(JSCell* cell, HeapAnalyzer& analyz
     Base::analyzeHeap(cell, analyzer);
 }
 
+JSTestAsyncKeyValueIterableOwner::JSTestAsyncKeyValueIterableOwner(ClangVTableWorkaroundTag) { }
+
 bool JSTestAsyncKeyValueIterableOwner::isReachableFromOpaqueRoots(JSC::Handle<JSC::Unknown> handle, void*, AbstractSlotVisitor& visitor, ASCIILiteral* reason)
 {
     UNUSED_PARAM(handle);

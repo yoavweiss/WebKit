@@ -31,6 +31,7 @@
 #if ENABLE(MATHML)
 
 #include "ContainerNodeInlines.h"
+#include "ElementInlinesLight.h"
 #include "NodeName.h"
 #include "RenderMathMLSpace.h"
 #include "RenderObjectInlines.h"

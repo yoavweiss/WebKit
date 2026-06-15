@@ -380,6 +380,8 @@ void JSTestSetLikeWithOverriddenOperations::analyzeHeap(JSCell* cell, HeapAnalyz
     Base::analyzeHeap(cell, analyzer);
 }
 
+JSTestSetLikeWithOverriddenOperationsOwner::JSTestSetLikeWithOverriddenOperationsOwner(ClangVTableWorkaroundTag) { }
+
 bool JSTestSetLikeWithOverriddenOperationsOwner::isReachableFromOpaqueRoots(JSC::Handle<JSC::Unknown> handle, void*, AbstractSlotVisitor& visitor, ASCIILiteral* reason)
 {
     UNUSED_PARAM(handle);

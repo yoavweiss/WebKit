@@ -42,6 +42,7 @@
 #include "ContainerNodeInlines.h"
 #include "DocumentInlines.h"
 #include "DocumentPage.h"
+#include "ElementInlinesLight.h"
 #include "Gradient.h"
 #include "ImageBuffer.h"
 #include "ImageData.h"

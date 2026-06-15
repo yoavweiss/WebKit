@@ -37,7 +37,7 @@ css/StyleSheetContents.cpp
 css/StyleSheetContents.h
 css/values/primitives/CSSPrimitiveData.h
 dom/CustomElementReactionQueue.h
-dom/Element.h
+dom/ElementInlinesLight.h
 dom/Node.h
 editing/Editor.h
 html/HTMLMediaElement.cpp

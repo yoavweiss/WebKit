@@ -135,6 +135,11 @@ Ref<HTMLElement> HTMLElement::create(const QualifiedName& tagName, Document& doc
     return adoptRef(*new HTMLElement(tagName, document));
 }
 
+HTMLElement::HTMLElement(ClangVTableWorkaroundTag, const QualifiedName& name, Document& document)
+    : HTMLElement(name, document)
+{
+}
+
 String HTMLElement::nodeName() const
 {
     // FIXME: Would be nice to have an AtomString lookup based off uppercase

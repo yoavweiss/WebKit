@@ -37,11 +37,13 @@
 #include "ScopedArgumentsTable.h"
 #include "SourceCodeKey.h"
 #include "SourceProvider.h"
+#include "SymbolTableInlines.h"
 #include "UnlinkedEvalCodeBlock.h"
 #include "UnlinkedFunctionCodeBlock.h"
 #include "UnlinkedMetadataTableInlines.h"
 #include "UnlinkedModuleProgramCodeBlock.h"
 #include "UnlinkedProgramCodeBlock.h"
+#include "VariableEnvironmentInlines.h"
 #include <wtf/FileHandle.h>
 #include <wtf/InlineMap.h>
 #include <wtf/MallocSpan.h>

@@ -34,6 +34,7 @@
 #include "JSCJSValueInlines.h"
 #include "ResourceExhaustion.h"
 #include "ScriptExecutable.h"
+#include "SymbolTableInlines.h"
 #include "TypeProfiler.h"
 
 #include <wtf/CommaPrinter.h>

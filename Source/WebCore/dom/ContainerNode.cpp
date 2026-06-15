@@ -31,6 +31,7 @@
 #include "CommonAtomStrings.h"
 #include "CommonVM.h"
 #include "ContainerNodeAlgorithms.h"
+#include "ContainerNodeInlines.h"
 #include "CustomElementReactionQueue.h"
 #include "DocumentInlines.h"
 #include "DocumentQuirks.h"
@@ -522,6 +523,11 @@ ContainerNode::~ContainerNode()
     if (!isDocumentNode())
         willBeDeletedFrom(Ref<Document> { document() });
     removeDetachedChildren();
+}
+
+ContainerNode::ContainerNode(ClangVTableWorkaroundTag, Document& document)
+    : ContainerNode(document, NodeType::Element, { })
+{
 }
 
 static inline bool NODELETE isChildTypeAllowed(ContainerNode& newParent, Node& child)

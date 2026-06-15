@@ -217,6 +217,8 @@ void JSTestReportExtraMemoryCost::analyzeHeap(JSCell* cell, HeapAnalyzer& analyz
     Base::analyzeHeap(cell, analyzer);
 }
 
+JSTestReportExtraMemoryCostOwner::JSTestReportExtraMemoryCostOwner(ClangVTableWorkaroundTag) { }
+
 bool JSTestReportExtraMemoryCostOwner::isReachableFromOpaqueRoots(JSC::Handle<JSC::Unknown> handle, void*, AbstractSlotVisitor& visitor, ASCIILiteral* reason)
 {
     UNUSED_PARAM(handle);

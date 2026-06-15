@@ -490,6 +490,8 @@ void JSTestConditionallyReadWrite::analyzeHeap(JSCell* cell, HeapAnalyzer& analy
     Base::analyzeHeap(cell, analyzer);
 }
 
+JSTestConditionallyReadWriteOwner::JSTestConditionallyReadWriteOwner(ClangVTableWorkaroundTag) { }
+
 bool JSTestConditionallyReadWriteOwner::isReachableFromOpaqueRoots(JSC::Handle<JSC::Unknown> handle, void*, AbstractSlotVisitor& visitor, ASCIILiteral* reason)
 {
     UNUSED_PARAM(handle);

@@ -68,6 +68,7 @@
 #include "RepatchInlines.h"
 #include "ShadowChicken.h"
 #include "SuperSampler.h"
+#include "SymbolTableInlines.h"
 #include "VMInlines.h"
 #include "VMTrapsInlines.h"
 #include <wtf/NeverDestroyed.h>

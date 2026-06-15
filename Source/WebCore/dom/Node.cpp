@@ -395,6 +395,11 @@ Node::Node(Document& document, NodeType type, OptionSet<TypeFlag> flags)
 #endif
 }
 
+Node::Node(ClangVTableWorkaroundTag, Document& document)
+    : Node(document, NodeType::Element, { })
+{
+}
+
 static HashMap<WeakPtr<Node, WeakPtrImplWithEventTargetData>, NodeIdentifier>& NODELETE nodeIdentifiersMap()
 {
     static MainThreadNeverDestroyed<HashMap<WeakPtr<Node, WeakPtrImplWithEventTargetData>, NodeIdentifier>> map;

@@ -186,7 +186,7 @@ class Element : public ContainerNode {
     WTF_OVERRIDE_DELETE_FOR_CHECKED_PTR(Element);
 public:
     static Ref<Element> create(const QualifiedName&, Document&);
-    virtual ~Element();
+    WEBCORE_EXPORT virtual ~Element();
 
     WEBCORE_EXPORT bool hasAttribute(const QualifiedName&) const;
     WEBCORE_EXPORT const AtomString& getAttribute(const QualifiedName&) const;
@@ -382,7 +382,7 @@ public:
     String tagName() const { return nodeName(); }
     bool hasTagName(const QualifiedName& tagName) const { return m_tagName.matches(tagName); }
     bool hasTagName(const HTMLQualifiedName& tagName) const { return ContainerNode::hasTagName(tagName); }
-    bool hasTagName(const MathMLQualifiedName& tagName) const { return ContainerNode::hasTagName(tagName); }
+    inline bool hasTagName(const MathMLQualifiedName& tagName) const;
     inline bool hasTagName(const SVGQualifiedName& tagName) const;
 
     bool hasLocalName(const AtomString& other) const { return m_tagName.localName() == other; }
@@ -481,13 +481,13 @@ public:
     CustomElementDefaultARIA& customElementDefaultARIA();
     CustomElementDefaultARIA* NODELETE customElementDefaultARIAIfExists() const;
 
-    bool isInActiveChain() const { return isUserActionElement() && isUserActionElementInActiveChain(); }
-    bool active() const { return isUserActionElement() && isUserActionElementActive(); }
-    bool hovered() const { return isUserActionElement() && isUserActionElementHovered(); }
-    bool focused() const { return isUserActionElement() && isUserActionElementFocused(); }
-    bool isBeingDragged() const { return isUserActionElement() && isUserActionElementDragged(); }
-    bool hasFocusVisible() const { return isUserActionElement() && isUserActionElementHasFocusVisible(); }
-    bool hasFocusWithin() const { return isUserActionElement() && isUserActionElementHasFocusWithin(); };
+    inline bool isInActiveChain() const;
+    inline bool active() const;
+    inline bool hovered() const;
+    inline bool focused() const;
+    inline bool isBeingDragged() const;
+    inline bool hasFocusVisible() const;
+    inline bool hasFocusWithin() const;
 
     virtual void setActive(bool = true, Style::InvalidationScope = Style::InvalidationScope::All);
     virtual void setHovered(bool = true, Style::InvalidationScope = Style::InvalidationScope::All, HitTestRequest = {});
@@ -548,7 +548,7 @@ public:
     bool affectedByHasWithBackwardSiblingRelationship() const { return hasStyleFlag(NodeStyleFlag::AffectedByHasWithBackwardSiblingRelationship); }
     bool affectedByHasWithForwardSiblingRelationship() const { return hasStyleFlag(NodeStyleFlag::AffectedByHasWithForwardSiblingRelationship); }
     bool affectedByHasWithAdjacentSiblingRelationship() const { return hasStyleFlag(NodeStyleFlag::AffectedByHasWithAdjacentSiblingRelationship); }
-    unsigned childIndex() const { return hasRareData() ? rareDataChildIndex() : 0; }
+    inline unsigned childIndex() const;
 
     bool NODELETE hasFlagsSetDuringStylingOfChildren() const;
 
@@ -954,6 +954,8 @@ protected:
     template<typename Attribute> Vector<Attribute> serializeAttributes() const;
 
 private:
+    Element(ClangVTableWorkaroundTag, const QualifiedName&, Document&);
+
     LocalFrame* documentFrameWithNonNullView() const;
     void hideNonceSlow();
 
@@ -1080,41 +1082,6 @@ private:
     RefPtr<ElementData> m_elementData;
     RefPtr<ShadowRoot> m_shadowRoot;
 };
-
-inline void Element::setSavedLayerScrollPosition(const ScrollPosition& position)
-{
-    if (position.isZero() && !hasRareData())
-        return;
-    setSavedLayerScrollPositionSlow(position);
-}
-
-inline void Element::clearBeforePseudoElement()
-{
-    if (hasRareData())
-        clearBeforePseudoElementSlow();
-}
-
-inline void Element::clearAfterPseudoElement()
-{
-    if (hasRareData())
-        clearAfterPseudoElementSlow();
-}
-
-inline void Element::disconnectFromIntersectionObservers()
-{
-    auto* observerData = intersectionObserverDataIfExists();
-    if (!observerData) [[likely]]
-        return;
-    disconnectFromIntersectionObserversSlow(*observerData);
-}
-
-inline void Element::disconnectFromResizeObservers()
-{
-    auto* observerData = resizeObserverDataIfExists();
-    if (!observerData) [[likely]]
-        return;
-    disconnectFromResizeObserversSlow(*observerData);
-}
 
 inline bool isInTopLayerOrBackdrop(const Style::ComputedStyle&, const Element*);
 

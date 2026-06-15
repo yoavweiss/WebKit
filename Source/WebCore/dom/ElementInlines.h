@@ -28,6 +28,7 @@
 #include <WebCore/CustomElementDefaultARIA.h>
 #include <WebCore/Element.h>
 #include <WebCore/ElementData.h>
+#include <WebCore/ElementInlinesLight.h>
 #include <WebCore/HTMLNames.h>
 #include <WebCore/NodeDocument.h>
 #include <WebCore/NodeInlines.h>

@@ -272,6 +272,8 @@ void JSTestDelegateToSharedSyntheticAttribute::analyzeHeap(JSCell* cell, HeapAna
     Base::analyzeHeap(cell, analyzer);
 }
 
+JSTestDelegateToSharedSyntheticAttributeOwner::JSTestDelegateToSharedSyntheticAttributeOwner(ClangVTableWorkaroundTag) { }
+
 bool JSTestDelegateToSharedSyntheticAttributeOwner::isReachableFromOpaqueRoots(JSC::Handle<JSC::Unknown> handle, void*, AbstractSlotVisitor& visitor, ASCIILiteral* reason)
 {
     UNUSED_PARAM(handle);

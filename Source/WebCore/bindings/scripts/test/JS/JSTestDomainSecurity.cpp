@@ -346,6 +346,8 @@ void JSTestDomainSecurity::analyzeHeap(JSCell* cell, HeapAnalyzer& analyzer)
     Base::analyzeHeap(cell, analyzer);
 }
 
+JSTestDomainSecurityOwner::JSTestDomainSecurityOwner(ClangVTableWorkaroundTag) { }
+
 bool JSTestDomainSecurityOwner::isReachableFromOpaqueRoots(JSC::Handle<JSC::Unknown> handle, void*, AbstractSlotVisitor& visitor, ASCIILiteral* reason)
 {
     UNUSED_PARAM(handle);

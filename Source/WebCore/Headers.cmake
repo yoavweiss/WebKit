@@ -1313,6 +1313,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     dom/ElementContext.h
     dom/ElementData.h
     dom/ElementInlines.h
+    dom/ElementInlinesLight.h
     dom/ElementIterator.h
     dom/ElementIteratorAssertions.h
     dom/ElementIteratorInlines.h
@@ -1370,6 +1371,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     dom/NodeFilterCondition.h
     dom/NodeIdentifier.h
     dom/NodeInlines.h
+    dom/NodeInlinesLight.h
     dom/NodeIterator.h
     dom/NodeList.h
     dom/NodeRenderStyle.h

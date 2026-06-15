@@ -38,6 +38,7 @@
 #include "IntSize.h"
 #include "MediaImage.h"
 #include "MediaMetadataInit.h"
+#include "NodeInlinesLight.h"
 #include "SpaceSplitString.h"
 #include <ranges>
 #include <wtf/TZoneMallocInlines.h>

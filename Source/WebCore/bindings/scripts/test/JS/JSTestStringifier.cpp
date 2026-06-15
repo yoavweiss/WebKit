@@ -214,6 +214,8 @@ void JSTestStringifier::analyzeHeap(JSCell* cell, HeapAnalyzer& analyzer)
     Base::analyzeHeap(cell, analyzer);
 }
 
+JSTestStringifierOwner::JSTestStringifierOwner(ClangVTableWorkaroundTag) { }
+
 bool JSTestStringifierOwner::isReachableFromOpaqueRoots(JSC::Handle<JSC::Unknown> handle, void*, AbstractSlotVisitor& visitor, ASCIILiteral* reason)
 {
     UNUSED_PARAM(handle);

@@ -290,6 +290,8 @@ void JSTestCEReactionsStringifier::analyzeHeap(JSCell* cell, HeapAnalyzer& analy
     Base::analyzeHeap(cell, analyzer);
 }
 
+JSTestCEReactionsStringifierOwner::JSTestCEReactionsStringifierOwner(ClangVTableWorkaroundTag) { }
+
 bool JSTestCEReactionsStringifierOwner::isReachableFromOpaqueRoots(JSC::Handle<JSC::Unknown> handle, void*, AbstractSlotVisitor& visitor, ASCIILiteral* reason)
 {
     UNUSED_PARAM(handle);

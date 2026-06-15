@@ -311,6 +311,8 @@ void JSTestDefaultToJSONCustomGetter::analyzeHeap(JSCell* cell, HeapAnalyzer& an
     Base::analyzeHeap(cell, analyzer);
 }
 
+JSTestDefaultToJSONCustomGetterOwner::JSTestDefaultToJSONCustomGetterOwner(ClangVTableWorkaroundTag) { }
+
 bool JSTestDefaultToJSONCustomGetterOwner::isReachableFromOpaqueRoots(JSC::Handle<JSC::Unknown> handle, void*, AbstractSlotVisitor& visitor, ASCIILiteral* reason)
 {
     UNUSED_PARAM(handle);
