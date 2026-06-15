@@ -2460,6 +2460,7 @@ endif ()
 
 target_include_directories(webrtc ${webrtc_INCLUDE_DIRECTORIES})
 WEBKIT_ADD_PREFIX_HEADER(webrtc WebRTCPrefix.h PREFIX_LANGUAGES CXX)
+WEBKIT_ADD_PREFIX_HEADER(webrtc WebRTCObjCPrefix.h PREFIX_LANGUAGES OBJCXX)
 set_source_files_properties(Source/third_party/libyuv/util/color.cc PROPERTIES SKIP_PRECOMPILE_HEADERS ON)
 set_source_files_properties(Source/webrtc/rtc_base/logging.cc PROPERTIES SKIP_PRECOMPILE_HEADERS ON)
 if (LIBPULSE_FOUND)

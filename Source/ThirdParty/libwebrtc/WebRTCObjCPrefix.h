@@ -23,19 +23,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifdef __cplusplus
+#include "WebRTCPrefix.h"
 
-#include "common/PackedEnums.h"
+#ifdef __OBJC__
 
-#include "common/system_utils.h"
-#include "common/tls.h"
-#include "compiler/translator/ImmutableStringBuilder.h"
-#include "compiler/translator/StaticType.h"
-#include "compiler/translator/tree_util/BuiltIn.h"
-#include "compiler/translator/tree_util/ReplaceVariable.h"
-#include "libANGLE/ErrorStrings.h"
-#include "libANGLE/Thread.h"
-#include "libANGLE/queryconversions.h"
-#include "libANGLE/queryutils.h"
+#import "RTCCodecSpecificInfo.h"
+#import "RTCEncodedImage.h"
+#import "RTCMacros.h"
+#import "RTCVideoEncoderSettings.h"
+#import "RTCVideoFrame.h"
 
 #endif
