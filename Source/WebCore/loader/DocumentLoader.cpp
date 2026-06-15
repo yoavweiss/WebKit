@@ -2401,7 +2401,7 @@ void DocumentLoader::cancelMainResourceLoad(const ResourceError& resourceError, 
     Ref<DocumentLoader> protectedThis(*this);
     ResourceError error = resourceError.isNull() ? protect(frameLoader())->cancelledError(m_request) : resourceError;
 
-    DOCUMENTLOADER_RELEASE_LOG("cancelMainResourceLoad: (type=%d, code=%d)", static_cast<int>(error.type()), error.errorCode());
+    DOCUMENTLOADER_RELEASE_LOG_FORWARDABLE(DocumentLoaderCancelMainResourceLoad, static_cast<int>(error.type()), error.errorCode());
 
     cancelPolicyCheckIfNeeded();
 

@@ -28,6 +28,7 @@ CachedRawResourceRedirectReceived, "CachedRawResource::redirectReceived", (), DE
 CachedResourceLoadNoAssociatedFrame, "CachedResource::load: No associated frame", (), DEFAULT, Network
 CachedResourceRedirectReceived, "CachedResource::redirectReceived:", (), DEFAULT, Network
 DocumentLoaderAttachToFrame, "[pageID=%" PRIu64 ", frameID=%" PRIu64 ", isMainFrame=%d] DocumentLoader::attachToFrame", (uint64_t, uint64_t, int), DEFAULT, Network
+DocumentLoaderCancelMainResourceLoad, "[pageID=%" PRIu64 ", frameID=%" PRIu64 ", isMainFrame=%d] DocumentLoader::cancelMainResourceLoad: (type=%d, code=%d)", (uint64_t, uint64_t, int, int, int), DEFAULT, Network
 DocumentLoaderDetachFromFrame, "[pageID=%" PRIu64 ", frameID=%" PRIu64 ", isMainFrame=%d] DocumentLoader::detachFromFrame", (uint64_t, uint64_t, int), DEFAULT, Network
 DocumentLoaderStartLoadingMainResourceEmptyDocument, "[pageID=%" PRIu64 ", frameID=%" PRIu64 ", isMainFrame=%d] DocumentLoader::startLoadingMainResource: Returning empty document", (uint64_t, uint64_t, int), DEFAULT, Network
 DocumentLoaderStartLoadingMainResourceStartingLoad, "[pageID=%" PRIu64 ", frameID=%" PRIu64 ", isMainFrame=%d] DocumentLoader::startLoadingMainResource: Starting load", (uint64_t, uint64_t, int), DEFAULT, Network
