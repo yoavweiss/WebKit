@@ -4590,8 +4590,8 @@ CursorContext UnifiedPDFPlugin::cursorContext(FloatPoint pointInRootView) const
         return context;
 
     auto elementTypes = pdfElementTypesForPagePoint(roundedIntPoint(pointInPage), page.get());
-    if (toWebCoreCursorType(elementTypes) == Cursor::Type::IBeam)
-        context.cursor = Cursor::fromType(Cursor::Type::IBeam);
+    if (toWebCoreCursorType(elementTypes) == WebCore::Cursor::Type::IBeam)
+        context.cursor = WebCore::Cursor::fromType(WebCore::Cursor::Type::IBeam);
 
     RetainPtr lineUnderCursor = selectionAtPoint(pointInPage, page.get(), TextGranularity::LineGranularity);
     auto pageRectForLine = FloatRect { [lineUnderCursor boundsForPage:page.get()] };

@@ -182,7 +182,11 @@ void WebPageProxy::speak(const String& string)
 void WebPageProxy::stopSpeaking()
 {
     ASSERT(hasProcessPrivilege(ProcessPrivilege::CanCommunicateWithWindowServer));
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
+    // Work around incorrect nullability annotation in the internal SDK, cf. rdar://179681908
     [NSApp stopSpeaking:nil];
+#pragma clang diagnostic pop
 }
 
 void WebPageProxy::searchTheWeb(const String& string)

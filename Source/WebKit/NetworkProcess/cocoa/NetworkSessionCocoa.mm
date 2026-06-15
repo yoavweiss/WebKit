@@ -115,7 +115,14 @@ SOFT_LINK_OPTIONAL(libnetwork, nw_proxy_config_stack_requires_http_protocols, bo
 
 #import "DeviceManagementSoftLink.h"
 
-using namespace WebKit;
+using WebKit::IsolatedSession;
+using WebKit::NegotiatedLegacyTLS;
+using WebKit::NetworkDataTaskCocoa;
+using WebKit::NetworkSession;
+using WebKit::NetworkSessionCocoa;
+using WebKit::PrivateRelayed;
+using WebKit::SessionWrapper;
+using WebKit::WebSocketTask;
 
 WTF_MAKE_TZONE_ALLOCATED_IMPL(IsolatedSession);
 WTF_MAKE_TZONE_ALLOCATED_IMPL(NetworkSessionCocoa);

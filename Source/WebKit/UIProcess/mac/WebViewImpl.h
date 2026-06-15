@@ -234,6 +234,7 @@ class WebPageProxy;
 class WebProcessPool;
 class WebProcessProxy;
 
+struct InteractionInformationAtPosition;
 struct WebHitTestResultData;
 
 enum class ContinueUnsafeLoad : bool;
