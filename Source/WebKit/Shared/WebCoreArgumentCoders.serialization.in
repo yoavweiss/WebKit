@@ -1316,6 +1316,7 @@ class WebCore::LayoutRect {
 [RefCounted] class WebCore::RemoteFrameLayoutInfo {
     std::optional<WebCore::LayoutRect> visibleRectInParent();
     WebCore::TransformationMatrix childFrameOwnerToRootContentTransform();
+    WebCore::TransformationMatrix absoluteToChildFrameOwnerLocalTransform();
     float usedZoom();
     WebCore::LayoutPoint contentBoxLocation();
     OptionSet<WebCore::FrameOwnerElementAppearance> ownerElementAppearance();

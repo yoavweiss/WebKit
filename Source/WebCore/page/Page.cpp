@@ -2194,6 +2194,7 @@ void Page::syncLocalFrameInfoToRemote()
             childrenFrameLayoutInfo.add(child->frameID(), RemoteFrameLayoutInfo::create(
                 frameView->visibleRectOfChild(*child.get()),
                 frameView->childFrameOwnerToRootContentTransform(*child),
+                frameView->absoluteToChildFrameOwnerLocalTransform(*child),
                 frame.usedZoomForChild(*child),
                 frameView->childFrameOwnerContentBoxLocation(*child),
                 frameView->appearanceOfOwnerElementOfChildFrame(*child)

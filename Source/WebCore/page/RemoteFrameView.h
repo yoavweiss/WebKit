@@ -55,6 +55,7 @@ public:
     OptionSet<FrameOwnerElementAppearance> appearanceOfOwnerElementOfChildFrame(const Frame&) const final;
     LayoutPoint childFrameOwnerContentBoxLocation(const Frame&) const final;
     TransformationMatrix childFrameOwnerToRootContentTransform(const Frame&) const final;
+    TransformationMatrix absoluteToChildFrameOwnerLocalTransform(const Frame&) const final;
 
 private:
     WEBCORE_EXPORT RemoteFrameView(RemoteFrame&);

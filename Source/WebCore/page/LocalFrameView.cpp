@@ -2199,6 +2199,24 @@ TransformationMatrix LocalFrameView::childFrameOwnerToRootContentTransform(const
     return *transformState.releaseTrackedTransform();
 }
 
+TransformationMatrix LocalFrameView::absoluteToChildFrameOwnerLocalTransform(const Frame& child) const
+{
+    CheckedPtr<RenderObject> childOwnerRenderer = child.ownerRenderer();
+    if (!childOwnerRenderer)
+        return { };
+
+    // Ensure |child| is a child of this frame.
+    ASSERT(child.tree().parent()->frameID() == m_frame->frameID());
+    ASSERT(childOwnerRenderer->frame().frameID() == m_frame->frameID());
+
+    // We aren't transforming anything here, we just need the resulting transformation matrix.
+    TransformState transformState(TransformState::UnapplyInverseTransformDirection, FloatPoint { });
+    childOwnerRenderer->mapAbsoluteToLocalPoint({ MapCoordinatesMode::UseTransforms }, transformState);
+
+    auto matrix = transformState.releaseTrackedTransform();
+    return valueOrDefault(matrix->inverse());
+}
+
 LayoutRect LocalFrameView::rectForFixedPositionLayout() const
 {
     if (m_frame->settings().visualViewportEnabled())

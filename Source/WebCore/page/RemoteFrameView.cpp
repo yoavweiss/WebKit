@@ -103,6 +103,14 @@ TransformationMatrix RemoteFrameView::childFrameOwnerToRootContentTransform(cons
     return { };
 }
 
+TransformationMatrix RemoteFrameView::absoluteToChildFrameOwnerLocalTransform(const Frame& child) const
+{
+    if (RefPtr info = m_frame->frameTreeSyncData().childrenFrameLayoutInfo.get(child.frameID()))
+        return info->absoluteToChildFrameOwnerLocalTransform();
+
+    return { };
+}
+
 // FIXME: Implement all the stubs below.
 
 bool RemoteFrameView::isScrollableOrRubberbandable()

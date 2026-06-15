@@ -141,6 +141,11 @@ public:
     // does not correspond to the absolute coordinate of this FrameView, as it doesn't
     // include the page scale transform on the RenderView (if page is scaled).
     virtual TransformationMatrix childFrameOwnerToRootContentTransform(const Frame&) const = 0;
+
+    // Returns the transformation matrix to project from this frame view's absolute coordinate
+    // to a child frame's owner renderer's local coordinate.
+    virtual TransformationMatrix absoluteToChildFrameOwnerLocalTransform(const Frame&) const = 0;
+
 private:
     ScrollableArea* enclosingScrollableArea() const final;
 
