@@ -2444,3 +2444,5 @@ webkit.org/b/317031 [ Release ] imported/w3c/web-platform-tests/web-locks/acquir
 # webkit.org/b/317061 [macOS x86_64] imported/w3c/web-platform-tests/css/css-images tests are image diff failures
 imported/w3c/web-platform-tests/css/css-images/image-orientation/image-orientation-background-properties.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-images/tiled-radial-gradients.html [ ImageOnlyFailure ]
+
+webkit.org/b/317141 [ Tahoe ] fast/speechsynthesis/speech-synthesis-speak.html [ Skip ]
