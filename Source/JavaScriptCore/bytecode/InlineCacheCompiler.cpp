@@ -1323,7 +1323,7 @@ void InlineCacheCompiler::emitExplicitExceptionHandler()
 
 ScratchRegisterAllocator InlineCacheCompiler::makeDefaultScratchAllocator(GPRReg extraToLock)
 {
-    ScratchRegisterAllocator allocator(m_propertyCache.usedRegisters.toRegisterSet());
+    ScratchRegisterAllocator allocator(m_propertyCache.usedRegisters().toRegisterSet());
     allocator.lock(m_propertyCache.baseRegs());
     allocator.lock(m_propertyCache.valueRegs());
     allocator.lock(m_propertyCache.m_extraGPR);
