@@ -118,7 +118,6 @@ class JSGlobalObject;
     v(regExpCreate, nullptr) \
     v(isRegExp, nullptr) \
     v(regExpSearchFast, nullptr) \
-    v(regExpSplitFast, nullptr) \
     v(regExpPrototypeSymbolMatch, nullptr) \
     v(regExpPrototypeSymbolMatchAll, nullptr) \
     v(regExpPrototypeSymbolReplace, nullptr) \

@@ -53,8 +53,6 @@ private:
     void finishCreation(VM&, JSGlobalObject*);
 };
 
-JSC_DECLARE_HOST_FUNCTION(regExpProtoFuncSplitFast);
-
 class RegExpObject;
 class JSString;
 
@@ -63,5 +61,6 @@ JSValue regExpReplaceGeneric(JSGlobalObject*, JSObject* thisObject, JSString* in
 JSValue regExpSearchFast(JSGlobalObject*, RegExpObject*, JSString* inputString);
 JSValue regExpSearchGeneric(JSGlobalObject*, JSObject* thisObject, JSString* inputString);
 JSCell* regExpSplitFast(JSGlobalObject*, RegExpObject*, JSString* inputString, unsigned limit);
+JSValue regExpSplitSlow(JSGlobalObject*, JSObject* thisObject, JSString* inputString, JSValue limitValue);
 
 } // namespace JSC

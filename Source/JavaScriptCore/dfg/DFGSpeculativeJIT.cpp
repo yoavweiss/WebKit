@@ -14379,6 +14379,27 @@ void SpeculativeJIT::compileRegExpMatchFast(Node* node)
     jsValueResult(resultRegs, node);
 }
 
+void SpeculativeJIT::compileRegExpSplitFast(Node* node)
+{
+    SpeculateCellOperand base(this, node->child1());
+    SpeculateCellOperand argument(this, node->child2());
+    JSValueOperand limit(this, node->child3());
+    GPRReg baseGPR = base.gpr();
+    GPRReg argumentGPR = argument.gpr();
+    JSValueRegs limitRegs = limit.jsValueRegs();
+    speculateRegExpObject(node->child1(), baseGPR);
+    speculateString(node->child2(), argumentGPR);
+
+    flushRegisters();
+    JSValueRegsFlushedCallResult result(this);
+    JSValueRegs resultRegs = result.regs();
+    callOperation(
+        operationRegExpSplitFast, resultRegs,
+        LinkableConstant::globalObject(*this, node), baseGPR, argumentGPR, limitRegs);
+
+    jsValueResult(resultRegs, node);
+}
+
 void SpeculativeJIT::compileRegExpSearch(Node* node)
 {
     SpeculateCellOperand globalObject(this, node->child1());

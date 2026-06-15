@@ -4223,6 +4223,11 @@ void SpeculativeJIT::compile(Node* node)
         break;
     }
 
+    case RegExpSplitFast: {
+        compileRegExpSplitFast(node);
+        break;
+    }
+
     case RegExpSearch: {
         compileRegExpSearch(node);
         break;

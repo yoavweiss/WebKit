@@ -59,6 +59,7 @@ JITData::JITData(unsigned propertyCacheSize, unsigned poolSize, const JITCode& j
         case LinkerIR::Type::StringSymbolSplitWatchpointSet:
         case LinkerIR::Type::StringSymbolToPrimitiveWatchpointSet:
         case LinkerIR::Type::RegExpPrimordialPropertiesWatchpointSet:
+        case LinkerIR::Type::RegExpSpeciesWatchpointSet:
         case LinkerIR::Type::PromiseThenWatchpointSet:
         case LinkerIR::Type::ArraySpeciesWatchpointSet:
         case LinkerIR::Type::ArrayPrototypeChainIsSaneWatchpointSet:
@@ -204,6 +205,11 @@ bool JITData::tryInitialize(VM& vm, CodeBlock* codeBlock, const JITCode& jitCode
         case LinkerIR::Type::RegExpPrimordialPropertiesWatchpointSet: {
             auto& watchpoint = m_watchpoints[indexOfWatchpoints++];
             success &= attemptToWatch(codeBlock, m_globalObject->regExpPrimordialPropertiesWatchpointSet(), watchpoint);
+            break;
+        }
+        case LinkerIR::Type::RegExpSpeciesWatchpointSet: {
+            auto& watchpoint = m_watchpoints[indexOfWatchpoints++];
+            success &= attemptToWatch(codeBlock, m_globalObject->regExpSpeciesWatchpointSet(), watchpoint);
             break;
         }
         case LinkerIR::Type::PromiseThenWatchpointSet: {

@@ -112,6 +112,7 @@ namespace JSC {
     macro(RegExpTestIntrinsic) \
     macro(RegExpMatchIntrinsic) \
     macro(RegExpSearchIntrinsic) \
+    macro(RegExpSplitIntrinsic) \
     macro(ObjectAssignIntrinsic) \
     macro(ObjectCreateIntrinsic) \
     macro(ObjectDefinePropertyIntrinsic) \

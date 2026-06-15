@@ -409,6 +409,7 @@ inline CapabilityLevel canCompile(DFG::Node* node)
     case RegExpMatchFast:
     case RegExpMatchFastGlobal:
     case RegExpSearch:
+    case RegExpSplitFast:
     case NewRegExp:
     case NewMap:
     case NewSet:

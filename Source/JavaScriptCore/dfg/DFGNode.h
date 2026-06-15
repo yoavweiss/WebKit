@@ -2147,6 +2147,7 @@ public:
         case RegExpMatchFast:
         case RegExpMatchFastGlobal:
         case RegExpSearch:
+        case RegExpSplitFast:
         case GetGlobalVar:
         case GetGlobalLexicalVariable:
         case StringReplace:

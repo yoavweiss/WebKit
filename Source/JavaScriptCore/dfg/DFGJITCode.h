@@ -112,6 +112,7 @@ public:
         StringSymbolSplitWatchpointSet,
         StringSymbolToPrimitiveWatchpointSet,
         RegExpPrimordialPropertiesWatchpointSet,
+        RegExpSpeciesWatchpointSet,
         PromiseThenWatchpointSet,
         ArraySpeciesWatchpointSet,
         ArrayPrototypeChainIsSaneWatchpointSet,

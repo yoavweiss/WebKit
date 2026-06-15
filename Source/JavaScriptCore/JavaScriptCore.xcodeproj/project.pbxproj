@@ -4789,7 +4789,6 @@
 		6540C79F1B82D9CE000F6B79 /* RegisterAtOffset.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RegisterAtOffset.h; sourceTree = "<group>"; };
 		6546F51F1A32A59C006F07D5 /* NullGetterFunction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = NullGetterFunction.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		6546F5201A32A59C006F07D5 /* NullGetterFunction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NullGetterFunction.h; sourceTree = "<group>"; };
-		654788421C937D2C000781A0 /* RegExpPrototype.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = RegExpPrototype.js; sourceTree = "<group>"; };
 		65525FC31A6DD3B3007B5495 /* NullSetterFunction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NullSetterFunction.cpp; sourceTree = "<group>"; };
 		65525FC41A6DD3B3007B5495 /* NullSetterFunction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NullSetterFunction.h; sourceTree = "<group>"; };
 		65570F581AA4C00A009B3C23 /* Regress141275.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Regress141275.h; path = API/tests/Regress141275.h; sourceTree = "<group>"; };
@@ -10711,7 +10710,6 @@
 				7CF9BC5D1B65D9B1009DB1EF /* PromiseOperations.js */,
 				E34AE50028B75C07006088FA /* ProxyHelpers.js */,
 				7CF9BC5F1B65D9B1009DB1EF /* ReflectObject.js */,
-				654788421C937D2C000781A0 /* RegExpPrototype.js */,
 				84925A9C22B30CC800D1DFFF /* RegExpStringIteratorPrototype.js */,
 				534D9BF82363C55D0054524D /* SetIteratorPrototype.js */,
 				7035587D1C418419004BD7BF /* SetPrototype.js */,

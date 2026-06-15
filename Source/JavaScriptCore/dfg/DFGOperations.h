@@ -239,6 +239,7 @@ JSC_DECLARE_JIT_OPERATION(operationRegExpExecGeneric, EncodedJSValue, (JSGlobalO
 JSC_DECLARE_JIT_OPERATION(operationRegExpExecNonGlobalOrSticky, EncodedJSValue, (JSGlobalObject*, RegExp*, JSString*));
 JSC_DECLARE_JIT_OPERATION(operationRegExpMatchFastGlobalString, EncodedJSValue, (JSGlobalObject*, RegExp*, JSString*));
 JSC_DECLARE_JIT_OPERATION(operationRegExpMatchFastString, EncodedJSValue, (JSGlobalObject*, RegExpObject*, JSString*));
+JSC_DECLARE_JIT_OPERATION(operationRegExpSplitFast, EncodedJSValue, (JSGlobalObject*, RegExpObject*, JSString*, EncodedJSValue));
 // These comparisons return a boolean within a size_t such that the value is zero extended to fill the register.
 JSC_DECLARE_JIT_OPERATION(operationRegExpTestString, size_t, (JSGlobalObject*, RegExpObject*, JSString*));
 JSC_DECLARE_JIT_OPERATION(operationRegExpTest, size_t, (JSGlobalObject*, RegExpObject*, EncodedJSValue));

@@ -1858,6 +1858,9 @@ private:
         case RegExpSearch:
             compileRegExpSearch();
             break;
+        case RegExpSplitFast:
+            compileRegExpSplitFast();
+            break;
         case NewRegExp:
             compileNewRegExp();
             break;
@@ -19562,6 +19565,16 @@ IGNORE_CLANG_WARNINGS_END
         LValue base = lowRegExpObject(m_node->child2());
         LValue argument = lowString(m_node->child3());
         LValue result = vmCall(Int64, operationRegExpMatchFastString, globalObject, base, argument);
+        setJSValue(result);
+    }
+
+    void compileRegExpSplitFast()
+    {
+        JSGlobalObject* globalObject = m_graph.globalObjectFor(m_origin.semantic);
+        LValue base = lowRegExpObject(m_node->child1());
+        LValue argument = lowString(m_node->child2());
+        LValue limit = lowJSValue(m_node->child3());
+        LValue result = vmCall(Int64, operationRegExpSplitFast, weakPointer(globalObject), base, argument, limit);
         setJSValue(result);
     }
 

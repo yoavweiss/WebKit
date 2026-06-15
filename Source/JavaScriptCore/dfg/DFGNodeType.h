@@ -362,6 +362,7 @@ namespace JSC { namespace DFG {
     macro(RegExpMatchFast, NodeResultJS | NodeMustGenerate) \
     macro(RegExpMatchFastGlobal, NodeResultJS | NodeMustGenerate) \
     macro(RegExpSearch, NodeResultInt32 | NodeMustGenerate) \
+    macro(RegExpSplitFast, NodeResultJS | NodeMustGenerate) \
     macro(GetRegExpFlag, NodeResultBoolean) \
     macro(StringReplace, NodeResultJS | NodeMustGenerate) \
     macro(StringReplaceAll, NodeResultJS | NodeMustGenerate) \

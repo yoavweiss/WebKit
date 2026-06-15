@@ -1704,6 +1704,31 @@ JSC_DEFINE_JIT_OPERATION(operationRegExpMatchFastString, EncodedJSValue, (JSGlob
     OPERATION_RETURN(scope, JSValue::encode(regExpObject->matchGlobal(globalObject, argument)));
 }
 
+JSC_DEFINE_JIT_OPERATION(operationRegExpSplitFast, EncodedJSValue, (JSGlobalObject* globalObject, RegExpObject* regExpObject, JSString* string, EncodedJSValue encodedLimit))
+{
+    SuperSamplerScope superSamplerScope(false);
+
+    VM& vm = globalObject->vm();
+    CallFrame* callFrame = DECLARE_CALL_FRAME(vm);
+    JITOperationPrologueCallFrameTracer tracer(vm, callFrame);
+    auto scope = DECLARE_THROW_SCOPE(vm);
+
+    JSValue limitValue = JSValue::decode(encodedLimit);
+    unsigned limit = 0xFFFFFFFFu;
+    if (!limitValue.isUndefined()) {
+        if (limitValue.isInt32()) [[likely]]
+            limit = static_cast<unsigned>(limitValue.asInt32());
+        else if (limitValue.isNumber())
+            limit = limitValue.toUInt32(globalObject);
+        else
+            OPERATION_RETURN(scope, JSValue::encode(regExpSplitSlow(globalObject, regExpObject, string, limitValue)));
+
+        OPERATION_RETURN_IF_EXCEPTION(scope, encodedJSValue());
+    }
+
+    OPERATION_RETURN(scope, JSValue::encode(regExpSplitFast(globalObject, regExpObject, string, limit)));
+}
+
 JSC_DEFINE_JIT_OPERATION(operationRegExpMatchFastGlobalString, EncodedJSValue, (JSGlobalObject* globalObject, RegExp* regExp, JSString* string))
 {
     SuperSamplerScope superSamplerScope(false);
