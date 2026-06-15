@@ -17,17 +17,17 @@ S3_DEFAULT_BUCKET = f'archives.webkit{custom_suffix}.org'
 S3_EWS_BUCKET = f'ews-archives.webkit{custom_suffix}.org'
 S3_MINIFIED_BUCKET = f'minified-archives.webkit{custom_suffix}.org'
 
+
 def generateS3URL(bucket, identifier, revision, additions=None, extension=None, content_type=None):
     key = f"{identifier}/{revision}{f'-{additions}' if additions else ''}.{extension or 'zip'}"
     print(f'\tS3 Bucket: {bucket}\n\tS3 Key: {key}')
-    config = Config(region_name = 'us-west-2')
+    config = Config(region_name='us-west-2')
     s3 = boto3.client('s3', config=config)
     params = {'Bucket': bucket, 'Key': key}
     if content_type:
         params['ContentType'] = content_type
-    url = s3.generate_presigned_url(ClientMethod='put_object', Params=params, ExpiresIn=30*60)
-    print(f'S3 URL: {url}\n')
-    return url
+    return s3.generate_presigned_url(ClientMethod='put_object', Params=params, ExpiresIn=30 * 60)
+
 
 def main():
     parser = argparse.ArgumentParser(add_help=True)
@@ -54,7 +54,9 @@ def main():
         additions=args.additions,
         extension=args.extension, content_type=args.content_type,
     )
+    print(f'S3 URL: {url}\n')
     return url
+
 
 if __name__ == "__main__":
     main()
