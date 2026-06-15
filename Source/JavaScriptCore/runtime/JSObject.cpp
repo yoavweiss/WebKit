@@ -2857,6 +2857,7 @@ void JSObject::seal(VM& vm)
 {
     if (isSealed(vm))
         return;
+    materializeLazyOwnProperties(vm);
     enterDictionaryIndexingMode(vm);
     {
         Structure* oldStructure = structure();
@@ -2869,12 +2870,28 @@ void JSObject::freeze(VM& vm)
 {
     if (isFrozen(vm))
         return;
+    materializeLazyOwnProperties(vm);
     enterDictionaryIndexingMode(vm);
     {
         Structure* oldStructure = structure();
         DeferredStructureTransitionWatchpointFire deferred(vm, oldStructure);
         setStructure(vm, Structure::freezeTransition(vm, oldStructure, &deferred));
     }
+}
+
+void JSObject::materializeLazyOwnProperties(VM& vm)
+{
+    if (!structure()->typeInfo().overridesGetOwnSpecialPropertyNames())
+        return;
+
+    // Force reifying lazy properties. Special properties (e.g. function "length" / "name",
+    // or "arguments" / "caller") are materialized onto the object as a side effect of
+    // enumerating them via getOwnPropertyNames, so the call below is what does the reification.
+    JSGlobalObject* globalObject = this->realm();
+    PropertyNameArrayBuilder propertyNames(vm, PropertyNameMode::StringsAndSymbols, PrivateSymbolMode::Exclude);
+    auto scope = DECLARE_TOP_EXCEPTION_SCOPE(vm);
+    methodTable()->getOwnPropertyNames(this, globalObject, propertyNames, DontEnumPropertiesMode::Include);
+    scope.releaseAssertNoExceptionExceptTermination();
 }
 
 bool JSObject::preventExtensions(JSObject* object, JSGlobalObject* globalObject)
