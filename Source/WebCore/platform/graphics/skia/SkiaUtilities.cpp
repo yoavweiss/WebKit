@@ -273,7 +273,7 @@ sk_sp<SkImage> createPromiseImageIfNeeded(const sk_sp<SkImage>& image, const sk_
     if (!context)
         return image;
 
-    auto backendFormat = threadSafeGrContext->defaultBackendFormat(kRGBA_8888_SkColorType, GrRenderable::kYes);
+    auto backendFormat = threadSafeGrContext->defaultBackendFormat(image->colorType(), GrRenderable::kYes);
     ASSERT(backendFormat.isValid());
     return SkImages::PromiseTextureFrom(threadSafeGrContext, backendFormat, image->dimensions(), skgpu::Mipmapped::kNo,
         kTopLeft_GrSurfaceOrigin, image->colorType(), image->alphaType(), image->refColorSpace(),
