@@ -33,6 +33,7 @@
 #include <memory>
 #include <wtf/HashMap.h>
 #include <wtf/RefPtr.h>
+#include <wtf/ThreadSafeRefCounted.h>
 #include <wtf/Vector.h>
 #include <wtf/WeakPtr.h>
 #include <wtf/text/AtomStringHash.h>
@@ -87,7 +88,7 @@ struct ResolutionContext {
 
 using KeyframesRuleMap = HashMap<AtomString, Ref<StyleRuleKeyframes>>;
 
-class Resolver : public RefCounted<Resolver>, public CanMakeSingleThreadWeakPtr<Resolver> {
+class Resolver : public ThreadSafeRefCounted<Resolver>, public CanMakeSingleThreadWeakPtr<Resolver> {
     WTF_MAKE_TZONE_ALLOCATED(Resolver);
 public:
     // Style resolvers are shared between shadow trees with identical styles. That's why we don't simply provide a Style::Scope.

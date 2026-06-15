@@ -95,6 +95,7 @@
 #include "WebKitFontFamilyNames.h"
 #include <wtf/HashFunctions.h>
 #include <wtf/HashTraits.h>
+#include <wtf/MainThread.h>
 #include <wtf/Seconds.h>
 #include <wtf/StdLibExtras.h>
 #include <wtf/TZoneMallocInlines.h>
@@ -203,7 +204,10 @@ void Resolver::initialize()
     m_ruleSets.resetUserAgentMediaQueryStyle();
 }
 
-Resolver::~Resolver() = default;
+Resolver::~Resolver()
+{
+    RELEASE_ASSERT(isMainThread());
+}
 
 Document& Resolver::document()
 {

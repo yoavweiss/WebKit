@@ -49,6 +49,7 @@
 #include "StyleSheetContents.h"
 #include <JavaScriptCore/ConsoleTypes.h>
 #include <ranges>
+#include <wtf/MainThread.h>
 #include <wtf/PointerComparison.h>
 
 namespace WebCore {
@@ -265,6 +266,7 @@ void ScopeRuleSets::appendAuthorStyleSheets(std::span<const Ref<CSSStyleSheet>> 
 
 void ScopeRuleSets::collectFeatures() const
 {
+    RELEASE_ASSERT(isMainThread());
     RELEASE_ASSERT(!m_isInvalidatingStyleWithRuleSets);
 
     m_features.clear();

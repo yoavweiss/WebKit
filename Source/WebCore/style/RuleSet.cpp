@@ -51,6 +51,7 @@
 #include "StyleSheetContents.h"
 #include "UserAgentParts.h"
 #include <ranges>
+#include <wtf/MainThread.h>
 
 namespace WebCore {
 namespace Style {
@@ -59,7 +60,10 @@ using namespace HTMLNames;
 
 RuleSet::RuleSet() = default;
 
-RuleSet::~RuleSet() = default;
+RuleSet::~RuleSet()
+{
+    RELEASE_ASSERT(isMainThread());
+}
 
 void RuleSet::addToRuleSet(const AtomString& key, AtomRuleMap& map, const RuleData& ruleData)
 {
