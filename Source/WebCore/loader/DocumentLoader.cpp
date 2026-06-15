@@ -466,7 +466,7 @@ void DocumentLoader::notifyFinished(CachedResource& resource, const NetworkLoadM
     }
 
     if (!m_mainResource->resourceError().isNull())
-        DOCUMENTLOADER_RELEASE_LOG("notifyFinished: canceling load (type=%d, code=%d)", static_cast<int>(m_mainResource->resourceError().type()), m_mainResource->resourceError().errorCode());
+        DOCUMENTLOADER_RELEASE_LOG_FORWARDABLE(DocumentLoaderNotifyFinishedCancelingLoad, static_cast<int>(m_mainResource->resourceError().type()), m_mainResource->resourceError().errorCode());
 
     mainReceivedError(m_mainResource->resourceError(), loadWillContinueInAnotherProcess);
 }

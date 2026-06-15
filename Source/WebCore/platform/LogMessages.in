@@ -30,6 +30,7 @@ CachedResourceRedirectReceived, "CachedResource::redirectReceived:", (), DEFAULT
 DocumentLoaderAttachToFrame, "[pageID=%" PRIu64 ", frameID=%" PRIu64 ", isMainFrame=%d] DocumentLoader::attachToFrame", (uint64_t, uint64_t, int), DEFAULT, Network
 DocumentLoaderCancelMainResourceLoad, "[pageID=%" PRIu64 ", frameID=%" PRIu64 ", isMainFrame=%d] DocumentLoader::cancelMainResourceLoad: (type=%d, code=%d)", (uint64_t, uint64_t, int, int, int), DEFAULT, Network
 DocumentLoaderDetachFromFrame, "[pageID=%" PRIu64 ", frameID=%" PRIu64 ", isMainFrame=%d] DocumentLoader::detachFromFrame", (uint64_t, uint64_t, int), DEFAULT, Network
+DocumentLoaderNotifyFinishedCancelingLoad, "[pageID=%" PRIu64 ", frameID=%" PRIu64 ", isMainFrame=%d] DocumentLoader::notifyFinished: canceling load (type=%d, code=%d)", (uint64_t, uint64_t, int, int, int), DEFAULT, Network
 DocumentLoaderStartLoadingMainResourceEmptyDocument, "[pageID=%" PRIu64 ", frameID=%" PRIu64 ", isMainFrame=%d] DocumentLoader::startLoadingMainResource: Returning empty document", (uint64_t, uint64_t, int), DEFAULT, Network
 DocumentLoaderStartLoadingMainResourceStartingLoad, "[pageID=%" PRIu64 ", frameID=%" PRIu64 ", isMainFrame=%d] DocumentLoader::startLoadingMainResource: Starting load", (uint64_t, uint64_t, int), DEFAULT, Network
 DocumentLoaderStopLoading, "[pageID=%" PRIu64 ", frameID=%" PRIu64 ", isMainFrame=%d] DocumentLoader::stopLoading", (uint64_t, uint64_t, int), DEFAULT, Network
