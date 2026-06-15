@@ -5587,8 +5587,17 @@ webkit.org/b/316575 [ x86_64 ] http/tests/IndexedDB/collect-IDB-objects.https.ht
 webkit.org/b/317006 ipc/indexed-colorspace-null-inner-crash.html [ Crash ]
 webkit.org/b/317007 fast/replaced/replaced-percentage-size-in-aspect-ratio-shrink-to-fit.html [ ImageOnlyFailure ]
 webkit.org/b/317008 imported/w3c/web-platform-tests/html/semantics/embedded-content/the-img-element/sizes/sizes-auto-resize-observer-removes-auto.html [ Pass Failure ]
-webkit.org/b/317010 [ x86_64 ] imported/w3c/web-platform-tests/largest-contentful-paint/ [ Pass Failure ]
 webkit.org/b/317011 imported/w3c/web-platform-tests/css/css-shapes/shape-outside/shape-image/shape-image-018.html [ Pass Timeout ]
+
+webkit.org/b/317010 [ x86_64 ] imported/w3c/web-platform-tests/largest-contentful-paint/ [ Pass Failure ]
+webkit.org/b/317010 [ x86_64 ] imported/w3c/web-platform-tests/largest-contentful-paint/animated/observe-animated-image-gif.tentative.html [ Skip ]
+webkit.org/b/317010 [ x86_64 ] imported/w3c/web-platform-tests/largest-contentful-paint/animated/observe-animated-image-webp.tentative.html [ Skip ]
+webkit.org/b/317010 [ x86_64 ] imported/w3c/web-platform-tests/largest-contentful-paint/animated/observe-animated-image.tentative.html [ Skip ]
+webkit.org/b/317010 [ x86_64 ] imported/w3c/web-platform-tests/largest-contentful-paint/animated/observe-video.tentative.html [ Skip ]
+webkit.org/b/317010 [ x86_64 ] imported/w3c/web-platform-tests/largest-contentful-paint/initially-invisible-images.html [ Skip ]
+webkit.org/b/317010 [ x86_64 ] imported/w3c/web-platform-tests/largest-contentful-paint/video-data-uri.html [ Skip ]
+webkit.org/b/317010 [ x86_64 ] imported/w3c/web-platform-tests/largest-contentful-paint/web-font-styled-text-resize-swap-subnode.html [ Skip ]
+webkit.org/b/317010 [ x86_64 ] imported/w3c/web-platform-tests/largest-contentful-paint/web-font-styled-text-resize-swap.html [ Skip ]
 
 webkit.org/b/317119 fast/repaint/align-content-center-in-composited-layer.html [ Pass ImageOnlyFailure ]
 webkit.org/b/317119 fast/repaint/layer-repaint-with-layout-delta-1.html [ Pass ImageOnlyFailure ]
