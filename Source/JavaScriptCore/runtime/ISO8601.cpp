@@ -2057,6 +2057,15 @@ ExactTime ExactTime::now()
 // https://tc39.es/proposal-temporal/#sec-temporal-isodatetimewithinlimits
 bool isDateTimeWithinLimits(int32_t year, uint8_t month, uint8_t day, unsigned hour, unsigned minute, unsigned second, unsigned millisecond, unsigned microsecond, unsigned nanosecond)
 {
+    // The year strictly inside the valid range is unconditionally OK regardless of the
+    // time-of-day or day-of-month. The absolute min/max epoch instants Temporal admits
+    // are -271821-04-20T00:00:00Z and +275760-09-13T00:00:00Z. isDateTimeWithinLimits
+    // adds a +-1-day slack to those bounds, so the only years where some (month, day, time)
+    // combination can land outside the representable range are the boundary years themselves.
+    // Years strictly inside (-271821, +275760) always pass.
+    if (year > minYear && year < maxYear)
+        return true;
+
     Int128 nanoseconds = ExactTime::fromISOPartsAndOffset(year, month, day, hour, minute, second, millisecond, microsecond, nanosecond, 0).epochNanoseconds();
     if (nanoseconds <= (ExactTime::minValue - ExactTime::nsPerDay))
         return false;

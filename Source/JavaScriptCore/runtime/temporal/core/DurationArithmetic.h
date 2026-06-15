@@ -114,7 +114,7 @@ constexpr int32_t unitIndexInTable(TemporalUnit);
 
 constexpr TemporalUnit unitInTable(int32_t);
 
-TemporalResult<ISO8601::Duration> JS_EXPORT_PRIVATE adjustDateDurationRecord(const ISO8601::Duration& dateDuration, double days, std::optional<double> weeks, std::optional<double> months);
+TemporalResult<ISO8601::Duration> JS_EXPORT_PRIVATE adjustDateDurationRecord(const ISO8601::Duration& dateDuration, int64_t days, std::optional<int64_t> weeks, std::optional<int64_t> months);
 
 TemporalResult<Nudged> JS_EXPORT_PRIVATE nudgeToCalendarUnit(int32_t sign,
     const ISO8601::InternalDuration&, Int128 originEpochNs, Int128 destEpochNs,

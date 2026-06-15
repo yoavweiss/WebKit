@@ -79,8 +79,7 @@ TemporalResult<ISO8601::InternalDuration> differencePlainDateTimeWithRounding(
         int32_t dateSign = isoDateCompare(thisDate, otherDate);
         ISO8601::PlainDate adjustedD2 = otherDate;
         if (dateSign && timeSign && dateSign == timeSign) {
-            adjustedD2 = balanceISODate(adjustedD2.year(), static_cast<int32_t>(adjustedD2.month()),
-                static_cast<int64_t>(adjustedD2.day()) + dateSign);
+            adjustedD2 = addDaysToISODate(adjustedD2, dateSign);
             timeDiff -= Int128(dateSign) * ISO8601::ExactTime::nsPerDay;
         }
         TemporalUnit dateLargestUnit = (largestUnit > TemporalUnit::Day) ? TemporalUnit::Day : largestUnit;

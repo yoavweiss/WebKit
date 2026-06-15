@@ -86,32 +86,33 @@ WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
 // ISOArithmetic tests — mirrors temporal_rs src/iso.rs tests
 // ---------------------------------------------------------------------------
 
-static void testBalanceISODate()
+static void testAddDaysToISODate()
 {
-    // temporal_rs: test balance_iso_date
-    // 2020-01-32 -> 2020-02-01
-    auto r = balanceISODate(2020, 1, 32);
-    TCHECK_EQ(r.year(), 2020, "balanceISODate: 2020-01-32 year");
-    TCHECK_EQ(r.month(), 2u, "balanceISODate: 2020-01-32 month");
-    TCHECK_EQ(r.day(), 1u, "balanceISODate: 2020-01-32 day");
+    // temporal_rs: test balance_iso_date (now addDaysToISODate — same algorithm, taking a
+    // PlainDate + day delta directly instead of (year, month, day-with-overflow)).
+    // 2020-01-31 +1d -> 2020-02-01
+    auto r = addDaysToISODate(ISO8601::PlainDate { 2020, 1, 31 }, 1);
+    TCHECK_EQ(r.year(), 2020, "addDaysToISODate: 2020-01-31 +1d year");
+    TCHECK_EQ(r.month(), 2u, "addDaysToISODate: 2020-01-31 +1d month");
+    TCHECK_EQ(r.day(), 1u, "addDaysToISODate: 2020-01-31 +1d day");
 
-    // 2020-12-32 -> 2021-01-01
-    auto r2 = balanceISODate(2020, 12, 32);
-    TCHECK_EQ(r2.year(), 2021, "balanceISODate: 2020-12-32 year");
-    TCHECK_EQ(r2.month(), 1u, "balanceISODate: 2020-12-32 month");
-    TCHECK_EQ(r2.day(), 1u, "balanceISODate: 2020-12-32 day");
+    // 2020-12-31 +1d -> 2021-01-01
+    auto r2 = addDaysToISODate(ISO8601::PlainDate { 2020, 12, 31 }, 1);
+    TCHECK_EQ(r2.year(), 2021, "addDaysToISODate: 2020-12-31 +1d year");
+    TCHECK_EQ(r2.month(), 1u, "addDaysToISODate: 2020-12-31 +1d month");
+    TCHECK_EQ(r2.day(), 1u, "addDaysToISODate: 2020-12-31 +1d day");
 
-    // 2020-01-00 -> 2019-12-31
-    auto r3 = balanceISODate(2020, 1, 0);
-    TCHECK_EQ(r3.year(), 2019, "balanceISODate: 2020-01-00 year");
-    TCHECK_EQ(r3.month(), 12u, "balanceISODate: 2020-01-00 month");
-    TCHECK_EQ(r3.day(), 31u, "balanceISODate: 2020-01-00 day");
+    // 2020-01-01 -1d -> 2019-12-31
+    auto r3 = addDaysToISODate(ISO8601::PlainDate { 2020, 1, 1 }, -1);
+    TCHECK_EQ(r3.year(), 2019, "addDaysToISODate: 2020-01-01 -1d year");
+    TCHECK_EQ(r3.month(), 12u, "addDaysToISODate: 2020-01-01 -1d month");
+    TCHECK_EQ(r3.day(), 31u, "addDaysToISODate: 2020-01-01 -1d day");
 
-    // 2020-03-01 (unchanged)
-    auto r4 = balanceISODate(2020, 3, 1);
-    TCHECK_EQ(r4.year(), 2020, "balanceISODate: 2020-03-01 year");
-    TCHECK_EQ(r4.month(), 3u, "balanceISODate: 2020-03-01 month");
-    TCHECK_EQ(r4.day(), 1u, "balanceISODate: 2020-03-01 day");
+    // 2020-03-01 +0d (unchanged)
+    auto r4 = addDaysToISODate(ISO8601::PlainDate { 2020, 3, 1 }, 0);
+    TCHECK_EQ(r4.year(), 2020, "addDaysToISODate: 2020-03-01 +0d year");
+    TCHECK_EQ(r4.month(), 3u, "addDaysToISODate: 2020-03-01 +0d month");
+    TCHECK_EQ(r4.day(), 1u, "addDaysToISODate: 2020-03-01 +0d day");
 }
 
 static void testRegulateISODate()
@@ -364,20 +365,46 @@ static void testAdjustDateDurationRecord()
     ISO8601::Duration base(2, 3, 1, 5, 0, 0, 0, 0, 0, 0);
 
     // Override days only
-    auto r1 = adjustDateDurationRecord(base, 10.0, std::nullopt, std::nullopt);
+    auto r1 = adjustDateDurationRecord(base, 10, std::nullopt, std::nullopt);
     TCHECK_TRUE(r1.has_value(), "adjustDateDur: days override ok");
     TCHECK_EQ(static_cast<int64_t>(r1->years()), 2LL, "adjustDateDur: years preserved");
     TCHECK_EQ(static_cast<int64_t>(r1->months()), 3LL, "adjustDateDur: months preserved");
     TCHECK_EQ(static_cast<int64_t>(r1->days()), 10LL, "adjustDateDur: days overridden");
 
     // Override weeks
-    auto r2 = adjustDateDurationRecord(base, 5.0, 2.0, std::nullopt);
+    auto r2 = adjustDateDurationRecord(base, 5, 2, std::nullopt);
     TCHECK_TRUE(r2.has_value(), "adjustDateDur: weeks override ok");
     TCHECK_EQ(static_cast<int64_t>(r2->weeks()), 2LL, "adjustDateDur: weeks overridden");
 
     // Mixed signs -> invalid, should error
-    auto r3 = adjustDateDurationRecord(base, -10.0, std::nullopt, std::nullopt);
+    auto r3 = adjustDateDurationRecord(base, -10, std::nullopt, std::nullopt);
     TCHECK_TRUE(!r3.has_value(), "adjustDateDur: mixed sign rejected");
+
+    // Day-magnitude limit. isValidDuration enforces |normalizedSeconds| < 2^53 which, for a
+    // date-only Duration, reduces to |days × 86400| < 2^53. The largest `days` that satisfies
+    // this is floor((2^53 - 1) / 86400) = 104249991374; one beyond that rejects.
+    ISO8601::Duration zeroBase(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    constexpr int64_t maxValidDays = 104249991374LL;
+    auto rMax = adjustDateDurationRecord(zeroBase, maxValidDays, std::nullopt, std::nullopt);
+    TCHECK_TRUE(rMax.has_value(), "adjustDateDur: max valid days accepted");
+    auto rOver = adjustDateDurationRecord(zeroBase, maxValidDays + 1, std::nullopt, std::nullopt);
+    TCHECK_TRUE(!rOver.has_value(), "adjustDateDur: days past 2^53/86400 rejected");
+    // Symmetric for negative.
+    auto rMinNeg = adjustDateDurationRecord(zeroBase, -maxValidDays, std::nullopt, std::nullopt);
+    TCHECK_TRUE(rMinNeg.has_value(), "adjustDateDur: negative max valid days accepted");
+    auto rOverNeg = adjustDateDurationRecord(zeroBase, -(maxValidDays + 1), std::nullopt, std::nullopt);
+    TCHECK_TRUE(!rOverNeg.has_value(), "adjustDateDur: negative days past -2^53/86400 rejected");
+
+    // Years/months/weeks 2^32 cap (isValidDuration step 3-5: |y|,|mo|,|w| < 2^32).
+    constexpr int64_t maxField = (static_cast<int64_t>(1) << 32) - 1;
+    auto rMaxY = adjustDateDurationRecord(ISO8601::Duration(maxField, 0, 0, 0, 0, 0, 0, 0, 0, 0), 0, std::nullopt, std::nullopt);
+    TCHECK_TRUE(rMaxY.has_value(), "adjustDateDur: years at 2^32-1 accepted");
+    auto rOverY = adjustDateDurationRecord(ISO8601::Duration(static_cast<int64_t>(1) << 32, 0, 0, 0, 0, 0, 0, 0, 0, 0), 0, std::nullopt, std::nullopt);
+    TCHECK_TRUE(!rOverY.has_value(), "adjustDateDur: years at 2^32 rejected");
+    auto rOverMo = adjustDateDurationRecord(zeroBase, 0, std::nullopt, static_cast<int64_t>(1) << 32);
+    TCHECK_TRUE(!rOverMo.has_value(), "adjustDateDur: months at 2^32 rejected");
+    auto rOverW = adjustDateDurationRecord(zeroBase, 0, static_cast<int64_t>(1) << 32, std::nullopt);
+    TCHECK_TRUE(!rOverW.has_value(), "adjustDateDur: weeks at 2^32 rejected");
 }
 
 // ---------------------------------------------------------------------------
@@ -492,26 +519,26 @@ static void testCalendarDateUntil()
 static void testISODateLimits()
 {
     // Max valid ISO date for Temporal: +275760-09-13 (±1e8 epoch days)
-    // balanceISODate returns outOfRangeYear only when year exceeds the year representation limit
-    auto rMax = balanceISODate(275760, 9, 13);
+    // addDaysToISODate returns outOfRangeYear only when year exceeds the year representation limit
+    auto rMax = addDaysToISODate(ISO8601::PlainDate { 275760, 9, 13 }, 0);
     TCHECK_EQ(rMax.year(), 275760, "limits: max date year");
     TCHECK_EQ(rMax.month(), 9u, "limits: max date month");
     TCHECK_EQ(rMax.day(), 13u, "limits: max date day");
 
     // Min valid ISO date: -271821-04-19
-    auto rMin = balanceISODate(-271821, 4, 19);
+    auto rMin = addDaysToISODate(ISO8601::PlainDate { -271821, 4, 19 }, 0);
     TCHECK_EQ(rMin.year(), -271821, "limits: min date year");
     TCHECK_EQ(rMin.month(), 4u, "limits: min date month");
     TCHECK_EQ(rMin.day(), 19u, "limits: min date day");
 
     // Unix epoch: 1970-01-01
-    auto rEpoch = balanceISODate(1970, 1, 1);
+    auto rEpoch = addDaysToISODate(ISO8601::PlainDate { 1970, 1, 1 }, 0);
     TCHECK_EQ(rEpoch.year(), 1970, "limits: epoch year");
     TCHECK_EQ(rEpoch.month(), 1u, "limits: epoch month");
     TCHECK_EQ(rEpoch.day(), 1u, "limits: epoch day");
 
     // Day before epoch: 1969-12-31
-    auto rEpochMinus1 = balanceISODate(1969, 12, 31);
+    auto rEpochMinus1 = addDaysToISODate(ISO8601::PlainDate { 1969, 12, 31 }, 0);
     TCHECK_EQ(rEpochMinus1.year(), 1969, "limits: epoch-1 year");
     TCHECK_EQ(rEpochMinus1.month(), 12u, "limits: epoch-1 month");
     TCHECK_EQ(rEpochMinus1.day(), 31u, "limits: epoch-1 day");
@@ -3262,7 +3289,7 @@ static void runTemporalRSTests()
     testValidateTemporalRoundingIncrement(); // temporal_rs: RoundingIncrement::validate
 
     // --- plain_date.rs ---
-    testBalanceISODate(); // temporal_rs: (balanceISODate)
+    testAddDaysToISODate(); // temporal_rs: (addDaysToISODate)
     testBalanceISOYearMonth(); // temporal_rs: (balanceISOYearMonth)
     testRegulateISODate(); // temporal_rs: (regulateISODate)
     testISODateAdd(); // temporal_rs: simple_date_add
