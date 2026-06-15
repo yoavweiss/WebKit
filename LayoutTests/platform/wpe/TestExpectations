@@ -750,7 +750,6 @@ webkit.org/b/188508 fast/dom/Window/window-postmessage-clone.html [ Timeout ]
 webkit.org/b/188508 fast/dom/Window/window-postmessage-clone-frames.html [ Timeout ]
 
 webkit.org/b/188509 fast/dom/Window/new-window-opener.html [ Failure ]
-# Timeout comes from webkit.org/b/292843 in glib's expectations
 webkit.org/b/188509 fast/dom/Window/timeout-released-on-close.html [ Failure ]
 webkit.org/b/188509 fast/dom/Window/window-onFocus.html [ Failure ]
 webkit.org/b/188509 fast/dom/Window/window-resize.html [ Failure ]

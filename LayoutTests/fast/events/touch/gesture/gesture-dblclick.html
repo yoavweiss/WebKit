@@ -10,6 +10,7 @@
 <div id="console"></div>
 
 <script>
+window.jsTestIsAsync = true;
 var expectedEvents = [
   {type: 'mousemove', x: 10, y: 12, detail: 0 },
   {type: 'mousedown', x: 10, y: 12, detail: 1 },
@@ -67,12 +68,15 @@ function runTest() {
 
     if (window.eventSender) {
         description("This tests gesture callbacks for a double tap sequence of gestures.");
-        window.jsTestIsAsync = true;
-        eventSender.gestureTap(10, 12);
-        eventSender.leapForward(10);
-        eventSender.gestureTap(11, 12, 2);
-        eventSender.leapForward(50);
-        eventSender.keyDown(' ');
+        if (eventSender.gestureTap) {
+            eventSender.gestureTap(10, 12);
+            eventSender.leapForward(10);
+            eventSender.gestureTap(11, 12, 2);
+            eventSender.leapForward(50);
+            eventSender.keyDown(' ');
+        } else {
+            endTest();
+        }
     } else {
         debug("This test requires DumpRenderTree.")
     }

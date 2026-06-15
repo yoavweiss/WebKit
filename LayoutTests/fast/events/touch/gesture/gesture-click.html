@@ -10,6 +10,7 @@
 <div id="console"></div>
 
 <script>
+window.jsTestIsAsync = true;
 var mouseEventsReceived = 0;
 var expectedEvents = [
   { type: 'mousemove', detail: 0 },
@@ -60,11 +61,14 @@ function runTest() {
 
     if (window.eventSender) {
         description("This tests basic gesture callbacks.");
-        window.jsTestIsAsync = true;
-        // A 'tap' gesture event should generate a sequence of mouse events.
-        eventSender.gestureTap(10, 12);
-        eventSender.leapForward(10);
-        eventSender.keyDown(' ');
+        if (eventSender.gestureTap) {
+            // A 'tap' gesture event should generate a sequence of mouse events.
+            eventSender.gestureTap(10, 12);
+            eventSender.leapForward(10);
+            eventSender.keyDown(' ');
+        } else {
+            endTest();
+        }
     } else {
         debug("This test requires DumpRenderTree.  Tap on the blue rect to log.")
     }
