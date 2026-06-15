@@ -338,6 +338,7 @@
       "factory": "macOSWK2Factory", "platform": "mac-tahoe",
       "configuration": "debug",
       "triggered_by": ["macos-tahoe-debug-build-ews"],
+      "additionalArguments": ["-2", "-1"],
       "workernames": ["ews110", "ews111", "ews114", "ews138", "ews139", "ews140", "ews175", "ews176", "ews177", "ews178", "ews179", "ews180"]
     },
     {
@@ -354,6 +355,7 @@
       "factory": "macOSWK2Factory", "platform": "mac-sequoia",
       "configuration": "release",
       "triggered_by": ["macos-sequoia-release-build-ews"],
+      "additionalArguments": ["-2", "-1"],
       "workernames": ["ews104", "ews106", "ews107", "ews112", "ews113", "ews115", "ews144", "ews146", "ews149", "ews169", "ews186", "ews187", "ews188", "ews189"]
     },
     {
@@ -369,6 +371,7 @@
       "factory": "macOSWK2Factory", "platform": "mac-sequoia",
       "configuration": "release",
       "triggered_by": ["macos-sequoia-release-build-ews"],
+      "additionalArguments": ["-2", "-1"],
       "workernames": ["ews200", "ews201", "ews202", "ews203", "ews204"]
     },
     {

@@ -4199,6 +4199,7 @@ class RunWebKitTests(shell.Test, AddToLogMixin, ShellMixin):
         self.incorrectLayoutLines = []
         self.failing_tests_filtered = []
         self.preexisting_failures_in_results_db = []
+        self.layout_test_driver = None
 
     def doStepIf(self, step):
         return not ((self.getProperty('buildername', '').lower() in ['commit-queue', 'merge-queue']) and
@@ -4208,10 +4209,9 @@ class RunWebKitTests(shell.Test, AddToLogMixin, ShellMixin):
         platform = self.getProperty('platform')
         self.command += customBuildFlag(platform, self.getProperty('fullPlatform'))
 
-        driver = self.getProperty('layout-test-driver', None)
-        if driver == 'DumpRenderTree':
+        if self.layout_test_driver == 'DumpRenderTree':
             self.command += ['-1']
-        elif driver == 'WebKitTestRunner':
+        elif self.layout_test_driver == 'WebKitTestRunner':
             self.command += ['-2']
 
         self.command += ['--results-directory', self.resultDirectory]
@@ -4333,10 +4333,9 @@ class RunWebKitTests(shell.Test, AddToLogMixin, ShellMixin):
         if style and style in ['debug', 'release']:
             configuration['style'] = style
 
-        driver = self.getProperty('layout-test-driver', None)
-        if driver == 'DumpRenderTree':
+        if self.layout_test_driver == 'DumpRenderTree':
             configuration['flavor'] = 'wk1'
-        elif driver == 'WebKitTestRunner':
+        elif self.layout_test_driver == 'WebKitTestRunner':
             configuration['flavor'] = 'wk2'
 
         yield self._addToLog(self.results_db_log_name, f'Checking Results database for failing tests. Identifier: {identifier}, configuration: {configuration}')
@@ -4483,9 +4482,9 @@ class RunWebKitTestsInStressMode(RunWebKitTests):
 
     def setLayoutTestCommand(self):
         if self.layout_test_class == RunWebKit1Tests:
-            self.setProperty('layout-test-driver', 'DumpRenderTree')
+            self.layout_test_driver = 'DumpRenderTree'
         else:
-            self.setProperty('layout-test-driver', 'WebKitTestRunner')
+            self.layout_test_driver = 'WebKitTestRunner'
         RunWebKitTests.setLayoutTestCommand(self)
 
         self.command += ['--iterations', self.num_iterations]
@@ -4548,9 +4547,9 @@ class RunWebKitTestsInSiteIsolationMode(RunWebKitTestsInStressMode):
 
     def setLayoutTestCommand(self):
         if self.layout_test_class == RunWebKit1Tests:
-            self.setProperty('layout-test-driver', 'DumpRenderTree')
+            self.layout_test_driver = 'DumpRenderTree'
         else:
-            self.setProperty('layout-test-driver', 'WebKitTestRunner')
+            self.layout_test_driver = 'WebKitTestRunner'
         RunWebKitTests.setLayoutTestCommand(self)
 
         self.command += ['--site-isolation']
@@ -5143,7 +5142,7 @@ class AnalyzeLayoutTestsResults(buildstep.BuildStep, BugzillaMixin, GitHubMixin)
 class RunWebKit1Tests(RunWebKitTests):
     @defer.inlineCallbacks
     def run(self):
-        self.setProperty('layout-test-driver', 'DumpRenderTree')
+        self.layout_test_driver = 'DumpRenderTree'
         rc = yield RunWebKitTests.run(self)
         defer.returnValue(rc)
 
