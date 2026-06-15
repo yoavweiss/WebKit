@@ -40,7 +40,7 @@
 #include "RenderTreeUpdater.h"
 #include "SVGElement.h"
 #include "Settings.h"
-#include "StyleComputedStyle+GettersInlines.h"
+#include "StyleComputedStyle.h"
 #include <wtf/TZoneMallocInlines.h>
 
 namespace WebCore {

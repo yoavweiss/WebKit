@@ -34,7 +34,7 @@
 #include "NodeName.h"
 #include "RenderMathMLOperator.h"
 #include "RenderObjectInlines.h"
-#include "StyleComputedStyle+GettersInlines.h"
+#include "StyleComputedStyle.h"
 #include <wtf/TZoneMallocInlines.h>
 #include <wtf/unicode/CharacterNames.h>
 

@@ -47,7 +47,7 @@
 #include "NodeName.h"
 #include "RenderTableCell.h"
 #include "Settings.h"
-#include "StyleComputedStyle+GettersInlines.h"
+#include "StyleComputedStyle.h"
 #include <wtf/TZoneMallocInlines.h>
 #include <wtf/text/MakeString.h>
 #include <wtf/text/StringToIntegerConversion.h>

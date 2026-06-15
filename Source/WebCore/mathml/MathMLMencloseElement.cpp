@@ -32,7 +32,7 @@
 #include "ElementInlines.h"
 #include "MathMLNames.h"
 #include "RenderMathMLMenclose.h"
-#include "StyleComputedStyle+GettersInlines.h"
+#include "StyleComputedStyle.h"
 #include <wtf/TZoneMallocInlines.h>
 
 namespace WebCore {
