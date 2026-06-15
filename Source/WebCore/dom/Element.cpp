@@ -127,6 +127,7 @@
 #include "RenderLayerScrollableArea.h"
 #include "RenderListBox.h"
 #include "RenderObjectInlines.h"
+#include "RenderSVGInline.h"
 #include "RenderSVGModelObject.h"
 #include "RenderTextControlSingleLine.h"
 #include "RenderTheme.h"
@@ -1853,7 +1854,13 @@ int Element::scrollHeight()
 inline RefPtr<const SVGElement> elementWithSVGLayoutBox(const Element& element)
 {
     RefPtr svg = dynamicDowncast<SVGElement>(element);
-    return svg && svg->hasAssociatedSVGLayoutBox() ? svg : nullptr;
+    if (!svg || !svg->hasAssociatedSVGLayoutBox())
+        return nullptr;
+
+    if (is<RenderSVGInline>(svg->renderer()))
+        return { };
+
+    return svg;
 }
 
 inline bool NODELETE shouldObtainBoundsFromBoxModel(const Element* element)
