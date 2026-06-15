@@ -888,6 +888,11 @@ static WebCore::Color scrollViewBackgroundColor(WKWebView *webView, AllowPageBac
     [self _destroyResizeAnimationView];
     [_contentView setHidden:NO];
 
+#if ENABLE(RESPONSIVE_LIVE_RESIZE_UPDATE)
+    if (_liveResizeSnapshotState)
+        [self _removeLiveSnapshotState];
+#endif
+
 #if HAVE(UIKIT_RESIZABLE_WINDOWS)
     [self _invalidateResizeAssertions];
 #endif
@@ -1190,6 +1195,20 @@ static void changeContentOffsetBoundedInValidRange(UIScrollView *scrollView, Web
 
         _perProcessState.lastTransactionID = transactionID;
 
+#if ENABLE(RESPONSIVE_LIVE_RESIZE_UPDATE)
+        auto transactionIDForEndLiveResize = _perProcessState.transactionIDForEndLiveResize;
+        if (transactionIDForEndLiveResize && transactionID.greaterThanOrEqualSameProcess(*transactionIDForEndLiveResize)) {
+            _perProcessState.waitingForEndLiveResizePresentationUpdate = YES;
+            _perProcessState.transactionIDForEndLiveResize = std::nullopt;
+            [self _doAfterNextPresentationUpdate:makeBlockPtr([weakSelf = WeakObjCPtr<WKWebView>(self)] {
+                RetainPtr strongSelf = weakSelf.get();
+                if (!strongSelf)
+                    return;
+                strongSelf->_perProcessState.waitingForEndLiveResizePresentationUpdate = NO;
+            }).get()];
+        }
+#endif
+
 #if HAVE(LIQUID_GLASS)
         bool isEnteringStableState = !std::exchange(_perProcessState.lastTransactionWasInStableState, mainFrameCommitData.isInStableState);
 #endif
@@ -1238,6 +1257,12 @@ static void changeContentOffsetBoundedInValidRange(UIScrollView *scrollView, Web
 
         if (_perProcessState.liveResizeParameters)
             return;
+
+#if ENABLE(RESPONSIVE_LIVE_RESIZE_UPDATE)
+        // FIXME: https://bugs.webkit.org/show_bug.cgi?id=317005
+        if (_perProcessState.transactionIDForEndLiveResize || _perProcessState.waitingForEndLiveResizePresentationUpdate)
+            return;
+#endif
 
         if (_resizeAnimationView)
             WKWEBVIEW_RELEASE_LOG("%p -[WKWebView _didCommitLayerTree:] - dynamicViewportUpdateMode is NotResizing, but still have a live resizeAnimationView (unpaired begin/endAnimatedResize?)", self);
@@ -2586,6 +2611,11 @@ static WebCore::FloatPoint constrainContentOffset(WebCore::FloatPoint contentOff
 
     [self _rescheduleEndLiveResizeTimer];
 
+#if ENABLE(RESPONSIVE_LIVE_RESIZE_UPDATE)
+    if (_perProcessState.transactionIDForEndLiveResize || _perProcessState.waitingForEndLiveResizePresentationUpdate)
+        return;
+#endif
+
     if (_perProcessState.liveResizeParameters)
         return;
 
@@ -2670,10 +2700,10 @@ static CGFloat liveResizeMinimumWidthDifference()
             auto strongSelf = weakSelf.get();
             [strongSelf _endLiveResize];
 #if ENABLE(RESPONSIVE_LIVE_RESIZE_UPDATE)
-        if (!didEndLiveResizeImmediately)
-            [strongSelf _resetResponsiveResizeState];
+            if (!didEndLiveResizeImmediately)
+                [strongSelf _resetResponsiveResizeState];
 #else
-        UNUSED_PARAM(didEndLiveResizeImmediately);
+            UNUSED_PARAM(didEndLiveResizeImmediately);
 #endif
         }).get()];
 }
@@ -2691,15 +2721,37 @@ static CGFloat liveResizeMinimumWidthDifference()
 
     [_resizeAnimationView setTransform:transform];
 
+#if ENABLE(RESPONSIVE_LIVE_RESIZE_UPDATE)
+    if (_perProcessState.resizeAnimationViewIsUpdating && _liveResizeSnapshotState) {
+        _perProcessState.resizeAnimationViewIsUpdating = NO;
+        auto snapshotTransactionID = _liveResizeSnapshotState->first;
+        [self _doAfterNextPresentationUpdate:makeBlockPtr([weakSelf = WeakObjCPtr<WKWebView>(self), snapshotTransactionID] {
+            RetainPtr strongSelf = weakSelf.get();
+            if (!strongSelf || !strongSelf->_liveResizeSnapshotState || strongSelf->_liveResizeSnapshotState->first != snapshotTransactionID)
+                return;
+            [strongSelf _removeLiveSnapshotState];
+        }).get()];
+    }
+#endif
+
 #if HAVE(LIQUID_GLASS)
     [self _updateFixedColorExtensionViewFrames];
 #endif
+}
 
 #if ENABLE(RESPONSIVE_LIVE_RESIZE_UPDATE)
-    if (_liveResizeSnapshotContainerView)
-        [_liveResizeSnapshotContainerView setTransform:transform];
-#endif
+- (void)_updateLiveSnapshotTransform
+{
+    CGFloat snapshotScale = self.bounds.size.width / _liveResizeSnapshotState->second.initialWidth;
+    [_liveResizeSnapshotState->second.snapshotView setTransform:CGAffineTransformMakeScale(snapshotScale, snapshotScale)];
 }
+
+- (void)_removeLiveSnapshotState
+{
+    [_liveResizeSnapshotState->second.snapshotView removeFromSuperview];
+    _liveResizeSnapshotState = std::nullopt;
+}
+#endif
 
 #endif // HAVE(UI_WINDOW_SCENE_LIVE_RESIZE)
 
@@ -2757,7 +2809,16 @@ static CGFloat liveResizeMinimumWidthDifference()
         [self _updateLiveResizeTransform];
 #endif
 
-    if (!self._shouldDeferGeometryUpdates) {
+#if ENABLE(RESPONSIVE_LIVE_RESIZE_UPDATE)
+    if (_liveResizeSnapshotState)
+        [self _updateLiveSnapshotTransform];
+#endif
+
+    if (!self._shouldDeferGeometryUpdates
+#if ENABLE(RESPONSIVE_LIVE_RESIZE_UPDATE)
+        && !_perProcessState.transactionIDForEndLiveResize && !_perProcessState.waitingForEndLiveResizePresentationUpdate
+#endif
+    ) {
         if (!_overriddenLayoutParameters) {
             [self _dispatchSetViewLayoutSize:[self activeViewLayoutSize:self.bounds]];
             _page->setDefaultUnobscuredSize(WebCore::FloatSize(bounds.size));
@@ -3264,6 +3325,11 @@ static WebCore::IntDegrees activeOrientation(WKWebView *webView)
     if (_resizeAnimationView)
         return;
 
+#if ENABLE(RESPONSIVE_LIVE_RESIZE_UPDATE)
+    if (_liveResizeSnapshotState)
+        _perProcessState.resizeAnimationViewIsUpdating = YES;
+#endif
+
     NSUInteger indexOfContentView = [[_scrollView subviews] indexOfObject:_contentView.get()];
     _resizeAnimationView = adoptNS([[UIView alloc] init]);
     [_resizeAnimationView layer].name = @"ResizeAnimation";
@@ -3727,6 +3793,7 @@ static WebCore::UserInterfaceLayoutDirection toUserInterfaceLayoutDirection(UISe
     [self _ensureResizeAnimationView];
 }
 
+// FIXME: https://bugs.webkit.org/show_bug.cgi?id=317000
 - (void)_endLiveResize
 {
     WKWEBVIEW_RELEASE_LOG("%p (pageProxyID=%llu) -[WKWebView _endLiveResize]", self, _page->identifier().toUInt64());
@@ -3737,22 +3804,31 @@ static WebCore::UserInterfaceLayoutDirection toUserInterfaceLayoutDirection(UISe
     [_endLiveResizeTimer invalidate];
     _endLiveResizeTimer = nil;
 
+#if ENABLE(RESPONSIVE_LIVE_RESIZE_UPDATE)
+    if (_liveResizeSnapshotState)
+        [self _removeLiveSnapshotState];
+
+    if (RefPtr drawingArea = downcast<WebKit::RemoteLayerTreeDrawingAreaProxy>(_page->drawingArea()))
+        _perProcessState.transactionIDForEndLiveResize = drawingArea->nextMainFrameLayerTreeTransactionID();
+
+    if (!_perProcessState.transactionIDForEndLiveResize)
+        return;
+#endif
+
     RetainPtr liveResizeSnapshotView = [self snapshotViewAfterScreenUpdates:NO];
     [liveResizeSnapshotView setFrame:self.bounds];
 
 #if ENABLE(RESPONSIVE_LIVE_RESIZE_UPDATE)
-    _liveResizeSnapshotContainerView = adoptNS([[UIView alloc] initWithFrame:self.bounds]);
-    [_liveResizeSnapshotContainerView layer].anchorPoint = CGPointZero;
-    [_liveResizeSnapshotContainerView layer].position = CGPointZero;
-    [_liveResizeSnapshotContainerView addSubview:liveResizeSnapshotView.get()];
-    [self addSubview:_liveResizeSnapshotContainerView.get()];
-#else
+    [liveResizeSnapshotView layer].anchorPoint = CGPointZero;
+    [liveResizeSnapshotView layer].position = CGPointZero;
     [self addSubview:liveResizeSnapshotView.get()];
-#endif
+    auto transactionIDForEndLiveResize = *_perProcessState.transactionIDForEndLiveResize;
+    _liveResizeSnapshotState = { { transactionIDForEndLiveResize, { liveResizeSnapshotView, self.bounds.size.width } } };
 
-#if ENABLE(RESPONSIVE_LIVE_RESIZE_UPDATE)
     _perProcessState.lastResizeTimestamp = [NSDate now];
     _perProcessState.lastResizedViewWidth = self.bounds.size.width;
+#else
+    [self addSubview:liveResizeSnapshotView.get()];
 #endif
 
     _perProcessState.liveResizeParameters = std::nullopt;
@@ -3761,34 +3837,30 @@ static WebCore::UserInterfaceLayoutDirection toUserInterfaceLayoutDirection(UISe
     [self _destroyResizeAnimationView];
     [self _didStopDeferringGeometryUpdates];
 
+#if !ENABLE(RESPONSIVE_LIVE_RESIZE_UPDATE)
     [self _doAfterNextVisibleContentRectUpdate:makeBlockPtr([liveResizeSnapshotView, weakSelf = WeakObjCPtr<WKWebView>(self)] mutable {
         RetainPtr strongSelf = weakSelf.get();
-        [strongSelf _doAfterNextPresentationUpdate:makeBlockPtr([liveResizeSnapshotView, weakSelf] {
-#if ENABLE(RESPONSIVE_LIVE_RESIZE_UPDATE)
-            UNUSED_PARAM(liveResizeSnapshotView);
-            RetainPtr strongSelf = weakSelf.get();
-            if (!strongSelf)
-                return;
-            [strongSelf->_liveResizeSnapshotContainerView removeFromSuperview];
-            strongSelf->_liveResizeSnapshotContainerView = nil;
-#else
-            UNUSED_PARAM(weakSelf);
+        [strongSelf _doAfterNextPresentationUpdate:makeBlockPtr([liveResizeSnapshotView] {
             [liveResizeSnapshotView removeFromSuperview];
-#endif
         }).get()];
     }).get()];
+#endif
 
-    // Ensure that the live resize snapshot is eventually removed, even if the webpage is unresponsive.
-    RunLoop::mainSingleton().dispatchAfter(1_s, [liveResizeSnapshotView, weakSelf = WeakObjCPtr<WKWebView>(self)] {
+    RunLoop::mainSingleton().dispatchAfter(1_s, [
 #if ENABLE(RESPONSIVE_LIVE_RESIZE_UPDATE)
-        UNUSED_PARAM(liveResizeSnapshotView);
-        RetainPtr strongSelf = weakSelf.get();
-        if (!strongSelf)
-            return;
-        [strongSelf->_liveResizeSnapshotContainerView removeFromSuperview];
-        strongSelf->_liveResizeSnapshotContainerView = nil;
+        weakSelf = WeakObjCPtr<WKWebView>(self), transactionIDForEndLiveResize
 #else
-        UNUSED_PARAM(weakSelf);
+        liveResizeSnapshotView
+#endif
+    ] {
+#if ENABLE(RESPONSIVE_LIVE_RESIZE_UPDATE)
+        RetainPtr strongSelf = weakSelf.get();
+        if (!strongSelf || !strongSelf->_liveResizeSnapshotState || strongSelf->_liveResizeSnapshotState->first != transactionIDForEndLiveResize)
+            return;
+        [strongSelf _removeLiveSnapshotState];
+        strongSelf->_perProcessState.transactionIDForEndLiveResize = std::nullopt;
+        strongSelf->_perProcessState.waitingForEndLiveResizePresentationUpdate = NO;
+#else
         [liveResizeSnapshotView removeFromSuperview];
 #endif
     });

@@ -314,8 +314,18 @@ struct PerWebProcessState {
 #if ENABLE(RESPONSIVE_LIVE_RESIZE_UPDATE)
     std::optional<CGFloat> lastResizedViewWidth;
     RetainPtr<NSDate> lastResizeTimestamp;
+    std::optional<WebKit::TransactionID> transactionIDForEndLiveResize;
+    BOOL waitingForEndLiveResizePresentationUpdate { NO };
+    BOOL resizeAnimationViewIsUpdating { NO };
 #endif
 };
+
+#if ENABLE(RESPONSIVE_LIVE_RESIZE_UPDATE)
+struct LiveResizeSnapshotState {
+    RetainPtr<UIView> snapshotView;
+    CGFloat initialWidth { 0 };
+};
+#endif
 
 #endif // PLATFORM(IOS_FAMILY)
 
@@ -460,7 +470,7 @@ struct PerWebProcessState {
     UIEdgeInsets _animatedResizeOldObscuredInsets;
     RetainPtr<UIView> _resizeAnimationView;
 #if ENABLE(RESPONSIVE_LIVE_RESIZE_UPDATE)
-    RetainPtr<UIView> _liveResizeSnapshotContainerView;
+    std::optional<std::pair<WebKit::TransactionID, LiveResizeSnapshotState>> _liveResizeSnapshotState;
 #endif
     CGFloat _lastAdjustmentForScroller;
 
