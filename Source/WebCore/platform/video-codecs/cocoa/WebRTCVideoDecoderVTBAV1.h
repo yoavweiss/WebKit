@@ -38,12 +38,10 @@ class WebRTCVideoDecoderVTBAV1 final : public WebRTCVideoDecoderVTB {
     WTF_MAKE_TZONE_ALLOCATED(WebRTCVideoDecoderVTBAV1);
 public:
     explicit WebRTCVideoDecoderVTBAV1(WebRTCVideoDecoderCallback, std::optional<PlatformVideoColorSpace>&& colorSpaceOverride = std::nullopt);
-    ~WebRTCVideoDecoderVTBAV1() = default;
+    ~WebRTCVideoDecoderVTBAV1();
 
 private:
     int32_t decodeFrame(int64_t, std::span<const uint8_t>) final;
-
-    const std::optional<PlatformVideoColorSpace> m_colorSpaceOverride;
 };
 
 }

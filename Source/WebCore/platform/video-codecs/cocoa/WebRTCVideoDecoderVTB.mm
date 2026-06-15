@@ -108,8 +108,9 @@ private:
     MediaReorderQueue<Buffer, BufferComparator> m_queue WTF_GUARDED_BY_LOCK(m_lock);
 };
 
-WebRTCVideoDecoderVTB::WebRTCVideoDecoderVTB(WebRTCVideoDecoderCallback callback)
-    : m_callback(makeBlockPtr(callback))
+WebRTCVideoDecoderVTB::WebRTCVideoDecoderVTB(WebRTCVideoDecoderCallback callback, std::optional<PlatformVideoColorSpace>&& colorSpaceOverride)
+    : WebRTCVideoDecoder(WTF::move(colorSpaceOverride))
+    , m_callback(makeBlockPtr(callback))
 {
 }
 
@@ -163,12 +164,27 @@ int32_t WebRTCVideoDecoderVTB::decodeFrameInternal(int64_t timeStamp, std::span<
     return 0;
 }
 
-void WebRTCVideoDecoderVTB::setVideoFormat(RetainPtr<CMVideoFormatDescriptionRef>&& format, uint8_t reorderSize)
+void WebRTCVideoDecoderVTB::setVideoInfo(Ref<VideoInfo>&& videoInfo, uint8_t reorderSize)
 {
-    m_format = WTF::move(format);
+    updateFormat(videoInfo);
+    m_videoInfo = WTF::move(videoInfo);
     m_reorderSize = reorderSize;
     if (reorderSize && !m_queue)
         m_queue = WebRTCVideoDecoderVTBQueue::create(reorderSize);
+}
+
+void WebRTCVideoDecoderVTB::updateFormat(const VideoInfo& videoInfo)
+{
+    auto colorSpaceOverride = this->colorSpaceOverride();
+    if (!colorSpaceOverride) {
+        m_format = createFormatDescriptionFromTrackInfo(videoInfo);
+        return;
+    }
+
+    auto data = videoInfo.toVideoInfoData();
+    overrideVideoColorSpaceAsNeeded(data.second.colorSpace, colorSpaceOverride);
+    Ref updatedVideoInfo = VideoInfo::create(WTF::move(data));
+    m_format = createFormatDescriptionFromTrackInfo(updatedVideoInfo);
 }
 
 void WebRTCVideoDecoderVTB::flush()

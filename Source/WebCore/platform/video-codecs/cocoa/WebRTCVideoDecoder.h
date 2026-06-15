@@ -50,6 +50,17 @@ public:
     virtual void setFormat(std::span<const uint8_t>, uint16_t width, uint16_t height) = 0;
     virtual int32_t decodeFrame(int64_t timeStamp, std::span<const uint8_t>) = 0;
     virtual void setFrameSize(uint16_t width, uint16_t height) = 0;
+
+protected:
+    explicit WebRTCVideoDecoder(std::optional<PlatformVideoColorSpace>&& colorSpaceOverride)
+        : m_colorSpaceOverride(WTF::move(colorSpaceOverride))
+    {
+    }
+
+    const std::optional<PlatformVideoColorSpace>& colorSpaceOverride() const { return m_colorSpaceOverride; }
+
+private:
+    std::optional<PlatformVideoColorSpace> m_colorSpaceOverride;
 };
 
 }

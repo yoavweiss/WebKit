@@ -41,8 +41,6 @@ public:
 
 private:
     int32_t decodeFrame(int64_t, std::span<const uint8_t>) final;
-
-    const std::optional<PlatformVideoColorSpace> m_colorSpaceOverride;
 };
 
 }
