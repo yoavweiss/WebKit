@@ -786,7 +786,17 @@ ALLOW_NEW_API_WITHOUT_GUARDS_END
         identifier = adoptNS([[NSString alloc] initWithData:initData->makeContiguous()->createNSData().get() encoding:NSUTF8StringEncoding]);
 #if HAVE(FAIRPLAYSTREAMING_CENC_INITDATA)
     else if (initDataType == InitDataRegistry::cencName()) {
-        auto psshString = base64EncodeToString(initData->makeContiguous()->span());
+        // AVFoundation's FairPlay PSSH parser only reads the first PSSH atom in the
+        // supplied data and rejects the entire blob if its SystemID is not FairPlay's
+        // (rdar://179255226). Filter the cenc init data down to the FairPlay PSSH alone
+        // before forwarding to AVContentKeySession.
+        auto fairPlayPssh = InitDataRegistry::extractFairPlayPsshFromCenc(initData);
+        if (!fairPlayPssh) {
+            ERROR_LOG(LOGIDENTIFIER, " no FairPlay PSSH in cenc init data");
+            callback(SharedBuffer::create(), emptyString(), false, Failed);
+            return;
+        }
+        auto psshString = base64EncodeToString(fairPlayPssh->makeContiguous()->span());
         initializationData = [NSJSONSerialization dataWithJSONObject:@{ @"pssh": psshString.createNSString().get() } options:NSJSONWritingPrettyPrinted error:nil];
     }
 #endif
