@@ -72,4 +72,13 @@ RefPtr<FilterEffect> SVGFEFloodElement::createFilterEffect(const FilterEffectVec
     return FEFlood::create(style->floodColorResolvingCurrentColorApplyingColorFilter(), Style::evaluate<float>(style->floodOpacity()));
 }
 
+bool SVGFEFloodElement::taintsOrigin() const
+{
+    // §16.3: tainted when flood-color depends on currentColor.
+    CheckedPtr renderer = this->renderer();
+    if (!renderer)
+        return false;
+    return renderer->style().floodColor().containsCurrentColor();
+}
+
 } // namespace WebCore

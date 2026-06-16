@@ -57,6 +57,8 @@ public:
 
     virtual Vector<AtomString> filterEffectInputsNames() const { return { }; }
     virtual bool isIdentity() const { return false; }
+    // §16.3: this element's own configuration introduces taint (e.g. flood-color is currentColor).
+    virtual bool taintsOrigin() const { return false; }
     virtual IntOutsets outsets(const FloatRect&, SVGUnitTypes::SVGUnitType) const { return { }; }
     RefPtr<FilterEffect> filterEffect(const FilterEffectVector&, const GraphicsContext& destinationContext);
 
@@ -77,6 +79,9 @@ protected:
     virtual bool setFilterEffectAttribute(FilterEffect&, const QualifiedName&) { return false; }
     virtual bool setFilterEffectAttributeFromChild(FilterEffect&, const Element&, const QualifiedName&) { return false; }
     virtual RefPtr<FilterEffect> createFilterEffect(const FilterEffectVector&, const GraphicsContext& destinationContext) const = 0;
+
+    // §16.3: combine self-taint with input taint; also wires §16.4 in2-taint on FEDisplacementMap.
+    void updateTaintsOrigin(FilterEffect&, const FilterEffectVector& inputs) const;
 
 private:
     bool isFilterEffect() const override { return true; }

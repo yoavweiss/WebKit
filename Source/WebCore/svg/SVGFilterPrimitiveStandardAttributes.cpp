@@ -24,6 +24,7 @@
 #include "SVGFilterPrimitiveStandardAttributes.h"
 
 #include "ContainerNodeInlines.h"
+#include "FEDisplacementMap.h"
 #include "FilterEffect.h"
 #include "LegacyRenderSVGResourceFilterPrimitive.h"
 #include "NodeName.h"
@@ -101,12 +102,32 @@ RefPtr<FilterEffect> SVGFilterPrimitiveStandardAttributes::filterEffect(const Fi
 {
     if (!m_effect)
         m_effect = createFilterEffect(inputs, destinationContext);
+    if (RefPtr effect = m_effect)
+        updateTaintsOrigin(*effect, inputs);
     return m_effect;
+}
+
+void SVGFilterPrimitiveStandardAttributes::updateTaintsOrigin(FilterEffect& effect, const FilterEffectVector& inputs) const
+{
+    // §16.3: output is tainted if this primitive or any input is tainted.
+    bool taint = taintsOrigin() || std::ranges::any_of(inputs, [](auto& input) {
+        return input->taintsOrigin();
+    });
+    effect.setTaintsOrigin(taint);
+    // §16.4: feDisplacementMap pass-through when in2 is tainted.
+    if (auto* displacementMap = dynamicDowncast<FEDisplacementMap>(effect))
+        displacementMap->setIn2IsTainted(inputs.size() > 1 && inputs[1]->taintsOrigin());
 }
 
 void SVGFilterPrimitiveStandardAttributes::primitiveAttributeChanged(const QualifiedName& attribute)
 {
     RefPtr effect = m_effect;
+    // §16.3: a self-taint flip (e.g. flood-color toggled to/from currentColor) needs a graph
+    // rebuild so downstream taint propagation is redone.
+    if (effect && effect->taintsOrigin() != taintsOrigin()) {
+        markFilterEffectForRebuild();
+        return;
+    }
     if (effect && !setFilterEffectAttribute(*effect, attribute))
         return;
 

@@ -2474,6 +2474,7 @@ header: <WebCore/FEComponentTransfer.h>
     float scale();
 
     WebCore::DestinationColorSpace operatingColorSpace();
+    bool in2IsTainted();
 };
 
 [RefCounted, AdditionalEncoder=StreamConnectionEncoder] class WebCore::FEDropShadow {

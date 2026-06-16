@@ -167,4 +167,13 @@ RefPtr<FilterEffect> SVGFESpecularLightingElement::createFilterEffect(const Filt
     return FESpecularLighting::create(protect(renderer->style())->lightingColorResolvingCurrentColorApplyingColorFilter(), surfaceScale(), specularConstant(), specularExponent(), kernelUnitLengthX(), kernelUnitLengthY(), WTF::move(lightSource));
 }
 
+bool SVGFESpecularLightingElement::taintsOrigin() const
+{
+    // §16.3: tainted when lighting-color depends on currentColor.
+    CheckedPtr renderer = this->renderer();
+    if (!renderer)
+        return false;
+    return renderer->style().lightingColor().containsCurrentColor();
+}
+
 } // namespace WebCore

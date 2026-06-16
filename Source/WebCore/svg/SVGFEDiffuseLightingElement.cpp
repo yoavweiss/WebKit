@@ -166,4 +166,13 @@ RefPtr<FilterEffect> SVGFEDiffuseLightingElement::createFilterEffect(const Filte
     return FEDiffuseLighting::create(protect(renderer->style())->lightingColorResolvingCurrentColorApplyingColorFilter(), surfaceScale(), diffuseConstant(), kernelUnitLengthX(), kernelUnitLengthY(), WTF::move(lightSource));
 }
 
+bool SVGFEDiffuseLightingElement::taintsOrigin() const
+{
+    // §16.3: tainted when lighting-color depends on currentColor.
+    CheckedPtr renderer = this->renderer();
+    if (!renderer)
+        return false;
+    return renderer->style().lightingColor().containsCurrentColor();
+}
+
 } // namespace WebCore
