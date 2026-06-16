@@ -1412,8 +1412,11 @@ inline bool JSObject::trySetIndexQuickly(VM& vm, unsigned i, JSValue v, ArrayPro
         if (i >= butterfly->vectorLength())
             return false;
         butterfly->contiguous().at(this, i).setWithoutWriteBarrier(v);
-        if (i >= butterfly->publicLength())
+        if (i >= butterfly->publicLength()) {
             butterfly->setPublicLength(i + 1);
+            if (arrayProfile)
+                arrayProfile->setMayStoreHole();
+        }
         vm.writeBarrier(this, v);
         return true;
     }
@@ -1430,16 +1433,23 @@ inline bool JSObject::trySetIndexQuickly(VM& vm, unsigned i, JSValue v, ArrayPro
             return true;
         }
         butterfly->contiguousDouble().at(this, i) = value;
-        if (i >= butterfly->publicLength())
+        if (i >= butterfly->publicLength()) {
             butterfly->setPublicLength(i + 1);
+            if (arrayProfile)
+                arrayProfile->setMayStoreHole();
+        }
         return true;
     }
     case NonArrayWithArrayStorage:
-    case ArrayWithArrayStorage:
-        if (i >= butterfly->vectorLength())
+    case ArrayWithArrayStorage: {
+        ArrayStorage* storage = butterfly->arrayStorage();
+        if (i >= storage->vectorLength())
             return false;
+        if (arrayProfile && !storage->m_vector[i])
+            arrayProfile->setMayStoreHole();
         setIndexQuicklyForArrayStorageIndexingType(vm, i, v);
         return true;
+    }
     case NonArrayWithSlowPutArrayStorage:
     case ArrayWithSlowPutArrayStorage:
         if (i >= butterfly->arrayStorage()->vectorLength() || !butterfly->arrayStorage()->m_vector[i])

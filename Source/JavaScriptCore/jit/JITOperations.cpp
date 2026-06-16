@@ -1721,10 +1721,26 @@ static void directPutByVal(JSGlobalObject* globalObject, JSObject* baseObject, J
         case ALL_INT32_INDEXING_TYPES:
         case ALL_DOUBLE_INDEXING_TYPES:
         case ALL_CONTIGUOUS_INDEXING_TYPES:
+            if (arrayProfile) {
+                if (index < baseObject->butterfly()->vectorLength()) {
+                    if (index >= baseObject->butterfly()->publicLength())
+                        arrayProfile->setMayStoreHole();
+                    break;
+                }
+                arrayProfile->setOutOfBounds();
+            }
+            break;
         case ALL_ARRAY_STORAGE_INDEXING_TYPES:
-            if (index < baseObject->butterfly()->vectorLength())
-                break;
-            [[fallthrough]];
+            if (arrayProfile) {
+                ArrayStorage* storage = baseObject->butterfly()->arrayStorage();
+                if (index < storage->vectorLength()) {
+                    if (!storage->m_vector[index])
+                        arrayProfile->setMayStoreHole();
+                    break;
+                }
+                arrayProfile->setOutOfBounds();
+            }
+            break;
         default:
             if (arrayProfile)
                 arrayProfile->setOutOfBounds();
