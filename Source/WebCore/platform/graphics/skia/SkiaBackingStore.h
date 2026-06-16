@@ -33,6 +33,7 @@ WTF_IGNORE_WARNINGS_IN_THIRD_PARTY_CODE_BEGIN
 #include <skia/core/SkSurface.h>
 WTF_IGNORE_WARNINGS_IN_THIRD_PARTY_CODE_END
 #include <wtf/HashMap.h>
+#include <wtf/Noncopyable.h>
 
 namespace WebCore {
 class BitmapTexture;
@@ -53,12 +54,16 @@ public:
 
 private:
     class Tile {
+        WTF_MAKE_NONCOPYABLE(Tile);
     public:
         Tile() = default;
         explicit Tile(float scale)
             : m_scale(scale)
         {
         }
+
+        Tile(Tile&&) = default;
+        Tile& operator=(Tile&&) = default;
 
         ~Tile() = default;
 
