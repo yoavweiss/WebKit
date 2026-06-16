@@ -2704,6 +2704,7 @@ media/airplay-target-availability-disableremoteplayback.html
 
 # needs enhanced eventSender.contextMenu() return value
 webkit.org/b/116651 media/context-menu-actions.html
+webkit.org/b/317174 media/context-menu-download-media-uses-media-url.html [ Skip ]
 
 media/crash-closing-page-with-media-as-plugin-fallback.html
 
