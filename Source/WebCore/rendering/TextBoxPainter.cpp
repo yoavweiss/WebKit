@@ -506,10 +506,11 @@ void TextBoxPainter::paintForegroundAndDecorations()
                     fontCascade().adjustSelectionRectForText(m_renderer->canUseSimplifiedTextMeasuring().value_or(false), m_paintTextRun, selectionRect, startOffset, endOffset);
                     snappedPaintRect = snapRectToDevicePixelsWithWritingDirection(selectionRect, m_document->deviceScaleFactor(), m_paintTextRun.ltr());
                 }
+                auto decorationPaintRect = writingMode().isHorizontal() ? FloatRect { snappedPaintRect.x(), m_paintRect.y(), snappedPaintRect.width(), snappedPaintRect.height() } : snappedPaintRect;
                 auto decorationPainter = createDecorationPainter(markedText, textDecorationSelectionClipOutRect);
-                paintBackgroundDecorations(decorationPainter, markedText, snappedPaintRect);
+                paintBackgroundDecorations(decorationPainter, markedText, decorationPaintRect);
                 paintCompositionForeground(markedText);
-                paintForegroundDecorations(decorationPainter, markedText, snappedPaintRect);
+                paintForegroundDecorations(decorationPainter, markedText, decorationPaintRect);
             }
         }
     } else {
