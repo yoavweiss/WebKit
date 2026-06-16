@@ -1098,7 +1098,7 @@ void MediaSource::removeSourceBufferWithOptionalDestruction(SourceBuffer& buffer
 
             // 9.3 For each TextTrack object in the SourceBuffer textTracks list, run the following steps:
             for (ssize_t index = textTracks->length() - 1; index >= 0; index--) {
-                Ref track = *textTracks->lastItem();
+                Ref track = *textTracks->item(index);
 
                 if (withDestruction) {
                     // 9.3.1 Set the sourceBuffer attribute on the TextTrack object to null.
