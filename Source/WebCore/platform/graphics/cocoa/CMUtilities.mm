@@ -58,7 +58,8 @@ namespace WebCore {
 
 WTF_MAKE_TZONE_ALLOCATED_IMPL(PacketDurationParser);
 
-#if ENABLE(VORBIS)
+#if ENABLE(VORBIS) && !defined(WEBCORE_kAudioFormatVorbis_DEFINED)
+#define WEBCORE_kAudioFormatVorbis_DEFINED
 constexpr uint32_t kAudioFormatVorbis = 'vorb';
 #endif
 

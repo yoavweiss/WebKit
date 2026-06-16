@@ -397,7 +397,10 @@
 #endif
 
 #if HAVE(TOUCH_BAR) && ENABLE(WEB_PLAYBACK_CONTROLS_MANAGER)
+#if !defined(WebKitLegacy_AVKitLibrary_SoftLinked)
+#define WebKitLegacy_AVKitLibrary_SoftLinked
 SOFT_LINK_FRAMEWORK(AVKit)
+#endif
 SOFT_LINK_CLASS(AVKit, AVTouchBarPlaybackControlsProvider)
 SOFT_LINK_CLASS(AVKit, AVTouchBarScrubber)
 #endif

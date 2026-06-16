@@ -24,6 +24,12 @@ list(APPEND WebKitLegacy_PRIVATE_INCLUDE_DIRECTORIES
 list(APPEND WebKitLegacy_UNIFIED_SOURCE_LIST_FILES
     SourcesCocoa.txt
 )
+# FIXME: Test building on iOS and then enable on iOS.
+if (NOT CMAKE_SYSTEM_NAME STREQUAL "iOS")
+    list(APPEND WebKitLegacy_UNIFIED_SOURCE_LIST_FILES
+        SourcesCMakeCocoa.txt
+    )
+endif ()
 WEBKIT_COMPUTE_SOURCES(WebKitLegacy)
 
 list(APPEND WebKitLegacy_SOURCES

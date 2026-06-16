@@ -947,4 +947,7 @@ std::optional<HmacSecretParameters> CtapAuthenticator::prepareHmacSecretParamete
 
 } // namespace WebKit
 
+#undef CTAP_RELEASE_LOG
+#undef CTAP_RELEASE_LOG_WITH_THIS
+
 #endif // ENABLE(WEB_AUTHN)

@@ -48,7 +48,10 @@ SOFTLINK_AVKIT_FRAMEWORK()
 #endif
 SOFT_LINK_CLASS_OPTIONAL(AVKit, AVPlayerController)
 SOFT_LINK_CLASS_OPTIONAL(AVKit, AVTimeRange)
+#if !defined(WebCore_AVValueTiming_SoftLinked)
+#define WebCore_AVValueTiming_SoftLinked
 SOFT_LINK_CLASS_OPTIONAL(AVKit, AVValueTiming)
+#endif
 
 OBJC_CLASS AVAssetTrack;
 OBJC_CLASS AVMetadataItem;

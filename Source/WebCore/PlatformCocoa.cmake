@@ -95,6 +95,12 @@ endif ()
 list(APPEND WebCore_UNIFIED_SOURCE_LIST_FILES
     "SourcesCocoa.txt"
 )
+# FIXME: Test building on iOS and then enable on iOS.
+if (NOT CMAKE_SYSTEM_NAME STREQUAL "iOS")
+    list(APPEND WebCore_UNIFIED_SOURCE_LIST_FILES
+        "SourcesCMakeCocoa.txt"
+    )
+endif ()
 
 list(APPEND WebCore_LIBRARIES
     ${ACCELERATE_LIBRARY}
