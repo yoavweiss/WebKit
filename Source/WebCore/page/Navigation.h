@@ -277,11 +277,9 @@ private:
 
     RefPtr<NavigationAPIMethodTracker> maybeSetUpcomingNonTraversalTracker(JSC::JSGlobalObject&, Ref<DeferredPromise>&& committed, Ref<DeferredPromise>&& finished, JSC::JSValue info, RefPtr<SerializedScriptValue>&&);
     RefPtr<NavigationAPIMethodTracker> addUpcomingTraverseAPIMethodTracker(JSC::JSGlobalObject&, Ref<DeferredPromise>&& committed, Ref<DeferredPromise>&& finished, const String& key, JSC::JSValue info);
-    void cleanupAPIMethodTracker(NavigationAPIMethodTracker*) WTF_EXCLUDES_LOCK(m_apiMethodTrackersLock);
     void resolveFinishedPromise(NavigationAPIMethodTracker*);
     void rejectFinishedPromise(NavigationAPIMethodTracker*, const Exception&, JSC::JSValue exceptionObject);
     void abortOngoingNavigation(NavigateEvent&);
-    void promoteUpcomingAPIMethodTracker(const String& destinationKey) WTF_EXCLUDES_LOCK(m_apiMethodTrackersLock);
     void notifyCommittedToEntry(NavigationAPIMethodTracker*, NavigationHistoryEntry*, NavigationNavigationType);
     Result apiMethodTrackerDerivedResult(const NavigationAPIMethodTracker&);
 
@@ -291,6 +289,33 @@ private:
     void disposeOfForwardEntriesInParents(BackForwardItemIdentifier);
     void recursivelyDisposeOfForwardEntriesInParents(BackForwardItemIdentifier, LocalFrame* navigatedFrame);
 
+    // https://html.spec.whatwg.org/multipage/nav-history-apis.html#navigation-api-method-tracker
+    class MethodTrackerRegistry {
+    public:
+        void setUpcomingNonTraverse(Ref<NavigationAPIMethodTracker>&&) WTF_EXCLUDES_LOCK(m_lock);
+        void addUpcomingTraverse(const String& key, Ref<NavigationAPIMethodTracker>&&) WTF_EXCLUDES_LOCK(m_lock);
+        NavigationAPIMethodTracker* upcomingTraverse(const String& key) const WTF_EXCLUDES_LOCK(m_lock);
+        NavigationAPIMethodTracker* ongoing() const WTF_EXCLUDES_LOCK(m_lock);
+
+        RefPtr<NavigationAPIMethodTracker> takeUpcomingNonTraverseIfEquals(NavigationAPIMethodTracker&) WTF_EXCLUDES_LOCK(m_lock);
+
+        // https://html.spec.whatwg.org/multipage/nav-history-apis.html#promote-an-upcoming-api-method-tracker-to-ongoing
+        NavigationAPIMethodTracker* promoteUpcomingNonTraverseToOngoing() WTF_EXCLUDES_LOCK(m_lock);
+        NavigationAPIMethodTracker* promoteUpcomingTraverseToOngoing(const String& destinationKey) WTF_EXCLUDES_LOCK(m_lock);
+
+        // https://html.spec.whatwg.org/multipage/nav-history-apis.html#navigation-api-method-tracker-clean-up
+        void unregister(NavigationAPIMethodTracker&) WTF_EXCLUDES_LOCK(m_lock);
+
+        bool isEmpty() const WTF_EXCLUDES_LOCK(m_lock);
+        void visitInGCThread(JSC::AbstractSlotVisitor&) const WTF_EXCLUDES_LOCK(m_lock);
+
+    private:
+        mutable Lock m_lock;
+        RefPtr<NavigationAPIMethodTracker> m_ongoing WTF_GUARDED_BY_LOCK(m_lock);
+        RefPtr<NavigationAPIMethodTracker> m_upcomingNonTraverse WTF_GUARDED_BY_LOCK(m_lock);
+        HashMap<String, Ref<NavigationAPIMethodTracker>> m_upcomingTraverse WTF_GUARDED_BY_LOCK(m_lock);
+    };
+
     std::optional<size_t> m_currentEntryIndex;
     RefPtr<NavigationTransition> m_transition;
     RefPtr<NavigationActivation> m_activation;
@@ -299,10 +324,7 @@ private:
     RefPtr<NavigateEvent> m_ongoingNavigateEvent;
     FocusDidChange m_focusChangedDuringOngoingNavigation { FocusDidChange::No };
     bool m_suppressNormalScrollRestorationDuringOngoingNavigation { false };
-    mutable Lock m_apiMethodTrackersLock;
-    RefPtr<NavigationAPIMethodTracker> m_ongoingAPIMethodTracker WTF_GUARDED_BY_LOCK(m_apiMethodTrackersLock);
-    RefPtr<NavigationAPIMethodTracker> m_upcomingNonTraverseMethodTracker WTF_GUARDED_BY_LOCK(m_apiMethodTrackersLock);
-    HashMap<String, Ref<NavigationAPIMethodTracker>> m_upcomingTraverseMethodTrackers WTF_GUARDED_BY_LOCK(m_apiMethodTrackersLock);
+    MethodTrackerRegistry m_methodTrackers;
     WeakHashSet<AbortHandler> m_abortHandlers;
     RateLimiter m_rateLimiter;
 };
