@@ -117,7 +117,7 @@ public:
     int32_t releaseDecoder(Decoder&);
     Ref<GenericPromise> flushDecoder(Decoder&);
     void setDecoderFormatDescription(Decoder&, std::span<const uint8_t>, uint16_t width, uint16_t height);
-    int32_t decodeWebRTCFrame(Decoder&, int64_t timeStamp, std::span<const uint8_t>, uint16_t width, uint16_t height);
+    int32_t decodeWebRTCFrame(Decoder&, int64_t timeStamp, std::span<const uint8_t>, uint16_t width, uint16_t height, std::optional<WebCore::PlatformVideoColorSpace>&& = std::nullopt);
     Ref<FramePromise> decodeFrame(Decoder&, int64_t timeStamp, std::span<const uint8_t>);
     void registerDecodeFrameCallback(Decoder&, void* decodedImageCallback);
     void registerDecodedVideoFrameCallback(Decoder&, DecoderCallback&&);

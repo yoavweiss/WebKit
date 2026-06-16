@@ -30,6 +30,7 @@
 
 #include "ImageTransferSessionVT.h"
 #include "LibWebRTCMacros.h"
+#include "LibWebRTCColorSpaceUtilities.h"
 #include "LibWebRTCVideoFrameUtilities.h"
 #include "VideoFrameLibWebRTC.h"
 #include <wtf/NeverDestroyed.h>

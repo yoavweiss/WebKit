@@ -39,6 +39,7 @@
 #include <WebCore/CVUtilities.h>
 #include <WebCore/LibWebRTCDav1dDecoder.h>
 #include <WebCore/LibWebRTCMacros.h>
+#include <WebCore/LibWebRTCVideoFrameUtilities.h>
 #include <WebCore/NativeImage.h>
 #include <WebCore/Page.h>
 #include <WebCore/PlatformMediaSessionManager.h>
@@ -150,9 +151,9 @@ static int32_t releaseVideoDecoder(webrtc::WebKitVideoDecoder::Value decoder)
     return protect(WebProcess::singleton().libWebRTCCodecs())->releaseDecoder(*static_cast<LibWebRTCCodecs::Decoder*>(decoder));
 }
 
-static int32_t decodeVideoFrame(webrtc::WebKitVideoDecoder::Value decoder, uint32_t timeStamp, const uint8_t* data, size_t size, uint16_t width,  uint16_t height)
+static int32_t decodeVideoFrame(webrtc::WebKitVideoDecoder::Value decoder, uint32_t timeStamp, const uint8_t* data, size_t size, uint16_t width,  uint16_t height, const webrtc::ColorSpace* colorSpace)
 {
-    return protect(WebProcess::singleton().libWebRTCCodecs())->decodeWebRTCFrame(*static_cast<LibWebRTCCodecs::Decoder*>(decoder), timeStamp, unsafeMakeSpan(data, size), width, height);
+    return protect(WebProcess::singleton().libWebRTCCodecs())->decodeWebRTCFrame(*static_cast<LibWebRTCCodecs::Decoder*>(decoder), timeStamp, unsafeMakeSpan(data, size), width, height, colorSpaceFromLibWebRTCColorSpace(colorSpace));
 }
 
 static int32_t registerDecodeCompleteCallback(webrtc::WebKitVideoDecoder::Value decoder, void* decodedImageCallback)
@@ -432,8 +433,17 @@ Ref<LibWebRTCCodecs::FramePromise> LibWebRTCCodecs::sendFrameToDecode(Decoder& d
     });
 }
 
-int32_t LibWebRTCCodecs::decodeWebRTCFrame(Decoder& decoder, int64_t timeStamp, std::span<const uint8_t> data, uint16_t width, uint16_t height)
+int32_t LibWebRTCCodecs::decodeWebRTCFrame(Decoder& decoder, int64_t timeStamp, std::span<const uint8_t> data, uint16_t width, uint16_t height, std::optional<WebCore::PlatformVideoColorSpace>&& colorSpace)
 {
+    {
+        Locker locker { m_connectionLock };
+        if (colorSpace != decoder.colorSpaceOverride) {
+            decoder.colorSpaceOverride = colorSpace;
+            if (decoder.connection)
+                protect(decoder.connection)->send(Messages::LibWebRTCCodecsProxy::SetDecoderColorSpaceOverride { decoder.identifier, decoder.colorSpaceOverride }, 0);
+        }
+    }
+
     auto promise = decodeFrameInternal(decoder, timeStamp, data, width, height);
     return promise ? WEBRTC_VIDEO_CODEC_OK : WEBRTC_VIDEO_CODEC_ERROR;
 }

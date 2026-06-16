@@ -263,6 +263,13 @@ void LibWebRTCCodecsProxy::setDecoderFormatDescription(VideoDecoderIdentifier id
     });
 }
 
+void LibWebRTCCodecsProxy::setDecoderColorSpaceOverride(VideoDecoderIdentifier identifier, std::optional<WebCore::PlatformVideoColorSpace>&& colorSpaceOverride)
+{
+    doDecoderTask(identifier, [&](auto& decoder) {
+        decoder.webrtcDecoder->setColorSpaceOverride(WTF::move(colorSpaceOverride));
+    });
+}
+
 void LibWebRTCCodecsProxy::decodeFrame(VideoDecoderIdentifier identifier, int64_t timeStamp, std::span<const uint8_t> data, CompletionHandler<void(bool)>&& callback) WTF_IGNORES_THREAD_SAFETY_ANALYSIS
 {
     doDecoderTask(identifier, [identifier, connection = Ref { m_connection }, timeStamp, data, callback = WTF::move(callback)] (auto& decoder) mutable {

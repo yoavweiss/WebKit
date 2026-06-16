@@ -31,6 +31,7 @@
 
 #if USE(LIBWEBRTC)
 
+#include "LibWebRTCColorSpaceUtilities.h"
 #include "LibWebRTCVideoFrameUtilities.h"
 #include "Logging.h"
 

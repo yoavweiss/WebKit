@@ -81,6 +81,12 @@ std::unique_ptr<WebRTCVideoDecoder> WebRTCVideoDecoder::create(VideoCodecType de
     return nullptr;
 }
 
+void WebRTCVideoDecoder::setColorSpaceOverride(std::optional<PlatformVideoColorSpace>&& colorSpaceOverride)
+{
+    m_colorSpaceOverride = WTF::move(colorSpaceOverride);
+    colorSpaceOverrideChanged();
+}
+
 }
 
 #endif //  USE(LIBWEBRTC)

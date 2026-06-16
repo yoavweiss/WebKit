@@ -173,6 +173,12 @@ void WebRTCVideoDecoderVTB::setVideoInfo(Ref<VideoInfo>&& videoInfo, uint8_t reo
         m_queue = WebRTCVideoDecoderVTBQueue::create(reorderSize);
 }
 
+void WebRTCVideoDecoderVTB::colorSpaceOverrideChanged()
+{
+    if (RefPtr videoInfo = m_videoInfo)
+        updateFormat(*videoInfo);
+}
+
 void WebRTCVideoDecoderVTB::updateFormat(const VideoInfo& videoInfo)
 {
     auto colorSpaceOverride = this->colorSpaceOverride();

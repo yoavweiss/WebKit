@@ -2880,6 +2880,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     platform/mediastream/libwebrtc/LibWebRTCProviderCocoa.h
     platform/mediastream/libwebrtc/LibWebRTCRefWrappers.h
     platform/mediastream/libwebrtc/LibWebRTCSocketIdentifier.h
+    platform/mediastream/libwebrtc/LibWebRTCVideoFrameUtilities.h
     platform/mediastream/libwebrtc/VideoFrameLibWebRTC.h
 
     platform/mock/DeviceOrientationClientMock.h
