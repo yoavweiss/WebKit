@@ -121,7 +121,7 @@ inline Identifier Identifier::createLatin1(VM& vm, std::span<const char16_t> str
     return Identifier(vm, add8(vm, string));
 }
 
-inline Identifier Identifier::fromUid(VM& vm, UniquedStringImpl* uid)
+SUPPRESS_NODELETE inline Identifier Identifier::fromUid(VM& vm, UniquedStringImpl* uid)
 {
     if (!uid || !uid->isSymbol())
         return Identifier(vm, uid);

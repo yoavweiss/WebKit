@@ -121,7 +121,7 @@ public:
     static Identifier fromString(VM&, const AtomString&);
     static Identifier fromString(VM&, SymbolImpl*);
 
-    static Identifier fromUid(VM&, UniquedStringImpl* uid);
+    static Identifier NODELETE fromUid(VM&, UniquedStringImpl* uid);
     static Identifier fromUid(const PrivateName&);
     static Identifier fromUid(SymbolImpl&);
 
