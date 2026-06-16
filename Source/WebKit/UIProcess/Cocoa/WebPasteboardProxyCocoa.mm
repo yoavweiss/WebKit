@@ -84,6 +84,24 @@ static bool shouldTranscodeHEICImagesForPage(std::optional<WebPageProxyIdentifie
     return protect(page->preferences())->needsSiteSpecificQuirks() && Quirks::shouldTranscodeHeicImagesForURL(URL { page->currentURL() });
 }
 
+#if ENABLE(ATTACHMENT_ELEMENT)
+
+static void addAllowedAttachmentFilePaths(const IPC::Connection& connection, std::optional<WebPageProxyIdentifier> pageID, const Vector<String>& paths)
+{
+    if (!pageID)
+        return;
+
+    RefPtr page = WebProcessProxy::webPage(*pageID);
+    if (!page)
+        return;
+
+    for (auto& path : paths)
+        WebProcessProxy::fromConnection(connection)->addAllowedAttachmentFilePath(path);
+}
+
+#endif // ENABLE(ATTACHMENT_ELEMENT)
+
+
 void WebPasteboardProxy::grantAccessToCurrentTypes(WebProcessProxy& process, const String& pasteboardName)
 {
     grantAccess(process, pasteboardName, PasteboardAccessType::Types);
@@ -252,6 +270,9 @@ void WebPasteboardProxy::getPasteboardPathnamesForType(IPC::Connection& connecti
                     return SandboxExtension::Handle { };
                 return valueOrDefault(SandboxExtension::createHandle(filename, SandboxExtension::Type::ReadOnly));
             });
+#if ENABLE(ATTACHMENT_ELEMENT)
+            addAllowedAttachmentFilePaths(connection, pageID, pathnames);
+#endif
             completionHandler(WTF::move(pathnames), WTF::move(sandboxExtensions));
             return;
         }
@@ -643,12 +664,22 @@ void WebPasteboardProxy::allPasteboardItemInfo(IPC::Connection& connection, cons
 
 #if PLATFORM(IOS_FAMILY)
         if (!allInfo || !process) {
+#if ENABLE(ATTACHMENT_ELEMENT)
+            if (allInfo) {
+                for (auto& info : *allInfo)
+                    addAllowedAttachmentFilePaths(connection, pageID, info.pathsForFileUpload);
+            }
+#endif
             completionHandler(WTF::move(allInfo));
             return;
         }
 
         auto transcodingInfo = findHEICPathsForTranscoding(*allInfo, pageID);
         if (transcodingInfo.isEmpty()) {
+#if ENABLE(ATTACHMENT_ELEMENT)
+            for (auto& info : *allInfo)
+                addAllowedAttachmentFilePaths(connection, pageID, info.pathsForFileUpload);
+#endif
             completionHandler(WTF::move(allInfo));
             return;
         }
@@ -656,12 +687,12 @@ void WebPasteboardProxy::allPasteboardItemInfo(IPC::Connection& connection, cons
         auto pathsToTranscode = extractPathsToTranscode(transcodingInfo);
         auto [transcodingUTI, transcodingExtension] = heicTranscodingParameters();
 
-        sharedImageTranscodingQueueSingleton().dispatch([process = WTF::move(process), allInfo = WTF::move(*allInfo), pathsToTranscode = crossThreadCopy(WTF::move(pathsToTranscode)), transcodingInfo = WTF::move(transcodingInfo), transcodingUTI = crossThreadCopy(WTF::move(transcodingUTI)), transcodingExtension = crossThreadCopy(WTF::move(transcodingExtension)), completionHandler = WTF::move(completionHandler)] mutable {
+        sharedImageTranscodingQueueSingleton().dispatch([protectedConnection = Ref { connection }, pageID, process = WTF::move(process), allInfo = WTF::move(*allInfo), pathsToTranscode = crossThreadCopy(WTF::move(pathsToTranscode)), transcodingInfo = WTF::move(transcodingInfo), transcodingUTI = crossThreadCopy(WTF::move(transcodingUTI)), transcodingExtension = crossThreadCopy(WTF::move(transcodingExtension)), completionHandler = WTF::move(completionHandler)] mutable {
             ASSERT(!RunLoop::isMain());
 
             auto transcodedPaths = transcodeImages(pathsToTranscode, transcodingUTI, transcodingExtension);
 
-            RunLoop::mainSingleton().dispatch([process = WTF::move(process), allInfo = WTF::move(allInfo), transcodedPaths = crossThreadCopy(WTF::move(transcodedPaths)), transcodingInfo = WTF::move(transcodingInfo), completionHandler = WTF::move(completionHandler)] mutable {
+            RunLoop::mainSingleton().dispatch([protectedConnection = WTF::move(protectedConnection), pageID, process = WTF::move(process), allInfo = WTF::move(allInfo), transcodedPaths = crossThreadCopy(WTF::move(transcodedPaths)), transcodingInfo = WTF::move(transcodingInfo), completionHandler = WTF::move(completionHandler)] mutable {
                 for (size_t i = 0; i < transcodingInfo.size(); ++i) {
                     if (!transcodedPaths[i].isEmpty())
                         allInfo[transcodingInfo[i].infoIndex].pathsForFileUpload[transcodingInfo[i].pathIndex] = transcodedPaths[i];
@@ -669,10 +700,21 @@ void WebPasteboardProxy::allPasteboardItemInfo(IPC::Connection& connection, cons
 
                 notifyNetworkProcessOfTranscodedFiles(process, transcodedPaths);
 
+#if ENABLE(ATTACHMENT_ELEMENT)
+                for (auto& info : allInfo)
+                    addAllowedAttachmentFilePaths(protectedConnection.get(), pageID, info.pathsForFileUpload);
+#endif
+
                 completionHandler(WTF::move(allInfo));
             });
         });
 #else
+#if ENABLE(ATTACHMENT_ELEMENT)
+        if (allInfo) {
+            for (auto& info : *allInfo)
+                addAllowedAttachmentFilePaths(connection, pageID, info.pathsForFileUpload);
+        }
+#endif
         completionHandler(WTF::move(allInfo));
 #endif
     });
@@ -693,12 +735,19 @@ void WebPasteboardProxy::informationForItemAtIndex(IPC::Connection& connection, 
 
 #if PLATFORM(IOS_FAMILY)
         if (!info || !process) {
+#if ENABLE(ATTACHMENT_ELEMENT)
+            if (info)
+                addAllowedAttachmentFilePaths(connection, pageID, info->pathsForFileUpload);
+#endif
             completionHandler(WTF::move(info));
             return;
         }
 
         auto transcodingInfo = findHEICPathsForTranscoding(*info, pageID);
         if (transcodingInfo.isEmpty()) {
+#if ENABLE(ATTACHMENT_ELEMENT)
+            addAllowedAttachmentFilePaths(connection, pageID, info->pathsForFileUpload);
+#endif
             completionHandler(WTF::move(info));
             return;
         }
@@ -706,12 +755,12 @@ void WebPasteboardProxy::informationForItemAtIndex(IPC::Connection& connection, 
         auto pathsToTranscode = extractPathsToTranscode(transcodingInfo);
         auto [transcodingUTI, transcodingExtension] = heicTranscodingParameters();
 
-        sharedImageTranscodingQueueSingleton().dispatch([process = WTF::move(process), info = WTF::move(*info), pathsToTranscode = crossThreadCopy(WTF::move(pathsToTranscode)), transcodingInfo = WTF::move(transcodingInfo), transcodingUTI = crossThreadCopy(WTF::move(transcodingUTI)), transcodingExtension = crossThreadCopy(WTF::move(transcodingExtension)), completionHandler = WTF::move(completionHandler)] mutable {
+        sharedImageTranscodingQueueSingleton().dispatch([protectedConnection = Ref { connection }, pageID, process = WTF::move(process), info = WTF::move(*info), pathsToTranscode = crossThreadCopy(WTF::move(pathsToTranscode)), transcodingInfo = WTF::move(transcodingInfo), transcodingUTI = crossThreadCopy(WTF::move(transcodingUTI)), transcodingExtension = crossThreadCopy(WTF::move(transcodingExtension)), completionHandler = WTF::move(completionHandler)] mutable {
             ASSERT(!RunLoop::isMain());
 
             auto transcodedPaths = transcodeImages(pathsToTranscode, transcodingUTI, transcodingExtension);
 
-            RunLoop::mainSingleton().dispatch([process = WTF::move(process), info = WTF::move(info), transcodedPaths = crossThreadCopy(WTF::move(transcodedPaths)), transcodingInfo = WTF::move(transcodingInfo), completionHandler = WTF::move(completionHandler)] mutable {
+            RunLoop::mainSingleton().dispatch([protectedConnection = WTF::move(protectedConnection), pageID, process = WTF::move(process), info = WTF::move(info), transcodedPaths = crossThreadCopy(WTF::move(transcodedPaths)), transcodingInfo = WTF::move(transcodingInfo), completionHandler = WTF::move(completionHandler)] mutable {
                 for (size_t i = 0; i < transcodingInfo.size(); ++i) {
                     if (!transcodedPaths[i].isEmpty())
                         info.pathsForFileUpload[transcodingInfo[i].pathIndex] = transcodedPaths[i];
@@ -719,10 +768,18 @@ void WebPasteboardProxy::informationForItemAtIndex(IPC::Connection& connection, 
 
                 notifyNetworkProcessOfTranscodedFiles(process, transcodedPaths);
 
+#if ENABLE(ATTACHMENT_ELEMENT)
+                addAllowedAttachmentFilePaths(protectedConnection.get(), pageID, info.pathsForFileUpload);
+#endif
+
                 completionHandler(WTF::move(info));
             });
         });
 #else
+#if ENABLE(ATTACHMENT_ELEMENT)
+        if (info)
+            addAllowedAttachmentFilePaths(connection, pageID, info->pathsForFileUpload);
+#endif
         completionHandler(WTF::move(info));
 #endif
     });
