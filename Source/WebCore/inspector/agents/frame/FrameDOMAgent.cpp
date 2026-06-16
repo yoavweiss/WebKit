@@ -29,6 +29,7 @@
 #include "Attr.h"
 #include "CharacterData.h"
 #include "ContainerNode.h"
+#include "DOMEditor.h"
 #include "Document.h"
 #include "DocumentInlines.h"
 #include "DocumentType.h"
@@ -45,6 +46,7 @@
 #include "HTMLStyleElement.h"
 #include "HTMLTemplateElement.h"
 #include "InspectorDOMAgent.h"
+#include "InspectorHistory.h"
 #include "InspectorNodeFinder.h"
 #include "InstrumentingAgents.h"
 #include "JSEventListener.h"
@@ -155,6 +157,9 @@ FrameDOMAgent::~FrameDOMAgent() = default;
 
 void FrameDOMAgent::didCreateFrontendAndBackend()
 {
+    m_history = makeUnique<InspectorHistory>();
+    m_domEditor = makeUnique<DOMEditor>(*m_history);
+
     Ref { m_instrumentingAgents.get() }->setPersistentFrameDOMAgent(this);
 
     RefPtr frame = m_inspectedFrame.get();
@@ -164,6 +169,9 @@ void FrameDOMAgent::didCreateFrontendAndBackend()
 
 void FrameDOMAgent::willDestroyFrontendAndBackend(Inspector::DisconnectReason)
 {
+    m_domEditor.reset();
+    m_history.reset();
+
     Ref { m_instrumentingAgents.get() }->setPersistentFrameDOMAgent(nullptr);
     m_documentRequested = false;
     reset();
@@ -486,6 +494,8 @@ void FrameDOMAgent::setDocument(Document* document)
 
 void FrameDOMAgent::reset()
 {
+    if (m_history)
+        m_history->reset();
     discardBindings();
     m_document = nullptr;
     m_searchResults.clear();
@@ -1160,6 +1170,31 @@ Ref<Inspector::Protocol::DOM::EventListener> FrameDOMAgent::buildObjectForEventL
     if (disabled)
         value->setDisabled(disabled);
     return value;
+}
+
+Inspector::CommandResult<void> FrameDOMAgent::undo()
+{
+    auto result = m_history->undo();
+    if (result.hasException())
+        return makeUnexpected(InspectorDOMAgent::toErrorString(result.releaseException()));
+
+    return { };
+}
+
+Inspector::CommandResult<void> FrameDOMAgent::redo()
+{
+    auto result = m_history->redo();
+    if (result.hasException())
+        return makeUnexpected(InspectorDOMAgent::toErrorString(result.releaseException()));
+
+    return { };
+}
+
+Inspector::CommandResult<void> FrameDOMAgent::markUndoableState()
+{
+    m_history->markUndoableState();
+
+    return { };
 }
 
 } // namespace WebCore

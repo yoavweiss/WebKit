@@ -774,17 +774,17 @@
         {
             "name": "undo",
             "description": "Undoes the last performed action.",
-            "targetTypes": ["page"]
+            "targetTypes": ["frame", "page"]
         },
         {
             "name": "redo",
             "description": "Re-does the last undone action.",
-            "targetTypes": ["page"]
+            "targetTypes": ["frame", "page"]
         },
         {
             "name": "markUndoableState",
             "description": "Marks last undoable state.",
-            "targetTypes": ["page"]
+            "targetTypes": ["frame", "page"]
         },
         {
             "name": "focus",

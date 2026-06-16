@@ -40,10 +40,12 @@
 namespace WebCore {
 
 class CharacterData;
+class DOMEditor;
 class Document;
 class Element;
 class EventListener;
 class EventTarget;
+class InspectorHistory;
 class LocalFrame;
 class Node;
 class PseudoElement;
@@ -149,6 +151,7 @@ public:
     Node* nodeForId(Inspector::Protocol::DOM::NodeId);
     Inspector::Protocol::DOM::NodeId boundNodeId(const Node*);
     Inspector::Protocol::DOM::NodeId pushNodePathToFrontend(Node*);
+    InspectorHistory* history() LIFETIME_BOUND { return m_history.get(); }
 
 private:
     Inspector::Protocol::DOM::NodeId bind(Node&);
@@ -226,6 +229,9 @@ private:
 
     HashMap<Inspector::Protocol::DOM::EventListenerId, InspectorEventListener> m_eventListenerEntries;
     Inspector::Protocol::DOM::EventListenerId m_lastEventListenerId { 1 };
+
+    std::unique_ptr<InspectorHistory> m_history;
+    std::unique_ptr<DOMEditor> m_domEditor;
 
     bool m_suppressAttributeModifiedEvent { false };
     bool m_documentRequested { false };

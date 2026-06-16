@@ -196,21 +196,6 @@ Inspector::CommandResult<int> FrameDOMAgent::moveTo(int, int, std::optional<int>
     return makeUnexpected("Not yet implemented for frame targets"_s);
 }
 
-Inspector::CommandResult<void> FrameDOMAgent::undo()
-{
-    return makeUnexpected("Not yet implemented for frame targets"_s);
-}
-
-Inspector::CommandResult<void> FrameDOMAgent::redo()
-{
-    return makeUnexpected("Not yet implemented for frame targets"_s);
-}
-
-Inspector::CommandResult<void> FrameDOMAgent::markUndoableState()
-{
-    return makeUnexpected("Not yet implemented for frame targets"_s);
-}
-
 Inspector::CommandResult<void> FrameDOMAgent::focus(int)
 {
     return makeUnexpected("Not supported for frame targets"_s);
