@@ -3005,15 +3005,11 @@ void WebAutomationSession::takeScreenshot(const Inspector::Protocol::Automation:
     };
 #endif
 #if PLATFORM(COCOA)
-    // FIXME: <webkit.org/b/242215> We can currently only get viewport snapshots from the UIProcess, so fall back to
-    // taking a snapshot in the WebProcess if we need to snapshot a specific element. This has the side effect of not
-    // accurately showing all CSS transforms in the snapshot.
-    //
-    // There is still a tradeoff by going to the UIProcess for viewport snapshots on macOS. We can not currently get a
-    // snapshot of the entire viewport without the window's rounded corners being excluded. So we trade off those corner
-    // pixels for accurate pixels in the rest of the viewport which help us verify features like CSS transforms are
-    // actually behaving correctly.
-    if (!nodeHandle.isEmpty())
+    // We can only get viewport-bounded snapshots from the UIProcess (the on-screen window capture is physically clipped
+    // to the visible viewport), so fall back to taking the snapshot in the WebProcess whenever we need pixels outside the
+    // viewport: either a specific element (which may be scrolled out of view) or a non-clipped whole-page snapshot, which
+    // must expand to the full document contentsSize() rather than just the viewport. See <webkit.org/b/317220>.
+    if (!nodeHandle.isEmpty() || !clipToViewport)
         return page->sendWithAsyncReplyToProcessContainingFrameWithoutDestinationIdentifier(frameID, Messages::WebAutomationSessionProxy::TakeScreenshot(page->webPageIDInMainFrameProcess(), frameID, nodeHandle, scrollIntoViewIfNeeded, clipToViewport), ipcCompletionHandler(WTF::move(callback)));
 #endif
 #if PLATFORM(GTK) || PLATFORM(COCOA) || PLATFORM(WPE)
