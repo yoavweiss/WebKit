@@ -277,7 +277,7 @@ Ref<SkiaRecordingResult> SkiaPaintingEngine::record(const GraphicsLayerCoordinat
     return result;
 }
 
-Ref<CoordinatedTileBuffer> SkiaPaintingEngine::replay(const GraphicsLayerCoordinated& layer, Ref<SkiaRecordingResult>&& recording, const IntRect& dirtyRect)
+Ref<CoordinatedTileBuffer> SkiaPaintingEngine::replay(const GraphicsLayerCoordinated& layer, Ref<SkiaRecordingResult>&& recording, const IntRect& tileRect, const IntRect& dirtyRect)
 {
     // ### Asynchronous rendering on worker threads ###
     ASSERT(useThreadedRendering());
@@ -286,29 +286,36 @@ Ref<CoordinatedTileBuffer> SkiaPaintingEngine::replay(const GraphicsLayerCoordin
     platformLayer->willPaintTile();
 
     auto renderingMode = recording->renderingMode();
-    auto buffer = createBuffer(renderingMode, dirtyRect.size(), recording->contentsOpaque());
+    auto bufferSize = renderingMode == RenderingMode::Accelerated && useThreadedRendering() && m_threadSafeGrContext ? tileRect.size() : dirtyRect.size();
+    auto buffer = createBuffer(renderingMode, bufferSize, recording->contentsOpaque());
     buffer->beginPainting();
 
-    m_paintingWorkerPool->postTask([platformLayer = WTF::move(platformLayer), buffer = Ref { buffer }, dirtyRect, recording = WTF::move(recording), threadSafeGrContext = m_threadSafeGrContext]() mutable {
+    m_paintingWorkerPool->postTask([platformLayer = WTF::move(platformLayer), buffer = Ref { buffer }, tileRect, dirtyRect, recording = WTF::move(recording), threadSafeGrContext = m_threadSafeGrContext]() mutable {
         if (auto* canvas = buffer->canvas()) {
-            auto replayPicture = [](const sk_sp<SkPicture>& picture, SkCanvas* canvas, const IntRect& recordRect, const IntRect& paintRect) {
+            auto replayPicture = [](const sk_sp<SkPicture>& picture, SkCanvas* canvas, const IntRect& recordRect, const IntRect& tileRect, const IntRect& dirtyRect, bool isDDLBuffer) {
                 canvas->save();
-                canvas->clear(SkColors::kTransparent);
-                canvas->clipRect(SkRect::MakeXYWH(0, 0, paintRect.width(), paintRect.height()));
-                canvas->translate(recordRect.x() - paintRect.x(), recordRect.y() - paintRect.y());
+                if (isDDLBuffer) {
+                    canvas->clipRect(SkRect::MakeXYWH(dirtyRect.x() - tileRect.x(), dirtyRect.y() - tileRect.y(), dirtyRect.width(), dirtyRect.height()));
+                    canvas->translate(recordRect.x() - tileRect.x(), recordRect.y() - tileRect.y());
+                } else {
+                    canvas->clear(SkColors::kTransparent);
+                    canvas->clipRect(SkRect::MakeXYWH(0, 0, dirtyRect.width(), dirtyRect.height()));
+                    canvas->translate(recordRect.x() - dirtyRect.x(), recordRect.y() - dirtyRect.y());
+                }
                 picture->playback(canvas);
                 canvas->restore();
             };
 
-            WTFBeginSignpost(canvas, PaintTile, "Skia/%s threaded, dirty region %ix%i+%i+%i", buffer->isBackedByOpenGL() ? "GPU" : "CPU", dirtyRect.x(), dirtyRect.y(), dirtyRect.width(), dirtyRect.height());
+            const bool isDDLBuffer = buffer->isBackedByOpenGL() && !static_cast<CoordinatedAcceleratedTileBuffer&>(buffer.get()).texture();
+            WTFBeginSignpost(canvas, PaintTile, "Skia/%s%s threaded, dirty region %ix%i+%i+%i", buffer->isBackedByOpenGL() ? "GPU" : "CPU", isDDLBuffer ? "(DDL)" : "", dirtyRect.x(), dirtyRect.y(), dirtyRect.width(), dirtyRect.height());
             // Use SkiaReplayCanvas if there are GPU fences or GPU atlases to handle.
             if (recording->hasFences() || recording->hasGPUAtlases()) {
-                auto replayCanvas = SkiaReplayCanvas::create(dirtyRect.size(), recording, threadSafeGrContext);
+                auto replayCanvas = SkiaReplayCanvas::create(tileRect.size(), recording, threadSafeGrContext);
                 replayCanvas->addCanvas(canvas);
-                replayPicture(replayCanvas->picture(), &replayCanvas.get(), recording->recordRect(), dirtyRect);
+                replayPicture(replayCanvas->picture(), &replayCanvas.get(), recording->recordRect(), tileRect, dirtyRect, isDDLBuffer);
                 replayCanvas->removeCanvas(canvas);
             } else
-                replayPicture(recording->picture(), canvas, recording->recordRect(), dirtyRect);
+                replayPicture(recording->picture(), canvas, recording->recordRect(), tileRect, dirtyRect, isDDLBuffer);
             WTFEndSignpost(canvas, PaintTile);
         }
 
