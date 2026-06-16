@@ -658,14 +658,14 @@ void ScrollableArea::resnapAfterLayout()
     if (!horizontalScrollbar() || horizontalScrollbar()->pressedPart() == ScrollbarPart::NoPart) {
         const auto& horizontal = info->horizontalSnapOffsets;
         auto activeHorizontalIndex = currentHorizontalSnapPointIndex();
-        if (activeHorizontalIndex)
+        if (activeHorizontalIndex && !info->snapOffsetCoversSnapport(horizontal[*activeHorizontalIndex], ScrollEventAxis::Horizontal, currentOffset.x(), visibleWidth()))
             correctedOffset.setX(horizontal[*activeHorizontalIndex].offset.toInt());
     }
 
     if (!verticalScrollbar() || verticalScrollbar()->pressedPart() == ScrollbarPart::NoPart) {
         const auto& vertical = info->verticalSnapOffsets;
         auto activeVerticalIndex = currentVerticalSnapPointIndex();
-        if (activeVerticalIndex)
+        if (activeVerticalIndex && !info->snapOffsetCoversSnapport(vertical[*activeVerticalIndex], ScrollEventAxis::Vertical, currentOffset.y(), visibleHeight()))
             correctedOffset.setY(vertical[*activeVerticalIndex].offset.toInt());
     }
 

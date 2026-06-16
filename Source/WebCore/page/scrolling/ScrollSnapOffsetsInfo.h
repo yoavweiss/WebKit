@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Apple Inc. All rights reserved.
+ * Copyright (C) 2016-2026 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -77,6 +77,12 @@ struct ScrollSnapOffsetsInfo {
     {
         return axis == ScrollEventAxis::Vertical ? verticalSnapOffsets : horizontalSnapOffsets;
     }
+
+    // From https://drafts.csswg.org/css-scroll-snap-1/#snap-overflow: if a snap area is larger than
+    // the snapport in an axis, then any scroll position in which the snap area covers the snapport is
+    // a valid snap position in that axis. Returns true if any of the snap offset's areas is larger
+    // than the snapport and covers it at the given offset.
+    bool snapOffsetCoversSnapport(const SnapOffset<UnitType>&, ScrollEventAxis, UnitType axisOffset, UnitType viewportLength) const;
 
     template<typename OutputType> OutputType convertUnits(float deviceScaleFactor = 0.0) const;
     template<typename SizeType, typename PointType>

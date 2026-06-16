@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2022 Apple Inc. All rights reserved.
+ * Copyright (C) 2014-2026 Apple Inc. All rights reserved.
  * Copyright (C) 2020 Igalia S.L.
  * Copyright (C) 2026 Samuel Weinig <sam@webkit.org>
  *
@@ -48,6 +48,22 @@ static std::pair<UnitType, UnitType> NODELETE rangeForAxis(RectType rect, Scroll
     return axis == ScrollEventAxis::Horizontal ? std::make_pair(rect.x(), rect.maxX()) : std::make_pair(rect.y(), rect.maxY());
 }
 
+template <typename UnitType, typename RectType>
+bool ScrollSnapOffsetsInfo<UnitType, RectType>::snapOffsetCoversSnapport(const SnapOffset<UnitType>& snapOffset, ScrollEventAxis axis, UnitType axisOffset, UnitType viewportLength) const
+{
+    if (!snapOffset.hasSnapAreaLargerThanViewport)
+        return false;
+    for (auto areaIndex : snapOffset.snapAreaIndices) {
+        auto [areaMin, areaMax] = rangeForAxis<UnitType>(snapAreas[areaIndex], axis);
+        if (areaMin <= axisOffset && areaMax >= axisOffset + viewportLength)
+            return true;
+    }
+    return false;
+}
+
+template bool LayoutScrollSnapOffsetsInfo::snapOffsetCoversSnapport(const SnapOffset<LayoutUnit>&, ScrollEventAxis, LayoutUnit, LayoutUnit) const;
+template bool FloatScrollSnapOffsetsInfo::snapOffsetCoversSnapport(const SnapOffset<float>&, ScrollEventAxis, float, float) const;
+
 template <typename UnitType>
 struct PotentialSnapPointSearchResult {
     std::optional<std::pair<UnitType, unsigned>> previous;
@@ -75,15 +91,8 @@ static PotentialSnapPointSearchResult<UnitType> searchForPotentialSnapPoints(con
     };
 
     for (unsigned i = 0; i < snapOffsets.size(); i++) {
-        if (!landedInsideSnapAreaThatConsumesViewport && snapOffsets[i].hasSnapAreaLargerThanViewport) {
-            for (auto snapAreaIndices : snapOffsets[i].snapAreaIndices) {
-                auto [snapAreaMin, snapAreaMax] = rangeForAxis<UnitType>(info.snapAreas[snapAreaIndices], axis);
-                if (snapAreaMin <= destinationOffset && snapAreaMax >= (destinationOffset + viewportLength)) {
-                    landedInsideSnapAreaThatConsumesViewport = true;
-                    break;
-                }
-            }
-        }
+        if (!landedInsideSnapAreaThatConsumesViewport && info.snapOffsetCoversSnapport(snapOffsets[i], axis, destinationOffset, viewportLength))
+            landedInsideSnapAreaThatConsumesViewport = true;
 
         UnitType potentialSnapOffset = snapOffsets[i].offset;
         if (potentialSnapOffset == destinationOffset)
