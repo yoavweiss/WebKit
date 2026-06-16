@@ -226,11 +226,11 @@ void MediaSourcePrivate::durationChanged(const MediaTime& duration)
         sourceBuffer->setMediaSourceDuration(duration);
 }
 
-void MediaSourcePrivate::bufferedChanged(const PlatformTimeRanges& buffered)
+void MediaSourcePrivate::bufferedChanged(PlatformTimeRanges&& buffered)
 {
     Locker locker { m_lock };
 
-    m_buffered = buffered;
+    m_buffered = WTF::move(buffered);
 }
 
 void MediaSourcePrivate::trackBufferedChanged(SourceBufferPrivate& sourceBuffer, Vector<PlatformTimeRanges>&& ranges)
@@ -247,14 +247,73 @@ void MediaSourcePrivate::trackBufferedChanged(SourceBufferPrivate& sourceBuffer,
 
 void MediaSourcePrivate::updateBufferedRanges()
 {
-    assertIsCurrent(m_dispatcher);
+    assertIsCurrent(m_dispatcher.get());
 
-    PlatformTimeRanges intersectionRange { MediaTime::zeroTime(), MediaTime::positiveInfiniteTime() };
-    for (auto& ranges : m_bufferedRanges.values()) {
-        for (auto& range : ranges)
-            intersectionRange.intersectWith(range);
+    // Recompute each active SourceBuffer's aggregate from its per-track ranges,
+    // then run the HTMLMediaElement.buffered cross-buffer step on those.
+    const bool ended = m_readyState.load() == MediaSourceReadyState::Ended;
+    Vector<PlatformTimeRanges> activeRanges(m_activeSourceBuffers.size(), [&](size_t index) {
+        assertIsCurrent(m_dispatcher.get());
+        auto it = m_bufferedRanges.find(m_activeSourceBuffers[index]);
+        return it == m_bufferedRanges.end()
+            ? PlatformTimeRanges { }
+            : SourceBufferPrivate::computeBufferedRanges(it->value, ended);
+    });
+
+    auto newBuffered = MediaSourcePrivate::computeBufferedRanges(activeRanges, ended);
+    if (isBufferedEqual(newBuffered))
+        return;
+    bufferedChanged(WTF::move(newBuffered));
+}
+
+PlatformTimeRanges MediaSourcePrivate::computeBufferedRanges(const Vector<PlatformTimeRanges>& activeRanges, bool ended)
+{
+    // 10.2 HTMLMediaElement Extensions - HTMLMediaElement's buffered
+    // https://w3c.github.io/media-source/#htmlmediaelement-extensions-buffered
+
+    // 1. If activeSourceBuffers.length equals 0 then return an empty TimeRanges
+    //    object and abort these steps.
+    if (activeRanges.isEmpty())
+        return { };
+
+    // 2. Let active ranges be the ranges returned by buffered for each
+    //    SourceBuffer object in activeSourceBuffers.
+    // 3. Let highest end time be the largest range end time in the active ranges.
+    MediaTime highestEndTime = MediaTime::zeroTime();
+    for (auto& ranges : activeRanges) {
+        unsigned length = ranges.length();
+        if (length)
+            highestEndTime = std::max(highestEndTime, ranges.end(length - 1));
     }
-    bufferedChanged(intersectionRange);
+
+    // Return an empty range if all ranges are empty.
+    if (!highestEndTime)
+        return { };
+
+    // 4. Let intersection ranges equal a TimeRange object containing a single
+    //    range from 0 to highest end time.
+    PlatformTimeRanges buffered { MediaTime::zeroTime(), highestEndTime };
+
+    // 5. For each SourceBuffer object in activeSourceBuffers run the following
+    //    steps:
+    for (auto& sourceRanges : activeRanges) {
+        // 5.1 Let source ranges equal the ranges returned by the buffered
+        //     attribute on the current SourceBuffer.
+        // 5.2 If readyState is "ended", then set the end time on the last
+        //     range in source ranges to highest end time.
+        // 5.3 Let new intersection ranges equal the intersection between
+        //     the intersection ranges and the source ranges.
+        // 5.4 Replace the ranges in intersection ranges with the new
+        //     intersection ranges.
+        if (ended && sourceRanges.length()) {
+            auto adjusted = sourceRanges;
+            adjusted.add(adjusted.maximumBufferedTime(), highestEndTime);
+            buffered.intersectWith(adjusted);
+        } else
+            buffered.intersectWith(sourceRanges);
+    }
+
+    return buffered;
 }
 
 PlatformTimeRanges MediaSourcePrivate::buffered() const
@@ -269,6 +328,13 @@ bool MediaSourcePrivate::hasBufferedData() const
     Locker locker { m_lock };
 
     return m_buffered.length();
+}
+
+bool MediaSourcePrivate::isBufferedEqual(const PlatformTimeRanges& other) const
+{
+    Locker locker { m_lock };
+
+    return m_buffered == other;
 }
 
 MediaPlayer::ReadyState MediaSourcePrivate::mediaPlayerReadyState() const

@@ -174,17 +174,19 @@ void MediaSourcePrivateRemote::durationChanged(const MediaTime& duration)
     });
 }
 
-void MediaSourcePrivateRemote::bufferedChanged(const PlatformTimeRanges& buffered)
+void MediaSourcePrivateRemote::bufferedChanged(PlatformTimeRanges&& buffered)
 {
     // Called from the MediaSource's dispatcher.
-    MediaSourcePrivate::bufferedChanged(buffered);
+    // Copy for the IPC capture before moving the value into the base.
+    auto bufferedForIPC = buffered;
+    MediaSourcePrivate::bufferedChanged(WTF::move(buffered));
     // Called from SourceBufferPrivateRemote
-    ensureOnDispatcher([protectedThis = Ref { *this }, this, buffered] {
+    ensureOnDispatcher([protectedThis = Ref { *this }, this, bufferedForIPC = WTF::move(bufferedForIPC)] {
         auto gpuProcessConnection = m_gpuProcessConnection.get();
         if (!isGPURunning() || !gpuProcessConnection)
             return;
 
-        gpuProcessConnection->connection().send(Messages::RemoteMediaSourceProxy::BufferedChanged(buffered), m_identifier);
+        gpuProcessConnection->connection().send(Messages::RemoteMediaSourceProxy::BufferedChanged(bufferedForIPC), m_identifier);
     });
 }
 

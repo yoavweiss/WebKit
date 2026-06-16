@@ -219,6 +219,53 @@ Vector<PlatformTimeRanges> SourceBufferPrivate::trackBuffersRanges() const
     });
 }
 
+PlatformTimeRanges SourceBufferPrivate::computeBufferedRanges(const Vector<PlatformTimeRanges>& trackBufferedRanges, bool mediaSourceEnded)
+{
+    // 5.1 Attributes - buffered
+    // https://w3c.github.io/media-source/#dom-sourcebuffer-buffered
+    // When the attribute is read the following steps MUST occur:
+
+    // 2. Let highest end time be the largest track buffer ranges end time across
+    //    all the track buffers managed by this SourceBuffer object.
+    MediaTime highestEndTime = MediaTime::negativeInfiniteTime();
+    for (auto& trackRanges : trackBufferedRanges) {
+        if (!trackRanges.length())
+            continue;
+        highestEndTime = std::max(highestEndTime, trackRanges.maximumBufferedTime());
+    }
+
+    // NOTE: Short circuit the following if none of the TrackBuffers have buffered
+    // ranges to avoid generating a single range of {0, 0}.
+    if (highestEndTime.isNegativeInfinite())
+        return { };
+
+    // 3. Let intersection ranges equal a TimeRange object containing a single
+    //    range from 0 to highest end time.
+    PlatformTimeRanges intersectionRanges { MediaTime::zeroTime(), highestEndTime };
+
+    // 4. For each audio and video track buffer managed by this SourceBuffer,
+    //    run the following steps:
+    for (auto& trackRanges : trackBufferedRanges) {
+        if (!trackRanges.length())
+            continue;
+
+        // 4.1 Let track ranges equal the track buffer ranges for the current track buffer.
+        // 4.2 If readyState is "ended", then set the end time on the last range
+        //     in track ranges to highest end time.
+        // 4.3 Let new intersection ranges equal the intersection between the
+        //     intersection ranges and the track ranges.
+        // 4.4 Replace the ranges in intersection ranges with the new intersection ranges.
+        if (mediaSourceEnded) {
+            auto adjusted = trackRanges;
+            adjusted.add(adjusted.maximumBufferedTime(), highestEndTime);
+            intersectionRanges.intersectWith(adjusted);
+        } else
+            intersectionRanges.intersectWith(trackRanges);
+    }
+
+    return intersectionRanges;
+}
+
 bool SourceBufferPrivate::hasReceivedFirstInitializationSegment() const
 {
     assertIsCurrent(m_dispatcher.get());

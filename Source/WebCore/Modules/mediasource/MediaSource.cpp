@@ -1540,50 +1540,13 @@ void MediaSource::updateBufferedIfNeeded(bool force)
     for (Ref sourceBuffer : m_activeSourceBuffers.get())
         sourceBuffer->setBufferedDirty(false);
 
-    PlatformTimeRanges buffered;
-    auto updatePrivate = makeScopeExit([&, protectedThis = Ref { *this }] {
-        if (buffered == msp->buffered())
-            return;
-        msp->bufferedChanged(buffered);
-        monitorSourceBuffers();
-    });
-
-    // Implements MediaSource algorithm for HTMLMediaElement.buffered.
-    // https://dvcs.w3.org/hg/html-media/raw-file/default/media-source/media-source.html#htmlmediaelement-extensions
-    Vector<PlatformTimeRanges> activeRanges = this->activeRanges();
-
-    // 1. If activeSourceBuffers.length equals 0 then return an empty TimeRanges object and abort these steps.
-    if (activeRanges.isEmpty())
+    // 10.2 HTMLMediaElement Extensions - HTMLMediaElement's buffered.
+    // https://w3c.github.io/media-source/#htmlmediaelement-extensions-buffered
+    auto buffered = MediaSourcePrivate::computeBufferedRanges(this->activeRanges(), readyState() == ReadyState::Ended);
+    if (msp->isBufferedEqual(buffered))
         return;
-
-    // 2. Let active ranges be the ranges returned by buffered for each SourceBuffer object in activeSourceBuffers.
-    // 3. Let highest end time be the largest range end time in the active ranges.
-    MediaTime highestEndTime = MediaTime::zeroTime();
-    for (auto& ranges : activeRanges) {
-        unsigned length = ranges.length();
-        if (length)
-            highestEndTime = std::max(highestEndTime, ranges.end(length - 1));
-    }
-
-    // Return an empty range if all ranges are empty.
-    if (!highestEndTime)
-        return;
-
-    // 4. Let intersection ranges equal a TimeRange object containing a single range from 0 to highest end time.
-    buffered.add(MediaTime::zeroTime(), highestEndTime);
-
-    // 5. For each SourceBuffer object in activeSourceBuffers run the following steps:
-    bool ended = readyState() == ReadyState::Ended;
-    for (auto& sourceRanges : activeRanges) {
-        // 5.1 Let source ranges equal the ranges returned by the buffered attribute on the current SourceBuffer.
-        // 5.2 If readyState is "ended", then set the end time on the last range in source ranges to highest end time.
-        if (ended && sourceRanges.length())
-            sourceRanges.add(sourceRanges.start(sourceRanges.length() - 1), highestEndTime);
-
-        // 5.3 Let new intersection ranges equal the intersection between the intersection ranges and the source ranges.
-        // 5.4 Replace the ranges in intersection ranges with the new intersection ranges.
-        buffered.intersectWith(sourceRanges);
-    }
+    msp->bufferedChanged(WTF::move(buffered));
+    monitorSourceBuffers();
 }
 
 #if !RELEASE_LOG_DISABLED

@@ -105,7 +105,7 @@ private:
     friend class MessageReceiver;
     MediaSourcePrivateRemote(GPUProcessConnection&, RemoteMediaSourceIdentifier, RemoteMediaPlayerMIMETypeCache&, const MediaPlayerPrivateRemote&, WebCore::MediaSourcePrivateClient&);
 
-    void bufferedChanged(const WebCore::PlatformTimeRanges&) final;
+    void bufferedChanged(WebCore::PlatformTimeRanges&&) final;
 
     bool isGPURunning() const { return !m_shutdown; }
 

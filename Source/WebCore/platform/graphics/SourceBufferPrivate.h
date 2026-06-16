@@ -134,6 +134,13 @@ public:
     WEBCORE_EXPORT SourceBufferEvictionData evictionData() const;
     WEBCORE_EXPORT Vector<PlatformTimeRanges> trackBuffersRanges() const;
 
+    // Implements the SourceBuffer.buffered getter algorithm:
+    // https://w3c.github.io/media-source/#dom-sourcebuffer-buffered
+    // Used by SourceBuffer::updateBuffered() and MediaSourcePrivate when it
+    // needs each active SourceBuffer's aggregate so the per-SourceBuffer
+    // buffered TimeRanges is computed by a single routine.
+    WEBCORE_EXPORT static PlatformTimeRanges computeBufferedRanges(const Vector<PlatformTimeRanges>& trackBufferedRanges, bool mediaSourceEnded);
+
     // Methods used by MediaSourcePrivate
     bool NODELETE hasReceivedFirstInitializationSegment() const;
 

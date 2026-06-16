@@ -89,8 +89,17 @@ public:
     void sourceBufferPrivateDidChangeActiveState(SourceBufferPrivate&, bool active);
     virtual void notifyActiveSourceBuffersChanged() = 0;
     virtual void durationChanged(const MediaTime&); // Base class method must be called in overrides. Must be thread-safe
-    virtual void bufferedChanged(const PlatformTimeRanges&); // Base class method must be called in overrides. Must be thread-safe.
+    virtual void bufferedChanged(PlatformTimeRanges&&); // Base class method must be called in overrides. Must be thread-safe.
     void trackBufferedChanged(SourceBufferPrivate&, Vector<PlatformTimeRanges>&&);
+
+    // Implements the HTMLMediaElement.buffered cross-buffer step:
+    // https://w3c.github.io/media-source/#htmlmediaelement-extensions-buffered
+    // Caller passes the per-active-SourceBuffer ranges (each itself the result
+    // of SourceBufferPrivate::computeBufferedRanges) and whether the
+    // MediaSource readyState is "ended". Used by both MediaSource (main) on
+    // readyState/dirty triggers and MediaSourcePrivate (dispatcher) when track
+    // ranges change so a single algorithm produces the value.
+    WEBCORE_EXPORT static PlatformTimeRanges computeBufferedRanges(const Vector<PlatformTimeRanges>& activeRanges, bool ended);
 
     MediaPlayer::ReadyState NODELETE mediaPlayerReadyState() const;
     virtual void setMediaPlayerReadyState(MediaPlayer::ReadyState);
@@ -114,6 +123,10 @@ public:
 
     MediaTime duration() const;
     PlatformTimeRanges buffered() const;
+    // Compares the argument against m_buffered under m_lock without copying
+    // m_buffered into the caller. Useful for short-circuit checks on the main
+    // thread which would otherwise pay a full PlatformTimeRanges copy via buffered().
+    bool isBufferedEqual(const PlatformTimeRanges&) const;
     PlatformTimeRanges seekable() const;
 
     bool hasBufferedData() const;
