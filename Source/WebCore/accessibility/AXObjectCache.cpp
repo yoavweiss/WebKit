@@ -3513,10 +3513,8 @@ void AXObjectCache::handleAttributeChange(Element* element, const QualifiedName&
     // The remaining code in this method relies on shouldProcessAttributeChange null-checking element.
     AX_ASSERT(element);
 
-    if (relationAttributes().contains(attrName)) {
-        m_elementsWithRelationAttributes.add(*element);
+    if (isRelationAttribute(attrName))
         updateRelations(*element, attrName);
-    }
 
     if (attrName == hrefAttr) {
         // An anchor's role depends on whether it is a link (Element::isLink(), i.e. whether it has an
@@ -6206,6 +6204,7 @@ AXTreeData AXObjectCache::treeData(std::optional<OptionSet<AXStreamOptions>> add
 
 Vector<QualifiedName>& AXObjectCache::relationAttributes()
 {
+    // Keep this list in sync with the switch in isRelationAttribute().
     static NeverDestroyed<Vector<QualifiedName>> relationAttributes = Vector<QualifiedName> {
         aria_actionsAttr,
         aria_activedescendantAttr,
@@ -6222,6 +6221,30 @@ Vector<QualifiedName>& AXObjectCache::relationAttributes()
         popovertargetAttr,
     };
     return relationAttributes;
+}
+
+bool AXObjectCache::isRelationAttribute(const QualifiedName& attribute)
+{
+    // A faster equivalent of relationAttributes().contains(attribute) for the DOM-mutation hot
+    // path (Element::attributeChanged). Keep this in sync with the list in relationAttributes().
+    switch (attribute.nodeName()) {
+    case AttributeNames::aria_actionsAttr:
+    case AttributeNames::aria_activedescendantAttr:
+    case AttributeNames::aria_controlsAttr:
+    case AttributeNames::aria_describedbyAttr:
+    case AttributeNames::aria_detailsAttr:
+    case AttributeNames::aria_errormessageAttr:
+    case AttributeNames::aria_flowtoAttr:
+    case AttributeNames::aria_labelledbyAttr:
+    case AttributeNames::aria_labeledbyAttr:
+    case AttributeNames::aria_ownsAttr:
+    case AttributeNames::commandforAttr:
+    case AttributeNames::headersAttr:
+    case AttributeNames::popovertargetAttr:
+        return true;
+    default:
+        return false;
+    }
 }
 
 AXRelation AXObjectCache::symmetricRelation(AXRelation relation)
@@ -6571,6 +6594,18 @@ void AXObjectCache::updateRelationsForTree(ContainerNode& rootNode)
         if (hasRelationAttribute || is<HTMLLabelElement>(element.get()))
             m_elementsWithRelationAttributes.add(element);
     }
+}
+
+void AXObjectCache::trackRelationAttributeElement(Element& element)
+{
+    // This runs synchronously during DOM mutation and parsing, so it must not
+    // resolve relations or touch layout.
+    if (!canHaveRelations(element))
+        return;
+    m_elementsWithRelationAttributes.add(element);
+
+    if (!m_relationsNeedUpdate)
+        relationsNeedUpdate(true);
 }
 
 bool AXObjectCache::addRelation(Element& origin, const QualifiedName& attribute)
