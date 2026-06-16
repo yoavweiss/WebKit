@@ -11200,6 +11200,8 @@ class TestTrigger(BuildStepMixinAdditions, unittest.TestCase):
         self.assertIn('architecture', props)
         self.assertIn('codebase', props)
         self.assertIn('retry_count', props)
+        self.assertIn('os_version_builder', props)
+        self.assertIn('xcode_version_builder', props)
         self.assertIn('deployment_target_builder', props)
         self.assertIn('ews_revision', props)
         self.assertIn('parent_buildnumber', props)
@@ -11210,6 +11212,13 @@ class TestTrigger(BuildStepMixinAdditions, unittest.TestCase):
         self.assertNotIn('repository', props)
         self.assertFalse(step.updateSourceStamp)
         self.assertNotIn('triggers', props)
+
+    def test_builder_version_properties_excluded_when_re_triggering_parent(self):
+        step = Trigger(schedulerNames=['test-scheduler'], triggers=['tester-scheduler'])
+        props = step.propertiesToPassToTriggers()
+        self.assertNotIn('os_version_builder', props)
+        self.assertNotIn('xcode_version_builder', props)
+        self.assertNotIn('deployment_target_builder', props)
 
     def test_pull_request_properties_included_when_enabled(self):
         step = Trigger(schedulerNames=['test-scheduler'], pull_request=True)
