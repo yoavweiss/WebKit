@@ -27,7 +27,7 @@ F金r
 PASS 'text-orientation: mixed' - horizontal-tb
 PASS 'text-orientation: upright' - horizontal-tb
 PASS 'text-orientation: sideways' - horizontal-tb
-FAIL Rotation attribute - horizontal-tb assert_equals: c expected 0 but got 360
+PASS Rotation attribute - horizontal-tb
 FAIL <textPath> - horizontal-tb assert_equals: r expected 70 but got 45
 PASS 'text-orientation: mixed' - vertical-rl
 PASS 'text-orientation: upright' - vertical-rl
