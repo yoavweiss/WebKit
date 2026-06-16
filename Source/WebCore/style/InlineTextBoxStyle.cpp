@@ -299,7 +299,7 @@ float textBoxEdgeAdjustmentForUnderline(const Style::ComputedStyle& style)
     case TextEdgeOver::Cap:
         return fontMetrics.ascent() - fontMetrics.capHeight().value_or(0.f);
     case TextEdgeOver::Ex:
-        return fontMetrics.xHeight().value_or(0.f);
+        return fontMetrics.ascent() - fontMetrics.xHeight().value_or(0.f);
     case TextEdgeOver::Ideographic:
         return fontMetrics.ascent(FontBaseline::Ideographic);
     case TextEdgeOver::IdeographicInk:
