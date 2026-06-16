@@ -347,7 +347,7 @@
       "configuration": "release", "architectures": ["x86_64", "arm64"],
       "deployment_target": "15.4",
       "rebuild_without_change_on_builder": true,
-      "triggers": ["api-tests-mac-ews", "macos-sequoia-release-wk2-tests-ews", "macos-sequoia-release-wk2-intel-tests-ews", "macos-release-wk2-stress-tests-ews", "macos-sequoia-release-site-isolation-tests-ews"],
+      "triggers": ["api-tests-mac-ews", "macos-sequoia-release-wk2-tests-ews", "macos-sequoia-release-wk2-intel-tests-ews", "macos-release-wk2-stress-tests-ews", "macos-sequoia-release-site-isolation-tests-ews", "jsc-tests-x86-64-ews"],
       "workernames": ["ews101", "ews102", "ews103", "ews105", "ews116", "ews117", "ews118", "ews119", "ews120", "ews141", "ews145", "ews147", "ews148", "ews161", "ews162"]
     },
     {
@@ -479,9 +479,10 @@
       "workernames": ["igalia16-wpe-ews", "igalia17-wpe-ews", "igalia18-wpe-ews", "igalia19-wpe-ews"]
     },
     {
-      "name": "JSC-Tests-EWS", "shortname": "jsc-x86-64", "icon": "buildAndTest",
-      "factory": "JSCBuildAndTestsFactory", "platform": "mac-sequoia",
-      "configuration": "release", "runTests": "true",
+      "name": "JSC-Tests-x86-64-EWS", "shortname": "jsc-x86-64", "icon": "testOnly",
+      "factory": "JSCTestsFactory", "platform": "mac-sequoia",
+      "configuration": "release",
+      "triggered_by": ["macos-sequoia-release-build-ews"],
       "workernames": ["ews127", "ews128", "ews205", "ews206", "ews251", "ews252"]
     },
     {
@@ -579,7 +580,7 @@
       "type": "Try_Userpass", "name": "try", "port": 5555,
       "builderNames": [
             "Bindings-Tests-EWS", "GTK-Build-EWS", "iOS-26-Build-EWS", "iOS-26-Simulator-Build-EWS",
-            "JSC-ARMv7-32bits-Build-EWS", "JSC-Tests-EWS", "JSC-Tests-O3-Debug-arm64-EWS",
+            "JSC-ARMv7-32bits-Build-EWS", "JSC-Tests-O3-Debug-arm64-EWS",
             "macOS-Tahoe-Debug-Build-EWS", "macOS-Sequoia-Release-Build-EWS", "macOS-Safer-CPP-Checks-EWS", "Apple-iOS-26-Safer-CPP-Checks-EWS",
             "Services-EWS", "Style-EWS", "tvOS-26-Build-EWS", "tvOS-26-Simulator-Build-EWS", "visionOS-26-Build-EWS", "visionOS-26-Simulator-Build-EWS",
             "watchOS-26-Build-EWS", "watchOS-26-Simulator-Build-EWS", "WPE-Build-EWS", "WebKitPerl-Tests-EWS", "WebKitPy-Tests-EWS", "PlayStation-Build-EWS", "Win-Build-EWS",
@@ -594,7 +595,7 @@
       "type": "AnyBranchScheduler", "name": "pull_request",
       "builderNames": [
             "Bindings-Tests-EWS", "GTK-Build-EWS", "iOS-26-Build-EWS", "iOS-26-Simulator-Build-EWS",
-            "JSC-ARMv7-32bits-Build-EWS", "JSC-Tests-EWS", "JSC-Tests-O3-Debug-arm64-EWS",
+            "JSC-ARMv7-32bits-Build-EWS", "JSC-Tests-O3-Debug-arm64-EWS",
             "macOS-Tahoe-Debug-Build-EWS", "macOS-Sequoia-Release-Build-EWS", "macOS-Safer-CPP-Checks-EWS", "Apple-iOS-26-Safer-CPP-Checks-EWS",
             "Services-EWS", "Style-EWS", "Style-EWS", "tvOS-26-Build-EWS", "tvOS-26-Simulator-Build-EWS", "visionOS-26-Build-EWS", "visionOS-26-Simulator-Build-EWS",
             "watchOS-26-Build-EWS", "watchOS-26-Simulator-Build-EWS", "WPE-Build-EWS", "WebKitPerl-Tests-EWS", "WebKitPy-Tests-EWS", "PlayStation-Build-EWS", "Win-Build-EWS",
@@ -664,6 +665,10 @@
     {
       "type": "Triggerable", "name": "api-tests-mac-ews",
       "builderNames": ["API-Tests-macOS-EWS"]
+    },
+    {
+      "type": "Triggerable", "name": "jsc-tests-x86-64-ews",
+      "builderNames": ["JSC-Tests-x86-64-EWS"]
     },
     {
       "type": "Triggerable", "name": "gtk-build-ews",

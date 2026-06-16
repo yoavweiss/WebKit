@@ -678,7 +678,7 @@ class TestExpectedBuildSteps(unittest.TestCase):
             'compile-jsc',
             'jscore-test'
         ],
-        'JSC-Tests-EWS': [
+        'JSC-Tests-x86-64-EWS': [
             'configure-build',
             'check-change-relevance',
             'validate-change',
@@ -694,8 +694,8 @@ class TestExpectedBuildSteps(unittest.TestCase):
             'checkout-pull-request',
             'validate-change-content',
             'kill-old-processes',
-            'validate-change',
-            'compile-jsc',
+            'download-built-product',
+            'extract-built-product',
             'jscore-test'
         ],
         'JSC-ARMv7-32bits-Build-EWS': [
