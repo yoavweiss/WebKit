@@ -123,6 +123,17 @@ private:
     // map that has already gone away. The receiver's m_messageReceiverMapCount
     // then stays nonzero and ~MessageReceiver fires its debug ASSERT.
     HashMap<WebCore::ProcessIdentifier, Ref<WebKit::WebProcessProxy>> m_pinnedInstrumentedProcesses;
+
+    // Per-frame committed document info, cached from the cross-process frameNavigated
+    // events. buildFrameTree() prefers this over the inspectedPage's WebFrameProxy state,
+    // which is stale for cross-origin children whose commit the UIProcess never observes.
+    // See webkit.org/b/308896.
+    struct CachedFrameDocumentInfo {
+        URL url;
+        String mimeType;
+        WebCore::SecurityOriginData securityOrigin;
+    };
+    HashMap<WebCore::FrameIdentifier, CachedFrameDocumentInfo> m_cachedFrameDocumentInfo;
 };
 
 } // namespace Inspector

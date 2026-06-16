@@ -93,11 +93,15 @@ public:
     void enableNetworkInstrumentation();
     void disableNetworkInstrumentation();
     void getResponseBody(WebCore::ResourceLoaderIdentifier, CompletionHandler<void(String content, bool base64Encoded, String errorString)>&&);
-    void ensureInstrumentationForFrame(WebCore::LocalFrame&);
-    void removeInstrumentationForFrame(WebCore::FrameIdentifier);
 
     void enablePageInstrumentation();
     void disablePageInstrumentation();
+
+    // Set up / tear down every per-frame instrumentation agent for a frame. Callers
+    // don't need to know which agents are frame-scoped; each helper no-ops unless its
+    // domain is enabled.
+    void ensureInstrumentationForFrame(WebCore::LocalFrame&);
+    void removeInstrumentationForFrame(WebCore::FrameIdentifier);
 
     void setFrontendConnection(IPC::Connection::Handle&&);
 
@@ -118,6 +122,9 @@ private:
 
     void whenFrontendConnectionEstablished(Function<void(IPC::Connection&)>&&);
 
+    void ensureNetworkInstrumentationForFrame(WebCore::LocalFrame&);
+    void ensurePageInstrumentationForFrame(WebCore::LocalFrame&);
+
     WeakPtr<WebPage> m_page;
 
     RefPtr<IPC::Connection> m_frontendConnection;
@@ -130,7 +137,7 @@ private:
     UniqueRef<BackendResourceDataStore> m_resourceDataStore;
     bool m_networkInstrumentationEnabled { false };
 
-    std::unique_ptr<PageAgentProxy> m_pageAgentProxy;
+    HashMap<WebCore::FrameIdentifier, std::unique_ptr<PageAgentProxy>> m_framePageAgentProxies;
     bool m_pageInstrumentationEnabled { false };
 };
 
