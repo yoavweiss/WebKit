@@ -94,7 +94,7 @@ endfunction()
 
 if (CMAKE_OSX_SYSROOT)
     WEBKIT_RESOLVE_SDK(${CMAKE_OSX_SYSROOT})
-elseif (PORT STREQUAL "Mac" OR PORT STREQUAL "JSCOnly")
+elseif (PORT STREQUAL "Mac" OR PORT STREQUAL "JSCOnly" OR NOT PORT)
     # FIXME: Support macosx.internal.
     WEBKIT_RESOLVE_SDK(macosx)
 elseif (PORT STREQUAL "IOS" AND CMAKE_IOS_SIMULATOR)
@@ -103,7 +103,7 @@ elseif (PORT STREQUAL "IOS" AND NOT CMAKE_IOS_SIMULATOR)
     WEBKIT_RESOLVE_SDK(iphoneos.internal iphoneos)
 else ()
     message(FATAL_ERROR "Building for an Apple platform without an SDK "
-        "directory (CMAKE_OSX_SYSROOT) or a hard-coded PORT provided.")
+        "directory (CMAKE_OSX_SYSROOT) or supported PORT variable.")
 endif ()
 
 # Subsequent use of `xcrun` or any of the system Xcode and BSD tools will
