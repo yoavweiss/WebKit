@@ -67,14 +67,6 @@ selectors = [
     { name = "_parentTypes", class = "UTType" },
 ]
 
-[[staging]]
-request = "rdar://161241270"
-cleanup = "rdar://161241477"
-symbols = [
-    "CTFontGetUIFontType",
-]
-requires-sdk = ["iOS <= 26.*"]
-
 [[temporary-usage]]
 request = "rdar://168834967"
 cleanup = "rdar://168834815"

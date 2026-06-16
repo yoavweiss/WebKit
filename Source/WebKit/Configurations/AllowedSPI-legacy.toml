@@ -32,7 +32,7 @@ selectors = [
     { name = "_transitionCoordinator", class = "?" },
     { name = "accessibilityElementsWithPlugin:", class = "?" },
     { name = "accessibilityHitTest:withPlugin:", class = "?" },
-    { name = "auditToken", class = "?" },
+    { name = "auditToken", class = "RBSProcessHandle" },
     { name = "canPerformAuthorizationWithURL:responseCode:callerBundleIdentifier:useInternalExtensions:completion:", class = "?" },
     { name = "canSendResponse", class = "?" },
     { name = "cancelExtensionRequestWithIdentifier:", class = "?" },

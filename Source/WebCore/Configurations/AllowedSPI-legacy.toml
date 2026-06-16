@@ -93,9 +93,6 @@ selectors = [
     { name = "valueForDimension:", class = "?" },
     { name = "verticalAlignment", class = "?" },
 ]
-symbols = [
-    "kCTFontDescriptorLanguageAttribute",
-]
 requires-sdk = ["iOS <= 26.*"]
 
 # ------------------------------------------------------------------------
