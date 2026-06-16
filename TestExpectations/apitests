@@ -329,3 +329,8 @@ webkit.org/b/316931 [ ios ] TestWebKitAPI.CopyHTML.SanitizationPreservesCharacte
 
 webkit.org/b/317144 TestWebKitAPI.WKHTTPCookieStore.WebSocketCookiesFromRedirect [ Failure ]
 webkit.org/b/317144 TestWebKitAPI.WKHTTPCookieStore.WebSocketCookiesThroughRedirect [ Failure ]
+
+webkit.org/b/317214 [ mac ] TestWebKitAPI.MediaSessionTest.MinimalCommands [ Crash ]
+webkit.org/b/317214 [ mac ] TestWebKitAPI.NowPlayingTest.VideoElementWithMutedAudio [ Crash ]
+webkit.org/b/317214 [ mac ] TestWebKitAPI.NowPlayingTest.VideoElementWithoutAudio [ Crash ]
+webkit.org/b/317214 [ mac ] TestWebKitAPI.NowPlayingTest.VideoElementWithoutAudioPlayWithUserGesture [ Crash ]
