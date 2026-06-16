@@ -5134,7 +5134,10 @@ private:
         // Currently, the DFG won't take advantage of this speculation. But, we want to do it in
         // the DFG anyway because if such a speculation would be wrong, we want to know before
         // we do an expensive compile.
-        
+
+        if (m_graph.hasExitSite(m_currentNode->origin.semantic, BadType))
+            return;
+
         if (value->shouldSpeculateInt32()) {
             insertCheck<Int32Use>(value.node());
             return;
