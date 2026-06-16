@@ -102,6 +102,7 @@ MediaPlayerPrivateWebM::MediaPlayerPrivateWebM(MediaPlayer& player)
     , m_logIdentifier(player.mediaPlayerLogIdentifier())
     , m_seekTimer(*this, &MediaPlayerPrivateWebM::seekInternal)
     , m_rendererSeekRequest(NativePromiseRequest::create())
+    , m_stallRequest(NativePromiseRequest::create())
     , m_playerIdentifier(MediaPlayerIdentifier::generate())
     , m_renderer(createRenderer(*this, player.clientIdentifier(), m_playerIdentifier))
     , m_runningQueue(hasPlatformStrategies() && platformStrategies()->mediaStrategy()->hasRemoteRendererFor(MediaPlayerMediaEngineIdentifier::CocoaWebM) ? m_appendQueue.get() : WorkQueue::mainSingleton())
@@ -137,9 +138,11 @@ MediaPlayerPrivateWebM::~MediaPlayerPrivateWebM() WTF_IGNORES_THREAD_SAFETY_ANAL
     // cancelPendingSeek() requires being on m_runningQueue because disconnecting a
     // NativePromiseRequest requires being on the queue the callback was registered on.
     // Move the seek request out and dispatch to that queue.
-    m_runningQueue->dispatch([seekRequest = std::exchange(m_rendererSeekRequest, NativePromiseRequest::create())]() mutable {
+    m_runningQueue->dispatch([seekRequest = std::exchange(m_rendererSeekRequest, NativePromiseRequest::create()), stallRequest = std::exchange(m_stallRequest, NativePromiseRequest::create())]() mutable {
         if (seekRequest->hasCallback())
             seekRequest->disconnect();
+        if (stallRequest->hasCallback())
+            stallRequest->disconnect();
     });
 
     // clearTracks() and cancelLoad() access running-queue-guarded members on the main thread.
@@ -995,15 +998,28 @@ void MediaPlayerPrivateWebM::setDuration(MediaTime duration)
     if (duration == m_duration)
         return;
 
-    m_renderer->notifyTimeReachedAndStall(duration, [weakThis = ThreadSafeWeakPtr { *this }](const MediaTime&) {
+    if (m_stallRequest->hasCallback())
+        protect(m_stallRequest)->disconnect();
+
+    m_renderer->cancelTimeReachedAction();
+
+    m_renderer->notifyTimeReachedAndStall(duration)->whenSettled(runningQueue(), [weakThis = ThreadSafeWeakPtr { *this }](MediaTimePromise::Result&& result) {
+        RefPtr protectedThis = weakThis.get();
+        if (!protectedThis)
+            return;
+        protect(protectedThis->m_stallRequest)->complete();
+        if (!result)
+            return;
         ensureOnMainThread([weakThis] {
-            if (RefPtr protectedThis = weakThis.get()) {
+            RefPtr protectedThis = weakThis.get();
+            if (!protectedThis)
+                return;
+            if (protectedThis->currentTime() >= protectedThis->duration())
                 protectedThis->m_renderer->pause();
-                if (RefPtr player = protectedThis->m_player.get())
-                    player->timeChanged();
-            }
+            if (RefPtr player = protectedThis->m_player.get())
+                player->timeChanged();
         });
-    });
+    })->track(m_stallRequest);
 
     m_duration = WTF::move(duration);
     ensureOnMainThread([weakThis = ThreadSafeWeakPtr { *this }, durationCopy = m_duration] {

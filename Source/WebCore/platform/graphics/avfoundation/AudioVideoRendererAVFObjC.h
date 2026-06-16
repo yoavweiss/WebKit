@@ -84,7 +84,7 @@ public:
 
     bool timeIsProgressing() const final;
     MediaTime currentTime() const final;
-    void notifyTimeReachedAndStall(const MediaTime&, Function<void(const MediaTime&)>&&) final;
+    Ref<MediaTimePromise> notifyTimeReachedAndStall(const MediaTime&) final;
     void cancelTimeReachedAction() final;
     void performTaskAtTime(const MediaTime&, Function<void(const MediaTime&)>&&) final;
     void setTimeObserver(Seconds, Function<void(const MediaTime&)>&&) final;
@@ -289,6 +289,7 @@ private:
     Function<void(const MediaTime&, FloatSize)> m_sizeChangedCallback;
 
     RetainPtr<id> m_currentTimeObserver;
+    std::optional<MediaTimePromise::Producer> m_stallProducer;
     RetainPtr<id> m_performTaskObserver;
     RetainPtr<id> m_timeChangedObserver;
 

@@ -107,6 +107,7 @@ MediaPlayerPrivateMediaSourceAVFObjC::MediaPlayerPrivateMediaSourceAVFObjC(Media
     , m_waitForTargetRequest(NativePromiseRequest::create())
     , m_rendererPrepareSeekRequest(NativePromiseRequest::create())
     , m_rendererFinishSeekRequest(NativePromiseRequest::create())
+    , m_stallRequest(NativePromiseRequest::create())
     , m_networkState(MediaPlayer::NetworkState::Empty)
     , m_pageIsVisible { player.pageIsVisible() }
     , m_viewportVisibility { player.viewportVisibility() }
@@ -136,6 +137,9 @@ MediaPlayerPrivateMediaSourceAVFObjC::~MediaPlayerPrivateMediaSourceAVFObjC()
     // callbacks (such as the error callback calling setNetworkState(),
     // which accesses the already-destroyed m_logger).
     weakPtrFactory().revokeAll();
+
+    if (m_stallRequest->hasCallback())
+        protect(m_stallRequest)->disconnect();
 
     cancelPendingSeek();
     m_seekTimer.stop();
@@ -759,38 +763,42 @@ void MediaPlayerPrivateMediaSourceAVFObjC::bufferedChanged()
 void MediaPlayerPrivateMediaSourceAVFObjC::resetStallForTime(const MediaTime& time)
 {
     assertIsMainThread();
+    if (m_stallRequest->hasCallback())
+        protect(m_stallRequest)->disconnect();
     m_renderer->cancelTimeReachedAction();
 
     auto logSiteIdentifier = LOGIDENTIFIER;
     UNUSED_PARAM(logSiteIdentifier);
-    auto stallReachedCallback = [weakThis = WeakPtr { *this }, logSiteIdentifier](const MediaTime& stallTime) {
-        ensureOnMainThread([weakThis, logSiteIdentifier, stallTime] {
-            RefPtr protectedThis = weakThis.get();
-            if (!protectedThis)
-                return;
-            if (protect(protectedThis->m_mediaSourcePrivate)->hasFutureTime(stallTime) && protectedThis->shouldBePlaying()) {
-                ALWAYS_LOG_WITH_THIS(protectedThis, logSiteIdentifier, "Data now available at ", stallTime, " resuming");
-                protectedThis->dispatchToRendererQueue([](auto& renderer) {
-                    renderer.play(); // New data was added, resume. Can't happen in practice, action would have been cancelled once buffered changed.
-                });
-                return;
-            }
-            MediaTime now = protectedThis->currentTime();
-            ALWAYS_LOG_WITH_THIS(protectedThis, logSiteIdentifier, "boundary time observer called, now = ", now);
+    auto onStallReached = [weakThis = WeakPtr { *this }, logSiteIdentifier](MediaTimePromise::Result&& result) {
+        assertIsMainThread();
+        RefPtr protectedThis = weakThis.get();
+        if (!protectedThis)
+            return;
 
-            if (protectedThis->seeking())
-                return; // seek owns state transitions
-            if (now >= protectedThis->duration())
-                protectedThis->pause();
-            protectedThis->timeChanged();
-        });
+        if (protectedThis->m_stallRequest->hasCallback())
+            protect(protectedThis->m_stallRequest)->complete();
+
+        if (!result)
+            return;
+
+        // The Request was tracked, so reaching this point means the cap really fired and
+        // hasn't been superseded by a newer resetStallForTime — bufferedChanged would have
+        // disconnected the Request before reinstalling. No need to re-check hasFutureTime.
+        MediaTime now = protectedThis->currentTime();
+        ALWAYS_LOG_WITH_THIS(protectedThis, logSiteIdentifier, "boundary time observer called, now = ", now);
+
+        if (protectedThis->seeking())
+            return; // seek owns state transitions
+        if (now >= protectedThis->duration())
+            protectedThis->pause();
+        protectedThis->timeChanged();
     };
 
     if (time >= duration()) {
         ALWAYS_LOG(LOGIDENTIFIER, "playhead ", time, " is at or past duration ", duration(), "; stalling");
         if (shouldBePlaying())
             stall();
-        stallReachedCallback(time);
+        onStallReached(time);
         return;
     }
 
@@ -814,7 +822,7 @@ void MediaPlayerPrivateMediaSourceAVFObjC::resetStallForTime(const MediaTime& ti
     }
 
     ALWAYS_LOG(LOGIDENTIFIER, "will stall playback at time: ", stallAtTime);
-    m_renderer->notifyTimeReachedAndStall(stallAtTime, WTF::move(stallReachedCallback));
+    m_renderer->notifyTimeReachedAndStall(stallAtTime)->whenSettled(RunLoop::mainSingleton(), WTF::move(onStallReached))->track(m_stallRequest);
 }
 
 void MediaPlayerPrivateMediaSourceAVFObjC::setLayerRequiresFlush()

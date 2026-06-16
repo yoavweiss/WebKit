@@ -163,8 +163,8 @@ public:
     virtual bool timeIsProgressing() const = 0;
     virtual void notifyEffectiveRateChanged(Function<void(double)>&&) { }
     virtual MediaTime currentTime() const = 0;
-    virtual void notifyTimeReachedAndStall(const MediaTime&, Function<void(const MediaTime&)>&&) { }
-    virtual void cancelTimeReachedAction() { }
+    virtual Ref<MediaTimePromise> notifyTimeReachedAndStall(const MediaTime&) = 0;
+    virtual void cancelTimeReachedAction() = 0;
     virtual void performTaskAtTime(const MediaTime&, Function<void(const MediaTime&)>&&) { }
     virtual void setTimeObserver(Seconds, Function<void(const MediaTime&)>&&) { }
 

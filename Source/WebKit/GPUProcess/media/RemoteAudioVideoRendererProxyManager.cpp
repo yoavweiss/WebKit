@@ -316,15 +316,13 @@ void RemoteAudioVideoRendererProxyManager::enqueueSample(RemoteAudioVideoRendere
     completionHandler(false);
 }
 
-void RemoteAudioVideoRendererProxyManager::notifyTimeReachedAndStall(RemoteAudioVideoRendererIdentifier identifier, const MediaTime& time)
+void RemoteAudioVideoRendererProxyManager::notifyTimeReachedAndStall(RemoteAudioVideoRendererIdentifier identifier, const MediaTime& time, CompletionHandler<void(WebCore::MediaTimePromise::Result&&)>&& completionHandler)
 {
-    RefPtr renderer = rendererFor(identifier);
-    if (!renderer)
+    if (RefPtr renderer = rendererFor(identifier)) {
+        renderer->notifyTimeReachedAndStall(time)->whenSettled(RunLoop::mainSingleton(), WTF::move(completionHandler));
         return;
-    renderer->notifyTimeReachedAndStall(time, [weakThis = WeakPtr { *this }, identifier](auto& time) {
-        if (RefPtr protectedThis = weakThis.get())
-            protectedThis->publishAndSend(identifier, Messages::AudioVideoRendererRemoteMessageReceiver::StallTimeReached(time, protectedThis->stateFor(identifier)));
-    });
+    }
+    completionHandler(makeUnexpected(PlatformMediaError::NotSupportedError));
 }
 
 void RemoteAudioVideoRendererProxyManager::cancelTimeReachedAction(RemoteAudioVideoRendererIdentifier identifier)

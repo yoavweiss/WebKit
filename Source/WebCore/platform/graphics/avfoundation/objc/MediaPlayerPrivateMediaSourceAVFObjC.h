@@ -360,6 +360,7 @@ private:
     const Ref<NativePromiseRequest> m_waitForTargetRequest WTF_GUARDED_BY_CAPABILITY(mainThread);
     const Ref<NativePromiseRequest> m_rendererPrepareSeekRequest WTF_GUARDED_BY_CAPABILITY(mainThread);
     const Ref<NativePromiseRequest> m_rendererFinishSeekRequest WTF_GUARDED_BY_CAPABILITY(mainThread);
+    const Ref<NativePromiseRequest> m_stallRequest WTF_GUARDED_BY_CAPABILITY(mainThread);
 
 #if ENABLE(LEGACY_ENCRYPTED_MEDIA)
     ThreadSafeWeakPtr<CDMSessionAVContentKeySession> m_session;

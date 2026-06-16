@@ -90,7 +90,6 @@ public:
         void sizeChanged(MediaTime, WebCore::FloatSize, RemoteAudioVideoRendererState);
         void trackNeedsReenqueuing(WebCore::SamplesRendererTrackIdentifier, MediaTime, RemoteAudioVideoRendererState);
         void effectiveRateChanged(RemoteAudioVideoRendererState);
-        void stallTimeReached(MediaTime, RemoteAudioVideoRendererState);
         void taskTimeReached(MediaTime, RemoteAudioVideoRendererState);
         void errorOccurred(WebCore::PlatformMediaError);
         void readyForMoreMediaData(WebCore::SamplesRendererTrackIdentifier);
@@ -169,7 +168,7 @@ private:
     bool timeIsProgressing() const final;
     void notifyEffectiveRateChanged(Function<void(double)>&&) final;
     MediaTime currentTime() const final;
-    void notifyTimeReachedAndStall(const MediaTime&, Function<void(const MediaTime&)>&&) final;
+    Ref<WebCore::MediaTimePromise> notifyTimeReachedAndStall(const MediaTime&) final;
     void cancelTimeReachedAction() final;
     void performTaskAtTime(const MediaTime&, Function<void(const MediaTime&)>&&) final;
 
@@ -271,7 +270,8 @@ private:
     Function<void(const MediaTime&, WebCore::FloatSize)> m_sizeChangedCallback WTF_GUARDED_BY_CAPABILITY(queueSingleton());
     Function<void(const MediaTime&)> m_currentTimeDidChangeCallback WTF_GUARDED_BY_CAPABILITY(queueSingleton());
     Function<void(double)> m_effectiveRateChangedCallback WTF_GUARDED_BY_CAPABILITY(queueSingleton());
-    Function<void(const MediaTime&)> m_timeReachedAndStallCallback WTF_GUARDED_BY_CAPABILITY(queueSingleton());
+    std::optional<WebCore::MediaTimePromise::Producer> m_stallProducer WTF_GUARDED_BY_CAPABILITY(queueSingleton());
+    Ref<NativePromiseRequest> m_stallRequest WTF_GUARDED_BY_CAPABILITY(queueSingleton());
     Function<void(const MediaTime&)> m_performTaskAtTimeCallback WTF_GUARDED_BY_CAPABILITY(queueSingleton());
     MediaTime m_performTaskAtTime WTF_GUARDED_BY_CAPABILITY(queueSingleton());
     Function<void(const MediaTime&, WebCore::FloatSize)> m_videoLayerSizeChangedCallback WTF_GUARDED_BY_CAPABILITY(queueSingleton());
