@@ -2409,7 +2409,7 @@ header: <WebCore/SwitchPart.h>
 
 [RefCounted, AdditionalEncoder=StreamConnectionEncoder] class WebCore::FEColorMatrix {
     WebCore::ColorMatrixType type();
-    Vector<float> values();
+    [Validator='WebCore::FEColorMatrix::areValuesValidForType(*type, *values)'] Vector<float> values();
 
     WebCore::DestinationColorSpace operatingColorSpace();
 };
