@@ -3235,14 +3235,25 @@ private:
             break;
 
         case MapIteratorNext:
-        case MapIteratorKey:
-        case MapIteratorValue:
-            if (node->child1().useKind() == MapIteratorObjectUse)
-                fixEdge<MapIteratorObjectUse>(node->child1());
-            else if (node->child1().useKind() == SetIteratorObjectUse)
-                fixEdge<SetIteratorObjectUse>(node->child1());
+            // child1: storage JSValue (cell or empty); leave as UntypedUse so GetInternalField's
+            // empty-marker value flows through without a speculation check.
+            // child2: iterated map/set object, child3: entry int32.
+            if (node->child2().useKind() == MapObjectUse)
+                fixEdge<MapObjectUse>(node->child2());
+            else if (node->child2().useKind() == SetObjectUse)
+                fixEdge<SetObjectUse>(node->child2());
             else
                 RELEASE_ASSERT_NOT_REACHED();
+            fixEdge<Int32Use>(node->child3());
+            m_graph.m_tupleData.at(node->tupleOffset()).resultFlags = NodeResultJS;
+            m_graph.m_tupleData.at(node->tupleOffset() + 1).resultFlags = NodeResultInt32;
+            break;
+
+        case MapIteratorKey:
+        case MapIteratorValue:
+            // child1: storage cell, child2: entry int32. Map vs Set distinction is in OpInfo (BucketOwnerType).
+            fixEdge<KnownCellUse>(node->child1());
+            fixEdge<Int32Use>(node->child2());
             break;
 
         case MapHash: {

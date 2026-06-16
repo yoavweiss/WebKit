@@ -14933,80 +14933,59 @@ void SpeculativeJIT::compileMapStorageOrSentinel(Node* node)
 
 void SpeculativeJIT::compileMapIteratorKey(Node* node)
 {
-    SpeculateCellOperand iterator(this, node->child1());
+    bool isMapIterator = node->bucketOwnerType() == BucketOwnerType::Map;
+    SpeculateCellOperand storage(this, node->child1());
+    SpeculateInt32Operand entry(this, node->child2());
     GPRTemporary scratch1(this);
     GPRTemporary scratch2(this);
-    GPRTemporary scratch3(this);
 
-    GPRReg iteratorGPR = iterator.gpr();
+    GPRReg storageGPR = storage.gpr();
+    GPRReg entryGPR = entry.gpr();
     GPRReg scratchGPR1 = scratch1.gpr();
     GPRReg scratchGPR2 = scratch2.gpr();
-    GPRReg scratchGPR3 = scratch3.gpr();
     auto resultRegs = JSValueRegs::withTwoAvailableRegs(scratchGPR1, scratchGPR2);
 
-    switch (node->child1().useKind()) {
-    case MapIteratorObjectUse: {
-        speculateMapIteratorObject(node->child1(), iteratorGPR);
-
-        load32(Address(iteratorGPR, JSInternalFieldObjectImpl<>::offsetOfInternalField(static_cast<unsigned>(JSMapIterator::Field::Entry))), scratchGPR1);
-        loadPtr(Address(iteratorGPR, JSInternalFieldObjectImpl<>::offsetOfInternalField(static_cast<unsigned>(JSMapIterator::Field::Storage))), scratchGPR3);
-
+    if (isMapIterator) {
         static_assert(JSMap::Helper::EntrySize == 3);
-        lshift32(scratchGPR1, TrustedImm32(1), scratchGPR2);
-        add32(scratchGPR1, scratchGPR2);
-        load32(Address(scratchGPR3, JSCellButterfly::offsetOfData() + JSMap::Helper::capacityIndex() * sizeof(uint64_t)), scratchGPR1);
+        lshift32(entryGPR, TrustedImm32(1), scratchGPR2);
+        add32(entryGPR, scratchGPR2);
+        load32(Address(storageGPR, JSCellButterfly::offsetOfData() + JSMap::Helper::capacityIndex() * sizeof(uint64_t)), scratchGPR1);
         add32(scratchGPR1, scratchGPR2);
         add32(TrustedImm32(JSMap::Helper::hashTableStartIndex() - JSMap::Helper::EntrySize), scratchGPR2);
-        break;
-    }
-    case SetIteratorObjectUse: {
-        speculateSetIteratorObject(node->child1(), iteratorGPR);
-
-        load32(Address(iteratorGPR, JSInternalFieldObjectImpl<>::offsetOfInternalField(static_cast<unsigned>(JSSetIterator::Field::Entry))), scratchGPR1);
-        loadPtr(Address(iteratorGPR, JSInternalFieldObjectImpl<>::offsetOfInternalField(static_cast<unsigned>(JSSetIterator::Field::Storage))), scratchGPR3);
-
+    } else {
         static_assert(JSSet::Helper::EntrySize == 2);
-        add32(scratchGPR1, scratchGPR1, scratchGPR2);
-        load32(Address(scratchGPR3, JSCellButterfly::offsetOfData() + JSSet::Helper::capacityIndex() * sizeof(uint64_t)), scratchGPR1);
+        add32(entryGPR, entryGPR, scratchGPR2);
+        load32(Address(storageGPR, JSCellButterfly::offsetOfData() + JSSet::Helper::capacityIndex() * sizeof(uint64_t)), scratchGPR1);
         add32(scratchGPR1, scratchGPR2);
         add32(TrustedImm32(JSSet::Helper::hashTableStartIndex() - JSSet::Helper::EntrySize), scratchGPR2);
-        break;
-    }
-    default:
-        DFG_CRASH(m_graph, node, "Bad use kind");
     }
 
-    loadValue(BaseIndex(scratchGPR3, scratchGPR2, TimesEight, JSCellButterfly::offsetOfData()), resultRegs);
+    loadValue(BaseIndex(storageGPR, scratchGPR2, TimesEight, JSCellButterfly::offsetOfData()), resultRegs);
     jsValueResult(resultRegs, node);
 }
 
 void SpeculativeJIT::compileMapIteratorValue(Node* node)
 {
-    SpeculateCellOperand iterator(this, node->child1());
+    ASSERT(node->bucketOwnerType() == BucketOwnerType::Map);
+    SpeculateCellOperand storage(this, node->child1());
+    SpeculateInt32Operand entry(this, node->child2());
     GPRTemporary scratch1(this);
     GPRTemporary scratch2(this);
-    GPRTemporary scratch3(this);
 
-    GPRReg iteratorGPR = iterator.gpr();
+    GPRReg storageGPR = storage.gpr();
+    GPRReg entryGPR = entry.gpr();
     GPRReg scratchGPR1 = scratch1.gpr();
     GPRReg scratchGPR2 = scratch2.gpr();
-    GPRReg scratchGPR3 = scratch3.gpr();
     auto resultRegs = JSValueRegs::withTwoAvailableRegs(scratchGPR1, scratchGPR2);
 
-    ASSERT(node->child1().useKind() == MapIteratorObjectUse);
-    speculateMapIteratorObject(node->child1(), iteratorGPR);
-
-    load32(Address(iteratorGPR, JSInternalFieldObjectImpl<>::offsetOfInternalField(static_cast<unsigned>(JSMapIterator::Field::Entry))), scratchGPR1);
-    loadPtr(Address(iteratorGPR, JSInternalFieldObjectImpl<>::offsetOfInternalField(static_cast<unsigned>(JSMapIterator::Field::Storage))), scratchGPR3);
-
     static_assert(JSMap::Helper::EntrySize == 3);
-    lshift32(scratchGPR1, TrustedImm32(1), scratchGPR2);
-    add32(scratchGPR1, scratchGPR2);
-    load32(Address(scratchGPR3, JSCellButterfly::offsetOfData() + JSMap::Helper::capacityIndex() * sizeof(uint64_t)), scratchGPR1);
+    lshift32(entryGPR, TrustedImm32(1), scratchGPR2);
+    add32(entryGPR, scratchGPR2);
+    load32(Address(storageGPR, JSCellButterfly::offsetOfData() + JSMap::Helper::capacityIndex() * sizeof(uint64_t)), scratchGPR1);
     add32(scratchGPR1, scratchGPR2);
     add32(TrustedImm32(JSMap::Helper::hashTableStartIndex() - JSMap::Helper::EntrySize + /* value offset */ 1), scratchGPR2);
 
-    loadValue(BaseIndex(scratchGPR3, scratchGPR2, TimesEight, JSCellButterfly::offsetOfData()), resultRegs);
+    loadValue(BaseIndex(storageGPR, scratchGPR2, TimesEight, JSCellButterfly::offsetOfData()), resultRegs);
     jsValueResult(resultRegs, node);
 }
 

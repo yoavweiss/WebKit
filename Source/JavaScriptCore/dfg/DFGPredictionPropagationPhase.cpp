@@ -1160,7 +1160,10 @@ private:
             setPrediction(SpecInt32Only);
             break;
 
-        case MapIteratorNext:
+        case MapIteratorNext: {
+            setTuplePredictions(SpecCellOther, SpecInt32Only);
+            break;
+        }
         case GetRegExpFlag:
             setPrediction(SpecBoolean);
             break;

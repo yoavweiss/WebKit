@@ -363,8 +363,8 @@ JSC_DECLARE_JIT_OPERATION(operationSetIterationEntry, EncodedJSValue, (JSGlobalO
 JSC_DECLARE_JIT_OPERATION(operationSetIterationEntryKey, EncodedJSValue, (JSGlobalObject*, JSCell*));
 
 JSC_DECLARE_JIT_OPERATION(operationStringIteratorNext, UGPRPair, (JSGlobalObject*, JSString*, int32_t));
-JSC_DECLARE_NOEXCEPT_JIT_OPERATION(operationMapIteratorNext, EncodedJSValue, (VM*, JSCell*));
-JSC_DECLARE_NOEXCEPT_JIT_OPERATION(operationSetIteratorNext, EncodedJSValue, (VM*, JSCell*));
+JSC_DECLARE_NOEXCEPT_JIT_OPERATION(operationMapIteratorNext, UGPRPair, (VM*, JSCell*, JSCell*, int32_t));
+JSC_DECLARE_NOEXCEPT_JIT_OPERATION(operationSetIteratorNext, UGPRPair, (VM*, JSCell*, JSCell*, int32_t));
 
 JSC_DECLARE_JIT_OPERATION(operationNewMap, JSMap*, (VM*, Structure*));
 JSC_DECLARE_JIT_OPERATION(operationNewSet, JSSet*, (VM*, Structure*));

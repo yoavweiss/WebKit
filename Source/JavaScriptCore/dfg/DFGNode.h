@@ -1803,6 +1803,7 @@ public:
         case EnumeratorNextUpdateIndexAndMode:
         case StringIteratorNext:
         case StringIteratorNextWithUndefined:
+        case MapIteratorNext:
             return true;
         default:
             return false;
@@ -1845,6 +1846,7 @@ public:
         case EnumeratorNextUpdateIndexAndMode:
         case StringIteratorNext:
         case StringIteratorNextWithUndefined:
+        case MapIteratorNext:
             return 2;
         default:
             break;
@@ -3743,7 +3745,7 @@ public:
 
     bool hasBucketOwnerType()
     {
-        return op() == MapIterationNext || op() == MapIterationEntry || op() == MapIterationEntryKey || op() == MapIterationEntryValue || op() == MapStorage || op() == MapStorageOrSentinel;
+        return op() == MapIterationNext || op() == MapIterationEntry || op() == MapIterationEntryKey || op() == MapIterationEntryValue || op() == MapStorage || op() == MapStorageOrSentinel || op() == MapIteratorKey || op() == MapIteratorValue;
     }
 
     unsigned numberOfBoundArguments()

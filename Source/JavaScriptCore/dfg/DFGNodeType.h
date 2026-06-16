@@ -611,7 +611,7 @@ namespace JSC { namespace DFG {
     macro(NormalizeMapKey, NodeResultJS) \
     macro(MapGet, NodeResultStorage) \
     macro(LoadMapValue, NodeResultJS) \
-    macro(MapIteratorNext, NodeResultBoolean) \
+    macro(MapIteratorNext, 0) \
     macro(MapIteratorKey, NodeResultJS) \
     macro(MapIteratorValue, NodeResultJS) \
     macro(MapStorage, NodeResultJS) /* Get the map storage if exists. */ \

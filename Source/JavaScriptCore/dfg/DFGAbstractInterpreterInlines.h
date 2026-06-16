@@ -1735,6 +1735,10 @@ bool AbstractInterpreter<AbstractStateType>::executeEffects(unsigned clobberLimi
         break;
 
     case MapIteratorNext:
+        m_state.setTypeForTupleNode(node, 0, SpecCellOther);
+        m_state.setNonCellTypeForTupleNode(node, 1, SpecInt32Only);
+        clearForNode(node);
+        break;
     case IsEmptyStorage:
         setTypeForNode(node, SpecBoolean);
         break;

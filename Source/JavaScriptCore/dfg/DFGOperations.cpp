@@ -5919,20 +5919,54 @@ JSC_DEFINE_JIT_OPERATION(operationStringIteratorNext, UGPRPair, (JSGlobalObject*
     OPERATION_RETURN(scope, makeUGPRPair(std::bit_cast<UCPURegister>(value), static_cast<uint32_t>(nextPosition)));
 }
 
-JSC_DEFINE_NOEXCEPT_JIT_OPERATION(operationMapIteratorNext, EncodedJSValue, (VM* vmPointer, JSCell* cell))
+JSC_DEFINE_NOEXCEPT_JIT_OPERATION(operationMapIteratorNext, UGPRPair, (VM* vmPointer, JSCell* storageCell, JSCell* iteratedObjectCell, int32_t entry))
 {
     VM& vm = *vmPointer;
     CallFrame* callFrame = DECLARE_CALL_FRAME(vm);
     JITOperationPrologueCallFrameTracer tracer(vm, callFrame);
-    return JSValue::encode(uncheckedDowncast<JSMapIterator>(cell)->next(vm));
+
+    JSCell* sentinel = vm.orderedHashTableSentinel();
+    JSCell* storage = storageCell;
+    if (storage == sentinel)
+        return makeUGPRPair(std::bit_cast<UCPURegister>(sentinel), 0);
+
+    if (!storage) {
+        JSMap* map = uncheckedDowncast<JSMap>(iteratedObjectCell);
+        storage = map->storage();
+        if (!storage) [[likely]]
+            return makeUGPRPair(std::bit_cast<UCPURegister>(sentinel), 0);
+    }
+
+    JSMap::Storage& storageRef = *uncheckedDowncast<JSMap::Storage>(storage);
+    auto result = JSMap::Helper::transitAndNext(vm, storageRef, entry);
+    if (!result.storage)
+        return makeUGPRPair(std::bit_cast<UCPURegister>(sentinel), 0);
+    return makeUGPRPair(std::bit_cast<UCPURegister>(result.storage), static_cast<UCPURegister>(result.entry + 1));
 }
 
-JSC_DEFINE_NOEXCEPT_JIT_OPERATION(operationSetIteratorNext, EncodedJSValue, (VM* vmPointer, JSCell* cell))
+JSC_DEFINE_NOEXCEPT_JIT_OPERATION(operationSetIteratorNext, UGPRPair, (VM* vmPointer, JSCell* storageCell, JSCell* iteratedObjectCell, int32_t entry))
 {
     VM& vm = *vmPointer;
     CallFrame* callFrame = DECLARE_CALL_FRAME(vm);
     JITOperationPrologueCallFrameTracer tracer(vm, callFrame);
-    return JSValue::encode(uncheckedDowncast<JSSetIterator>(cell)->next(vm));
+
+    JSCell* sentinel = vm.orderedHashTableSentinel();
+    JSCell* storage = storageCell;
+    if (storage == sentinel)
+        return makeUGPRPair(std::bit_cast<UCPURegister>(sentinel), 0);
+
+    if (!storage) {
+        JSSet* set = uncheckedDowncast<JSSet>(iteratedObjectCell);
+        storage = set->storage();
+        if (!storage) [[likely]]
+            return makeUGPRPair(std::bit_cast<UCPURegister>(sentinel), 0);
+    }
+
+    JSSet::Storage& storageRef = *uncheckedDowncast<JSSet::Storage>(storage);
+    auto result = JSSet::Helper::transitAndNext(vm, storageRef, entry);
+    if (!result.storage)
+        return makeUGPRPair(std::bit_cast<UCPURegister>(sentinel), 0);
+    return makeUGPRPair(std::bit_cast<UCPURegister>(result.storage), static_cast<UCPURegister>(result.entry + 1));
 }
 
 JSC_DEFINE_JIT_OPERATION(operationSetAdd, void, (JSGlobalObject* globalObject, JSCell* set, EncodedJSValue key, int32_t hash))
