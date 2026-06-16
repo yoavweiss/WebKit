@@ -63,6 +63,7 @@
 #include <WebCore/DocumentSyncData.h>
 #include <WebCore/SecurityOrigin.h>
 #include <WebCore/ShouldTreatAsContinuingLoad.h>
+#include <wtf/Scope.h>
 #include <wtf/TZoneMallocInlines.h>
 
 // FIXME: https://bugs.webkit.org/show_bug.cgi?id=306415
@@ -739,6 +740,10 @@ void ProvisionalPageProxy::didReceiveMessage(IPC::Connection& connection, IPC::D
     if (decoder.messageName() == Messages::WebBackForwardList::BackForwardUpdateItem::name()) {
         if (RefPtr page = m_page.get()) {
 #if ENABLE(BACK_FORWARD_LIST_SWIFT)
+            page->backForwardList().setHandlingProvisionalMessage(true);
+            auto clearHandlingProvisionalMessage = makeScopeExit([&] {
+                page->backForwardList().setHandlingProvisionalMessage(false);
+            });
             page->backForwardListMessageReceiver().didReceiveMessage(connection, decoder);
 #else
             page->backForwardList().didReceiveProvisionalMessage(connection, decoder);

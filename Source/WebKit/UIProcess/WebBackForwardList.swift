@@ -122,6 +122,10 @@ final class WebBackForwardList {
     var entries: [WebKit.WebBackForwardListItem] = []
     var currentIndex: Int?
 
+    // Set while dispatching an IPC message coming from a provisional (process-swapped) process, where the
+    // message may legitimately reference an unexpected file: URL. See setHandlingProvisionalMessage(_:).
+    private var handlingProvisionalMessage = false
+
     private enum Direction {
         case backward
         case forward
@@ -957,18 +961,12 @@ final class WebBackForwardList {
         return frameState
     }
 
-    @used
-    func backForwardAddItemShared(
-        connection: IPC.Connection,
-        navigatedFrameState: WebKit.RefFrameState,
-        loadedWebArchive: WebKit.LoadedWebArchive
-    ) {
-        let process = WebKit.WebProcessProxy.fromConnection(connection)
-
+    // Returns true if a message check failed, in which case the caller should bail out.
+    private func messageCheckItemURLs(frameState: WebKit.RefFrameState, process: WebKit.RefWebProcessProxy) -> Bool {
         // 'nil' works around rdar://162310543
         // Safety: it's OK to pass a null pointer to these two functions; in fact it's the default
-        let itemURL = unsafe WTF.URL(navigatedFrameState.ptr().urlString, nil)
-        let itemOriginalURL = unsafe WTF.URL(navigatedFrameState.ptr().originalURLString, nil)
+        let itemURL = unsafe WTF.URL(frameState.ptr().urlString, nil)
+        let itemOriginalURL = unsafe WTF.URL(frameState.ptr().originalURLString, nil)
 
         #if os(macOS) || os(iOS) || os(watchOS) || os(tvOS) || os(visionOS)
         #if os(macOS)
@@ -979,22 +977,35 @@ final class WebBackForwardList {
         let doMessageChecks =
             WTF.linkedOnOrAfterSDKWithBehavior(WTF.SDKAlignedBehavior.PushStateFilePathRestriction)
         #endif
-        if doMessageChecks { // corresponds to the first 'if' condition in C++ WebBackForwardList::backForwardAddItemShared
-            assert(!itemURL.protocolIsFile() || process.ptr().wasPreviouslyApprovedFileURL(itemURL))
+        if doMessageChecks { // corresponds to the first 'if' condition in C++ messageCheckItemURLs
             if messageCheck(
                 process: process,
                 !itemURL.protocolIsFile() || process.ptr().wasPreviouslyApprovedFileURL(itemURL)
             ) {
-                return
+                return true
             }
             if messageCheck(
                 process: process,
                 !itemOriginalURL.protocolIsFile() || process.ptr().wasPreviouslyApprovedFileURL(itemOriginalURL)
             ) {
-                return
+                return true
             }
         }
         #endif
+        return false
+    }
+
+    @used
+    func backForwardAddItemShared(
+        connection: IPC.Connection,
+        navigatedFrameState: WebKit.RefFrameState,
+        loadedWebArchive: WebKit.LoadedWebArchive
+    ) {
+        let process = WebKit.WebProcessProxy.fromConnection(connection)
+
+        if messageCheckItemURLs(frameState: navigatedFrameState, process: process) {
+            return
+        }
 
         let navigatedFrameID = navigatedFrameState.ptr().frameID
         let targetFrame = WebKit.WebFrameProxy.webFrame(navigatedFrameID)
@@ -1033,6 +1044,14 @@ final class WebBackForwardList {
 
     // IPCs from here on
 
+    // The Swift counterpart of WebBackForwardList::didReceiveProvisionalMessage in the C++ implementation.
+    // ProvisionalPageProxy wraps its dispatch of provisional BackForwardUpdateItem messages with
+    // setHandlingProvisionalMessage(true)/(false) so backForwardUpdateItem can skip the file: URL message check.
+    @used
+    func setHandlingProvisionalMessage(_ handling: Bool) {
+        handlingProvisionalMessage = handling
+    }
+
     @used
     func backForwardAddItem(connection: IPC.Connection, navigatedFrameState: WebKit.RefFrameState) {
         if let page = page.get() {
@@ -1045,7 +1064,16 @@ final class WebBackForwardList {
     }
 
     @used
-    func backForwardSetChildItem(frameItemID: WebCore.BackForwardFrameItemIdentifier, frameState: WebKit.RefFrameState) {
+    func backForwardSetChildItem(
+        connection: IPC.Connection,
+        frameItemID: WebCore.BackForwardFrameItemIdentifier,
+        frameState: WebKit.RefFrameState
+    ) {
+        let process = WebKit.WebProcessProxy.fromConnection(connection)
+        if messageCheckItemURLs(frameState: frameState, process: process) {
+            return
+        }
+
         guard let item = currentItem() else {
             return
         }
@@ -1064,6 +1092,17 @@ final class WebBackForwardList {
 
     @used
     func backForwardUpdateItem(connection: IPC.Connection, frameState: WebKit.RefFrameState) {
+        let process = WebKit.WebProcessProxy.fromConnection(connection)
+
+        // In the case of a process swap, the `backForwardUpdateItem` message can be received from the old process,
+        // and therefore present an unexpected file: URL.
+        // We can safely skip the message check in these cases.
+        if !handlingProvisionalMessage {
+            if messageCheckItemURLs(frameState: frameState, process: process) {
+                return
+            }
+        }
+
         // __convertToBool necessary due to rdar://137879510
         if !frameState.ptr().itemID.__convertToBool() || !frameState.ptr().frameItemID.__convertToBool() {
             return
