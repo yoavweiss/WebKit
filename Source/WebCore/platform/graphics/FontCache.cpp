@@ -293,6 +293,7 @@ void FontCache::purgeInactiveFontData(unsigned purgeCount)
 
     m_fontCascadeCache.pruneUnreferencedEntries();
     m_fontCascadeCache.pruneSystemFallbackFonts();
+    m_fontCascadeCache.clearShapedTextCaches();
 
 #if PLATFORM(IOS_FAMILY)
     Locker locker { m_fontLock };
