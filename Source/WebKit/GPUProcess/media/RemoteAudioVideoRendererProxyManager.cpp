@@ -121,12 +121,14 @@ void RemoteAudioVideoRendererProxyManager::deref() const
     m_gpuConnectionToWebProcess.get()->deref();
 }
 
+ThreadSafeWeakPtrControlBlock& RemoteAudioVideoRendererProxyManager::controlBlock() const
+{
+    return m_gpuConnectionToWebProcess.get()->controlBlock();
+}
+
 std::optional<SharedPreferencesForWebProcess> RemoteAudioVideoRendererProxyManager::sharedPreferencesForWebProcess() const
 {
-    if (RefPtr gpuConnectionToWebProcess = m_gpuConnectionToWebProcess.get())
-        return gpuConnectionToWebProcess->sharedPreferencesForWebProcess();
-
-    return std::nullopt;
+    return m_gpuConnectionToWebProcess.get()->sharedPreferencesForWebProcess();
 }
 
 void RemoteAudioVideoRendererProxyManager::create(RemoteAudioVideoRendererIdentifier identifier, WebCore::HTMLMediaElementIdentifier mediaElementIdentifier, WebCore::MediaPlayerIdentifier playerIdentifier, CompletionHandler<void(std::optional<WebCore::SharedTimebaseHandle>)>&& completionHandler)
@@ -152,12 +154,12 @@ void RemoteAudioVideoRendererProxyManager::create(RemoteAudioVideoRendererIdenti
         .sharedTimebase = WTF::move(sharedTimebase)
     };
 
-    context.renderer->notifyWhenErrorOccurs([weakThis = WeakPtr { *this }, identifier](PlatformMediaError error) {
+    context.renderer->notifyWhenErrorOccurs([weakThis = ThreadSafeWeakPtr { *this }, identifier](PlatformMediaError error) {
         if (RefPtr protectedThis = weakThis.get())
             protectedThis->publishAndSend(identifier, Messages::AudioVideoRendererRemoteMessageReceiver::ErrorOccurred(error));
     });
 
-    context.renderer->notifyFirstFrameAvailable([weakThis = WeakPtr { *this }, identifier] {
+    context.renderer->notifyFirstFrameAvailable([weakThis = ThreadSafeWeakPtr { *this }, identifier] {
         RefPtr protectedThis = weakThis.get();
         if (!protectedThis || !protectedThis->m_renderers.contains(identifier))
             return;
@@ -167,22 +169,22 @@ void RemoteAudioVideoRendererProxyManager::create(RemoteAudioVideoRendererIdenti
         protectedThis->publishAndSend(identifier, Messages::AudioVideoRendererRemoteMessageReceiver::FirstFrameAvailable(protectedThis->stateFor(identifier)));
     });
 
-    context.renderer->notifyWhenRequiresFlushToResume([weakThis = WeakPtr { *this }, identifier] {
+    context.renderer->notifyWhenRequiresFlushToResume([weakThis = ThreadSafeWeakPtr { *this }, identifier] {
         if (RefPtr protectedThis = weakThis.get())
             protectedThis->publishAndSend(identifier, Messages::AudioVideoRendererRemoteMessageReceiver::RequiresFlushToResume(protectedThis->stateFor(identifier)));
     });
 
-    context.renderer->notifyRenderingModeChanged([weakThis = WeakPtr { *this }, identifier] {
+    context.renderer->notifyRenderingModeChanged([weakThis = ThreadSafeWeakPtr { *this }, identifier] {
         if (RefPtr protectedThis = weakThis.get(); protectedThis && protectedThis->m_renderers.contains(identifier))
             protectedThis->rendereringModeChanged(identifier);
     });
 
-    context.renderer->notifySizeChanged([weakThis = WeakPtr { *this }, identifier](const MediaTime& time, FloatSize size) {
+    context.renderer->notifySizeChanged([weakThis = ThreadSafeWeakPtr { *this }, identifier](const MediaTime& time, FloatSize size) {
         if (RefPtr protectedThis = weakThis.get())
             protectedThis->publishAndSend(identifier, Messages::AudioVideoRendererRemoteMessageReceiver::SizeChanged(time, size, protectedThis->stateFor(identifier)));
     });
 
-    context.renderer->notifyEffectiveRateChanged([weakThis = WeakPtr { *this }, identifier](double) {
+    context.renderer->notifyEffectiveRateChanged([weakThis = ThreadSafeWeakPtr { *this }, identifier](double) {
         if (RefPtr protectedThis = weakThis.get())
             protectedThis->publishAndSend(identifier, Messages::AudioVideoRendererRemoteMessageReceiver::EffectiveRateChanged(protectedThis->stateFor(identifier)));
     });
@@ -256,7 +258,7 @@ void RemoteAudioVideoRendererProxyManager::addTrack(RemoteAudioVideoRendererIden
         return;
     }
     if (auto trackIdentifier = renderer->addTrack(type)) {
-        renderer->notifyTrackNeedsReenqueuing(*trackIdentifier, [weakThis = WeakPtr { *this }, identifier](TrackIdentifier trackIdentifier, const MediaTime& time) {
+        renderer->notifyTrackNeedsReenqueuing(*trackIdentifier, [weakThis = ThreadSafeWeakPtr { *this }, identifier](TrackIdentifier trackIdentifier, const MediaTime& time) {
             if (RefPtr protectedThis = weakThis.get())
                 protectedThis->publishAndSend(identifier, Messages::AudioVideoRendererRemoteMessageReceiver::TrackNeedsReenqueuing(trackIdentifier, time, protectedThis->stateFor(identifier)));
         });
@@ -278,7 +280,7 @@ void RemoteAudioVideoRendererProxyManager::requestMediaDataWhenReady(RemoteAudio
     RefPtr renderer = rendererFor(identifier);
     if (!renderer)
         return;
-    renderer->requestMediaDataWhenReady(trackIdentifier)->whenSettled(RunLoop::mainSingleton(), [identifier, trackIdentifier, weakThis = WeakPtr { *this }](auto result) {
+    renderer->requestMediaDataWhenReady(trackIdentifier)->whenSettled(RunLoop::mainSingleton(), [identifier, trackIdentifier, weakThis = ThreadSafeWeakPtr { *this }](auto result) {
         RefPtr protectedThis = weakThis.get();
         if (!protectedThis || !result)
             return;
@@ -336,7 +338,7 @@ void RemoteAudioVideoRendererProxyManager::performTaskAtTime(RemoteAudioVideoRen
     RefPtr renderer = rendererFor(identifier);
     if (!renderer)
         return;
-    renderer->performTaskAtTime(time, [weakThis = WeakPtr { *this }, time, identifier](auto) {
+    renderer->performTaskAtTime(time, [weakThis = ThreadSafeWeakPtr { *this }, time, identifier](auto) {
         if (RefPtr protectedThis = weakThis.get())
             protectedThis->publishAndSend(identifier, Messages::AudioVideoRendererRemoteMessageReceiver::TaskTimeReached(time, protectedThis->stateFor(identifier)));
     });
@@ -389,7 +391,7 @@ void RemoteAudioVideoRendererProxyManager::installTimeObserver(RemoteAudioVideoR
     if (iterator == m_renderers.end())
         return;
     auto& context = iterator->value;
-    context.renderer->setTimeObserver(interval, [weakThis = WeakPtr { *this }, identifier](const MediaTime&) {
+    context.renderer->setTimeObserver(interval, [weakThis = ThreadSafeWeakPtr { *this }, identifier](const MediaTime&) {
         RefPtr protectedThis = weakThis.get();
         if (!protectedThis)
             return;
@@ -456,7 +458,7 @@ void RemoteAudioVideoRendererProxyManager::prepareToSeek(RemoteAudioVideoRendere
         completionHandler(makeUnexpected(PlatformMediaError::NotSupportedError));
         return;
     }
-    renderer->prepareToSeek(seekTime)->whenSettled(RunLoop::mainSingleton(), [weakThis = WeakPtr { *this }, identifier, completionHandler = WTF::move(completionHandler)](auto&& result) mutable {
+    renderer->prepareToSeek(seekTime)->whenSettled(RunLoop::mainSingleton(), [weakThis = ThreadSafeWeakPtr { *this }, identifier, completionHandler = WTF::move(completionHandler)](auto&& result) mutable {
         if (RefPtr protectedThis = weakThis.get())
             protectedThis->publishAndSend(identifier, Messages::AudioVideoRendererRemoteMessageReceiver::StateUpdate(protectedThis->stateFor(identifier)));
         completionHandler(WTF::move(result));
@@ -470,7 +472,7 @@ void RemoteAudioVideoRendererProxyManager::finishSeek(RemoteAudioVideoRendererId
         completionHandler(makeUnexpected(GenericPromise::RejectValueType { }));
         return;
     }
-    renderer->finishSeek(time)->whenSettled(RunLoop::mainSingleton(), [weakThis = WeakPtr { *this }, identifier, completionHandler = WTF::move(completionHandler)](auto&& result) mutable {
+    renderer->finishSeek(time)->whenSettled(RunLoop::mainSingleton(), [weakThis = ThreadSafeWeakPtr { *this }, identifier, completionHandler = WTF::move(completionHandler)](auto&& result) mutable {
         if (RefPtr protectedThis = weakThis.get())
             protectedThis->publishAndSend(identifier, Messages::AudioVideoRendererRemoteMessageReceiver::StateUpdate(protectedThis->stateFor(identifier)));
         completionHandler(WTF::move(result));
@@ -549,7 +551,7 @@ void RemoteAudioVideoRendererProxyManager::notifyWhenHasAvailableVideoFrame(WebK
         renderer->notifyWhenHasAvailableVideoFrame({ });
         return;
     }
-    renderer->notifyWhenHasAvailableVideoFrame([weakThis = WeakPtr { *this }, identifier](auto presentationTime, auto clockTime) {
+    renderer->notifyWhenHasAvailableVideoFrame([weakThis = ThreadSafeWeakPtr { *this }, identifier](auto presentationTime, auto clockTime) {
         RefPtr protectedThis = weakThis.get();
         if (!protectedThis || !protectedThis->m_renderers.contains(identifier))
             return;

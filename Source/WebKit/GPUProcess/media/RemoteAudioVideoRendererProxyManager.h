@@ -51,6 +51,7 @@
 #include <wtf/ObjectIdentifier.h>
 #include <wtf/RefCounted.h>
 #include <wtf/TZoneMalloc.h>
+#include <wtf/ThreadSafeWeakPtr.h>
 
 namespace WebCore {
 class AudioVideoRenderer;
@@ -73,6 +74,7 @@ public:
 
     void ref() const final;
     void deref() const final;
+    ThreadSafeWeakPtrControlBlock& controlBlock() const;
 
     // IPC::MessageReceiver
     void didReceiveMessage(IPC::Connection&, IPC::Decoder&) final;
@@ -207,7 +209,7 @@ private:
     HashMap<RemoteAudioVideoRendererIdentifier, RendererContext> m_renderers;
     const Ref<RemoteVideoFrameObjectHeap> m_videoFrameObjectHeap;
 
-    ThreadSafeWeakPtr<GPUConnectionToWebProcess> m_gpuConnectionToWebProcess;
+    ThreadSafeWeakRef<GPUConnectionToWebProcess> m_gpuConnectionToWebProcess;
 #if !RELEASE_LOG_DISABLED
     uint64_t m_logIdentifier { 0 };
     const Ref<Logger> m_logger;
