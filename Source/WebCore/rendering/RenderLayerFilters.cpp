@@ -177,6 +177,9 @@ GraphicsContext* RenderLayerFilters::beginFilterEffect(RenderElement& renderer, 
         }
 
         dirtyFilterRegion = intersection(filterBoxRect, dirtyFilterRegion);
+        // Nothing to filter when the target doesn't overlap the dirty rect.
+        if (dirtyFilterRegion.isEmpty())
+            return nullptr;
         filterRegion = dirtyFilterRegion;
 
         if (!outsets.isZero())
