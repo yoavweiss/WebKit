@@ -871,9 +871,7 @@ static NSDictionary<NSString *, id> *extractResolutionReport(NSError *error)
         RetainPtr<NSURLSessionTaskMetrics> taskMetrics = dataTask._incompleteTaskMetrics;
 
         RetainPtr<NSURLSessionTaskTransactionMetrics> metrics = taskMetrics.get().transactionMetrics.lastObject;
-        auto privateRelayed = metrics.get()._privacyStance == nw_connection_privacy_stance_direct
-            || metrics.get()._privacyStance == nw_connection_privacy_stance_not_eligible
-            ? PrivateRelayed::No : PrivateRelayed::Yes;
+        auto privateRelayed = metrics.get()._privacyStance == nw_connection_privacy_stance_proxied ? PrivateRelayed::Yes : PrivateRelayed::No;
         String proxyName;
         if (metrics.get()._establishmentReport) {
             if (RetainPtr endpoint = adoptNS(nw_establishment_report_copy_proxy_endpoint(retainPtr(metrics.get()._establishmentReport).get()))) {
