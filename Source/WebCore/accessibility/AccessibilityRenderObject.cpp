@@ -1445,6 +1445,57 @@ CharacterRange AccessibilityRenderObject::selectedTextRange() const
 }
 
 #if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
+// Returns true when the AX text runs for a RenderText parented by this pseudo-element type must be
+// excluded. Some pseudo-elements represent generated content as text with no backing DOM node. Such
+// content cannot be a valid text position nor be selected (with a mouse or otherwise), so emitting
+// text runs for it would make the isolated tree's text-marker strings diverge from what can actually
+// be represented on the main-thread.
+static bool shouldExcludeTextRunsForPseudoElement(std::optional<PseudoElementType> pseudoElementType)
+{
+    if (!pseudoElementType) {
+        // No pseudo type, so this function is not applicable.
+        return false;
+    }
+
+    switch (*pseudoElementType) {
+    case PseudoElementType::Before:
+    case PseudoElementType::After:
+    case PseudoElementType::Marker:
+    case PseudoElementType::Checkmark:
+    case PseudoElementType::PickerIcon:
+    case PseudoElementType::InternalWritingSuggestions:
+    // These pseudos are paint-time decorations and shouldn't generate text of their own.
+    case PseudoElementType::GrammarError:
+    case PseudoElementType::Highlight:
+    case PseudoElementType::Selection:
+    case PseudoElementType::SpellingError:
+    case PseudoElementType::TargetText:
+    // These generate a box / chrome / image that never hosts text.
+    case PseudoElementType::Backdrop:
+    case PseudoElementType::WebKitScrollbar:
+    case PseudoElementType::WebKitScrollbarThumb:
+    case PseudoElementType::WebKitScrollbarButton:
+    case PseudoElementType::WebKitScrollbarTrack:
+    case PseudoElementType::WebKitScrollbarTrackPiece:
+    case PseudoElementType::WebKitScrollbarCorner:
+    case PseudoElementType::WebKitResizer:
+    case PseudoElementType::ViewTransition:
+    case PseudoElementType::ViewTransitionGroup:
+    case PseudoElementType::ViewTransitionImagePair:
+    case PseudoElementType::ViewTransitionOld:
+    case PseudoElementType::ViewTransitionNew:
+    case PseudoElementType::UserAgentPartFallback:
+        return true;
+
+    // These relate to real, selectable DOM text, so we must not exclude their text runs.
+    case PseudoElementType::FirstLine:
+    case PseudoElementType::FirstLetter:
+        return false;
+    }
+    AX_ASSERT_NOT_REACHED();
+    return true;
+}
+
 AXTextRuns AccessibilityRenderObject::textRuns()
 {
     constexpr std::array<uint16_t, 2> lengthOneDomOffsets = { 0, 1 };
@@ -1499,6 +1550,11 @@ AXTextRuns AccessibilityRenderObject::textRuns()
     WeakPtr renderText = dynamicDowncast<RenderText>(renderer.get());
     if (!renderText)
         return { };
+
+    if (CheckedPtr parent = renderText->parent()) {
+        if (shouldExcludeTextRunsForPseudoElement(parent->style().pseudoElementType()))
+            return { };
+    }
 
     // FIXME: Need to handle PseudoElementType::FirstLetter. Right now, it will be chopped off from the other
     // other text in the line, and AccessibilityRenderObject::computeIsIgnored ignores the
