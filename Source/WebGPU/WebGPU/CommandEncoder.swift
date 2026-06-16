@@ -1407,6 +1407,9 @@ extension WebGPU.CommandEncoder {
             }
 
             if zeroColorTargets {
+                if isDestroyed {
+                    return WebGPU.RenderPassEncoder.createInvalid(self, m_device.ptr(), "no color targets and depth-stencil texture is destroyed")
+                }
                 // FIMXE: (rdar://170907318) This should be changed to `guard let` when possible.
                 guard var metalDepthStencilTexture, metalDepthStencilTexture.sampleCount > 0 else {
                     return WebGPU.RenderPassEncoder.createInvalid(self, m_device.ptr(), "no color targets and depth-stencil texture is nil")
