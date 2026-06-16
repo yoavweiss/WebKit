@@ -1156,6 +1156,7 @@
 				WTF/FileSystem.cpp,
 				WTF/FixedBitVector.cpp,
 				WTF/FixedVector.cpp,
+				WTF/FormattedLogging.cpp,
 				WTF/Function.cpp,
 				WTF/GenerationalSet.cpp,
 				WTF/HashCountedSet.cpp,
