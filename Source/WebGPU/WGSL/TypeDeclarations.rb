@@ -1314,6 +1314,8 @@ function :textureSampleGrad, {
 function :textureSampleLevel, {
     must_use: true,
 
+    [].(texture_1d[f32], sampler, f32, f32) => vec4[f32],
+
     [].(texture_2d[f32], sampler, vec2[f32], f32) => vec4[f32],
 
     [].(texture_2d[f32], sampler, vec2[f32], f32, vec2[i32]) => vec4[f32],
