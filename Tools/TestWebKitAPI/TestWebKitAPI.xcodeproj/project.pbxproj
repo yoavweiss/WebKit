@@ -2230,20 +2230,36 @@
 			isa = PBXShellScriptBuildPhase;
 			inputPaths = (
 				"$(PLATFORM_DIR)/Developer/Library/Frameworks/Testing.framework",
+				"$(PLATFORM_DIR)/Developer/Library/Frameworks/_Testing_AppKit.framework",
+				"$(PLATFORM_DIR)/Developer/Library/Frameworks/_Testing_CoreGraphics.framework",
+				"$(PLATFORM_DIR)/Developer/Library/Frameworks/_Testing_CoreImage.framework",
+				"$(PLATFORM_DIR)/Developer/Library/Frameworks/_Testing_CoreTransferable.framework",
+				"$(PLATFORM_DIR)/Developer/Library/Frameworks/_Testing_Foundation.framework",
+				"$(PLATFORM_DIR)/Developer/Library/Frameworks/_Testing_UIKit.framework",
 				"$(PLATFORM_DIR)/Developer/usr/lib/lib_TestingInterop.dylib",
 			);
 			name = "Embed Testing.framework";
 			outputPaths = (
 				"$(BUILT_PRODUCTS_DIR)/Testing.framework",
+				"$(BUILT_PRODUCTS_DIR)/_Testing_AppKit.framework",
+				"$(BUILT_PRODUCTS_DIR)/_Testing_CoreGraphics.framework",
+				"$(BUILT_PRODUCTS_DIR)/_Testing_CoreImage.framework",
+				"$(BUILT_PRODUCTS_DIR)/_Testing_CoreTransferable.framework",
+				"$(BUILT_PRODUCTS_DIR)/_Testing_Foundation.framework",
+				"$(BUILT_PRODUCTS_DIR)/_Testing_UIKit.framework",
 				"$(BUILT_PRODUCTS_DIR)/lib_TestingInterop.dylib",
 			);
 			shellPath = /bin/sh;
 			shellScript = (
-				"ditto \"${PLATFORM_DIR}/Developer/Library/Frameworks/Testing.framework\" \"${BUILT_PRODUCTS_DIR}/Testing.framework\"",
-				"",
-				"if [ -e \"${PLATFORM_DIR}/Developer/usr/lib/lib_TestingInterop.dylib\" ]; then",
-				"    ditto \"${PLATFORM_DIR}/Developer/usr/lib/lib_TestingInterop.dylib\" \"${BUILT_PRODUCTS_DIR}/lib_TestingInterop.dylib\"",
-				"fi",
+				"# The Swift explicit-modules dep scanner resolves cross-import overlays relative to the",
+				"# parent module's location, so the _Testing_* overlays must live next to the dittoed",
+				"# Testing.framework, not just in PLATFORM_DIR.",
+				"for (( i=0 ; $i < $SCRIPT_INPUT_FILE_COUNT ; i++ )); do",
+				"    eval input=\"\\${SCRIPT_INPUT_FILE_$i}\"",
+				"    if [ -e \"$input\" ]; then",
+				"        ditto \"$input\" \"${BUILT_PRODUCTS_DIR}/$(basename \"$input\")\"",
+				"    fi",
+				"done",
 				"",
 			);
 		};
