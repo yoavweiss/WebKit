@@ -105,6 +105,9 @@ public:
     enum class ShouldCancel : uint8_t { No, Yes };
     virtual ShouldCancel adjustForNewBackForwardEntry() { return ShouldCancel::No; }
 
+    enum class AccumulateResult : uint8_t { NotHandled, Accumulated, CancelPending };
+    virtual AccumulateResult accumulateHistorySteps(Frame& /*frame*/, int /*additionalSteps*/) { return AccumulateResult::NotHandled; }
+
     double NODELETE delay() const { return m_delay; }
     LockHistory NODELETE lockHistory() const { return m_lockHistory; }
     LockBackForwardList NODELETE lockBackForwardList() const { return m_lockBackForwardList; }
@@ -356,6 +359,20 @@ public:
         if (m_steps < 0)
             m_steps--;
         return ShouldCancel::No;
+    }
+
+    AccumulateResult accumulateHistorySteps(Frame& frame, int additionalSteps) final
+    {
+        // history.go(0) is reload per spec, not a delta-traversal — fall through to normal scheduling.
+        if (!additionalSteps)
+            return AccumulateResult::NotHandled;
+        if (isSameDocumentNavigation(frame))
+            return AccumulateResult::NotHandled;
+        m_steps += additionalSteps;
+        if (!m_steps)
+            return AccumulateResult::CancelPending;
+        m_historyItem = nullptr;
+        return AccumulateResult::Accumulated;
     }
 
 private:
@@ -791,6 +808,39 @@ void NavigationScheduler::scheduleHistoryNavigation(int steps)
     if (!shouldScheduleNavigation())
         return;
 
+    scheduleHistoryNavigation(m_frame.get(), steps);
+}
+
+void NavigationScheduler::scheduleHistoryNavigation(Frame& originatingFrame, int steps)
+{
+    if (!shouldScheduleNavigation())
+        return;
+
+    if (steps) {
+        if (Ref top = m_frame->tree().top(); top.ptr() != m_frame.ptr()) {
+            if (RefPtr localTop = dynamicDowncast<LocalFrame>(top.get())) {
+                if (RefPtr localOriginating = dynamicDowncast<LocalFrame>(originatingFrame); localOriginating && !localOriginating->loader().isComplete())
+                    localOriginating->loader().completed();
+                if (m_redirect)
+                    cancel();
+                protect(localTop->navigationScheduler())->scheduleHistoryNavigation(originatingFrame, steps);
+                return;
+            }
+        }
+    }
+
+    if (m_redirect) {
+        switch (m_redirect->accumulateHistorySteps(originatingFrame, steps)) {
+        case ScheduledNavigation::AccumulateResult::Accumulated:
+            return;
+        case ScheduledNavigation::AccumulateResult::CancelPending:
+            cancel();
+            return;
+        case ScheduledNavigation::AccumulateResult::NotHandled:
+            break;
+        }
+    }
+
     // Invalid history navigations (such as history.forward() during a new load) have the side effect of cancelling any scheduled
     // redirects. We also avoid the possibility of cancelling the current load by avoiding the scheduled redirection altogether.
     RefPtr page = m_frame->page();
@@ -903,6 +953,14 @@ void NavigationScheduler::startTimer()
 
 void NavigationScheduler::adjustPendingHistoryNavigationForNewBackForwardEntry()
 {
+    if (Ref top = m_frame->tree().top(); top.ptr() != m_frame.ptr()) {
+        if (RefPtr localTop = dynamicDowncast<LocalFrame>(top.get())) {
+            // After forwarding, this frame's m_redirect (if any) is some
+            // other ScheduledNavigation, not the queued traversal.
+            protect(localTop->navigationScheduler())->adjustPendingHistoryNavigationForNewBackForwardEntry();
+            return;
+        }
+    }
     if (!m_redirect)
         return;
     if (m_redirect->adjustForNewBackForwardEntry() == ScheduledNavigation::ShouldCancel::Yes)
