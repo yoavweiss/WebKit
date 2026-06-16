@@ -174,6 +174,7 @@ ProgressTrackerFinalProgressComplete, "ProgressTracker::finalProgressComplete: v
 ProgressTrackerProgressCompleted, "ProgressTracker::progressCompleted: frameID %" PRIu64 ", value %f, tracked frames %d, originating frameID %" PRIu64 ", isMainLoad %d", (uint64_t, double, int, uint64_t, int), DEFAULT, Network
 ProgressTrackerProgressStarted, "ProgressTracker::progressStarted: frameID %" PRIu64 ", value %f, tracked frames %d, originating frameID %" PRIu64 ", isMainLoad %d", (uint64_t, double, int, uint64_t, int), DEFAULT, Network
 ResourceLoaderWillSendRequestInternal, "[pageID=%" PRIu64 ", frameID=%" PRIu64 ", resourceID=%" PRIu64 "] ResourceLoader::willSendRequestInternal: calling completion handler", (uint64_t, uint64_t, uint64_t), DEFAULT, Network
+ResourceLoaderWillSendRequestInternalCrossOriginRedirect, "[pageID=%" PRIu64 ", frameID=%" PRIu64 ", resourceID=%" PRIu64 "] ResourceLoader::willSendRequestInternal: Processing cross-origin redirect", (uint64_t, uint64_t, uint64_t), DEFAULT, Network
 RtcPeerConnectionSetLocalDescription, "RTCPeerConnection::setLocalDescription (%" PRIu64 ") to: '%" PUBLIC_LOG_STRING "'", (uint64_t, CString), DEFAULT, WebRTC
 RtcPeerConnectionSetRemoteDescription, "RTCPeerConnection::setRemoteDescription (%" PRIu64 ") to: '%" PUBLIC_LOG_STRING "'", (uint64_t, CString), DEFAULT, WebRTC
 ServiceWorkerThreadProxyRemoveFetch, "ServiceWorkerThreadProxy::removeFetch %" PRIu64, (uint64_t), DEFAULT, ServiceWorker
