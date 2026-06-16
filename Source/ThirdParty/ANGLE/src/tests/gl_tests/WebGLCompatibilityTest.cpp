@@ -1744,13 +1744,16 @@ void main()
     ANGLE_GL_PROGRAM(program, kVS, essl1_shaders::fs::Red());
     glUseProgram(program);
 
+    GLint posLocation = glGetAttribLocation(program, "a_Position");
+    ASSERT_NE(-1, posLocation);
+    glEnableVertexAttribArray(posLocation);
     constexpr float kVertexData[] = {
         1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
     };
-
     GLBuffer vertexBuffer;
     glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(kVertexData), kVertexData, GL_STREAM_DRAW);
+    glVertexAttribPointer(posLocation, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
 
     GLuint positionLocation = glGetAttribLocation(program, "a_Position");
     glEnableVertexAttribArray(positionLocation);
@@ -1778,6 +1781,33 @@ void main()
     // Neither index is representable as 32-bit int
     glDrawElements(GL_POINTS, 4, GL_UNSIGNED_INT, reinterpret_cast<void *>(sizeof(GLuint) * 2));
     EXPECT_GL_ERROR(GL_INVALID_OPERATION);
+
+    constexpr GLuint kIndexData2[] = {
+        0,
+        std::numeric_limits<GLuint>::max(),
+    };
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(kIndexData2), kIndexData2, GL_DYNAMIC_DRAW);
+
+    glDrawElements(GL_LINES, 2, GL_UNSIGNED_INT, 0);
+    EXPECT_GL_ERROR(GL_INVALID_OPERATION);
+
+    glDrawElements(GL_LINES, 2, GL_UNSIGNED_SHORT, reinterpret_cast<void *>(2));
+    EXPECT_GL_ERROR(GL_INVALID_OPERATION);
+
+    glDrawElements(GL_LINES, 2, GL_UNSIGNED_BYTE, reinterpret_cast<void *>(3));
+    EXPECT_GL_ERROR(GL_INVALID_OPERATION);
+
+    constexpr GLuint kIndexData3[] = {0, 1};
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(kIndexData3), kIndexData3, GL_DYNAMIC_DRAW);
+
+    glDrawElements(GL_LINES, 2, GL_UNSIGNED_INT, 0);
+    EXPECT_GL_NO_ERROR();
+
+    glDrawElements(GL_LINES, 2, GL_UNSIGNED_SHORT, reinterpret_cast<void *>(2));
+    EXPECT_GL_NO_ERROR();
+
+    glDrawElements(GL_LINES, 2, GL_UNSIGNED_BYTE, reinterpret_cast<void *>(3));
+    EXPECT_GL_NO_ERROR();
 }
 
 // Test for drawing with a null index buffer

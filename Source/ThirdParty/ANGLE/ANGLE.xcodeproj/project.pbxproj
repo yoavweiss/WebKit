@@ -892,6 +892,7 @@
 		7BED8E022F9A493200F15B70 /* AddDefaultReturnStatements.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7BED8E012F9A493200F15B70 /* AddDefaultReturnStatements.cpp */; };
 		7BED8E042F9A493200F15B70 /* AddDefaultReturnStatements.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7BED8E012F9A493200F15B70 /* AddDefaultReturnStatements.cpp */; };
 		7BED8E052F9A493200F15B70 /* AddDefaultReturnStatements.h in Headers */ = {isa = PBXBuildFile; fileRef = 7BED8E002F9A493200F15B70 /* AddDefaultReturnStatements.h */; };
+		7BF0DF592F71612100F99E69 /* utilities_unittest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7BF0DF582F71612100F99E69 /* utilities_unittest.cpp */; };
 		7BF554C42C81EF29002B101E /* libtranslator.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7BF5549B2C81EDE0002B101E /* libtranslator.a */; };
 		7BF554C52C81EF4D002B101E /* TranslatorFuzzer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7BF554A02C81EE51002B101E /* TranslatorFuzzer.cpp */; };
 		7BF554CD2C81F028002B101E /* TranslatorFuzzer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7BF554A02C81EE51002B101E /* TranslatorFuzzer.cpp */; };
@@ -2467,6 +2468,7 @@
 		7BED5BE72F99F81200A240A7 /* TransformFeedback_unittest.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = TransformFeedback_unittest.cpp; sourceTree = "<group>"; };
 		7BED8E002F9A493200F15B70 /* AddDefaultReturnStatements.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AddDefaultReturnStatements.h; sourceTree = "<group>"; };
 		7BED8E012F9A493200F15B70 /* AddDefaultReturnStatements.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = AddDefaultReturnStatements.cpp; sourceTree = "<group>"; };
+		7BF0DF582F71612100F99E69 /* utilities_unittest.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = utilities_unittest.cpp; sourceTree = "<group>"; };
 		7BF5549B2C81EDE0002B101E /* libtranslator.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libtranslator.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		7BF554A02C81EE51002B101E /* TranslatorFuzzer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = TranslatorFuzzer.cpp; sourceTree = "<group>"; };
 		7BF554A12C81EE77002B101E /* TranslatorFuzzerCoverage.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = TranslatorFuzzerCoverage.mm; sourceTree = "<group>"; };
@@ -3858,6 +3860,7 @@
 				7B5B1F0F2F0FC73B00B5D57B /* unsafe_buffers.h */,
 				5CC7D46819102620000B8C1F /* utilities.cpp */,
 				5CC7D46919102620000B8C1F /* utilities.h */,
+				7BF0DF582F71612100F99E69 /* utilities_unittest.cpp */,
 				31A331C51EA5ED5F00FD2203 /* vector_utils.h */,
 				7BFAF8DC2DE6EDE400327F7F /* vector_utils_unittest.cpp */,
 				3A2C66EF29236E7D00FEDF46 /* WorkerThread.cpp */,
@@ -6802,6 +6805,7 @@
 				7B8C09152F84EAB1007E37DE /* TestSuite.cpp in Sources */,
 				7BED5BE82F99F81200A240A7 /* TransformFeedback_unittest.cpp in Sources */,
 				7BFAF8C12DE6ECA700327F7F /* Type_test.cpp in Sources */,
+				7BF0DF592F71612100F99E69 /* utilities_unittest.cpp in Sources */,
 				7BFAF8BB2DE6ECA700327F7F /* VariablePacker_test.cpp in Sources */,
 				7BFAF8E22DE6EDE400327F7F /* vector_utils_unittest.cpp in Sources */,
 				7BFAF8E82DE6EDE400327F7F /* WorkerThread_unittest.cpp in Sources */,
