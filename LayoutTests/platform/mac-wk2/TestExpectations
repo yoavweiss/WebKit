@@ -2442,3 +2442,5 @@ webkit.org/b/316089 [ Sequoia Release ] inspector/css/setLayoutContextTypeChange
 webkit.org/b/317031 [ Release ] imported/w3c/web-platform-tests/web-locks/acquire.https.any.sharedworker.html  [ Pass Crash ]
 
 webkit.org/b/317141 [ Tahoe ] fast/speechsynthesis/speech-synthesis-speak.html [ Skip ]
+
+webkit.org/b/317173 [ arm64 ] fast/webgpu/nocrash/fuzz-298315.html [ Pass Crash ]
