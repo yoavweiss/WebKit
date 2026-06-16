@@ -8220,3 +8220,6 @@ imported/w3c/web-platform-tests/css/css-shapes/shape-outside/supported-shapes/sh
 imported/w3c/web-platform-tests/css/css-shapes/shape-outside/supported-shapes/shape/shape-outside-shape-003.html [ ImageOnlyFailure ]
 
 webkit.org/b/317017 imported/w3c/web-platform-tests/largest-contentful-paint/multiple-redirects-TAO.html [ Pass Failure ]
+
+imported/w3c/web-platform-tests/preload/preload-csp.sub.html [ Skip ] # Different hash generated on each run
+imported/w3c/web-platform-tests/preload/modulepreload-multiple.html [ Failure Pass ]

@@ -13862,6 +13862,8 @@
         "web-platform-tests/payment-request/show-method-postmessage-iframe.html",
         "web-platform-tests/permissions-policy/permissions-policy-frame-policy-timing-iframe-camera.https.sub.html",
         "web-platform-tests/permissions/feature-policy-permissions-query.html",
+        "web-platform-tests/preload/avoid-prefetching-on-text-plain-inner.html",
+        "web-platform-tests/preload/preload-in-data-doc-ref.html",
         "web-platform-tests/quirks/body-fills-html-quirk-ref.html",
         "web-platform-tests/quirks/body-fills-html-quirk-ref2.html",
         "web-platform-tests/quirks/class-names-across-iframes-ref.html",

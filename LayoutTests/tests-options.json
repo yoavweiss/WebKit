@@ -5429,6 +5429,63 @@
     "imported/w3c/web-platform-tests/pointerlock/pointerlock_without_gesture.html": [
         "slow"
     ],
+    "imported/w3c/web-platform-tests/preload/link-header-modulepreload.html": [
+        "slow"
+    ],
+    "imported/w3c/web-platform-tests/preload/link-header-preload-non-html.html": [
+        "slow"
+    ],
+    "imported/w3c/web-platform-tests/preload/modulepreload.html": [
+        "slow"
+    ],
+    "imported/w3c/web-platform-tests/preload/onerror-event.html": [
+        "slow"
+    ],
+    "imported/w3c/web-platform-tests/preload/onload-event.html": [
+        "slow"
+    ],
+    "imported/w3c/web-platform-tests/preload/preconnect-onerror-event.html": [
+        "slow"
+    ],
+    "imported/w3c/web-platform-tests/preload/preconnect.html": [
+        "slow"
+    ],
+    "imported/w3c/web-platform-tests/preload/prefetch-events.html": [
+        "slow"
+    ],
+    "imported/w3c/web-platform-tests/preload/prefetch-time-to-fetch.https.html": [
+        "slow"
+    ],
+    "imported/w3c/web-platform-tests/preload/preload-connect-to-doc.html": [
+        "slow"
+    ],
+    "imported/w3c/web-platform-tests/preload/preload-error.sub.html": [
+        "slow"
+    ],
+    "imported/w3c/web-platform-tests/preload/preload-imagesrcset-no-href.html": [
+        "slow"
+    ],
+    "imported/w3c/web-platform-tests/preload/preload-referrer-policy-subresource-header.tentative.html": [
+        "slow"
+    ],
+    "imported/w3c/web-platform-tests/preload/preload-referrer-policy.html": [
+        "slow"
+    ],
+    "imported/w3c/web-platform-tests/preload/preload-time-to-fetch.https.html": [
+        "slow"
+    ],
+    "imported/w3c/web-platform-tests/preload/preload-type-match.html": [
+        "slow"
+    ],
+    "imported/w3c/web-platform-tests/preload/preload-with-type.html": [
+        "slow"
+    ],
+    "imported/w3c/web-platform-tests/preload/preload-with-unsupported-type.html": [
+        "slow"
+    ],
+    "imported/w3c/web-platform-tests/preload/supported-as-values.html": [
+        "slow"
+    ],
     "imported/w3c/web-platform-tests/quirks/hashless-hex-color/limited-quirks.html": [
         "slow"
     ],
