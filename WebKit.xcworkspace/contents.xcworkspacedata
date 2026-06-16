@@ -2,9 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:Tools/TestWebKitAPI/Tests/WTF/FormattedLogging.cpp">
-   </FileRef>
-   <FileRef
       location = "group:Configurations">
    </FileRef>
    <FileRef
