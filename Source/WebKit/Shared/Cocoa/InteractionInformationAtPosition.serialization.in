@@ -38,6 +38,7 @@ struct WebKit::InteractionInformationAtPosition {
     WebKit::InteractionInformationAtPosition::Selectability selectability;
 
     bool isSelected;
+    bool isOverSelectableText;
     bool prefersDraggingOverTextSelection;
     bool isDHTMLDraggable;
     bool isColorInput;

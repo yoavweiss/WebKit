@@ -40,6 +40,7 @@ InteractionInformationAtPosition::InteractionInformationAtPosition(
     std::optional<bool> hitNodeOrWindowHasDoubleClickListener,
     Selectability&& selectability,
     bool isSelected,
+    bool isOverSelectableText,
     bool prefersDraggingOverTextSelection,
     bool isDHTMLDraggable,
     bool isColorInput,
@@ -105,6 +106,7 @@ InteractionInformationAtPosition::InteractionInformationAtPosition(
     , hitNodeOrWindowHasDoubleClickListener(hitNodeOrWindowHasDoubleClickListener)
     , selectability(selectability)
     , isSelected(isSelected)
+    , isOverSelectableText(isOverSelectableText)
     , prefersDraggingOverTextSelection(prefersDraggingOverTextSelection)
     , isDHTMLDraggable(isDHTMLDraggable)
     , isColorInput(isColorInput)

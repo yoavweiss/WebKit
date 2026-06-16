@@ -384,6 +384,8 @@ static void selectionPositionInformation(WebPage& page, const InteractionInforma
     })();
     info.isSelected = result.isSelected();
 
+    info.isOverSelectableText = info.isSelectable() && renderer->isRenderText() && hitNode->canStartSelection();
+
     if (info.isLink || info.isImage)
         return;
 

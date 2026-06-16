@@ -223,6 +223,40 @@ struct AppKitGesturesTests {
         }
     }
 
+    @Test(
+        .bug(
+            "rdar://179184036",
+            "REGRESSION(313984@main): Long-press over non-editable text shows a context menu instead of selecting a word"
+        )
+    )
+    func longPressOverTextSelectsWordAndDoesNotOpenContextMenu() async throws {
+        try await loadHTML(contentEditable: false)
+
+        let crazyRange = try #require(Self.text.utf16Range(of: "crazy"))
+        let crazySelection = JavaScriptSelection.range(
+            base: .init(in: "div", at: crazyRange.lowerBound),
+            extent: .init(in: "div", at: crazyRange.upperBound)
+        )
+
+        let crazyBoundsInScreenCoordinates = try await screenBoundsOfText("crazy")
+        await page.waitForNextPresentationUpdate()
+
+        // Recap requires this test to be ran within an app host.
+        guard NSApp.isActive else {
+            return
+        }
+
+        await recap.play { composer in
+            composer._wk_click(at: crazyBoundsInScreenCoordinates.center, for: .seconds(1))
+        }
+
+        await page.waitForNextPresentationUpdate()
+
+        let newSelection = try await page.callJavaScript(JavaScriptMessages.GetSelection())
+
+        #expect(newSelection == crazySelection)
+    }
+
     @Test
     func scrollingDoesNotRemoveTextSelection() async throws {
         try await loadHTML()

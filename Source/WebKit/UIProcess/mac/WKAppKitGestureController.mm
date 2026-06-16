@@ -863,7 +863,12 @@ ALLOW_NEW_API_WITHOUT_GUARDS_END
 
     bool requestIsValid = _hasValidPositionInformation && _positionInformation.request.isValidForRequest(request);
     bool isSelectable = _positionInformation.isSelectable();
-    bool shouldBegin = requestIsValid && isSelectable;
+    bool isOverSelectableText = _positionInformation.isOverSelectableText;
+
+    // The secondary click owns selectable points that are not over actual text (e.g. the page
+    // background). Over a run of selectable text, the text selection manager should win so that a
+    // long press selects a word instead of synthesizing a context menu.
+    bool shouldBegin = requestIsValid && isSelectable && !isOverSelectableText;
 
     if (!requestIsValid)
         [self _invalidateCurrentPositionInformation];

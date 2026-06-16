@@ -67,6 +67,7 @@ struct InteractionInformationAtPosition {
         std::optional<bool> hitNodeOrWindowHasDoubleClickListener,
         Selectability&&,
         bool isSelected,
+        bool isOverSelectableText,
         bool prefersDraggingOverTextSelection,
         bool isDHTMLDraggable,
         bool isColorInput,
@@ -136,6 +137,7 @@ struct InteractionInformationAtPosition {
     Selectability selectability { Selectability::Selectable };
 
     bool isSelected { false };
+    bool isOverSelectableText { false };
     bool prefersDraggingOverTextSelection { false };
     bool isDHTMLDraggable { false };
     bool isColorInput { false };
