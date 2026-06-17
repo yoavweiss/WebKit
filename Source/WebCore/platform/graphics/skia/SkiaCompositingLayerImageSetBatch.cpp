@@ -28,6 +28,7 @@
 
 #if USE(COORDINATED_GRAPHICS) && USE(SKIA)
 #include "BitmapTexture.h"
+#include "CoordinatedTileBuffer.h"
 #include "FloatRect.h"
 #include "SkiaBackingStore.h"
 
