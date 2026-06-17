@@ -1010,6 +1010,7 @@
 				WebKit/WKWebView/mac/PageVisibilityStateWithWindowChanges.mm,
 				WebKit/WKWebView/mac/RenderedImageFromDOMNode.mm,
 				WebKit/WKWebView/mac/RenderedImageFromDOMRange.mm,
+				WebKit/WKWebView/mac/RunningBoardManagement.mm,
 				WebKit/WKWebView/mac/ScrollbarTests.mm,
 				WebKit/WKWebView/mac/ScrollingCoordinatorTests.mm,
 				WebKit/WKWebView/mac/SetAndUpdateCacheModel.mm,
