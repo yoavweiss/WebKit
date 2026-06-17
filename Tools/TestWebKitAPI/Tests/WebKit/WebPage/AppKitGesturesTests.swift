@@ -24,6 +24,7 @@
 #if HAVE_APPKIT_GESTURES_SUPPORT
 
 import Foundation
+import struct Foundation.URL
 @_spi(WebKitAdditions_Testing) @_spi(Testing) import WebKit
 import SwiftUI
 import struct Swift.String
@@ -475,6 +476,40 @@ struct AppKitGesturesTests {
         let finalScrollPosition = try await page.callJavaScript(JavaScriptMessages.ScrollPosition())
         #expect(finalScrollPosition.x == 0)
         #expect(finalScrollPosition.y > 0)
+    }
+
+    @Test
+    func interruptingDeceleratingScrollDoesNotFollowLink() async throws {
+        let html = """
+            <a id="link" href="about:blank"
+               style="display: block; width: 100%; height: 5000px;
+                      background: repeating-linear-gradient(to bottom, blue 0 50px, white 50px 100px);">
+            </a>
+            """
+        let initialURL = try #require(URL(string: "http://webkit.org/"))
+        try await page.load(html: html, baseURL: initialURL).wait()
+        await page.waitForNextPresentationUpdate()
+
+        // Recap requires this test to be ran within an app host.
+        guard NSApp.isActive else {
+            return
+        }
+
+        let center = convertToCoreGraphicsScreenCoordinates(pointInWindowCoordinates: window.frame.center, window: window)
+        let scrollEnd = CGPoint(x: center.x, y: center.y - 200)
+
+        // Begin a momentum scroll, then catch it before it settles.
+        // The interruption should not follow the link beneath it.
+        await recap.play { composer in
+            composer._wk_scroll(withStart: center, end: scrollEnd, duration: .seconds(0.1))
+            composer.advanceTime(0.05)
+            composer._wk_click(at: center, for: .seconds(0.05))
+        }
+
+        await page.waitForPendingMouseEvents()
+        await page.waitForNextPresentationUpdate()
+
+        #expect(page.url == initialURL)
     }
 
     // MARK: - Drag Press Disambiguation Tests

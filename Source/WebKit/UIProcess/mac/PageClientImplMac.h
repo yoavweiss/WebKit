@@ -294,6 +294,7 @@ private:
     void derefView() override;
 
     void pageDidScroll(const WebCore::IntPoint&) override;
+    void didEndSyntheticMomentumScrolling() override;
     void didRestoreScrollPosition() override;
     bool windowIsFrontWindowUnderMouse(const NativeWebMouseEvent&) override;
 

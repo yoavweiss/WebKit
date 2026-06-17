@@ -2539,6 +2539,13 @@ void WebViewImpl::pageDidScroll(const IntPoint& scrollOffset)
     }
 }
 
+void WebViewImpl::didEndSyntheticMomentumScrolling()
+{
+#if HAVE(APPKIT_GESTURES_SUPPORT)
+    [appKitGestureController() didEndSyntheticMomentumScrolling];
+#endif
+}
+
 #if ENABLE(CONTENT_INSET_BACKGROUND_FILL)
 
 void WebViewImpl::updateScrollPocketVisibilityWhenScrolledToTop()

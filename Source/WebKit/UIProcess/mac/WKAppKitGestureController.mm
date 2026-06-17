@@ -198,6 +198,8 @@ static NSString *gestureLogName(NSGestureRecognizer *gesture)
     RetainPtr<WKDeferringGestureRecognizer> _dragDeferringGestureRecognizer;
 
     bool _isMomentumActive;
+    bool _caughtDeceleratingScroll;
+    bool _suppressNextPanScrollDelta;
 
     bool _potentialClickInProgress;
     bool _isClickHighlightIDValid;
@@ -449,6 +451,16 @@ static NSString *gestureLogName(NSGestureRecognizer *gesture)
 
     [self sendWheelEventForGesture:_panGestureRecognizer];
     [self startMomentumIfNeededForGesture:_panGestureRecognizer];
+
+    switch (gesture.state) {
+    case NSGestureRecognizerStateEnded:
+    case NSGestureRecognizerStateCancelled:
+    case NSGestureRecognizerStateFailed:
+        [self _resetCaughtDeceleratingScroll];
+        break;
+    default:
+        break;
+    }
 }
 
 - (void)singleClickGestureRecognized:(NSGestureRecognizer *)gesture
@@ -468,6 +480,22 @@ static NSString *gestureLogName(NSGestureRecognizer *gesture)
     WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG_DEBUG(page->logIdentifier(), "%@ state=%ld", gestureLogName(gesture), static_cast<long>(gesture.state));
 
     RELEASE_ASSERT(_singleClickGestureRecognizer == gesture);
+
+    if (_caughtDeceleratingScroll) {
+        // This gesture is interrupting a decelerating scroll; it should stop the scroll (and may
+        // turn into a pan) but must never perform a click.
+        switch (gesture.state) {
+        case NSGestureRecognizerStateEnded:
+        case NSGestureRecognizerStateCancelled:
+        case NSGestureRecognizerStateFailed:
+            [self _resetCaughtDeceleratingScroll];
+            [self _handleClickCancelled];
+            break;
+        default:
+            break;
+        }
+        return;
+    }
 
     // Clicks aren't delivered to NSButton's built-in click gesture
     // recognizer when a parent view's GR recognizes first, so we
@@ -1181,6 +1209,10 @@ ALLOW_NEW_API_WITHOUT_GUARDS_END
     WebCore::IntPoint position { [gesture locationInView:webView.get()] };
     auto globalPosition { WebCore::globalPoint([gesture locationInView:nil], [webView window]) };
     auto gestureDelta { translationInView(gesture, webView.get()) };
+
+    if (std::exchange(_suppressNextPanScrollDelta, false))
+        gestureDelta = { };
+
     auto wheelTicks { gestureDelta.scaled(1. / static_cast<float>(WebCore::Scrollbar::pixelsPerLineStep())) };
     auto granularity = WebKit::WebWheelEvent::Granularity::ScrollByPixelWheelEvent;
     bool directionInvertedFromDevice = false;
@@ -1298,8 +1330,22 @@ ALLOW_NEW_API_WITHOUT_GUARDS_END
     if (!page)
         return;
 
+    _caughtDeceleratingScroll = true;
+    _suppressNextPanScrollDelta = true;
+
     page->interruptSyntheticMomentumScrolling();
     WK_APPKIT_GESTURE_CONTROLLER_RELEASE_LOG(page->logIdentifier(), "Interrupted momentum scrolling");
+}
+
+- (void)didEndSyntheticMomentumScrolling
+{
+    _isMomentumActive = false;
+}
+
+- (void)_resetCaughtDeceleratingScroll
+{
+    _caughtDeceleratingScroll = false;
+    _suppressNextPanScrollDelta = false;
 }
 
 #pragma mark - Drag Gesture State
@@ -1351,6 +1397,7 @@ ALLOW_NEW_API_WITHOUT_GUARDS_END
     [self _handleClickCancelled];
     _mouseTrackingHasSentMouseDown = false;
     _isMomentumActive = false;
+    [self _resetCaughtDeceleratingScroll];
     _isSuppressingSingleClickGestureForTextSelection = false;
     _latestClickID.reset();
     _layerTreeTransactionIdAtLastInteractionStart.reset();
@@ -1477,6 +1524,16 @@ static inline bool isSamePair(NSGestureRecognizer *a, NSGestureRecognizer *b, NS
         return NO;
 
     NSPoint locationInViewCoordinates = [gestureRecognizer locationInView:webView];
+
+    // While catching a decelerating scroll, only select gestures are allowed to begin:
+    // - single click, so it can reset the interruption state
+    // - pan, so it can continue with successive scrolls
+    if (_caughtDeceleratingScroll) {
+        if (gestureRecognizer == _singleClickGestureRecognizer)
+            return YES;
+        if (gestureRecognizer != _panGestureRecognizer)
+            return NO;
+    }
 
     if (gestureRecognizer == _doubleClickGestureRecognizer)
         return viewImpl->allowsMagnification();

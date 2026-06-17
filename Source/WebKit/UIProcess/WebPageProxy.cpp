@@ -10845,6 +10845,12 @@ void WebPageProxy::pageDidScroll(const WebCore::IntPoint& scrollOffset)
 #endif
 }
 
+void WebPageProxy::didEndSyntheticMomentumScrolling()
+{
+    if (RefPtr pageClient = this->pageClient())
+        pageClient->didEndSyntheticMomentumScrolling();
+}
+
 void WebPageProxy::setHasActiveAnimatedScrolls(bool isRunning)
 {
     m_hasActiveAnimatedScroll = isRunning;
