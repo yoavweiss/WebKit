@@ -93,6 +93,9 @@ bool FEColorMatrix::areValuesValidForType(ColorMatrixType type, const Vector<flo
     case ColorMatrixType::FECOLORMATRIX_TYPE_UNKNOWN:
         return false;
     }
+
+    ASSERT_NOT_REACHED();
+    return false;
 }
 
 void FEColorMatrix::calculateSaturateComponents(std::span<float, 9> components, float value)
