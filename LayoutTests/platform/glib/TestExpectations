@@ -1334,9 +1334,6 @@ webkit.org/b/216767 css3/font-feature-settings-stylistic-set.html [ ImageOnlyFai
 
 webkit.org/b/216853 css3/font-synthesis-small-caps.html [ ImageOnlyFailure ]
 
-webkit.org/b/221308 [ Debug ] fast/selectors/matches-backtracking.html [ Timeout ]
-webkit.org/b/221308 [ Debug ] fast/selectors/is-backtracking.html [ Timeout ]
-
 fast/forms/vertical-writing-mode/meter.html [ ImageOnlyFailure ]
 webkit.org/b/264558 fast/forms/vertical-writing-mode/listbox-horizontal-scrollbar.html [ ImageOnlyFailure ]
 
@@ -2364,10 +2361,6 @@ svg/zoom/page/text-with-non-scaling-stroke.html [ ImageOnlyFailure ]
 
 # Test failing only with swrast
 webkit.org/b/273396 css3/background/background-repeat-space-content.html [ ImageOnlyFailure ]
-webkit.org/b/273396 css3/masking/clip-path-border-radius-content-box-001.html [ ImageOnlyFailure ]
-webkit.org/b/273396 css3/masking/clip-path-border-radius-fill-box-001.html [ ImageOnlyFailure ]
-webkit.org/b/273396 css3/masking/clip-path-border-radius-padding-box-001.html [ ImageOnlyFailure ]
-webkit.org/b/273396 css3/masking/clip-path-inset.html [ ImageOnlyFailure ]
 webkit.org/b/273396 css3/masking/mask-repeat-space-padding.html [ ImageOnlyFailure ]
 webkit.org/b/273396 fast/block/float/floats-offset-image-quirk-lineheight.html [ ImageOnlyFailure ]
 webkit.org/b/273396 fast/block/float/floats-offset-image-quirk.html [ ImageOnlyFailure ]
@@ -2377,7 +2370,6 @@ webkit.org/b/273396 fast/clip/overflow-hidden-with-border-radius-overflow-clippi
 webkit.org/b/273396 fast/css/ignore-empty-focus-ring-rects.html [ ImageOnlyFailure ]
 webkit.org/b/273396 fast/css3-text/css3-text-decoration/text-decoration-skip/text-decoration-skip-ink-svg.html [ ImageOnlyFailure ]
 webkit.org/b/273396 fast/inline/hidpi-outline-inline-box-writing-modes.html [ ImageOnlyFailure ]
-webkit.org/b/273396 fast/masking/clip-path-inset-large-radii.html [ ImageOnlyFailure ]
 webkit.org/b/273396 fast/multicol/clipped-video-in-second-column.html [ ImageOnlyFailure ]
 webkit.org/b/273396 fast/multicol/fixed-stack.html [ ImageOnlyFailure ]
 webkit.org/b/273396 fast/text/canvas-color-fonts/stroke-gradient-COLR.html [ ImageOnlyFailure ]
@@ -5605,8 +5597,6 @@ webkit.org/b/317119 fast/repaint/layer-repaint-with-layout-delta-2.html [ Pass I
 [ Release ] imported/w3c/web-platform-tests/preload/prefetch-document.html [ Failure Pass ]
 fast/dom/HTMLImageElement/sizes/image-sizes-js-change.html [ Pass Failure ]
 gamepad/gamepad-event-handlers.html [ Pass Timeout ]
-ipc/send-gpu-GetShareableBitmap-RemoteRenderingBackend.html [ ImageOnlyFailure Pass ]
-media/media-source/media-source-real-play-after-eos.html [ ImageOnlyFailure Pass ]
 
 # End: Common failures between GTK and WPE.
 

@@ -739,7 +739,6 @@ Bug(WPE) svg/zoom/page/zoom-zoom-coords.xhtml [ Failure ]
 svg/text/kerning.svg [ Pass ]
 svg/text/multichar-glyph.svg [ Pass ]
 
-webkit.org/b/188433 svg/custom/href-svg-namespace-static.svg [ ImageOnlyFailure ]
 
 webkit.org/b/188505 fast/dom/horizontal-scrollbar-in-rtl.html [ Failure ]
 webkit.org/b/188505 fast/dom/title-directionality-removeChild.html [ Failure ]
@@ -866,6 +865,11 @@ imported/w3c/web-platform-tests/css/css-masking/clip/clip-rect-scroll.html [ Ima
 imported/w3c/web-platform-tests/css/css-position/position-fixed-scroll-nested-fixed.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-text-decor/text-combine-emphasis.html [ ImageOnlyFailure ]
 webkit.org/b/273396 imported/w3c/web-platform-tests/css/css-text-decor/text-shadow/basic-negcoord.html [ ImageOnlyFailure ]
+webkit.org/b/273396 css3/masking/clip-path-border-radius-content-box-001.html [ ImageOnlyFailure ]
+webkit.org/b/273396 css3/masking/clip-path-border-radius-fill-box-001.html [ ImageOnlyFailure ]
+webkit.org/b/273396 css3/masking/clip-path-border-radius-padding-box-001.html [ ImageOnlyFailure ]
+webkit.org/b/273396 css3/masking/clip-path-inset.html [ ImageOnlyFailure ]
+webkit.org/b/273396 fast/masking/clip-path-inset-large-radii.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-text-decor/text-shadow/basic.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-text-decor/text-shadow/basic-opacity.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-writing-modes/text-shadow-orientation-upright-001.html [ ImageOnlyFailure ]
@@ -878,7 +882,6 @@ media/video-audio-session-mode.html [ Skip ] # Timeout.
 webgl/2.0.y/conformance/offscreencanvas/offscreencanvas-transfer-image-bitmap.html [ Skip ] # Timeout.
 webgl/2.0.y/conformance2/offscreencanvas/offscreencanvas-transfer-image-bitmap.html [ Skip ] # Timeout.
 
-imported/w3c/web-platform-tests/css/css-ui/outline-027.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/html/semantics/embedded-content/the-canvas-element/toDataURL.jpg.html [ Failure ]
 
 # Flaky tests Aug2023
@@ -1096,7 +1099,6 @@ webkit.org/b/287572 svg/compositing/outermost-svg-directly-composited-transforme
 webkit.org/b/287572 svg/compositing/outermost-svg-with-border-overflow-visible.html [ ImageOnlyFailure ]
 webkit.org/b/131347 svg/compositing/hidpi-legacy-svg-compositing-sibling-no-shift.html [ ImageOnlyFailure Pass ]
 webkit.org/b/287572 svg/filters/filter-on-root-tile-boundary.html [ ImageOnlyFailure ]
-webkit.org/b/287572 svg/W3C-SVG-1.2-Tiny/struct-use-recursion-01-t.svg [ ImageOnlyFailure ]
 
 imported/w3c/web-platform-tests/css/css-position/hypothetical-box-scroll-parent.html [ ImageOnlyFailure ]
 

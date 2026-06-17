@@ -2106,7 +2106,6 @@ webkit.org/b/316453 imported/w3c/web-platform-tests/css/css-grid/grid-lanes/subg
 webkit.org/b/316453 imported/w3c/web-platform-tests/css/css-grid/grid-lanes/subgrid/grid-subgridded-to-grid-lanes/gap/column-subgrid-grid-gap-013.html [ ImageOnlyFailure ]
 webkit.org/b/316453 imported/w3c/web-platform-tests/css/css-grid/grid-lanes/subgrid/grid-subgridded-to-grid-lanes/gap/column-subgrid-grid-gap-014.html [ ImageOnlyFailure ]
 webkit.org/b/316453 imported/w3c/web-platform-tests/css/css-grid/grid-lanes/subgrid/grid-subgridded-to-grid-lanes/gap/column-subgrid-grid-gap-015.html [ ImageOnlyFailure ]
-webkit.org/b/316453 imported/w3c/web-platform-tests/css/css-grid/grid-lanes/subgrid/grid-subgridded-to-grid-lanes/gap/row-subgrid-grid-gap-002.html [ ImageOnlyFailure ]
 webkit.org/b/316453 imported/w3c/web-platform-tests/css/css-grid/grid-lanes/subgrid/grid-subgridded-to-grid-lanes/gap/row-subgrid-grid-gap-006.html [ ImageOnlyFailure ]
 webkit.org/b/316453 imported/w3c/web-platform-tests/css/css-grid/grid-lanes/subgrid/grid-subgridded-to-grid-lanes/gap/row-subgrid-grid-gap-007.html [ ImageOnlyFailure ]
 webkit.org/b/316453 imported/w3c/web-platform-tests/css/css-grid/grid-lanes/subgrid/grid-subgridded-to-grid-lanes/gap/row-subgrid-grid-gap-008.html [ ImageOnlyFailure ]
@@ -6676,9 +6675,6 @@ webkit.org/b/277912 imported/w3c/web-platform-tests/css/css-borders/corner-shape
 webkit.org/b/277912 imported/w3c/web-platform-tests/css/css-borders/corner-shape/render-corner-shape.html?corner-top-left-shape=-4&border-radius=40 [ ImageOnlyFailure ]
 
 webkit.org/b/316474 imported/w3c/web-platform-tests/css/css-borders/border-width-rounding.tentative.html [ Pass Failure ]
-
-ipc/send-gpu-GetShareableBitmap-RemoteRenderingBackend.html [ ImageOnlyFailure ]
-media/media-source/media-source-real-play-after-eos.html [ ImageOnlyFailure ]
 
 webkit.org/b/279222 imported/w3c/web-platform-tests/css/css-backgrounds/background-image-cors-no-reload.html [ Pass Failure ]
 
