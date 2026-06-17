@@ -349,6 +349,19 @@ TEST(TextExtractionTests, InteractionDebugDescription)
         EXPECT_WK_STREQ("Click on “Subject” in child node of editable h3 labeled “Heading”, with rendered text “Subject”", description);
         EXPECT_NULL(error);
     }
+    {
+        RetainPtr interaction = adoptNS([[_WKTextExtractionInteraction alloc] initWithAction:_WKTextExtractionActionClick]);
+
+        [interaction setNodeIdentifier:extractNodeIdentifier(debugText, @"Open menu")];
+        description = [interaction debugDescriptionInWebView:webView error:&error];
+        EXPECT_WK_STREQ("Click on img labeled “Open menu” under link with href “/menu”", description);
+        EXPECT_NULL(error);
+
+        [interaction setNodeIdentifier:extractNodeIdentifier(debugText, @"Checkmark icon")];
+        description = [interaction debugDescriptionInWebView:webView error:&error];
+        EXPECT_WK_STREQ("Click on img labeled “Checkmark icon” under button labeled “Submit form” with id “submit-with-icon”", description);
+        EXPECT_NULL(error);
+    }
 }
 
 TEST(TextExtractionTests, InteractionDebugDescriptionWithStaleNodeIdentifier)

@@ -2145,6 +2145,21 @@ struct ScrollableContainer {
     WeakPtr<ScrollableArea> scrollableArea;
 };
 
+static RefPtr<Element> closestLinkOrButtonAncestor(const Element& element)
+{
+    for (RefPtr ancestor = element.parentElementInComposedTree(); ancestor; ancestor = ancestor->parentElementInComposedTree()) {
+        if (ancestor->isLink() || is<HTMLButtonElement>(*ancestor))
+            return ancestor;
+
+        if (RefPtr input = dynamicDowncast<HTMLInputElement>(*ancestor)) {
+            if (input->isSubmitButton() || input->isTextButton())
+                return ancestor;
+        }
+    }
+
+    return nullptr;
+}
+
 static String textDescription(const Element& element, Vector<String>& stringsToValidate, bool isTargetElement = true)
 {
     StringBuilder description;
@@ -2234,6 +2249,15 @@ static String textDescription(const Element& element, Vector<String>& stringsToV
     }
 
     auto elementDescription = description.toString();
+
+    if (isTargetElement && is<HTMLImageElement>(element)) {
+        if (RefPtr ancestor = closestLinkOrButtonAncestor(element)) {
+            auto ancestorDescription = textDescription(*ancestor, stringsToValidate, false);
+            if (!ancestorDescription.isEmpty())
+                return makeString(WTF::move(elementDescription), " under "_s, WTF::move(ancestorDescription));
+        }
+    }
+
     if (!needsParentContext)
         return elementDescription;
 
