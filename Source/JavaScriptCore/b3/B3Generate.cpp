@@ -86,8 +86,7 @@ void generateToAir(Procedure& procedure)
         reduceStrength(procedure, ReduceStrengthPass::Initial);
         if (Options::useB3HoistLoopInvariantValues())
             hoistLoopInvariantValues(procedure);
-        if (eliminateCommonSubexpressions(procedure))
-            eliminateCommonSubexpressions(procedure);
+        eliminateCommonSubexpressions(procedure);
         eliminateDeadCode(procedure);
         inferSwitches(procedure);
         if (Options::useB3TailDup())

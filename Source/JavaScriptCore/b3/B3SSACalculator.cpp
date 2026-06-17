@@ -29,8 +29,11 @@
 #if ENABLE(B3_JIT)
 
 #include <wtf/CommaPrinter.h>
+#include <wtf/TZoneMallocInlines.h>
 
 namespace JSC { namespace B3 {
+
+WTF_MAKE_TZONE_ALLOCATED_IMPL(SSACalculator);
 
 void SSACalculator::Variable::dump(PrintStream& out) const
 {

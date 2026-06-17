@@ -32,6 +32,7 @@
 #include <wtf/Bag.h>
 #include <wtf/IndexMap.h>
 #include <wtf/SegmentedVector.h>
+#include <wtf/TZoneMalloc.h>
 
 namespace JSC { namespace B3 {
 
@@ -39,6 +40,7 @@ namespace JSC { namespace B3 {
 // DFG::SSACalculator.
 
 class SSACalculator {
+    WTF_MAKE_TZONE_ALLOCATED(SSACalculator);
 public:
     SSACalculator(Procedure&);
     ~SSACalculator();
