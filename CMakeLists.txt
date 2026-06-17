@@ -14,32 +14,6 @@ if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
     include(WebKitXcodeSDK)
 endif ()
 
-if (PORT STREQUAL "IOS")
-    # FIXME: Delete or merge into WebKitXcodeSDK logic.
-    set(CMAKE_SYSTEM_NAME iOS)
-    if (NOT CMAKE_OSX_ARCHITECTURES)
-        if (CMAKE_OSX_SYSROOT MATCHES "\\.Internal\\.sdk$" AND NOT CMAKE_OSX_SYSROOT MATCHES "[Ss]imulator")
-            execute_process(COMMAND uname -m
-                OUTPUT_VARIABLE _host_arch
-                OUTPUT_STRIP_TRAILING_WHITESPACE)
-            if (_host_arch STREQUAL "arm64")
-                set(CMAKE_OSX_ARCHITECTURES "arm64e" CACHE STRING "Target architecture" FORCE)
-                message(STATUS "iOS: arm64e enabled (internal device SDK detected)")
-            endif ()
-        else ()
-            set(CMAKE_OSX_ARCHITECTURES "arm64" CACHE STRING "Target architecture" FORCE)
-        endif ()
-    endif ()
-
-    if (NOT CMAKE_OSX_DEPLOYMENT_TARGET)
-        set(CMAKE_OSX_DEPLOYMENT_TARGET "18.0" CACHE STRING "Minimum iOS version" FORCE)
-    endif ()
-
-    if (NOT CMAKE_SYSTEM_PROCESSOR)
-        set(CMAKE_SYSTEM_PROCESSOR "aarch64" CACHE STRING "Target processor" FORCE)
-    endif ()
-endif ()
-
 project(WebKit LANGUAGES C CXX)
 
 # -----------------------------------------------------------------------------

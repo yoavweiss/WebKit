@@ -16,14 +16,60 @@ function(WEBKIT_RESOLVE_SDK)
             string(JSON _sdk_version GET ${_sdk_settings} Version)
             set(_sdk_version "${_sdk_version}" PARENT_SCOPE)
             string(JSON _sdk_canonical_name GET ${_sdk_settings} CanonicalName)
+            string(JSON _platform_name GET ${_sdk_settings} DefaultProperties PLATFORM_NAME)
 
             message(STATUS "Xcode SDK: ${_sdk_canonical_name} at ${_sdk_path}")
             set(CMAKE_OSX_SYSROOT "${_sdk_path}" CACHE PATH "" FORCE)
             if (_sdk_path MATCHES "\\.[Ii]nternal.sdk$")
-                set(USE_APPLE_INTERNAL_SDK ON PARENT_SCOPE)
+                set(USE_APPLE_INTERNAL_SDK ON CACHE BOOL "" FORCE)
             else ()
-                set(USE_APPLE_INTERNAL_SDK OFF PARENT_SCOPE)
+                set(USE_APPLE_INTERNAL_SDK OFF CACHE BOOL "" FORCE)
             endif ()
+
+            if (NOT CMAKE_OSX_ARCHITECTURES)
+                # Build the supported-archs list from SDKSettings.json's
+                # SupportedTargets.<platform>.Archs. Order works out
+                # to match our preferred build defaults.
+                string(JSON _archs_length LENGTH ${_sdk_settings}
+                    SupportedTargets ${_platform_name} Archs)
+                set(_supported_archs "")
+                math(EXPR _archs_last "${_archs_length} - 1")
+                foreach (_i RANGE 0 ${_archs_last})
+                    string(JSON _arch_i GET ${_sdk_settings}
+                        SupportedTargets ${_platform_name} Archs ${_i})
+                    list(APPEND _supported_archs "${_arch_i}")
+                endforeach ()
+
+                # FIXME: This is different from what we do in the xcodebuild. For devices,
+                # we default to building for all architectures supported by the device 
+                # (for iOS devices, just arm64e). For simulators, we query the system for
+                # created simulator targets and match their architecture (usually arm64).
+                if (PORT STREQUAL "Mac" OR PORT STREQUAL "JSCOnly")
+                    # When building for the host machine CMAKE_HOST_SYSTEM_PROCESSOR 
+                    # isn't populated until `project()` is called, so consult `uname -m`.
+                    # Only set _arch if SDK supports arm64e otherwise let `project()`
+                    # configure.
+                    execute_process(COMMAND uname -m
+                        OUTPUT_VARIABLE _host_arch
+                        OUTPUT_STRIP_TRAILING_WHITESPACE)
+                    if (_host_arch STREQUAL "arm64" AND USE_APPLE_INTERNAL_SDK
+                            AND "arm64e" IN_LIST _supported_archs)
+                        set(_arch "arm64e")
+                        set(_arch_reason "internal SDK + arm64 host")
+                    endif ()
+                else ()
+                    # When Cross-compiling, just trust the SDKSettings's ordering.
+                    list(GET _supported_archs 0 _arch)
+                    set(_arch_reason "first SDK-supported arch")
+                endif ()
+
+                if (DEFINED _arch)
+                    set(CMAKE_OSX_ARCHITECTURES "${_arch}"
+                        CACHE STRING "Target architecture" FORCE)
+                    message(STATUS "Architecture: ${_arch} (${_arch_reason})")
+                endif ()
+            endif ()
+
             return()
         endif ()
     endforeach ()
@@ -104,6 +150,20 @@ elseif (PORT STREQUAL "IOS" AND NOT CMAKE_IOS_SIMULATOR)
 else ()
     message(FATAL_ERROR "Building for an Apple platform without an SDK "
         "directory (CMAKE_OSX_SYSROOT) or supported PORT variable.")
+endif ()
+
+# Cross-compile setup for iOS. CMake doesn't infer CMAKE_SYSTEM_PROCESSOR once
+# CMAKE_SYSTEM_NAME is set, so it has to be supplied explicitly. Both must be
+# in place before project() runs.
+if (PORT STREQUAL "IOS")
+    set(CMAKE_SYSTEM_NAME iOS)
+    if (NOT CMAKE_OSX_DEPLOYMENT_TARGET)
+        string(REGEX MATCH "^[0-9]+\\.[0-9]+" _ios_deployment_target "${_sdk_version}")
+        set(CMAKE_OSX_DEPLOYMENT_TARGET "${_ios_deployment_target}" CACHE STRING "Minimum iOS version" FORCE)
+    endif ()
+    if (NOT CMAKE_SYSTEM_PROCESSOR)
+        set(CMAKE_SYSTEM_PROCESSOR "aarch64" CACHE STRING "Target processor" FORCE)
+    endif ()
 endif ()
 
 # Subsequent use of `xcrun` or any of the system Xcode and BSD tools will
