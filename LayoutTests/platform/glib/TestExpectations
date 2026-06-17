@@ -3603,6 +3603,7 @@ ipc/networksessioncocoa-empty-resource-request.html [ Skip ]
 ipc/send-invalid-message.html [ Skip ]
 ipc/pasteboard-write-custom-data.html [ Skip ]
 ipc/remotedisplaylistrecorder-drawcontrolpart-slidertrackpart-crash.html [ Skip ]
+ipc/media-containment-bypass-create-player.html [ Skip ]
 http/tests/ipc/gpu-load-error-empty-user-info-crssh.html [ Skip ]
 
 # These tests are specific to Cocoa's definition of WebCore::PlatformColorSpace which is different from Skia's.
