@@ -357,11 +357,11 @@ class GitHubEWS(GitHub):
             if Buildbot.get_parent_queue(queue):
                 queue = Buildbot.get_parent_queue(queue)
             queue_full_name = Buildbot.queue_name_by_shortname_mapping.get(queue)
-            url = None
             if queue_full_name:
                 url = 'https://{}/#/builders/{}'.format(config.BUILDBOT_SERVER_HOST, queue_full_name)
-            hover_over_text = 'Waiting in queue, processing has not started yet'
-            return u'| [{icon} {name} ]({url} "{hover_over_text}") '.format(icon=icon, name=name, url=url, hover_over_text=hover_over_text)
+                hover_over_text = 'Waiting in queue, processing has not started yet'
+                return f'| [{icon} {name}]({url} "{hover_over_text}") '
+            return f'| {icon} {name} '
 
         url = 'https://{}/#/builders/{}/builds/{}'.format(config.BUILDBOT_SERVER_HOST, build.builder_id, build.number)
 
