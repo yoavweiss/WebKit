@@ -241,7 +241,7 @@ void MediaMetadata::refreshArtworkImage()
                 if (posX == notFound || !posX)
                     return { };
                 std::optional<uint32_t> width = parseInteger<uint32_t>(element.left(posX));
-                std::optional<uint32_t> height = parseInteger<uint32_t>(element.right(posX));
+                std::optional<uint32_t> height = parseInteger<uint32_t>(element.substring(posX + 1));
                 if (!width || !height)
                     return { };
 
