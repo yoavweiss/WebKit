@@ -550,13 +550,7 @@ void GraphicsContext::strokeArc(const PathArc& arc)
 
 void GraphicsContext::strokeLine(const PathDataLine& line)
 {
-#if ENABLE(INLINE_PATH_DATA)
     auto path = Path({ PathSegment { PathDataLine { { line.start() }, { line.end() } } } });
-#else
-    Path path;
-    path.moveTo(line.start());
-    path.addLineTo(line.end());
-#endif
     strokePath(path);
 }
 

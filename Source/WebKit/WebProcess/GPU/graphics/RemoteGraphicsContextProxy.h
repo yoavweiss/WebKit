@@ -75,13 +75,11 @@ public:
     // any path that observes the buffer's pixels. Drawing commands call this
     // alongside appendStateChangeItemIfNecessary(); senders that do not go
     // through that path (transforms, line-style setters, clips, save/restore,
-    // read-backs) call it explicitly. A no-op when INLINE_PATH_DATA is off.
+    // read-backs) call it explicitly.
     void sendPendingDrawsIfNecessary()
     {
-#if ENABLE(INLINE_PATH_DATA)
         if (!m_pendingLineStrokes.isEmpty()) [[unlikely]]
             sendPendingDraws();
-#endif
     }
 
 protected:
@@ -188,13 +186,11 @@ private:
     // state through appendStateChangeItemIfNecessary().
     std::optional<InlineStrokeData> inlineStrokeStateIfBatchable();
 
-#if ENABLE(INLINE_PATH_DATA)
     void bufferLine(const WebCore::PathDataLine&, const InlineStrokeData&);
     void sendPendingDraws();
 
     static constexpr size_t maxPendingLineStrokes = 64;
     Vector<WebCore::PathDataLineColorThickness> m_pendingLineStrokes;
-#endif
 
     RefPtr<WebCore::ImageBuffer> createImageBuffer(const WebCore::FloatSize&, float resolutionScale, const WebCore::DestinationColorSpace&, std::optional<WebCore::RenderingMode>, std::optional<WebCore::RenderingMethod>, WebCore::ImageBufferFormat) const final;
     RefPtr<WebCore::ImageBuffer> createAlignedImageBuffer(const WebCore::FloatSize&, const WebCore::DestinationColorSpace&, std::optional<WebCore::RenderingMethod>) const final;

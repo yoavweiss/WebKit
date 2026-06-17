@@ -556,8 +556,6 @@ void RemoteGraphicsContext::fillRectWithRoundedHole(const FloatRect& rect, const
     context().fillRectWithRoundedHole(rect, roundedHoleRect, color);
 }
 
-#if ENABLE(INLINE_PATH_DATA)
-
 void RemoteGraphicsContext::fillLine(const PathDataLine& line)
 {
     context().fillPath(Path({ PathSegment { line } }));
@@ -582,8 +580,6 @@ void RemoteGraphicsContext::fillBezierCurve(const PathDataBezierCurve& curve)
 {
     context().fillPath(Path({ PathSegment { curve } }));
 }
-
-#endif // ENABLE(INLINE_PATH_DATA)
 
 void RemoteGraphicsContext::fillPath(const Path& path)
 {
@@ -641,8 +637,6 @@ void RemoteGraphicsContext::strokeRect(const FloatRect& rect, float lineWidth)
     context().strokeRect(rect, lineWidth);
 }
 
-#if ENABLE(INLINE_PATH_DATA)
-
 void RemoteGraphicsContext::strokeLine(const PathDataLine& line)
 {
     context().strokeLine(line);
@@ -687,8 +681,6 @@ void RemoteGraphicsContext::strokeBezierCurve(const PathDataBezierCurve& curve)
 {
     context().strokePath(Path({ PathSegment { curve } }));
 }
-
-#endif // ENABLE(INLINE_PATH_DATA)
 
 void RemoteGraphicsContext::strokePathSegment(const PathSegment& segment)
 {

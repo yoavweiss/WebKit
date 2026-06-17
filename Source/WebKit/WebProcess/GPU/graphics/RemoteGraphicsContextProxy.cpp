@@ -83,13 +83,11 @@ RemoteGraphicsContextProxy::~RemoteGraphicsContextProxy() = default;
 template<typename T>
 ALWAYS_INLINE void RemoteGraphicsContextProxy::send(T&& message)
 {
-#if ENABLE(INLINE_PATH_DATA)
     // Buffered line strokes sit in front of the IPC stream; each sender is
     // responsible for calling sendPendingDrawsIfNecessary() before reaching
     // here (see its declaration). This catches a missed call site: the buffer
     // must be empty unless we are sending the batch message itself.
     ASSERT(m_pendingLineStrokes.isEmpty() || (std::is_same_v<std::decay_t<T>, Messages::RemoteGraphicsContext::StrokeLinesWithColorAndThickness>));
-#endif
     RefPtr connection = m_connection;
     if (!connection) [[unlikely]] {
         if (RefPtr backend = m_renderingBackend.get())
@@ -494,7 +492,6 @@ void RemoteGraphicsContextProxy::fillPath(const Path& path)
 
     if (auto segment = path.singleSegment()) {
         WTF::switchOn(segment->data(),
-#if ENABLE(INLINE_PATH_DATA)
         [&](const PathArc &arc) {
             send(Messages::RemoteGraphicsContext::FillArc(arc));
         },
@@ -510,7 +507,6 @@ void RemoteGraphicsContextProxy::fillPath(const Path& path)
         [&](const PathDataBezierCurve& curve) {
             send(Messages::RemoteGraphicsContext::FillBezierCurve(curve));
         },
-#endif
         [&](auto&&) {
             send(Messages::RemoteGraphicsContext::FillPathSegment(*segment));
         });
@@ -608,7 +604,6 @@ void RemoteGraphicsContextProxy::drawVideoFrame(const VideoFrame& frame, const F
 void RemoteGraphicsContextProxy::strokePath(const Path& path)
 {
     if (const auto* segment = path.singleSegmentIfExists()) {
-#if ENABLE(INLINE_PATH_DATA)
         if (const auto* line = std::get_if<PathDataLine>(&segment->data())) {
             if (auto inlineStroke = inlineStrokeStateIfBatchable()) {
                 bufferLine(*line, *inlineStroke);
@@ -622,10 +617,8 @@ void RemoteGraphicsContextProxy::strokePath(const Path& path)
             return;
         }
         sendPendingDrawsIfNecessary();
-#endif
         appendStateChangeItemIfNecessary();
         WTF::switchOn(segment->data(),
-#if ENABLE(INLINE_PATH_DATA)
             [&](const PathArc &arc) {
                 send(Messages::RemoteGraphicsContext::StrokeArc(arc));
             },
@@ -641,7 +634,6 @@ void RemoteGraphicsContextProxy::strokePath(const Path& path)
             [&](const PathDataBezierCurve& curve) {
                 send(Messages::RemoteGraphicsContext::StrokeBezierCurve(curve));
             },
-#endif
             [&](auto&&) {
                 send(Messages::RemoteGraphicsContext::StrokePathSegment(*segment));
             });
@@ -666,7 +658,6 @@ void RemoteGraphicsContextProxy::strokeEllipse(const FloatRect& rect)
     send(Messages::RemoteGraphicsContext::StrokeEllipse(rect));
 }
 
-#if ENABLE(INLINE_PATH_DATA)
 void RemoteGraphicsContextProxy::bufferLine(const PathDataLine& line, const InlineStrokeData& strokeData)
 {
     if (!m_pendingLineStrokes.capacity())
@@ -687,7 +678,6 @@ void RemoteGraphicsContextProxy::sendPendingDraws()
 
     m_pendingLineStrokes.shrink(0);
 }
-#endif
 
 void RemoteGraphicsContextProxy::clearRect(const FloatRect& rect)
 {
@@ -789,11 +779,9 @@ bool RemoteGraphicsContextProxy::recordResourceUse(ImageBuffer& imageBuffer)
     RefPtr cachedImageBuffer = renderingBackend->cachedImageBuffer(imageBuffer);
     if (!cachedImageBuffer)
         return false;
-#if ENABLE(INLINE_PATH_DATA)
     // This draw consumes the source buffer's contents, so its buffered line
     // strokes must reach the GPU process first.
     cachedImageBuffer->sendPendingDrawsIfNecessary();
-#endif
     return true;
 }
 
