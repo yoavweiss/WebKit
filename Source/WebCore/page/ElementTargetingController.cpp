@@ -1564,7 +1564,7 @@ static void adjustRegionAfterViewportSizeChange(Region& region, FloatSize oldSiz
             if (std::abs(distanceToTopEdge - distanceToBottomEdge) < minimumDistanceToConsiderEdgesEquidistant)
                 adjustedRect.inflateY(heightDelta / 2);
             else if (distanceToBottomEdge < distanceToTopEdge)
-                adjustedRect.move(heightDelta, 0);
+                adjustedRect.move(0, heightDelta);
         }
 
         auto enclosingAdjustedRect = enclosingIntRect(adjustedRect);

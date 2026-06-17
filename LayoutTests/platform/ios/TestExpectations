@@ -258,6 +258,8 @@ fast/events/touch/ios/touch-event-regions-layer-tree/scrolling [ Skip ]
 accessibility
 perf/accessibility-title-ui-element.html
 
+fast/element-targeting/adjust-region-after-viewport-height-change.html [ Skip ]
+
 # webkit.org/b/240843
 fast/images/heic-as-background-image.html [ Pass ]
 fast/images/animated-heics-verify.html [ Pass ]
