@@ -281,7 +281,7 @@ WebCodecsEncodedAudioChunkMetadata WebCodecsAudioEncoder::createEncodedChunkMeta
 
         if (m_activeConfiguration.description && m_activeConfiguration.description->size()) {
             auto arrayBuffer = ArrayBuffer::tryCreateUninitialized(m_activeConfiguration.description->size(), 1);
-            RELEASE_LOG_ERROR_IF(!!arrayBuffer, Media, "Cannot create array buffer for WebCodecs encoder description");
+            RELEASE_LOG_ERROR_IF(!arrayBuffer, Media, "Cannot create array buffer for WebCodecs encoder description");
             if (arrayBuffer) {
                 memcpySpan(arrayBuffer->mutableSpan(), m_activeConfiguration.description->span());
                 metadata.decoderConfig->description = arrayBuffer.releaseNonNull();
