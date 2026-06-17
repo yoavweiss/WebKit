@@ -129,6 +129,7 @@ CSSParserContext::CSSParserContext(const Settings& settings)
     , cssAttrSubstitutionFunctionEnabled { settings.cssAttrSubstitutionFunctionEnabled() }
     , cssScrollStateContainerQueriesEnabled { settings.cssScrollStateContainerQueriesEnabled() }
     , cssCalcMixEnabled { settings.cssCalcMixEnabled() }
+    , cssIdentFunctionEnabled { settings.cssIdentFunctionEnabled() }
     , propertySettings { CSSPropertySettings { settings } }
 {
 }
@@ -176,7 +177,8 @@ void add(Hasher& hasher, const CSSParserContext& context)
         context.openPseudoClassEnabled,
         context.cssAttrSubstitutionFunctionEnabled,
         context.cssScrollStateContainerQueriesEnabled,
-        context.cssCalcMixEnabled
+        context.cssCalcMixEnabled,
+        context.cssIdentFunctionEnabled
     );
     add(hasher, context.baseURL, context.charset, context.propertySettings, context.mode, context.enclosingRuleType, bits);
 }
