@@ -109,10 +109,9 @@ public:
 #endif
 
     void setPosition(FloatPoint&&);
-    enum class ForcePositionSync : bool { No, Yes };
-    void setPositionForScrolling(const FloatPoint&, ForcePositionSync = ForcePositionSync::No);
+    void setPositionForScrolling(const FloatPoint&);
     const FloatPoint& position() const;
-    void setTopLeftPositionForScrolling(const FloatPoint&, ForcePositionSync = ForcePositionSync::No);
+    void setTopLeftPositionForScrolling(const FloatPoint&);
     FloatPoint topLeftPositionForScrolling();
     void setBoundsOrigin(const FloatPoint&);
     void setBoundsOriginForScrolling(const FloatPoint&);
@@ -189,9 +188,12 @@ public:
     void updateContents(bool affectedByTransformAnimation);
     void updateBackingStore();
 
+    void flushPendingState();
     void flushCompositingState(const OptionSet<CompositionReason>&, bool = false);
 
     bool hasPendingTilesCreation() const { return m_pendingTilesCreation; }
+    bool hasPendingBackingStoreTileUpdates() const;
+    void processPendingBackingStoreTileUpdates();
     bool isCompositionRequiredOrOngoing() const;
     void requestComposition(CompositionReason);
     RunLoop* compositingRunLoop() const;
@@ -344,6 +346,13 @@ private:
 #if ENABLE(SCROLLING_THREAD)
     Markable<ScrollingNodeID> m_scrollingNodeID WTF_GUARDED_BY_LOCK(m_lock);
 #endif
+
+    struct {
+        std::optional<FloatPoint> position;
+        std::optional<FloatPoint> positionForScrolling;
+        std::optional<FloatPoint> boundsOrigin;
+        std::optional<FloatPoint> boundsOriginForScrolling;
+    } m_pendingState WTF_GUARDED_BY_LOCK(m_lock);
 };
 
 } // namespace WebCore

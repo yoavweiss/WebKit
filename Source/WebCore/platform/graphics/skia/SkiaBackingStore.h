@@ -46,8 +46,11 @@ public:
     ~SkiaBackingStore() = default;
 
     float scale() const { return m_scale; }
+    bool hasPendingTileUpdates() const { return m_hasPendingTileUpdates; }
 
     void update(const FloatSize&, float scale, CoordinatedBackingStoreProxy::Update&&);
+    void processPendingTileUpdates();
+
     void paintToCanvas(SkCanvas&, const SkPaint&);
     Vector<SkCanvas::ImageSetEntry> buildImageSet(size_t matrixIndex, float opacity, bool enableAntialias) const;
     void drawDebugBorders(SkCanvas&, const SkPaint&);
@@ -67,15 +70,25 @@ private:
 
         ~Tile() = default;
 
-        void update(const IntRect& dirtyRect, const IntRect& tileRect, CoordinatedTileBuffer&);
+        void scheduleUpdate(const IntRect& dirtyRect, const IntRect& tileRect, CoordinatedTileBuffer&);
+        void processPendingUpdateIfNeeded();
+
         const FloatRect& rect() const LIFETIME_BOUND { return m_rect; }
         sk_sp<SkImage> image() const;
 
     private:
         void ensureTexture(const IntSize&, CoordinatedTileBuffer&);
+        void update(const IntRect& dirtyRect, const IntRect& tileRect, CoordinatedTileBuffer&);
+
+        struct Update {
+            IntRect tileRect;
+            IntRect dirtyRect;
+            Ref<CoordinatedTileBuffer> buffer;
+        };
 
         float m_scale { 1. };
         FloatRect m_rect;
+        Vector<Update> m_pendingUpdates;
         sk_sp<SkSurface> m_surface;
         RefPtr<BitmapTexture> m_texture;
         mutable sk_sp<SkImage> m_cachedImage;
@@ -84,6 +97,7 @@ private:
     HashMap<uint32_t, Tile> m_tiles;
     FloatSize m_size;
     float m_scale { 1. };
+    bool m_hasPendingTileUpdates { false };
 };
 
 } // namespace WebCore

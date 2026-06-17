@@ -298,9 +298,7 @@ void ThreadedCompositor::flushCompositingState(const OptionSet<CompositionReason
     }
 #endif
 
-    m_sceneState->rootLayer().flushCompositingState(reasons, m_useSkia);
-    for (auto& layer : m_sceneState->committedLayers())
-        layer->flushCompositingState(reasons, m_useSkia);
+    m_sceneState->flushCompositingState(reasons, m_useSkia);
 }
 
 void ThreadedCompositor::paintToCurrentGLContext(const TransformationMatrix& matrix, const IntSize& size, const OptionSet<CompositionReason>& reasons)

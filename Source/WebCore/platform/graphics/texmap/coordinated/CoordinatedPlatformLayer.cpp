@@ -176,23 +176,13 @@ void CoordinatedPlatformLayer::notifyCompositionRequired()
 void CoordinatedPlatformLayer::setPosition(FloatPoint&& position)
 {
     ASSERT(m_lock.isHeld());
-    if (m_position == position)
-        return;
-
-    m_position = WTF::move(position);
-    m_pendingChanges.add(Change::Position);
-    notifyCompositionRequired();
+    m_pendingState.position = WTF::move(position);
 }
 
-void CoordinatedPlatformLayer::setPositionForScrolling(const FloatPoint& position, ForcePositionSync forceSync)
+void CoordinatedPlatformLayer::setPositionForScrolling(const FloatPoint& position)
 {
     Locker locker { m_lock };
-    if (m_position == position && forceSync == ForcePositionSync::No)
-        return;
-
-    m_position = position;
-    m_pendingChanges.add(Change::Position);
-    notifyCompositionRequired();
+    m_pendingState.positionForScrolling = position;
 }
 
 const FloatPoint& CoordinatedPlatformLayer::position() const
@@ -201,14 +191,14 @@ const FloatPoint& CoordinatedPlatformLayer::position() const
     return m_position;
 }
 
-void CoordinatedPlatformLayer::setTopLeftPositionForScrolling(const FloatPoint& position, ForcePositionSync forceSync)
+void CoordinatedPlatformLayer::setTopLeftPositionForScrolling(const FloatPoint& position)
 {
     FloatPoint newPosition;
     {
         Locker locker { m_lock };
         newPosition = { position.x() + m_anchorPoint.x() * m_size.width(), position.y() + m_anchorPoint.y() * m_size.height() };
     }
-    setPositionForScrolling(newPosition, forceSync);
+    setPositionForScrolling(newPosition);
 }
 
 FloatPoint CoordinatedPlatformLayer::topLeftPositionForScrolling()
@@ -220,23 +210,13 @@ FloatPoint CoordinatedPlatformLayer::topLeftPositionForScrolling()
 void CoordinatedPlatformLayer::setBoundsOrigin(const FloatPoint& origin)
 {
     ASSERT(m_lock.isHeld());
-    if (m_boundsOrigin == origin)
-        return;
-
-    m_boundsOrigin = origin;
-    m_pendingChanges.add(Change::BoundsOrigin);
-    notifyCompositionRequired();
+    m_pendingState.boundsOrigin = origin;
 }
 
 void CoordinatedPlatformLayer::setBoundsOriginForScrolling(const FloatPoint& origin)
 {
     Locker locker { m_lock };
-    if (m_boundsOrigin == origin)
-        return;
-
-    m_boundsOrigin = origin;
-    m_pendingChanges.add(Change::BoundsOrigin);
-    notifyCompositionRequired();
+    m_pendingState.boundsOriginForScrolling = origin;
 }
 
 const FloatPoint& CoordinatedPlatformLayer::boundsOrigin() const
@@ -974,6 +954,43 @@ void CoordinatedPlatformLayer::waitUntilPaintingComplete()
         m_backingStoreProxy->waitUntilPaintingComplete();
 }
 
+void CoordinatedPlatformLayer::flushPendingState()
+{
+    Locker locker { m_lock };
+    if (!m_pendingState.position && !m_pendingState.boundsOrigin && !m_pendingState.positionForScrolling && !m_pendingState.boundsOriginForScrolling)
+        return;
+
+    std::optional<FloatPoint> position;
+    if (m_pendingState.positionForScrolling) {
+        m_pendingState.position = std::nullopt;
+        position = *std::exchange(m_pendingState.positionForScrolling, std::nullopt);
+    } else if (m_pendingState.position)
+        position = *std::exchange(m_pendingState.position, std::nullopt);
+
+    std::optional<FloatPoint> boundsOrigin;
+    if (m_pendingState.boundsOriginForScrolling) {
+        m_pendingState.boundsOrigin = std::nullopt;
+        boundsOrigin = *std::exchange(m_pendingState.boundsOriginForScrolling, std::nullopt);
+    } else if (m_pendingState.boundsOrigin)
+        boundsOrigin = *std::exchange(m_pendingState.boundsOrigin, std::nullopt);
+
+    bool requireComposition = false;
+    if (position && m_position != *position) {
+        m_position = *position;
+        m_pendingChanges.add(Change::Position);
+        requireComposition = true;
+    }
+
+    if (boundsOrigin && m_boundsOrigin != boundsOrigin) {
+        m_boundsOrigin = *boundsOrigin;
+        m_pendingChanges.add(Change::BoundsOrigin);
+        requireComposition = true;
+    }
+
+    if (requireComposition)
+        notifyCompositionRequired();
+}
+
 void CoordinatedPlatformLayer::flushCompositingState(const OptionSet<CompositionReason>& reasons, bool useSkiaTarget)
 {
     ASSERT(!isMainThread());
@@ -1170,8 +1187,6 @@ void CoordinatedPlatformLayer::flushCompositingStateOnTarget(const OptionSet<Com
                 m_backingStore->removeTile(tileID);
             for (const auto& tileUpdate : update.tilesToUpdate())
                 m_backingStore->updateTile(tileUpdate.tileID, tileUpdate.dirtyRect, tileUpdate.tileRect, tileUpdate.buffer.copyRef(), { });
-
-            m_backingStore->processPendingUpdates();
         }
     }
 
@@ -1383,6 +1398,36 @@ void CoordinatedPlatformLayer::flushCompositingStateOnSkiaTarget(const OptionSet
     }
 }
 #endif // USE(SKIA)
+
+bool CoordinatedPlatformLayer::hasPendingBackingStoreTileUpdates() const
+{
+    ASSERT(!isMainThread());
+
+#if USE(SKIA)
+    if (m_skiaTarget)
+        return m_skiaTarget->hasPendingBackingStoreTileUpdates();
+#endif
+
+    if (m_backingStore)
+        return m_backingStore->hasPendingUpdates();
+
+    return false;
+}
+
+void CoordinatedPlatformLayer::processPendingBackingStoreTileUpdates()
+{
+    ASSERT(!isMainThread());
+
+#if USE(SKIA)
+    if (m_skiaTarget) {
+        m_skiaTarget->processPendingTileUpdates();
+        return;
+    }
+#endif
+
+    if (m_backingStore)
+        m_backingStore->processPendingUpdates();
+}
 
 } // namespace WebCore
 

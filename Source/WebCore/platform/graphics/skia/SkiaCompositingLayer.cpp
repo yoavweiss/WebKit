@@ -174,6 +174,17 @@ void SkiaCompositingLayer::updateBackingStore(CoordinatedBackingStoreProxy::Upda
     m_backingStore->update(m_size, scale, WTF::move(update));
 }
 
+bool SkiaCompositingLayer::hasPendingBackingStoreTileUpdates() const
+{
+    return m_backingStore ? m_backingStore->hasPendingTileUpdates() : false;
+}
+
+void SkiaCompositingLayer::processPendingTileUpdates()
+{
+    if (m_backingStore)
+        m_backingStore->processPendingTileUpdates();
+}
+
 void SkiaCompositingLayer::setImageBackingStore(CoordinatedImageBackingStore* imageBackingStore)
 {
     m_imageBackingStore = imageBackingStore;
