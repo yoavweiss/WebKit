@@ -134,7 +134,7 @@ struct WebPageTests {
     func clearContentWorld() async throws {
         let worldConfiguration = WKContentWorldConfiguration()
         worldConfiguration.nodeSerializationEnabled = true
-        let world = WKContentWorld.world(with: worldConfiguration)
+        let world = WKContentWorld.world(configuration: worldConfiguration)
 
         let page = WebPage()
         try await page.load(html: "<body></body>").wait()
