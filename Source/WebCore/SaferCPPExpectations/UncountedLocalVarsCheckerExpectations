@@ -42,7 +42,6 @@ bindings/js/JSObservableArray.cpp
 bindings/js/JSPluginElementFunctions.cpp
 bindings/js/JSPopStateEventCustom.cpp
 bindings/js/JSResizeObserverCustom.cpp
-bindings/js/JSSubscriberCustom.cpp
 bindings/js/JSTextTrackCueCustom.cpp
 bindings/js/ScriptCachedFrameData.cpp
 bindings/js/ScriptModuleLoader.cpp

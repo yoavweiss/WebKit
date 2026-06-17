@@ -122,7 +122,6 @@ bindings/js/JSSVGViewSpecCustom.cpp
 bindings/js/JSShadowRootCustom.cpp
 bindings/js/JSStaticRangeCustom.cpp
 bindings/js/JSStylePropertyMapReadOnlyCustom.cpp
-bindings/js/JSSubscriberCustom.cpp
 bindings/js/JSTextTrackCueCustom.cpp
 bindings/js/JSTrustedTypePolicyFactoryCustom.cpp
 bindings/js/JSWebAnimationCustom.cpp
