@@ -505,23 +505,128 @@ void RenderImage::paintIncompleteImageOutline(PaintInfo& paintInfo, LayoutPoint 
     if (contentSize.width() <= 2 || contentSize.height() <= 2)
         return;
 
-    auto leftBorder = borderLeft();
-    auto topBorder = borderTop();
-    auto leftPadding = paddingLeft();
-    auto topPadding = paddingTop();
+    auto borderWidths = this->borderWidths();
+    auto padding = this->padding();
 
     // Draw an outline rect where the image should be.
     GraphicsContext& context = paintInfo.context();
     context.setStrokeStyle(StrokeStyle::SolidStroke);
     context.setStrokeColor(Color::lightGray);
     context.setFillColor(Color::transparentBlack);
-    context.drawRect(snapRectToDevicePixels(LayoutRect({ paintOffset.x() + leftBorder + leftPadding, paintOffset.y() + topBorder + topPadding }, contentSize), document().deviceScaleFactor()), borderWidth);
+    context.drawRect(snapRectToDevicePixels(LayoutRect({ paintOffset.x() + borderWidths.left() + padding.left(), paintOffset.y() + borderWidths.top() + padding.top() }, contentSize), document().deviceScaleFactor()), borderWidth);
 }
 
 static bool NODELETE isDeferredImage(Element* element)
 {
     auto* image = dynamicDowncast<HTMLImageElement>(element);
     return image && image->isDeferred();
+}
+
+void RenderImage::paintMissingImageState(PaintInfo& paintInfo, const LayoutPoint& paintOffset) const
+{
+    if (paintInfo.phase == PaintPhase::Selection)
+        return;
+
+    if (paintInfo.phase == PaintPhase::Foreground)
+        page().addRelevantUnpaintedObject(*this, visualOverflowRect());
+
+    float deviceScaleFactor = document().deviceScaleFactor();
+    LayoutUnit missingImageBorderWidth(1 / deviceScaleFactor);
+
+    paintIncompleteImageOutline(paintInfo, paintOffset, missingImageBorderWidth);
+
+    auto contentSize = this->contentBoxSize();
+    if (contentSize.width() <= 2 || contentSize.height() <= 2)
+        return;
+
+    auto borderWidths = this->borderWidths();
+    auto padding = this->padding();
+
+    bool errorPictureDrawn = false;
+    LayoutSize imageOffset;
+    // When calculating the usable dimensions, exclude the pixels of
+    // the outline rect so the error image/alt text doesn't draw on it.
+    LayoutSize usableSize = contentSize - LayoutSize(2 * missingImageBorderWidth, 2 * missingImageBorderWidth);
+
+    RefPtr image = imageResource().image();
+    auto& context = paintInfo.context();
+
+    if (shouldDisplayBrokenImageIcon() && !image->isNull() && usableSize.width() >= image->width() && usableSize.height() >= image->height()) {
+        // Call brokenImage() explicitly to ensure we get the broken image icon at the appropriate resolution.
+        auto brokenImageAndImageScaleFactor = cachedImage()->brokenImage(deviceScaleFactor);
+        image = brokenImageAndImageScaleFactor.first.get();
+        FloatSize imageSize = image->size();
+        imageSize.scale(1 / brokenImageAndImageScaleFactor.second);
+
+        // Center the error image, accounting for border and padding.
+        LayoutUnit centerX { (usableSize.width() - imageSize.width()) / 2 };
+        if (centerX < 0)
+            centerX = 0;
+        LayoutUnit centerY { (usableSize.height() - imageSize.height()) / 2 };
+        if (centerY < 0)
+            centerY = 0;
+        imageOffset = LayoutSize(borderWidths.left() + padding.left() + centerX + missingImageBorderWidth, borderWidths.top() + padding.top() + centerY + missingImageBorderWidth);
+
+        context.drawImage(*image, snapRectToDevicePixels(LayoutRect(paintOffset + imageOffset, imageSize), deviceScaleFactor), { imageOrientation() });
+        errorPictureDrawn = true;
+    }
+
+    if (m_altText.isEmpty())
+        return;
+
+    auto& style = this->style();
+    auto& fontCascade = style.fontCascade();
+    auto& fontMetrics = fontCascade.metricsOfPrimaryFont();
+    auto isHorizontal = writingMode().isHorizontal();
+    auto encodedDisplayString = document().displayStringModifiedByEncoding(m_altText);
+    auto textRun = RenderBlock::constructTextRun(encodedDisplayString, style, ExpansionBehavior::defaultBehavior(), RespectDirection | RespectDirectionOverride);
+    auto textWidth = LayoutUnit { fontCascade.width(textRun) };
+
+    auto hasRoomForAltText = [&] {
+        // Only draw the alt text if it fits within the content box (content width) and above the error image (content height).
+        // Error picture is always visually below the text regardless of writing direction.
+        auto availableLogicalWidth = isHorizontal ? usableSize.width() : (errorPictureDrawn ? imageOffset.height() : usableSize.height());
+        if (availableLogicalWidth < textWidth)
+            return false;
+        auto availableLogicalHeight = isHorizontal ? (errorPictureDrawn ? imageOffset.height() : usableSize.height()) : usableSize.width();
+        return availableLogicalHeight >= (settings().subpixelInlineLayoutEnabled() ? fontMetrics.height() : fontMetrics.intHeight());
+    };
+
+    if (!hasRoomForAltText())
+        return;
+
+    context.setFillColor(style.visitedDependentColorApplyingColorFilter());
+    if (isHorizontal) {
+        auto altTextLocation = [&]() -> LayoutPoint {
+            auto contentHorizontalOffset = LayoutUnit { borderWidths.left() + padding.left() + (paddingWidth / 2) - missingImageBorderWidth };
+            auto contentVerticalOffset = LayoutUnit { borderWidths.top() + padding.top() + (settings().subpixelInlineLayoutEnabled() ? fontMetrics.ascent() : fontMetrics.intAscent()) + (paddingHeight / 2) - missingImageBorderWidth };
+            if (!style.writingMode().isInlineLeftToRight())
+                contentHorizontalOffset += contentSize.width() - textWidth;
+            return paintOffset + LayoutPoint { contentHorizontalOffset, contentVerticalOffset };
+        };
+        auto textOrigin = altTextLocation();
+        textOrigin.setY(roundToDevicePixel(LayoutUnit { textOrigin.y() }, document().deviceScaleFactor()));
+        context.drawBidiText(fontCascade, textRun, textOrigin);
+    } else {
+        // FIXME: TextBoxPainter has this logic already, maybe we should transition to some painter class.
+        auto contentLogicalHeight = settings().subpixelInlineLayoutEnabled() ? fontMetrics.height() : fontMetrics.intHeight();
+        auto adjustedPaintOffset = LayoutPoint { paintOffset.x(), paintOffset.y() - contentLogicalHeight };
+
+        auto visualLeft = size().width() / 2 - contentLogicalHeight / 2;
+        auto visualRight = visualLeft + contentLogicalHeight;
+        if (writingMode().isBlockFlipped())
+            visualLeft = size().width() - visualRight;
+        visualLeft += adjustedPaintOffset.x();
+
+        visualLeft = roundToDevicePixel(visualLeft, document().deviceScaleFactor());
+        adjustedPaintOffset.setY(roundToDevicePixel(adjustedPaintOffset.y(), document().deviceScaleFactor()));
+
+        auto rotationRect = LayoutRect { visualLeft, adjustedPaintOffset.y(), textWidth, contentLogicalHeight };
+        context.concatCTM(rotation(rotationRect, RotationDirection::Clockwise));
+        auto textOrigin = LayoutPoint { visualLeft, adjustedPaintOffset.y() + (settings().subpixelInlineLayoutEnabled() ? fontCascade.metricsOfPrimaryFont().ascent() : fontCascade.metricsOfPrimaryFont().intAscent()) };
+        context.drawBidiText(fontCascade, textRun, roundPointToDevicePixels(textOrigin, document().deviceScaleFactor()));
+        context.concatCTM(rotation(rotationRect, RotationDirection::Counterclockwise));
+    }
 }
 
 void RenderImage::paintReplaced(PaintInfo& paintInfo, const LayoutPoint& paintOffset)
@@ -535,7 +640,7 @@ void RenderImage::paintReplaced(PaintInfo& paintInfo, const LayoutPoint& paintOf
         return;
     }
 
-    auto contentSize = this->contentBoxSize();
+    auto contentBoxRect = this->contentBoxRect();
     float deviceScaleFactor = document().deviceScaleFactor();
     LayoutUnit missingImageBorderWidth(1 / deviceScaleFactor);
 
@@ -543,118 +648,22 @@ void RenderImage::paintReplaced(PaintInfo& paintInfo, const LayoutPoint& paintOf
         return;
 
     if (context.detectingContentfulPaint()) {
-        if (!context.contentfulPaintDetected() && cachedImage() && cachedImage()->canRender(this, deviceScaleFactor) && !contentSize.isEmpty())
+        if (!context.contentfulPaintDetected() && cachedImage() && cachedImage()->canRender(this, deviceScaleFactor) && !contentBoxRect.isEmpty())
             context.setContentfulPaintDetected();
-
         return;
     }
 
     if (!imageResource().cachedImage() || shouldDisplayBrokenImageIcon()) {
-        if (paintInfo.phase == PaintPhase::Selection)
-            return;
-
-        if (paintInfo.phase == PaintPhase::Foreground)
-            page().addRelevantUnpaintedObject(*this, visualOverflowRect());
-
-        paintIncompleteImageOutline(paintInfo, paintOffset, missingImageBorderWidth);
-
-        if (contentSize.width() > 2 && contentSize.height() > 2) {
-            LayoutUnit leftBorder = borderLeft();
-            LayoutUnit topBorder = borderTop();
-            LayoutUnit leftPadding = paddingLeft();
-            LayoutUnit topPadding = paddingTop();
-
-            bool errorPictureDrawn = false;
-            LayoutSize imageOffset;
-            // When calculating the usable dimensions, exclude the pixels of
-            // the outline rect so the error image/alt text doesn't draw on it.
-            LayoutSize usableSize = contentSize - LayoutSize(2 * missingImageBorderWidth, 2 * missingImageBorderWidth);
-
-            RefPtr image = imageResource().image();
-
-            if (shouldDisplayBrokenImageIcon() && !image->isNull() && usableSize.width() >= image->width() && usableSize.height() >= image->height()) {
-                // Call brokenImage() explicitly to ensure we get the broken image icon at the appropriate resolution.
-                auto brokenImageAndImageScaleFactor = cachedImage()->brokenImage(deviceScaleFactor);
-                image = brokenImageAndImageScaleFactor.first.get();
-                FloatSize imageSize = image->size();
-                imageSize.scale(1 / brokenImageAndImageScaleFactor.second);
-
-                // Center the error image, accounting for border and padding.
-                LayoutUnit centerX { (usableSize.width() - imageSize.width()) / 2 };
-                if (centerX < 0)
-                    centerX = 0;
-                LayoutUnit centerY { (usableSize.height() - imageSize.height()) / 2 };
-                if (centerY < 0)
-                    centerY = 0;
-                imageOffset = LayoutSize(leftBorder + leftPadding + centerX + missingImageBorderWidth, topBorder + topPadding + centerY + missingImageBorderWidth);
-
-                context.drawImage(*image, snapRectToDevicePixels(LayoutRect(paintOffset + imageOffset, imageSize), deviceScaleFactor), { imageOrientation() });
-                errorPictureDrawn = true;
-            }
-
-            if (!m_altText.isEmpty()) {
-                auto& style = this->style();
-                auto& fontCascade = style.fontCascade();
-                auto& fontMetrics = fontCascade.metricsOfPrimaryFont();
-                auto isHorizontal = writingMode().isHorizontal();
-                auto encodedDisplayString = document().displayStringModifiedByEncoding(m_altText);
-                auto textRun = RenderBlock::constructTextRun(encodedDisplayString, style, ExpansionBehavior::defaultBehavior(), RespectDirection | RespectDirectionOverride);
-                auto textWidth = LayoutUnit { fontCascade.width(textRun) };
-
-                auto hasRoomForAltText = [&] {
-                    // Only draw the alt text if it fits within the content box (content width) and above the error image (content height).
-                    // Error picture is always visually below the text regardless of writing direction.
-                    auto availableLogicalWidth = isHorizontal ? usableSize.width() : (errorPictureDrawn ? imageOffset.height() : usableSize.height());
-                    if (availableLogicalWidth < textWidth)
-                        return false;
-                    auto availableLogicalHeight = isHorizontal ? (errorPictureDrawn ? imageOffset.height() : usableSize.height()) : usableSize.width();
-                    return availableLogicalHeight >= (settings().subpixelInlineLayoutEnabled() ? fontMetrics.height() : fontMetrics.intHeight());
-                };
-                if (hasRoomForAltText()) {
-                    context.setFillColor(style.visitedDependentColorApplyingColorFilter());
-                    if (isHorizontal) {
-                        auto altTextLocation = [&]() -> LayoutPoint {
-                            auto contentHorizontalOffset = LayoutUnit { leftBorder + leftPadding + (paddingWidth / 2) - missingImageBorderWidth };
-                            auto contentVerticalOffset = LayoutUnit { topBorder + topPadding + (settings().subpixelInlineLayoutEnabled() ? fontMetrics.ascent() : fontMetrics.intAscent()) + (paddingHeight / 2) - missingImageBorderWidth };
-                            if (!style.writingMode().isInlineLeftToRight())
-                                contentHorizontalOffset += contentSize.width() - textWidth;
-                            return paintOffset + LayoutPoint { contentHorizontalOffset, contentVerticalOffset };
-                        };
-                        auto textOrigin = altTextLocation();
-                        textOrigin.setY(roundToDevicePixel(LayoutUnit { textOrigin.y() }, document().deviceScaleFactor()));
-                        context.drawBidiText(fontCascade, textRun, textOrigin);
-                    } else {
-                        // FIXME: TextBoxPainter has this logic already, maybe we should transition to some painter class.
-                        auto contentLogicalHeight = settings().subpixelInlineLayoutEnabled() ? fontMetrics.height() : fontMetrics.intHeight();
-                        auto adjustedPaintOffset = LayoutPoint { paintOffset.x(), paintOffset.y() - contentLogicalHeight };
-
-                        auto visualLeft = size().width() / 2 - contentLogicalHeight / 2;
-                        auto visualRight = visualLeft + contentLogicalHeight;
-                        if (writingMode().isBlockFlipped())
-                            visualLeft = size().width() - visualRight;
-                        visualLeft += adjustedPaintOffset.x();
-
-                        visualLeft = roundToDevicePixel(visualLeft, document().deviceScaleFactor());
-                        adjustedPaintOffset.setY(roundToDevicePixel(adjustedPaintOffset.y(), document().deviceScaleFactor()));
-
-                        auto rotationRect = LayoutRect { visualLeft, adjustedPaintOffset.y(), textWidth, contentLogicalHeight };
-                        context.concatCTM(rotation(rotationRect, RotationDirection::Clockwise));
-                        auto textOrigin = LayoutPoint { visualLeft, adjustedPaintOffset.y() + (settings().subpixelInlineLayoutEnabled() ? fontCascade.metricsOfPrimaryFont().ascent() : fontCascade.metricsOfPrimaryFont().intAscent()) };
-                        context.drawBidiText(fontCascade, textRun, roundPointToDevicePixels(textOrigin, document().deviceScaleFactor()));
-                        context.concatCTM(rotation(rotationRect, RotationDirection::Counterclockwise));
-                    }
-                }
-            }
-        }
+        paintMissingImageState(paintInfo, paintOffset);
         return;
     }
     
-    if (contentSize.isEmpty())
+    if (contentBoxRect.isEmpty())
         return;
 
     bool showBorderForIncompleteImage = settings().incompleteImageBorderEnabled();
 
-    RefPtr<Image> img = imageResource().image(flooredIntSize(contentSize));
+    RefPtr<Image> img = imageResource().image(flooredIntSize(contentBoxRect.size()));
     if (!img || img->isNull()) {
         if (showBorderForIncompleteImage)
             paintIncompleteImageOutline(paintInfo, paintOffset, missingImageBorderWidth);
@@ -664,7 +673,6 @@ void RenderImage::paintReplaced(PaintInfo& paintInfo, const LayoutPoint& paintOf
         return;
     }
 
-    LayoutRect contentBoxRect = this->contentBoxRect();
     contentBoxRect.moveBy(paintOffset);
 
     // For SVGs without intrinsic dimensions (no width/height/viewBox), use

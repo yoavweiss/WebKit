@@ -117,6 +117,7 @@ private:
 
     void paintReplaced(PaintInfo&, const LayoutPoint&) override;
     void paintIncompleteImageOutline(PaintInfo&, LayoutPoint, LayoutUnit) const;
+    void paintMissingImageState(PaintInfo&, const LayoutPoint&) const;
 
     bool computeBackgroundIsKnownToBeObscured(const LayoutPoint& paintOffset) final;
 
