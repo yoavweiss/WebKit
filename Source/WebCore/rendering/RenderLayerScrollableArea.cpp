@@ -54,6 +54,7 @@
 #include "DocumentInlines.h"
 #include "DocumentView.h"
 #include "Editor.h"
+#include "ElementInlinesLight.h"
 #include "ElementRuleCollector.h"
 #include "EventHandler.h"
 #include "FocusController.h"

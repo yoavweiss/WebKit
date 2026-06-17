@@ -23,6 +23,7 @@
 
 #include "CSSPropertyNames.h"
 #include "Document.h"
+#include "ElementInlinesLight.h"
 #include "Event.h"
 #include "HTMLInputElement.h"
 #include "HTMLNames.h"

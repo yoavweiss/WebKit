@@ -63,6 +63,7 @@
 #include <JavaScriptCore/MicrotaskQueueInlines.h>
 #include <JavaScriptCore/StrongInlines.h>
 #include <JavaScriptCore/VMTrapsInlines.h>
+#include <JavaScriptCore/VariableWriteFireDetailInlines.h>
 #include <wtf/Language.h>
 #include <wtf/MainThread.h>
 #include <wtf/RuntimeApplicationChecks.h>

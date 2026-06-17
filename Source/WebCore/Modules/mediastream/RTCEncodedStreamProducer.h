@@ -38,6 +38,7 @@ namespace WebCore {
 
 class FrameRateMonitor;
 class JSDOMGlobalObject;
+class RTCRtpScriptTransformer;
 class RTCRtpTransformBackend;
 class RTCRtpTransformableFrame;
 class ScriptExecutionContext;
