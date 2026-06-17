@@ -62,6 +62,13 @@ public:
         return !element.bits.testAndSet(bit % elementBits);
     }
 
+    // Matches WTF::BitVector::add(): returns whether the bit transitioned from unset to set. This
+    // lets callers template uniformly over BitVector and SparseBitVector.
+    bool add(unsigned bit)
+    {
+        return set(bit);
+    }
+
     bool reset(unsigned bit)
     {
         unsigned elementIndex = bit / elementBits;
