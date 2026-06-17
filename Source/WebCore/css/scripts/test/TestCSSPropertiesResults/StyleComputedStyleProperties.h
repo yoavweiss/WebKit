@@ -126,10 +126,10 @@ protected:
     ComputedStyleProperties(ComputedStyleProperties&&) = default;
     ComputedStyleProperties& operator=(ComputedStyleProperties&&) = default;
 
-    ComputedStyleProperties(CreateDefaultStyleTag tag) : ComputedStyleBase { tag } { }
-    ComputedStyleProperties(const ComputedStyleProperties& other, CloneTag tag) : ComputedStyleBase { other, tag } { }
+    inline ComputedStyleProperties(CreateDefaultStyleTag);
+    inline ComputedStyleProperties(const ComputedStyleProperties&, CloneTag);
 
-    ComputedStyleProperties(ComputedStyleProperties& a, ComputedStyleProperties&& b) : ComputedStyleBase { a, WTF::move(b) } { }
+    inline ComputedStyleProperties(ComputedStyleProperties&, ComputedStyleProperties&&);
 };
 
 template<> struct ColorPropertyTraits<PropertyNameConstant<CSSPropertyTestColor>> {

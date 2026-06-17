@@ -593,8 +593,8 @@ Ref<VideoInfo> createVideoInfoFromVP9HeaderParser(const vp9_parser::Vp9HeaderPar
         auto& colorValue = video.colour.value();
         if (colorValue.chroma_subsampling_x.is_present() && colorValue.chroma_subsampling_y.is_present())
             record.chromaSubsampling = convertSubsamplingXYToChromaSubsampling(colorValue.chroma_subsampling_x.value(), colorValue.chroma_subsampling_y.value());
-        if (colorValue.range.is_present() && colorValue.range.value() != Range::kUnspecified)
-            record.videoFullRangeFlag = colorValue.range.value() == Range::kFull ? VPConfigurationRange::FullRange : VPConfigurationRange::VideoRange;
+        if (colorValue.range.is_present() && colorValue.range.value() != webm::Range::kUnspecified)
+            record.videoFullRangeFlag = colorValue.range.value() == webm::Range::kFull ? VPConfigurationRange::FullRange : VPConfigurationRange::VideoRange;
         if (colorValue.bits_per_channel.is_present())
             record.bitDepth = colorValue.bits_per_channel.value();
         if (colorValue.transfer_characteristics.is_present())
@@ -688,8 +688,8 @@ Ref<VideoInfo> createVideoInfoFromVP8Header(const VP8FrameHeader& header, const 
         auto& colorValue = video.colour.value();
         if (colorValue.chroma_subsampling_x.is_present() && colorValue.chroma_subsampling_y.is_present())
             record.chromaSubsampling = convertSubsamplingXYToChromaSubsampling(colorValue.chroma_subsampling_x.value(), colorValue.chroma_subsampling_y.value());
-        if (colorValue.range.is_present() && colorValue.range.value() != Range::kUnspecified)
-            record.videoFullRangeFlag = colorValue.range.value() == Range::kFull ? VPConfigurationRange::FullRange : VPConfigurationRange::VideoRange;
+        if (colorValue.range.is_present() && colorValue.range.value() != webm::Range::kUnspecified)
+            record.videoFullRangeFlag = colorValue.range.value() == webm::Range::kFull ? VPConfigurationRange::FullRange : VPConfigurationRange::VideoRange;
         if (colorValue.bits_per_channel.is_present())
             record.bitDepth = colorValue.bits_per_channel.value();
         if (colorValue.transfer_characteristics.is_present())

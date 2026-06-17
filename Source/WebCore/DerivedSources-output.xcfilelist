@@ -2100,8 +2100,6 @@ $(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/JSNavigator+Geolocation.cpp
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/JSNavigator+Geolocation.h
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/JSNavigator+LoginStatus.cpp
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/JSNavigator+LoginStatus.h
-$(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/JSNavigatorGlobalPrivacyControl.cpp
-$(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/JSNavigatorGlobalPrivacyControl.h
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/JSNavigator+MediaCapabilities.cpp
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/JSNavigator+MediaCapabilities.h
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/JSNavigator+MediaDevices.cpp
@@ -2126,6 +2124,8 @@ $(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/JSNavigatorCookies.cpp
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/JSNavigatorCookies.h
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/JSNavigatorGPU.cpp
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/JSNavigatorGPU.h
+$(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/JSNavigatorGlobalPrivacyControl.cpp
+$(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/JSNavigatorGlobalPrivacyControl.h
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/JSNavigatorID.cpp
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/JSNavigatorID.h
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/JSNavigatorLanguage.cpp
@@ -3780,6 +3780,7 @@ $(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/StreamInternalsBuiltins.cpp
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/StreamInternalsBuiltins.h
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/StyleBuilderGenerated.cpp
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/StyleChangedAnimatablePropertiesGenerated.cpp
+$(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/StyleComputedStyleProperties+ConstructionInlines.h
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/StyleComputedStyleProperties+GettersInlines.h
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/StyleComputedStyleProperties+InitialInlines.h
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/StyleComputedStyleProperties+SettersInlines.h

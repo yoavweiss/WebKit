@@ -682,6 +682,7 @@ set(WTF_SOURCES
     text/SymbolRegistry.cpp
     text/TextBreakIterator.cpp
     text/TextStream.cpp
+    text/UniquedStringImpl.cpp
     text/WTFString.cpp
 
     text/icu/UnicodeExtras.cpp

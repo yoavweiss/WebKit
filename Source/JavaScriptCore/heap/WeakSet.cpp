@@ -49,6 +49,13 @@ void WeakSet::lastChanceToFinalize()
     });
 }
 
+void WeakSet::reap()
+{
+    forEachBlock([](WeakBlock& block) {
+        block.reap();
+    });
+}
+
 void WeakSet::sweep()
 {
     for (WeakBlock* block = m_blocks.head(); block;) {

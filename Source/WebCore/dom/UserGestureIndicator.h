@@ -55,10 +55,7 @@ public:
     static const Seconds& NODELETE maximumIntervalForUserGestureForwardingForFetch();
     WEBCORE_EXPORT static void NODELETE setMaximumIntervalForUserGestureForwardingForFetchForTesting(Seconds);
 
-    static Ref<UserGestureToken> create(IsProcessingUserGesture isProcessingUserGesture, UserGestureType gestureType, Document* document = nullptr, std::optional<WTF::UUID> authorizationToken = std::nullopt, CanRequestDOMPaste canRequestDOMPaste = CanRequestDOMPaste::Yes)
-    {
-        return adoptRef(*new UserGestureToken(isProcessingUserGesture, gestureType, document, authorizationToken, canRequestDOMPaste));
-    }
+    static Ref<UserGestureToken> create(IsProcessingUserGesture, UserGestureType, Document* = nullptr, std::optional<WTF::UUID> authorizationToken = std::nullopt, CanRequestDOMPaste = CanRequestDOMPaste::Yes);
 
     WEBCORE_EXPORT ~UserGestureToken();
 

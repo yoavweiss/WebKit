@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012, 2016 Apple Inc. All rights reserved.
+ * Copyright (C) 2026 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -23,37 +23,19 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#include "config.h"
+#include <wtf/text/UniquedStringImpl.h>
 
-#include <JavaScriptCore/CellContainerInlines.h>
-#include <JavaScriptCore/JSCell.h>
-#include <JavaScriptCore/MarkedBlock.h>
+#include <wtf/Assertions.h>
 
-namespace JSC {
+namespace WTF {
 
-inline WeakImpl* WeakSet::allocate(JSValue jsValue, WeakHandleOwner* weakHandleOwner, void* context)
+IGNORE_CLANG_WARNINGS_BEGIN("missing-noreturn")
+// Always destroyed via StringImpl::destroy().
+UniquedStringImpl::~UniquedStringImpl()
 {
-    CellContainer container = jsValue.asCell()->cellContainer();
-    ASSERT(container.vm().currentThreadIsHoldingAPILock());
-    WeakSet& weakSet = container.weakSet();
-    WeakBlock::FreeCell* allocator = weakSet.m_allocator;
-    if (!allocator) [[unlikely]]
-        allocator = weakSet.findAllocator(container);
-    weakSet.m_allocator = allocator->next;
-
-    WeakImpl* weakImpl = WeakBlock::asWeakImpl(allocator);
-    container.vm().heap.didAllocate(sizeof(WeakImpl));
-    return new (NotNull, weakImpl) WeakImpl(jsValue, weakHandleOwner, context);
+    RELEASE_ASSERT_NOT_REACHED();
 }
+IGNORE_CLANG_WARNINGS_END
 
-inline void WeakBlock::finalize(WeakImpl* weakImpl)
-{
-    ASSERT(weakImpl->state() == WeakImpl::Dead);
-    weakImpl->setState(WeakImpl::Finalized);
-    WeakHandleOwner* weakHandleOwner = weakImpl->weakHandleOwner();
-    if (!weakHandleOwner)
-        return;
-    weakHandleOwner->finalize(Handle<Unknown>::wrapSlot(&const_cast<JSValue&>(weakImpl->jsValue())), weakImpl->context());
-}
-
-} // namespace JSC
+} // namespace WTF

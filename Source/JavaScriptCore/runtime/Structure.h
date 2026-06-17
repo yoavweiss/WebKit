@@ -181,10 +181,7 @@ inline CompactPropertyTableEntry::CompactPropertyTableEntry(const PropertyTableE
 
 class StructureFireDetail final : public FireDetail {
 public:
-    StructureFireDetail(const Structure* structure)
-        : m_structure(structure)
-    {
-    }
+    inline StructureFireDetail(const Structure*); // Defined in StructureInlines.h.
 
     void dump(PrintStream& out) const final;
 
@@ -1034,7 +1031,7 @@ private:
     friend class Integrity::Analyzer;
 };
 
-void dumpTransitionKind(PrintStream&, TransitionKind);
+JS_EXPORT_PRIVATE void dumpTransitionKind(PrintStream&, TransitionKind);
 MAKE_PRINT_ADAPTOR(TransitionKindDump, TransitionKind, dumpTransitionKind);
 
 // Defined here rather than in JSCell.h because it needs Structure to be complete.

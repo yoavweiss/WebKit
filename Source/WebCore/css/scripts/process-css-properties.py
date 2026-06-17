@@ -7788,6 +7788,7 @@ class GenerateStyleComputedStyleProperties(object):
     def generate(self):
         self.generate_style_computed_style_properties_h()
         self.generate_style_computed_style_properties_cpp()
+        self.generate_style_computed_style_properties_construction_inlines_h()
         self.generate_style_computed_style_properties_getters_inlines_h()
         self.generate_style_computed_style_properties_setters_inlines_h()
         self.generate_style_computed_style_properties_initial_inlines_h()
@@ -7835,11 +7836,14 @@ class GenerateStyleComputedStyleProperties(object):
                     writer.write(f"ComputedStyleProperties& operator=(ComputedStyleProperties&&) = default;")
                     writer.newline()
 
-                    writer.write(f"ComputedStyleProperties(CreateDefaultStyleTag tag) : ComputedStyleBase {{ tag }} {{ }}")
-                    writer.write(f"ComputedStyleProperties(const ComputedStyleProperties& other, CloneTag tag) : ComputedStyleBase {{ other, tag }} {{ }}")
+                    # Constructor bodies live in StyleComputedStyleProperties+ConstructionInlines.h
+                    # so that prefix headers see only the declarations and -fpch-codegen does not
+                    # emit them (which would reference unexported ComputedStyleBase constructors).
+                    writer.write(f"inline ComputedStyleProperties(CreateDefaultStyleTag);")
+                    writer.write(f"inline ComputedStyleProperties(const ComputedStyleProperties&, CloneTag);")
                     writer.newline()
 
-                    writer.write(f"ComputedStyleProperties(ComputedStyleProperties& a, ComputedStyleProperties&& b) : ComputedStyleBase {{ a, WTF::move(b) }} {{ }}")
+                    writer.write(f"inline ComputedStyleProperties(ComputedStyleProperties&, ComputedStyleProperties&&);")
 
                 writer.write(f"}};")
                 writer.newline()
@@ -7874,6 +7878,46 @@ class GenerateStyleComputedStyleProperties(object):
                     property_generator.all_functions.generate_out_of_line_function_definitions(to=writer)
                 for logical_property_group_generator in self.logical_property_group_generators:
                     logical_property_group_generator.all_functions.generate_out_of_line_function_definitions(to=writer)
+
+    # Generate StyleComputedStyleProperties+ConstructionInlines.h
+
+    def generate_style_computed_style_properties_construction_inlines_h(self):
+        with open('StyleComputedStyleProperties+ConstructionInlines.h', 'w') as output_file:
+            writer = Writer(output_file)
+
+            self.generation_context.generate_heading(
+                to=writer
+            )
+
+            self.generation_context.generate_required_header_pragma(
+                to=writer
+            )
+
+            self.generation_context.generate_includes(
+                to=writer,
+                headers=[
+                    "StyleComputedStyleBase+ConstructionInlines.h",
+                    "StyleComputedStyleProperties.h",
+                ]
+            )
+
+            with self.generation_context.namespaces(["WebCore", "Style"], to=writer):
+                writer.write(f"inline ComputedStyleProperties::ComputedStyleProperties(CreateDefaultStyleTag tag)")
+                writer.write(f"    : ComputedStyleBase {{ tag }}")
+                writer.write(f"{{")
+                writer.write(f"}}")
+                writer.newline()
+
+                writer.write(f"inline ComputedStyleProperties::ComputedStyleProperties(const ComputedStyleProperties& other, CloneTag tag)")
+                writer.write(f"    : ComputedStyleBase {{ other, tag }}")
+                writer.write(f"{{")
+                writer.write(f"}}")
+                writer.newline()
+
+                writer.write(f"inline ComputedStyleProperties::ComputedStyleProperties(ComputedStyleProperties& a, ComputedStyleProperties&& b)")
+                writer.write(f"    : ComputedStyleBase {{ a, WTF::move(b) }}")
+                writer.write(f"{{")
+                writer.write(f"}}")
 
     # Generate StyleComputedStyleProperties+GettersInlines.h
 

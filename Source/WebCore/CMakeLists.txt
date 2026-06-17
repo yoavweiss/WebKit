@@ -2904,7 +2904,7 @@ list(APPEND WebCore_SOURCES ${WebCore_DERIVED_SOURCES_DIR}/WebCoreLogDefinitions
 
 # Generate CSS property names
 add_custom_command(
-    OUTPUT ${WebCore_DERIVED_SOURCES_DIR}/CSSProperties.json ${WebCore_DERIVED_SOURCES_DIR}/CSSPropertyInitialValuesGeneratedInlines.h ${WebCore_DERIVED_SOURCES_DIR}/CSSPropertyNames.h ${WebCore_DERIVED_SOURCES_DIR}/CSSPropertyNames.cpp ${WebCore_DERIVED_SOURCES_DIR}/CSSPropertyNames.gperf ${WebCore_DERIVED_SOURCES_DIR}/CSSPropertyParsing.h ${WebCore_DERIVED_SOURCES_DIR}/CSSPropertyParsing.cpp ${WebCore_DERIVED_SOURCES_DIR}/StyleBuilderGenerated.cpp ${WebCore_DERIVED_SOURCES_DIR}/StyleChangedAnimatablePropertiesGenerated.cpp ${WebCore_DERIVED_SOURCES_DIR}/StyleComputedStyleProperties.h ${WebCore_DERIVED_SOURCES_DIR}/StyleComputedStyleProperties.cpp ${WebCore_DERIVED_SOURCES_DIR}/StyleComputedStyleProperties+GettersInlines.h ${WebCore_DERIVED_SOURCES_DIR}/StyleComputedStyleProperties+InitialInlines.h ${WebCore_DERIVED_SOURCES_DIR}/StyleComputedStyleProperties+SettersInlines.h ${WebCore_DERIVED_SOURCES_DIR}/StyleExtractorGenerated.cpp ${WebCore_DERIVED_SOURCES_DIR}/StyleInterpolationWrapperMap.h ${WebCore_DERIVED_SOURCES_DIR}/StyleInterpolationWrapperMap.cpp ${WebCore_DERIVED_SOURCES_DIR}/StylePropertyShorthandFunctions.h ${WebCore_DERIVED_SOURCES_DIR}/StylePropertyShorthandFunctions.cpp ${WebCore_DERIVED_SOURCES_DIR}/CSSStyleProperties+PropertyNames.idl
+    OUTPUT ${WebCore_DERIVED_SOURCES_DIR}/CSSProperties.json ${WebCore_DERIVED_SOURCES_DIR}/CSSPropertyInitialValuesGeneratedInlines.h ${WebCore_DERIVED_SOURCES_DIR}/CSSPropertyNames.h ${WebCore_DERIVED_SOURCES_DIR}/CSSPropertyNames.cpp ${WebCore_DERIVED_SOURCES_DIR}/CSSPropertyNames.gperf ${WebCore_DERIVED_SOURCES_DIR}/CSSPropertyParsing.h ${WebCore_DERIVED_SOURCES_DIR}/CSSPropertyParsing.cpp ${WebCore_DERIVED_SOURCES_DIR}/StyleBuilderGenerated.cpp ${WebCore_DERIVED_SOURCES_DIR}/StyleChangedAnimatablePropertiesGenerated.cpp ${WebCore_DERIVED_SOURCES_DIR}/StyleComputedStyleProperties.h ${WebCore_DERIVED_SOURCES_DIR}/StyleComputedStyleProperties.cpp ${WebCore_DERIVED_SOURCES_DIR}/StyleComputedStyleProperties+ConstructionInlines.h ${WebCore_DERIVED_SOURCES_DIR}/StyleComputedStyleProperties+GettersInlines.h ${WebCore_DERIVED_SOURCES_DIR}/StyleComputedStyleProperties+InitialInlines.h ${WebCore_DERIVED_SOURCES_DIR}/StyleComputedStyleProperties+SettersInlines.h ${WebCore_DERIVED_SOURCES_DIR}/StyleExtractorGenerated.cpp ${WebCore_DERIVED_SOURCES_DIR}/StyleInterpolationWrapperMap.h ${WebCore_DERIVED_SOURCES_DIR}/StyleInterpolationWrapperMap.cpp ${WebCore_DERIVED_SOURCES_DIR}/StylePropertyShorthandFunctions.h ${WebCore_DERIVED_SOURCES_DIR}/StylePropertyShorthandFunctions.cpp ${WebCore_DERIVED_SOURCES_DIR}/CSSStyleProperties+PropertyNames.idl
     MAIN_DEPENDENCY ${WEBCORE_DIR}/css/scripts/process-css-properties.py
     DEPENDS ${WebCore_CSS_PROPERTY_NAMES}
     WORKING_DIRECTORY ${WebCore_DERIVED_SOURCES_DIR}
@@ -3178,10 +3178,13 @@ WEBKIT_DEFINE_SUBTARGET_WITH_PREFIX(WebCore WebCoreJSBindings
     PREFIX WebCoreJSBindingsPrefix.h
     PREFIX_LANGUAGES CXX
     DIRS JSBindings bindings)
+# WebCoreStyle takes precedence but only has a C++ prefix header. So, when a
+# folder appears in both WebCoreStyle and WebCoreDOMAndRendering, WebCoreStyle
+# claims its .cpp files and WebCoreDOMAndRendering claims its .mm files.
 WEBKIT_DEFINE_SUBTARGET_WITH_PREFIX(WebCore WebCoreStyle
     PREFIX WebCoreStylePrefix.h
     PREFIX_LANGUAGES CXX
-    DIRS style
+    DIRS css cssjit layout rendering style
     CHAIN_PARENT WebCoreDOMAndRendering)
 WEBKIT_DEFINE_SUBTARGET_WITH_PREFIX(WebCore WebCoreDOMAndRendering
     PREFIX WebCoreDOMAndRenderingPrefix.h

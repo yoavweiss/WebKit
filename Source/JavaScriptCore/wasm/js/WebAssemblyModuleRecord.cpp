@@ -39,7 +39,7 @@
 #include "JSWebAssemblyModule.h"
 #include "JSWebAssemblyTag.h"
 #include "ObjectConstructor.h"
-#include "VariableWriteFireDetail.h"
+#include "VariableWriteFireDetailInlines.h"
 #include "WasmConstExprGenerator.h"
 #include "WasmOperationsInlines.h"
 #include "WasmTypeDefinitionInlines.h"

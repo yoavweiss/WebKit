@@ -561,7 +561,6 @@ rendering/RenderListMarker.cpp
 rendering/RenderMenuList.cpp
 rendering/RenderMultiColumnSet.cpp
 rendering/RenderObject.cpp
-rendering/RenderObjectNode.h
 rendering/RenderQuote.cpp
 rendering/RenderReplaced.cpp
 rendering/RenderReplica.cpp

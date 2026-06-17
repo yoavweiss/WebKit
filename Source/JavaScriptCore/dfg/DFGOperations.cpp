@@ -66,7 +66,7 @@
 #include "JSGenericTypedArrayViewInlines.h"
 #include "JSCellButterfly.h"
 #include "JSIteratorHelper.h"
-#include "JSLexicalEnvironment.h"
+#include "JSLexicalEnvironmentInlines.h"
 #include "JSMap.h"
 #include "JSMapIterator.h"
 #include "JSPromise.h"

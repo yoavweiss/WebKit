@@ -338,6 +338,12 @@ void MemoryPressureHandler::didExceedProcessMemoryLimit(ProcessMemoryLimit limit
         m_didExceedProcessMemoryLimitCallback(limit);
 }
 
+MemoryPressureHandler::ReliefLogger::~ReliefLogger()
+{
+    if (loggingEnabled())
+        logMemoryUsageChange();
+}
+
 void MemoryPressureHandler::ReliefLogger::logMemoryUsageChange()
 {
 #if !RELEASE_LOG_DISABLED
