@@ -116,10 +116,10 @@ public:
 
     // Logical getters and setters for 'test-group' properties of type 'axis'.
     inline Style::Number<> logicalTestLogicalPropertyGroupPhysicalHorizontal(WritingMode) const;
-    inline Style::Number<> logicalTestLogicalPropertyGroupPhysicalVertical(WritingMode) const;
     inline Style::Number<> logicalTestLogicalPropertyGroupPhysicalHorizontal() const;
-    inline Style::Number<> logicalTestLogicalPropertyGroupPhysicalVertical() const;
     inline void setLogicalTestLogicalPropertyGroupPhysicalHorizontal(Style::Number<>);
+    inline Style::Number<> logicalTestLogicalPropertyGroupPhysicalVertical(WritingMode) const;
+    inline Style::Number<> logicalTestLogicalPropertyGroupPhysicalVertical() const;
     inline void setLogicalTestLogicalPropertyGroupPhysicalVertical(Style::Number<>);
 
 protected:
