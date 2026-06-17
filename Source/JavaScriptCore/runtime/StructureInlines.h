@@ -33,13 +33,11 @@
 #include <JavaScriptCore/PropertyTable.h>
 #include <JavaScriptCore/StringPrototype.h>
 #include <JavaScriptCore/StructureArrayStorageInlines.h>
-#include <JavaScriptCore/StructureCache.h>
 #include <JavaScriptCore/StructureChain.h>
 #include <JavaScriptCore/StructureCreateInlines.h>
 #include <JavaScriptCore/StructureInlinesLight.h>
 #include <JavaScriptCore/StructureRareDataInlines.h>
 #include <JavaScriptCore/SymbolPrototype.h>
-#include <JavaScriptCore/WeakGCMapInlines.h>
 #include <JavaScriptCore/WebAssemblyGCStructure.h>
 #include <JavaScriptCore/WriteBarrierInlines.h>
 #include <wtf/Threading.h>
@@ -703,24 +701,6 @@ inline void Structure::clearCachedPrototypeChain()
         return;
     rareData()->clearCachedPropertyNameEnumerator();
 }
-
-inline StructureFireDetail::StructureFireDetail(const Structure* structure)
-    : m_structure(structure)
-{
-}
-
-inline StructureTransitionTable::~StructureTransitionTable()
-{
-    if (!isUsingSingleSlot())
-        delete map();
-}
-
-inline StructureCache::StructureCache(VM& vm)
-    : m_structures(vm)
-{
-}
-
-inline StructureCache::~StructureCache() = default;
 
 } // namespace JSC
 

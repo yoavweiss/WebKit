@@ -56,4 +56,11 @@ inline void WeakBlock::finalize(WeakImpl* weakImpl)
     weakHandleOwner->finalize(Handle<Unknown>::wrapSlot(&const_cast<JSValue&>(weakImpl->jsValue())), weakImpl->context());
 }
 
+inline void WeakSet::reap()
+{
+    forEachBlock([](WeakBlock& block) {
+        block.reap();
+    });
+}
+
 } // namespace JSC

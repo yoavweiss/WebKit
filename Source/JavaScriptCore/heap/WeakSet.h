@@ -56,9 +56,9 @@ public:
     bool isEmpty() const;
     bool isTriviallyDestructible() const;
 
-    void reap();
+    inline void reap();
     void sweep();
-    JS_EXPORT_PRIVATE void shrink();
+    void shrink();
     void resetAllocator();
 
     static constexpr ptrdiff_t offsetOfVM() { return OBJECT_OFFSETOF(WeakSet, m_vm); }

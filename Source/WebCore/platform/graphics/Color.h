@@ -141,7 +141,7 @@ public:
     WEBCORE_EXPORT Color darkened() const;
 
     Color invertedColorWithAlpha(std::optional<float> alpha) const;
-    WEBCORE_EXPORT Color invertedColorWithAlpha(float alpha) const;
+    Color invertedColorWithAlpha(float alpha) const;
 
     Color colorWithAlphaMultipliedBy(std::optional<float>) const;
     Color colorWithAlphaMultipliedBy(float) const;

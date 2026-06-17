@@ -739,7 +739,6 @@ set(JavaScriptCore_PRIVATE_FRAMEWORK_HEADERS
     bytecode/ValueProfile.h
     bytecode/ValueRecovery.h
     bytecode/VariableWriteFireDetail.h
-    bytecode/VariableWriteFireDetailInlines.h
     bytecode/VirtualRegister.h
     bytecode/Watchpoint.h
 

@@ -59,7 +59,7 @@ public:
 
         WEBCORE_EXPORT ~QualifiedNameImpl();
 
-        WEBCORE_EXPORT unsigned computeHash() const;
+        unsigned computeHash() const;
 
         mutable unsigned m_existingHash { 0 };
         Namespace m_namespace;
@@ -78,7 +78,7 @@ public:
     private:
         friend class QualifiedName;
 
-        WEBCORE_EXPORT QualifiedNameImpl(const AtomString& prefix, const AtomString& localName, const AtomString& namespaceURI);
+        QualifiedNameImpl(const AtomString& prefix, const AtomString& localName, const AtomString& namespaceURI);
     };
 
     WEBCORE_EXPORT QualifiedName(const AtomString& prefix, const AtomString& localName, const AtomString& namespaceURI);
@@ -131,10 +131,10 @@ inline void add(Hasher& hasher, const QualifiedName& name)
     add(hasher, std::bit_cast<uintptr_t>(name.impl()));
 }
 
-WEBCORE_EXPORT extern LazyNeverDestroyed<const QualifiedName> anyName;
+extern LazyNeverDestroyed<const QualifiedName> anyName;
 inline const QualifiedName& anyQName() { return anyName; }
 
-WEBCORE_EXPORT extern LazyNeverDestroyed<const QualifiedName> nullName;
+extern LazyNeverDestroyed<const QualifiedName> nullName;
 inline const QualifiedName& nullQName() { return nullName; }
 
 struct QualifiedNameHash {

@@ -52,41 +52,6 @@ inline JSCell* getJSFunction(JSValue value)
     return nullptr;
 }
 
-inline JSValue JSObject::getPrototypeDirect() const
-{
-    return structure()->storedPrototype(this);
-}
-
-inline JSValue JSObject::getPrototype(JSGlobalObject* globalObject)
-{
-    if (!structure()->typeInfo().overridesGetPrototype()) [[likely]]
-        return getPrototypeDirect();
-    return methodTable()->getPrototype(this, globalObject);
-}
-
-inline bool JSValue::put(JSGlobalObject* globalObject, PropertyName propertyName, JSValue value, PutPropertySlot& slot)
-{
-    if (!isCell()) [[unlikely]]
-        return putToPrimitive(globalObject, propertyName, value, slot);
-
-    return asCell()->methodTable()->put(asCell(), globalObject, propertyName, value, slot);
-}
-
-inline bool JSValue::putByIndex(JSGlobalObject* globalObject, unsigned propertyName, JSValue value, bool shouldThrow)
-{
-    if (!isCell()) [[unlikely]]
-        return putToPrimitiveByIndex(globalObject, propertyName, value, shouldThrow);
-
-    return asCell()->methodTable()->putByIndex(asCell(), globalObject, propertyName, value, shouldThrow);
-}
-
-ALWAYS_INLINE JSValue JSValue::getPrototype(JSGlobalObject* globalObject) const
-{
-    if (isObject())
-        return asObject(asCell())->getPrototype(globalObject);
-    return synthesizePrototype(globalObject);
-}
-
 inline Structure* JSObject::createStructure(VM& vm, JSGlobalObject* globalObject, JSValue prototype)
 {
     return Structure::create(vm, globalObject, prototype, TypeInfo(ObjectType, StructureFlags), info());

@@ -41,23 +41,6 @@ inline void SymbolTable::finalizeUnconditionally(VM& vm, CollectionScope collect
     m_singleton.finalizeUnconditionally(vm, collectionScope);
 }
 
-inline void SymbolTable::notifyCreation(VM& vm, JSScope* scope, const char* reason)
-{
-    m_singleton.notifyWrite(vm, this, scope, reason);
-    if (m_singleton.hasBeenInvalidated()) {
-        // Propagate to the original SymbolTable so future clones in other realms pre-invalidate.
-        // This "SymbolTable can be reused multiple times for the different lexical environments" is
-        // important feedback information from the code execution, and it is derived from the code's lexical
-        // characteristics. Thus carrying beyond realms makes sense.
-        if (m_propagateCloneInvalidationToOriginal == PropagateCloneInvalidationToOriginal::Yes) {
-            if (auto* origin = m_clonedFrom.get()) {
-                if (!origin->m_singleton.hasBeenInvalidated())
-                    origin->m_singleton.invalidate(vm, StringFireDetail("Singleton invalidated in clone"));
-            }
-        }
-    }
-}
-
 inline SymbolTableEntry::SymbolTableEntry(const SymbolTableEntry& other)
     : m_bits(SlimFlag)
 {

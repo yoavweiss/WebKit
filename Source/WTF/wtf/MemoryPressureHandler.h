@@ -154,7 +154,12 @@ public:
         {
         }
 
-        ~ReliefLogger();
+        ~ReliefLogger()
+        {
+            if (loggingEnabled())
+                logMemoryUsageChange();
+        }
+
 
         const char* logString() const { return m_logString; }
         static void setLoggingEnabled(bool enabled) { s_loggingEnabled = enabled; }

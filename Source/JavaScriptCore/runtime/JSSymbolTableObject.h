@@ -57,11 +57,22 @@ protected:
         : Base(vm, structure, scope)
     {
     }
-
-    JSSymbolTableObject(VM&, Structure*, JSScope*, SymbolTable*);
-
-    void setSymbolTable(VM&, SymbolTable*);
-
+    
+    JSSymbolTableObject(VM& vm, Structure* structure, JSScope* scope, SymbolTable* symbolTable)
+        : Base(vm, structure, scope)
+        , m_symbolTable(symbolTable, WriteBarrierEarlyInit)
+    {
+        ASSERT(symbolTable);
+        symbolTable->notifyCreation(vm, this, "Allocated a scope");
+    }
+    
+    void setSymbolTable(VM& vm, SymbolTable* symbolTable)
+    {
+        ASSERT(!m_symbolTable);
+        symbolTable->notifyCreation(vm, this, "Allocated a scope");
+        m_symbolTable.set(vm, this, symbolTable);
+    }
+    
 private:
     WriteBarrier<SymbolTable> m_symbolTable;
 };

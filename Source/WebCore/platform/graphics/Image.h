@@ -209,7 +209,7 @@ private:
     // A value of true or false will override the default Page::imageAnimationEnabled state.
     std::optional<bool> m_allowsAnimation { std::nullopt };
     std::unique_ptr<Timer> m_animationStartTimer;
-    WEBCORE_EXPORT static bool gSystemAllowsAnimationControls;
+    static bool gSystemAllowsAnimationControls;
 };
 
 WEBCORE_EXPORT WTF::TextStream& operator<<(WTF::TextStream&, const Image&);

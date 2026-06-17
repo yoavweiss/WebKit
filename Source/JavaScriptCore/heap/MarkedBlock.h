@@ -352,9 +352,9 @@ public:
     unsigned atomNumber(const void*);
     size_t candidateAtomNumber(const void*);
         
-    JS_EXPORT_PRIVATE size_t markCount();
+    size_t markCount();
 
-    JS_EXPORT_PRIVATE bool isMarked(const void*);
+    bool isMarked(const void*);
     bool isMarked(HeapVersion markingVersion, const void*);
     bool isMarked(const void*, Dependency);
     bool testAndSetMarked(const void*, Dependency);
@@ -380,7 +380,7 @@ public:
     bool hasAnyMarked() const;
     inline void noteMarked();
 #if ASSERT_ENABLED
-    JS_EXPORT_PRIVATE void assertValidCell(VM&, HeapCell*) const;
+    void assertValidCell(VM&, HeapCell*) const;
 #else
     void assertValidCell(VM&, HeapCell*) const { }
 #endif
@@ -425,7 +425,7 @@ private:
     JS_EXPORT_PRIVATE void aboutToMarkSlow(HeapVersion markingVersion, HeapCell*);
     void NODELETE clearHasAnyMarked();
     
-    JS_EXPORT_PRIVATE void noteMarkedSlow();
+    void noteMarkedSlow();
     
     inline bool marksConveyLivenessDuringMarking(HeapVersion markingVersion);
     inline bool marksConveyLivenessDuringMarking(HeapVersion myMarkingVersion, HeapVersion markingVersion);

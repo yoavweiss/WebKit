@@ -50,13 +50,13 @@ struct UnlinkableToken {
 };
 
 struct SourceUnlinkableToken : UnlinkableToken {
-    SourceUnlinkableToken isolatedCopy() const &;
-    SourceUnlinkableToken isolatedCopy() &&;
+    SourceUnlinkableToken isolatedCopy() const & { return { UnlinkableToken::isolatedCopy() }; }
+    SourceUnlinkableToken isolatedCopy() && { return { UnlinkableToken::isolatedCopy() }; }
 };
 
 struct DestinationUnlinkableToken : UnlinkableToken {
-    DestinationUnlinkableToken isolatedCopy() const &;
-    DestinationUnlinkableToken isolatedCopy() &&;
+    DestinationUnlinkableToken isolatedCopy() const & { return { UnlinkableToken::isolatedCopy() }; }
+    DestinationUnlinkableToken isolatedCopy() && { return { UnlinkableToken::isolatedCopy() }; }
 };
 
 struct SecretToken {

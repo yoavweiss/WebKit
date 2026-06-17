@@ -47,7 +47,7 @@
 #include "JSGenerator.h"
 #include "JSGeneratorFunction.h"
 #include "JSIteratorHelper.h"
-#include "JSLexicalEnvironmentInlines.h"
+#include "JSLexicalEnvironment.h"
 #include "JSMapIterator.h"
 #include "JSPromise.h"
 #include "JSPromiseReaction.h"

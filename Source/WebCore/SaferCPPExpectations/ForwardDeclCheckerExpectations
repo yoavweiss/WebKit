@@ -32,11 +32,13 @@ accessibility/AccessibilityObject.cpp
 bindings/js/GarbageCollectionController.cpp
 bindings/js/JSLocationCustom.cpp
 bindings/js/JSPaintRenderingContext2DCustom.cpp
+css/CSSToLengthConversionData.h
 css/StyleSheetContents.cpp
 css/StyleSheetContents.h
 css/values/primitives/CSSPrimitiveData.h
 dom/CustomElementReactionQueue.h
 dom/ElementInlinesLight.h
+dom/Node.h
 editing/Editor.h
 html/HTMLMediaElement.cpp
 html/canvas/PlaceholderRenderingContext.cpp
@@ -62,5 +64,6 @@ rendering/RenderTextLineBoxes.h
 rendering/svg/SVGRenderingContext.h
 style/StyleBuilderState.h
 style/StyleExtractorState.h
+style/StyleScope.h
 style/values/images/kinds/StyleCachedImage.cpp
 testing/Internals.cpp

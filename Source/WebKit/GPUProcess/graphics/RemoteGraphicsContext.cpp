@@ -154,14 +154,14 @@ void RemoteGraphicsContext::setFillPatternNativeImage(RenderingResourceIdentifie
 {
     RefPtr tileImage = resourceCache().cachedNativeImage(identifier);
     MESSAGE_CHECK(tileImage);
-    context().setFillPattern(WebCore::Pattern::create({ tileImage.releaseNonNull() }, parameters));
+    context().setFillPattern(Pattern::create({ tileImage.releaseNonNull() }, parameters));
 }
 
 void RemoteGraphicsContext::setFillPatternImageBuffer(RenderingResourceIdentifier identifier, const PatternParameters& parameters)
 {
     RefPtr tileImageBuffer = this->imageBuffer(identifier);
     MESSAGE_CHECK(tileImageBuffer);
-    context().setFillPattern(WebCore::Pattern::create({ tileImageBuffer.releaseNonNull() }, parameters));
+    context().setFillPattern(Pattern::create({ tileImageBuffer.releaseNonNull() }, parameters));
 }
 
 void RemoteGraphicsContext::setFillRule(WindRule rule)
@@ -195,14 +195,14 @@ void RemoteGraphicsContext::setStrokePatternNativeImage(RenderingResourceIdentif
 {
     RefPtr tileImage = resourceCache().cachedNativeImage(identifier);
     MESSAGE_CHECK(tileImage);
-    context().setStrokePattern(WebCore::Pattern::create({ tileImage.releaseNonNull() }, parameters));
+    context().setStrokePattern(Pattern::create({ tileImage.releaseNonNull() }, parameters));
 }
 
 void RemoteGraphicsContext::setStrokePatternImageBuffer(RenderingResourceIdentifier identifier, const PatternParameters& parameters)
 {
     RefPtr tileImageBuffer = imageBuffer(identifier);
     MESSAGE_CHECK(tileImageBuffer);
-    context().setStrokePattern(WebCore::Pattern::create({ tileImageBuffer.releaseNonNull() }, parameters));
+    context().setStrokePattern(Pattern::create({ tileImageBuffer.releaseNonNull() }, parameters));
 }
 
 void RemoteGraphicsContext::setStrokePackedColorAndThickness(PackedColor::RGBA color, float thickness)

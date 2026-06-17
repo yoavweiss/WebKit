@@ -43,8 +43,10 @@ typedef uint8_t IndexingType;
 // Tracks the canonical structure an object should be allocated with when inheriting from a given prototype.
 class StructureCache {
 public:
-    inline explicit StructureCache(VM&); // Defined in StructureInlines.h.
-    inline ~StructureCache(); // Defined in StructureInlines.h.
+    explicit StructureCache(VM& vm)
+        : m_structures(vm)
+    {
+    }
 
     JS_EXPORT_PRIVATE void clear();
 

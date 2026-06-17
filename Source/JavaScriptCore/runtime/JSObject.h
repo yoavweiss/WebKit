@@ -115,7 +115,7 @@ public:
     // This is the fully virtual [[GetPrototypeOf]] internal function defined
     // in the ECMAScript 6 specification. Use this when doing a [[GetPrototypeOf]] 
     // operation as dictated in the specification.
-    JSValue getPrototype(JSGlobalObject*); // defined in JSObjectInlines.h
+    JSValue getPrototype(JSGlobalObject*);
     JS_EXPORT_PRIVATE static JSValue getPrototype(JSObject*, JSGlobalObject*);
     // This gets the prototype directly off of the structure. This does not do
     // dynamic dispatch on the getPrototype method table method. It is not valid 
@@ -123,7 +123,7 @@ public:
     // It is valid to use though when you know that you want to directly get it
     // without consulting the method table. This is akin to getting the [[Prototype]]
     // internal field directly as described in the specification.
-    JSValue getPrototypeDirect() const; // defined in JSObjectInlines.h
+    JSValue getPrototypeDirect() const;
 
     // This sets the prototype without checking for cycles and without
     // doing dynamic dispatch on [[SetPrototypeOf]] operation in the specification.
@@ -655,7 +655,7 @@ protected:
     {
         Base::finishCreation(vm);
         ASSERT(is<JSObject>(this));
-        ASSERT(structure()->hasPolyProto() || structure()->storedPrototype().isNull() || Heap::heap(this) == Heap::heap(structure()->storedPrototype()));
+        ASSERT(structure()->hasPolyProto() || getPrototypeDirect().isNull() || Heap::heap(this) == Heap::heap(getPrototypeDirect()));
         ASSERT(structure()->isObject());
         ASSERT(classInfo());
     }
@@ -1054,6 +1054,18 @@ inline JSObject::JSObject(VM& vm, Structure* structure)
 {
 }
 
+inline JSValue JSObject::getPrototypeDirect() const
+{
+    return structure()->storedPrototype(this);
+}
+
+inline JSValue JSObject::getPrototype(JSGlobalObject* globalObject)
+{
+    if (!structure()->typeInfo().overridesGetPrototype()) [[likely]]
+        return getPrototypeDirect();
+    return methodTable()->getPrototype(this, globalObject);
+}
+
 // Normally, we never shrink the butterfly so if we know an offset is valid for some
 // past structure then it should be valid for any new structure. However, we may sometimes
 // shrink the butterfly when we are holding the Structure's ConcurrentJSLock, such as when we
@@ -1360,7 +1372,29 @@ bool setterThatIgnoresPrototypeProperties(JSGlobalObject*, JSValue thisValue, JS
     static_assert(sizeof(DerivedClass) == sizeof(BaseClass)); \
     static_assert(DerivedClass::destroy == BaseClass::destroy);
 
-// JSValue::put, JSValue::putByIndex, and JSValue::getPrototype are defined in JSObjectInlines.h.
+// Defined here rather than in JSCJSValue.h because they need JSObject to be complete.
+inline bool JSValue::put(JSGlobalObject* globalObject, PropertyName propertyName, JSValue value, PutPropertySlot& slot)
+{
+    if (!isCell()) [[unlikely]]
+        return putToPrimitive(globalObject, propertyName, value, slot);
+
+    return asCell()->methodTable()->put(asCell(), globalObject, propertyName, value, slot);
+}
+
+inline bool JSValue::putByIndex(JSGlobalObject* globalObject, unsigned propertyName, JSValue value, bool shouldThrow)
+{
+    if (!isCell()) [[unlikely]]
+        return putToPrimitiveByIndex(globalObject, propertyName, value, shouldThrow);
+
+    return asCell()->methodTable()->putByIndex(asCell(), globalObject, propertyName, value, shouldThrow);
+}
+
+ALWAYS_INLINE JSValue JSValue::getPrototype(JSGlobalObject* globalObject) const
+{
+    if (isObject())
+        return asObject(asCell())->getPrototype(globalObject);
+    return synthesizePrototype(globalObject);
+}
 
 } // namespace JSC
 

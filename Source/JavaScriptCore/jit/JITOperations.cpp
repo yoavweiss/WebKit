@@ -61,7 +61,7 @@ WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
 #include "JSCPtrTag.h"
 #include "JSGeneratorFunction.h"
 #include "JSGlobalObjectFunctions.h"
-#include "JSLexicalEnvironmentInlines.h"
+#include "JSLexicalEnvironment.h"
 #include "JSMapIterator.h"
 #include "JSPromise.h"
 #include "JSRemoteFunction.h"

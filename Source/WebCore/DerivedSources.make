@@ -1990,7 +1990,6 @@ all : \
     StyleBuilderGenerated.cpp \
     StyleComputedStyleProperties.cpp \
     StyleComputedStyleProperties.h \
-    StyleComputedStyleProperties+ConstructionInlines.h \
     StyleComputedStyleProperties+GettersInlines.h \
     StyleComputedStyleProperties+InitialInlines.h \
     StyleComputedStyleProperties+SettersInlines.h \
@@ -2041,7 +2040,6 @@ CSS_PROPERTY_NAME_FILES = \
     StyleBuilderGenerated.cpp \
     StyleComputedStyleProperties.cpp \
     StyleComputedStyleProperties.h \
-    StyleComputedStyleProperties+ConstructionInlines.h \
     StyleComputedStyleProperties+GettersInlines.h \
     StyleComputedStyleProperties+InitialInlines.h \
     StyleComputedStyleProperties+SettersInlines.h \

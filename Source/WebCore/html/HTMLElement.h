@@ -166,7 +166,7 @@ public:
     static SelectionRenderingBehavior selectionRenderingBehavior(const Node*);
 
 protected:
-    HTMLElement(const QualifiedName& tagName, Document&, OptionSet<TypeFlag> = { });
+    HTMLElement(const QualifiedName& tagName, Document&, OptionSet<TypeFlag>);
 
     enum class AllowZeroValue : bool { No, Yes };
     void addHTMLLengthToStyle(MutableStyleProperties&, CSSPropertyID, StringView value, AllowZeroValue = AllowZeroValue::Yes);
@@ -210,6 +210,12 @@ private:
     enum class IsMultiLength : bool { No, Yes };
     void addHTMLLengthToStyle(MutableStyleProperties&, CSSPropertyID, StringView value, AllowPercentage, UseCSSPXAsUnitType, IsMultiLength, AllowZeroValue = AllowZeroValue::Yes);
 };
+
+inline HTMLElement::HTMLElement(const QualifiedName& tagName, Document& document, OptionSet<TypeFlag> type = { })
+    : StyledElement(tagName, document, type | TypeFlag::IsHTMLElement)
+{
+    ASSERT(tagName.localName().impl());
+}
 
 inline bool Node::hasTagName(const HTMLQualifiedName& name) const
 {

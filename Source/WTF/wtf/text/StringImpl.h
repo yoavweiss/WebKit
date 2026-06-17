@@ -536,7 +536,7 @@ public:
     template<typename T> static constexpr size_t headerSize() { return tailOffset<T>(); }
     
 protected:
-    ~StringImpl();
+    WTF_EXPORT_PRIVATE ~StringImpl();
 
     // Used to create new symbol string that holds an existing [[Description]] string as a substring buffer (BufferSubstring).
     enum CreateSymbolTag { CreateSymbol };

@@ -223,7 +223,6 @@
 		A331D96721F24ABD009F02AA /* FileSystemPOSIX.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A331D96621F24ABD009F02AA /* FileSystemPOSIX.cpp */; };
 		A3B725EC987446AD93F1A440 /* RandomDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C8F597CA2A57417FBAB92FD6 /* RandomDevice.cpp */; };
 		A3E4DD931F3A803400DED0B4 /* TextStream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3E4DD911F3A803400DED0B4 /* TextStream.cpp */; };
-		70ECA60F1B02426800449739 /* UniquedStringImpl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70ECA60E1B02426800449739 /* UniquedStringImpl.cpp */; };
 		A3EE5C3A21FFAC5F00FABD61 /* OSAllocatorPOSIX.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3EE5C3921FFAC5E00FABD61 /* OSAllocatorPOSIX.cpp */; };
 		A3EE5C3D21FFAC7D00FABD61 /* SchedulePairCF.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3EE5C3B21FFAC7C00FABD61 /* SchedulePairCF.cpp */; };
 		A400B8FB2F3AB62E009E21AF /* GenerationalSet.h in Headers */ = {isa = PBXBuildFile; fileRef = A400B8FA2F3AB62E009E21AF /* GenerationalSet.h */; settings = {ATTRIBUTES = (Private, ); }; };
@@ -1468,7 +1467,6 @@
 		70ECA60A1B02426800449739 /* AtomStringImpl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AtomStringImpl.cpp; sourceTree = "<group>"; };
 		70ECA60B1B02426800449739 /* SymbolImpl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SymbolImpl.h; sourceTree = "<group>"; };
 		70ECA60C1B02426800449739 /* UniquedStringImpl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UniquedStringImpl.h; sourceTree = "<group>"; };
-		70ECA60E1B02426800449739 /* UniquedStringImpl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UniquedStringImpl.cpp; sourceTree = "<group>"; };
 		79038E05224B05A7004C0738 /* SpanningTree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpanningTree.h; sourceTree = "<group>"; };
 		7936D6A91C99F8AE000D1AED /* SmallSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SmallSet.h; sourceTree = "<group>"; };
 		793BFADD9CED44B8B9FBCA16 /* StdUnorderedMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StdUnorderedMap.h; sourceTree = "<group>"; };
@@ -3011,7 +3009,6 @@
 				A8A4732C151A825B004123FF /* TextPosition.h */,
 				A3E4DD911F3A803400DED0B4 /* TextStream.cpp */,
 				A3E4DD921F3A803400DED0B4 /* TextStream.h */,
-				70ECA60E1B02426800449739 /* UniquedStringImpl.cpp */,
 				70ECA60C1B02426800449739 /* UniquedStringImpl.h */,
 				FEF295BF20B49DCB00CF283A /* UTF8ConversionError.h */,
 				A8A4732D151A825B004123FF /* WTFString.cpp */,
@@ -4669,7 +4666,6 @@
 				1C181C961D30800A00F5FA16 /* TextBreakIteratorInternalICUCocoa.cpp in Sources */,
 				A3E4DD931F3A803400DED0B4 /* TextStream.cpp in Sources */,
 				0F3492D722AF431C004F85FC /* TextStreamCocoa.mm in Sources */,
-				70ECA60F1B02426800449739 /* UniquedStringImpl.cpp in Sources */,
 				E311FB171F0A568B003C08DE /* ThreadGroup.cpp in Sources */,
 				A8A4744A151A825B004123FF /* Threading.cpp in Sources */,
 				A32D8FA521FFFAB400780662 /* ThreadingPOSIX.cpp in Sources */,

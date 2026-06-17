@@ -187,7 +187,7 @@ public:
         { return px >= x() && px < maxX() && py >= y() && py < maxY(); }
     bool contains(const LayoutPoint& point) const { return contains(point.x(), point.y()); }
 
-    WEBCORE_EXPORT void intersect(const LayoutRect&);
+    void intersect(const LayoutRect&);
     bool edgeInclusiveIntersect(const LayoutRect&);
     WEBCORE_EXPORT void unite(const LayoutRect&);
     void uniteEvenIfEmpty(const LayoutRect&);

@@ -38,7 +38,6 @@ protected:
     inline UniquedStringImpl(CreateSymbolTag, std::span<const Latin1Character>);
     inline UniquedStringImpl(CreateSymbolTag, std::span<const char16_t>);
     inline UniquedStringImpl(CreateSymbolTag);
-    ~UniquedStringImpl();
 };
 
 inline UniquedStringImpl::UniquedStringImpl(CreateSymbolTag, std::span<const Latin1Character> characters)

@@ -27,7 +27,6 @@
 #include "config.h"
 #include "JSAsyncFunction.h"
 
-#include "FunctionExecutableInlines.h"
 #include "JSCellInlines.h"
 #include "JSFunctionInlines.h"
 #include "VM.h"
