@@ -6529,7 +6529,7 @@ void WebPageProxy::accessibilitySettingsDidChange()
 
 #if PLATFORM(COCOA)
     // Also update screen properties which encodes invert colors.
-    protect(legacyMainFrameProcess().processPool())->screenPropertiesChanged("accessibilitySettingsDidChange"_s);
+    protect(legacyMainFrameProcess().processPool())->screenPropertiesChanged();
 #endif
     send(Messages::WebPage::AccessibilitySettingsDidChange());
 }

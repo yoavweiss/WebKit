@@ -109,7 +109,6 @@
 #include <WebCore/ProcessWarming.h>
 #include <WebCore/RegistrableDomain.h>
 #include <WebCore/ResourceRequest.h>
-#include <WebCore/ScreenProperties.h>
 #include <WebCore/SecurityPolicy.h>
 #include <WebCore/Site.h>
 #include <algorithm>
@@ -271,7 +270,6 @@ WebProcessPool::WebProcessPool(API::ProcessPoolConfiguration& configuration)
 #endif
 #if PLATFORM(COCOA)
     , m_screenPropertiesUpdateTimer(RunLoop::mainSingleton(), "WebProcessPool::ScreenPropertiesUpdateTimer"_s, this, &WebProcessPool::screenPropertiesUpdateTimerFired)
-    , m_logScreenPropertiesUpdateReasonsTimer(RunLoop::mainSingleton(), "WebProcessPool::LogScreenPropertiesUpdateReasonsTimer"_s, this, &WebProcessPool::logScreenPropertiesUpdateReasonsTimerFired)
 #endif
 #if ENABLE(IPC_TESTING_API)
     , m_ipcTester(IPCTester::create())

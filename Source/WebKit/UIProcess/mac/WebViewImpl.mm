@@ -2323,7 +2323,7 @@ void WebViewImpl::windowWillClose()
 
 void WebViewImpl::screenDidChangeColorSpace()
 {
-    protect(m_page->configuration().processPool())->screenPropertiesChanged("screenDidChangeColorSpace"_s);
+    protect(m_page->configuration().processPool())->screenPropertiesChanged();
 }
 
 void WebViewImpl::applicationShouldSuppressHDR(bool suppress)

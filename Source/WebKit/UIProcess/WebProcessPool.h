@@ -45,7 +45,6 @@
 #include <wtf/CheckedRef.h>
 #include <wtf/Forward.h>
 #include <wtf/Function.h>
-#include <wtf/HashCountedSet.h>
 #include <wtf/HashMap.h>
 #include <wtf/HashSet.h>
 #include <wtf/MemoryPressureHandler.h>
@@ -107,7 +106,6 @@ enum class GamepadHapticEffectType : uint8_t;
 enum class ProcessSwapDisposition : uint8_t;
 struct GamepadEffectParameters;
 struct MockMediaDevice;
-struct ScreenProperties;
 #if PLATFORM(COCOA)
 class PowerSourceNotifier;
 #endif
@@ -258,12 +256,11 @@ public:
     void handleMemoryPressureWarning(Critical);
 
 #if PLATFORM(COCOA)
-    void sendScreenPropertiesChangedToAllProcesses(const WebCore::ScreenProperties&, ASCIILiteral reason);
-    void screenPropertiesChanged(ASCIILiteral reason);
+    void screenPropertiesChanged();
 #endif
 
 #if PLATFORM(MAC)
-    void displayPropertiesChanged(const WebCore::ScreenProperties&, WebCore::PlatformDisplayID, CGDisplayChangeSummaryFlags);
+    void displayPropertiesChanged(WebCore::PlatformDisplayID, CGDisplayChangeSummaryFlags);
 #endif
 
 #if HAVE(DISPLAY_LINK)
@@ -747,9 +744,7 @@ private:
     void clearAudibleActivity();
 
 #if PLATFORM(COCOA)
-    void dispatchScreenPropertiesChangedToAllProcesses(const WebCore::ScreenProperties&);
     void screenPropertiesUpdateTimerFired();
-    void logScreenPropertiesUpdateReasonsTimerFired();
 #endif
 
 #if PLATFORM(IOS_FAMILY)
@@ -1030,14 +1025,8 @@ private:
     std::optional<Vector<URL>> m_sandboxExtensionURLs;
     HashMap<String, bool> m_mediaSourceTypesSupported;
 
-    ApproximateTime m_lastScreenPropertiesSendTime;
+    ApproximateTime m_lastScreenPropertiesUpdateTime;
     RunLoop::Timer m_screenPropertiesUpdateTimer;
-    std::unique_ptr<WebCore::ScreenProperties> m_pendingScreenProperties;
-
-    ApproximateTime m_screenPropertiesUpdateReasonsTime;
-    HashCountedSet<ASCIILiteral> m_screenPropertiesUpdateReasons;
-    unsigned m_screenPropertiesUpdateCount { 0 };
-    RunLoop::Timer m_logScreenPropertiesUpdateReasonsTimer;
 #endif
 
 #if ENABLE(IPC_TESTING_API)
