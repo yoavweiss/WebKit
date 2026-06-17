@@ -30,6 +30,7 @@
 #include "CookieJar.h"
 #include "ElementChildIteratorInlines.h"
 #include "FontCreationContext.h"
+#include "FontCustomPlatformData.h"
 #include "FontDescription.h"
 #include "FontPlatformData.h"
 #include "ParserContentPolicy.h"
@@ -59,17 +60,17 @@ CachedSVGFont::CachedSVGFont(CachedResourceRequest&& request, CachedSVGFont& res
 
 CachedSVGFont::~CachedSVGFont() = default;
 
-RefPtr<Font> CachedSVGFont::createFont(const FontDescription& fontDescription, bool syntheticItalic, const FontCreationContext& fontCreationContext)
+RefPtr<Font> CachedSVGFont::createFont(const FontDescription& fontDescription, const FontCreationContext& fontCreationContext)
 {
     ASSERT(firstFontFace());
-    return CachedFont::createFont(fontDescription, syntheticItalic, fontCreationContext);
+    return CachedFont::createFont(fontDescription, fontCreationContext);
 }
 
-FontPlatformData CachedSVGFont::platformDataFromCustomData(const FontDescription& fontDescription, bool italic, const FontCreationContext& fontCreationContext)
+FontPlatformData CachedSVGFont::platformDataFromCustomData(const FontDescription& fontDescription, const FontCreationContext& fontCreationContext)
 {
     if (m_externalSVGDocument)
-        return FontPlatformData(fontDescription.computedSize(), false, italic); // FIXME: Why are we creating a bogus font here?
-    return CachedFont::platformDataFromCustomData(fontDescription, italic, fontCreationContext);
+        return FontPlatformData(fontDescription.computedSize(), computeSyntheticBold(false, fontDescription, fontCreationContext), computeSyntheticItalic(false, fontDescription, fontCreationContext)); // FIXME: Why are we creating a bogus font here?
+    return CachedFont::platformDataFromCustomData(fontDescription, fontCreationContext);
 }
 
 bool CachedSVGFont::ensureCustomFontData()

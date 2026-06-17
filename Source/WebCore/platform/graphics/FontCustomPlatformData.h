@@ -90,8 +90,7 @@ public:
 #endif
     WEBCORE_EXPORT ~FontCustomPlatformData();
 
-    FontPlatformData fontPlatformData(const FontDescription&, bool italic, const FontCreationContext&);
-
+    FontPlatformData fontPlatformData(const FontDescription&, const FontCreationContext&);
 
     WEBCORE_EXPORT FontCustomPlatformSerializedData NODELETE serializedData() const;
     WEBCORE_EXPORT static std::optional<Ref<FontCustomPlatformData>> tryMakeFromSerializationData(FontCustomPlatformSerializedData&&, bool);
@@ -125,6 +124,20 @@ inline bool computeSyntheticBold(bool hasWeightVariationAxis, const FontDescript
     return fontDescription.hasAutoFontSynthesisWeight()
         && isFontWeightBold(fontDescription.weight())
         && !isFontWeightBold(declaredWeightMax);
+}
+
+inline bool computeSyntheticItalic(bool hasSlopeVariationAxis, const FontDescription& fontDescription, const FontCreationContext& fontCreationContext)
+{
+    auto explicitlyDeclaredSlope = fontCreationContext.fontFaceCapabilities().slope;
+    // No explicit font-style descriptor (auto): the variable font's slnt/ital axis handles slope, so don't synthesize.
+    if (hasSlopeVariationAxis && !explicitlyDeclaredSlope)
+        return false;
+    auto declaredSlopeMax = explicitlyDeclaredSlope
+        .transform([](auto range) { return range.maximum; })
+        .value_or(normalItalicValue());
+    return fontDescription.allowsItalicOrObliqueFontSynthesisStyle()
+        && isItalic(fontDescription.fontStyleSlope())
+        && !isItalic(declaredSlopeMax);
 }
 
 } // namespace WebCore

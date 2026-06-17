@@ -31,11 +31,12 @@ namespace WebCore {
 
 cairo_font_face_t* createCairoDWriteFontFace(HFONT);
 
-FontPlatformData FontCustomPlatformData::fontPlatformData(const FontDescription& fontDescription, bool italic, const FontCreationContext& fontCreationContext)
+FontPlatformData FontCustomPlatformData::fontPlatformData(const FontDescription& fontDescription, const FontCreationContext& fontCreationContext)
 {
     auto size = fontDescription.computedSize();
 
     bool syntheticBold = computeSyntheticBold(false, fontDescription, fontCreationContext);
+    bool syntheticItalic = computeSyntheticItalic(false, fontDescription, fontCreationContext);
 
     LOGFONT logFont;
     memset(&logFont, 0, sizeof(LOGFONT));
@@ -51,14 +52,14 @@ FontPlatformData FontCustomPlatformData::fontPlatformData(const FontDescription&
     logFont.lfOutPrecision = OUT_TT_ONLY_PRECIS;
     logFont.lfQuality = CLEARTYPE_QUALITY;
     logFont.lfPitchAndFamily = DEFAULT_PITCH | FF_DONTCARE;
-    logFont.lfItalic = italic;
+    logFont.lfItalic = syntheticItalic;
     logFont.lfWeight = syntheticBold ? 700 : 400;
 
     auto hfont = adoptGDIObject(::CreateFontIndirect(&logFont));
 
     cairo_font_face_t* fontFace = createCairoDWriteFontFace(hfont.get());
 
-    FontPlatformData fontPlatformData(WTF::move(hfont), fontFace, size, syntheticBold, italic, this);
+    FontPlatformData fontPlatformData(WTF::move(hfont), fontFace, size, syntheticBold, syntheticItalic, this);
 
     cairo_font_face_destroy(fontFace);
 

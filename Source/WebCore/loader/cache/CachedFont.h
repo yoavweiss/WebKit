@@ -57,14 +57,14 @@ public:
 
     virtual bool ensureCustomFontData();
     static RefPtr<FontCustomPlatformData> createCustomFontData(SharedBuffer&, const String& itemInCollection, bool& wrapping, DownloadableBinaryFontTrustedTypes);
-    static FontPlatformData platformDataFromCustomData(FontCustomPlatformData&, const FontDescription&, bool italic, const FontCreationContext&);
+    static FontPlatformData platformDataFromCustomData(FontCustomPlatformData&, const FontDescription&, const FontCreationContext&);
 
-    virtual RefPtr<Font> createFont(const FontDescription&, bool syntheticItalic, const FontCreationContext&);
+    virtual RefPtr<Font> createFont(const FontDescription&, const FontCreationContext&);
 
     bool didRefuseToParseCustomFontWithSafeFontParser() const { return m_didRefuseToParseCustomFont; }
 
 protected:
-    FontPlatformData platformDataFromCustomData(const FontDescription&, bool italic, const FontCreationContext&);
+    FontPlatformData platformDataFromCustomData(const FontDescription&, const FontCreationContext&);
 
     bool ensureCustomFontData(SharedBuffer* data);
 
