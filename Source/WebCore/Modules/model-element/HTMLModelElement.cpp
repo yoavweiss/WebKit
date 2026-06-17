@@ -725,13 +725,14 @@ void HTMLModelElement::deleteModelPlayer()
             modelPlayerProvider->deleteModelPlayer(*modelPlayer);
 
         RefPtr protectedThis { weakThis };
-        if (protectedThis)
+        if (protectedThis && protectedThis->m_modelPlayer == modelPlayer)
             protectedThis->m_modelPlayer = nullptr;
     };
 
 #if ENABLE(MODEL_ELEMENT_IMMERSIVE)
     // Let the document trigger the model player deletion after transitioning out the immersive element if needed
-    if (RefPtr documentImmersive = document().immersiveIfExists())
+    RefPtr documentImmersive = document().immersiveIfExists();
+    if (m_detachedForImmersive && documentImmersive)
         return documentImmersive->exitRemovedImmersiveElementIfNeeded(this, WTF::move(deleteModelPlayerBlock));
 #endif
     deleteModelPlayerBlock();
@@ -1748,8 +1749,10 @@ void HTMLModelElement::setDetachedForImmersive(bool detachedForImmersive)
 void HTMLModelElement::ensureModelPlayer(CompletionHandler<void(ExceptionOr<RefPtr<ModelPlayer>>)>&& completion)
 {
     RefPtr modelPlayer = m_modelPlayer;
-    if (modelPlayer && modelPlayer->isPlaceholder())
+    if (modelPlayer && modelPlayer->isPlaceholder()) {
         reloadModelPlayer();
+        modelPlayer = m_modelPlayer;
+    }
 
     if (modelPlayer && !modelPlayer->isPlaceholder())
         return completion(protect(modelPlayer));

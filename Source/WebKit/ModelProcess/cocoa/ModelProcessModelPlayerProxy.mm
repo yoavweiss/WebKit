@@ -1302,6 +1302,7 @@ void ModelProcessModelPlayerProxy::setImmersivePresentation(bool immersivePresen
     }
 
     m_immersivePresentation = immersivePresentation;
+    m_entityTransformToRestore = std::nullopt;
     computeTransform(false);
     updateTransform();
 }
