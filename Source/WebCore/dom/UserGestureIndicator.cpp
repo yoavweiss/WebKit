@@ -106,6 +106,11 @@ UserGestureToken::~UserGestureToken()
         observer(*this);
 }
 
+Ref<UserGestureToken> UserGestureToken::create(IsProcessingUserGesture isProcessingUserGesture, UserGestureType gestureType, Document* document, std::optional<WTF::UUID> authorizationToken, CanRequestDOMPaste canRequestDOMPaste)
+{
+    return adoptRef(*new UserGestureToken(isProcessingUserGesture, gestureType, document, authorizationToken, canRequestDOMPaste));
+}
+
 static Seconds maxIntervalForUserGestureForwardingForFetch { 10 };
 const Seconds& UserGestureToken::maximumIntervalForUserGestureForwardingForFetch()
 {

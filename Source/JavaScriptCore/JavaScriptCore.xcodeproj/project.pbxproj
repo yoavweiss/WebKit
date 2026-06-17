@@ -380,6 +380,7 @@
 		0F6B8AE31C4EFE1700969052 /* B3BreakCriticalEdges.h in Headers */ = {isa = PBXBuildFile; fileRef = 0F6B8ADF1C4EFE1700969052 /* B3BreakCriticalEdges.h */; };
 		0F6B8AE51C4EFE1700969052 /* B3FixSSA.h in Headers */ = {isa = PBXBuildFile; fileRef = 0F6B8AE11C4EFE1700969052 /* B3FixSSA.h */; };
 		0F6C73511AC9F99F00BE1682 /* VariableWriteFireDetail.h in Headers */ = {isa = PBXBuildFile; fileRef = 0F6C734F1AC9F99F00BE1682 /* VariableWriteFireDetail.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		83F24BD93F604BFDACB5A4B2 /* VariableWriteFireDetailInlines.h in Headers */ = {isa = PBXBuildFile; fileRef = D50629FD8E0B482F9852FA77 /* VariableWriteFireDetailInlines.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		0F6DB7E91D6124B500CDBF8E /* StackFrame.h in Headers */ = {isa = PBXBuildFile; fileRef = 0F6DB7E81D6124B200CDBF8E /* StackFrame.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		0F6FC751196110A800E1D02D /* ComplexGetStatus.h in Headers */ = {isa = PBXBuildFile; fileRef = 0F6FC74F196110A800E1D02D /* ComplexGetStatus.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		0F7025AA1714B0FC00382C0E /* DFGOSRExitCompilerCommon.h in Headers */ = {isa = PBXBuildFile; fileRef = 0F7025A81714B0F800382C0E /* DFGOSRExitCompilerCommon.h */; };
@@ -425,6 +426,7 @@
 		0F8F2B9A172F0501007DBDA5 /* DFGDesiredIdentifiers.h in Headers */ = {isa = PBXBuildFile; fileRef = 0F8F2B98172F04FD007DBDA5 /* DFGDesiredIdentifiers.h */; };
 		0F8F94411667633200D61971 /* CodeBlockHash.h in Headers */ = {isa = PBXBuildFile; fileRef = 0F8F943E1667632D00D61971 /* CodeBlockHash.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		0F919D0D157EE0A2004A4E7D /* JSSymbolTableObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 0F919D0A157EE09D004A4E7D /* JSSymbolTableObject.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		276B391C2A71D2B600252F4E /* JSSymbolTableObjectInlines.h in Headers */ = {isa = PBXBuildFile; fileRef = 276B39042A71D2B300252F4E /* JSSymbolTableObjectInlines.h */; };
 		0F919D11157F332C004A4E7D /* JSSegmentedVariableObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 0F919D0F157F3327004A4E7D /* JSSegmentedVariableObject.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		0F919D2615853CE3004A4E7D /* Watchpoint.h in Headers */ = {isa = PBXBuildFile; fileRef = 0F919D2315853CDE004A4E7D /* Watchpoint.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		0F9327521C20BCBA00CF6564 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 51F0EB6105C86C6B00E6DF1B /* Foundation.framework */; };
@@ -3315,6 +3317,7 @@
 		0F6B8AE11C4EFE1700969052 /* B3FixSSA.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = B3FixSSA.h; path = b3/B3FixSSA.h; sourceTree = "<group>"; };
 		0F6C734E1AC9F99F00BE1682 /* VariableWriteFireDetail.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VariableWriteFireDetail.cpp; sourceTree = "<group>"; };
 		0F6C734F1AC9F99F00BE1682 /* VariableWriteFireDetail.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VariableWriteFireDetail.h; sourceTree = "<group>"; };
+		D50629FD8E0B482F9852FA77 /* VariableWriteFireDetailInlines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VariableWriteFireDetailInlines.h; sourceTree = "<group>"; };
 		0F6DB7E71D6124B200CDBF8E /* StackFrame.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StackFrame.cpp; sourceTree = "<group>"; };
 		0F6DB7E81D6124B200CDBF8E /* StackFrame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StackFrame.h; sourceTree = "<group>"; };
 		0F6DB7EB1D617D0F00CDBF8E /* MacroAssemblerCodeRef.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MacroAssemblerCodeRef.cpp; sourceTree = "<group>"; };
@@ -3393,6 +3396,7 @@
 		0F8F9445166764EE00D61971 /* CodeOrigin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CodeOrigin.cpp; sourceTree = "<group>"; };
 		0F919D09157EE09D004A4E7D /* JSSymbolTableObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = JSSymbolTableObject.cpp; sourceTree = "<group>"; };
 		0F919D0A157EE09D004A4E7D /* JSSymbolTableObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSSymbolTableObject.h; sourceTree = "<group>"; };
+		276B39042A71D2B300252F4E /* JSSymbolTableObjectInlines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSSymbolTableObjectInlines.h; sourceTree = "<group>"; };
 		0F919D0E157F3327004A4E7D /* JSSegmentedVariableObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = JSSegmentedVariableObject.cpp; sourceTree = "<group>"; };
 		0F919D0F157F3327004A4E7D /* JSSegmentedVariableObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSSegmentedVariableObject.h; sourceTree = "<group>"; };
 		0F919D2215853CDE004A4E7D /* Watchpoint.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Watchpoint.cpp; sourceTree = "<group>"; };
@@ -9244,6 +9248,7 @@
 				2600B5A5152BAAA70091EE5F /* JSStringJoiner.h */,
 				0F919D09157EE09D004A4E7D /* JSSymbolTableObject.cpp */,
 				0F919D0A157EE09D004A4E7D /* JSSymbolTableObject.h */,
+				276B39042A71D2B300252F4E /* JSSymbolTableObjectInlines.h */,
 				70ECA6001AFDBEA200449739 /* JSTemplateObjectDescriptor.cpp */,
 				70ECA6011AFDBEA200449739 /* JSTemplateObjectDescriptor.h */,
 				276B38B02A71D25900252F4E /* JSTemplateObjectDescriptorInlines.h */,
@@ -10489,6 +10494,7 @@
 				0F426A451460CBAB00131F8F /* ValueRecovery.h */,
 				0F6C734E1AC9F99F00BE1682 /* VariableWriteFireDetail.cpp */,
 				0F6C734F1AC9F99F00BE1682 /* VariableWriteFireDetail.h */,
+				D50629FD8E0B482F9852FA77 /* VariableWriteFireDetailInlines.h */,
 				0F20C2581A8013AB00DA3229 /* VirtualRegister.cpp */,
 				0F426A461460CBAB00131F8F /* VirtualRegister.h */,
 				0F919D2215853CDE004A4E7D /* Watchpoint.cpp */,
@@ -12303,6 +12309,7 @@
 				BC18C4290E16F5CD00B34460 /* JSStringRefCF.h in Headers */,
 				1A28D4A8177B71C80007FA3C /* JSStringRefPrivate.h in Headers */,
 				0F919D0D157EE0A2004A4E7D /* JSSymbolTableObject.h in Headers */,
+				276B391C2A71D2B600252F4E /* JSSymbolTableObjectInlines.h in Headers */,
 				70ECA6061AFDBEA200449739 /* JSTemplateObjectDescriptor.h in Headers */,
 				276B38D52A71D26400252F4E /* JSTemplateObjectDescriptorInlines.h in Headers */,
 				AD5C36EA1F75AD6A000BCAAF /* JSToWasm.h in Headers */,
@@ -12852,6 +12859,7 @@
 				79EE0C001B4AFB85000385C9 /* VariableEnvironment.h in Headers */,
 				529A28C6401D36A330D2F209 /* VariableEnvironmentInlines.h in Headers */,
 				0F6C73511AC9F99F00BE1682 /* VariableWriteFireDetail.h in Headers */,
+				83F24BD93F604BFDACB5A4B2 /* VariableWriteFireDetailInlines.h in Headers */,
 				0FE0502D1AA9095600D33B33 /* VarOffset.h in Headers */,
 				FE287D02252FB2E800D723F9 /* VerifierSlotVisitor.h in Headers */,
 				6BCCEC0425D1FA27000F391D /* VerifierSlotVisitorInlines.h in Headers */,

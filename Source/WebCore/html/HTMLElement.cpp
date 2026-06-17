@@ -135,6 +135,12 @@ Ref<HTMLElement> HTMLElement::create(const QualifiedName& tagName, Document& doc
     return adoptRef(*new HTMLElement(tagName, document));
 }
 
+HTMLElement::HTMLElement(const QualifiedName& tagName, Document& document, OptionSet<TypeFlag> type)
+    : StyledElement(tagName, document, type | TypeFlag::IsHTMLElement)
+{
+    ASSERT(tagName.localName().impl());
+}
+
 HTMLElement::HTMLElement(ClangVTableWorkaroundTag, const QualifiedName& name, Document& document)
     : HTMLElement(name, document)
 {

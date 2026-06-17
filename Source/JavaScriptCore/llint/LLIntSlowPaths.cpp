@@ -52,7 +52,7 @@
 #include "JSCJSValue.h"
 #include "JSGeneratorFunction.h"
 #include "JSGlobalObjectFunctions.h"
-#include "JSLexicalEnvironment.h"
+#include "JSLexicalEnvironmentInlines.h"
 #include "JSString.h"
 #include "LLIntCommon.h"
 #include "LLIntData.h"

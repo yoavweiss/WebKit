@@ -32,7 +32,7 @@
 #include "PlatformRenderTheme.h"
 #include "RenderBlock.h"
 #include "RenderTheme.h"
-#include "StyleComputedStyleBase+ConstructionInlines.h"
+#include "StyleComputedStyle+ConstructionInlines.h"
 #include "StyleCustomPropertyRegistry.h"
 #include "StyleLineHeight.h"
 #include "StylePrimitiveNumericTypes+Evaluation.h"
@@ -101,22 +101,7 @@ static_assert(sizeof(ComputedStyle) == sizeof(SameSizeAsComputedStyle), "Compute
 ComputedStyle::ComputedStyle(ComputedStyle&&) = default;
 ComputedStyle& ComputedStyle::operator=(ComputedStyle&&) = default;
 
-inline ComputedStyle::ComputedStyle(CreateDefaultStyleTag tag)
-    : ComputedStyleProperties { tag }
-{
-}
-
-inline ComputedStyle::ComputedStyle(const ComputedStyle& other, CloneTag tag)
-    : ComputedStyleProperties { other, tag }
-{
-}
-
-inline ComputedStyle::ComputedStyle(ComputedStyle& a, ComputedStyle&& b)
-    : ComputedStyleProperties { a, WTF::move(b) }
-{
-}
-
-ComputedStyle& ComputedStyle::defaultStyleSingleton()
+SUPPRESS_NODELETE ComputedStyle& ComputedStyle::defaultStyleSingleton()
 {
     static NeverDestroyed<ComputedStyle> style { CreateDefaultStyle };
     return style;
@@ -137,7 +122,7 @@ std::unique_ptr<ComputedStyle> ComputedStyle::createPtrWithRegisteredInitialValu
     return clonePtr(registry.initialValuePrototypeStyle());
 }
 
-ComputedStyle ComputedStyle::clone(const ComputedStyle& style)
+SUPPRESS_NODELETE ComputedStyle ComputedStyle::clone(const ComputedStyle& style)
 {
     return ComputedStyle(style, Clone);
 }
@@ -175,7 +160,7 @@ ComputedStyle ComputedStyle::createStyleInheritingFromPseudoStyle(const Computed
     return style;
 }
 
-ComputedStyle ComputedStyle::replace(ComputedStyle&& newStyle)
+SUPPRESS_NODELETE ComputedStyle ComputedStyle::replace(ComputedStyle&& newStyle)
 {
     return ComputedStyle { *this, WTF::move(newStyle) };
 }
