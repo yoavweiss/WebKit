@@ -408,7 +408,7 @@ bool hasCapacityToUseLargeGigacage();
     \
     v(Double, percentCPUPerMBForFullTimer, 0.0003125, Normal, nullptr) \
     v(Double, percentCPUPerMBForEdenTimer, 0.0025, Normal, nullptr) \
-    v(Double, collectionTimerMaxPercentCPU, 0.05, Normal, nullptr) \
+    v(Double, collectionTimerMaxPercentCPU, 0.10, Normal, nullptr) \
     \
     v(Bool, forceWeakRandomSeed, false, Normal, nullptr) \
     v(Unsigned, forcedWeakRandomSeed, 0, Normal, nullptr) \
