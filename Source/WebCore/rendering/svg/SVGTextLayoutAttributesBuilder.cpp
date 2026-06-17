@@ -31,11 +31,6 @@
 
 namespace WebCore {
 
-SVGTextLayoutAttributesBuilder::SVGTextLayoutAttributesBuilder()
-    : m_textLength(0)
-{
-}
-
 void SVGTextLayoutAttributesBuilder::buildLayoutAttributesForTextRenderer(RenderSVGInlineText& text)
 {
     auto* textRoot = RenderSVGText::locateRenderSVGTextAncestor(text);
