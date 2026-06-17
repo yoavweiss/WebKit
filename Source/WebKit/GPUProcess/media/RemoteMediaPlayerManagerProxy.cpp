@@ -248,4 +248,6 @@ std::optional<SharedPreferencesForWebProcess> RemoteMediaPlayerManagerProxy::sha
 
 } // namespace WebKit
 
+#undef MESSAGE_CHECK
+
 #endif // ENABLE(GPU_PROCESS) && ENABLE(VIDEO)
