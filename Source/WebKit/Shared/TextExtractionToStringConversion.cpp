@@ -1941,7 +1941,41 @@ static void addTextRepresentationRecursive(const TextExtraction::Item& item, std
         }
     }
 
+    std::optional<size_t> inlinedTextChildIndex;
+    std::optional<size_t> elidedTextChildIndex;
+    if (aggregator.useTextTreeOutput() && item.children.size() > 1 && (containerType == TextExtraction::ContainerType::Button || item.hasData<TextExtraction::LinkItemData>())) {
+        size_t textChildCount = 0;
+        size_t firstTextChildIndex = 0;
+        for (size_t i = 0; i < item.children.size(); ++i) {
+            if (item.children[i].hasData<TextExtraction::TextItemData>()) {
+                if (!textChildCount)
+                    firstTextChildIndex = i;
+                ++textChildCount;
+            }
+        }
+
+        if (textChildCount == 1) {
+            auto& textChild = item.children[firstTextChildIndex];
+            if (auto textData = textChild.dataAs<TextExtraction::TextItemData>()) {
+                auto trimmed = textData->content.trim(isASCIIWhitespace);
+                aggregator.collectTextMapping(trimmed, item.frameIdentifier, identifier, item.nodeIdentifier ? ExtractedNodeInfo::IsInteractive::Yes : ExtractedNodeInfo::IsInteractive::No);
+                if (childTextNodeIsRedundant(aggregator, item, trimmed))
+                    elidedTextChildIndex = firstTextChildIndex;
+                else {
+                    inlinedTextChildIndex = firstTextChildIndex;
+                    addPartsForItem(textChild, std::optional { identifier }, line, aggregator, includeRectForParentItem);
+                }
+            }
+        }
+    }
+
     for (size_t i = 0; i < item.children.size(); ++i) {
+        if (inlinedTextChildIndex && i == *inlinedTextChildIndex)
+            continue;
+
+        if (elidedTextChildIndex && i == *elidedTextChildIndex)
+            continue;
+
         auto& child = item.children[i];
         bool childHasLinkAfter = i + 1 < item.children.size() && item.children[i + 1].hasData<TextExtraction::LinkItemData>();
         addTextRepresentationRecursive(child, std::optional { identifier }, depth + 1, aggregator, childHasLinkAfter ? HasAdjacentLinkAfter::Yes : HasAdjacentLinkAfter::No);
