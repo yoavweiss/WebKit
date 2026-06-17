@@ -62,6 +62,7 @@ from webkitpy.style.checkers.python import PythonChecker, Python3Checker
 from webkitpy.style.checkers.spi_allowlist import SPIAllowlistChecker
 from webkitpy.style.checkers.api_test_allowlist import APITestAllowlistChecker
 from webkitpy.style.checkers.swift import SwiftChecker
+from webkitpy.style.checkers.swift_association import SwiftAssociationChecker
 from webkitpy.style.checkers.test_expectations import TestExpectationsChecker
 from webkitpy.style.checkers.text import TextChecker
 from webkitpy.style.checkers.watchlist import WatchListChecker
@@ -674,6 +675,7 @@ def _all_categories():
     categories = categories.union(FeatureDefinesChecker.categories)
     categories = categories.union(BaseXcconfigChecker.categories)
     categories = categories.union(XcodeSchemeChecker.categories)
+    categories = categories.union(SwiftAssociationChecker.categories)
 
     # FIXME: Consider adding all of the pep8 categories.  Since they
     #        are not too meaningful for documentation purposes, for
@@ -1325,6 +1327,8 @@ class StyleProcessor(ProcessorBase):
     def do_association_check(self, files, cwd, host=Host()):
         _log.debug("Running TestExpectations linter")
         TestExpectationsChecker.lint_test_expectations(files, self._configuration, cwd, self._increment_error_count, host=host)
+
+        SwiftAssociationChecker.check_associations(files, self._configuration, cwd, self._increment_error_count, host=host)
 
         wpt_dir = os.path.join('LayoutTests', *IMPORTED_WPT_DIR.split('/'))
         wpt_paths = []
