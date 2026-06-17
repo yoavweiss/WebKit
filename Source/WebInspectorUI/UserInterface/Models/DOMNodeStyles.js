@@ -382,7 +382,7 @@ WI.DOMNodeStyles = class DOMNodeStyles extends WI.Object
 
         function completed()
         {
-            target.DOMAgent.markUndoableState();
+            WI.domUndoCoordinator.markUndoableState(target);
 
             // Wait for the refresh promise caused by injecting an empty inspector stylesheet to resolve
             // (another call will be ignored while one is still pending),
@@ -475,7 +475,7 @@ WI.DOMNodeStyles = class DOMNodeStyles extends WI.Object
                 return;
             }
 
-            target.DOMAgent.markUndoableState();
+            WI.domUndoCoordinator.markUndoableState(target);
 
             // Do a full refresh incase the rule no longer matches the node or the
             // matched selector indices changed.

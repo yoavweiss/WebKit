@@ -1376,9 +1376,7 @@ WI.DOMNode = class DOMNode extends WI.Object
 
     _markUndoableState()
     {
-        let target = WI.assumingMainTarget();
-        if (target.hasCommand("DOM.markUndoableState"))
-            target.DOMAgent.markUndoableState();
+        WI.domUndoCoordinator.markUndoableState(this.owningTarget);
     }
 
     _makeUndoableCallback(callback)

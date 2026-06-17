@@ -81,7 +81,7 @@ WI.CSSGrouping = class CSSGrouping extends WI.Object
         let target = WI.assumingMainTarget();
         let {grouping: groupingPayload} = await target.CSSAgent.setGroupingHeaderText(this._id, newText);
 
-        target.DOMAgent.markUndoableState();
+        WI.domUndoCoordinator.markUndoableState(target);
         await this._nodeStyles.refresh();
 
         console.assert(groupingPayload.type == this._type);
