@@ -43,6 +43,7 @@
 #include "FileSystemDirectoryHandle.h"
 #include "FileSystemFileHandle.h"
 #include "FileSystemHandleGlobalIdentifier.h"
+#include "HTMLCanvasElement.h"
 #include "IDBValue.h"
 #include "ImageBuffer.h"
 #include "JSAudioWorkletGlobalScope.h"
@@ -153,6 +154,7 @@
 #if ENABLE(OFFSCREEN_CANVAS_IN_WORKERS)
 #include "JSOffscreenCanvas.h"
 #include "OffscreenCanvas.h"
+#include "PlaceholderRenderingContext.h"
 #endif
 
 namespace WebCore {
@@ -5554,6 +5556,78 @@ void validateSerializedResult(CloneSerializer& serializer, SerializationReturnCo
 #endif // ASSERT_ENABLED
 
 SerializedScriptValue::~SerializedScriptValue() = default;
+
+static std::unique_ptr<ArrayBufferContentsArray> copyArrayBufferContentsArray(const std::unique_ptr<ArrayBufferContentsArray>& source)
+{
+    if (!source)
+        return nullptr;
+    auto result = makeUnique<ArrayBufferContentsArray>();
+    result->reserveInitialCapacity(source->size());
+    for (auto& content : *source) {
+        result->append(JSC::ArrayBufferContents());
+        content.shareWith(result->last());
+    }
+    return result;
+}
+
+Ref<SerializedScriptValue> SerializedScriptValue::clone() const
+{
+    return create(m_internals->clone());
+}
+
+SerializedScriptValueInternals SerializedScriptValueInternals::clone() const
+{
+    return {
+        .data = data,
+        .arrayBufferContentsArray = copyArrayBufferContentsArray(arrayBufferContentsArray),
+#if ENABLE(WEB_RTC)
+        .detachedRTCDataChannels = detachedRTCDataChannels.map([](const auto& channel) {
+            return makeUnique<DetachedRTCDataChannel>(channel->identifier, channel->label.isolatedCopy(), channel->options.isolatedCopy(), channel->state);
+        }),
+#endif
+#if ENABLE(WEB_CODECS)
+        .serializedVideoChunks = serializedVideoChunks,
+        .serializedAudioChunks = serializedAudioChunks,
+#endif
+        .exposedMessagePortCount = exposedMessagePortCount,
+        .nonSerializedDataToken = nonSerializedDataToken,
+        .fileSystemHandleKeepAlives = fileSystemHandleKeepAlives.map([](const auto& alive) { return alive.copy(); }),
+#if ENABLE(WEB_CODECS)
+        .serializedVideoFrames = serializedVideoFrames,
+        .serializedAudioData = serializedAudioData,
+#endif
+#if ENABLE(WEB_RTC)
+        .serializedRTCEncodedAudioFrames = serializedRTCEncodedAudioFrames.map([](const auto& frame) { return frame->clone(); }),
+        .serializedRTCEncodedVideoFrames = serializedRTCEncodedVideoFrames.map([](const auto& frame) { return frame->clone(); }),
+#endif
+#if ENABLE(MEDIA_SOURCE_IN_WORKERS)
+        .detachedMediaSourceHandles = detachedMediaSourceHandles,
+#endif
+#if ENABLE(MEDIA_STREAM)
+        .detachedMediaStreamTracks = detachedMediaStreamTracks.map([](const auto& track) {
+            return track->copy();
+        }),
+        .detachedMediaStreamTrackHandles = detachedMediaStreamTrackHandles.map([](const auto& handle) {
+            return makeUnique<MediaStreamTrackHandleDataHolder>(MediaStreamTrackHandleDataHolder { handle->contextIdentifier, handle->track, handle->trackKeeper, handle->trackSourceObserver });
+        }),
+#endif
+        .sharedBufferContentsArray = copyArrayBufferContentsArray(sharedBufferContentsArray),
+        .detachedImageBitmaps = detachedImageBitmaps,
+#if ENABLE(OFFSCREEN_CANVAS_IN_WORKERS)
+        .detachedOffscreenCanvases = detachedOffscreenCanvases.map([](const auto& canvas) {
+            return makeUnique<DetachedOffscreenCanvas>(canvas->size(), canvas->originClean(), RefPtr { canvas->placeholderSource() });
+        }),
+        .inMemoryOffscreenCanvases = inMemoryOffscreenCanvases,
+#endif
+        .inMemoryMessagePorts = inMemoryMessagePorts,
+#if ENABLE(WEBASSEMBLY)
+        .wasmModulesArray = wasmModulesArray ? makeUnique<WasmModuleArray>(*wasmModulesArray) : nullptr,
+        .wasmMemoryHandlesArray = wasmMemoryHandlesArray ? makeUnique<WasmMemoryHandleArray>(*wasmMemoryHandlesArray) : nullptr,
+#endif
+        .blobHandles = blobHandles.map([](const auto& handle) { return handle.isolatedCopy(); }),
+        .memoryCost = memoryCost
+    };
+}
 
 SerializedScriptValue::SerializedScriptValue(Internals&& internals)
     : m_internals(makeUnique<Internals>(WTF::move(internals)))

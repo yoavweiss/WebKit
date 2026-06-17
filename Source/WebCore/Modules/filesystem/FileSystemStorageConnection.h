@@ -118,6 +118,8 @@ public:
     FileSystemHandleKeepAlive(const FileSystemHandleKeepAlive&) = delete;
     FileSystemHandleKeepAlive& operator=(const FileSystemHandleKeepAlive&) = delete;
 
+    WEBCORE_EXPORT FileSystemHandleKeepAlive copy() const;
+
     Markable<FileSystemHandleGlobalIdentifier> globalIdentifier() const { return m_globalIdentifier; }
 
 private:

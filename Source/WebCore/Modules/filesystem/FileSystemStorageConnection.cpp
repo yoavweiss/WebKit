@@ -82,6 +82,13 @@ FileSystemHandleKeepAlive& FileSystemHandleKeepAlive::operator=(FileSystemHandle
     return *this;
 }
 
+FileSystemHandleKeepAlive FileSystemHandleKeepAlive::copy() const
+{
+    if (!m_globalIdentifier || !m_connection)
+        return { };
+    return FileSystemHandleKeepAlive(ClientOrigin { m_origin }, *m_globalIdentifier, Ref { *m_connection });
+}
+
 RefPtr<FileSystemStorageConnection> fileSystemStorageConnectionForContext(ScriptExecutionContext& context)
 {
     if (auto* workerScope = dynamicDowncast<WorkerGlobalScope>(context))
