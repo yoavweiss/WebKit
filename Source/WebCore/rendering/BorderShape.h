@@ -94,7 +94,7 @@ public:
     FloatRect snappedOuterRect(float deviceScaleFactor) const;
     FloatRect snappedInnerRect(float deviceScaleFactor) const;
 
-    bool isRounded() const { return m_borderRect.isRounded(); }
+    bool hasNonZeroRadii() const { return m_borderRect.hasNonZeroRadii(); }
 
     bool NODELETE outerShapeIsRectangular() const;
     bool NODELETE innerShapeIsRectangular() const;

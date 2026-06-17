@@ -184,7 +184,7 @@ bool BorderShape::outerShapeContains(const LayoutRect& rect) const
 
 bool BorderShape::allCornersClippedOut(const LayoutRect& rect) const
 {
-    if (!isRounded())
+    if (!hasNonZeroRadii())
         return true;
 
     auto borderRect = m_borderRect.rect();
@@ -218,12 +218,12 @@ bool BorderShape::allCornersClippedOut(const LayoutRect& rect) const
 
 bool BorderShape::outerShapeIsRectangular() const
 {
-    return !m_borderRect.isRounded();
+    return !m_borderRect.hasNonZeroRadii();
 }
 
 bool BorderShape::innerShapeIsRectangular() const
 {
-    return !m_innerEdgeRect.isRounded();
+    return !m_innerEdgeRect.hasNonZeroRadii();
 }
 
 void BorderShape::move(LayoutSize offset)
@@ -240,7 +240,7 @@ void BorderShape::inflate(LayoutUnit amount)
 
 static void addRoundedRectToPath(const FloatRoundedRect& roundedRect, Path& path)
 {
-    if (roundedRect.isRounded())
+    if (roundedRect.hasNonZeroRadii())
         path.addRoundedRect(roundedRect);
     else
         path.addRect(roundedRect.rect());
@@ -293,7 +293,7 @@ Path BorderShape::pathForBorderArea(float deviceScaleFactor) const
 void BorderShape::clipToOuterShape(GraphicsContext& context, float deviceScaleFactor) const
 {
     auto pixelSnappedRect = m_borderRect.pixelSnappedRoundedRectForPainting(deviceScaleFactor);
-    if (pixelSnappedRect.isRounded())
+    if (pixelSnappedRect.hasNonZeroRadii())
         context.clipRoundedRect(pixelSnappedRect);
     else
         context.clip(pixelSnappedRect.rect());
@@ -303,7 +303,7 @@ void BorderShape::clipToInnerShape(GraphicsContext& context, float deviceScaleFa
 {
     auto pixelSnappedRect = m_innerEdgeRect.pixelSnappedRoundedRectForPainting(deviceScaleFactor);
     ASSERT(pixelSnappedRect.isRenderable());
-    if (pixelSnappedRect.isRounded())
+    if (pixelSnappedRect.hasNonZeroRadii())
         context.clipRoundedRect(pixelSnappedRect);
     else
         context.clip(pixelSnappedRect.rect());
@@ -315,7 +315,7 @@ void BorderShape::clipOutOuterShape(GraphicsContext& context, float deviceScaleF
     if (pixelSnappedRect.isEmpty())
         return;
 
-    if (pixelSnappedRect.isRounded())
+    if (pixelSnappedRect.hasNonZeroRadii())
         context.clipOutRoundedRect(pixelSnappedRect);
     else
         context.clipOut(pixelSnappedRect.rect());
@@ -327,7 +327,7 @@ void BorderShape::clipOutInnerShape(GraphicsContext& context, float deviceScaleF
     if (pixelSnappedRect.isEmpty())
         return;
 
-    if (pixelSnappedRect.isRounded())
+    if (pixelSnappedRect.hasNonZeroRadii())
         context.clipOutRoundedRect(pixelSnappedRect);
     else
         context.clipOut(pixelSnappedRect.rect());
@@ -336,7 +336,7 @@ void BorderShape::clipOutInnerShape(GraphicsContext& context, float deviceScaleF
 void BorderShape::fillOuterShape(GraphicsContext& context, const Color& color, float deviceScaleFactor) const
 {
     auto pixelSnappedRect = m_borderRect.pixelSnappedRoundedRectForPainting(deviceScaleFactor);
-    if (pixelSnappedRect.isRounded())
+    if (pixelSnappedRect.hasNonZeroRadii())
         context.fillRoundedRect(pixelSnappedRect, color);
     else
         context.fillRect(pixelSnappedRect.rect(), color);
@@ -346,7 +346,7 @@ void BorderShape::fillInnerShape(GraphicsContext& context, const Color& color, f
 {
     auto pixelSnappedRect = m_innerEdgeRect.pixelSnappedRoundedRectForPainting(deviceScaleFactor);
     ASSERT(pixelSnappedRect.isRenderable());
-    if (pixelSnappedRect.isRounded())
+    if (pixelSnappedRect.hasNonZeroRadii())
         context.fillRoundedRect(pixelSnappedRect, color);
     else
         context.fillRect(pixelSnappedRect.rect(), color);
@@ -373,7 +373,7 @@ LayoutRoundedRect BorderShape::computeInnerEdgeRoundedRect(const LayoutRoundedRe
     };
 
     auto innerEdgeRect = LayoutRoundedRect { innerRect };
-    if (borderRoundedRect.isRounded()) {
+    if (borderRoundedRect.hasNonZeroRadii()) {
         auto innerRadii = borderRoundedRect.radii();
         innerRadii.shrink(borderWidths.top(), borderWidths.bottom(), borderWidths.left(), borderWidths.right());
         innerEdgeRect.setRadii(innerRadii);

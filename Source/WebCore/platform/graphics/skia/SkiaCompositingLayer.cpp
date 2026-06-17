@@ -455,7 +455,7 @@ bool SkiaCompositingLayer::paint(SkCanvas& canvas, std::optional<Damage>& damage
 void SkiaCompositingLayer::clipRect(SkCanvas& canvas, const FloatRoundedRect& rect, const TransformationMatrix& transform)
 {
     if (transform.isIdentity()) {
-        if (rect.isRounded())
+        if (rect.hasNonZeroRadii())
             canvas.clipRRect(SkRRect(rect), true);
         else
             canvas.clipRect(SkRect(rect.rect()));
@@ -463,7 +463,7 @@ void SkiaCompositingLayer::clipRect(SkCanvas& canvas, const FloatRoundedRect& re
     }
 
     auto matrix = SkM44(transform).asM33();
-    if (rect.isRounded())
+    if (rect.hasNonZeroRadii())
         canvas.clipPath(SkPath::RRect(SkRRect(rect)).makeTransform(matrix), true);
     else if (matrix.rectStaysRect())
         canvas.clipRect(matrix.mapRect(SkRect(rect.rect())));
@@ -517,7 +517,7 @@ void SkiaCompositingLayer::paintContents(SkCanvas& canvas, PaintContext& context
         canvas.drawRect(m_contentsRect, paint);
     } else if (m_contentsBuffer || m_imageBackingStore) {
         bool shouldPaintNow = [&] {
-            if (m_contentsClippingRect.isRounded())
+            if (m_contentsClippingRect.hasNonZeroRadii())
                 return true;
 
             if (!m_contentsBuffer && !m_contentsTiling.size.isEmpty())
@@ -537,7 +537,7 @@ void SkiaCompositingLayer::paintContents(SkCanvas& canvas, PaintContext& context
         if (shouldPaintNow) {
             canvas.concat(SkM44(transform));
 
-            if (m_contentsClippingRect.isRounded() || !m_contentsClippingRect.rect().contains(m_contentsRect))
+            if (m_contentsClippingRect.hasNonZeroRadii() || !m_contentsClippingRect.rect().contains(m_contentsRect))
                 clipRect(canvas, m_contentsClippingRect);
         }
 
@@ -691,7 +691,7 @@ void SkiaCompositingLayer::paintSelfAndChildren(SkCanvas& canvas, PaintContext& 
         return;
 
     auto canSkipClip = [&](const FloatRoundedRect& rect, const TransformationMatrix& transform) {
-        if (rect.isRounded())
+        if (rect.hasNonZeroRadii())
             return false;
 
         // We can only skip clipping for layers having one child that is a leaf.
@@ -724,7 +724,7 @@ void SkiaCompositingLayer::paintSelfAndChildren(SkCanvas& canvas, PaintContext& 
         return matrix.mapRect(SkRect(rect.rect())).contains(childMatrix.mapRect(SkRect(childBounds)));
     };
 
-    const bool contentsRectClipsDescendants = !m_preserves3D && m_contentsRectClipsDescendants && (m_contentsClippingRect.isRounded() || !m_contentsClippingRect.rect().contains(m_contentsRect));
+    const bool contentsRectClipsDescendants = !m_preserves3D && m_contentsRectClipsDescendants && (m_contentsClippingRect.hasNonZeroRadii() || !m_contentsClippingRect.rect().contains(m_contentsRect));
     const bool masksToBounds = !m_preserves3D && m_masksToBounds;
     TransformationMatrix clipTransform;
     FloatRoundedRect clippingRect;

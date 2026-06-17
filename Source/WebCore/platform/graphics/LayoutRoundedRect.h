@@ -33,6 +33,10 @@ namespace WebCore {
 class FloatQuad;
 class FloatRoundedRect;
 
+// Rect with per-corner radii and geometry operations. The radii define the corner extent (where
+// straight edges end and corners begin) and are used by all corner-shape values, not just round.
+// The actual rendered corner shape (round, bevel, notch, superellipse, etc.) is determined by
+// the corner-shape property and is not encoded here.
 class LayoutRoundedRectRadii {
 public:
     LayoutRoundedRectRadii() = default;
@@ -89,7 +93,7 @@ public:
 
     const LayoutRect& rect() const LIFETIME_BOUND { return m_rect; }
     const Radii& radii() const LIFETIME_BOUND { return m_radii; }
-    bool isRounded() const { return !m_radii.isZero(); }
+    bool hasNonZeroRadii() const { return !m_radii.isZero(); }
     bool isEmpty() const { return m_rect.isEmpty(); }
 
     void setRect(const LayoutRect& rect) { m_rect = rect; }

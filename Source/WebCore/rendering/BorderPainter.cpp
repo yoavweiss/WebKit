@@ -271,7 +271,7 @@ void BorderPainter::paintBorder(const LayoutRect& rect, const Style::ComputedSty
     }();
 
     bool haveAllSolidEdges = decorationHasAllSolidEdges(edges);
-    bool outerEdgeIsRectangular = !shape.isRounded() || (haveAllSolidEdges && shape.allCornersClippedOut(m_paintInfo.rect));
+    bool outerEdgeIsRectangular = !shape.hasNonZeroRadii() || (haveAllSolidEdges && shape.allCornersClippedOut(m_paintInfo.rect));
     bool innerEdgeIsRectangular = shape.innerShapeIsRectangular();
 
     paintSides(shape, {
