@@ -276,7 +276,7 @@ WTF_EXPORT_PRIVATE bool WTFIsDebuggerAttached(void);
 #if ASAN_ENABLED
 #define WTF_FATAL_CRASH_CODE 0x0
 #else
-#define WTF_FATAL_CRASH_CODE 0xc471
+#define WTF_FATAL_CRASH_CODE 0xbb08
 #endif
 #endif
 
@@ -284,7 +284,7 @@ WTF_EXPORT_PRIVATE bool WTFIsDebuggerAttached(void);
 #if ASAN_ENABLED
 #define WTF_FATAL_CRASH_INST "brk #0x0"
 #else
-#define WTF_FATAL_CRASH_INST "brk #0xc471"
+#define WTF_FATAL_CRASH_INST "brk #0xbb08"
 #endif
 #endif
 
