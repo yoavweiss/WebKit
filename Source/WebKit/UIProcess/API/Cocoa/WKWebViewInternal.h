@@ -760,6 +760,8 @@ struct LiveResizeSnapshotState {
 
 - (void)_scrollToEdge:(_WKRectEdge)edge animated:(BOOL)animated;
 
+- (BOOL)_scrollPocketInFullscreenEnabled;
+
 @end
 
 @interface WKWebView (WKTextExtraction)

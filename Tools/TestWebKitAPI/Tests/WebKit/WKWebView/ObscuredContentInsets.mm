@@ -955,6 +955,71 @@ TEST(ObscuredContentInsets, HorizontalBannerOverlaysSystemBackgroundColorTracksA
 
 #endif // ENABLE(HORIZONTAL_BANNER_VIEW_OVERLAYS)
 
+#if ENABLE(SCROLL_POCKET_IN_FULLSCREEN)
+
+TEST(ObscuredContentInsets, ScrollPocketCoversFullScreenTitlebar)
+{
+    constexpr CGFloat topInset = 20;
+
+    [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
+    [NSApp activateIgnoringOtherApps:YES];
+
+    RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:NSMakeRect(0, 0, 800, 600)]);
+    [webView _setAutomaticallyAdjustsContentInsets:NO];
+    [webView setObscuredContentInsets:NSEdgeInsetsMake(topInset, 0, 0, 0)];
+    [webView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
+
+    auto styleMask = NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskResizable;
+    RetainPtr toolbar = adoptNS([[NSToolbar alloc] initWithIdentifier:@"ScrollPocketTestToolbar"]);
+    RetainPtr window = adoptNS([[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 800, 600) styleMask:styleMask backing:NSBackingStoreBuffered defer:NO]);
+
+    [window setCollectionBehavior:[window collectionBehavior] | NSWindowCollectionBehaviorFullScreenPrimary];
+    [window setToolbar:toolbar.get()];
+    [[window contentView] addSubview:webView.get()];
+    [webView setFrame:[[window contentView] bounds]];
+    [window makeKeyAndOrderFront:nil];
+
+    [webView synchronouslyLoadTestPageNamed:@"top-fixed-element"];
+    [webView waitForNextPresentationUpdate];
+
+    EXPECT_NOT_NULL([webView _topScrollPocket]);
+    EXPECT_EQ(0, [webView _fullScreenTitlebarOverlayHeightForTesting]);
+    EXPECT_EQ(topInset, NSHeight([[webView _topScrollPocket] frame]));
+
+    __block bool didEnter = false;
+    __block bool didExit = false;
+    RetainPtr enterObserver = [NSNotificationCenter.defaultCenter addObserverForName:NSWindowDidEnterFullScreenNotification object:window.get() queue:nil usingBlock:^(NSNotification *) {
+        didEnter = true;
+    }];
+    RetainPtr exitObserver = [NSNotificationCenter.defaultCenter addObserverForName:NSWindowDidExitFullScreenNotification object:window.get() queue:nil usingBlock:^(NSNotification *) {
+        didExit = true;
+    }];
+
+    [window toggleFullScreen:nil];
+    EXPECT_TRUE(Util::runFor(&didEnter, 10_s));
+    [webView waitForNextPresentationUpdate];
+
+    auto overlayHeight = [webView _fullScreenTitlebarOverlayHeightForTesting];
+    EXPECT_GT(overlayHeight, topInset);
+    EXPECT_EQ(overlayHeight, NSHeight([[webView _topScrollPocket] frame]));
+
+    RetainPtr expectedColor = [webView _sampledTopFixedPositionContentColor];
+    EXPECT_NOT_NULL(expectedColor.get());
+    EXPECT_TRUE(Util::compareColors([[webView _topScrollPocket] captureColor], expectedColor.get()));
+
+    [window toggleFullScreen:nil];
+    EXPECT_TRUE(Util::runFor(&didExit, 10_s));
+    [webView waitForNextPresentationUpdate];
+
+    EXPECT_EQ(0, [webView _fullScreenTitlebarOverlayHeightForTesting]);
+    EXPECT_EQ(topInset, NSHeight([[webView _topScrollPocket] frame]));
+
+    [NSNotificationCenter.defaultCenter removeObserver:enterObserver.get()];
+    [NSNotificationCenter.defaultCenter removeObserver:exitObserver.get()];
+}
+
+#endif // ENABLE(SCROLL_POCKET_IN_FULLSCREEN)
+
 #endif // ENABLE(CONTENT_INSET_BACKGROUND_FILL)
 
 } // namespace TestWebKitAPI

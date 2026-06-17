@@ -2597,6 +2597,21 @@ bool WebViewImpl::hasScrolledContentsUnderTitlebar()
     return m_isRegisteredScrollViewSeparatorTrackingAdapter && !pageIsScrolledToTop();
 }
 
+#if ENABLE(SCROLL_POCKET_IN_FULLSCREEN)
+void WebViewImpl::setFullScreenTitlebarOverlayHeight(CGFloat fullScreenTitlebarOverlayHeight)
+{
+    if (![m_view.get() _scrollPocketInFullscreenEnabled])
+        return;
+
+    if (m_fullScreenTitlebarOverlayHeight == fullScreenTitlebarOverlayHeight)
+        return;
+
+    m_fullScreenTitlebarOverlayHeight = fullScreenTitlebarOverlayHeight;
+
+    updateScrollPocket();
+}
+#endif
+
 void WebViewImpl::updateTitlebarAdjacencyState()
 {
     RetainPtr window = WebViewImpl::window();
@@ -7814,11 +7829,12 @@ void WebViewImpl::updateScrollPocket()
     RetainPtr view = m_view.get();
     CGFloat topContentInset = obscuredContentInsets().top();
     CGFloat additionalHeight = page->overflowHeightForTopScrollEdgeEffect();
+    auto needsTopViewForFullScreenTitlebar = [view _scrollPocketInFullscreenEnabled] && (m_fullScreenTitlebarOverlayHeight > 0);
     bool needsTopView = protect(page->preferences())->contentInsetBackgroundFillEnabled()
         && view
         && !view->_reasonsToHideTopScrollPocket
         && (m_clientImplicitlyRequestedTopScrollPocket || automaticallyAdjustsContentInsets())
-        && (topContentInset > 0 || additionalHeight > 0);
+        && (topContentInset > 0 || additionalHeight > 0 || needsTopViewForFullScreenTitlebar);
 
     RetainPtr topScrollPocketSelector = NSStringFromSelector(@selector(_topScrollPocket));
     if (!needsTopView) {
@@ -7870,6 +7886,16 @@ void WebViewImpl::updateScrollPocket()
         for (NSView *pocketContainer in m_viewsAboveScrollPocket.get())
             topInsetFrame = NSUnionRect(topInsetFrame, [view convertRect:pocketContainer.bounds fromView:pocketContainer]);
     }
+
+#if ENABLE(SCROLL_POCKET_IN_FULLSCREEN)
+    if (RetainPtr screen = [[view window] screen]; screen && needsTopViewForFullScreenTitlebar) {
+        auto pocketInScreen = convertFromViewToScreen(topInsetFrame);
+        auto revealedBottom = NSMaxY([screen frame]) - m_fullScreenTitlebarOverlayHeight;
+        auto pocketBottom = NSMinY(pocketInScreen);
+        if (revealedBottom < pocketBottom && m_fullScreenTitlebarOverlayHeight > 0)
+            topInsetFrame.size.height += pocketBottom - revealedBottom;
+    }
+#endif
 
     topInsetFrame = [m_topScrollPocket frameForAlignmentRect:topInsetFrame];
 

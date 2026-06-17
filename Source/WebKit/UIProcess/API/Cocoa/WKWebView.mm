@@ -3794,6 +3794,15 @@ static ASCIILiteral descriptionForReason(WebKit::HideScrollPocketReason reason)
 
 #endif // ENABLE(CONTENT_INSET_BACKGROUND_FILL)
 
+- (BOOL)_scrollPocketInFullscreenEnabled
+{
+#if ENABLE(SCROLL_POCKET_IN_FULLSCREEN)
+    return linkedOnOrAfterSDKWithBehavior(SDKAlignedBehavior::ScrollPocketInFullscreen);
+#else
+    return NO;
+#endif
+}
+
 - (BOOL)_shouldAdjustColorExtensionsForHorizontalBannerViewOverlays
 {
 #if ENABLE(HORIZONTAL_BANNER_VIEW_OVERLAYS)
