@@ -191,15 +191,14 @@ static SkSamplingOptions toSkSamplingOptions(InterpolationQuality quality)
     case InterpolationQuality::DoNotInterpolate:
         return SkSamplingOptions(SkFilterMode::kNearest, SkMipmapMode::kNone);
     case InterpolationQuality::Low:
-        return SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kNone);
     case InterpolationQuality::Medium:
     case InterpolationQuality::Default:
-        return SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kNearest);
+        return SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kNone);
     case InterpolationQuality::High:
         return SkSamplingOptions(SkCubicResampler::CatmullRom());
     }
 
-    return SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kNearest);
+    return SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kNone);
 }
 
 sk_sp<SkImage> GraphicsContextSkia::imageForCurrentThread(const sk_sp<SkImage>& image) const
