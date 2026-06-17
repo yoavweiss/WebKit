@@ -506,7 +506,7 @@ public:
     virtual void removingSteps(RemovalType, ContainerNode& oldParentOfRemovedTree);
 
     // https://dom.spec.whatwg.org/#concept-node-move-ext
-    virtual void movingSteps(bool, ContainerNode&) { };
+    virtual void movingSteps(bool, ContainerNode&);
 
     void updateShadowIncludingRootForSubtree();
 

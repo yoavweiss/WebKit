@@ -1522,6 +1522,11 @@ void Node::removingSteps(RemovalType removalType, ContainerNode& oldParentOfRemo
     }
 }
 
+void Node::movingSteps(bool, ContainerNode&)
+{
+    invalidateStyle(Style::Validity::SubtreeInvalid, Style::InvalidationMode::InsertedIntoAncestor);
+}
+
 void Node::updateShadowIncludingRootForSubtree()
 {
     SUPPRESS_UNCOUNTED_LOCAL for (auto* current = this; current; current = NodeTraversal::next(*current, this)) {
