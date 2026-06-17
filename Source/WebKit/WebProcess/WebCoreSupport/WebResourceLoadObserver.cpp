@@ -288,12 +288,11 @@ void WebResourceLoadObserver::logSubresourceLoading(const LocalFrame* frame, con
     if (isEphemeral())
         return;
 
-    ASSERT(frame->page());
-
     if (!frame)
         return;
 
     RefPtr page = frame->page();
+    ASSERT(page);
     if (!page)
         return;
     const URL& topFrameURL = page->mainFrameURL();
