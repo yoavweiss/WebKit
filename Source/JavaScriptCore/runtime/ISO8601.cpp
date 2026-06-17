@@ -1426,34 +1426,6 @@ std::optional<TimeZone> parseTimeZoneIdentifierStrict(StringView string)
     return std::nullopt;
 }
 
-std::optional<ExactTime> parseInstant(StringView string)
-{
-    // https://tc39.es/proposal-temporal/#prod-TemporalInstantString
-    // TemporalInstantString :
-    //     Date TimeZoneOffsetRequired
-    //     Date DateTimeSeparator TimeSpec TimeZoneOffsetRequired
-
-    // https://tc39.es/proposal-temporal/#prod-TimeZoneOffsetRequired
-    // TimeZoneOffsetRequired :
-    //     TimeZoneUTCOffset TimeZoneBracketedAnnotation_opt
-
-    return readCharactersForParsing(string, [](auto buffer) -> std::optional<ExactTime> {
-        auto datetime = parseCalendarDateTime(buffer, TemporalDateFormat::Date);
-        if (!datetime)
-            return std::nullopt;
-        auto [plainDate, plainTimeOptional, timeZoneOptional, calendarOptional] = WTF::move(datetime.value());
-        if (!timeZoneOptional || (!timeZoneOptional->m_z && !timeZoneOptional->m_offset))
-            return std::nullopt;
-        if (!buffer.atEnd())
-            return std::nullopt;
-
-        PlainTime plainTime = plainTimeOptional.value_or(PlainTime());
-
-        int64_t offset = timeZoneOptional->m_z ? 0 : *timeZoneOptional->m_offset;
-        return { ExactTime::fromISOPartsAndOffset(plainDate.year(), plainDate.month(), plainDate.day(), plainTime.hour(), plainTime.minute(), plainTime.second(), plainTime.millisecond(), plainTime.microsecond(), plainTime.nanosecond(), offset) };
-    });
-}
-
 uint8_t dayOfWeek(PlainDate plainDate)
 {
     Int128 dateDays = static_cast<Int128>(dateToDaysFrom1970(plainDate.year(), plainDate.month() - 1, plainDate.day()));

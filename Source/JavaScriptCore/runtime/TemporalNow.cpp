@@ -95,7 +95,7 @@ void TemporalNow::finishCreation(VM& vm)
 // https://tc39.es/proposal-temporal/#sec-temporal.now.instant
 JSC_DEFINE_HOST_FUNCTION(temporalNowFuncInstant, (JSGlobalObject* globalObject, CallFrame*))
 {
-    return JSValue::encode(TemporalInstant::tryCreateIfValid(globalObject, ISO8601::ExactTime::now()));
+    return JSValue::encode(TemporalInstant::create(globalObject->vm(), globalObject->instantStructure(), ISO8601::ExactTime::now()));
 }
 
 // https://tc39.es/proposal-temporal/#sec-temporal.now.timezoneid

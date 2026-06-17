@@ -501,7 +501,6 @@ bool NODELETE isValidDuration(const Duration&);
 bool NODELETE isValidISODate(double, double, double);
 PlainDate NODELETE createISODateRecord(double, double, double);
 
-std::optional<ExactTime> parseInstant(StringView);
 std::optional<ParsedMonthCode> NODELETE parseMonthCode(StringView);
 std::optional<TimeZone> JS_EXPORT_PRIVATE parseTemporalTimeZoneIdentifier(StringView);
 

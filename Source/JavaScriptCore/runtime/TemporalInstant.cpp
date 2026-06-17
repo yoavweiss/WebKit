@@ -27,20 +27,13 @@
 #include "config.h"
 #include "TemporalInstant.h"
 
-#include "AuxiliaryBarrierInlines.h"
 #include "Error.h"
-#include "InstantCore.h"
-#include "IntlObjectInlines.h"
 #include "ISO8601.h"
 #include "JSBigInt.h"
 #include "JSGlobalObject.h"
-#include "JSObjectInlines.h"
 #include "MathCommon.h"
-#include "StructureCreateInlines.h"
-#include "TemporalDuration.h"
 #include "TemporalObject.h"
 #include "TemporalZonedDateTime.h"
-#include "TimeZoneICUBridge.h"
 
 #include <wtf/text/MakeString.h>
 namespace JSC {
@@ -64,36 +57,6 @@ TemporalInstant* TemporalInstant::create(VM& vm, Structure* structure, ISO8601::
     auto* object = new (NotNull, allocateCell<TemporalInstant>(vm)) TemporalInstant(vm, structure, exactTime);
     object->finishCreation(vm);
     return object;
-}
-
-// CreateTemporalInstant ( epochNanoseconds [ , newTarget ] )
-// https://tc39.es/proposal-temporal/#sec-temporal-createtemporalinstant
-TemporalInstant* TemporalInstant::tryCreateIfValid(JSGlobalObject* globalObject, ISO8601::ExactTime exactTime, Structure* structure)
-{
-    VM& vm = globalObject->vm();
-    auto scope = DECLARE_THROW_SCOPE(vm);
-
-    if (!exactTime.isValid()) [[unlikely]] {
-        throwRangeError(globalObject, scope, makeString(exactTime.asString(), " epoch nanoseconds is outside of supported range for Temporal.Instant"_s));
-        return nullptr;
-    }
-
-    return create(vm, structure ? structure : globalObject->instantStructure(), exactTime);
-}
-
-TemporalInstant* TemporalInstant::tryCreateIfValid(JSGlobalObject* globalObject, JSValue value, Structure* structure)
-{
-    VM& vm = globalObject->vm();
-    auto scope = DECLARE_THROW_SCOPE(vm);
-
-    JSValue bigIntValue = value.toBigInt(globalObject);
-    RETURN_IF_EXCEPTION(scope, nullptr);
-
-    auto exactTime = bigIntValueToExactTime(globalObject, bigIntValue, "Temporal.Instant"_s);
-    RETURN_IF_EXCEPTION(scope, nullptr);
-    if (!exactTime)
-        return nullptr;
-    return create(vm, structure ? structure : globalObject->instantStructure(), *exactTime);
 }
 
 std::optional<ISO8601::ExactTime> bigIntValueToExactTime(JSGlobalObject* globalObject, JSValue bigIntValue, ASCIILiteral typeName)
@@ -153,49 +116,75 @@ TemporalInstant* TemporalInstant::toInstant(JSGlobalObject* globalObject, JSValu
     VM& vm = globalObject->vm();
     auto scope = DECLARE_THROW_SCOPE(vm);
 
-    // Step 1: If item is not an Object and not a String, throw TypeError.
-    if (!itemValue.isObject() && !itemValue.isString()) [[unlikely]] {
+    // Step 1: If item is an Object, then
+    if (itemValue.isObject()) {
+        // Step 1.a: If item has [[InitializedTemporalInstant]] or [[InitializedTemporalZonedDateTime]],
+        //   return ! CreateTemporalInstant(item.[[EpochNanoseconds]]). Spec returns a NEW instance.
+        if (itemValue.inherits<TemporalInstant>())
+            return create(vm, globalObject->instantStructure(), uncheckedDowncast<TemporalInstant>(itemValue)->exactTime());
+        if (itemValue.inherits<TemporalZonedDateTime>())
+            return create(vm, globalObject->instantStructure(), uncheckedDowncast<TemporalZonedDateTime>(itemValue)->exactTime());
+
+        // Step 1.c: Set item to ? ToPrimitive(item, STRING).
+        itemValue = itemValue.toPrimitive(globalObject, PreferString);
+        RETURN_IF_EXCEPTION(scope, nullptr);
+    }
+
+    // Step 2: If item is not a String, throw a TypeError exception.
+    if (!itemValue.isString()) [[unlikely]] {
         throwTypeError(globalObject, scope, "can only convert to Instant from object or string values"_s);
         return nullptr;
     }
-
-    // Step 2: If item has [[InitializedTemporalInstant]], return item.
-    if (itemValue.inherits<TemporalInstant>())
-        return uncheckedDowncast<TemporalInstant>(itemValue);
-
-    // Step 3: If item has [[InitializedTemporalZonedDateTime]], return CreateTemporalInstant(item.[[EpochNanoseconds]]).
-    if (itemValue.inherits<TemporalZonedDateTime>())
-        return TemporalInstant::create(vm, globalObject->instantStructure(), uncheckedDowncast<TemporalZonedDateTime>(itemValue)->exactTime());
-
-    // Step 4: Let string be ? ToString(item).
-    String string = itemValue.toWTFString(globalObject);
+    String string = asString(itemValue)->value(globalObject);
     RETURN_IF_EXCEPTION(scope, nullptr);
 
-    // Step 5: Let epochNanoseconds be ? ParseTemporalInstantString(string).
-    auto parsedExactTime = ISO8601::parseInstant(string);
-    if (!parsedExactTime) [[unlikely]] {
+    // Step 3: Let parsed be ? ParseISODateTime(item, « TemporalInstantString »).
+    //   parseCalendarDateTime accepts a superset; the Time-present and Offset/Z-present guards
+    //   below restrict the accepted set to the TemporalInstantString production.
+    // FIXME: Replace with a unified ParseISODateTime(string, ProductionMask) that bakes in
+    //   per-production grammar restrictions, matching the spec abstract op 1:1. Today the four
+    //   parsers (parseCalendarDateTime, parseCalendarTime, parseDateTime, parseTime) each cover
+    //   a subset, forcing every consumer to re-implement production guards. See ISO8601.h.
+    auto parsedOpt = ISO8601::parseCalendarDateTime(string, TemporalDateFormat::Date);
+    if (!parsedOpt) [[unlikely]] {
+        throwRangeError(globalObject, scope, makeString("'"_s, ellipsizeAt(100, string), "' is not a valid Temporal.Instant string"_s));
+        return nullptr;
+    }
+    auto [plainDate, plainTimeOpt, timeZoneOpt, calendarOpt] = WTF::move(*parsedOpt);
+    if (!plainTimeOpt || !timeZoneOpt || (!timeZoneOpt->m_z && !timeZoneOpt->m_offset)) [[unlikely]] {
         throwRangeError(globalObject, scope, makeString("'"_s, ellipsizeAt(100, string), "' is not a valid Temporal.Instant string"_s));
         return nullptr;
     }
 
-    // Step 6: Return ? CreateTemporalInstant(epochNanoseconds).
-    RELEASE_AND_RETURN(scope, tryCreateIfValid(globalObject, parsedExactTime.value()));
-}
+    // Step 4: Assert: parsed.[[TimeZone]].[[OffsetString]] is not empty XOR parsed.[[TimeZone]].[[Z]] is true.
+    //   No-op: the grammar `DateTimeUTCOffset[+Z]` makes Z and offset mutually exclusive.
 
-// Temporal.Instant.from ( item )
-// https://tc39.es/proposal-temporal/#sec-temporal.instant.from
-TemporalInstant* TemporalInstant::from(JSGlobalObject* globalObject, JSValue itemValue)
-{
-    VM& vm = globalObject->vm();
+    // Step 5: offsetNanoseconds = Z ? 0 : ParseDateTimeUTCOffset(OffsetString).
+    int64_t offsetNanoseconds = timeZoneOpt->m_z ? 0 : *timeZoneOpt->m_offset;
 
-    // Step 1: If item has [[InitializedTemporalInstant]], return CreateTemporalInstant(item.[[EpochNanoseconds]]).
-    if (itemValue.inherits<TemporalInstant>()) {
-        ISO8601::ExactTime exactTime = uncheckedDowncast<TemporalInstant>(itemValue)->exactTime();
-        return TemporalInstant::create(vm, globalObject->instantStructure(), exactTime);
+    // Step 6: Let time be parsed.[[Time]].
+    const ISO8601::PlainTime& plainTime = *plainTimeOpt;
+
+    // Step 7: Assert: time is not start-of-day. (No-op: parser guarantees this.)
+
+    // Steps 8 + 10: BalanceISODateTime + GetUTCEpochNanoseconds collapsed.
+    //   BalanceISODateTime preserves the sum days×nsPerDay + Σ(timeFields). We only need the
+    //   sum (epochNs); intermediate balanced fields are unread, so the rebalance is unobservable.
+    auto exactTime = ISO8601::ExactTime::fromISOPartsAndOffset(
+        plainDate.year(), plainDate.month(), plainDate.day(),
+        plainTime.hour(), plainTime.minute(), plainTime.second(),
+        plainTime.millisecond(), plainTime.microsecond(), plainTime.nanosecond(),
+        offsetNanoseconds);
+
+    // Steps 9 + 11: CheckISODaysRange + IsValidEpochNanoseconds collapsed.
+    //   |dateDays| ≤ 10⁸ ↔ |epochNs| ≤ 8.64×10²¹ at the boundary; isValid() covers both.
+    if (!exactTime.isValid()) [[unlikely]] {
+        throwRangeError(globalObject, scope, makeString("'"_s, ellipsizeAt(100, string), "' is not a valid Temporal.Instant string"_s));
+        return nullptr;
     }
 
-    // Step 2: Return ? ToTemporalInstant(item).
-    return toInstant(globalObject, itemValue);
+    // Step 12: Return ! CreateTemporalInstant(epochNanoseconds).
+    return create(vm, globalObject->instantStructure(), exactTime);
 }
 
 // Temporal.Instant.fromEpochMilliseconds ( epochMilliseconds )
@@ -205,27 +194,51 @@ TemporalInstant* TemporalInstant::fromEpochMilliseconds(JSGlobalObject* globalOb
     VM& vm = globalObject->vm();
     auto scope = DECLARE_THROW_SCOPE(vm);
 
-    // Step 1: Let epochMilliseconds be ? ToNumber(epochMilliseconds).
+    // Step 1: Set epochMilliseconds to ? ToNumber(epochMilliseconds).
     double epochMilliseconds = epochMillisecondsValue.toNumber(globalObject);
     RETURN_IF_EXCEPTION(scope, nullptr);
 
-    // Step 2: If IsIntegralNumber(epochMilliseconds) is false, throw RangeError.
+    // Step 2: Set epochMilliseconds to ? NumberToBigInt(epochMilliseconds).
+    //   NumberToBigInt's two effects (RangeError if !IsIntegralNumber, then ℤ-conversion) are
+    //   inlined as isInteger() + the int64_t cast in fromEpochMilliseconds — no JSBigInt needed.
     if (!isInteger(epochMilliseconds)) [[unlikely]] {
         throwRangeError(globalObject, scope, makeString(epochMilliseconds, " is not a valid integer number of epoch milliseconds"_s));
         return nullptr;
     }
 
-    // Steps 3-4: Let epochNanoseconds = epochMilliseconds × 10^6; return ? CreateTemporalInstant(epochNanoseconds).
+    // Step 3: Let epochNanoseconds be epochMilliseconds × 10^6ℤ.
     ISO8601::ExactTime exactTime = ISO8601::ExactTime::fromEpochMilliseconds(epochMilliseconds);
-    RELEASE_AND_RETURN(scope, tryCreateIfValid(globalObject, exactTime));
+
+    // Step 4: If IsValidEpochNanoseconds(epochNanoseconds) is false, throw a RangeError exception.
+    if (!exactTime.isValid()) [[unlikely]] {
+        throwRangeError(globalObject, scope, makeString(exactTime.asString(), " epoch nanoseconds is outside of supported range for Temporal.Instant"_s));
+        return nullptr;
+    }
+
+    // Step 5: Return ! CreateTemporalInstant(epochNanoseconds).
+    return create(vm, globalObject->instantStructure(), exactTime);
 }
 
 // Temporal.Instant.fromEpochNanoseconds ( epochNanoseconds )
 // https://tc39.es/proposal-temporal/#sec-temporal.instant.fromepochnanoseconds
 TemporalInstant* TemporalInstant::fromEpochNanoseconds(JSGlobalObject* globalObject, JSValue epochNanosecondsValue)
 {
-    // Step 1: Return ? CreateTemporalInstant(? ToBigInt(epochNanoseconds)).
-    return tryCreateIfValid(globalObject, epochNanosecondsValue);
+    VM& vm = globalObject->vm();
+    auto scope = DECLARE_THROW_SCOPE(vm);
+
+    // Step 1: Set epochNanoseconds to ? ToBigInt(epochNanoseconds).
+    JSValue bigIntValue = epochNanosecondsValue.toBigInt(globalObject);
+    RETURN_IF_EXCEPTION(scope, nullptr);
+
+    // Step 2: If IsValidEpochNanoseconds(epochNanoseconds) is false, throw a RangeError exception.
+    //   bigIntValueToExactTime does both the BigInt → Int128 narrowing and the validity check;
+    //   nullopt only after throwing.
+    auto exactTimeOpt = bigIntValueToExactTime(globalObject, bigIntValue, "Temporal.Instant"_s);
+    RETURN_IF_EXCEPTION(scope, nullptr);
+    ASSERT(exactTimeOpt);
+
+    // Step 3: Return ! CreateTemporalInstant(epochNanoseconds).
+    return create(vm, globalObject->instantStructure(), *exactTimeOpt);
 }
 
 // Temporal.Instant.compare ( one, two )
@@ -249,187 +262,6 @@ JSValue TemporalInstant::compare(JSGlobalObject* globalObject, JSValue oneValue,
     if (one->exactTime() < two->exactTime())
         return jsNumber(-1);
     return jsNumber(0);
-}
-
-// https://tc39.es/proposal-temporal/#sec-temporal-differencetemporalinstant
-ISO8601::Duration TemporalInstant::difference(JSGlobalObject* globalObject, TemporalInstant* other, JSValue optionsValue) const
-{
-    VM& vm = globalObject->vm();
-    auto scope = DECLARE_THROW_SCOPE(vm);
-
-    // Steps 1-2: RequireInternalSlot + ToTemporalInstant done by caller (until/since prototype functions).
-    // Step 3: GetDifferenceSettings.
-    auto [smallestUnit, largestUnit, roundingMode, increment] = extractDifferenceOptions(globalObject, optionsValue, UnitGroup::Time, TemporalUnit::Nanosecond, TemporalUnit::Second);
-    RETURN_IF_EXCEPTION(scope, { });
-
-    // Step 4: DifferenceInstant + RoundRelativeDuration.
-    ISO8601::InternalDuration internalDuration = exactTime().difference(globalObject, other->exactTime(), increment, smallestUnit, roundingMode);
-    RETURN_IF_EXCEPTION(scope, { });
-
-    // Step 5: Return CreateTemporalDuration from the balanced result.
-    auto durResult = TemporalCore::temporalDurationFromInternal(internalDuration, largestUnit);
-    if (!durResult) [[unlikely]] {
-        throwTemporalError(globalObject, scope, durResult.error());
-        return { };
-    }
-    return *durResult;
-}
-
-// https://tc39.es/proposal-temporal/#sec-temporal.instant.prototype.round
-ISO8601::ExactTime TemporalInstant::round(JSGlobalObject* globalObject, JSValue optionsValue) const
-{
-    VM& vm = globalObject->vm();
-    auto scope = DECLARE_THROW_SCOPE(vm);
-
-    // Steps 1-2: branding check done by the caller (temporalInstantPrototypeFuncRound).
-
-    // Step 3: If roundTo is undefined, throw a TypeError exception.
-    if (optionsValue.isUndefined()) [[unlikely]] {
-        throwTypeError(globalObject, scope, "Temporal.Instant.prototype.round requires a roundTo option"_s);
-        return { };
-    }
-
-    JSObject* options = nullptr;
-    std::optional<TemporalUnit> smallest;
-
-    if (optionsValue.isString()) {
-        // Step 4: Let paramString be roundTo. Set roundTo to OrdinaryObjectCreate(null).
-        //         Perform ! CreateDataPropertyOrThrow(roundTo, "smallestUnit", paramString).
-        // NOTE: We skip the object wrapper and parse the unit directly as an optimisation.
-        auto string = optionsValue.toWTFString(globalObject);
-        RETURN_IF_EXCEPTION(scope, { });
-        smallest = temporalUnitType(string);
-        if (!smallest) [[unlikely]] {
-            throwRangeError(globalObject, scope, "smallestUnit is an invalid Temporal unit"_s);
-            return { };
-        }
-    } else {
-        // Step 5: Set roundTo to ? GetOptionsObject(roundTo).
-        options = intlGetOptionsObject(globalObject, optionsValue);
-        RETURN_IF_EXCEPTION(scope, { });
-    }
-
-    // Step 6: NOTE: The following steps read options in alphabetical order.
-    // Step 7: Let roundingIncrement be ? GetRoundingIncrementOption(roundTo).
-    double roundingIncrement = temporalRoundingIncrement(globalObject, options);
-    RETURN_IF_EXCEPTION(scope, { });
-    // Step 8: Let roundingMode be ? GetRoundingModeOption(roundTo, ~half-expand~).
-    RoundingMode roundingMode = temporalRoundingMode(globalObject, options, RoundingMode::HalfExpand);
-    RETURN_IF_EXCEPTION(scope, { });
-
-    if (!smallest) {
-        // Step 9: Let smallestUnit be ? GetTemporalUnitValuedOption(roundTo, "smallestUnit", ~required~).
-        auto smallestUnitMaybeAuto = temporalUnitValued(globalObject, options, vm.propertyNames->smallestUnit, TemporalUnitDefault::Required);
-        RETURN_IF_EXCEPTION(scope, { });
-        // Step 10: Perform ? ValidateTemporalUnitValue(smallestUnit, ~time~).
-        validateTemporalUnitValue(globalObject, smallestUnitMaybeAuto, UnitGroup::Time, AllowedUnit::None, "smallestUnit"_s);
-        RETURN_IF_EXCEPTION(scope, { });
-        smallest = std::get<std::optional<TemporalUnit>>(smallestUnitMaybeAuto);
-    } else {
-        // Step 10 (string path): Perform ? ValidateTemporalUnitValue(smallestUnit, ~time~).
-        validateTemporalUnitValue(globalObject, smallest.value(), UnitGroup::Time, AllowedUnit::None, "smallestUnit"_s);
-        RETURN_IF_EXCEPTION(scope, { });
-    }
-
-    TemporalUnit smallestUnit = smallest.value();
-
-    // Steps 11-16: Let maximum be the per-unit maximum rounding increment.
-    // Step 17: Perform ? ValidateTemporalRoundingIncrement(roundingIncrement, maximum, true).
-    validateTemporalRoundingIncrement(globalObject, roundingIncrement, TemporalCore::maximumInstantIncrement(smallestUnit), Inclusivity::Inclusive);
-    RETURN_IF_EXCEPTION(scope, { });
-
-    // Step 18: Let roundedNs be RoundTemporalInstant(instant.[[EpochNanoseconds]], roundingIncrement, smallestUnit, roundingMode).
-    // Step 19: Return ! CreateTemporalInstant(roundedNs).
-    RELEASE_AND_RETURN(scope, exactTime().round(globalObject, roundingIncrement, smallestUnit, roundingMode));
-}
-
-// Temporal.Instant.prototype.toString( [ options ] )
-// https://tc39.es/proposal-temporal/#sec-temporal.instant.prototype.tostring
-String TemporalInstant::toString(JSGlobalObject* globalObject, JSValue optionsValue) const
-{
-    VM& vm = globalObject->vm();
-    auto scope = DECLARE_THROW_SCOPE(vm);
-
-    // Steps 1-2: branding check done by the caller (temporalInstantPrototypeFuncToString).
-
-    // Step 3: Let resolvedOptions be ? GetOptionsObject(options).
-    JSObject* options = intlGetOptionsObject(globalObject, optionsValue);
-    RETURN_IF_EXCEPTION(scope, { });
-
-    if (!options)
-        return toString();
-
-    // Step 4: NOTE: The following steps read options and perform independent validation
-    //         in alphabetical order.
-    // Step 5: Let digits be ? GetTemporalFractionalSecondDigitsOption(resolvedOptions).
-    auto digits = temporalFractionalSecondDigits(globalObject, options);
-    RETURN_IF_EXCEPTION(scope, { });
-
-    // Step 6: Let roundingMode be ? GetRoundingModeOption(resolvedOptions, ~trunc~).
-    RoundingMode roundingMode = temporalRoundingMode(globalObject, options, RoundingMode::Trunc);
-    RETURN_IF_EXCEPTION(scope, { });
-
-    // Step 7: Let smallestUnit be ? GetTemporalUnitValuedOption(resolvedOptions, "smallestUnit", ~unset~).
-    auto smallestUnitResult = temporalUnitValued(globalObject, options, vm.propertyNames->smallestUnit);
-    RETURN_IF_EXCEPTION(scope, { });
-
-    // Step 8: Let timeZone be ? Get(resolvedOptions, "timeZone").
-    JSValue timeZoneValue = options->get(globalObject, vm.propertyNames->timeZone);
-    RETURN_IF_EXCEPTION(scope, { });
-
-    // Step 9: Perform ? ValidateTemporalUnitValue(smallestUnit, ~time~).
-    validateTemporalUnitValue(globalObject, smallestUnitResult, UnitGroup::Time, AllowedUnit::None, "smallestUnit"_s);
-    RETURN_IF_EXCEPTION(scope, { });
-    auto smallestUnit = std::get<std::optional<TemporalUnit>>(smallestUnitResult);
-    // Step 10: If smallestUnit is ~hour~, throw a RangeError exception.
-    if (smallestUnit == TemporalUnit::Hour) [[unlikely]] {
-        throwRangeError(globalObject, scope, "smallestUnit cannot be \"hour\" for Instant.toString"_s);
-        return { };
-    }
-
-    // Step 11: If timeZone is not undefined, set timeZone to ? ToTemporalTimeZoneIdentifier(timeZone).
-    std::optional<TimeZone> timeZone;
-    if (!timeZoneValue.isUndefined()) {
-        timeZone = toTemporalTimeZoneIdentifier(globalObject, timeZoneValue);
-        RETURN_IF_EXCEPTION(scope, { });
-        ASSERT(timeZone);
-    }
-
-    // Step 12: Let precision be ToSecondsStringPrecisionRecord(smallestUnit, digits).
-    auto data = toSecondsStringPrecisionRecord(smallestUnit, digits);
-
-    // Steps 13-15: RoundTemporalInstant + CreateTemporalInstant + TemporalInstantToString.
-    // Precision::Auto means increment=1 ns — a no-op for any mode; skip steps 13-14.
-    if (std::get<0>(data.precision) == Precision::Auto) {
-        std::optional<int64_t> offsetNs;
-        if (timeZone) {
-            auto offsetResult = TemporalCore::getOffsetNanosecondsFor(*timeZone, exactTime());
-            if (!offsetResult) [[unlikely]] {
-                throwRangeError(globalObject, scope, offsetResult.error().message);
-                return { };
-            }
-            offsetNs = *offsetResult;
-        }
-        return TemporalCore::instantToString(exactTime(), offsetNs, data);
-    }
-
-    // Step 13: Let roundedNs be RoundTemporalInstant(instant.[[EpochNanoseconds]], precision.[[Increment]], precision.[[Unit]], roundingMode).
-    auto newExactTime = exactTime().round(globalObject, data.increment, data.unit, roundingMode);
-    RETURN_IF_EXCEPTION(scope, { });
-
-    // Step 14: Let roundedInstant be ! CreateTemporalInstant(roundedNs).
-    // Step 15: Return TemporalInstantToString(roundedInstant, timeZone, precision.[[Precision]]).
-    // Pass newExactTime directly — elides the CreateTemporalInstant allocation.
-    std::optional<int64_t> outputOffsetNs;
-    if (timeZone) {
-        auto offsetResult = TemporalCore::getOffsetNanosecondsFor(*timeZone, newExactTime);
-        if (!offsetResult) [[unlikely]] {
-            throwRangeError(globalObject, scope, offsetResult.error().message);
-            return { };
-        }
-        outputOffsetNs = *offsetResult;
-    }
-    return TemporalCore::instantToString(newExactTime, outputOffsetNs, data);
 }
 
 } // namespace JSC
