@@ -6904,7 +6904,7 @@ void LocalFrameView::setViewExposedRect(std::optional<FloatRect> viewExposedRect
 
     LOG_WITH_STREAM(Scrolling, stream << "LocalFrameView " << this << " setViewExposedRect " << (viewExposedRect ? viewExposedRect.value() : FloatRect()));
 
-    bool hasRectExistenceChanged = !m_viewExposedRect == !viewExposedRect;
+    bool hasRectExistenceChanged = !m_viewExposedRect != !viewExposedRect;
     m_viewExposedRect = viewExposedRect;
 
     // FIXME: We should support clipping to the exposed rect for subframes as well.
