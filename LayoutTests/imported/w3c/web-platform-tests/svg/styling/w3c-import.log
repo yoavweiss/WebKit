@@ -14,7 +14,10 @@ Property values requiring vendor prefixes:
 None
 ------------------------------------------------------------------------
 List of files:
+/LayoutTests/imported/w3c/web-platform-tests/svg/styling/attr-style-media-dynamic.html
 /LayoutTests/imported/w3c/web-platform-tests/svg/styling/attr-style-media.html
+/LayoutTests/imported/w3c/web-platform-tests/svg/styling/attr-style-title.html
+/LayoutTests/imported/w3c/web-platform-tests/svg/styling/attr-style-type-dynamic.html
 /LayoutTests/imported/w3c/web-platform-tests/svg/styling/attr-style-type.html
 /LayoutTests/imported/w3c/web-platform-tests/svg/styling/border-spacing-svg-zoom-table-display-expected.html
 /LayoutTests/imported/w3c/web-platform-tests/svg/styling/border-spacing-svg-zoom-table-display-ref.html
