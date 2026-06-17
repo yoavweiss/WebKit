@@ -278,13 +278,6 @@ ExceptionOr<Ref<WebCodecsVideoFrame>> WebCodecsVideoFrame::create(ScriptExecutio
     return initializeFrameFromOtherFrame(context, WTF::move(initFrame), WTF::move(init), VideoFrame::ShouldCloneWithDifferentTimestamp::Yes);
 }
 
-static std::optional<Exception> validateI420Sizes(const WebCodecsVideoFrame::BufferInit& init)
-{
-    if (init.visibleRect && (static_cast<size_t>(init.visibleRect->x) % 2 || static_cast<size_t>(init.visibleRect->x) % 2))
-        return Exception { ExceptionCode::TypeError, "visible x or y is odd"_s };
-    return { };
-}
-
 // https://w3c.github.io/webcodecs/#dom-videoframe-videoframe-data-init
 ExceptionOr<Ref<WebCodecsVideoFrame>> WebCodecsVideoFrame::create(ScriptExecutionContext& context, BufferSource&& data, BufferInit&& init)
 {
@@ -312,8 +305,6 @@ ExceptionOr<Ref<WebCodecsVideoFrame>> WebCodecsVideoFrame::create(ScriptExecutio
     RefPtr<VideoFrame> videoFrame;
     switch (pixelFormat) {
     case VideoPixelFormat::NV12:
-        if (auto exception = validateI420Sizes(init))
-            return WTF::move(*exception);
         videoFrame = VideoFrame::createNV12(data.span(), parsedRect.width, parsedRect.height, layout.computedLayouts[0], layout.computedLayouts[1], WTF::move(colorSpace));
         break;
     case VideoPixelFormat::RGBA:
@@ -325,13 +316,9 @@ ExceptionOr<Ref<WebCodecsVideoFrame>> WebCodecsVideoFrame::create(ScriptExecutio
         videoFrame = VideoFrame::createBGRA(data.span(), parsedRect.width, parsedRect.height, layout.computedLayouts[0], WTF::move(colorSpace));
         break;
     case VideoPixelFormat::I420:
-        if (auto exception = validateI420Sizes(init))
-            return WTF::move(*exception);
         videoFrame = VideoFrame::createI420(data.span(), parsedRect.width, parsedRect.height, layout.computedLayouts[0], layout.computedLayouts[1], layout.computedLayouts[2], WTF::move(colorSpace));
         break;
     case VideoPixelFormat::I420A:
-        if (auto exception = validateI420Sizes(init))
-            return WTF::move(*exception);
         videoFrame = VideoFrame::createI420A(data.span(), parsedRect.width, parsedRect.height, layout.computedLayouts[0], layout.computedLayouts[1], layout.computedLayouts[2], layout.computedLayouts[3], WTF::move(colorSpace));
         break;
     default:
