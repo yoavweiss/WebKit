@@ -267,6 +267,7 @@ public:
     LayoutUnit m_paginationStrut;
     LayoutUnit m_pageLogicalOffset;
     LayoutUnit m_intrinsicBorderForFieldset;
+    LayoutUnit m_intrinsicMarginBeforeForFieldset;
     
     std::optional<SingleThreadWeakPtr<RenderFragmentedFlow>> m_enclosingFragmentedFlow;
 };
@@ -3171,6 +3172,7 @@ void RenderBlock::layoutExcludedChildren(RelayoutChildren relayoutChildren)
         return;
 
     setIntrinsicBorderForFieldset(0);
+    setIntrinsicMarginBeforeForFieldset(0);
 
     RenderBox* box = findFieldsetLegend();
     if (!box)
@@ -3223,6 +3225,7 @@ void RenderBlock::layoutExcludedChildren(RelayoutChildren relayoutChildren)
     
     LayoutUnit fieldsetBorderBefore = borderBefore();
     LayoutUnit legendLogicalHeight = logicalHeightForChild(legend);
+    LayoutUnit legendBeforeMargin = marginBeforeForChild(legend);
     LayoutUnit legendAfterMargin = marginAfterForChild(legend);
     LayoutUnit topPositionForLegend = std::max(0_lu, (fieldsetBorderBefore - legendLogicalHeight) / 2);
     LayoutUnit bottomPositionForLegend = topPositionForLegend + legendLogicalHeight + legendAfterMargin;
@@ -3232,11 +3235,13 @@ void RenderBlock::layoutExcludedChildren(RelayoutChildren relayoutChildren)
 
     // If the bottom of the legend (including its after margin) is below the fieldset border,
     // then we need to add in sufficient intrinsic border to account for this gap.
-    // FIXME: Should we support the before margin of the legend? Not entirely clear.
     // FIXME: Consider dropping support for the after margin of the legend. Not sure other
     // browsers support that anyway.
     if (bottomPositionForLegend > fieldsetBorderBefore)
         setIntrinsicBorderForFieldset(bottomPositionForLegend - fieldsetBorderBefore);
+
+    if (legendBeforeMargin > 0)
+        setIntrinsicMarginBeforeForFieldset(legendBeforeMargin);
     
     // Now that the legend is included in the border extent, we can set our logical height
     // to the borderBefore (which includes the legend and its after margin if they were bigger
@@ -3334,6 +3339,23 @@ void RenderBlock::setIntrinsicBorderForFieldset(LayoutUnit padding)
     rareData->m_intrinsicBorderForFieldset = padding;
 }
 
+LayoutUnit RenderBlock::intrinsicMarginBeforeForFieldset() const
+{
+    auto* rareData = blockRareData();
+    return rareData ? rareData->m_intrinsicMarginBeforeForFieldset : 0_lu;
+}
+
+void RenderBlock::setIntrinsicMarginBeforeForFieldset(LayoutUnit margin)
+{
+    auto* rareData = blockRareData();
+    if (!rareData) {
+        if (!margin)
+            return;
+        rareData = &ensureBlockRareData();
+    }
+    rareData->m_intrinsicMarginBeforeForFieldset = margin;
+}
+
 RectEdges<LayoutUnit> RenderBlock::borderWidths() const
 {
     if (!intrinsicBorderForFieldset())
@@ -3378,6 +3400,11 @@ LayoutUnit RenderBlock::borderRight() const
 LayoutUnit RenderBlock::borderBefore() const
 {
     return RenderBox::borderBefore() + intrinsicBorderForFieldset();
+}
+
+LayoutUnit RenderBlock::marginBefore(const WritingMode writingMode) const
+{
+    return RenderBox::marginBefore(writingMode) + intrinsicMarginBeforeForFieldset();
 }
 
 std::pair<LayoutUnit, LayoutUnit> RenderBlock::computeIntrinsicLogicalWidthsForFieldsetLegend() const

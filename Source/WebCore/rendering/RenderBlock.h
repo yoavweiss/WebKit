@@ -166,6 +166,11 @@ public:
     LayoutUnit NODELETE intrinsicBorderForFieldset() const;
     void setIntrinsicBorderForFieldset(LayoutUnit);
 
+    // Fieldset legends with a block-start margin shift the whole fieldset down rather than moving
+    // the legend within the border, by adding that margin onto the fieldset's own margin-before.
+    LayoutUnit NODELETE intrinsicMarginBeforeForFieldset() const;
+    void setIntrinsicMarginBeforeForFieldset(LayoutUnit);
+
     RectEdges<LayoutUnit> borderWidths() const override;
     LayoutUnit borderTop() const override;
     LayoutUnit borderBottom() const override;
@@ -173,6 +178,10 @@ public:
     LayoutUnit borderRight() const override;
 
     LayoutUnit borderBefore() const override;
+
+    LayoutUnit marginBefore(WritingMode) const override;
+    LayoutUnit marginBefore() const { return marginBefore(writingMode()); }
+
     LayoutUnit adjustBorderBoxLogicalHeightForBoxSizing(LayoutUnit height) const override;
     LayoutUnit adjustContentBoxLogicalHeightForBoxSizing(std::optional<LayoutUnit> height) const override;
     LayoutUnit adjustIntrinsicLogicalHeightForBoxSizing(LayoutUnit height) const override;
