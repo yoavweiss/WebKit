@@ -888,6 +888,9 @@ webkit.org/b/261024 js/cached-window-properties.html [ Pass Timeout ]
 
 webrtc/vp8-then-h264.html [ Pass ]
 
+# See https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/11758
+webrtc/remote-track-label-quirks.html [ Pass Crash ]
+
 imported/w3c/web-platform-tests/css/filter-effects/backdrop-filter-plus-filter.html [ ImageOnlyFailure ]
 
 # Flaky tests Nov2023
