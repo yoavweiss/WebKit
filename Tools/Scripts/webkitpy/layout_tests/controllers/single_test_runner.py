@@ -170,6 +170,8 @@ class SingleTestRunner(object):
             comparison_header = 'SiteIsolationEnabled=true'
             if self._reference_files:
                 return self._run_self_comparison_test(comparison_header)
+            if self._test_input.test.is_wpt_crash_test:
+                return self._run_wpt_crash_test(comparison_header)
             return self._run_self_comparison_without_reference_test(comparison_header)
         if self._reference_files:
             if self._port.get_option('no_ref_tests') or self._options.reset_results:
@@ -206,8 +208,12 @@ class SingleTestRunner(object):
         test_result_writer.write_test_result(self._filesystem, self._port, self._results_directory, self._test_name, driver_output, expected_driver_output, test_result.failures)
         return test_result
 
-    def _run_wpt_crash_test(self):
-        driver_output = self._driver.run_test(self._driver_input(), self._stop_when_done)
+    def _run_wpt_crash_test(self, additional_header=None):
+        driver_input = self._driver_input()
+        if additional_header is not None:
+            driver_input.additional_header = additional_header
+
+        driver_output = self._driver.run_test(driver_input, self._stop_when_done)
         if self._options.ignore_metrics:
             driver_output.strip_metrics()
 

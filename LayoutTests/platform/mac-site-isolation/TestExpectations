@@ -64,7 +64,6 @@ http/tests/storageAccess/request-and-grant-access-cross-origin-sandboxed-iframe-
 http/wpt/webrtc/third-party-frame-ice-candidate-filtering.html [ Failure ]
 http/wpt/css/css-view-transitions/navigation/old_vt_promises_bfcache.html [ Failure ]
 imported/w3c/web-platform-tests/cookies/partitioned-cookies/partitioned-cookies.tentative.https.html [ Failure ]
-imported/w3c/web-platform-tests/css/css-view-transitions/navigation/reload-crash.html [ Failure ]
 imported/w3c/web-platform-tests/dom/events/scrolling/scroll-cross-origin-iframes.html [ Failure ]
 imported/w3c/web-platform-tests/fetch/api/basic/keepalive.any.html
 imported/w3c/web-platform-tests/html/browsers/browsing-the-web/history-traversal/pageswap/pageswap-replace-with-cross-origin-redirect.sub.html [ Failure ]
