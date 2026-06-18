@@ -307,10 +307,10 @@ void appendNumberFormatNotationOptionsToSkeleton(IntlType* intlInstance, StringB
             skeletonBuilder.append(" compact-short"_s);
         } else {
             switch (intlInstance->m_compactDisplay) {
-            case IntlNumberFormat::CompactDisplay::Short:
+            case CompactDisplay::Short:
                 skeletonBuilder.append(" compact-short"_s);
                 break;
-            case IntlNumberFormat::CompactDisplay::Long:
+            case CompactDisplay::Long:
                 skeletonBuilder.append(" compact-long"_s);
                 break;
             }
