@@ -1551,8 +1551,12 @@ static std::optional<HasCompoundContext> collectHasCompoundContext(const CSSSele
 {
     HasCompoundContext context;
     for (auto* selector = hasPseudoClass.leftmostInCompound(); selector; selector = selector->followingInCompound()) {
-        if (selector != &hasPseudoClass)
-            context.compoundPeers.append(selector);
+        if (selector == &hasPseudoClass)
+            continue;
+        // Skip pseudo-elements (e.g. `.foo:has(...)::before`); the scope is the has-bearer element.
+        if (selector->match() == CSSSelector::Match::PseudoElement)
+            continue;
+        context.compoundPeers.append(selector);
     }
     if (context.compoundPeers.isEmpty())
         return { };
