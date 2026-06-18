@@ -269,3 +269,6 @@ inspector/css/getMatchedStylesForNodeAdoptedStyleSheet.html [ Skip ]
 
 # rdar://178066625
 imported/w3c/web-platform-tests/html/user-activation/propagation-crossorigin.sub.html [ Failure ]
+
+imported/w3c/web-platform-tests/svg/painting/reftests/non-scaling-stroke-non-uniform-scale.html [ Skip ]
+imported/w3c/web-platform-tests/svg/painting/reftests/non-scaling-stroke-with-none-preserve-aspect-ratio.html  [ Skip ]
