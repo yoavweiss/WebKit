@@ -63,7 +63,9 @@ async function initMapKit() {
     map.addEventListener("select", (event) => {
         if (event.annotation && event.annotation.data) {
             document.querySelectorAll(".poi-item").forEach(el => {
-                el.classList.toggle("selected", annotations[parseInt(el.dataset.index)] === event.annotation);
+                const selected = annotations[parseInt(el.dataset.index)] === event.annotation;
+                el.classList.toggle("selected", selected);
+                el.setAttribute("aria-pressed", selected ? "true" : "false");
             });
         }
     });
@@ -101,9 +103,13 @@ function renderList() {
             const item = itemTemplate.content.cloneNode(true).firstElementChild;
             item.dataset.index = idx;
             item.querySelector(".poi-item-name").textContent = annotation.title;
+            item.setAttribute("aria-pressed", "false");
             item.addEventListener("click", () => {
                 map.selectedAnnotation = annotation;
                 map.setCenterAnimated(annotation.coordinate);
+                document.querySelectorAll(".poi-item").forEach(el => {
+                    el.setAttribute("aria-pressed", el === item ? "true" : "false");
+                });
             });
             list.appendChild(item);
         });

@@ -185,11 +185,22 @@ nav {
     cursor: pointer;
     transition: background 0.1s;
     gap: 12px;
+    width: 100%;
+    background: none;
+    border: none;
     border-top: 1px solid #F5F3EF;
+    border-radius: 0;
+    font: inherit;
+    text-align: left;
 }
 
 .poi-item:hover { background: #FAFAF8; }
 .poi-item.selected { background: #F5F3EF; }
+
+.poi-item:focus-visible {
+    outline: 2px solid #007AFF;
+    outline-offset: -2px;
+}
 
 .poi-item-info {
     flex: 1;
@@ -214,3 +225,34 @@ nav {
 
 .poi-item:hover .poi-item-chevron,
 .poi-item.selected .poi-item-chevron { color: var(--subtle); }
+
+@media (max-width: 767px) {
+    nav {
+        padding: 0 16px;
+    }
+
+    .hero {
+        padding: 0 16px 24px;
+    }
+
+    .hero h1 {
+        font-size: 24px;
+    }
+
+    .page {
+        padding: 16px;
+    }
+
+    .content-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .map-embed {
+        position: static;
+    }
+
+    #map {
+        aspect-ratio: 4 / 3;
+    }
+}
