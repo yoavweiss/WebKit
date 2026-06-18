@@ -523,8 +523,10 @@ void SkiaCompositingLayer::paintContents(SkCanvas& canvas, PaintContext& context
             if (!m_contentsBuffer && !m_contentsTiling.size.isEmpty())
                 return true;
 
+#if ENABLE(VIDEO)
             if (is<CoordinatedPlatformLayerBufferHolePunch>(m_contentsBuffer))
                 return true;
+#endif
 
             // FIXME: clip is not correctly applied with batched painting.
             if (!m_contentsClippingRect.rect().contains(m_contentsRect))
@@ -544,6 +546,7 @@ void SkiaCompositingLayer::paintContents(SkCanvas& canvas, PaintContext& context
         sk_sp<SkImage> image;
 
         if (m_contentsBuffer) {
+#if ENABLE(VIDEO)
             if (is<CoordinatedPlatformLayerBufferHolePunch>(*m_contentsBuffer)) {
 #if USE(GSTREAMER)
                 TransformationMatrix matrix = canvas.getLocalToDevice();
@@ -553,6 +556,7 @@ void SkiaCompositingLayer::paintContents(SkCanvas& canvas, PaintContext& context
                 paint.setBlendMode(SkBlendMode::kClear);
                 canvas.drawRect(SkRect(m_contentsRect), paint);
             } else
+#endif // ENABLE(VIDEO)
                 image = m_contentsBuffer->skiaImage();
         } else if (auto* buffer = m_imageBackingStore->buffer()) {
             image = buffer->skiaImage();
