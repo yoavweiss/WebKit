@@ -290,13 +290,12 @@ struct TraversalContext {
     const Request originalRequest;
     const ClientNodeAttributesMap clientNodeAttributes;
     const TextAndSelectedRangeMap visibleText;
-    const WeakHashSet<Node, WeakPtrImplWithEventTargetData> nodesToSkip;
+    const HashSet<Ref<Node>> nodesToSkip;
     const std::optional<FloatRect> rectInRootView;
     const FrameIdentifier frameIdentifier;
     Vector<WeakPtr<Node, WeakPtrImplWithEventTargetData>> enclosingBlocks;
-    WeakHashMap<Node, unsigned, WeakPtrImplWithEventTargetData> enclosingBlockNumberMap;
-    WeakHashSet<Node, WeakPtrImplWithEventTargetData> additionalContainersToCollect;
-    WeakHashSet<Node, WeakPtrImplWithEventTargetData> visitedContainers;
+    HashMap<Ref<Node>, unsigned> enclosingBlockNumberMap;
+    HashSet<Ref<Node>> additionalContainersToCollect;
     unsigned inAdditionalContainerToCollectCount { 0 };
     unsigned depth { 0 };
     Vector<bool, 1> hasOverflowItemsStack;
@@ -319,10 +318,10 @@ struct TraversalContext {
         return visualBlockContainerStack.isEmpty() ? 0 : visualBlockContainerStack.last();
     }
 
-    void pushEnclosingBlock(const Node& node)
+    void pushEnclosingBlock(Node& node)
     {
         enclosingBlocks.append(node);
-        enclosingBlockNumberMap.add(node, 1 + enclosingBlockNumberMap.computeSize());
+        enclosingBlockNumberMap.add(node, 1 + enclosingBlockNumberMap.size());
     }
 
     unsigned enclosingBlockNumber() const
@@ -940,11 +939,6 @@ static inline void extractRecursive(Node& node, Item& parentItem, TraversalConte
     if (context.nodesToSkip.contains(node))
         return;
 
-    if (RefPtr container = dynamicDowncast<ContainerNode>(node)) {
-        if (!context.visitedContainers.add(*container).isNewEntry)
-            return;
-    }
-
     ++context.depth;
     auto depthScope = makeScopeExit([&] {
         --context.depth;
@@ -1404,7 +1398,23 @@ static RefPtr<ContainerNode> findContainerNodeForDataDetectorResults(Node& rootN
 Result extractItem(Request&& request, LocalFrame& frame)
 {
     auto frameID = frame.frameID();
-    Item root { ScrollableItemData { }, { }, { }, { }, { }, frameID, { }, { }, { }, { }, { }, { }, { }, 0 };
+    Item root {
+        ScrollableItemData { },
+        { } /* rectInRootView */,
+        { } /* children */,
+        { } /* nodeName */,
+        { } /* nodeIdentifier */,
+        frameID,
+        { } /* eventListeners */,
+        { } /* ariaAttributes */,
+        { } /* accessibilityRole */,
+        { } /* title */,
+        { } /* clientAttributes */,
+        { } /* classNames */,
+        { } /* idAttribute */,
+        0 /* enclosingBlockNumber */
+    };
+
     RefPtr document = frame.document();
     if (!document)
         return { root, 0, { } };
@@ -1468,13 +1478,13 @@ Result extractItem(Request&& request, LocalFrame& frame)
 
         auto includeTextInAutoFilledControls = request.includeTextInAutoFilledControls ? IncludeTextInAutoFilledControls::Yes : IncludeTextInAutoFilledControls::No;
 
-        WeakHashSet<Node, WeakPtrImplWithEventTargetData> nodesToSkip;
+        HashSet<Ref<Node>> nodesToSkip;
         for (auto identifier : request.handleIdentifiersOfNodesToSkip) {
             if (RefPtr node = nodeFromJSHandle(identifier))
                 nodesToSkip.add(node.releaseNonNull());
         }
 
-        WeakHashSet<Node, WeakPtrImplWithEventTargetData> additionalContainersToCollect;
+        HashSet<Ref<Node>> additionalContainersToCollect;
         RefPtr extractionRoot = dynamicDowncast<ContainerNode>(*extractionRootNode);
         if (extractionRoot && request.includeOffscreenPasswordFields && request.collectionRectInRootView) {
             OrderedHashSet<Ref<HTMLElement>> targetedElements;
@@ -1509,7 +1519,6 @@ Result extractItem(Request&& request, LocalFrame& frame)
             .enclosingBlocks = { },
             .enclosingBlockNumberMap = { },
             .additionalContainersToCollect = WTF::move(additionalContainersToCollect),
-            .visitedContainers = { },
             .inAdditionalContainerToCollectCount = 0,
             .depth = 0,
             .hasOverflowItemsStack = { false },

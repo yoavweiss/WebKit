@@ -354,7 +354,7 @@ TEST(TextExtractionTests, InteractionDebugDescription)
 
         [interaction setNodeIdentifier:extractNodeIdentifier(debugText, @"Open menu")];
         description = [interaction debugDescriptionInWebView:webView error:&error];
-        EXPECT_WK_STREQ("Click on img labeled “Open menu” under link with href “/menu”", description);
+        EXPECT_WK_STREQ("Click on img labeled “Open menu” under link with href “/menu” with id “menu-link”", description);
         EXPECT_NULL(error);
 
         [interaction setNodeIdentifier:extractNodeIdentifier(debugText, @"Checkmark icon")];
@@ -728,10 +728,11 @@ TEST(TextExtractionTests, NodesToSkip)
     }()];
 
     NSArray<NSString *> *lines = [debugText componentsSeparatedByString:@"\n"];
-    EXPECT_EQ([lines count], 3u);
+    EXPECT_EQ([lines count], 4u);
     EXPECT_WK_STREQ("Test", lines[0]);
     EXPECT_WK_STREQ("subject SUBJECT", lines[1]);
-    EXPECT_WK_STREQ("0", lines[2]);
+    EXPECT_WK_STREQ("![]() [](file:///menu)![]()", lines[2]);
+    EXPECT_WK_STREQ("0", lines[3]);
 }
 
 TEST(TextExtractionTests, RequestJSHandleForNodeIdentifier)
