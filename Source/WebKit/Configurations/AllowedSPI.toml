@@ -337,10 +337,3 @@ request = "rdar://171940190"
 selectors = [
     { name = "endSessionWithCompletion:", class = "NFSession" },
 ]
-
-[[temporary-usage]]
-request = "rdar://180017345"
-cleanup = "rdar://180017469"
-symbols = [
-    "CGImageSetCachingFlags",
-]
