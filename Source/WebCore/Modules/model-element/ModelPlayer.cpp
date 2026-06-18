@@ -28,7 +28,6 @@
 
 #include "Color.h"
 #include "FloatPoint3D.h"
-#include "ImageBuffer.h"
 #include "ModelPlayerAnimationState.h"
 #include "ModelPlayerTransformState.h"
 #include "TransformationMatrix.h"
@@ -66,11 +65,6 @@ void ModelPlayer::reload(Model&, LayoutSize, ModelPlayerAnimationState&, std::un
 
 void ModelPlayer::visibilityStateDidChange()
 {
-}
-
-RefPtr<ImageBuffer> ModelPlayer::snapshotCurrentFrame(const FloatSize&, const DestinationColorSpace&)
-{
-    return nullptr;
 }
 
 #if ENABLE(MODEL_ELEMENT_BOUNDING_BOX)

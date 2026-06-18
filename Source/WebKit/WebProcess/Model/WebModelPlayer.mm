@@ -36,7 +36,6 @@
 #import "RemoteGPUProxy.h"
 #import "RemoteMeshProxy.h"
 #import "WKStageModeOrbitSimulator.h"
-#import <WebCore/Chrome.h>
 #import <WebCore/Document.h>
 #import <WebCore/DocumentEventLoop.h>
 #import <WebCore/FloatPoint3D.h>
@@ -44,7 +43,6 @@
 #import <WebCore/GraphicsLayer.h>
 #import <WebCore/GraphicsLayerContentsDisplayDelegate.h>
 #import <WebCore/HTMLModelElement.h>
-#import <WebCore/ImageBuffer.h>
 #import <WebCore/ModelPlayerAnimationState.h>
 #import <WebCore/ModelPlayerGraphicsLayerConfiguration.h>
 #import <WebCore/ModelPlayerTransformState.h>
@@ -208,7 +206,6 @@ void WebModelPlayer::load(WebCore::Model& modelSource, WebCore::LayoutSize size,
     m_didFinishLoading = false;
     m_renderTextureIndex = 0;
     m_displayTextureIndex = 0;
-    m_hasRenderedFrame = false;
     m_isUpdateLoopRunning = false;
     RefPtr document = corePage->localTopDocument();
     if (!document)
@@ -246,7 +243,6 @@ void WebModelPlayer::load(WebCore::Model& modelSource, WebCore::LayoutSize size,
             protectedThis->m_displayBuffers = WTF::move(surfaceHandles);
             protectedThis->m_renderTextureIndex = 0;
             protectedThis->m_displayTextureIndex = 0;
-            protectedThis->m_hasRenderedFrame = false;
             protectedThis->updateScreenHeadroomFromPage();
         }
     });
@@ -367,7 +363,6 @@ void WebModelPlayer::sizeDidChange(WebCore::LayoutSize size)
         protectedThis->m_displayBuffers = WTF::move(newBuffers);
         protectedThis->m_renderTextureIndex = 0;
         protectedThis->m_displayTextureIndex = 0;
-        protectedThis->m_hasRenderedFrame = false;
         if (protectedThis->m_contentsDisplayDelegate)
             protect(protectedThis->m_contentsDisplayDelegate)->setDisplayBuffer(*protectedThis->displayBuffer());
         protectedThis->startUpdateLoopIfNeeded();
@@ -519,25 +514,6 @@ const MachSendRight* WebModelPlayer::displayBuffer() const
     return &m_displayBuffers[m_displayTextureIndex];
 }
 
-RefPtr<WebCore::ImageBuffer> WebModelPlayer::snapshotCurrentFrame(const WebCore::FloatSize& deviceSize, const WebCore::DestinationColorSpace& colorSpace)
-{
-    RefPtr currentModel { m_currentModel };
-    if (!currentModel || !m_hasRenderedFrame || m_displayTextureIndex >= m_displayBuffers.size())
-        return nullptr;
-
-    RefPtr corePage { m_page.get() };
-    if (!corePage)
-        return nullptr;
-
-    RefPtr imageBuffer { WebCore::ImageBuffer::create(deviceSize, WebCore::RenderingMode::Accelerated, WebCore::RenderingPurpose::Snapshot, 1, colorSpace, WebCore::PixelFormat::BGRA8, &corePage->chrome()) };
-    if (!imageBuffer)
-        return nullptr;
-
-    imageBuffer->flushDrawingContext();
-    currentModel->paintCurrentFrameToImageBuffer(imageBuffer->renderingResourceIdentifier(), m_displayTextureIndex);
-    return imageBuffer;
-}
-
 WebCore::GraphicsLayerContentsDisplayDelegate* WebModelPlayer::contentsDisplayDelegate()
 {
     if (auto buffer = displayBuffer(); !m_contentsDisplayDelegate && buffer) {
@@ -672,7 +648,6 @@ bool WebModelPlayer::render()
                 return;
 
             protectedThis->m_displayTextureIndex = textureIndex;
-            protectedThis->m_hasRenderedFrame = true;
             if (auto* machSendRight = protectedThis->displayBuffer(); machSendRight && protectedThis->contentsDisplayDelegate()) {
                 Ref delegate = *protectedThis->m_contentsDisplayDelegate;
 #if HAVE(SUPPORT_HDR_DISPLAY) && ENABLE(PIXEL_FORMAT_RGBA16F)
@@ -870,7 +845,6 @@ void WebModelPlayer::visibilityStateDidChange()
         m_isUpdateScheduled = false;
         m_isUpdating = false;
         m_displayTextureIndex = 0;
-        m_hasRenderedFrame = false;
 #if HAVE(SUPPORT_HDR_DISPLAY) && ENABLE(PIXEL_FORMAT_RGBA16F)
         m_cachedModelSource = nullptr;
 #endif

@@ -32,7 +32,6 @@
 #include <WebCore/IntSize.h>
 #include <WebCore/PixelFormat.h>
 #include <WebCore/ProcessIdentity.h>
-#include <wtf/Forward.h>
 #include <wtf/TZoneMalloc.h>
 #include <wtf/spi/cocoa/IOSurfaceSPI.h>
 
@@ -44,7 +43,6 @@ class TextStream;
 namespace WebCore {
 
 class IOSurfacePool;
-class NativeImage;
 
 enum class RenderingPurpose : uint8_t;
 enum class SetNonVolatileResult : uint8_t;
@@ -170,7 +168,6 @@ public:
     // the context, or an expensive GPU readback can result.
     // Passed in context is the context through which the contents was drawn.
     WEBCORE_EXPORT RetainPtr<CGImageRef> createImage(CGContextRef);
-    WEBCORE_EXPORT RefPtr<NativeImage> createNativeImage();
     // Passed in context is the context through which the contents was drawn.
     WEBCORE_EXPORT static RetainPtr<CGImageRef> sinkIntoImage(std::unique_ptr<IOSurface>, RetainPtr<CGContextRef> = nullptr);
 
