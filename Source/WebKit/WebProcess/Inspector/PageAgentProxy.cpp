@@ -42,6 +42,7 @@
 #include <WebCore/FrameTree.h>
 #include <WebCore/HTMLFrameOwnerElement.h>
 #include <WebCore/HTMLNames.h>
+#include <WebCore/InspectorIdentifierRegistry.h>
 #include <WebCore/LocalFrameInlines.h>
 #include <WebCore/Page.h>
 #include <WebCore/PageInspectorController.h>
@@ -147,11 +148,17 @@ void PageAgentProxy::frameNavigated(LocalFrame& frame)
             name = ownerElement->attributeWithoutSynchronization(WebCore::HTMLNames::idAttr);
     }
 
+    // Send the committed document's ScriptExecutionContextIdentifier as the loaderId; the
+    // UIProcess derives the deterministic, hosting-process-qualified protocol loaderId string
+    // from it (consistent across processes, unlike the per-process IdentifierRegistry loaderId).
+    // See webkit.org/b/308895.
+    auto loaderId = document->identifier();
+
     RefPtr connection = WebProcess::singleton().parentProcessConnection();
     if (!connection)
         return;
     connection->send(
-        Messages::ProxyingPageAgent::FrameNavigated(frameID, url, mimeType, securityOrigin, parentFrameID, name),
+        Messages::ProxyingPageAgent::FrameNavigated(frameID, url, mimeType, securityOrigin, parentFrameID, name, loaderId),
         m_page->identifier());
 }
 

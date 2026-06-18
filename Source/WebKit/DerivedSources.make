@@ -766,6 +766,7 @@ SERIALIZATION_DESCRIPTION_FILES = \
 	Shared/ImageOptions.serialization.in \
 	Shared/InspectorExtensionTypes.serialization.in \
 	Shared/InspectorNetworkTypes.serialization.in \
+	Shared/InspectorPageTypes.serialization.in \
 	Shared/IPCTester.serialization.in \
 	Shared/ios/DynamicViewportSizeUpdate.serialization.in \
 	Shared/ios/HardwareKeyboardState.serialization.in \

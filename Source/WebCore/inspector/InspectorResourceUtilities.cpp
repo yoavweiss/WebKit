@@ -171,6 +171,51 @@ void resourceContent(Inspector::Protocol::ErrorString& errorString, LocalFrame* 
         errorString = "Missing resource for given url"_s;
 }
 
+Ref<JSON::ArrayOf<Inspector::Protocol::Page::FrameResource>> buildResourceObjectsForFrame(LocalFrame& frame)
+{
+    auto resources = JSON::ArrayOf<Inspector::Protocol::Page::FrameResource>::create();
+    for (auto& resource : buildResourceDataForFrame(frame))
+        resources->addItem(buildResourceObject(resource));
+    return resources;
+}
+
+Vector<Inspector::FrameResource> buildResourceDataForFrame(LocalFrame& frame)
+{
+    Vector<Inspector::FrameResource> resources;
+    for (RefPtr cachedResource : cachedResourcesForFrame(&frame)) {
+        Inspector::FrameResource resource;
+        resource.url = cachedResource->url().string();
+        resource.type = inspectorResourceType(*cachedResource);
+        resource.mimeType = cachedResource->response().mimeType();
+        if (cachedResource->wasCanceled())
+            resource.canceled = true;
+        else if (cachedResource->status() == CachedResource::LoadError || cachedResource->status() == CachedResource::DecodeError)
+            resource.failed = true;
+        resource.sourceMapURL = sourceMapURLForResource(cachedResource.get());
+        resource.targetId = cachedResource->resourceRequest().initiatorIdentifier();
+        resources.append(WTF::move(resource));
+    }
+    return resources;
+}
+
+Ref<Inspector::Protocol::Page::FrameResource> buildResourceObject(const Inspector::FrameResource& resource)
+{
+    auto resourceObject = Inspector::Protocol::Page::FrameResource::create()
+        .setUrl(resource.url)
+        .setType(resourceTypeToProtocol(resource.type))
+        .setMimeType(resource.mimeType)
+        .release();
+    if (resource.canceled)
+        resourceObject->setCanceled(true);
+    else if (resource.failed)
+        resourceObject->setFailed(true);
+    if (!resource.sourceMapURL.isEmpty())
+        resourceObject->setSourceMapURL(resource.sourceMapURL);
+    if (!resource.targetId.isEmpty())
+        resourceObject->setTargetId(resource.targetId);
+    return resourceObject;
+}
+
 String sourceMapURLForResource(CachedResource* cachedResource)
 {
     if (!cachedResource)

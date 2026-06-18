@@ -535,13 +535,15 @@ Inspector::Protocol::ErrorStringOr<void> InspectorPageAgent::deleteCookie(const 
     return { };
 }
 
-Inspector::Protocol::ErrorStringOr<Ref<Inspector::Protocol::Page::FrameResourceTree>> InspectorPageAgent::getResourceTree()
+void InspectorPageAgent::getResourceTree(Ref<GetResourceTreeCallback>&& callback)
 {
     RefPtr localMainFrame = m_inspectedPage->localMainFrame();
-    if (!localMainFrame)
-        return makeUnexpected("Main frame isn't local"_s);
+    if (!localMainFrame) {
+        callback->sendFailure("Main frame isn't local"_s);
+        return;
+    }
 
-    return buildObjectForFrameTree(localMainFrame.get());
+    callback->sendSuccess(buildObjectForFrameTree(localMainFrame.get()));
 }
 
 Inspector::Protocol::ErrorStringOr<std::tuple<String, bool /* base64Encoded */>> InspectorPageAgent::getResourceContent(const Inspector::Protocol::Network::FrameId& frameId, const String& url)
@@ -869,32 +871,27 @@ Ref<Inspector::Protocol::Page::FrameResourceTree> InspectorPageAgent::buildObjec
             .release();
     }
 
-    auto* localFrame = downcast<LocalFrame>(frame);
-    auto frameObject = buildObjectForFrame(localFrame);
-    auto subresources = JSON::ArrayOf<Inspector::Protocol::Page::FrameResource>::create();
+    RefPtr localFrame = dynamicDowncast<LocalFrame>(frame);
+    if (!localFrame) {
+        // A non-null Frame is either a RemoteFrame (handled above) or a LocalFrame; if that ever
+        // changes, degrade to a resource-less stub rather than dereferencing null.
+        return Inspector::Protocol::Page::FrameResourceTree::create()
+            .setFrame(Inspector::Protocol::Page::Frame::create()
+                .setId(frameId(frame))
+                .setLoaderId(emptyString())
+                .setUrl(emptyString())
+                .setMimeType("text/html"_s)
+                .setSecurityOrigin(emptyString())
+                .release())
+            .setResources(JSON::ArrayOf<Inspector::Protocol::Page::FrameResource>::create())
+            .release();
+    }
+
+    auto frameObject = buildObjectForFrame(localFrame.get());
     auto result = Inspector::Protocol::Page::FrameResourceTree::create()
         .setFrame(WTF::move(frameObject))
-        .setResources(subresources.copyRef())
+        .setResources(ResourceUtilities::buildResourceObjectsForFrame(*localFrame))
         .release();
-
-    for (auto* cachedResource : ResourceUtilities::cachedResourcesForFrame(localFrame)) {
-        auto resourceObject = Inspector::Protocol::Page::FrameResource::create()
-            .setUrl(cachedResource->url().string())
-            .setType(ResourceUtilities::cachedResourceTypeToProtocol(*cachedResource))
-            .setMimeType(cachedResource->response().mimeType())
-            .release();
-        if (cachedResource->wasCanceled())
-            resourceObject->setCanceled(true);
-        else if (cachedResource->status() == CachedResource::LoadError || cachedResource->status() == CachedResource::DecodeError)
-            resourceObject->setFailed(true);
-        String sourceMappingURL = ResourceUtilities::sourceMapURLForResource(cachedResource);
-        if (!sourceMappingURL.isEmpty())
-            resourceObject->setSourceMapURL(sourceMappingURL);
-        String targetId = cachedResource->resourceRequest().initiatorIdentifier();
-        if (!targetId.isEmpty())
-            resourceObject->setTargetId(targetId);
-        subresources->addItem(WTF::move(resourceObject));
-    }
 
     RefPtr<JSON::ArrayOf<Inspector::Protocol::Page::FrameResourceTree>> childrenArray;
     for (Frame* child = localFrame->tree().firstChild(); child; child = child->tree().nextSibling()) {

@@ -36,6 +36,10 @@
 #include <wtf/ThreadSafeRefCounted.h>
 #include <wtf/text/WTFString.h>
 
+namespace Inspector {
+struct FrameResourceData;
+}
+
 namespace WebKit {
 
 class FrameNetworkAgentProxy;
@@ -96,6 +100,7 @@ public:
 
     void enablePageInstrumentation();
     void disablePageInstrumentation();
+    void getFrameResourceData(Vector<WebCore::FrameIdentifier>&& frameIDs, CompletionHandler<void(Vector<std::pair<WebCore::FrameIdentifier, Inspector::FrameResourceData>>&&)>&&);
 
     // Set up / tear down every per-frame instrumentation agent for a frame. Callers
     // don't need to know which agents are frame-scoped; each helper no-ops unless its

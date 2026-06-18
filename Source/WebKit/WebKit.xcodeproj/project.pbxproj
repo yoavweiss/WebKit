@@ -7405,6 +7405,7 @@
 		A1B2C3D4E5F60719DEADBEF0 /* PageAgentProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PageAgentProxy.h; sourceTree = "<group>"; };
 		A1B2C3D4E5F6071ADEADBEF0 /* PageAgentProxy.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = PageAgentProxy.cpp; sourceTree = "<group>"; };
 		B59E825E9829F560E50AE308 /* InspectorNetworkTypes.serialization.in */ = {isa = PBXFileReference; lastKnownFileType = text; path = InspectorNetworkTypes.serialization.in; sourceTree = "<group>"; };
+		FB65855426154F6E9CDBD7F9 /* InspectorPageTypes.serialization.in */ = {isa = PBXFileReference; lastKnownFileType = text; path = InspectorPageTypes.serialization.in; sourceTree = "<group>"; };
 		9197940723DBC4CA00257892 /* WebPageInspectorAgentBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebPageInspectorAgentBase.h; sourceTree = "<group>"; };
 		9197940923DBC4E000257892 /* APIInspectorClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APIInspectorClient.h; sourceTree = "<group>"; };
 		9197940B23DBC50300257892 /* _WKInspectorDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = _WKInspectorDelegate.h; sourceTree = "<group>"; };
@@ -10383,6 +10384,7 @@
 				99BE3B1625433B9400C6551C /* InspectorExtensionTypes.h */,
 				2D9BECF72B309B5A00D0AE99 /* InspectorExtensionTypes.serialization.in */,
 				B59E825E9829F560E50AE308 /* InspectorNetworkTypes.serialization.in */,
+				FB65855426154F6E9CDBD7F9 /* InspectorPageTypes.serialization.in */,
 				7BBA63DD280E93B600B04823 /* IPCConnectionTester.cpp */,
 				7BBA63DE280E93B600B04823 /* IPCConnectionTester.h */,
 				7BBA63DC280E93B500B04823 /* IPCConnectionTesterIdentifier.h */,

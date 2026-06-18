@@ -35,12 +35,15 @@
 #include "WebPage.h"
 #include "WebProcess.h"
 #include <WebCore/Chrome.h>
+#include <WebCore/Document.h>
 #include <WebCore/DocumentView.h>
 #include <WebCore/FrameInspectorController.h>
 #include <WebCore/FrameLoadRequest.h>
 #include <WebCore/FrameLoader.h>
 #include <WebCore/InspectorFrontendClient.h>
+#include <WebCore/InspectorIdentifierRegistry.h>
 #include <WebCore/InspectorPageAgent.h>
+#include <WebCore/InspectorResourceUtilities.h>
 #include <WebCore/LocalFrame.h>
 #include <WebCore/LocalFrameInlines.h>
 #include <WebCore/LocalFrameView.h>
@@ -480,6 +483,37 @@ void WebInspectorBackend::disablePageInstrumentation()
     // DisablePageInstrumentation IPC, not process teardown).
     m_framePageAgentProxies.clear();
     m_pageInstrumentationEnabled = false;
+}
+
+
+void WebInspectorBackend::getFrameResourceData(Vector<WebCore::FrameIdentifier>&& frameIDs, CompletionHandler<void(Vector<std::pair<WebCore::FrameIdentifier, Inspector::FrameResourceData>>&&)>&& completionHandler)
+{
+    // Return, for each requested frame that is local to this WebContent process, its committed
+    // document's loaderId (as a ScriptExecutionContextIdentifier) and cached subresources. The
+    // UIProcess ProxyingPageAgent walks the authoritative cross-process frame tree, groups frame
+    // IDs by hosting process, and asks each process only for the frames it hosts; it then builds
+    // the Page.getResourceTree protocol objects from this typed data under Site Isolation. Frames
+    // not local to this process are silently skipped (another process answers for them).
+    // See webkit.org/b/308896.
+    Vector<std::pair<WebCore::FrameIdentifier, Inspector::FrameResourceData>> resourcesByFrame;
+    resourcesByFrame.reserveInitialCapacity(frameIDs.size());
+
+    for (auto frameID : frameIDs) {
+        RefPtr webFrame = WebProcess::singleton().webFrame(frameID);
+        if (!webFrame)
+            continue;
+        RefPtr localFrame = webFrame->coreLocalFrame();
+        if (!localFrame)
+            continue;
+
+        Inspector::FrameResourceData frameData;
+        if (RefPtr document = localFrame->document())
+            frameData.loaderId = document->identifier();
+        frameData.resources = Inspector::ResourceUtilities::buildResourceDataForFrame(*localFrame);
+        resourcesByFrame.append({ frameID, WTF::move(frameData) });
+    }
+
+    completionHandler(WTF::move(resourcesByFrame));
 }
 
 } // namespace WebKit
