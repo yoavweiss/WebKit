@@ -71,6 +71,7 @@ struct CacheControlDirectives {
 
     Markable<Seconds> maxAge;
     Markable<Seconds> maxStale;
+    Markable<Seconds> minFresh;
     Markable<Seconds> staleWhileRevalidate;
     bool noCache : 1;
     bool noStore : 1;

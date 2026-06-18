@@ -324,6 +324,13 @@ CacheControlDirectives parseCacheControlDirectives(const HTTPHeaderMap& headers)
                 double maxStale = directives[i].second.toDouble(ok);
                 if (ok)
                     result.maxStale = Seconds { maxStale };
+            } else if (equalLettersIgnoringASCIICase(directives[i].first, "min-fresh"_s)) {
+                if (result.minFresh)
+                    continue;
+                bool ok;
+                double minFresh = directives[i].second.toDouble(ok);
+                if (ok)
+                    result.minFresh = Seconds { minFresh };
             } else if (equalLettersIgnoringASCIICase(directives[i].first, "immutable"_s)) {
                 result.immutable = true;
             } else if (equalLettersIgnoringASCIICase(directives[i].first, "stale-while-revalidate"_s)) {
