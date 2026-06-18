@@ -170,9 +170,7 @@ protected:
     std::unique_ptr<PropertyInlineCacheClearingWatchpoint> m_watchpoint;
 };
 
-// The MSVC ABI ignores [[no_unique_address]], so RefCountedBase's NO_UNIQUE_ADDRESS member occupies
-// storage and shifts every field by 8 on Windows. Skip the layout guard there.
-#if !ASSERT_ENABLED && !ASAN_ENABLED && CPU(ARM64) && CPU(ADDRESS64) && !OS(WINDOWS)
+#if !ASSERT_ENABLED && !ASAN_ENABLED && CPU(ARM64) && CPU(ADDRESS64)
 static_assert(InlineCacheHandler::offsetOfUid() == 40, "InlineCacheHandler hot field layout drifted.");
 #endif
 
