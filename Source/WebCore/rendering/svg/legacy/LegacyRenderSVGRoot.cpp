@@ -245,6 +245,7 @@ void LegacyRenderSVGRoot::layout()
     clearOverflow();
     if (!shouldApplyViewportClip())
         addVisualOverflow(computeContentsInkOverflow());
+    addVisualEffectOverflow();
 
     updateLayerTransform();
     m_hasBoxDecorations = isDocumentElementRenderer() ? hasVisibleBoxDecorationStyle() : hasVisibleBoxDecorations();
