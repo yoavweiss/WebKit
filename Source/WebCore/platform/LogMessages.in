@@ -205,4 +205,6 @@ SubResourceLoaderWillSendRequestInternalResourceLoadCancelledTooManyRedirects, "
 SubResourceLoaderWillSendRequestInternalResourceLoadCompleted, "[pageID=%" PRIu64 ", frameID=%" PRIu64 ", resourceID=%" PRIu64 " SubResourceLoader::willSendRequestInternal: resource load completed", (uint64_t, uint64_t, uint64_t), DEFAULT, ResourceLoading
 SubResourceLoaderWillSendRequestInternalResourceLoadFinished, "[pageID=%" PRIu64 ", frameID=%" PRIu64 ", resourceID=%" PRIu64 " SubResourceLoader::willSendRequestInternal: resource load finished; calling completion handler", (uint64_t, uint64_t, uint64_t), DEFAULT, ResourceLoading
 SubResourceLoaderWillSendRequestInternalTerminalStateCallingCompletionHandler, "[pageID=%" PRIu64 ", frameID=%" PRIu64 ", resourceID=%" PRIu64 " SubResourceLoader::willSendRequestInternal: reached terminal state; calling completion handler", (uint64_t, uint64_t, uint64_t), DEFAULT, ResourceLoading
+UserActivityImplBeginActivity, "UserActivity::Impl::beginActivity: description=%" PUBLIC_LOG_STRING, (CString), DEFAULT, ActivityState
+UserActivityImplEndActivity, "UserActivity::Impl::endActivity: description=%" PUBLIC_LOG_STRING, (CString), DEFAULT, ActivityState
 WebCoreTestLog, "WebCore log message for testing (%u)", (unsigned), DEFAULT, Testing
