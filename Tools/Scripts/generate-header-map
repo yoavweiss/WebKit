@@ -50,7 +50,16 @@ def _load_hmaptool():
     return module
 
 
-def collect_mappings(directories, framework=None):
+def _project_relative_components(path, roots):
+    # Components of 'path' that are within any of the 'roots'.
+    path = os.path.abspath(path)
+    for root in sorted((os.path.abspath(r) for r in roots or ()), key=len, reverse=True):
+        if path == root or path.startswith(root + os.sep):
+            return path[len(root):].split(os.sep)
+    return path.split(os.sep)
+
+
+def collect_mappings(directories, framework=None, roots=None):
     mappings = {}
     lowercase_owners = {}
     # When --framework NAME is set, also scan a `<dir>/<NAME>/` subdirectory if
@@ -63,7 +72,7 @@ def collect_mappings(directories, framework=None):
     if framework:
         for d in directories:
             d_abs = os.path.abspath(d)
-            if framework not in d_abs.split(os.sep):
+            if framework not in _project_relative_components(d_abs, roots):
                 continue
             sub = os.path.join(d_abs, framework)
             if os.path.isdir(sub):
@@ -97,14 +106,14 @@ def collect_mappings(directories, framework=None):
     return mappings
 
 
-def _generate(directories, framework, output, write_headermap):
-    mappings = collect_mappings([d for d in directories if d], framework)
+def _generate(directories, framework, output, write_headermap, roots=None):
+    mappings = collect_mappings([d for d in directories if d], framework, roots)
     # Sort keys for deterministic output (clang header maps are order-sensitive
     # in their bucket layout; sorting keeps regenerated maps byte-stable).
     write_headermap(dict(sorted(mappings.items())), output)
 
 
-def run_header_maps_dir(header_maps_dir):
+def run_header_maps_dir(header_maps_dir, roots=None):
     # Batch mode: every *.hmap.manifest in header_maps_dir is self-describing --
     # line 1 is the output .hmap path, line 2 the framework, lines 3+ the
     # directories. One interpreter launch and one hmaptool import for all
@@ -116,7 +125,7 @@ def run_header_maps_dir(header_maps_dir):
         with open(os.path.join(header_maps_dir, name)) as f:
             lines = f.read().splitlines()
         output, framework, directories = lines[0], lines[1] or None, lines[2:]
-        _generate(directories, framework, output, write_headermap)
+        _generate(directories, framework, output, write_headermap, roots)
     return 0
 
 
@@ -132,16 +141,22 @@ def main():
                         help='if set, also emit FRAMEWORK/Header.h entries so '
                              '<FRAMEWORK/Header.h> resolves to the source/derived path '
                              'without requiring a physical PrivateHeaders/ copy')
+    parser.add_argument('--root', action='append', dest='roots', default=[],
+                        help='a project root (source or build tree) to strip before '
+                             'judging whether a directory is framework-staged. May be '
+                             'repeated. Prevents an ancestor dir that happens to be '
+                             'named like the framework (e.g. a checkout under ~/WebKit) '
+                             'from falsely matching the staging heuristic.')
     args = parser.parse_args()
 
     if args.header_maps_dir:
-        return run_header_maps_dir(args.header_maps_dir)
+        return run_header_maps_dir(args.header_maps_dir, args.roots)
 
     if not args.dirs_file or not args.output:
         parser.error('--dirs-file and --output are required unless --header-maps-dir is given')
     with open(args.dirs_file) as f:
         directories = [line.strip() for line in f if line.strip()]
-    _generate(directories, args.framework, args.output, _load_hmaptool().write_headermap)
+    _generate(directories, args.framework, args.output, _load_hmaptool().write_headermap, args.roots)
     return 0
 
 

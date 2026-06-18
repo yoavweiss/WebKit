@@ -73,6 +73,8 @@ function(WEBKIT_GENERATE_HEADER_MAPS)
     execute_process(
         COMMAND "${PYTHON_EXECUTABLE}" "${TOOLS_DIR}/Scripts/generate-header-map"
                 --header-maps-dir "${CMAKE_BINARY_DIR}/HeaderMaps"
+                --root "${CMAKE_SOURCE_DIR}"
+                --root "${CMAKE_BINARY_DIR}"
         RESULT_VARIABLE _result
     )
     if (NOT _result EQUAL 0)
