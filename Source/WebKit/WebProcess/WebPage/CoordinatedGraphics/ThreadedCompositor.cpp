@@ -125,8 +125,8 @@ ThreadedCompositor::ThreadedCompositor(WebPage& webPage, LayerTreeHost& layerTre
 
         if (m_useSkia) {
             PlatformDisplay::sharedDisplay().setSkiaGLContextForCurrentThread(WTF::move(context));
-            const auto disableDDL = CStringView::unsafeFromUTF8(getenv("WEBKIT_SKIA_DISABLE_DDL"));
-            if (!disableDDL || disableDDL == "0"_s)
+            const auto enableDDL = CStringView::unsafeFromUTF8(getenv("WEBKIT_SKIA_ENABLE_DDL"));
+            if (enableDDL && enableDDL != "0"_s)
                 m_threadSafeGrContext = PlatformDisplay::sharedDisplay().skiaGrContext()->threadSafeProxy();
         } else {
             m_context = WTF::move(context);
