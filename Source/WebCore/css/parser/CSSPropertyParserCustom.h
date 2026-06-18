@@ -984,7 +984,7 @@ inline bool PropertyParserCustom::consumeAnimationShorthand(CSSParserTokenRange&
 
         for (size_t i = 0; i < longhandCount; ++i) {
             if (!parsedLonghand[i] && !isResetOnlyLonghand(shorthandProperties[i]))
-                longhands[i].append(Ref { CSSKeywordValue::implicitInitialValue() });
+                longhands[i].append(protect(CSSKeywordValue::implicitInitialValue()));
             parsedLonghand[i] = false;
         }
     } while (consumeCommaIncludingWhitespace(range));
@@ -1060,7 +1060,7 @@ inline bool PropertyParserCustom::consumeTransitionShorthand(CSSParserTokenRange
 
         for (size_t i = 0; i < longhandCount; ++i) {
             if (!parsedLonghand[i])
-                longhands[i].append(Ref { CSSKeywordValue::implicitInitialValue() });
+                longhands[i].append(protect(CSSKeywordValue::implicitInitialValue()));
             parsedLonghand[i] = false;
         }
     } while (consumeCommaIncludingWhitespace(range));
@@ -1235,7 +1235,7 @@ inline bool PropertyParserCustom::consumeBackgroundShorthand(CSSParserTokenRange
                 continue;
             }
             if (!parsedLonghand[i])
-                longhands[i].append(Ref { CSSKeywordValue::implicitInitialValue() });
+                longhands[i].append(protect(CSSKeywordValue::implicitInitialValue()));
         }
     } while (consumeCommaIncludingWhitespace(range));
     if (!range.atEnd())

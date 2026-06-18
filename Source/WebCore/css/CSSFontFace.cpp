@@ -98,7 +98,7 @@ Ref<CSSFontFace> CSSFontFace::create(CSSFontSelector& fontSelector, StyleRuleFon
 static Variant<Ref<MutableStyleProperties>, Ref<StyleRuleFontFace>> propertiesOrCSSConnection(StyleRuleFontFace* connection)
 {
     if (connection)
-        return Ref { *connection };
+        return protect(*connection);
     return MutableStyleProperties::create();
 }
 
@@ -627,7 +627,7 @@ void CSSFontFace::opportunisticallyStartFontDataURLLoading(DownloadableBinaryFon
 {
     // We don't want to go crazy here and blow the cache. Usually these data URLs are the first item in the src: list, so let's just check that one.
     if (!m_sources.isEmpty())
-        Ref { *m_sources[0] }->opportunisticallyStartFontDataURLLoading(trustedType);
+        protect(*m_sources[0])->opportunisticallyStartFontDataURLLoading(trustedType);
 }
 
 size_t CSSFontFace::pump(ExternalResourceDownloadPolicy policy)
@@ -763,7 +763,7 @@ void CSSFontFace::updateStyleIfNeeded()
 bool CSSFontFace::hasSVGFontFaceSource() const
 {
     return m_sources.containsIf([](auto& source) {
-        return Ref { *source }->isSVGFontFaceSource();
+        return protect(*source)->isSVGFontFaceSource();
     });
 }
 

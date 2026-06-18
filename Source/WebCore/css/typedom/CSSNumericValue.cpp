@@ -202,7 +202,7 @@ static ExceptionOr<Ref<CSSNumericValue>> invert(Ref<CSSNumericValue>&& value)
 {
     // https://drafts.css-houdini.org/css-typed-om/#cssmath-invert-a-cssnumericvalue
     if (auto* mathInvert = dynamicDowncast<CSSMathInvert>(value.get()))
-        return Ref { mathInvert->value() };
+        return protect(mathInvert->value());
 
     if (auto* unitValue = dynamicDowncast<CSSUnitValue>(value.get())) {
         if (unitValue->unitEnum() == CSSUnitType::CSS_NUMBER) {

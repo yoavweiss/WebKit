@@ -545,7 +545,7 @@ SelectorChecker::MatchResult SelectorChecker::matchRecursively(CheckingContext& 
     case CSSSelector::Relation::ShadowPartDescendant: {
         // Continue matching in the scope where this rule came from.
         RefPtr host = checkingContext.styleScopeOrdinal == Style::ScopeOrdinal::Element
-            ? RefPtr { context.element->shadowHost() }
+            ? protect(context.element->shadowHost())
             : Style::hostForScopeOrdinal(*context.element, checkingContext.styleScopeOrdinal);
         if (!host)
             return MatchResult::fails(Match::SelectorFailsCompletely);

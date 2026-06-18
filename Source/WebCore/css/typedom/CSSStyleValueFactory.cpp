@@ -172,7 +172,7 @@ ExceptionOr<Vector<Ref<CSSStyleValue>>> CSSStyleValueFactory::parseStyleValueFor
         if (CSSProperty::isListValuedProperty(propertyID)) {
             if (auto* values = dynamicDowncast<CSSValueContainingVector>(*cssValue)) {
                 for (Ref value : *values)
-                    cssValues.append(Ref { const_cast<CSSValue&>(value.get()) });
+                    cssValues.append(protect(const_cast<CSSValue&>(value.get())));
             }
         }
         if (cssValues.isEmpty())
