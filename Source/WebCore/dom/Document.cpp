@@ -2893,6 +2893,13 @@ void Document::updateSVGRenderer(SVGElement& element, Style::SVGRendererUpdateTy
     // true and force a resolveStyle pass every animation frame.
     if (kind == Style::SVGRendererUpdateType::TransformAttributeOnly) {
         if (CheckedPtr layerRenderer = dynamicDowncast<RenderLayerModelObject>(element.renderer())) {
+            // A transform attribute crossing the identity boundary flips requiresLayer() for a
+            // transformable container, and layers are only created or destroyed in styleDidChange, so
+            // route the crossing through a style recalc, but only when really necessary.
+            if (layerRenderer->svgTransformAttributeChangeInducesLayerComposition()) {
+                element.invalidateStyleAndLayerComposition();
+                return;
+            }
             if (RefPtr frameView = view())
                 frameView->layoutContext().addPendingSVGTransformAttributeUpdate(*layerRenderer);
         }
