@@ -133,6 +133,10 @@ Seconds computeFreshnessLifetimeForHTTPFamily(const ResourceResponse& response, 
     if (auto expires = response.expires())
         return *expires - effectiveDate;
 
+    // Check if the expires header is present but invalid.
+    if (response.httpHeaderFields().contains(HTTPHeaderName::Expires))
+        return 0_us;
+
     // Implicit lifetime.
     switch (response.httpStatusCode()) {
     case 301: // Moved Permanently
