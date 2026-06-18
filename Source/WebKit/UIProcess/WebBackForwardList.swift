@@ -415,7 +415,8 @@ final class WebBackForwardList {
             return nil
         }
 
-        if currentIndex + delta < 0 {
+        let (targetIndex, overflow) = currentIndex.addingReportingOverflow(delta)
+        if overflow || targetIndex < 0 {
             return nil
         }
 
@@ -1203,10 +1204,20 @@ final class WebBackForwardList {
 
     @used
     func backForwardItemAtIndexForWebContent(
+        connection: IPC.Connection,
         delta: Int32,
         frameID: WebCore.FrameIdentifier,
         completionHandler: CompletionHandlers.WebBackForwardList.BackForwardItemAtIndexForWebContentCompletionHandler
     ) {
+        let process = WebKit.WebProcessProxy.fromConnection(connection)
+        if messageCheckCompletion(
+            process: process,
+            completionHandler: { completionHandler.pointee(consuming: WebKit.RefPtrFrameState()) },
+            delta != Int32.min
+        ) {
+            return
+        }
+
         // FIXME: This should verify that the web process requesting the item hosts the specified frame.
         let delta = Int(delta)
         guard let item = itemAtDeltaFromCurrentIndex(delta: delta, allowSkipping: false) else {

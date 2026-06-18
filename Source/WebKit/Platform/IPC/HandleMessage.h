@@ -31,6 +31,7 @@
 #include "MessageNames.h"
 #include "StreamServerConnection.h"
 #include <functional>
+#include <wtf/Compiler.h>
 #include <wtf/CompletionHandler.h>
 #include <wtf/CoroutineUtilities.h>
 #include <wtf/ProcessID.h>
@@ -491,7 +492,7 @@ void handleMessageSynchronous(Connection& connection, Decoder& decoder, UniqueRe
     }));
 
     if constexpr (ValidationType::expectsConnectionArgument) {
-        callMemberFunction(object, function, connection, WTF::move(*arguments),
+        SUPPRESS_UNCOUNTED_ARG callMemberFunction(object, function, ValidationType::makeConnectionArgument(connection), WTF::move(*arguments),
             ValidationType::unwrapCompletionHandler(std::forward<decltype(completionHandler)>(completionHandler)));
     } else {
         callMemberFunction(object, function, WTF::move(*arguments),
