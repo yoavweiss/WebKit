@@ -519,10 +519,13 @@ bool CachedResourceLoader::allowedByContentSecurityPolicy(CachedResource::Type t
         return contentSecurityPolicy->allowObjectFromSource(url, document->currentParserSourcePosition(), redirectResponseReceived, preRedirectURL);
 
     switch (type) {
+    case CachedResource::Type::JSON:
+        if (!contentSecurityPolicy->allowConnectToSource(url, document->currentParserSourcePosition(), redirectResponseReceived, preRedirectURL))
+            return false;
+        break;
 #if ENABLE(XSLT)
     case CachedResource::Type::XSLStyleSheet:
 #endif
-    case CachedResource::Type::JSON:
     case CachedResource::Type::Script:
         if (!contentSecurityPolicy->allowScriptFromSource(url, document->currentParserSourcePosition(), redirectResponseReceived, preRedirectURL, options.integrity, options.nonce))
             return false;
