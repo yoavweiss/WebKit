@@ -115,6 +115,27 @@ static FloatSize NODELETE deltaAlignedToDominantAxis(FloatSize delta)
     return deltaAlignedToAxis(delta, dominantAxis);
 }
 
+FloatSize ScrollingEffectsController::deltaAlignedToPredominantGestureAxis(MonotonicTime eventTime, FloatSize delta)
+{
+    if (delta.isZero())
+        return delta;
+
+    // Bias the axis alignment to recent events by accumulating deltas in m_cumulativeGestureDelta,
+    // decaying over time. This keeps gesture generally locked to an axis, but allows for
+    // direction changes (e.g. an L-shaped scroll).
+    // 120ms chosen empirically.
+    static constexpr Seconds gestureAxisDecayTimeConstant = 120_ms;
+    if (m_lastGestureEventTime) {
+        auto decay = std::exp(-(eventTime - m_lastGestureEventTime).seconds() / gestureAxisDecayTimeConstant.seconds());
+        m_cumulativeGestureDelta.scale(std::min(decay, 1.0));
+    }
+    m_lastGestureEventTime = eventTime;
+
+    m_cumulativeGestureDelta.expand(std::abs(delta.width()), std::abs(delta.height()));
+
+    return deltaAlignedToAxis(delta, dominantAxisFavoringVertical(m_cumulativeGestureDelta));
+}
+
 static std::optional<BoxSide> NODELETE affectedSideOnDominantAxis(FloatSize delta)
 {
     auto dominantAxis = dominantAxisFavoringVertical(delta);
@@ -150,6 +171,8 @@ bool ScrollingEffectsController::handleWheelEvent(const PlatformWheelEvent& whee
         m_ignoreMomentumScrolls = false;
         m_lastMomentumScrollTimestamp = { };
         m_momentumVelocity = { };
+        m_cumulativeGestureDelta = { };
+        m_lastGestureEventTime = { };
 
         IntSize stretchAmount = m_client.stretchAmount();
         m_stretchScrollForce.setWidth(reboundDeltaForElasticDelta(stretchAmount.width()));
@@ -192,8 +215,8 @@ bool ScrollingEffectsController::handleWheelEvent(const PlatformWheelEvent& whee
     delta += eventDelta;
 
     if (wheelEvent.isGestureEvent()) {
-        // FIXME: This replicates what WheelEventDeltaFilter does. We should apply that to events in all phases, and remove axis locking here (webkit.org/b/231207).
-        delta = deltaAlignedToDominantAxis(delta);
+        // FIXME: This axis locking replicates what WheelEventDeltaFilter does. We should apply that to events in all phases, and remove axis locking here (webkit.org/b/231207).
+        delta = deltaAlignedToPredominantGestureAxis(wheelEvent.timestamp(), delta);
     }
 
     auto momentumPhase = wheelEvent.momentumPhase();

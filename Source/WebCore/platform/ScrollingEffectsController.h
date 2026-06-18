@@ -229,6 +229,8 @@ private:
     bool modifyScrollDeltaForStretching(const PlatformWheelEvent&, FloatSize&, bool isHorizontallyStretched, bool isVerticallyStretched);
     bool applyScrollDeltaWithStretching(const PlatformWheelEvent&, FloatSize, bool isHorizontallyStretched, bool isVerticallyStretched);
 
+    FloatSize deltaAlignedToPredominantGestureAxis(MonotonicTime, FloatSize);
+
     void startRubberBandAnimationIfNecessary();
 
     bool startRubberBandAnimation(const FloatSize& initialVelocity, const FloatSize& initialOverscroll);
@@ -298,6 +300,9 @@ private:
     bool m_momentumScrollInProgress { false };
     bool m_ignoreMomentumScrolls { false };
     bool m_isRubberBanding { false };
+
+    FloatSize m_cumulativeGestureDelta;
+    MonotonicTime m_lastGestureEventTime;
 #if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
     bool m_skipAdditionalDeltaAdjustments { false };
 #endif
