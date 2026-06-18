@@ -43,6 +43,7 @@
 #include <JavaScriptCore/AssemblyHelpers.h>
 #include <JavaScriptCore/JSCJSValueInlines.h>
 #include <JavaScriptCore/JSGlobalObject.h>
+#include <JavaScriptCore/JSObjectInlines.h>
 
 #include <WebCore/Document.h>
 #include <WebCore/GraphicsContext.h>
