@@ -188,8 +188,16 @@ void ScrollableArea::scrollToPositionWithAnimation(const FloatPoint& position, c
 {
     LOG_WITH_STREAM(Scrolling, stream << "ScrollableArea " << this << " scrollToPositionWithAnimation " << position);
 
-    if (scrollAnimationStatus() == ScrollAnimationStatus::Animating)
+    if (scrollAnimationStatus() == ScrollAnimationStatus::Animating) {
+        // If a smooth scroll animation is already running, retarget it to the new
+        // destination instead of cancelling it. Cancelling tears the animation down,
+        // which prematurely fires a scrollend event at the current intermediate position
+        // rather than running to the new destination. Fall back to cancellation when
+        // there is no active main-thread animation to retarget.
+        if (scrollAnimator().retargetRunningAnimation(position))
+            return;
         scrollAnimator().cancelAnimations();
+    }
 
     if (position == scrollPosition())
         return;

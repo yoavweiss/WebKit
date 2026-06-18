@@ -311,18 +311,27 @@ void RenderLayerScrollableArea::stopAsyncAnimatedScroll()
 
 ScrollOffset RenderLayerScrollableArea::scrollToOffset(const ScrollOffset& scrollOffset, const ScrollPositionChangeOptions& options)
 {
+    ScrollOffset clampedScrollOffset = options.clamping == ScrollClamping::Clamped ? clampScrollOffset(scrollOffset) : scrollOffset;
+    ScrollOffset snappedOffset = ceiledIntPoint(scrollAnimator().scrollOffsetAdjustedForSnapping(clampedScrollOffset, options.snapPointSelectionMethod));
+    auto snappedPosition = scrollPositionFromOffset(snappedOffset);
+
     if (scrollAnimationStatus() == ScrollAnimationStatus::Animating) {
+        // If a smooth scroll animation is already running and the new request is also
+        // animated, retarget the running animation to the new destination instead of
+        // cancelling it. Cancelling tears the animation down, which prematurely fires a
+        // scrollend event at the current intermediate position rather than running to
+        // the new destination.
+        if (options.animated == ScrollIsAnimated::Yes && scrollAnimator().retargetRunningAnimation(snappedPosition))
+            return snappedOffset;
         scrollAnimator().cancelAnimations();
         stopAsyncAnimatedScroll();
     }
-    ScrollOffset clampedScrollOffset = options.clamping == ScrollClamping::Clamped ? clampScrollOffset(scrollOffset) : scrollOffset;
+
     if (clampedScrollOffset == this->scrollOffset())
         return clampedScrollOffset;
 
     auto scrollTypeScope = ScrollTypeScope(*this, options.type);
 
-    ScrollOffset snappedOffset = ceiledIntPoint(scrollAnimator().scrollOffsetAdjustedForSnapping(clampedScrollOffset, options.snapPointSelectionMethod));
-    auto snappedPosition = scrollPositionFromOffset(snappedOffset);
     if (options.animated == ScrollIsAnimated::Yes) {
         registerScrollableAreaForAnimatedScroll();
         ScrollableArea::scrollToPositionWithAnimation(snappedPosition, options);
