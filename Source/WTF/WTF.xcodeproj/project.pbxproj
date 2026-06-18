@@ -334,6 +334,7 @@
 		DD3DC87B27A4BF8E007E5B61 /* ParallelHelperPool.h in Headers */ = {isa = PBXBuildFile; fileRef = 0FFF19DB1BB334EB00886D91 /* ParallelHelperPool.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		DD3DC87C27A4BF8E007E5B61 /* Expected.h in Headers */ = {isa = PBXBuildFile; fileRef = AD7C434A1DD2A4A70026888B /* Expected.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		DD3DC87D27A4BF8E007E5B61 /* GraphNodeWorklist.h in Headers */ = {isa = PBXBuildFile; fileRef = 0FEC84AE1BD825310080FF74 /* GraphNodeWorklist.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		AA11GRAPHORDERING0000001 /* GraphOrdering.h in Headers */ = {isa = PBXBuildFile; fileRef = AA11GRAPHORDERING0000002 /* GraphOrdering.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		DD3DC87E27A4BF8E007E5B61 /* BumpPointerAllocator.h in Headers */ = {isa = PBXBuildFile; fileRef = A8A47267151A825A004123FF /* BumpPointerAllocator.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		DD3DC87F27A4BF8E007E5B61 /* Logger.h in Headers */ = {isa = PBXBuildFile; fileRef = 077CD86A1FD9CFD200828587 /* Logger.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		DD3DC88127A4BF8E007E5B61 /* MetaAllocator.h in Headers */ = {isa = PBXBuildFile; fileRef = A8A472CE151A825B004123FF /* MetaAllocator.h */; settings = {ATTRIBUTES = (Private, ); }; };
@@ -1229,6 +1230,7 @@
 		0FEC3C5C1F368A9700F59B6C /* ReadWriteLock.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ReadWriteLock.cpp; sourceTree = "<group>"; };
 		0FEC3C5D1F368A9700F59B6C /* ReadWriteLock.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReadWriteLock.h; sourceTree = "<group>"; };
 		0FEC84AE1BD825310080FF74 /* GraphNodeWorklist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GraphNodeWorklist.h; sourceTree = "<group>"; };
+		AA11GRAPHORDERING0000002 /* GraphOrdering.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GraphOrdering.h; sourceTree = "<group>"; };
 		0FEC84B01BDACD390080FF74 /* ScopedLambda.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScopedLambda.h; sourceTree = "<group>"; };
 		0FED67B51B22D4D80066CE15 /* TinyPtrSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TinyPtrSet.h; sourceTree = "<group>"; };
 		0FF4B4C41E88939C00DBBE86 /* Liveness.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Liveness.h; sourceTree = "<group>"; };
@@ -2507,6 +2509,7 @@
 				0F30BA8A1E78708E002CA847 /* GlobalVersion.cpp */,
 				0F30BA8B1E78708E002CA847 /* GlobalVersion.h */,
 				0FEC84AE1BD825310080FF74 /* GraphNodeWorklist.h */,
+				AA11GRAPHORDERING0000002 /* GraphOrdering.h */,
 				2CCD892915C0390200285083 /* GregorianDateTime.cpp */,
 				2C05385315BC819000F21B96 /* GregorianDateTime.h */,
 				A8A472B3151A825A004123FF /* HashCountedSet.h */,
@@ -3675,6 +3678,7 @@
 				DD3DC94727A4BF8E007E5B61 /* GetPtr.h in Headers */,
 				DD3DC96B27A4BF8E007E5B61 /* GlobalVersion.h in Headers */,
 				DD3DC87D27A4BF8E007E5B61 /* GraphNodeWorklist.h in Headers */,
+				AA11GRAPHORDERING0000001 /* GraphOrdering.h in Headers */,
 				DD3DC8F927A4BF8E007E5B61 /* GregorianDateTime.h in Headers */,
 				DD3DC8E427A4BF8E007E5B61 /* HashCountedSet.h in Headers */,
 				DD3DC91227A4BF8E007E5B61 /* Hasher.h in Headers */,
@@ -4669,7 +4673,6 @@
 				1C181C961D30800A00F5FA16 /* TextBreakIteratorInternalICUCocoa.cpp in Sources */,
 				A3E4DD931F3A803400DED0B4 /* TextStream.cpp in Sources */,
 				0F3492D722AF431C004F85FC /* TextStreamCocoa.mm in Sources */,
-				70ECA60F1B02426800449739 /* UniquedStringImpl.cpp in Sources */,
 				E311FB171F0A568B003C08DE /* ThreadGroup.cpp in Sources */,
 				A8A4744A151A825B004123FF /* Threading.cpp in Sources */,
 				A32D8FA521FFFAB400780662 /* ThreadingPOSIX.cpp in Sources */,
@@ -4680,6 +4683,7 @@
 				FE69838E2F9F1FD0004EA0A7 /* UnbarrieredMonotonicTime.cpp in Sources */,
 				467DCD532CD4689A0040C644 /* UnicodeExtras.cpp in Sources */,
 				0FA6F39520CCACE900A03DCD /* UniqueArray.cpp in Sources */,
+				70ECA60F1B02426800449739 /* UniquedStringImpl.cpp in Sources */,
 				5CC0EE7621629F1900A1A842 /* URL.cpp in Sources */,
 				5C1F0595216437B30039302C /* URLCF.cpp in Sources */,
 				5CC0EE892162BC2200A1A842 /* URLCocoa.mm in Sources */,

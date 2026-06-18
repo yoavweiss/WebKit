@@ -34,7 +34,6 @@
 #include "CodeBlockWithJITType.h"
 #include "DFGBackwardsCFG.h"
 #include "DFGBackwardsDominators.h"
-#include "DFGBlockWorklist.h"
 #include "DFGCFG.h"
 #include "DFGClobberSet.h"
 #include "DFGClobbersExitState.h"
@@ -60,6 +59,7 @@
 #include "StructureInlines.h"
 #include <array>
 #include <wtf/CommaPrinter.h>
+#include <wtf/GraphOrdering.h>
 #include <wtf/ListDump.h>
 
 WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
@@ -973,14 +973,8 @@ BlockList Graph::blocksInPreOrder()
 {
     BlockList result;
     result.reserveInitialCapacity(m_blocks.size());
-    BlockWorklist worklist;
-    for (BasicBlock* entrypoint : m_roots)
-        worklist.push(entrypoint);
-    while (BasicBlock* block = worklist.pop()) {
-        result.append(block);
-        for (unsigned i = block->numSuccessors(); i--;)
-            worklist.push(block->successor(i));
-    }
+    CFG cfg(*this);
+    appendNodesInOrder(cfg, m_roots, GraphOrder::PreOrder, result);
 
     if (validationEnabled()) {
         // When iterating over pre order, we should see dominators
@@ -1012,21 +1006,8 @@ BlockList Graph::blocksInPostOrder(bool isSafeToValidate)
 {
     BlockList result;
     result.reserveInitialCapacity(m_blocks.size());
-    PostOrderBlockWorklist worklist;
-    for (BasicBlock* entrypoint : m_roots)
-        worklist.push(entrypoint);
-    while (BlockWithOrder item = worklist.pop()) {
-        switch (item.order) {
-        case VisitOrder::Pre:
-            worklist.pushPost(item.node);
-            for (unsigned i = item.node->numSuccessors(); i--;)
-                worklist.push(item.node->successor(i));
-            break;
-        case VisitOrder::Post:
-            result.append(item.node);
-            break;
-        }
-    }
+    CFG cfg(*this);
+    appendNodesInOrder(cfg, m_roots, GraphOrder::PostOrder, result);
 
     if (isSafeToValidate && validationEnabled()) { // There are users of this where we haven't yet built the CFG enough to be able to run dominators.
         auto validateResults = [&] (auto& dominators) {

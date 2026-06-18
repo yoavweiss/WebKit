@@ -121,6 +121,7 @@ set(WTF_PUBLIC_HEADERS
     GetPtr.h
     GlobalVersion.h
     GraphNodeWorklist.h
+    GraphOrdering.h
     GregorianDateTime.h
     HashCountedSet.h
     HashFunctions.h

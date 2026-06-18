@@ -28,6 +28,7 @@
 #include <algorithm>
 #include <ranges>
 #include <wtf/BitVector.h>
+#include <wtf/GraphOrdering.h>
 #include <wtf/IndexSparseSet.h>
 #include <wtf/SparseBitVector.h>
 #include <wtf/StdLibExtras.h>
@@ -317,8 +318,7 @@ protected:
             set[index / wordBits] |= static_cast<uint64_t>(1) << (index % wordBits);
         };
 
-        BitVector dirtyBlocks(numNodes);
-        Vector<unsigned, 64> worklist;
+        unsigned numActiveBlocks = 0;
         for (unsigned blockIndex = 0; blockIndex < numNodes; ++blockIndex) {
             auto block = m_cfg.node(blockIndex);
             if (!block)
@@ -352,8 +352,22 @@ protected:
                 setBit(liveOutSet, index);
             });
 
-            dirtyBlocks.quickSet(blockIndex);
-            worklist.append(blockIndex);
+            ++numActiveBlocks;
+        }
+
+        // Seed the worklist in reverse post-order so the backward dataflow processes a block after
+        // its successors. This minimizes re-visits -- in particular the high-fan-in switch-dispatch
+        // block is finalized in one pass instead of once per contributing case, which also avoids
+        // repeating its expensive many-predecessor propagation.
+        Vector<unsigned, 64> worklist;
+        worklist.reserveInitialCapacity(numActiveBlocks);
+        BitVector dirtyBlocks(numNodes);
+        appendNodeIndicesInOrder(m_cfg, GraphOrder::PostOrder, dirtyBlocks, worklist);
+        worklist.reverse();
+        // Queue any active block the DFS did not reach (e.g. unreachable but not yet pruned).
+        for (unsigned blockIndex = 0; blockIndex < numNodes; ++blockIndex) {
+            if (m_cfg.node(blockIndex) && !dirtyBlocks.quickSet(blockIndex))
+                worklist.append(blockIndex);
         }
 
         while (!worklist.isEmpty()) {
