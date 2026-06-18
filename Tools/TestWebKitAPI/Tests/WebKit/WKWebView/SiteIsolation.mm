@@ -9820,4 +9820,43 @@ TEST(SiteIsolation, PasteboardReading)
     EXPECT_WK_STREQ([webView _test_waitForAlert], "hello");
 }
 
+TEST(SiteIsolation, UserGesture)
+{
+    auto mainFrameHTML = "<!doctype html>"
+    "<button id='testbutton' onclick='testiframe.contentWindow.postMessage(\"hi\", \"*\")'>Click!</button><br>"
+    "<iframe id='testiframe' src='https://webkit.org/iframe' allow='payment'></iframe>"_s;
+
+    auto iframeHTML = "<script>"
+    "function validRequest() {"
+    "    return {"
+    "          countryCode: 'US',"
+    "          currencyCode: 'USD',"
+    "          supportedNetworks: ['visa', 'masterCard', 'carteBancaire'],"
+    "          merchantCapabilities: ['supports3DS'],"
+    "          total: { label: 'Your Label', amount: '10.00' },"
+    "    }"
+    "}"
+    "window.addEventListener('message', (event) => {"
+    "    try {"
+    "        new ApplePaySession(4, validRequest());"
+    "        alert('did not throw');"
+    "    } catch (e) { alert('threw ' + e) }"
+    "}, false)"
+    "</script>"_s;
+
+    HTTPServer server({
+        { "/main"_s, { mainFrameHTML } },
+        { "/iframe"_s, { iframeHTML } }
+    }, HTTPServer::Protocol::HttpsProxy);
+
+    RetainPtr configuration = server.httpsProxyConfiguration();
+    enableFeature(configuration.get(), @"ApplePayEnabled");
+    auto [webView, delegate] = siteIsolatedViewAndDelegate(configuration, CGRectMake(0, 0, 800, 600));
+    [webView loadURL:[NSURL URLWithString:@"https://example.com/main"]];
+    [delegate waitForDidFinishNavigation];
+
+    [webView clickOnElementID:@"testbutton"];
+    EXPECT_WK_STREQ([webView _test_waitForAlert], "did not throw");
+}
+
 }

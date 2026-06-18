@@ -7269,3 +7269,33 @@ header: <WebCore/EventHandler.h>
     Wheel,
     Touch
 };
+
+enum class WebCore::IsProcessingUserGesture : uint8_t {
+    No,
+    Yes,
+    Potentially
+};
+
+enum class WebCore::CanRequestDOMPaste : bool;
+enum class WebCore::UserGestureType : uint8_t {
+    EscapeKey,
+    ActivationTriggering,
+    Other
+};
+enum class WebCore::GestureScope : bool
+enum class WebCore::DOMPasteAccessPolicy : uint8_t {
+    NotRequestedYet,
+    Denied,
+    Granted
+};
+
+header: <WebCore/UserGestureIndicator.h>
+[CustomHeader] struct WebCore::UserGestureTokenData {
+    WebCore::IsProcessingUserGesture isProcessingUserGesture;
+    WebCore::UserGestureType userGestureType;
+    std::optional<WTF::UUID> authorizationToken;
+    WebCore::CanRequestDOMPaste canRequestDOMPaste;
+    MonotonicTime startTime;
+    WebCore::DOMPasteAccessPolicy domPasteAccessPolicy;
+    WebCore::GestureScope scope;
+};
