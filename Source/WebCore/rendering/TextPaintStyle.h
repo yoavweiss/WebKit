@@ -67,7 +67,7 @@ bool textColorIsLegibleAgainstBackgroundColor(const Color& textColor, const Colo
 TextPaintStyle computeTextPaintStyle(const RenderText&, const Style::ComputedStyle&, const PaintInfo&);
 TextPaintStyle computeTextSelectionPaintStyle(const TextPaintStyle&, const RenderText&, const Style::ComputedStyle&, const PaintInfo&, Style::TextShadows& selectionShadow);
 
-enum FillColorType { UseNormalFillColor, UseEmphasisMarkColor };
-void updateGraphicsContext(GraphicsContext&, const TextPaintStyle&, FillColorType = UseNormalFillColor);
+enum class FillColorType : bool { Normal, EmphasisMark };
+void updateGraphicsContext(GraphicsContext&, const TextPaintStyle&, FillColorType = FillColorType::Normal);
 
 } // namespace WebCore

@@ -200,7 +200,7 @@ void updateGraphicsContext(GraphicsContext& context, const TextPaintStyle& paint
         mode = newMode;
     }
 
-    Color fillColor = fillColorType == UseEmphasisMarkColor ? paintStyle.emphasisMarkColor : paintStyle.fillColor;
+    Color fillColor = fillColorType == FillColorType::EmphasisMark ? paintStyle.emphasisMarkColor : paintStyle.fillColor;
     if (mode.contains(TextDrawingMode::Fill) && (fillColor != context.fillColor()))
         context.setFillColor(fillColor);
 

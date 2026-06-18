@@ -220,7 +220,7 @@ void TextPainter::paintTextAndEmphasisMarksIfNeeded(const TextRun& textRun, cons
         return;
 
     FloatPoint boxOrigin = boxRect.location();
-    updateGraphicsContext(m_context, paintStyle, UseEmphasisMarkColor);
+    updateGraphicsContext(m_context, paintStyle, FillColorType::EmphasisMark);
     static NeverDestroyed<TextRun> objectReplacementCharacterTextRun(StringView { span(objectReplacementCharacter) });
     CheckedRef emphasisMarkTextRun = m_combinedText ? objectReplacementCharacterTextRun.get() : textRun;
     auto emphasisMarkTextOrigin = textOrigin;
