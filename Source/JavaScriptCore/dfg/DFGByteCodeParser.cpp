@@ -1133,6 +1133,8 @@ private:
                 node->mergeFlags(NodeMayHaveDoubleResult);
             if (observed.didObserveNonNumeric())
                 node->mergeFlags(NodeMayHaveNonNumericResult);
+            if (observed.didObserveInt32Overflow())
+                node->mergeFlags(NodeMayOverflowInt32InBaseline);
             if (observed.didObserveBigInt32())
                 node->mergeFlags(NodeMayHaveBigInt32Result);
             if (observed.didObserveHeapBigInt() || m_inlineStackTop->m_exitProfile.hasExitSite(m_currentIndex, BigInt32Overflow))
