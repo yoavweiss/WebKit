@@ -193,7 +193,7 @@ std::tuple<unsigned, char16_t> SVGTextMetricsBuilder::measureTextRenderer(Render
                 ASSERT(!U16_IS_LEAD(currentCharacter));
                 if (currentCharacter == space && !preserveWhiteSpace && (!lastCharacter || lastCharacter == space)) {
                     if (data.processRenderer)
-                        textMetricsValues.append(SVGTextMetrics(SVGTextMetrics::SkippedSpaceMetrics));
+                        textMetricsValues.append(SVGTextMetrics(SVGTextMetrics::MetricsType::SkippedSpaceMetrics));
                     ++skippedCharacters;
                     continue;
                 }
@@ -233,7 +233,7 @@ std::tuple<unsigned, char16_t> SVGTextMetricsBuilder::measureTextRendererWithIte
         char16_t currentCharacter = m_run[m_textPosition];
         if (currentCharacter == space && !preserveWhiteSpace && (!lastCharacter || lastCharacter == space)) {
             if (data.processRenderer)
-                textMetricsValues.append(SVGTextMetrics(SVGTextMetrics::SkippedSpaceMetrics));
+                textMetricsValues.append(SVGTextMetrics(SVGTextMetrics::MetricsType::SkippedSpaceMetrics));
             skippedCharacters += m_currentMetrics.length();
             continue;
         }

@@ -437,7 +437,7 @@ void SVGTextLayoutEngine::layoutTextOnLineOrPath(InlineIterator::SVGTextBoxItera
     // Main layout algorithm.
     while (true) {
         // Find the start of the current text box in this list, respecting ligatures.
-        SVGTextMetrics visualMetrics(SVGTextMetrics::SkippedSpaceMetrics);
+        SVGTextMetrics visualMetrics(SVGTextMetrics::MetricsType::SkippedSpaceMetrics);
         if (!currentVisualCharacterMetrics(*textBox, visualMetricsValues, visualMetrics))
             break;
 
@@ -451,7 +451,7 @@ void SVGTextLayoutEngine::layoutTextOnLineOrPath(InlineIterator::SVGTextBoxItera
             break;
 
         ASSERT(logicalAttributes);
-        SVGTextMetrics logicalMetrics(SVGTextMetrics::SkippedSpaceMetrics);
+        SVGTextMetrics logicalMetrics(SVGTextMetrics::MetricsType::SkippedSpaceMetrics);
         if (!currentLogicalCharacterMetrics(logicalAttributes, logicalMetrics))
             break;
 
