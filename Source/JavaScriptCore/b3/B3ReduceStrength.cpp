@@ -671,7 +671,7 @@ public:
             m_pureCSE.clear();
         }
 
-        for (BasicBlock* block : m_proc.blocksInPreOrder())
+        for (BasicBlock* block : m_proc.blocksInPostOrder() | std::views::reverse)
             reduceBlockStrength(block);
 
         m_changedCFG |= m_blockInsertionSet.execute();
