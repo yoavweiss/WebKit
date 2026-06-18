@@ -1731,8 +1731,11 @@ TemporalResult<ISO8601::PlainDate> calendarDateFromFields(CalendarID calendarId,
                         return makeUnexpected(rangeError("Day is out of range for the given month in this calendar"_s));
                     clampedDay = static_cast<uint8_t>(maxDay);
                 }
-                if (clampedDay > 1)
+                if (clampedDay > 1) {
                     ucal_add(cal, UCAL_DAY_OF_MONTH, clampedDay - 1, &status);
+                    if (U_FAILURE(status)) [[unlikely]]
+                        return makeUnexpected(rangeError(icuCalendarArithmeticFailed));
+                }
             } else if (calendarId == hebrewCalendarID()) [[unlikely]] {
                 // Hebrew non-lunisolar path — shouldn't reach here since Hebrew IS lunisolar.
                 ASSERT_NOT_REACHED();
