@@ -9749,4 +9749,28 @@ TEST(SiteIsolation, NonMainFrameProcessCrash)
     Util::runFor(0.1_s);
 }
 
+TEST(SiteIsolation, PasteboardReading)
+{
+    auto iframehtml = "<script>function doPasteboardStuff() {"
+    "navigator.clipboard.writeText('hello');"
+    "navigator.clipboard.readText()"
+    "    .then(text => alert(text))"
+    "    .catch(()=> alert('fail'))"
+    "}</script>"
+    "<button onclick='doPasteboardStuff()' id='testbutton'>Click</button>"_s;
+
+    HTTPServer server({
+        { "/example"_s, { "<iframe src='https://webkit.org/iframe'></iframe>"_s } },
+        { "/iframe"_s, { iframehtml } },
+    }, HTTPServer::Protocol::HttpsProxy);
+
+    auto [webView, delegate] = siteIsolatedViewAndDelegate(server.httpsProxyConfiguration());
+    [webView loadURL:[NSURL URLWithString:@"https://example.com/example"]];
+    [delegate waitForDidFinishNavigation];
+
+    [webView evaluateJavaScript:@"document.getElementById('testbutton').click();" inFrame:[webView firstChildFrame] inContentWorld:WKContentWorld.pageWorld completionHandler:nil];
+
+    EXPECT_WK_STREQ([webView _test_waitForAlert], "hello");
+}
+
 }

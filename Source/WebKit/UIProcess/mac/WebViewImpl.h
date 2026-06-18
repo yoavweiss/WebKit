@@ -806,9 +806,9 @@ public:
     void takeFocus(WebCore::FocusDirection);
     void clearPromisedImageDragData() { m_promisedImageDragData.reset(); }
 
-    void requestDOMPasteAccess(WebCore::DOMPasteAccessCategory, WebCore::DOMPasteRequiresInteraction, const WebCore::IntRect&, const String& originIdentifier, CompletionHandler<void(WebCore::DOMPasteAccessResponse)>&&);
+    void requestDOMPasteAccess(WebCore::DOMPasteAccessCategory, WebCore::DOMPasteRequiresInteraction, WebCore::FrameIdentifier, const WebCore::IntRect&, const String& originIdentifier, CompletionHandler<void(WebCore::DOMPasteAccessResponse)>&&);
     void handleDOMPasteRequestForCategoryWithResult(WebCore::DOMPasteAccessCategory, WebCore::DOMPasteAccessResponse);
-    NSMenu *domPasteMenu() const LIFETIME_BOUND { return m_domPasteMenu.get(); }
+    NSMenu *domPasteMenu() const LIFETIME_BOUND { return m_domPasteState ? m_domPasteState->menu.get() : nullptr; }
     void hideDOMPasteMenuWithResult(WebCore::DOMPasteAccessResponse);
 
 #if HAVE(TRANSLATION_UI_SERVICES) && ENABLE(CONTEXT_MENUS)
@@ -1166,9 +1166,13 @@ private:
 
     CGFloat m_fullScreenTitlebarOverlayHeight { 0 };
 
-    RetainPtr<NSMenu> m_domPasteMenu;
-    RetainPtr<WKDOMPasteMenuDelegate> m_domPasteMenuDelegate;
-    CompletionHandler<void(WebCore::DOMPasteAccessResponse)> m_domPasteRequestHandler;
+    struct DOMPasteState {
+        RetainPtr<NSMenu> menu;
+        RetainPtr<WKDOMPasteMenuDelegate> menuDelegate;
+        CompletionHandler<void(WebCore::DOMPasteAccessResponse)> requestHandler;
+        WebCore::FrameIdentifier requestFrame;
+    };
+    std::optional<DOMPasteState> m_domPasteState;
 
 #if ENABLE(MEDIA_SESSION_COORDINATOR)
     RefPtr<MediaSessionCoordinatorProxyPrivate> m_coordinatorForTesting;

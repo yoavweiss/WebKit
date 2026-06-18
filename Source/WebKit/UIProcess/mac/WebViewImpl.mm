@@ -5122,9 +5122,9 @@ static RetainPtr<NSPasteboard> pasteboardForAccessCategory(WebCore::DOMPasteAcce
     }
 }
 
-void WebViewImpl::requestDOMPasteAccess(WebCore::DOMPasteAccessCategory pasteAccessCategory, WebCore::DOMPasteRequiresInteraction requiresInteraction, const WebCore::IntRect&, const String& originIdentifier, CompletionHandler<void(WebCore::DOMPasteAccessResponse)>&& completion)
+void WebViewImpl::requestDOMPasteAccess(WebCore::DOMPasteAccessCategory pasteAccessCategory, WebCore::DOMPasteRequiresInteraction requiresInteraction, WebCore::FrameIdentifier frameID, const WebCore::IntRect&, const String& originIdentifier, CompletionHandler<void(WebCore::DOMPasteAccessResponse)>&& completion)
 {
-    ASSERT(!m_domPasteRequestHandler);
+    ASSERT(!m_domPasteState);
     hideDOMPasteMenuWithResult(WebCore::DOMPasteAccessResponse::DeniedForGesture);
 
     RetainPtr data = [pasteboardForAccessCategory(pasteAccessCategory).get() dataForType:RetainPtr { @(WebCore::PasteboardCustomData::cocoaType().characters()) }.get()];
@@ -5132,23 +5132,28 @@ void WebViewImpl::requestDOMPasteAccess(WebCore::DOMPasteAccessCategory pasteAcc
     if (requiresInteraction == WebCore::DOMPasteRequiresInteraction::No && WebCore::PasteboardCustomData::fromSharedBuffer(buffer.get()).origin() == originIdentifier) {
         m_page->grantAccessToCurrentPasteboardData(pasteboardNameForAccessCategory(pasteAccessCategory), [completion = WTF::move(completion)] () mutable {
             completion(WebCore::DOMPasteAccessResponse::GrantedForGesture);
-        });
+        }, frameID);
         return;
     }
 
-    m_domPasteMenuDelegate = adoptNS([[WKDOMPasteMenuDelegate alloc] initWithWebViewImpl:*this pasteAccessCategory:pasteAccessCategory]);
-    m_domPasteRequestHandler = WTF::move(completion);
-    m_domPasteMenu = adoptNS([[NSMenu alloc] initWithTitle:WebCore::contextMenuItemTagPaste().createNSString().get()]);
+    RetainPtr menuDelegate = adoptNS([[WKDOMPasteMenuDelegate alloc] initWithWebViewImpl:*this pasteAccessCategory:pasteAccessCategory]);
+    RetainPtr menu = adoptNS([[NSMenu alloc] initWithTitle:WebCore::contextMenuItemTagPaste().createNSString().get()]);
+    [menu setDelegate:menuDelegate.get()];
+    [menu setAllowsContextMenuPlugIns:NO];
 
-    [m_domPasteMenu setDelegate:m_domPasteMenuDelegate.get()];
-    [m_domPasteMenu setAllowsContextMenuPlugIns:NO];
+    m_domPasteState = DOMPasteState {
+        menu,
+        menuDelegate,
+        WTF::move(completion),
+        frameID,
+    };
 
-    auto pasteMenuItem = RetainPtr([m_domPasteMenu insertItemWithTitle:WebCore::contextMenuItemTagPaste().createNSString().get() action:@selector(_web_grantDOMPasteAccess) keyEquivalent:@"" atIndex:0]);
-    [pasteMenuItem setTarget:m_domPasteMenuDelegate.get()];
+    auto pasteMenuItem = RetainPtr([menu insertItemWithTitle:WebCore::contextMenuItemTagPaste().createNSString().get() action:@selector(_web_grantDOMPasteAccess) keyEquivalent:@"" atIndex:0]);
+    [pasteMenuItem setTarget:menuDelegate.get()];
 
     RetainPtr window = [m_view.get() window];
     RetainPtr event = m_page->createSyntheticEventForContextMenu([window convertPointFromScreen:NSEvent.mouseLocation]);
-    [NSMenu popUpContextMenu:m_domPasteMenu.get() withEvent:event.get() forView:retainPtr(window.get().contentView).get()];
+    [NSMenu popUpContextMenu:menu.get() withEvent:event.get() forView:retainPtr(window.get().contentView).get()];
 }
 
 void WebViewImpl::handleDOMPasteRequestForCategoryWithResult(WebCore::DOMPasteAccessCategory pasteAccessCategory, WebCore::DOMPasteAccessResponse response)
@@ -5161,13 +5166,18 @@ void WebViewImpl::handleDOMPasteRequestForCategoryWithResult(WebCore::DOMPasteAc
 
 void WebViewImpl::hideDOMPasteMenuWithResult(WebCore::DOMPasteAccessResponse response)
 {
-    if (auto handler = std::exchange(m_domPasteRequestHandler, { }))
-        handler(response);
-    [m_domPasteMenu removeAllItems];
-    [m_domPasteMenu update];
-    [m_domPasteMenu cancelTracking];
-    m_domPasteMenu = nil;
-    m_domPasteMenuDelegate = nil;
+    if (!m_domPasteState)
+        return;
+
+    auto [menu, menuDelegate, requestHandler, requestFrame] = *std::exchange(m_domPasteState, std::nullopt);
+
+    ASSERT(requestHandler);
+    if (requestHandler)
+        requestHandler(response);
+
+    [menu removeAllItems];
+    [menu update];
+    [menu cancelTracking];
 }
 
 static RetainPtr<CGImageRef> takeWindowSnapshot(CGSWindowID windowID, bool captureAtNominalResolution, ForceSoftwareCapturingViewportSnapshot forceSoftwareCapturing)
