@@ -113,7 +113,9 @@ void RenderSVGImage::layout()
     LayoutRepainter repainter(*this);
 
     updateImageViewport();
-    setCurrentSVGLayoutRect(enclosingLayoutRect(m_objectBoundingBox));
+
+    // Refresh the layout-rect size only. SVGContainerLayout assigns the container-relative location.
+    setCurrentSVGLayoutRect({ currentSVGLayoutLocation(), enclosingLayoutRect(m_objectBoundingBox).size() });
     m_cachedVisualOverflowRect = std::nullopt;
 
     updateLayerTransform();
@@ -261,7 +263,7 @@ bool RenderSVGImage::nodeAtPoint(const HitTestRequest& request, HitTestResult& r
     SVGVisitedRendererTracking::Scope recursionScope(recursionTracking, *this);
 
     auto localPoint = locationInContainer.point();
-    auto boundingBoxTopLeftCorner = flooredLayoutPoint(objectBoundingBox().minXMinYCorner());
+    auto boundingBoxTopLeftCorner = objectBoundingBoxLocation();
     auto coordinateSystemOriginTranslation = boundingBoxTopLeftCorner - adjustedLocation;
     localPoint.move(coordinateSystemOriginTranslation);
 

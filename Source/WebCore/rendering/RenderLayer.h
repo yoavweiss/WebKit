@@ -467,6 +467,7 @@ public:
     }
 
     // SVG-specific methods -- defined in RenderLayerSVGAdditionsInlines.h / RenderLayerSVGAdditions.cpp.
+    bool isSVGLayer() const { return !!m_svgData; }
     inline bool isPaintingResourceLayerForSVG() const;
     inline RenderSVGHiddenContainer* enclosingHiddenOrResourceContainerForSVG() const;
     void paintResourceLayerForSVG(GraphicsContext&, const AffineTransform&);

@@ -109,6 +109,7 @@ public:
     bool svgTransformAttributeChangeInducesLayerComposition();
 
     LayoutPoint nominalSVGLayoutLocation() const { return flooredLayoutPoint(objectBoundingBoxWithoutTransformations().minXMinYCorner()); }
+    LayoutPoint objectBoundingBoxLocation() const { return flooredLayoutPoint(objectBoundingBox().minXMinYCorner()); }
     virtual LayoutPoint currentSVGLayoutLocation() const { ASSERT_NOT_REACHED(); return { }; }
     virtual void setCurrentSVGLayoutLocation(const LayoutPoint&) { ASSERT_NOT_REACHED(); }
 
