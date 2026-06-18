@@ -4196,6 +4196,53 @@ TEST(SiteIsolation, NavigateIframeCrossOriginBackForwardAfterSessionRestoreToNew
     testNavigateIframeBackForward(@"https://apple.com/destination", SessionRestoreMethod::NewWebView);
 }
 
+TEST(SiteIsolation, CancelledChildAsyncBackForwardNotifiesParent)
+{
+    HTTPServer server({
+        { "/page0"_s, { "<p>page0</p><iframe src='https://example.com/child0'></iframe><script>window.onload=()=>alert('page0-loaded')</script>"_s } },
+        { "/page1"_s, { "<p>page1</p><iframe src='https://example.com/child1'></iframe><script>window.onload=()=>alert('page1-loaded')</script>"_s } },
+        { "/child0"_s, { "<p>child0</p>"_s } },
+        { "/child1"_s, { "<p>child1</p>"_s } },
+    }, HTTPServer::Protocol::HttpsProxy);
+
+    RetainPtr processPoolConfiguration = adoptNS([[_WKProcessPoolConfiguration alloc] init]);
+    // Disabling BFCache so going back will perform a fresh load of page0.
+    processPoolConfiguration.get().pageCacheEnabled = NO;
+    RetainPtr processPool = adoptNS([[WKProcessPool alloc] _initWithConfiguration:processPoolConfiguration.get()]);
+    RetainPtr configuration = server.httpsProxyConfiguration();
+    [configuration setProcessPool:processPool.get()];
+
+    auto [webView, navigationDelegate] = siteIsolatedViewAndDelegate(configuration.get());
+
+    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://example.com/page0"]]];
+    EXPECT_WK_STREQ([webView _test_waitForAlert], "page0-loaded");
+    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://example.com/page1"]]];
+    EXPECT_WK_STREQ([webView _test_waitForAlert], "page1-loaded");
+
+    __block bool interceptedChildPolicy = false;
+    RetainPtr capturedWebView = webView;
+    [navigationDelegate setDecidePolicyForNavigationAction:^(WKNavigationAction *action, void (^decisionHandler)(WKNavigationActionPolicy)) {
+        if (!action.targetFrame.isMainFrame && action.navigationType == WKNavigationTypeBackForward && !interceptedChildPolicy) {
+            interceptedChildPolicy = true;
+            // Inject a cross-document navigation while the child is Pending.
+            [capturedWebView evaluateJavaScript:@"frames[0].location = 'https://example.com/injected'" completionHandler:^(id, NSError *) {
+                decisionHandler(WKNavigationActionPolicyAllow);
+            }];
+            return;
+        }
+        // Deny the injected navigation so it never commits. This prevents didBeginDocument()
+        // from accidentally unblocking the parent.
+        if (!action.targetFrame.isMainFrame && interceptedChildPolicy) {
+            decisionHandler(WKNavigationActionPolicyCancel);
+            return;
+        }
+        decisionHandler(WKNavigationActionPolicyAllow);
+    }];
+
+    [webView goBack];
+    EXPECT_WK_STREQ([webView _test_waitForAlert], "page0-loaded");
+}
+
 TEST(SiteIsolation, ValidateSessionRestoreWithoutNavigating)
 {
     HTTPServer server({

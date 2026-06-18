@@ -1238,9 +1238,9 @@ void WebLocalFrameLoaderClient::dispatchDecidePolicyForBackForwardNavigationActi
                 return;
 
             if (action == PolicyAction::Ignore) {
-                // Reset the pending async state and re-check completeness
-                // on the parent since this child won't be loading.
-                localFrame->loader().cancelPendingAsyncBackForwardNavigation();
+                // The async back/forward navigation won't proceed; clear the wait state
+                // so the parent can run checkCompleted() without being blocked by this child.
+                localFrame->loader().clearAsyncBackForwardNavigationState();
                 return;
             }
 

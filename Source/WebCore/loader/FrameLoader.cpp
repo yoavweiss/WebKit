@@ -4773,6 +4773,16 @@ void FrameLoader::setPendingAsyncBackForwardNavigation()
     m_asyncBackForwardNavigationState = AsyncBackForwardNavigationState::Pending;
 }
 
+void FrameLoader::clearAsyncBackForwardNavigationState()
+{
+    if (m_asyncBackForwardNavigationState == AsyncBackForwardNavigationState::None)
+        return;
+    m_asyncBackForwardNavigationState = AsyncBackForwardNavigationState::None;
+    Ref frame = m_frame.get();
+    if (RefPtr parentFrame = dynamicDowncast<LocalFrame>(frame->tree().parent()))
+        parentFrame->loader().checkCompleted();
+}
+
 void FrameLoader::cancelPendingAsyncBackForwardNavigation()
 {
     if (m_asyncBackForwardNavigationState != AsyncBackForwardNavigationState::Pending)
