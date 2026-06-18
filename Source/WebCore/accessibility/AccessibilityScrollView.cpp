@@ -582,6 +582,9 @@ AccessibilityObject* AccessibilityScrollView::crossFrameParentObject() const
         return nullptr;
 
     WeakPtr ancestorCache = ancestorDocument->axObjectCache();
+    if (!ancestorCache)
+        return nullptr;
+
     RefPtr<AccessibilityObject> ancestorAccessibilityObject;
     while (ancestorElement && !ancestorAccessibilityObject) {
         if ((ancestorAccessibilityObject = ancestorCache->getOrCreate(*ancestorElement)))
