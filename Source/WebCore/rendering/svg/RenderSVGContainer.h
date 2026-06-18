@@ -52,6 +52,11 @@ public:
         return m_objectBoundingBox;
     }
     FloatRect objectBoundingBoxWithoutTransformations() const final { return m_objectBoundingBoxWithoutTransformations; }
+    // A viewport-establishing container (inner <svg>, <marker>) overrides this to return its viewport
+    // rectangle, so that it contributes its viewport (not its clipped descendant geometry) to an
+    // ancestor's "without transformations" object bounding box. Public so SVGBoundingBoxComputation
+    // can honor it while recursing.
+    virtual std::optional<FloatRect> overridenObjectBoundingBoxWithoutTransformations() const { return std::nullopt; }
     FloatRect strokeBoundingBox() const final;
 
     void invalidateCachedSVGTransformDependentBoundingBoxes() final { m_transformDependentBoundingBoxesDirty = true; }
@@ -70,7 +75,6 @@ protected:
     virtual void layoutChildren();
     virtual bool pointIsInsideViewportClip(const FloatPoint&) { return true; }
     virtual bool updateLayoutSizeIfNeeded() { return false; }
-    virtual std::optional<FloatRect> overridenObjectBoundingBoxWithoutTransformations() const { return std::nullopt; }
     bool nodeAtPoint(const HitTestRequest&, HitTestResult&, const HitTestLocation& locationInContainer, const LayoutPoint& accumulatedOffset, HitTestAction) override;
     void addFocusRingRects(Vector<LayoutRect>& rects, const LayoutPoint& additionalOffset, const RenderLayerModelObject* container) const override;
 

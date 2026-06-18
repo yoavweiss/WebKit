@@ -61,6 +61,20 @@ void SVGBoundingBoxComputation::recomputeTransformDependentBoundingBoxes(const R
 
 FloatRect SVGBoundingBoxComputation::computeDecoratedBoundingBox(const SVGBoundingBoxComputation::DecorationOptions& options, bool* boundingBoxValid) const
 {
+    // A viewport-establishing container (inner <svg>, <marker>) contributes its viewport rectangle
+    // (cached in overridenObjectBoundingBoxWithoutTransformations()) to an ancestor's bounding box,
+    // not its descendant geometry. This follows from viewport establishment, independent of overflow,
+    // and keeps the ancestor's recursion consistent with the box the container reports for itself.
+    if (options.contains(DecorationOption::IgnoreTransformations)) {
+        if (CheckedPtr container = dynamicDowncast<RenderSVGContainer>(m_renderer.get())) {
+            if (auto overriden = container->overridenObjectBoundingBoxWithoutTransformations()) {
+                if (boundingBoxValid)
+                    *boundingBoxValid = true;
+                return *overriden;
+            }
+        }
+    }
+
     // SVG2: Bounding boxes algorithm (https://svgwg.org/svg2-draft/coords.html#BoundingBoxes)
 
     // The following algorithm defines how to compute a bounding box for a given element. The inputs to the algorithm are:
