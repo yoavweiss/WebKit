@@ -275,6 +275,8 @@ private:
     void dragDidChange(WebCore::MouseRelatedEvent&);
     void dragDidEnd(WebCore::MouseRelatedEvent&);
 
+    void logInteractionDiagnostic();
+
     LayoutPoint flippedLocationInElementForMouseEvent(WebCore::MouseRelatedEvent&);
 #if USE(SYSTEM_PREVIEW)
     bool isPointInSystemPreviewBadge(const FloatPoint&) const;
@@ -327,6 +329,7 @@ private:
 
     URL m_sourceURL;
     CachedResourceHandle<CachedRawResource> m_resource;
+    String m_originalMIMEType;
     SharedBufferBuilder m_data;
     mutable std::atomic<size_t> m_dataMemoryCost { 0 };
     size_t m_reportedDataMemoryCost { 0 };
