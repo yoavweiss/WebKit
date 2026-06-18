@@ -6401,7 +6401,7 @@ static void logTextInteraction(const char* methodName, UIGestureRecognizer *loup
 
     _isChangingFocusUsingAccessoryTab = YES;
     [self _internalBeginSelectionChange];
-    protect(_page)->focusNextFocusedElement(direction == WebKit::TabDirection::Next, [protectedSelf = retainPtr(self)] {
+    protect(_page)->focusNextFocusedElement(_focusedElementInformation.frameID(), direction == WebKit::TabDirection::Next, [protectedSelf = retainPtr(self)] {
         [protectedSelf _internalEndSelectionChange];
         [protectedSelf reloadInputViews];
         protectedSelf->_isChangingFocusUsingAccessoryTab = NO;
@@ -9316,13 +9316,13 @@ static bool canUseQuickboardControllerFor(UITextContentType type)
 - (void)focusedFormControlViewDidRequestNextNode:(WKFocusedFormControlView *)view
 {
     if (_focusedElementInformation.hasNextNode)
-        _page->focusNextFocusedElement(true, [] { });
+        _page->focusNextFocusedElement(_focusedElementInformation.frameID(), true, [] { });
 }
 
 - (void)focusedFormControlViewDidRequestPreviousNode:(WKFocusedFormControlView *)view
 {
     if (_focusedElementInformation.hasPreviousNode)
-        _page->focusNextFocusedElement(false, [] { });
+        _page->focusNextFocusedElement(_focusedElementInformation.frameID(), false, [] { });
 }
 
 - (BOOL)hasNextNodeForFocusedFormControlView:(WKFocusedFormControlView *)view

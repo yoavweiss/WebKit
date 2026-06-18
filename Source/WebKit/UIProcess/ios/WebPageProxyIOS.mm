@@ -1066,16 +1066,17 @@ void WebPageProxy::disableInspectorNodeSearch()
         pageClient->disableInspectorNodeSearch();
 }
 
-void WebPageProxy::focusNextFocusedElement(bool isForward, CompletionHandler<void()>&& callbackFunction)
+void WebPageProxy::focusNextFocusedElement(std::optional<WebCore::FrameIdentifier> frameID, bool isForward, CompletionHandler<void()>&& callbackFunction)
 {
     if (!hasRunningProcess()) {
         callbackFunction();
         return;
     }
-    
-    protect(legacyMainFrameProcess())->sendWithAsyncReply(Messages::WebPage::FocusNextFocusedElement(isForward), [callbackFunction = WTF::move(callbackFunction), backgroundActivity = protect(m_legacyMainFrameProcess->throttler())->backgroundActivity("WebPageProxy::focusNextFocusedElement"_s)] () mutable {
+
+    auto backgroundActivity = protect(m_legacyMainFrameProcess->throttler())->backgroundActivity("WebPageProxy::focusNextFocusedElement"_s);
+    sendWithAsyncReplyToProcessContainingFrame(frameID, Messages::WebPage::FocusNextFocusedElement(isForward), CompletionHandler<void()> { [callbackFunction = WTF::move(callbackFunction), backgroundActivity = WTF::move(backgroundActivity)] () mutable {
         callbackFunction();
-    }, webPageIDInMainFrameProcess());
+    } });
 }
 
 void WebPageProxy::setFocusedElementValue(std::optional<WebCore::FrameIdentifier> frameID, const WebCore::ElementContext& context, const String& value)

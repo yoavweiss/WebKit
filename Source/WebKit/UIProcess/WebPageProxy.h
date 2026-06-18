@@ -1246,7 +1246,7 @@ public:
     void performActionOnElement(uint32_t action);
     void performActionOnElements(uint32_t action, Vector<WebCore::ElementContext>&&);
     void saveImageToLibrary(IPC::Connection&, WebCore::SharedMemoryHandle&& imageHandle, const String& authorizationToken);
-    void focusNextFocusedElement(bool isForward, CompletionHandler<void()>&&);
+    void focusNextFocusedElement(std::optional<WebCore::FrameIdentifier>, bool isForward, CompletionHandler<void()>&&);
     void setFocusedElementValue(std::optional<WebCore::FrameIdentifier>, const WebCore::ElementContext&, const String&);
     void setFocusedElementSelectedIndex(std::optional<WebCore::FrameIdentifier>, const WebCore::ElementContext&, uint32_t index, bool allowMultipleSelection = false);
     void setSelectElementIsOpen(std::optional<WebCore::FrameIdentifier>, const WebCore::ElementContext&, bool isOpen);
