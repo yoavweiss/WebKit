@@ -356,9 +356,7 @@ inline void BuilderCustom::applyValueZoom(BuilderState& builderState, CSSValue& 
 
     resetUsedZoom(builderState);
     auto zoom = toStyleFromCSSValue<Zoom>(builderState, value);
-    // FIXME: The spec says that zoom values of 0 should be treated as 1, not ignored entirely. https://drafts.csswg.org/css-viewport/#valdef-zoom-number
-    if (!isZero(zoom))
-        builderState.setZoom(zoom);
+    builderState.setZoom(isZero(zoom) ? Zoom { 1.0f } : zoom);
 }
 
 void maybeUpdateFontForLetterSpacingOrWordSpacing(BuilderState& builderState, CSSValue& value)
