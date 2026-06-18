@@ -56,6 +56,7 @@
 #include <wtf/text/CString.h>
 #include <wtf/text/MakeString.h>
 #include <wtf/text/ParsingUtilities.h>
+#include <wtf/text/StringBuilder.h>
 #include <wtf/text/StringToIntegerConversion.h>
 #include <wtf/text/StringView.h>
 #include <wtf/text/WTFString.h>
@@ -162,6 +163,41 @@ String WebSocketHandshake::clientLocation() const
     return makeString(m_secure ? "wss"_s : "ws"_s, "://"_s, hostName(m_url, m_secure), resourceName(m_url));
 }
 
+static bool isStandardWebSocketHandshakeRequestHeader(HTTPHeaderName name)
+{
+    switch (name) {
+    case HTTPHeaderName::Upgrade:
+    case HTTPHeaderName::Connection:
+    case HTTPHeaderName::Host:
+    case HTTPHeaderName::Origin:
+    case HTTPHeaderName::SecWebSocketProtocol:
+    case HTTPHeaderName::SecWebSocketKey:
+    case HTTPHeaderName::SecWebSocketVersion:
+    case HTTPHeaderName::SecWebSocketExtensions:
+    case HTTPHeaderName::Pragma:
+    case HTTPHeaderName::CacheControl:
+    case HTTPHeaderName::UserAgent:
+    case HTTPHeaderName::Cookie:
+        return true;
+    default:
+        return false;
+    }
+}
+
+void WebSocketHandshake::setClientHandshakeRequestHeaders(const HTTPHeaderMap& headers)
+{
+    HTTPHeaderMap filtered;
+    for (const auto& header : headers) {
+        if (auto httpHeaderName = header.keyAsHTTPHeaderName) {
+            if (isStandardWebSocketHandshakeRequestHeader(*httpHeaderName))
+                continue;
+            filtered.set(*httpHeaderName, header.value);
+        } else
+            filtered.setUncommonHeader(header.key, header.value);
+    }
+    m_clientHandshakeRequestHeaders = WTF::move(filtered);
+}
+
 CString WebSocketHandshake::clientHandshakeMessage() const
 {
     // Keep the following consistent with clientHandshakeRequest just below.
@@ -172,6 +208,10 @@ CString WebSocketHandshake::clientHandshakeMessage() const
     // Add no-cache headers to avoid a compatibility issue. There are some proxies that
     // rewrite "Connection: upgrade" to "Connection: close" in the response if a request
     // doesn't contain these headers.
+
+    StringBuilder extraHeaders;
+    for (const auto& header : m_clientHandshakeRequestHeaders)
+        extraHeaders.append(header.key, ": "_s, header.value, "\r\n"_s);
 
     auto extensions = m_extensionDispatcher.createHeaderValue();
     return makeString("GET "_s, resourceName(m_url), " HTTP/1.1\r\n"
@@ -185,7 +225,8 @@ CString WebSocketHandshake::clientHandshakeMessage() const
         "Sec-WebSocket-Key: "_s, m_secWebSocketKey, "\r\n"
         "Sec-WebSocket-Version: 13\r\n"_s,
         extensions.isEmpty() ? ""_s : "Sec-WebSocket-Extensions: "_s, extensions, extensions.isEmpty() ? ""_s : "\r\n"_s,
-        "User-Agent: "_s, m_userAgent, "\r\n"
+        "User-Agent: "_s, m_userAgent, "\r\n"_s,
+        extraHeaders.toString(),
         "\r\n"_s).utf8();
 }
 
@@ -213,6 +254,12 @@ ResourceRequest WebSocketHandshake::clientHandshakeRequest(NOESCAPE const Functi
         request.setHTTPHeaderField(HTTPHeaderName::SecWebSocketExtensions, extensions);
     request.setHTTPUserAgent(m_userAgent);
     request.setIsAppInitiated(m_isAppInitiated);
+    for (const auto& header : m_clientHandshakeRequestHeaders) {
+        if (auto httpHeaderName = header.keyAsHTTPHeaderName)
+            request.setHTTPHeaderField(*httpHeaderName, header.value);
+        else
+            request.setHTTPHeaderField(header.key, header.value);
+    }
     return request;
 }
 

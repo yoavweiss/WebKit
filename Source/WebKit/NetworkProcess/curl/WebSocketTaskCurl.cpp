@@ -125,6 +125,7 @@ void WebSocketTask::didOpen(WebCore::CurlStreamID)
     m_handshake = makeUnique<WebCore::WebSocketHandshake>(m_request.url(), m_protocol, m_request.httpUserAgent(), m_request.httpHeaderField(WebCore::HTTPHeaderName::Origin), m_request.allowCookies(), false);
     m_handshake->reset();
     m_handshake->addExtensionProcessor(m_deflateFramer.createExtensionProcessor());
+    m_handshake->setClientHandshakeRequestHeaders(m_request.httpHeaderFields());
 
     String cookieHeaderField;
     if (m_request.allowCookies()) {

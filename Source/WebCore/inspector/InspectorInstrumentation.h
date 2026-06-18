@@ -302,7 +302,8 @@ public:
     static void workerTerminated(WorkerInspectorProxy&);
 
     static void didCreateWebSocket(Document*, WebSocketChannelIdentifier, const URL& requestURL);
-    static void willSendWebSocketHandshakeRequest(Document*, WebSocketChannelIdentifier, const ResourceRequest&);
+    static void willSendWebSocketHandshakeRequest(Document*, WebSocketChannelIdentifier, ResourceRequest&);
+    static void didSendWebSocketHandshakeRequest(Document*, WebSocketChannelIdentifier, const ResourceRequest&);
     static void didReceiveWebSocketHandshakeResponse(Document*, WebSocketChannelIdentifier, const ResourceResponse&);
     static void didCloseWebSocket(Document*, WebSocketChannelIdentifier);
     static void didReceiveWebSocketFrame(Document*, WebSocketChannelIdentifier, const WebSocketFrame&);
@@ -507,7 +508,8 @@ private:
     static void workerTerminatedImpl(InstrumentingAgents&, WorkerInspectorProxy&);
 
     static void didCreateWebSocketImpl(InstrumentingAgents&, WebSocketChannelIdentifier, const URL& requestURL);
-    static void willSendWebSocketHandshakeRequestImpl(InstrumentingAgents&, WebSocketChannelIdentifier, const ResourceRequest&);
+    static void willSendWebSocketHandshakeRequestImpl(InstrumentingAgents&, WebSocketChannelIdentifier, ResourceRequest&);
+    static void didSendWebSocketHandshakeRequestImpl(InstrumentingAgents&, WebSocketChannelIdentifier, const ResourceRequest&);
     static void didReceiveWebSocketHandshakeResponseImpl(InstrumentingAgents&, WebSocketChannelIdentifier, const ResourceResponse&);
     static void didCloseWebSocketImpl(InstrumentingAgents&, WebSocketChannelIdentifier);
     static void didReceiveWebSocketFrameImpl(InstrumentingAgents&, WebSocketChannelIdentifier, const WebSocketFrame&);
@@ -1373,11 +1375,18 @@ inline void InspectorInstrumentation::didCreateWebSocket(Document* document, Web
         didCreateWebSocketImpl(*agents, identifier, requestURL);
 }
 
-inline void InspectorInstrumentation::willSendWebSocketHandshakeRequest(Document* document, WebSocketChannelIdentifier identifier, const ResourceRequest& request)
+inline void InspectorInstrumentation::willSendWebSocketHandshakeRequest(Document* document, WebSocketChannelIdentifier identifier, ResourceRequest& request)
 {
     FAST_RETURN_IF_NO_FRONTENDS(void());
     if (RefPtr agents = instrumentingAgents(document))
         willSendWebSocketHandshakeRequestImpl(*agents, identifier, request);
+}
+
+inline void InspectorInstrumentation::didSendWebSocketHandshakeRequest(Document* document, WebSocketChannelIdentifier identifier, const ResourceRequest& request)
+{
+    FAST_RETURN_IF_NO_FRONTENDS(void());
+    if (RefPtr agents = instrumentingAgents(document))
+        didSendWebSocketHandshakeRequestImpl(*agents, identifier, request);
 }
 
 inline void InspectorInstrumentation::didReceiveWebSocketHandshakeResponse(Document* document, WebSocketChannelIdentifier identifier, const ResourceResponse& response)
