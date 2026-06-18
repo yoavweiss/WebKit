@@ -32,6 +32,7 @@
 #import "IOSurfacePool.h"
 #import "ImageBufferBackend.h"
 #import "Logging.h"
+#import "NativeImage.h"
 #import "PlatformScreen.h"
 #import "ProcessCapabilities.h"
 #import "ProcessIdentity.h"
@@ -540,6 +541,20 @@ RetainPtr<CGImageRef> IOSurface::createImage(CGContextRef context)
 {
     ASSERT(CGIOSurfaceContextGetSurface(context) == m_surface);
     return adoptCF(CGIOSurfaceContextCreateImage(context));
+}
+
+RefPtr<NativeImage> IOSurface::createNativeImage()
+{
+    std::optional<CGImageAlphaInfo> alphaInfo;
+#if ENABLE(PIXEL_FORMAT_RGBA16F)
+    if (pixelFormat() == Format::RGBA16F)
+        alphaInfo = kCGImageAlphaNoneSkipLast;
+#endif
+    RetainPtr<CGContextRef> cgContext { createPlatformContext(0, alphaInfo) };
+    if (!cgContext)
+        return nullptr;
+
+    return NativeImage::create(createImage(cgContext.get()));
 }
 
 RetainPtr<CGImageRef> IOSurface::sinkIntoImage(std::unique_ptr<IOSurface> surface, RetainPtr<CGContextRef> context)

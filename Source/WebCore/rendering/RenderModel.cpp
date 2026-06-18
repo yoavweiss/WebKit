@@ -88,7 +88,6 @@ void RenderModel::update()
     contentChanged(ContentChangeType::Model);
 }
 
-#if USE(SYSTEM_PREVIEW)
 void RenderModel::paintReplaced(PaintInfo& paintInfo, const LayoutPoint& paintOffset)
 {
     if (paintInfo.phase != PaintPhase::Foreground)
@@ -97,6 +96,13 @@ void RenderModel::paintReplaced(PaintInfo& paintInfo, const LayoutPoint& paintOf
     if (paintInfo.context().paintingDisabled())
         return;
 
+    if (paintInfo.paintBehavior.contains(PaintBehavior::Snapshotting)) {
+        LayoutRect snapshotRect { replacedContentRect() };
+        snapshotRect.moveBy(paintOffset);
+        protect(modelElement())->paintCurrentFrameInContext(paintInfo.context(), snapRectToDevicePixels(snapshotRect, protect(document())->deviceScaleFactor()));
+    }
+
+#if USE(SYSTEM_PREVIEW)
     if (!modelElement().document().settings().systemPreviewEnabled())
         return;
 
@@ -114,8 +120,8 @@ void RenderModel::paintReplaced(PaintInfo& paintInfo, const LayoutPoint& paintOf
     contentRect.moveBy(paintOffset);
     RefPtr document = modelElement().document();
     theme().paintSystemPreviewBadge(paintInfo, snapRectToDevicePixels(contentRect, document->deviceScaleFactor()));
-}
 #endif
+}
 
 }
 
