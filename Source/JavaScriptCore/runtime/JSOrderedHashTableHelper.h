@@ -413,16 +413,17 @@ public:
     {
         ASSERT(!isObsolete(base));
         TableSize capacity = Helper::capacity(base);
+        TableSize dataCapacity = Helper::dataCapacity(capacity);
         TableSize deletedEntryCount = Helper::deletedEntryCount(base);
         TableSize usedCapacity = Helper::aliveEntryCount(base) + deletedEntryCount;
 
-        if (usedCapacity < dataCapacity(capacity))
+        if (usedCapacity < dataCapacity)
             return nullptr;
 
         bool isSmallCapacity = capacity < LargeCapacity;
         TableSize expansionFactor = isSmallCapacity ? 4 : 2;
         TableSize newCapacity = Checked<TableSize>(capacity) * expansionFactor;
-        if (deletedEntryCount >= (capacity / 2)) {
+        if (deletedEntryCount >= (dataCapacity / 2)) {
             // No need to expand. Just clear the deleted entries.
             // FIXME: Can we do this in place?
             newCapacity = capacity;
