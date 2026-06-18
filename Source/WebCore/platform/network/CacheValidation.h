@@ -66,6 +66,7 @@ struct CacheControlDirectives {
         , noStore(false)
         , mustRevalidate(false)
         , immutable(false)
+        , isPublic(false)
         { }
 
     Markable<Seconds> maxAge;
@@ -75,6 +76,7 @@ struct CacheControlDirectives {
     bool noStore : 1;
     bool mustRevalidate : 1;
     bool immutable : 1;
+    bool isPublic : 1;
 };
 WEBCORE_EXPORT CacheControlDirectives parseCacheControlDirectives(const HTTPHeaderMap&);
 

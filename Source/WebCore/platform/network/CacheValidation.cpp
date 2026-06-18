@@ -296,6 +296,8 @@ CacheControlDirectives parseCacheControlDirectives(const HTTPHeaderMap& headers)
                 result.noCache = true;
             else if (equalLettersIgnoringASCIICase(directives[i].first, "no-store"_s))
                 result.noStore = true;
+            else if (equalLettersIgnoringASCIICase(directives[i].first, "public"_s))
+                result.isPublic = true;
             else if (equalLettersIgnoringASCIICase(directives[i].first, "must-revalidate"_s))
                 result.mustRevalidate = true;
             else if (equalLettersIgnoringASCIICase(directives[i].first, "max-age"_s)) {

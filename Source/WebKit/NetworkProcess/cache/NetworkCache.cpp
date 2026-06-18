@@ -293,7 +293,7 @@ static StoreDecision makeStoreDecision(const WebCore::ResourceRequest& originalR
         // http://tools.ietf.org/html/rfc7234#section-4.3.2
         bool hasExpirationHeaders = response.expires() || response.cacheControlMaxAge();
         bool expirationHeadersAllowCaching = WebCore::isStatusCodePotentiallyCacheable(response.httpStatusCode()) && hasExpirationHeaders;
-        if (!expirationHeadersAllowCaching)
+        if (!expirationHeadersAllowCaching && !response.cacheControlContainsPublic())
             return StoreDecision::NoDueToHTTPStatusCode;
     }
 
