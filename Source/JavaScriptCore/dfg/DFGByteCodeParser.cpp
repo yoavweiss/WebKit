@@ -1204,6 +1204,15 @@ private:
             break;
         }
 
+        case UInt32ToNumber: {
+            UnaryArithProfile* arithProfile = m_inlineStackTop->m_profiledBlock->unaryArithProfileForBytecodeIndex(m_currentIndex);
+            if (!arithProfile)
+                break;
+            if (arithProfile->didObserveInt32Overflow() || m_inlineStackTop->m_exitProfile.hasExitSite(m_currentIndex, Overflow))
+                node->mergeFlags(NodeMayOverflowInt32InBaseline);
+            break;
+        }
+
         default:
             break;
         }

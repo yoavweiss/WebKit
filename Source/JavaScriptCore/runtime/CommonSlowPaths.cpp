@@ -677,8 +677,12 @@ JSC_DEFINE_COMMON_SLOW_PATH(slow_path_unsigned)
 {
     BEGIN();
     auto bytecode = pc->as<OpUnsigned>();
+    auto& profile = codeBlock->unlinkedCodeBlock()->unaryArithProfile(bytecode.m_profileIndex);
     uint32_t a = GET_C(bytecode.m_operand).jsValue().toUInt32(globalObject);
-    RETURN(jsNumber(a));
+    JSValue result = jsNumber(a);
+    RETURN_WITH_PROFILING(result, {
+        profile.observeResult(result);
+    });
 }
 
 JSC_DEFINE_COMMON_SLOW_PATH(slow_path_bitnot)
