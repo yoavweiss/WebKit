@@ -1051,6 +1051,13 @@ void Adjuster::adjustForSiteSpecificQuirks(Style::ComputedStyle& style) const
             style.setDisplayMaintainingOriginalDisplay(DisplayType::None);
     }
 
+    // airindiaexpress.com https://webkit.org/b/317375
+    if (documentQuirks.needsAirIndiaExpressLayeringQuirk()) {
+        static MainThreadNeverDestroyed<const AtomString> className("new-trip-type-and-guest-selection-container"_s);
+        if (m_element->hasClassName(className))
+            style.setUsedZIndex(2);
+    }
+
     if (documentQuirks.needsPrimeVideoUserSelectNoneQuirk()) {
         static MainThreadNeverDestroyed<const AtomString> className("webPlayerSDKUiContainer"_s);
         if (m_element->hasClassName(className))

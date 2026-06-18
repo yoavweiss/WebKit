@@ -31,6 +31,7 @@
 namespace WebCore {
 
 struct QuirksData {
+    bool isAirIndiaExpress : 1 { false };
     bool isAmazon : 1 { false };
     bool isBankOfAmerica : 1 { false };
     bool isBestBuy : 1 { false };
@@ -80,6 +81,7 @@ struct QuirksData {
 #if ENABLE(TWO_PHASE_CLICKS)
         MayNeedToIgnoreContentObservation,
 #endif
+        NeedsAirIndiaExpressLayeringQuirk,
         NeedsBodyScrollbarWidthNoneDisabledQuirk,
         NeedsCanPlayAfterSeekedQuirk,
         NeedsChromeMediaControlsPseudoElementQuirk,

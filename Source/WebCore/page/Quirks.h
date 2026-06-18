@@ -160,6 +160,7 @@ public:
 
     bool needsScrollbarWidthThinDisabledQuirk() const;
     bool needsBodyScrollbarWidthNoneDisabledQuirk() const;
+    bool needsAirIndiaExpressLayeringQuirk() const;
 
     bool NODELETE shouldOpenAsAboutBlank(const String&) const;
 

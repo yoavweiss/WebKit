@@ -832,6 +832,14 @@ bool Quirks::needsBodyScrollbarWidthNoneDisabledQuirk() const
     return m_quirksData.quirkIsEnabled(QuirksData::SiteSpecificQuirk::NeedsBodyScrollbarWidthNoneDisabledQuirk);
 }
 
+// airindiaexpress.com https://webkit.org/b/317375
+bool Quirks::needsAirIndiaExpressLayeringQuirk() const
+{
+    QUIRKS_EARLY_RETURN_IF_DISABLED_WITH_VALUE(false);
+
+    return m_quirksData.quirkIsEnabled(QuirksData::SiteSpecificQuirk::NeedsAirIndiaExpressLayeringQuirk);
+}
+
 // gizmodo.com rdar://102227302
 bool Quirks::needsFullscreenDisplayNoneQuirk() const
 {
@@ -3322,6 +3330,15 @@ static void handleRedditQuirks(QuirksData& quirksData, const URL& /* quirksURL *
 }
 #endif
 
+static void handleAirIndiaExpressQuirks(QuirksData& quirksData, const URL& /* quirksURL */, const String& quirksDomainString, const URL& /* documentURL */)
+{
+    QUIRKS_EARLY_RETURN_IF_NOT_DOMAIN("airindiaexpress.com"_s);
+
+    // airindiaexpress.com https://webkit.org/b/317375
+    quirksData.isAirIndiaExpress = true;
+    quirksData.enableQuirk(QuirksData::SiteSpecificQuirk::NeedsAirIndiaExpressLayeringQuirk);
+}
+
 static void handleAmazonQuirks(QuirksData& quirksData, const URL& /* quirksURL */, const String& quirksDomainString, const URL&  /* documentURL */)
 {
     // Note: There is a userAgent override for rdar://117771731, see needsCustomUserAgentOverride()
@@ -4095,6 +4112,7 @@ void Quirks::determineRelevantQuirks()
 #if ENABLE(MEDIA_STREAM)
         { "actesting"_s, &handleACTestingQuirks },
 #endif
+        { "airindiaexpress"_s, &handleAirIndiaExpressQuirks },
         { "amazon"_s, &handleAmazonQuirks },
         { "apple"_s, &handleAppleQuirks },
 #if PLATFORM(IOS_FAMILY)
