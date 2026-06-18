@@ -477,22 +477,4 @@ bool isStatusCodeCacheableByDefault(int statusCode)
     }
 }
 
-bool isStatusCodePotentiallyCacheable(int statusCode)
-{
-    switch (statusCode) {
-    case 201: // Created
-    case 202: // Accepted
-    case 205: // Reset Content
-    case 302: // Found
-    case 303: // See Other
-    case 307: // Temporary redirect
-    case 403: // Forbidden
-    case 406: // Not Acceptable
-    case 415: // Unsupported Media Type
-        return true;
-    default:
-        return false;
-    }
-}
-
 }

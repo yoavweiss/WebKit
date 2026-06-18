@@ -305,9 +305,8 @@ static StoreDecision makeStoreDecision(const WebCore::ResourceRequest& originalR
     if (!WebCore::isStatusCodeCacheableByDefault(response.httpStatusCode())) {
         // http://tools.ietf.org/html/rfc7234#section-4.3.2
         bool hasExpirationHeaders = response.expires() || response.cacheControlMaxAge();
-        bool expirationHeadersAllowCaching = WebCore::isStatusCodePotentiallyCacheable(response.httpStatusCode()) && hasExpirationHeaders;
-        if (!expirationHeadersAllowCaching && !response.cacheControlContainsPublic())
-            return StoreDecision::NoDueToHTTPStatusCode;
+        if (!hasExpirationHeaders && !response.cacheControlContainsPublic())
+            return StoreDecision::NoDueToMissingExpirationHeaders;
     }
 
     // FIXME: We are not correctly computing the redirected request URL in case original request
