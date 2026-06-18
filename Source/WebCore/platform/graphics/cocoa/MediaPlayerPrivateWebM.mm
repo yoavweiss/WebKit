@@ -50,6 +50,7 @@
 #import "ResourceResponse.h"
 #import "SampleMap.h"
 #import "SecurityOrigin.h"
+#import "SecurityOriginHash.h"
 #import "ShareableBitmap.h"
 #import "TrackBuffer.h"
 #import "VP9UtilitiesCocoa.h"
