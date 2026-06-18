@@ -209,9 +209,6 @@ webkit.org/b/224924 fast/forms/datetimelocal/datetimelocal-show-picker.html [ Sk
 
 fast/forms/time/time-editable-components/time-editable-components-focus-and-blur-events.html [ Failure ]
 
-# Requires WebP support.
-webkit.org/b/98939 fast/canvas/canvas-toDataURL-webp.html [ Skip ]
-
 # DataTransferItems is not yet implemented.
 webkit.org/b/98940 editing/pasteboard/data-transfer-items.html [ Skip ]
 webkit.org/b/98940 editing/pasteboard/data-transfer-items-image-png.html [ Skip ]

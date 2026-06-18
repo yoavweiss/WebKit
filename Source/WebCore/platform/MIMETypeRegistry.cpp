@@ -492,18 +492,11 @@ std::unique_ptr<MIMETypeRegistryThreadGlobalData> MIMETypeRegistry::createMIMETy
         "image/png"_s,
         "image/jpeg"_s,
         "image/gif"_s,
-#elif PLATFORM(GTK)
-        "image/png"_s,
-        "image/jpeg"_s,
-        "image/tiff"_s,
-        "image/bmp"_s,
-        "image/ico"_s,
 #elif USE(CAIRO)
         "image/png"_s,
 #elif USE(SKIA)
         "image/png"_s,
         "image/jpeg"_s,
-        "image/jpg"_s,
         "image/webp"_s,
 #endif
     };

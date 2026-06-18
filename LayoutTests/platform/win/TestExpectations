@@ -2592,8 +2592,6 @@ fast/css3-text/font-synthesis.html [ ImageOnlyFailure ]
 
 fast/css3-text/css3-text-decoration/text-underline-position/underline-visual-overflow-with-subpixel-position.html [ Failure ]
 
-fast/canvas/toDataURL-alpha-permutation.html [ ImageOnlyFailure ]
-
 fast/dynamic/float-from-empty-line.html [ Failure ]
 
 imported/w3c/web-platform-tests/resource-timing/cross-origin-redirects.html [ Pass Failure ]
