@@ -231,7 +231,7 @@ void ProvisionalPageProxy::cancel()
     if (m_provisionalLoadURL.isEmpty() || !mainFrame)
         return;
 
-    ASSERT(process().state() == WebProcessProxy::State::Running);
+    ASSERT(process().isLaunching() || process().state() == WebProcessProxy::State::Running);
 
     PROVISIONALPAGEPROXY_RELEASE_LOG(ProcessSwapping, "cancel: Simulating a didFailProvisionalLoadForFrame");
     ASSERT(mainFrame);

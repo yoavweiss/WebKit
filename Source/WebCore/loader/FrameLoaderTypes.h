@@ -156,6 +156,11 @@ enum class BrowsingContextGroupSwitchDecision : uint8_t {
     NewIsolatedGroup,
 };
 
+enum class NavigationResponseProcessSwapReason : uint8_t {
+    COOP,
+    EnhancedSecurity,
+};
+
 // Passed to FrameLoader::urlSelected() and ScriptController::executeIfJavaScriptURL()
 // to control whether, in the case of a JavaScript URL, executeIfJavaScriptURL() should
 // replace the document. It is a FIXME to eliminate this extra parameter from

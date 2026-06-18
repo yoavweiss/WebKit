@@ -3926,6 +3926,12 @@ enum class WebCore::BrowsingContextGroupSwitchDecision : uint8_t {
     NewIsolatedGroup,
 };
 
+header: <WebCore/FrameLoaderTypes.h>
+enum class WebCore::NavigationResponseProcessSwapReason : uint8_t {
+    COOP,
+    EnhancedSecurity,
+};
+
 enum class WebCore::ShouldOpenExternalURLsPolicy : uint8_t {
     ShouldNotAllow,
     ShouldAllowExternalSchemesButNotAppLinks,
