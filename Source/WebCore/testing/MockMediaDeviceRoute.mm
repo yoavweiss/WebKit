@@ -32,11 +32,6 @@
 #import <AVKit/AVKit.h>
 #import <wtf/TZoneMallocInlines.h>
 
-@interface NSObject (Staging_169033633)
-@property (nonatomic) CMTime currentPlaybackPosition;
-@property (nonatomic) CMTime currentValue;
-@end
-
 namespace WebCore {
 
 WTF_MAKE_TZONE_ALLOCATED_IMPL(MockMediaDeviceRoute);
@@ -93,20 +88,20 @@ void MockMediaDeviceRoute::setPlaying(bool playing)
 
 bool MockMediaDeviceRoute::hasPlaybackError() const
 {
-    return !![m_platformRoute playbackError];
+    return !![m_platformRoute error];
 }
 
 void MockMediaDeviceRoute::setHasPlaybackError(bool)
 {
     RetainPtr error = [NSError errorWithDomain:WebMockMediaDeviceRouteErrorDomain code:WebMockMediaDeviceRouteErrorCodePlaybackError userInfo:nil];
-    [m_platformRoute setPlaybackError:error.get()];
+    [m_platformRoute setError:error.get()];
 }
 
 Vector<MockMediaDeviceRoute::AudioOption> MockMediaDeviceRoute::audioOptions() const
 {
-    NSArray<AVInterfaceMediaSelectionOptionSource *> *options = [m_platformRoute audioOptions];
+    NSArray<AVPlaybackUserInterfaceMediaSelectionOption *> *options = [m_platformRoute audioOptions];
     return Vector<AudioOption>(options.count, [&](size_t i) {
-        AVInterfaceMediaSelectionOptionSource *option = options[i];
+        AVPlaybackUserInterfaceMediaSelectionOption *option = options[i];
         return AudioOption {
             option.displayName,
             option.identifier,
@@ -117,9 +112,9 @@ Vector<MockMediaDeviceRoute::AudioOption> MockMediaDeviceRoute::audioOptions() c
 
 void MockMediaDeviceRoute::setAudioOptions(const Vector<AudioOption>& audioOptions)
 {
-    RetainPtr<NSMutableArray<AVInterfaceMediaSelectionOptionSource *>> options = [NSMutableArray arrayWithCapacity:audioOptions.size()];
+    RetainPtr options = [NSMutableArray arrayWithCapacity:audioOptions.size()];
     for (auto& option : audioOptions) {
-        RetainPtr platformOption = adoptNS([[AVInterfaceMediaSelectionOptionSource alloc] initWithDisplayName:option.displayName.createNSString().get() identifier:option.identifier.createNSString().get() extendedLanguageTag:option.extendedLanguageTag.createNSString().get()]);
+        RetainPtr platformOption = adoptNS([[AVPlaybackUserInterfaceMediaSelectionOption alloc] initWithDisplayName:option.displayName.createNSString().get() identifier:option.identifier.createNSString().get() extendedLanguageTag:option.extendedLanguageTag.createNSString().get() mediaCharacteristics:@[]]);
         [options addObject:platformOption.get()];
     }
     [m_platformRoute setAudioOptions:options.get()];
@@ -137,20 +132,12 @@ void MockMediaDeviceRoute::setPlaybackRate(float playbackRate)
 
 float MockMediaDeviceRoute::currentPlaybackPosition() const
 {
-    if ([m_platformRoute respondsToSelector:@selector(currentPlaybackPosition)])
-        return CMTimeGetSeconds([m_platformRoute currentPlaybackPosition]);
-ALLOW_DEPRECATED_DECLARATIONS_BEGIN
-    return CMTimeGetSeconds([m_platformRoute currentValue]);
-ALLOW_DEPRECATED_DECLARATIONS_END
+    return CMTimeGetSeconds([[m_platformRoute playbackPosition] position]);
 }
 
 void MockMediaDeviceRoute::setCurrentPlaybackPosition(float currentPlaybackPosition)
 {
-    if ([m_platformRoute respondsToSelector:@selector(setCurrentPlaybackPosition:)])
-        return [m_platformRoute setCurrentPlaybackPosition:CMTimeMakeWithSeconds(currentPlaybackPosition, 1000)];
-ALLOW_DEPRECATED_DECLARATIONS_BEGIN
-    [m_platformRoute setCurrentValue:CMTimeMakeWithSeconds(currentPlaybackPosition, 1000)];
-ALLOW_DEPRECATED_DECLARATIONS_END
+    [m_platformRoute seekToPosition:CMTimeMakeWithSeconds(currentPlaybackPosition, 1000) tolerance:kCMTimeZero];
 }
 
 MockMediaDeviceRoute::TimeRange MockMediaDeviceRoute::timeRange() const
