@@ -385,14 +385,6 @@ static void overrideControlCharacters(Vector<char16_t>& buffer, unsigned start, 
 
 static RefPtr<GlyphPage> createAndFillGlyphPage(unsigned pageNumber, const Font& font)
 {
-#if PLATFORM(IOS_FAMILY)
-    // FIXME: Times New Roman contains Arabic glyphs, but Core Text doesn't know how to shape them. See <rdar://problem/9823975>.
-    // Once we have the fix for <rdar://problem/9823975> then remove this code together with Font::shouldNotBeUsedForArabic()
-    // in <rdar://problem/12096835>.
-    if (GlyphPage::pageNumberIsUsedForArabic(pageNumber) && font.shouldNotBeUsedForArabic())
-        return nullptr;
-#endif
-
     unsigned glyphPageSize = GlyphPage::sizeForPageNumber(pageNumber);
 
     unsigned start = GlyphPage::startingCodePointInPageNumber(pageNumber);

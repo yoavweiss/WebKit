@@ -80,7 +80,6 @@ public:
     static constexpr unsigned indexForCodePoint(char32_t c) { return c % size; }
     static constexpr unsigned pageNumberForCodePoint(char32_t c) { return c / size; }
     static constexpr char32_t startingCodePointInPageNumber(unsigned pageNumber) { return pageNumber * size; }
-    static constexpr bool pageNumberIsUsedForArabic(unsigned pageNumber) { return startingCodePointInPageNumber(pageNumber) >= 0x600 && startingCodePointInPageNumber(pageNumber) + sizeForPageNumber(pageNumber) < 0x700; }
 
     GlyphData glyphDataForCharacter(char32_t c) const
     {
