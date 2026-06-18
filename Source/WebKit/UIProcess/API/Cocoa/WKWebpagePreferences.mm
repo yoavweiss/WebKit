@@ -555,12 +555,12 @@ ALLOW_DEPRECATED_IMPLEMENTATIONS_END
     return _websitePolicies->allowPrivacyProxy();
 }
 
-- (void)_setGlobalPrivacyControlEnabled:(BOOL)enabled
+- (void)setGlobalPrivacyControlEnabled:(BOOL)enabled
 {
     _websitePolicies->setGlobalPrivacyControlEnabled(enabled);
 }
 
-- (BOOL)_globalPrivacyControlEnabled
+- (BOOL)globalPrivacyControlEnabled
 {
     return protect(*_websitePolicies)->globalPrivacyControlEnabled().value_or(false);
 }

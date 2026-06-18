@@ -139,6 +139,4 @@ typedef NS_OPTIONS(NSUInteger, _WKWebsiteNetworkConnectionIntegrityPolicy) {
 
 @property (nonatomic, setter=setOverrideReferrer:) NSString *_overrideReferrerForAllRequests WK_API_AVAILABLE(macos(WK_MAC_TBA), ios(WK_IOS_TBA), visionos(WK_XROS_TBA));
 
-@property (nonatomic, setter=_setGlobalPrivacyControlEnabled:) BOOL _globalPrivacyControlEnabled WK_API_AVAILABLE(macos(WK_MAC_TBA), ios(WK_IOS_TBA), visionos(WK_XROS_TBA));
-
 @end
