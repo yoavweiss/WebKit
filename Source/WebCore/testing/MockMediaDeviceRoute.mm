@@ -29,6 +29,7 @@
 #if ENABLE(WIRELESS_PLAYBACK_MEDIA_PLAYER)
 
 #import "WebMockMediaDeviceRoute.h"
+#import <AVKit/AVKit.h>
 #import <wtf/TZoneMallocInlines.h>
 
 @interface NSObject (Staging_169033633)
@@ -99,6 +100,29 @@ void MockMediaDeviceRoute::setHasPlaybackError(bool)
 {
     RetainPtr error = [NSError errorWithDomain:WebMockMediaDeviceRouteErrorDomain code:WebMockMediaDeviceRouteErrorCodePlaybackError userInfo:nil];
     [m_platformRoute setPlaybackError:error.get()];
+}
+
+Vector<MockMediaDeviceRoute::AudioOption> MockMediaDeviceRoute::audioOptions() const
+{
+    NSArray<AVInterfaceMediaSelectionOptionSource *> *options = [m_platformRoute audioOptions];
+    return Vector<AudioOption>(options.count, [&](size_t i) {
+        AVInterfaceMediaSelectionOptionSource *option = options[i];
+        return AudioOption {
+            option.displayName,
+            option.identifier,
+            option.extendedLanguageTag,
+        };
+    });
+}
+
+void MockMediaDeviceRoute::setAudioOptions(const Vector<AudioOption>& audioOptions)
+{
+    RetainPtr<NSMutableArray<AVInterfaceMediaSelectionOptionSource *>> options = [NSMutableArray arrayWithCapacity:audioOptions.size()];
+    for (auto& option : audioOptions) {
+        RetainPtr platformOption = adoptNS([[AVInterfaceMediaSelectionOptionSource alloc] initWithDisplayName:option.displayName.createNSString().get() identifier:option.identifier.createNSString().get() extendedLanguageTag:option.extendedLanguageTag.createNSString().get()]);
+        [options addObject:platformOption.get()];
+    }
+    [m_platformRoute setAudioOptions:options.get()];
 }
 
 float MockMediaDeviceRoute::playbackRate() const

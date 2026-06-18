@@ -39,7 +39,7 @@
     Macro(timeRange, TimeRange, MediaTimeRange) \
     Macro(ready, Ready, bool) \
     Macro(buffering, Buffering, bool) \
-    Macro(hasAudio, HasAudio, bool) \
+    Macro(audioOptions, AudioOptions, Vector<MediaSelectionOption>) \
 \
 
 #define FOR_EACH_COMMON_READWRITE_KEY_PATH(Macro) \
@@ -275,6 +275,19 @@ static std::optional<MediaPlaybackSourceError> convert(NSError * _Nullable error
         error.domain,
         error.localizedDescription,
     };
+}
+
+static Vector<MediaSelectionOption> convert(NSArray * _Nullable options)
+{
+    return Vector<MediaSelectionOption>(options.count, [&](size_t i) {
+        id option = options[i];
+        return MediaSelectionOption {
+            [option displayName],
+            [option identifier],
+            MediaSelectionOption::Type::Audio,
+            [option extendedLanguageTag],
+        };
+    });
 }
 
 WTF_MAKE_TZONE_ALLOCATED_IMPL(MediaDeviceRoute);

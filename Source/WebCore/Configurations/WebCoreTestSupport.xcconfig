@@ -61,7 +61,7 @@ CLANG_INSTRUMENT_FOR_OPTIMIZATION_PROFILING = NO; // Disable PGO profile generat
 WK_PGO_GEN_FLAGS = ; // Disable IR PGO profile generation
 WK_PGO_USE_CFLAGS = ; // Disable IR PGO profile use
 WK_PGO_USE_LDFLAGS = ; // Disable IR PGO profile use
-OTHER_LDFLAGS[sdk=iphone*] = $(WK_COMMON_OTHER_LDFLAGS) -lAccessibility -framework CoreText -framework Metal $(ANGLE_LDFLAGS) $(LIBWEBRTC_LDFLAGS) $(SOURCE_VERSION_LDFLAGS);
+OTHER_LDFLAGS[sdk=iphone*] = $(WK_COMMON_OTHER_LDFLAGS) -lAccessibility -framework AVKit -framework CoreText -framework Metal $(ANGLE_LDFLAGS) $(LIBWEBRTC_LDFLAGS) $(SOURCE_VERSION_LDFLAGS);
 OTHER_LDFLAGS[sdk=appletv*] = $(WK_COMMON_OTHER_LDFLAGS) -lAccessibility -framework CoreText -framework Metal $(ANGLE_LDFLAGS) $(LIBWEBRTC_LDFLAGS) $(SOURCE_VERSION_LDFLAGS);
 OTHER_LDFLAGS[sdk=xr*] = $(WK_COMMON_OTHER_LDFLAGS) -lAccessibility -framework CoreText -framework Metal $(ANGLE_LDFLAGS) $(LIBWEBRTC_LDFLAGS) $(SOURCE_VERSION_LDFLAGS);
 SECT_ORDER_FLAGS = ;
