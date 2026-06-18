@@ -45,6 +45,13 @@ namespace WebCore {
 static constexpr std::array headersToIgnoreAfterRevalidation {
     "allow"_s,
     "connection"_s,
+    "content-disposition"_s,
+    "content-encoding"_s,
+    "content-language"_s,
+    "content-length"_s,
+    "content-location"_s,
+    "content-range"_s,
+    "content-type"_s,
     "etag"_s,
     "keep-alive"_s,
     "last-modified"_s,
@@ -62,7 +69,6 @@ static constexpr std::array headersToIgnoreAfterRevalidation {
 // Rather than listing all the relevant headers, we can consolidate them into
 // this list, also grabbed from Chromium's net/http/http_response_headers.cc.
 static constexpr std::array headerPrefixesToIgnoreAfterRevalidation {
-    "content-"_s,
     "x-content-"_s,
     "x-webkit-"_s
 };
