@@ -1110,9 +1110,11 @@ static std::optional<TypedChild> consumeAnchorFallback(CSSParserTokenRange& toke
         if (state.parserOptions.propertyOptions.unitlessZeroLength != UnitlessZeroQuirk::Allow)
             return { };
 
-        // Allow unitless 0.
-        auto value = std::get<Number>(typedFallback->child.value);
-        if (value.value)
+        // Allow unitless 0, but only as a bare <number> leaf. A math function
+        // such as calc(0) or min(0, 0) also has number type but is wrapped in a
+        // Sum node, so it is not a valid unitless-zero fallback.
+        auto* number = std::get_if<Number>(&typedFallback->child.value);
+        if (!number || number->value)
             return { };
 
         return TypedChild { makeNumeric(0, CSSUnitType::CSS_PX), Type::makeLength() };
