@@ -194,8 +194,6 @@ if (COMPILER_IS_GCC_OR_CLANG)
     WEBKIT_PREPEND_GLOBAL_COMPILER_FLAGS(-gsimple-template-names)
     WEBKIT_PREPEND_GLOBAL_COMPILER_FLAGS("-mllvm -dwarf-linkage-names=Abstract")
 
-    WEBKIT_APPEND_GLOBAL_COMPILER_FLAGS(-fno-strict-aliasing)
-
     # clang-cl.exe impersonates cl.exe so some clang arguments like -fno-rtti are
     # represented using cl.exe's options and should not be passed as flags, so
     # we do not add -fno-rtti or -fno-exceptions for clang-cl

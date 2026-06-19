@@ -200,7 +200,6 @@ add_compile_options("$<$<NOT:$<COMPILE_LANGUAGE:Swift>>:-Wno-objc-method-access>
 
 add_compile_options(
     "$<$<NOT:$<COMPILE_LANGUAGE:Swift>>:-fno-common>"
-    "$<$<NOT:$<COMPILE_LANGUAGE:Swift>>:-fstrict-aliasing>"
 )
 
 if (ENABLE_SANITIZERS)
