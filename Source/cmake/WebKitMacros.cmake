@@ -865,7 +865,16 @@ function(_webkit_generate_platform_swift_args _target _resp_path _ordering_dep)
     if (CMAKE_OSX_SYSROOT)
         list(APPEND _clang_cmd "-isysroot" "${CMAKE_OSX_SYSROOT}")
     endif ()
-    if (CMAKE_Swift_COMPILER_TARGET)
+    # The bundle clang carries its target triple, --sysroot, --gcc-install-dir and
+    # libstdc++ -isystem dirs in CMAKE_CXX_COMPILER_ARG1. Mirror them here, since
+    # this hand-built preprocess doesn't get them automatically and without the
+    # sysroot, preprocessing wtf/Platform.h leaks host glibc. This also supplies
+    # --target, making the block below a fallback for builds where ARG1 is empty.
+    if (CMAKE_CXX_COMPILER_ARG1)
+        separate_arguments(_cxx_compiler_arg1 NATIVE_COMMAND "${CMAKE_CXX_COMPILER_ARG1}")
+        list(APPEND _clang_cmd ${_cxx_compiler_arg1})
+    endif ()
+    if (CMAKE_Swift_COMPILER_TARGET AND NOT CMAKE_CXX_COMPILER_ARG1)
         list(APPEND _clang_cmd "-target" "${CMAKE_Swift_COMPILER_TARGET}")
     endif ()
     if (WEBKIT_ADDITIONS_INCLUDE_PATH)
@@ -1088,6 +1097,12 @@ macro(WEBKIT_SETUP_SWIFT_AND_GENERATE_SWIFT_CPP_INTEROP_HEADER _target _module_n
                 if (_dir MATCHES "/clang/[0-9]+/include(/|$)")
                     continue ()
                 endif ()
+                # When cross-compiling, don't forward host implicit C include dirs
+                # to Swift's clang importer: as explicit -I they break the libstdc++
+                # `std` module build. The sysroot and baked-in flags cover the target.
+                if (CMAKE_CROSSCOMPILING)
+                    continue ()
+                endif ()
                 list(APPEND _swift_options "-Xcc" "-I${_dir}")
             endforeach ()
         endif ()
@@ -1139,7 +1154,12 @@ macro(WEBKIT_SETUP_SWIFT_AND_GENERATE_SWIFT_CPP_INTEROP_HEADER _target _module_n
         endif ()
         list(APPEND _swift_options "-module-cache-path" "${CMAKE_BINARY_DIR}/SwiftModuleCache")
         set_property(DIRECTORY "${CMAKE_BINARY_DIR}" APPEND PROPERTY ADDITIONAL_CLEAN_FILES "${CMAKE_BINARY_DIR}/SwiftModuleCache")
-        list(APPEND _swift_options "-track-system-dependencies")
+        # -track-system-dependencies makes the clang importer resolve libstdc++'s
+        # modulemap via a /lib->/usr/lib path Yocto doesn't expose, breaking the
+        # cross build; there's no value in tracking a regenerated sysroot anyway.
+        if (NOT CMAKE_CROSSCOMPILING)
+            list(APPEND _swift_options "-track-system-dependencies")
+        endif ()
         # We'll use these options both for mainstream cmake invocations of swiftc (here)
         # and for our own invocation to output an interoperability .h file (later).
         # target_compile_options deduplicates repeated tokens, so collapse each
