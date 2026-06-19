@@ -985,6 +985,7 @@
 				WebKit/WKWebView/mac/FullscreenPointerLeave.mm,
 				WebKit/WKWebView/mac/FullscreenZoomInitialFrame.mm,
 				WebKit/WKWebView/mac/GetMatchedCSSRules.mm,
+				WebKit/WKWebView/mac/GrammarMarkerPrecedence.mm,
 				WebKit/WKWebView/mac/HIDGamepads.mm,
 				WebKit/WKWebView/mac/HTMLCollectionNamedItem.mm,
 				WebKit/WKWebView/mac/HTMLFormCollectionNamedItem.mm,
