@@ -1537,13 +1537,14 @@ list(APPEND webrtc_SOURCES
     Source/third_party/boringssl/src/crypto/evp/evp.cc
     Source/third_party/boringssl/src/crypto/evp/evp_ctx.cc
     Source/third_party/boringssl/src/crypto/evp/pbkdf.cc
+    Source/third_party/boringssl/src/crypto/evp/print.cc
     Source/third_party/boringssl/src/crypto/evp/p_dh.cc
     Source/third_party/boringssl/src/crypto/evp/p_dsa.cc
     Source/third_party/boringssl/src/crypto/evp/p_ec.cc
     Source/third_party/boringssl/src/crypto/evp/p_ed25519.cc
     Source/third_party/boringssl/src/crypto/evp/p_hkdf.cc
     Source/third_party/boringssl/src/crypto/evp/p_mldsa.cc
-    Source/third_party/boringssl/src/crypto/evp/print.cc
+    Source/third_party/boringssl/src/crypto/evp/p_mlkem.cc
     Source/third_party/boringssl/src/crypto/evp/p_rsa.cc
     Source/third_party/boringssl/src/crypto/evp/p_x25519.cc
     Source/third_party/boringssl/src/crypto/evp/scrypt.cc
@@ -1784,7 +1785,6 @@ list(APPEND webrtc_SOURCES
     Source/third_party/boringssl/src/tool/rand.cc
     Source/third_party/boringssl/src/tool/server.cc
     Source/third_party/boringssl/src/tool/sign.cc
-    Source/third_party/boringssl/src/tool/speed.cc
     Source/third_party/boringssl/src/tool/tool.cc
     Source/third_party/boringssl/src/tool/transport_common.cc
     Source/third_party/boringssl/src/util/ar/testdata/sample/bar.cc
