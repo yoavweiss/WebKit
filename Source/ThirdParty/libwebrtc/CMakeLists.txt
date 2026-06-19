@@ -41,9 +41,10 @@ set(webrtc_SOURCES
     Source/third_party/abseil-cpp/absl/base/internal/strerror.cc
     Source/third_party/abseil-cpp/absl/base/internal/sysinfo.cc
     Source/third_party/abseil-cpp/absl/base/internal/thread_identity.cc
-    Source/third_party/abseil-cpp/absl/base/internal/throw_delegate.cc
     Source/third_party/abseil-cpp/absl/base/internal/unscaledcycleclock.cc
+    Source/third_party/abseil-cpp/absl/base/casts.cc
     Source/third_party/abseil-cpp/absl/base/log_severity.cc
+    Source/third_party/abseil-cpp/absl/base/throw_delegate.cc
     Source/third_party/abseil-cpp/absl/container/internal/hash_generator_testing.cc
     Source/third_party/abseil-cpp/absl/container/internal/hashtablez_sampler.cc
     Source/third_party/abseil-cpp/absl/container/internal/hashtablez_sampler_force_weak_definition.cc
@@ -129,7 +130,6 @@ set(webrtc_SOURCES
     Source/third_party/abseil-cpp/absl/strings/match.cc
     Source/third_party/abseil-cpp/absl/strings/numbers.cc
     Source/third_party/abseil-cpp/absl/strings/str_cat.cc
-    Source/third_party/abseil-cpp/absl/strings/string_view.cc
     Source/third_party/abseil-cpp/absl/strings/str_replace.cc
     Source/third_party/abseil-cpp/absl/strings/str_split.cc
     Source/third_party/abseil-cpp/absl/strings/substitute.cc
@@ -159,6 +159,7 @@ set(webrtc_SOURCES
     Source/third_party/abseil-cpp/absl/time/internal/cctz/src/zone_info_source.cc
     Source/third_party/abseil-cpp/absl/time/internal/test_util.cc
     Source/third_party/abseil-cpp/absl/time/time.cc
+    Source/third_party/abseil-cpp/absl/types/source_location.cc
     Source/third_party/crc32c/src/src/crc32c_arm64.cc
     Source/third_party/crc32c/src/src/crc32c.cc
     Source/third_party/crc32c/src/src/crc32c_portable.cc
