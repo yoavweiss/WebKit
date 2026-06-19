@@ -807,8 +807,24 @@ RefPtr<LegacyWebArchive> LegacyWebArchive::createInternal(const String& markupSt
         RefPtr documentLoader = frame.loader().documentLoader();
         ASSERT(documentLoader);
         for (auto& icon : documentLoader->linkIcons()) {
-            if (auto resource = documentLoader->subresource(icon.url))
-                subresources.append(resource.releaseNonNull());
+            if (uniqueSubresources.contains(icon.url.string()))
+                continue;
+
+            auto resource = documentLoader->subresource(icon.url);
+            if (!resource)
+                continue;
+
+            auto addResult = uniqueSubresources.add(icon.url.string(), emptyString());
+
+            if (!subresourcesDirectoryName.isNull()) {
+                String subresourceFileName = generateValidFileName(icon.url, uniqueFileNames);
+                uniqueFileNames.add(subresourceFileName);
+                String subresourceFilePath = FileSystem::pathByAppendingComponent(subresourcesDirectoryName, subresourceFileName);
+                resource->setRelativeFilePath(subresourceFilePath);
+                addResult.iterator->value = frame.isMainFrame() ? subresourceFilePath : subresourceFileName;
+            }
+
+            subresources.append(resource.releaseNonNull());
         }
     }
 
