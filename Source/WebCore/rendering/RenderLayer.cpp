@@ -3908,40 +3908,6 @@ void RenderLayer::paintLayerContents(GraphicsContext& context, const LayerPainti
                 clipRectOptions.add(ClipRectsOption::Temporary);
             collectFragments(layerFragments, localPaintingInfo.rootLayer, paintDirtyRect, ExcludeCompositedPaginatedLayers, PaintingClipRects, clipRectOptions, offsetFromRoot);
             updatePaintingInfoForFragments(layerFragments, localPaintingInfo, localPaintFlags, shouldPaintContent, offsetFromRoot);
-
-            // When non-layer SVG ancestors (e.g. a transformed <g> without its own layer) have
-            // applied transforms to the graphics context, our fragment clip rects — computed in
-            // rootLayer coordinate space — must be inverse-mapped through the accumulated
-            // nonLayerSVGTransform so they end up in our local post-transform space, where the
-            // context is now drawing.
-            //
-            // Skip inverse mapping when rootLayer == this: a prior paintLayerByApplyingTransform
-            // promoted us to be our own rootLayer, so our clip rects (at offsetFromRoot=0 relative
-            // to self) are already in this local space; inverse-mapping would shift them incorrectly.
-            if (localPaintingInfo.nonLayerSVGTransform && localPaintingInfo.rootLayer != this) {
-                if (auto inverse = localPaintingInfo.nonLayerSVGTransform->inverse()) {
-                    float deviceScaleFactor = renderer().document().deviceScaleFactor();
-                    for (auto& fragment : layerFragments) {
-                        if (!fragment.rects.m_foregroundRect.isInfinite()) {
-                            auto mappedForegroundRect = LayoutRect(encloseRectToDevicePixels(inverse->mapRect(FloatRect(fragment.rects.m_foregroundRect.rect())), deviceScaleFactor));
-                            fragment.rects.m_foregroundRect = ClipRect(mappedForegroundRect);
-                        }
-                        if (!fragment.rects.m_backgroundRect.isInfinite()) {
-                            auto mappedBackgroundRect = LayoutRect(encloseRectToDevicePixels(inverse->mapRect(FloatRect(fragment.rects.m_backgroundRect.rect())), deviceScaleFactor));
-                            fragment.rects.m_backgroundRect = ClipRect(mappedBackgroundRect);
-                        }
-                    }
-                }
-            } else if (localPaintingInfo.nonLayerSVGTransform) {
-                // rootLayer == this: our fragment clip rects are at offsetFromRoot=0, already in
-                // this layer's local post-transform space, so the inverse mapping above is
-                // correctly skipped. Descendants will likewise compute their clip rects relative
-                // to rootLayer (=this), in this same local space. The inherited nonLayerSVGTransform
-                // — accumulated from non-layer SVG ancestors above the previous rootLayer — no
-                // longer applies; clear it so descendants do not inverse-map their clip rects
-                // through a stale transform.
-                localPaintingInfo.nonLayerSVGTransform = std::nullopt;
-            }
         }
         
         if (isPaintingCompositedBackground) {

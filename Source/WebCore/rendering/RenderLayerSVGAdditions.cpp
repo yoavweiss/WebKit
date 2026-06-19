@@ -432,6 +432,18 @@ void RenderLayer::paintChildrenInDOMOrderForSVG(GraphicsContext& context, const 
 
         // Transformed non-layer children: apply the transform and recursively paint the subtree.
         if (childRenderer->isTransformed()) {
+            // When this container is itself a transformed SVG layer (e.g. a layered <use>), its CTM is
+            // positioned at its own nominalSVGLayoutLocation (objectBoundingBox top-left). The transform
+            // recursion paints the child additively in that CTM, so the child would inherit a spurious
+            // shift. Cancel it by folding -nominalCorrection into the child's transform scope (see
+            // paintRendererByApplyingTransformForSVG). No-op for SVG root / viewport (nominal == 0) and
+            // when not painting as a layer-scope root. Since every transformed container is layered, the
+            // only transformed renderers reaching this recursion are leaves and the anonymous outermost
+            // viewport container, so no layer descendant ever needs the inverse correction.
+            LayoutSize nominalCorrection;
+            if (this == paintingInfo.rootLayer && !isPaintingResourceLayerForSVG() && renderer().isSVGLayerAwareRenderer() && !renderer().isRenderSVGRoot())
+                nominalCorrection = toLayoutSize(renderer().nominalSVGLayoutLocation());
+
             for (const auto& fragment : layerFragments) {
                 if (!fragment.shouldPaintContent || fragment.dirtyForegroundRect().isEmpty())
                     continue;
@@ -440,10 +452,14 @@ void RenderLayer::paintChildrenInDOMOrderForSVG(GraphicsContext& context, const 
                 RegionContextStateSaver regionContextStateSaver(paintingInfo.regionContext);
                 clipToRect(context, stateSaver, regionContextStateSaver, paintingInfo, paintBehavior, fragment.dirtyForegroundRect());
 
+                // nominalCorrection is applied inside the scope, so TransformPaintScope concatenates it
+                // onto the CTM and inverse-maps paintDirtyRect through it together. The leaf
+                // visual-overflow cull (RenderSVGShape::paint) then compares the shifted subtree against
+                // a matching damage rect, so overhanging leaves survive incremental repaints
+                // (svg/W3C-SVG-1.1/animate-elem-80-t.svg).
                 paintRendererByApplyingTransformForSVG(context, childRenderer,
                     childToPaint.accumulatedAncestorOffset, paintingInfo, paintFlags,
-                    layerFragments, paintBehavior, subtreePaintRootForRenderer,
-                    paintingInfo, AffineTransform());
+                    paintBehavior, subtreePaintRootForRenderer, nominalCorrection);
             }
             continue;
         }
@@ -498,8 +514,7 @@ std::optional<RenderLayer::SVGRendererTransform> RenderLayer::computeRendererTra
 
 void RenderLayer::paintRendererByApplyingTransformForSVG(GraphicsContext& context, CheckedRef<RenderElement> rendererToPaint,
     const LayoutSize& positionOffset, const LayerPaintingInfo& paintingInfo, OptionSet<PaintLayerFlag> paintFlags,
-    const LayerFragments&, OptionSet<PaintBehavior> paintBehavior, RenderObject* subtreePaintRoot,
-    const LayerPaintingInfo& outerPaintingInfo, const AffineTransform& accumulatedTransform)
+    OptionSet<PaintBehavior> paintBehavior, RenderObject* subtreePaintRoot, const LayoutSize& nominalPreTranslation)
 {
     ASSERT(rendererToPaint->isTransformed());
     auto rendererTransform = computeRendererTransformForSVG(rendererToPaint, positionOffset);
@@ -512,25 +527,26 @@ void RenderLayer::paintRendererByApplyingTransformForSVG(GraphicsContext& contex
     ASSERT(paintingInfo.subpixelOffset.isZero());
     LayoutSize adjustedSubpixelOffset;
 
-    TransformPaintScope scope(context, paintingInfo, rendererTransform->transform, deviceScaleFactor, adjustedSubpixelOffset);
+    // Fold the container's nominal pre-translation into the scope transform rather than a separate
+    // context.translate, so TransformPaintScope concatenates it onto the CTM and inverse-maps
+    // paintDirtyRect through it together, keeping content and the leaf visual-overflow cull in one
+    // coordinate space. translateRight post-multiplies, placing the offset in this container's own
+    // space, where nominal lives.
+    auto scopeTransform = rendererTransform->transform;
+    if (!nominalPreTranslation.isZero())
+        scopeTransform.translateRight(-nominalPreTranslation.width().toFloat(), -nominalPreTranslation.height().toFloat());
+
+    TransformPaintScope scope(context, paintingInfo, scopeTransform, deviceScaleFactor, adjustedSubpixelOffset);
 
     auto adjustedPaintFlags = paintFlags;
     adjustedPaintFlags.remove(PaintLayerFlag::PaintingOverflowContents);
-
-    AffineTransform newAccumulatedTransform = accumulatedTransform;
-    newAccumulatedTransform *= scope.appliedTransform();
 
     if (rendererToPaint->hasSelfPaintingLayer()) {
         CheckedRef layerModelObject = downcast<RenderLayerModelObject>(rendererToPaint.get());
         CheckedPtr childLayer = layerModelObject->layer();
 
         LayerPaintingInfo childPaintingInfo(childLayer.get(), scope.transformedPaintingInfo().paintDirtyRect, paintBehavior, LayoutSize());
-
-        if (!accumulatedTransform.isIdentity())
-            childPaintingInfo.nonLayerSVGTransform = accumulatedTransform;
-
-        childLayer->paintLayer(context, childPaintingInfo,
-            adjustedPaintFlags | PaintLayerFlag::AppliedTransform);
+        childLayer->paintLayer(context, childPaintingInfo, adjustedPaintFlags | PaintLayerFlag::AppliedTransform);
     } else {
         // Non-layer renderer painted directly within the transform scope.
         auto& transformedPaintingInfo = scope.transformedPaintingInfo();
@@ -559,7 +575,7 @@ void RenderLayer::paintRendererByApplyingTransformForSVG(GraphicsContext& contex
                 // Outermost viewport container: coordinate system starts at (0, 0).
             } else if (auto* svgModel = dynamicDowncast<RenderSVGModelObject>(rendererToPaint.get()))
                 recursionBase = svgModel->nominalSVGLayoutLocation();
-            paintSubtreeWithinTransformScopeForSVG(context, rendererToPaint.get(), recursionBase, transformedPaintingInfo, adjustedPaintFlags, paintBehavior, subtreePaintRoot, outerPaintingInfo, newAccumulatedTransform);
+            paintSubtreeWithinTransformScopeForSVG(context, rendererToPaint.get(), recursionBase, transformedPaintingInfo, adjustedPaintFlags, paintBehavior, subtreePaintRoot);
             paintInScope(PaintPhase::SelfOutline, selfPaintOffset);
         } else {
             paintInScope(PaintPhase::Foreground, selfPaintOffset);
@@ -570,8 +586,7 @@ void RenderLayer::paintRendererByApplyingTransformForSVG(GraphicsContext& contex
 
 void RenderLayer::paintSubtreeWithinTransformScopeForSVG(GraphicsContext& context, RenderElement& container,
     const LayoutPoint& paintOffset, const LayerPaintingInfo& paintingInfo, OptionSet<PaintLayerFlag> paintFlags,
-    OptionSet<PaintBehavior> paintBehavior, RenderObject* subtreePaintRoot,
-    const LayerPaintingInfo& outerPaintingInfo, const AffineTransform& accumulatedTransform)
+    OptionSet<PaintBehavior> paintBehavior, RenderObject* subtreePaintRoot)
 {
     // Apply viewport clipping for nested <svg> elements without layers.
     GraphicsContextStateSaver clipSaver(context, false);
@@ -610,7 +625,7 @@ void RenderLayer::paintSubtreeWithinTransformScopeForSVG(GraphicsContext& contex
 
         if (child->isTransformed()) {
             paintRendererByApplyingTransformForSVG(context, child, toLayoutSize(paintOffset), paintingInfo, paintFlags,
-                { }, paintBehavior, subtreePaintRoot, outerPaintingInfo, accumulatedTransform);
+                paintBehavior, subtreePaintRoot);
             continue;
         }
 
@@ -622,8 +637,6 @@ void RenderLayer::paintSubtreeWithinTransformScopeForSVG(GraphicsContext& contex
             adjustedFlags.remove(PaintLayerFlag::PaintingOverflowContents);
 
             RenderLayer::LayerPaintingInfo childPaintingInfo(paintingInfo);
-            if (!accumulatedTransform.isIdentity())
-                childPaintingInfo.nonLayerSVGTransform = accumulatedTransform;
 
             if (isPaintingResourceLayerForSVG() && !paintOffset.isZero()) {
                 GraphicsContextStateSaver stateSaver(context);
@@ -640,7 +653,7 @@ void RenderLayer::paintSubtreeWithinTransformScopeForSVG(GraphicsContext& contex
             adjustedPaintOffset.moveBy(childSvgModel->currentSVGLayoutLocation());
 
         if (child->isRenderSVGContainer()) {
-            paintSubtreeWithinTransformScopeForSVG(context, child.get(), adjustedPaintOffset, paintingInfo, paintFlags, paintBehavior, subtreePaintRoot, outerPaintingInfo, accumulatedTransform);
+            paintSubtreeWithinTransformScopeForSVG(context, child.get(), adjustedPaintOffset, paintingInfo, paintFlags, paintBehavior, subtreePaintRoot);
 
             PaintInfo outlinePaintInfo(context, paintingInfo.paintDirtyRect, PaintPhase::SelfOutline, paintBehavior, subtreePaintRoot,
                 nullptr, nullptr, &paintingInfo.rootLayer->renderer(), this,
@@ -690,7 +703,7 @@ RenderLayer::HitLayer RenderLayer::hitTestChildrenInDOMOrderForSVG(RenderLayer* 
         CheckedRef childRenderer = *childRendererPtr;
 
         if (childRenderer->isTransformed()) {
-            auto hitLayer = hitTestRendererByInversingTransformForSVG(childRenderer.get(), childToPaint.accumulatedAncestorOffset, rootLayer, request, result, hitTestRect, hitTestLocation, transformState, zOffsetForDescendants);
+            auto hitLayer = hitTestRendererByInversingTransformForSVG(childRenderer.get(), childToPaint.accumulatedAncestorOffset, request, result, hitTestRect, hitTestLocation);
             if (hitLayer.layer)
                 return hitLayer;
             continue;
@@ -707,9 +720,8 @@ RenderLayer::HitLayer RenderLayer::hitTestChildrenInDOMOrderForSVG(RenderLayer* 
 }
 
 RenderLayer::HitLayer RenderLayer::hitTestRendererByInversingTransformForSVG(RenderElement& rendererToTest,
-    const LayoutSize& positionOffset, RenderLayer* rootLayer, const HitTestRequest& request, HitTestResult& result,
-    const LayoutRect& hitTestRect, const HitTestLocation& hitTestLocation,
-    const HitTestingTransformState* transformState, double* zOffsetForDescendants)
+    const LayoutSize& positionOffset, const HitTestRequest& request, HitTestResult& result,
+    const LayoutRect& hitTestRect, const HitTestLocation& hitTestLocation)
 {
     auto transformResult = computeRendererTransformForSVG(rendererToTest, positionOffset);
     if (!transformResult)
@@ -730,7 +742,7 @@ RenderLayer::HitLayer RenderLayer::hitTestRendererByInversingTransformForSVG(Ren
             if (auto* svgModel = dynamicDowncast<RenderSVGModelObject>(rendererToTest))
                 accumulatedOffset = svgModel->nominalSVGLayoutLocation();
         }
-        return hitTestSubtreeWithinTransformScopeForSVG(rendererToTest, accumulatedOffset, rootLayer, request, result, localRect, localLocation, transformState, zOffsetForDescendants);
+        return hitTestSubtreeWithinTransformScopeForSVG(rendererToTest, accumulatedOffset, request, result, localRect, localLocation);
     }
 
     LayoutPoint accumulatedOffset;
@@ -744,9 +756,8 @@ RenderLayer::HitLayer RenderLayer::hitTestRendererByInversingTransformForSVG(Ren
 }
 
 RenderLayer::HitLayer RenderLayer::hitTestSubtreeWithinTransformScopeForSVG(RenderElement& container,
-    const LayoutPoint& accumulatedOffset, RenderLayer* rootLayer, const HitTestRequest& request, HitTestResult& result,
-    const LayoutRect& hitTestRect, const HitTestLocation& hitTestLocation,
-    const HitTestingTransformState* transformState, double* zOffsetForDescendants)
+    const LayoutPoint& accumulatedOffset, const HitTestRequest& request, HitTestResult& result,
+    const LayoutRect& hitTestRect, const HitTestLocation& hitTestLocation)
 {
     for (CheckedPtr child = container.lastChild(); child; child = child->previousSibling()) {
         CheckedPtr childElement = dynamicDowncast<RenderElement>(child.get());
@@ -757,7 +768,7 @@ RenderLayer::HitLayer RenderLayer::hitTestSubtreeWithinTransformScopeForSVG(Rend
             continue;
 
         if (childElement->isTransformed()) {
-            if (auto hitLayer = hitTestRendererByInversingTransformForSVG(*childElement, toLayoutSize(accumulatedOffset), rootLayer, request, result, hitTestRect, hitTestLocation, transformState, zOffsetForDescendants); hitLayer.layer)
+            if (auto hitLayer = hitTestRendererByInversingTransformForSVG(*childElement, toLayoutSize(accumulatedOffset), request, result, hitTestRect, hitTestLocation); hitLayer.layer)
                 return hitLayer;
             continue;
         }
@@ -777,7 +788,7 @@ RenderLayer::HitLayer RenderLayer::hitTestSubtreeWithinTransformScopeForSVG(Rend
                 if (SVGRenderSupport::isOverflowHidden(*viewportContainer) && !viewportContainer->viewport().contains(hitTestLocation.point()))
                     continue;
             }
-            if (auto hitLayer = hitTestSubtreeWithinTransformScopeForSVG(*childElement, adjustedOffset, rootLayer, request, result, hitTestRect, hitTestLocation, transformState, zOffsetForDescendants); hitLayer.layer)
+            if (auto hitLayer = hitTestSubtreeWithinTransformScopeForSVG(*childElement, adjustedOffset, request, result, hitTestRect, hitTestLocation); hitLayer.layer)
                 return hitLayer;
         } else {
             if (childElement->nodeAtPoint(request, result, hitTestLocation, accumulatedOffset, HitTestAction::Foreground))
