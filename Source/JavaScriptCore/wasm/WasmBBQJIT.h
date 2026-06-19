@@ -925,7 +925,7 @@ public:
         unsigned m_tryStart { 0 };
         unsigned m_tryEnd { 0 };
         unsigned m_tryCatchDepth { 0 };
-        Vector<TryTableTarget, 8> m_tryTableTargets;
+        TargetList m_tryTableTargets;
     };
 
     friend struct ControlData;
