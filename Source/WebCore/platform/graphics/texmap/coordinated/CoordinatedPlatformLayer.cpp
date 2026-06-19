@@ -926,6 +926,14 @@ Ref<CoordinatedTileBuffer> CoordinatedPlatformLayer::paint(const IntRect& dirtyR
 }
 
 #if USE(SKIA)
+sk_sp<GrContextThreadSafeProxy> CoordinatedPlatformLayer::threadSafeGrContext() const
+{
+    if (!m_client)
+        return nullptr;
+
+    return m_client->paintingEngine().threadSafeGrContext();
+}
+
 Ref<SkiaRecordingResult> CoordinatedPlatformLayer::record(const IntRect& recordRect)
 {
     ASSERT(m_lock.isHeld());

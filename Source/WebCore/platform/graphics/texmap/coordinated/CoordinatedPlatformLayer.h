@@ -38,6 +38,12 @@
 #include <wtf/Lock.h>
 #include <wtf/ThreadSafeRefCounted.h>
 
+#if USE(SKIA)
+WTF_IGNORE_WARNINGS_IN_THIRD_PARTY_CODE_BEGIN
+#include <skia/gpu/ganesh/GrContextThreadSafeProxy.h>
+WTF_IGNORE_WARNINGS_IN_THIRD_PARTY_CODE_END
+#endif
+
 namespace WebCore {
 class CoordinatedAnimatedBackingStoreClient;
 class CoordinatedBackingStore;
@@ -100,6 +106,7 @@ public:
     TextureMapperLayer& ensureTarget();
 #if USE(SKIA)
     SkiaCompositingLayer& ensureSkiaTarget();
+    sk_sp<GrContextThreadSafeProxy> threadSafeGrContext() const;
 #endif
     void invalidateTarget();
 

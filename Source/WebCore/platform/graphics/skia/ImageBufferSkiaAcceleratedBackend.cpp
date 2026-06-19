@@ -51,6 +51,7 @@ WTF_IGNORE_WARNINGS_IN_THIRD_PARTY_CODE_END
 #include "BitmapTexture.h"
 #include "CoordinatedPlatformLayerBufferNativeImage.h"
 #include "CoordinatedPlatformLayerBufferRGB.h"
+#include "CoordinatedPlatformLayerBufferSkiaImage.h"
 #include "GraphicsLayerContentsDisplayDelegateCoordinated.h"
 #include "TextureMapperFlags.h"
 #endif
@@ -265,8 +266,12 @@ void ImageBufferSkiaAcceleratedBackend::prepareForDisplay()
 
     ASSERT(grContext == PlatformDisplay::sharedDisplay().skiaGrContext());
 
-    m_layerContentsDisplayDelegate->setDisplayBuffer(CoordinatedPlatformLayerBufferNativeImage::create(image.releaseNonNull(),
-        SkiaUtilities::flushAndSubmitSurfaceWithFence(grContext, m_surface.get())));
+    if (auto threadSafeGrContext = m_layerContentsDisplayDelegate->threadSafeGrContext())
+        m_layerContentsDisplayDelegate->setDisplayBuffer(CoordinatedPlatformLayerBufferSkiaImage::create(image->platformImage(), threadSafeGrContext));
+    else {
+        m_layerContentsDisplayDelegate->setDisplayBuffer(CoordinatedPlatformLayerBufferNativeImage::create(image.releaseNonNull(),
+            SkiaUtilities::flushAndSubmitSurfaceWithFence(grContext, m_surface.get())));
+    }
 
     // Re-enable recording mode for subsequent drawing operations.
     // This allows batching to occur again after each prepareForDisplay() cycle.

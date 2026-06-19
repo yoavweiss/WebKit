@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Igalia S.L.
+ * Copyright (C) 2026 Igalia S.L.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -25,41 +25,30 @@
 
 #pragma once
 
-#if USE(COORDINATED_GRAPHICS)
-#include <wtf/ThreadSafeRefCounted.h>
+#if USE(COORDINATED_GRAPHICS) && USE(SKIA)
+#include "CoordinatedPlatformLayerBuffer.h"
 
-#if USE(SKIA)
 WTF_IGNORE_WARNINGS_IN_THIRD_PARTY_CODE_BEGIN
 #include <skia/gpu/ganesh/GrContextThreadSafeProxy.h>
 WTF_IGNORE_WARNINGS_IN_THIRD_PARTY_CODE_END
-#endif
 
 namespace WebCore {
 
-class CoordinatedPlatformLayerBuffer;
-class NativeImage;
-
-class CoordinatedImageBackingStore final : public ThreadSafeRefCounted<CoordinatedImageBackingStore> {
+class CoordinatedPlatformLayerBufferSkiaImage final : public CoordinatedPlatformLayerBuffer {
 public:
-    static Ref<CoordinatedImageBackingStore> create(Ref<NativeImage>&&);
-#if USE(SKIA)
-    static Ref<CoordinatedImageBackingStore> create(Ref<NativeImage>&&, const sk_sp<GrContextThreadSafeProxy>&);
-#endif
-    ~CoordinatedImageBackingStore();
-
-    bool isSameNativeImage(const NativeImage&);
-    CoordinatedPlatformLayerBuffer* buffer() const LIFETIME_BOUND { return m_buffer.get(); }
+    static std::unique_ptr<CoordinatedPlatformLayerBufferSkiaImage> create(const sk_sp<SkImage>&, const sk_sp<GrContextThreadSafeProxy>&);
+    explicit CoordinatedPlatformLayerBufferSkiaImage(sk_sp<SkImage>&&);
+    virtual ~CoordinatedPlatformLayerBufferSkiaImage() = default;
 
 private:
-    explicit CoordinatedImageBackingStore(Ref<NativeImage>&&);
-#if USE(SKIA)
-    CoordinatedImageBackingStore(Ref<NativeImage>&&, const sk_sp<GrContextThreadSafeProxy>&);
-#endif
+    void paintToTextureMapper(TextureMapper&, const FloatRect&, const TransformationMatrix&, float) override;
+    sk_sp<SkImage> skiaImage() override { return m_image; }
 
-    std::unique_ptr<CoordinatedPlatformLayerBuffer> m_buffer;
-    uint64_t m_uniqueID { 0 };
+    sk_sp<SkImage> m_image;
 };
 
 } // namespace WebCore
 
-#endif // USE(COORDINATED_GRAPHICS)
+SPECIALIZE_TYPE_TRAITS_COORDINATED_PLATFORM_LAYER_BUFFER_TYPE(CoordinatedPlatformLayerBufferSkiaImage, Type::SkiaImage)
+
+#endif // USE(COORDINATED_GRAPHICS) && USE(SKIA)

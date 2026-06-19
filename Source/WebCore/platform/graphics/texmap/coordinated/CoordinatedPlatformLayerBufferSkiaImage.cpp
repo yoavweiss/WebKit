@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Igalia S.L.
+ * Copyright (C) 2026 Igalia S.L.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -23,43 +23,32 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#include "config.h"
+#include "CoordinatedPlatformLayerBufferSkiaImage.h"
 
-#if USE(COORDINATED_GRAPHICS)
-#include <wtf/ThreadSafeRefCounted.h>
-
-#if USE(SKIA)
-WTF_IGNORE_WARNINGS_IN_THIRD_PARTY_CODE_BEGIN
-#include <skia/gpu/ganesh/GrContextThreadSafeProxy.h>
-WTF_IGNORE_WARNINGS_IN_THIRD_PARTY_CODE_END
-#endif
+#if USE(COORDINATED_GRAPHICS) && USE(SKIA)
+#include "PlatformDisplay.h"
+#include "SkiaUtilities.h"
 
 namespace WebCore {
 
-class CoordinatedPlatformLayerBuffer;
-class NativeImage;
+std::unique_ptr<CoordinatedPlatformLayerBufferSkiaImage> CoordinatedPlatformLayerBufferSkiaImage::create(const sk_sp<SkImage>& image, const sk_sp<GrContextThreadSafeProxy>& threadSafeGrContext)
+{
+    sk_sp<SkImage> skiaImage = image->isTextureBacked() ? SkiaUtilities::createPromiseImageIfNeeded(image, threadSafeGrContext) : image;
+    return makeUnique<CoordinatedPlatformLayerBufferSkiaImage>(WTF::move(skiaImage));
+}
 
-class CoordinatedImageBackingStore final : public ThreadSafeRefCounted<CoordinatedImageBackingStore> {
-public:
-    static Ref<CoordinatedImageBackingStore> create(Ref<NativeImage>&&);
-#if USE(SKIA)
-    static Ref<CoordinatedImageBackingStore> create(Ref<NativeImage>&&, const sk_sp<GrContextThreadSafeProxy>&);
-#endif
-    ~CoordinatedImageBackingStore();
+CoordinatedPlatformLayerBufferSkiaImage::CoordinatedPlatformLayerBufferSkiaImage(sk_sp<SkImage>&& image)
+    : CoordinatedPlatformLayerBuffer(Type::SkiaImage, { image->width(), image->height() }, { }, nullptr)
+    , m_image(WTF::move(image))
+{
+}
 
-    bool isSameNativeImage(const NativeImage&);
-    CoordinatedPlatformLayerBuffer* buffer() const LIFETIME_BOUND { return m_buffer.get(); }
-
-private:
-    explicit CoordinatedImageBackingStore(Ref<NativeImage>&&);
-#if USE(SKIA)
-    CoordinatedImageBackingStore(Ref<NativeImage>&&, const sk_sp<GrContextThreadSafeProxy>&);
-#endif
-
-    std::unique_ptr<CoordinatedPlatformLayerBuffer> m_buffer;
-    uint64_t m_uniqueID { 0 };
-};
+void CoordinatedPlatformLayerBufferSkiaImage::paintToTextureMapper(TextureMapper&, const FloatRect&, const TransformationMatrix&, float)
+{
+    RELEASE_ASSERT_NOT_REACHED();
+}
 
 } // namespace WebCore
 
-#endif // USE(COORDINATED_GRAPHICS)
+#endif // USE(COORDINATED_GRAPHICS) && USE(SKIA)
