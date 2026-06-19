@@ -463,7 +463,7 @@ static std::optional<TypedChild> consumeClamp(CSSParserTokenRange& tokens, int d
     };
     auto parseCalcSumOrNone = [](auto& tokens, auto depth, auto& state) -> std::optional<TypedChildOrNone> {
         if (tokens.peek().id() == CSSValueNone) {
-            tokens.consume();
+            tokens.consumeIncludingWhitespace();
             return TypedChildOrNone { ChildOrNone { CSS::Keyword::None { } }, Type { } };
         }
         auto sum = parseCalcSum(tokens, depth, state);
