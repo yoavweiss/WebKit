@@ -34,10 +34,13 @@
 #include "MutationObserver.h"
 
 #include "ContextDestructionObserverInlines.h"
+#include "DOMWrapperWorld.h"
 #include "Document.h"
 #include "GCReachableRef.h"
 #include "HTMLSlotElement.h"
 #include "InspectorInstrumentation.h"
+#include "JSDOMGlobalObject.h"
+#include "JSMutationCallback.h"
 #include "MutationCallback.h"
 #include "MutationObserverRegistration.h"
 #include "MutationRecord.h"
@@ -46,6 +49,7 @@
 #include <ranges>
 #include <wtf/MainThread.h>
 #include <wtf/NeverDestroyed.h>
+#include <wtf/NoTailCalls.h>
 #include <wtf/RobinHoodHashSet.h>
 #include <wtf/TZoneMallocInlines.h>
 
@@ -64,7 +68,16 @@ Ref<MutationObserver> MutationObserver::create(Ref<MutationCallback>&& callback)
 MutationObserver::MutationObserver(Ref<MutationCallback>&& callback)
     : m_callback(WTF::move(callback))
     , m_priority(s_observerPriority++)
+    , m_isInNonNormalWorld(false)
+    , m_isAutoFillWorld(false)
 {
+    if (auto* jsCallback = dynamicDowncast<JSMutationCallback>(m_callback.get())) {
+        if (auto* globalObject = jsCallback->callbackData()->globalObject()) {
+            auto& world = globalObject->world();
+            m_isInNonNormalWorld = !world.isNormal();
+            m_isAutoFillWorld = world.allowAutofill();
+        }
+    }
 }
 
 MutationObserver::~MutationObserver()
@@ -218,7 +231,12 @@ void MutationObserver::deliver()
             return;
 
         InspectorInstrumentation::willFireObserverCallback(*context, "MutationObserver"_s);
-        m_callback->invoke(*this, records, *this);
+        if (!m_isInNonNormalWorld) [[likely]]
+            m_callback->invoke(*this, records, *this);
+        else if (m_isAutoFillWorld)
+            m_callback->invokeInAutoFillWorld(*this, records, *this);
+        else
+            m_callback->invokeInNonNormalWorld(*this, records, *this);
         InspectorInstrumentation::didFireObserverCallback(*context);
     }
 }
@@ -265,6 +283,18 @@ void MutationObserver::notifyMutationObservers(WindowEventLoop& eventLoop)
         for (auto& slot : slotList)
             slot->dispatchSlotChangeEvent();
     }
+}
+
+NEVER_INLINE CallbackResult<void> MutationCallback::invokeInNonNormalWorld(MutationObserver& thisObject, const Vector<Ref<MutationRecord>>& records, MutationObserver& observer)
+{
+    NO_TAIL_CALLS();
+    return invoke(thisObject, records, observer);
+}
+
+NEVER_INLINE CallbackResult<void> MutationCallback::invokeInAutoFillWorld(MutationObserver& thisObject, const Vector<Ref<MutationRecord>>& records, MutationObserver& observer)
+{
+    NO_TAIL_CALLS();
+    return invoke(thisObject, records, observer);
 }
 
 } // namespace WebCore
