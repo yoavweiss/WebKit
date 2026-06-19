@@ -212,10 +212,11 @@ RefPtr<MediaSample> TrackBuffer::nextSample()
 
     MediaTime samplePresentationEnd = sample->presentationEndTime();
     if (highestEnqueuedPresentationTime().isInvalid() || samplePresentationEnd > highestEnqueuedPresentationTime())
-        setHighestEnqueuedPresentationTime(WTF::move(samplePresentationEnd));
+        setHighestEnqueuedPresentationTime(samplePresentationEnd);
 
     setLastEnqueuedDecodeKey({ sample->decodeTime(), sample->presentationTime() });
-    setEnqueueDiscontinuityBoundary(sample->decodeTime() + sample->duration() + m_discontinuityTolerance);
+    auto decodeEnd = std::max(sample->decodeTime() + sample->duration(), samplePresentationEnd);
+    setEnqueueDiscontinuityBoundary(decodeEnd + m_discontinuityTolerance);
 
     m_minimumEnqueuedPresentationTime = MediaTime::invalidTime();
     if (m_hasOutOfOrderFrames)
