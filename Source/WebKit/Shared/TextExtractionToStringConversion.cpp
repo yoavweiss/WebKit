@@ -91,6 +91,9 @@ static String truncateByWordCount(StringView text, uint64_t wordLimit, const Vec
         if (component.isEmpty())
             return emptyString();
 
+        if (!wordLimit)
+            return makeString(u"…"_str);
+
         auto* iterator = WTF::wordBreakIterator(component);
         if (!iterator)
             return component.toString();

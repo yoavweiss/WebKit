@@ -560,6 +560,22 @@ TEST(TextExtractionTests, VisibleTextOnly)
 #endif // ENABLE(TEXT_EXTRACTION_FILTER)
 }
 
+TEST(TextExtractionTests, ZeroWordLimit)
+{
+    RetainPtr configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
+    [[configuration preferences] _setTextExtractionEnabled:YES];
+
+    RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 800, 600) configuration:configuration.get()]);
+    [webView synchronouslyLoadHTMLString:@"Hello"];
+
+    RetainPtr extractionConfiguration = adoptNS([_WKTextExtractionConfiguration new]);
+    [extractionConfiguration setOutputFormat:_WKTextExtractionOutputFormatPlainText];
+    [extractionConfiguration setFilterOptions:_WKTextExtractionFilterNone];
+    [extractionConfiguration setMaxWordsPerParagraph:0];
+
+    EXPECT_WK_STREQ("…", [webView synchronouslyGetDebugText:extractionConfiguration.get()]);
+}
+
 TEST(TextExtractionTests, SkipNearlyTransparentContentByDefault)
 {
     RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 800, 600) configuration:^{
