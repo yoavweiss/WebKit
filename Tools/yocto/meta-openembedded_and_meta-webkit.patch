@@ -851,12 +851,11 @@ new file mode 100644
 index 0000000..2b3c4d5
 --- /dev/null
 +++ b/sources/meta-webkit/recipes-browser/packagegroups/packagegroup-wpewebkit-depends.bbappend
-@@ -0,0 +1,5 @@
-+# Pull the Swift runtime (from meta-swift) into the WPE WebKit packagegroup on
-+# arches where the stdlib builds. riscv64 has no upstream Swift target.
-+
+@@ -0,0 +1,4 @@
++# Pull the Swift runtime (from meta-swift) into the WPE WebKit packagegroup.
++# Only aarch64: Swift does not compile on armv7 at present and riscv64 has no
++# upstream Swift target.
 +RDEPENDS:packagegroup-wpewebkit-depends-core:append:aarch64 = " swift-stdlib swift-foundation libdispatch"
-+RDEPENDS:packagegroup-wpewebkit-depends-core:append:arm = " swift-stdlib swift-foundation libdispatch"
 diff --git a/sources/meta-webkit/recipes-browser/images/webkit-dev-ci-tools.bbappend b/sources/meta-webkit/recipes-browser/images/webkit-dev-ci-tools.bbappend
 new file mode 100644
 index 0000000..3c4d5e6

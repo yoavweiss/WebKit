@@ -43,7 +43,7 @@ bbappends inside ```meta-openembedded_and_meta-webkit.patch```.
 | Target                    | Swift | Toolchain | Notes |
 | ------------------------- | ----- | --------- | ----- |
 | rpi3/4/5 64-bit (mesa)    | yes   | clang     | aarch64 |
-| rpi3/4 32-bit (mesa)      | yes   | clang     | armv7 |
+| rpi3/4 32-bit (mesa)      | no    | clang     | armv7; Swift does not compile on armv7 at present |
 | rpi3-32bits-userland      | no    | gcc       | wpebackend-rdk + constrained build; Swift opted out in its local.conf |
 | qemu-riscv64              | no    | gcc       | upstream Swift has no riscv64 target |
 
