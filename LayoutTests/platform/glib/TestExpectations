@@ -3682,6 +3682,7 @@ fast/zooming/ios [ Skip ]
 http/tests/site-isolation [ Skip ]
 http/tests/contentextensions/cross-origin-content-rules.html [ Skip ]
 http/tests/gamepad/initial-gamepads-skips-empty-slot.html [ Skip ]
+http/wpt/site-isolation [ Skip ]
 
 # Tests behavior specific to MediaSessionManagerCocoa
 media/audio-session-category.html [ Skip ]
