@@ -25,9 +25,11 @@
 
 #pragma once
 
+#include <JavaScriptCore/Error.h>
 #include <JavaScriptCore/JSGlobalObject.h>
 #include <wtf/PrintStream.h>
 #include <wtf/text/ASCIILiteral.h>
+#include <wtf/text/StringCommon.h>
 
 // Most CPUs we support are little-endian and accept unaligned loads of the
 // integer widths the wire format uses, so the read/write helpers fast-path
@@ -362,6 +364,68 @@ enum class SerializationReturnCode {
     UnspecifiedError
 };
 
+enum class SerializableErrorType : uint8_t {
+    Error,
+    EvalError,
+    RangeError,
+    ReferenceError,
+    SyntaxError,
+    TypeError,
+    URIError,
+    Last = URIError
+};
+
+struct ErrorInformation {
+    String errorTypeString;
+    String message;
+    unsigned line { 0 };
+    unsigned column { 0 };
+    String sourceURL;
+    String stack;
+    String cause;
+};
+
+class ErrorInstance;
+JS_EXPORT_PRIVATE std::optional<ErrorInformation> extractErrorInformationFromErrorInstance(JSGlobalObject*, ErrorInstance&);
+
+inline SerializableErrorType errorNameToSerializableErrorType(const String& name)
+{
+    if (equalLettersIgnoringASCIICase(name, "evalerror"_s))
+        return SerializableErrorType::EvalError;
+    if (equalLettersIgnoringASCIICase(name, "rangeerror"_s))
+        return SerializableErrorType::RangeError;
+    if (equalLettersIgnoringASCIICase(name, "referenceerror"_s))
+        return SerializableErrorType::ReferenceError;
+    if (equalLettersIgnoringASCIICase(name, "syntaxerror"_s))
+        return SerializableErrorType::SyntaxError;
+    if (equalLettersIgnoringASCIICase(name, "typeerror"_s))
+        return SerializableErrorType::TypeError;
+    if (equalLettersIgnoringASCIICase(name, "urierror"_s))
+        return SerializableErrorType::URIError;
+    return SerializableErrorType::Error;
+}
+
+inline ErrorType toErrorType(SerializableErrorType value)
+{
+    switch (value) {
+    case SerializableErrorType::Error:
+        return ErrorType::Error;
+    case SerializableErrorType::EvalError:
+        return ErrorType::EvalError;
+    case SerializableErrorType::RangeError:
+        return ErrorType::RangeError;
+    case SerializableErrorType::ReferenceError:
+        return ErrorType::ReferenceError;
+    case SerializableErrorType::SyntaxError:
+        return ErrorType::SyntaxError;
+    case SerializableErrorType::TypeError:
+        return ErrorType::TypeError;
+    case SerializableErrorType::URIError:
+        return ErrorType::URIError;
+    }
+    return ErrorType::Error;
+}
+
 constexpr unsigned CurrentMajorVersion = 15;
 constexpr unsigned CurrentMinorVersion = 0;
 inline constexpr unsigned NODELETE majorVersionFor(unsigned version) { return version & 0x00FFFFFF; }
@@ -394,6 +458,7 @@ inline constexpr unsigned NODELETE makeVersion(unsigned major, unsigned minor)
  * Version 14. encode booleans as uint8_t instead of int32_t.
  * Version 15. changed the terminator of the indexed property section in array.
  */
+// FIXME: We should have two versions one for JSC version changes and one for WebCore version changes.
 inline constexpr unsigned NODELETE currentVersion() { return makeVersion(CurrentMajorVersion, CurrentMinorVersion); }
 constexpr unsigned TerminatorTag = 0xFFFFFFFF;
 constexpr unsigned StringPoolTag = 0xFFFFFFFE;
@@ -538,15 +603,6 @@ inline ASCIILiteral name(SerializationTag tag)
 
 namespace WTF {
 
-void printInternal(PrintStream&, JSC::SerializationTag);
-
-void printInternal(PrintStream& out, JSC::SerializationTag tag)
-{
-    auto tagName = JSC::name(tag);
-    if (tagName[0U] != '<')
-        out.print(tagName);
-    else
-        out.print("<unknown tag "_s, static_cast<unsigned>(tag), ">"_s);
-}
+JS_EXPORT_PRIVATE void printInternal(PrintStream&, JSC::SerializationTag);
 
 } // namespace WTF

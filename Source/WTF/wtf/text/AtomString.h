@@ -150,10 +150,10 @@ inline bool operator==(const AtomString& a, ASCIILiteral b) { return WTF::equal(
 inline bool operator==(const AtomString& a, const Vector<char16_t>& b) { return a.impl() && equal(a.impl(), b.span()); }
 inline bool operator==(const AtomString& a, const String& b) { return equal(a.impl(), b.impl()); }
 
-bool equalIgnoringASCIICase(const AtomString&, const AtomString&);
-bool equalIgnoringASCIICase(const AtomString&, const String&);
-bool equalIgnoringASCIICase(const String&, const AtomString&);
-bool equalIgnoringASCIICase(const AtomString&, ASCIILiteral);
+bool NODELETE equalIgnoringASCIICase(const AtomString&, const AtomString&);
+bool NODELETE equalIgnoringASCIICase(const AtomString&, const String&);
+bool NODELETE equalIgnoringASCIICase(const String&, const AtomString&);
+bool NODELETE equalIgnoringASCIICase(const AtomString&, ASCIILiteral);
 
 bool equalLettersIgnoringASCIICase(const AtomString&, ASCIILiteral);
 bool startsWithLettersIgnoringASCIICase(const AtomString&, ASCIILiteral);
@@ -299,22 +299,22 @@ inline bool startsWithLettersIgnoringASCIICase(const AtomString& string, ASCIILi
     return startsWithLettersIgnoringASCIICase(string.string(), literal);
 }
 
-inline bool equalIgnoringASCIICase(const AtomString& a, const AtomString& b)
+inline bool NODELETE equalIgnoringASCIICase(const AtomString& a, const AtomString& b)
 {
     return equalIgnoringASCIICase(a.string(), b.string());
 }
 
-inline bool equalIgnoringASCIICase(const AtomString& a, const String& b)
+inline bool NODELETE equalIgnoringASCIICase(const AtomString& a, const String& b)
 {
     return equalIgnoringASCIICase(a.string(), b);
 }
 
-inline bool equalIgnoringASCIICase(const String& a, const AtomString& b)
+inline bool NODELETE equalIgnoringASCIICase(const String& a, const AtomString& b)
 {
     return equalIgnoringASCIICase(a, b.string());
 }
 
-inline bool equalIgnoringASCIICase(const AtomString& a, ASCIILiteral b)
+inline bool NODELETE equalIgnoringASCIICase(const AtomString& a, ASCIILiteral b)
 {
     return equalIgnoringASCIICase(a.string(), b);
 }

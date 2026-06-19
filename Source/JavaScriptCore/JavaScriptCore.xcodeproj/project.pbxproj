@@ -3653,6 +3653,7 @@
 		BC0C10DE5E000000000B002A /* CloneDeserializerBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CloneDeserializerBase.h; sourceTree = "<group>"; };
 		BC0C105E5E000000000B003A /* CloneSerializerBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CloneSerializerBase.h; sourceTree = "<group>"; };
 		BC0C10C1A5C0000000B004A0 /* StructuredCloneTags.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StructuredCloneTags.h; sourceTree = "<group>"; };
+		BC0C10C1A5C0000000C004A0 /* StructuredCloneTags.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = StructuredCloneTags.cpp; sourceTree = "<group>"; };
 		0FE0501E1AA9095600D33B33 /* ScopedArguments.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScopedArguments.cpp; sourceTree = "<group>"; };
 		0FE0501F1AA9095600D33B33 /* ScopedArguments.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScopedArguments.h; sourceTree = "<group>"; };
 		0FE050201AA9095600D33B33 /* ScopedArgumentsTable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScopedArgumentsTable.h; sourceTree = "<group>"; };
@@ -9561,6 +9562,7 @@
 				7E4EE7080EBB7963005934AA /* StructureChain.h */,
 				276B386E2A71D0F900252F4E /* StructureChainInlines.h */,
 				0FD2C92516D01EE900C7803F /* StructureCreateInlines.h */,
+				BC0C10C1A5C0000000C004A0 /* StructuredCloneTags.cpp */,
 				BC0C10C1A5C0000000B004A0 /* StructuredCloneTags.h */,
 				537FEEC82742BDA300C9EFEE /* StructureID.h */,
 				0FD2C92316D01EE900C7803F /* StructureInlines.h */,

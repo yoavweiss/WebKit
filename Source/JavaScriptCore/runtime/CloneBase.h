@@ -42,10 +42,12 @@ inline constexpr bool verboseCloneTrace = false;
     } while (false)
 
 class JSGlobalObject;
+class CachedString;
 
 // Shared infrastructure for both CloneSerializerBase and CloneDeserializerBase.
 class CloneBase {
     WTF_FORBID_HEAP_ALLOCATION;
+    friend class CachedString;
 protected:
     CloneBase(JSGlobalObject* lexicalGlobalObject)
         : m_lexicalGlobalObject(lexicalGlobalObject)

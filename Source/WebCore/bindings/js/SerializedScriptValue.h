@@ -28,6 +28,7 @@
 
 #include <JavaScriptCore/Forward.h>
 #include <JavaScriptCore/JSCJSValue.h>
+#include <JavaScriptCore/StructuredCloneTags.h>
 #include <WebCore/FileSystemHandleGlobalIdentifier.h>
 #include <wtf/ThreadSafeRefCounted.h>
 #include <wtf/text/WTFString.h>
@@ -74,17 +75,8 @@ enum class SerializationErrorMode : bool { NonThrowing, Throwing };
 enum class SerializationContext : bool { Default, CloneAcrossWorlds };
 enum class SerializationForStorage : bool { No, Yes };
 
-struct ErrorInformation {
-    String errorTypeString;
-    String message;
-    unsigned line { 0 };
-    unsigned column { 0 };
-    String sourceURL;
-    String stack;
-    String cause;
-};
-
-std::optional<ErrorInformation> extractErrorInformationFromErrorInstance(JSC::JSGlobalObject*, JSC::ErrorInstance&);
+using JSC::ErrorInformation;
+using JSC::extractErrorInformationFromErrorInstance;
 
 DECLARE_ALLOCATOR_WITH_HEAP_IDENTIFIER(SerializedScriptValue);
 class SerializedScriptValue : public ThreadSafeRefCounted<SerializedScriptValue> {

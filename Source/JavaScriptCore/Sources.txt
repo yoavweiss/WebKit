@@ -1089,6 +1089,7 @@ runtime/Structure.cpp
 runtime/StructureCache.cpp
 runtime/StructureChain.cpp
 runtime/StructureRareData.cpp
+runtime/StructuredCloneTags.cpp
 runtime/SuppressedError.cpp
 runtime/SuppressedErrorConstructor.cpp
 runtime/SuppressedErrorPrototype.cpp
