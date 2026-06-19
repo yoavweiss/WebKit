@@ -2349,6 +2349,12 @@ void DocumentLoader::loadMainResource(ResourceRequest&& request)
             }
         }
 
+        if (platformStrategies()->loaderStrategy()->isBlockedError(mainResourceOrError.error())) {
+            DOCUMENTLOADER_RELEASE_LOG("loadMainResource: Unable to load main resource, port is blocked");
+            cancelMainResourceLoad(mainResourceOrError.error());
+            return;
+        }
+
         DOCUMENTLOADER_RELEASE_LOG("loadMainResource: Unable to load main resource, returning empty document");
 
         setRequest(ResourceRequest());

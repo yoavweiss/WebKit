@@ -1496,12 +1496,6 @@ void FrameLoader::loadFrameRequest(FrameLoadRequest&& request, Event* event, Ref
         return;
     }
 
-    if (!portAllowed(url)) {
-        FRAMELOADER_RELEASE_LOG(ResourceLoading, "loadFrameRequest: canceling - port not allowed");
-        reportBlockedLoadFailed(frame, url);
-        return;
-    }
-
     if (isIPAddressDisallowed(url)) {
         FRAMELOADER_RELEASE_LOG(ResourceLoading, "loadFrameRequest: canceling - IP address is not allowed");
         reportBlockedLoadFailed(frame, url);

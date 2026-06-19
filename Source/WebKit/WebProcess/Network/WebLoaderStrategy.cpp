@@ -1197,6 +1197,11 @@ ResourceError WebLoaderStrategy::blockedError(const ResourceRequest& request) co
     return WebKit::blockedError(request);
 }
 
+bool WebLoaderStrategy::isBlockedError(const WebCore::ResourceError& error) const
+{
+    return WebKit::isBlockedError(error);
+}
+
 ResourceError WebLoaderStrategy::blockedByContentBlockerError(const ResourceRequest& request) const
 {
     return WebKit::blockedByContentBlockerError(request);

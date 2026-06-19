@@ -49,6 +49,7 @@
 #import <WebKit/WKWebViewConfigurationPrivate.h>
 #import <WebKit/WKWebpagePreferencesPrivate.h>
 #import <WebKit/WKWebsiteDataStorePrivate.h>
+#import <WebKit/WebKitErrorsPrivate.h>
 #import <WebKit/_WKFeature.h>
 #import <WebKit/_WKPageLoadTiming.h>
 #import <WebKit/_WKProcessPoolConfiguration.h>
@@ -5694,4 +5695,35 @@ TEST(Navigation, NavigationInitiatingFrameInClientInputNavigation)
 
     [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://thirdSite.com/thirdSite"]]];
     TestWebKitAPI::Util::run(&done);
+}
+
+TEST(WKNavigation, JSInitiatedNavigationWithRestrictedPortFailsProvisionalNavigation)
+{
+    RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 300, 300)]);
+    [webView synchronouslyLoadHTMLString:@"<html></html>"];
+
+    __block bool didCallDecidePolicyForNavigationAction = false;
+    __block bool didCallDidStartProvisionalNavigation = false;
+    __block bool didCallDidFailProvisionalNavigation = false;
+
+    RetainPtr delegate = adoptNS([TestNavigationDelegate new]);
+    delegate.get().decidePolicyForNavigationAction = ^(WKNavigationAction *, void (^decisionHandler)(WKNavigationActionPolicy)) {
+        didCallDecidePolicyForNavigationAction = true;
+        decisionHandler(WKNavigationActionPolicyAllow);
+    };
+    delegate.get().didStartProvisionalNavigation = ^(WKWebView *, WKNavigation *) {
+        didCallDidStartProvisionalNavigation = true;
+    };
+    delegate.get().didFailProvisionalNavigation = ^(WKWebView *, WKNavigation *, NSError *error) {
+        EXPECT_EQ(error.code, WebKitErrorCannotUseRestrictedPort);
+        didCallDidFailProvisionalNavigation = true;
+    };
+    [webView setNavigationDelegate:delegate.get()];
+
+    [webView evaluateJavaScript:@"location.href = 'https://example.com:5061'" completionHandler:nil];
+
+    EXPECT_TRUE(TestWebKitAPI::Util::runFor(&didCallDidFailProvisionalNavigation, 5_s));
+    EXPECT_TRUE(didCallDecidePolicyForNavigationAction);
+    EXPECT_TRUE(didCallDidStartProvisionalNavigation);
+    EXPECT_TRUE(didCallDidFailProvisionalNavigation);
 }
