@@ -151,13 +151,16 @@ static inline Layout::GridLayoutConstraints constraintsForGridContent(const Layo
 
 void GridLayout::updateGridItemRenderers()
 {
+    CheckedRef layoutState = this->layoutState();
+    auto& gridBoxGeometry = layoutState->geometryForBox(gridBox());
+    auto contentBoxOffset = LayoutPoint(gridBoxGeometry.contentBoxLeft(), gridBoxGeometry.contentBoxTop());
+
     for (CheckedRef layoutBox : formattingContextBoxes(gridBox())) {
         CheckedRef renderer = downcast<RenderBox>(*layoutBox->rendererForIntegration());
-        CheckedRef layoutState = this->layoutState();
         auto& gridItemGeometry = layoutState->geometryForBox(layoutBox);
         auto borderBoxRect = Layout::BoxGeometry::borderBoxRect(gridItemGeometry);
 
-        renderer->setLocation(borderBoxRect.topLeft());
+        renderer->setLocation(contentBoxOffset + borderBoxRect.topLeft());
         renderer->setWidth(borderBoxRect.width());
         renderer->setHeight(borderBoxRect.height());
 
