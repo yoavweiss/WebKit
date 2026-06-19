@@ -1336,3 +1336,8 @@ webkit.org/b/252878 [ arm64 ] fast/frames/lots-of-objects.html [ Pass Timeout ]
 webkit.org/b/317021 [ arm64 ] fast/parser/elementstack-nesting-depth.html [ Pass Timeout ]
 
 imported/w3c/web-platform-tests/dom/events/scrolling/scrollend-event-fires-for-repeat-key-ending-after-scroll-container-end-is-reached.html [ Skip ] # Different outputs
+
+webkit.org/b/316547 imported/w3c/web-platform-tests/html/browsers/browsing-the-web/back-forward-cache/pushstate.https.html [ Failure ]
+webkit.org/b/316547 imported/w3c/web-platform-tests/html/browsers/browsing-the-web/back-forward-cache/service-worker-clients-matchall.https.html [ Failure ]
+webkit.org/b/316547 imported/w3c/web-platform-tests/html/browsers/browsing-the-web/back-forward-cache/service-worker-controlled-after-restore.https.html [ Failure ]
+webkit.org/b/316547 imported/w3c/web-platform-tests/html/browsers/browsing-the-web/back-forward-cache/storage-events.html [ Failure ]

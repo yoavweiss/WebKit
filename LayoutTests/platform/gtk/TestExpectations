@@ -1310,3 +1310,8 @@ webkit.org/b/316577 http/tests/animations/threaded-animations-timeline-resumptio
 
 webkit.org/b/278719 fast/events/touch/touch-scaled-scrolled.html [ Failure Timeout ]
 webkit.org/b/317009 fast/events/mouse-events-on-textarea-resize.html [ Pass Failure ]
+
+webkit.org/b/316547 imported/w3c/web-platform-tests/html/browsers/browsing-the-web/back-forward-cache/pushstate.https.html [ Failure ]
+webkit.org/b/316547 imported/w3c/web-platform-tests/html/browsers/browsing-the-web/back-forward-cache/service-worker-clients-matchall.https.html [ Failure ]
+webkit.org/b/316547 imported/w3c/web-platform-tests/html/browsers/browsing-the-web/back-forward-cache/service-worker-controlled-after-restore.https.html [ Failure ]
+webkit.org/b/316547 imported/w3c/web-platform-tests/html/browsers/browsing-the-web/back-forward-cache/storage-events.html [ Failure ]
