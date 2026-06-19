@@ -26,6 +26,7 @@
 #include "config.h"
 #include "SharedTimebase.h"
 
+#include "Logging.h"
 #include <WebCore/SharedMemory.h>
 #include <wtf/MediaTime.h>
 #include <wtf/MonotonicTime.h>
@@ -97,19 +98,18 @@ public:
 
 WTF_MAKE_TZONE_ALLOCATED_IMPL(SharedTimebaseReader);
 
-std::unique_ptr<SharedTimebaseReader> SharedTimebaseReader::create(SharedTimebase::Handle&& handle, Seconds maxExtrapolation, Function<MonotonicTime()>&& clock)
+std::unique_ptr<SharedTimebaseReader> SharedTimebaseReader::create(SharedTimebase::Handle&& handle, Function<MonotonicTime()>&& clock)
 {
     RefPtr sharedMemory = SharedMemory::map(WTF::move(handle.memory), SharedMemoryProtection::ReadOnly);
     if (!sharedMemory || sharedMemory->size() < sizeof(SnapshotBuffer))
         return nullptr;
-    return std::unique_ptr<SharedTimebaseReader>(new SharedTimebaseReader(sharedMemory.releaseNonNull(), maxExtrapolation, WTF::move(clock)));
+    return makeUnique<SharedTimebaseReader>(sharedMemory.releaseNonNull(), WTF::move(clock));
 }
 
-SharedTimebaseReader::SharedTimebaseReader(Ref<SharedMemory>&& storage, Seconds maxExtrapolation, Function<MonotonicTime()>&& clock)
+SharedTimebaseReader::SharedTimebaseReader(Ref<SharedMemory>&& storage, Function<MonotonicTime()>&& clock)
     : m_impl { makeUniqueRef<SharedTimebaseReader::Impl>(SharedTimebaseReader::Impl {
         .storage = WTF::move(storage)
     }) }
-    , m_maxExtrapolation(maxExtrapolation)
     , m_clock(clock ? WTF::move(clock) : Function<MonotonicTime()> { [] { return MonotonicTime::now(); } })
 {
 }
@@ -125,14 +125,22 @@ MediaTime SharedTimebaseReader::currentTime() const
     if (!rate)
         calculated = snapshot.currentTime;
     else {
-        auto elapsed = std::min(m_clock() - snapshot.hostTime, m_maxExtrapolation);
-        calculated = snapshot.currentTime + MediaTime::createWithDouble(rate * elapsed.seconds());
+        auto elapsed = m_clock() - snapshot.hostTime;
+        calculated = (snapshot.currentTime + MediaTime::createWithDouble(rate * elapsed.seconds())).toTimeScale(snapshot.currentTime.timeScale());
     }
 
-    if (rate >= 0)
-        calculated = std::max(m_lastReturnedTime.value_or(calculated), calculated);
-    else
-        calculated = std::min(m_lastReturnedTime.value_or(calculated), calculated);
+    // Enforce forward monotonicity: if the writer's published value (or our extrapolation of it)
+    // would step backward, log it and clamp. Backward steps that survive the writer's own
+    // monotonicity guarantees indicate a writer-side anomaly worth surfacing in the log, but the
+    // reader must not propagate the regression to its callers.
+    if (rate >= 0) {
+        if (m_lastReturnedTime && *m_lastReturnedTime > calculated) {
+            RELEASE_LOG_ERROR(Media, "SharedTimebaseReader: backward step suppressed lastReturned=%.7f calculated=%.7f delta=%.7f",
+                m_lastReturnedTime->toDouble(), calculated.toDouble(), (*m_lastReturnedTime - calculated).toDouble());
+            calculated = *m_lastReturnedTime;
+        }
+    } else if (m_lastReturnedTime && *m_lastReturnedTime < calculated)
+        calculated = *m_lastReturnedTime;
 
     m_lastReturnedTime = calculated;
     return calculated;
@@ -145,6 +153,8 @@ double SharedTimebaseReader::currentRate() const
 
 void SharedTimebaseReader::resetForTimeDiscontinuity()
 {
+    // Drop the high-water-mark so the next snapshot establishes a fresh baseline; the post-
+    // discontinuity time is allowed to be lower than what was previously returned.
     m_lastReturnedTime.reset();
 }
 

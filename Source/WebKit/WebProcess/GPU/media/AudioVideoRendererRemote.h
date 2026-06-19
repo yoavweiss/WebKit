@@ -153,6 +153,7 @@ private:
     Ref<GenericPromise> finishSeek(const MediaTime&) final;
     bool seeking() const final;
     void setScreenReserved(bool) final;
+    WebCore::SharedTimebase* sharedTimebase() final { return nullptr; }
 
     void setPreferences(WebCore::VideoRendererPreferences) final;
     void setHasProtectedVideoContent(bool) final;

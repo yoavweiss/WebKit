@@ -170,7 +170,6 @@ private:
         RefPtr<WebCore::AudioVideoRenderer> renderer;
         Markable<WebCore::HTMLMediaElementIdentifier> mediaElementIdentifier;
         Markable<WebCore::MediaPlayerIdentifier> playerIdentifier;
-        std::unique_ptr<WebCore::SharedTimebase> sharedTimebase;
 #if PLATFORM(COCOA)
         LayerHostingContextManager layerHostingContextManager;
 #endif
@@ -180,7 +179,7 @@ private:
         MonotonicTime nextPlaybackQualityMetricsUpdateTime { };
         bool isGatheringVideoFrameMetadata { false };
     };
-    RefPtr<WebCore::AudioVideoRenderer> createRenderer();
+    RefPtr<WebCore::AudioVideoRenderer> createRenderer(UniqueRef<WebCore::SharedTimebase>&&);
     RefPtr<WebCore::AudioVideoRenderer> rendererFor(RemoteAudioVideoRendererIdentifier) const;
     RemoteAudioVideoRendererState stateFor(RemoteAudioVideoRendererIdentifier) const;
     RendererContext& NODELETE contextFor(RemoteAudioVideoRendererIdentifier);
@@ -191,7 +190,6 @@ private:
     using LayerHostingContextCallback = CompletionHandler<void(WebCore::HostingContext)>;
     void requestHostingContext(RemoteAudioVideoRendererIdentifier, LayerHostingContextCallback&&);
     WebCore::MediaSampleConverter& converterFor(RendererContext&, TrackIdentifier);
-    static void updateContextSharedTimebase(const RendererContext&);
     template<typename Message> void publishAndSend(RemoteAudioVideoRendererIdentifier, Message&&);
 
 #if PLATFORM(COCOA)

@@ -67,23 +67,18 @@ private:
 
 // Reader-side companion to SharedTimebase. Owns its own read-only mapping of
 // the shared memory plus the per-reader state needed to turn the writer's raw
-// snapshot stream into a bounded, monotonic playback time: a forward-monotonic
-// high-water-mark clamp, and rate-based extrapolation from the latest snapshot
-// capped at maxExtrapolation.
+// snapshot stream into a forward-monotonic playback time, with rate-based
+// extrapolation from the latest snapshot.
 //
 // Not thread-safe: callers must serialize all method invocations on a given
 // instance.
 class WEBCORE_EXPORT SharedTimebaseReader final {
     WTF_MAKE_TZONE_ALLOCATED(SharedTimebaseReader);
 public:
-    // maxExtrapolation caps rate-based extrapolation from the latest snapshot
-    // to "now" — if the writer has been silent for longer than this, we don't
-    // trust that the published rate held for the entire interval. Pass the
-    // producer's refresh cadence.
-    //
     // clock is the source of "now" for extrapolation; defaults to
     // MonotonicTime::now. Override for tests that need deterministic timing.
-    static std::unique_ptr<SharedTimebaseReader> create(SharedTimebase::Handle&&, Seconds maxExtrapolation, Function<MonotonicTime()>&& clock = { });
+    static std::unique_ptr<SharedTimebaseReader> create(SharedTimebase::Handle&&, Function<MonotonicTime()>&& clock = { });
+    SharedTimebaseReader(Ref<SharedMemory>&&, Function<MonotonicTime()>&&);
     ~SharedTimebaseReader();
 
     MediaTime currentTime() const;
@@ -92,11 +87,8 @@ public:
     void resetForTimeDiscontinuity();
 
 private:
-    SharedTimebaseReader(Ref<SharedMemory>&&, Seconds maxExtrapolation, Function<MonotonicTime()>&&);
-
     struct Impl;
     UniqueRef<Impl> m_impl;
-    const Seconds m_maxExtrapolation;
     const Function<MonotonicTime()> m_clock;
     mutable std::optional<MediaTime> m_lastReturnedTime;
 };

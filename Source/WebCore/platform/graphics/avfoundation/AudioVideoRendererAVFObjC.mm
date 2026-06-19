@@ -40,8 +40,10 @@
 #import "MediaSampleAVFObjC.h"
 #import "MediaSessionManagerCocoa.h"
 #import "NativeImage.h"
+#import "PeriodicSharedTimer.h"
 #import "PixelBufferConformerCV.h"
 #import "PlatformDynamicRangeLimitCocoa.h"
+#import "SharedTimebase.h"
 #import "SpatialAudioExperienceHelper.h"
 #import "TextTrackRepresentation.h"
 #import "Timer.h"
@@ -57,6 +59,7 @@
 #import <wtf/BlockObjCExceptions.h>
 #import <wtf/BlockPtr.h>
 #import <wtf/MainThread.h>
+#import <wtf/NeverDestroyed.h>
 #import <wtf/SoftLinking.h>
 #import <wtf/TZoneMallocInlines.h>
 #import <wtf/WorkQueue.h>
@@ -89,13 +92,30 @@ namespace WebCore {
 
 WTF_MAKE_TZONE_ALLOCATED_IMPL(AudioVideoRendererAVFObjC);
 
-AudioVideoRendererAVFObjC::AudioVideoRendererAVFObjC(const Logger& originalLogger, uint64_t logSiteIdentifier)
+static PeriodicSharedTimer& sharedTimebaseTimer()
+{
+    static NeverDestroyed<PeriodicSharedTimer> timer { 100_ms };
+    return timer.get();
+}
+
+Ref<AudioVideoRendererAVFObjC> AudioVideoRendererAVFObjC::create(const Logger& logger, uint64_t logIdentifier)
+{
+    return adoptRef(*new AudioVideoRendererAVFObjC(logger, logIdentifier, nullptr));
+}
+
+Ref<AudioVideoRendererAVFObjC> AudioVideoRendererAVFObjC::create(const Logger& logger, uint64_t logIdentifier, UniqueRef<SharedTimebase>&& sharedTimebase)
+{
+    return adoptRef(*new AudioVideoRendererAVFObjC(logger, logIdentifier, sharedTimebase.moveToUniquePtr()));
+}
+
+AudioVideoRendererAVFObjC::AudioVideoRendererAVFObjC(const Logger& originalLogger, uint64_t logSiteIdentifier, std::unique_ptr<SharedTimebase>&& sharedTimebase)
     : m_logger(originalLogger)
     , m_logIdentifier(logSiteIdentifier)
     , m_videoLayerManager(makeUniqueRef<VideoLayerManagerObjC>(originalLogger, logSiteIdentifier))
     , m_synchronizer(adoptNS([PAL::allocAVSampleBufferRenderSynchronizerInstance() init]))
     , m_listener(WebAVSampleBufferListener::create(*this))
     , m_startupTime(MonotonicTime::now())
+    , m_sharedTimebase(WTF::move(sharedTimebase))
 #if ENABLE(ENCRYPTED_MEDIA) && HAVE(AVCONTENTKEYSESSION)
     , m_keyStatusesChangedObserver(Observer<void()>::create([weakThis = ThreadSafeWeakPtr { *this }] {
         if (RefPtr protectedThis = weakThis.get())
@@ -125,6 +145,8 @@ AudioVideoRendererAVFObjC::AudioVideoRendererAVFObjC(const Logger& originalLogge
 
 AudioVideoRendererAVFObjC::~AudioVideoRendererAVFObjC()
 {
+    if (std::exchange(m_registeredWithSharedTimer, false))
+        sharedTimebaseTimer().removeClient(*this);
     if (RefPtr rateChangeListener = std::exchange(m_effectiveRateChangedListener, { }))
         rateChangeListener->stop();
     cancelStartupGateObserver();
@@ -460,7 +482,7 @@ void AudioVideoRendererAVFObjC::pause(std::optional<MonotonicTime> hostTime)
     // False positive see webkit.org/b/298024
     SUPPRESS_UNRETAINED_ARG MediaTime pauseTime = PAL::toMediaTime(PAL::CMTimebaseGetTime([m_synchronizer timebase]));
     if (pauseTime.isFinite() && pauseTime > m_lastSeekTime)
-        m_lastSeekTime = pauseTime;
+        setTimeFloor(pauseTime);
     setSynchronizerRate(0, hostTime);
 }
 
@@ -476,14 +498,20 @@ bool AudioVideoRendererAVFObjC::timeIsProgressing() const
 
 MediaTime AudioVideoRendererAVFObjC::currentTime() const
 {
+    ASSERT(isMainThread());
     if (seeking())
         return m_lastSeekTime;
-
     // False positive see webkit.org/b/298024
     SUPPRESS_UNRETAINED_ARG MediaTime synchronizerTime = clampTimeToLastSeekTime(PAL::toMediaTime(PAL::CMTimebaseGetTime([m_synchronizer timebase])));
     if (synchronizerTime < MediaTime::zeroTime())
         return MediaTime::zeroTime();
 
+    // Clamp to the stall cap. The synchronizer can overshoot the registered boundary during the
+    // observer's dispatch latency; without the clamp the overshoot leaks into snapshots and the
+    // observer's eventual setRate:0 time:cap visibly walks ct backward.
+    Locker locker { m_publishLock };
+    if (m_stallCap && synchronizerTime > *m_stallCap)
+        return *m_stallCap;
     return synchronizerTime;
 }
 
@@ -509,8 +537,47 @@ double AudioVideoRendererAVFObjC::effectiveRate() const
 {
     if (m_startupGateObserver)
         return 0;
+    // currentTime() floors the reported time to m_lastSeekTime while the timebase is in pre-roll
+    // (negative at startup, below the seek target right after a seek). While floored the published
+    // time isn't advancing, so report 0 to keep the snapshot self-consistent — otherwise the reader
+    // would extrapolate ahead of a frozen currentTime and the next honest snapshot would land below
+    // its high-water-mark.
+    SUPPRESS_UNRETAINED_ARG MediaTime rawTime = PAL::toMediaTime(PAL::CMTimebaseGetTime([m_synchronizer timebase]));
+    if (clampTimeToLastSeekTime(rawTime) != rawTime || rawTime < MediaTime::zeroTime())
+        return 0;
     // False positive see webkit.org/b/298024
     SUPPRESS_UNRETAINED_ARG return PAL::CMTimebaseGetEffectiveRate([m_synchronizer timebase]);
+}
+
+void AudioVideoRendererAVFObjC::updateSharedTimebase()
+{
+    ASSERT(isMainThread());
+    if (!m_sharedTimebase)
+        return;
+    publishSnapshot(currentTime(), effectiveRate());
+}
+
+void AudioVideoRendererAVFObjC::publishSnapshot(MediaTime currentTime, double playbackRate)
+{
+    if (!m_sharedTimebase)
+        return;
+    Locker locker { m_publishLock };
+    // Floor: never publish below the high-water-mark. Catches AVF retroactive anchor changes
+    // that lower CMTimebaseGetTime after rate changes, and is reset downward at seek sites.
+    if (m_publishedTimeFloor.isFinite() && currentTime < m_publishedTimeFloor)
+        currentTime = m_publishedTimeFloor;
+    // Ceiling: stall cap from the boundary observer, masking the synchronizer's overshoot
+    // during dispatch latency until the observer parks the timebase.
+    if (m_stallCap && currentTime > *m_stallCap) {
+        currentTime = *m_stallCap;
+        playbackRate = 0;
+    }
+    m_publishedTimeFloor = currentTime;
+    m_sharedTimebase->storeSnapshot({
+        .currentTime = currentTime,
+        .playbackRate = playbackRate,
+        .hostTime = MonotonicTime::now()
+    });
 }
 
 void AudioVideoRendererAVFObjC::stall()
@@ -533,11 +600,20 @@ Ref<MediaTimePromise> AudioVideoRendererAVFObjC::notifyTimeReachedAndStall(const
     m_stallProducer.emplace();
     Ref promise = m_stallProducer->promise();
 
+    // Register the observer at a 1ms-aligned tick at-or-before the boundary so it fires reliably;
+    // sample-unit values land between ticks and the observer never fires. The synchronizer is
+    // still parked at, and the producer resolves with, the original boundary.
+    auto roundedBoundary = timeBoundary.toTimeScale(1000, MediaTime::RoundingFlags::TowardNegativeInfinity);
+    {
+        Locker locker { m_publishLock };
+        m_stallCap = timeBoundary;
+    }
+    RetainPtr<NSArray> times = @[[NSValue valueWithCMTime:PAL::toCMTime(roundedBoundary)]];
+
     auto logSiteIdentifier = LOGIDENTIFIER;
     DEBUG_LOG(logSiteIdentifier, timeBoundary);
     UNUSED_PARAM(logSiteIdentifier);
 
-    RetainPtr<NSArray> times = @[[NSValue valueWithCMTime:PAL::toCMTime(timeBoundary)]];
     m_currentTimeObserver = [m_synchronizer addBoundaryTimeObserverForTimes:times.get() queue:mainDispatchQueueSingleton() usingBlock:makeBlockPtr([weakThis = ThreadSafeWeakPtr { *this }, timeBoundary, logSiteIdentifier]() mutable {
         RefPtr protectedThis = weakThis.get();
         if (!protectedThis)
@@ -550,6 +626,7 @@ Ref<MediaTimePromise> AudioVideoRendererAVFObjC::notifyTimeReachedAndStall(const
         [protectedThis->m_synchronizer setRate:0 time:PAL::toCMTime(timeBoundary)];
         protectedThis->m_lastSetSyncRate = 0;
 
+        protectedThis->updateSharedTimebase();
         if (auto producer = std::exchange(protectedThis->m_stallProducer, std::nullopt))
             producer->resolve(timeBoundary);
     }).get()];
@@ -558,6 +635,10 @@ Ref<MediaTimePromise> AudioVideoRendererAVFObjC::notifyTimeReachedAndStall(const
 
 void AudioVideoRendererAVFObjC::cancelTimeReachedAction()
 {
+    {
+        Locker locker { m_publishLock };
+        m_stallCap.reset();
+    }
     if (auto producer = std::exchange(m_stallProducer, std::nullopt))
         producer->reject(PlatformMediaError::Cancelled);
     if (RetainPtr observer = std::exchange(m_currentTimeObserver, nullptr))
@@ -582,6 +663,7 @@ void AudioVideoRendererAVFObjC::performTaskAtTime(const MediaTime& time, Functio
         MediaTime now = protectedThis->currentTime();
         ALWAYS_LOG_WITH_THIS(protectedThis, logSiteIdentifier, "boundary time observer called, now: ", now);
 
+        protectedThis->updateSharedTimebase();
         task(now);
 
         protectedThis->cancelPerformTaskAtTimeObserverIfNeeded();
@@ -600,6 +682,7 @@ void AudioVideoRendererAVFObjC::setTimeObserver(Seconds interval, Function<void(
         if (!protectedThis)
             return;
         auto clampedTime = CMTIME_IS_NUMERIC(time) ? protectedThis->clampTimeToLastSeekTime(PAL::toMediaTime(time)) : MediaTime::zeroTime();
+        protectedThis->updateSharedTimebase();
         callback(clampedTime);
     }).get()];
 }
@@ -631,7 +714,7 @@ Ref<MediaTimePromise> AudioVideoRendererAVFObjC::prepareToSeek(const MediaTime& 
         // In cases where the destination seek time matches too closely the synchronizer's existing time
         // no time jumped notification will be issued. In this case, just notify the MediaPlayer that
         // the seek completed successfully.
-        m_lastSeekTime = synchronizerTime;
+        setTimeFloor(synchronizerTime);
         m_seekState = SeekCompleted;
 
         auto shouldBePlaying = this->shouldBePlaying();
@@ -639,8 +722,10 @@ Ref<MediaTimePromise> AudioVideoRendererAVFObjC::prepareToSeek(const MediaTime& 
 
         if (shouldBePlaying)
             setSynchronizerRate(m_rate, { });
+        else
+            updateSharedTimebase();
 
-        return MediaTimePromise::createAndResolve(m_lastSeekTime);
+        return MediaTimePromise::createAndResolve(synchronizerTime);
     }
 
     setHasAvailableVideoFrame(false);
@@ -650,10 +735,11 @@ Ref<MediaTimePromise> AudioVideoRendererAVFObjC::prepareToSeek(const MediaTime& 
         properties.readyToRequestAudioData = false;
     }
 
-    m_lastSeekTime = seekTime;
+    setTimeFloor(seekTime);
     m_isSynchronizerSeeking = isSynchronizerSeeking;
     [m_synchronizer setRate:0 time:PAL::toCMTime(seekTime)];
     m_lastSetSyncRate = 0;
+    updateSharedTimebase();
     return MediaTimePromise::createAndResolve(MediaTime::indefiniteTime());
 }
 
@@ -675,6 +761,15 @@ void AudioVideoRendererAVFObjC::notifyEffectiveRateChanged(Function<void(double)
     m_effectiveRateChangedCallback = WTF::move(callback);
     // False positive see webkit.org/b/298024
     SUPPRESS_UNRETAINED_ARG m_effectiveRateChangedListener = EffectiveRateChangedListener::create([weakThis = ThreadSafeWeakPtr { *this }](double rate) mutable {
+        // On rate->0, publish synchronously on the listener thread before the main-thread hop.
+        // The main-thread updateSharedTimebase that handleEffectiveRateChanged would do is too
+        // late: the reader keeps extrapolating off the prior (rate=1) snapshot in the interim.
+        // Rate->non-zero is left to the main-thread path, which applies clampTimeToLastSeekTime
+        // and the startup gate.
+        if (RefPtr protectedThis = weakThis.get(); !rate && protectedThis && protectedThis->m_sharedTimebase) {
+            SUPPRESS_UNRETAINED_ARG MediaTime time = std::max(MediaTime::zeroTime(), PAL::toMediaTime(PAL::CMTimebaseGetTime([protectedThis->m_synchronizer timebase])));
+            protectedThis->publishSnapshot(time, 0);
+        }
         callOnMainThread([weakThis, rate] {
             if (RefPtr protectedThis = weakThis.get())
                 protectedThis->handleEffectiveRateChanged(rate);
@@ -691,6 +786,7 @@ void AudioVideoRendererAVFObjC::handleEffectiveRateChanged(double rate)
     if (!rate || m_lastForwardedEffectiveRate) {
         cancelStartupGateObserver();
         m_lastForwardedEffectiveRate = rate;
+        updateSharedTimebase();
         if (m_effectiveRateChangedCallback)
             m_effectiveRateChangedCallback(rate);
         return;
@@ -719,6 +815,8 @@ void AudioVideoRendererAVFObjC::releaseStartupGateAndForwardRate()
     cancelStartupGateObserver();
     SUPPRESS_UNRETAINED_ARG double liveRate = PAL::CMTimebaseGetEffectiveRate([m_synchronizer timebase]);
     m_lastForwardedEffectiveRate = liveRate;
+    // The gate just lifted: effectiveRate() now returns the live rate; publish before notifying.
+    updateSharedTimebase();
     if (m_effectiveRateChangedCallback)
         m_effectiveRateChangedCallback(liveRate);
 }
@@ -1079,10 +1177,19 @@ void AudioVideoRendererAVFObjC::setScreenReserved(bool reserved)
 
 MediaTime AudioVideoRendererAVFObjC::clampTimeToLastSeekTime(const MediaTime& time) const
 {
+    ASSERT(isMainThread());
     if (m_lastSeekTime.isFinite() && time < m_lastSeekTime)
         return m_lastSeekTime;
 
     return time;
+}
+
+void AudioVideoRendererAVFObjC::setTimeFloor(const MediaTime& time)
+{
+    ASSERT(isMainThread());
+    m_lastSeekTime = time;
+    Locker locker { m_publishLock };
+    m_publishedTimeFloor = time;
 }
 
 void AudioVideoRendererAVFObjC::maybeCompleteSeek()
@@ -1104,8 +1211,10 @@ void AudioVideoRendererAVFObjC::maybeCompleteSeek()
     m_seekState = SeekCompleted;
     if (shouldBePlaying())
         setSynchronizerRate(m_rate, { });
-    else
+    else {
         ALWAYS_LOG(LOGIDENTIFIER, "Not resuming playback, shouldBePlaying:false");
+        updateSharedTimebase();
+    }
 
     if (auto promise = std::exchange(m_seekPromise, std::nullopt))
         promise->resolve();
@@ -1870,6 +1979,28 @@ void AudioVideoRendererAVFObjC::setSynchronizerRate(float rate, std::optional<Mo
         updateLastPixelBuffer();
     else
         maybePurgeLastPixelBuffer();
+
+    // Rate (and possibly time) just changed; publish so the reader extrapolates from a fresh anchor.
+    updateSharedTimebase();
+
+    if (!m_sharedTimebase)
+        return;
+    if (rate && !m_registeredWithSharedTimer) {
+        m_registeredWithSharedTimer = true;
+        sharedTimebaseTimer().addClient(*this);
+    } else if (!rate && m_registeredWithSharedTimer) {
+        m_registeredWithSharedTimer = false;
+        sharedTimebaseTimer().removeClient(*this);
+    }
+}
+
+void AudioVideoRendererAVFObjC::periodicSharedTimerFired()
+{
+    ASSERT(m_sharedTimebase);
+    SUPPRESS_UNRETAINED_ARG auto timebase = [m_synchronizer timebase];
+    SUPPRESS_UNRETAINED_ARG MediaTime rawTime = std::max(MediaTime::zeroTime(), PAL::toMediaTime(PAL::CMTimebaseGetTime(timebase)));
+    SUPPRESS_UNRETAINED_ARG double rate = PAL::CMTimebaseGetEffectiveRate(timebase);
+    publishSnapshot(rawTime, rate);
 }
 
 RefPtr<NativeImage> AudioVideoRendererAVFObjC::currentNativeImage() const

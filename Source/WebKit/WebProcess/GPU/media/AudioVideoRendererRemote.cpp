@@ -118,7 +118,7 @@ AudioVideoRendererRemote::AudioVideoRendererRemote(LoggerHelper* loggerHelper, G
             });
             return;
         }
-        auto reader = SharedTimebaseReader::create(WTF::move(*handle), remoteAudioVideoRendererUpdateInterval);
+        auto reader = SharedTimebaseReader::create(WTF::move(*handle));
         if (!reader) {
             protectedThis->ensureOnDispatcher([protectedThis] {
                 assertIsCurrent(queueSingleton());

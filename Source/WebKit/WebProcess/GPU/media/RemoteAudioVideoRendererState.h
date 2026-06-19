@@ -27,14 +27,8 @@
 
 #include <WebCore/FloatSize.h>
 #include <wtf/MediaTime.h>
-#include <wtf/Seconds.h>
 
 namespace WebKit {
-
-// Cadence at which the GPU-side proxy refreshes the SharedTimebase anchor
-// during steady-state playback. Also caps SharedTimebaseReader's
-// between-anchor extrapolation to this interval.
-constexpr Seconds remoteAudioVideoRendererUpdateInterval = 250_ms;
 
 struct RemoteAudioVideoRendererState {
     bool paused { false };

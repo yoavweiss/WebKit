@@ -52,6 +52,7 @@ class MediaSample;
 class NativeImage;
 class PlatformDynamicRangeLimit;
 class ProcessIdentity;
+class SharedTimebase;
 class TextTrackRepresentation;
 class VideoFrame;
 
@@ -130,6 +131,9 @@ public:
     virtual Ref<GenericPromise> finishSeek(const MediaTime&) = 0;
     virtual bool seeking() const = 0;
     virtual void setScreenReserved(bool) = 0;
+
+    // The timebase the renderer keeps up to date as time/rate change. Null if unavailable.
+    virtual SharedTimebase* sharedTimebase() = 0;
 };
 
 struct SamplesRendererTrackIdentifierType;

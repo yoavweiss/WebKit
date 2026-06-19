@@ -43,9 +43,8 @@ TEST(SharedTimebase, Basic)
     ASSERT_TRUE(timebaseHandle);
 
     auto now = MonotonicTime::now();
-    constexpr Seconds maxExtrapolation = 10_s;
     auto fakeNow = now;
-    auto reader = SharedTimebaseReader::create(WTF::move(*timebaseHandle), maxExtrapolation, [&fakeNow] { return fakeNow; });
+    auto reader = SharedTimebaseReader::create(WTF::move(*timebaseHandle), [&fakeNow] { return fakeNow; });
     ASSERT_TRUE(reader);
 
     writerTimebase->storeSnapshot({
@@ -74,9 +73,8 @@ TEST(SharedTimebase, Basic)
     fakeNow = now - 1_s;
     EXPECT_EQ(reader->currentTime().toDouble(), 1.5);
 
-    // Beyond cap — elapsed clamped to maxExtrapolation taking into account rate.
     fakeNow = now + 20_s;
-    EXPECT_EQ(reader->currentTime().toDouble(), maxExtrapolation.seconds() * 0.5 + 1); // Time was 1s at now+1 with a rate of 0.5.
+    EXPECT_EQ(reader->currentTime().toDouble(), (19_s).seconds() * 0.5 + 1); // Time was 1s at now+1 with a rate of 0.5.
 
     // High-water-mark clamp: a snapshot rewinding to zero must not make
     // currentTime() go backwards.
