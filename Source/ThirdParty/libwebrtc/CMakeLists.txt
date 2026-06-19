@@ -1387,7 +1387,6 @@ list(APPEND webrtc_SOURCES
     Source/third_party/libyuv/source/compare.cc
     Source/third_party/libyuv/source/compare_common.cc
     Source/third_party/libyuv/source/compare_gcc.cc
-    Source/third_party/libyuv/source/compare_msa.cc
     Source/third_party/libyuv/source/compare_neon.cc
     Source/third_party/libyuv/source/compare_neon64.cc
     Source/third_party/libyuv/source/compare_win.cc
@@ -1408,7 +1407,6 @@ list(APPEND webrtc_SOURCES
     Source/third_party/libyuv/source/rotate_common.cc
     Source/third_party/libyuv/source/rotate_gcc.cc
     Source/third_party/libyuv/source/rotate_lsx.cc
-    Source/third_party/libyuv/source/rotate_msa.cc
     Source/third_party/libyuv/source/rotate_neon.cc
     Source/third_party/libyuv/source/rotate_neon64.cc
     Source/third_party/libyuv/source/rotate_sme.cc
@@ -1418,7 +1416,6 @@ list(APPEND webrtc_SOURCES
     Source/third_party/libyuv/source/row_gcc.cc
     Source/third_party/libyuv/source/row_lasx.cc
     Source/third_party/libyuv/source/row_lsx.cc
-    Source/third_party/libyuv/source/row_msa.cc
     Source/third_party/libyuv/source/row_neon.cc
     Source/third_party/libyuv/source/row_neon64.cc
     Source/third_party/libyuv/source/row_rvv.cc
@@ -1431,7 +1428,6 @@ list(APPEND webrtc_SOURCES
     Source/third_party/libyuv/source/scale_common.cc
     Source/third_party/libyuv/source/scale_gcc.cc
     Source/third_party/libyuv/source/scale_lsx.cc
-    Source/third_party/libyuv/source/scale_msa.cc
     Source/third_party/libyuv/source/scale_neon.cc
     Source/third_party/libyuv/source/scale_neon64.cc
     Source/third_party/libyuv/source/scale_rgb.cc
