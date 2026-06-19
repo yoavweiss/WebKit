@@ -348,6 +348,7 @@ public:
     inline MarkedSpace* space() const;
 
     static bool isAtomAligned(const void*);
+    static constexpr bool isAtomAligned(uintptr_t);
     static MarkedBlock* blockFor(const void*);
     unsigned atomNumber(const void*);
     size_t candidateAtomNumber(const void*);
@@ -473,7 +474,12 @@ inline MarkedBlock::Atom* MarkedBlock::atoms()
 
 inline bool MarkedBlock::isAtomAligned(const void* p)
 {
-    return !(reinterpret_cast<uintptr_t>(p) & atomAlignmentMask);
+    return isAtomAligned(std::bit_cast<uintptr_t>(p));
+}
+
+inline constexpr bool MarkedBlock::isAtomAligned(uintptr_t p)
+{
+    return !(p & atomAlignmentMask);
 }
 
 inline void* MarkedBlock::Handle::cellAlign(void* p)
