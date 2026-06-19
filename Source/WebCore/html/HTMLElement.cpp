@@ -616,10 +616,8 @@ void HTMLElement::applyAlignmentAttributeToStyle(const AtomString& alignment, Mu
         verticalAlignValue = CSSValueTop;
     } else if (equalLettersIgnoringASCIICase(alignment, "top"_s))
         verticalAlignValue = CSSValueTop;
-    else if (equalLettersIgnoringASCIICase(alignment, "middle"_s))
+    else if (equalLettersIgnoringASCIICase(alignment, "middle"_s) || equalLettersIgnoringASCIICase(alignment, "center"_s))
         verticalAlignValue = CSSValueWebkitBaselineMiddle;
-    else if (equalLettersIgnoringASCIICase(alignment, "center"_s))
-        verticalAlignValue = CSSValueMiddle;
     else if (equalLettersIgnoringASCIICase(alignment, "bottom"_s))
         verticalAlignValue = CSSValueBaseline;
     else if (equalLettersIgnoringASCIICase(alignment, "texttop"_s))
