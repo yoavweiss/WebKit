@@ -7658,12 +7658,12 @@ webkit.org/b/282024 fast/text/text-box-edge-with-margin-padding-border-simple.ht
 imported/w3c/web-platform-tests/css/css-anchor-position/anchor-scroll-position-try-012.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-anchor-position/transform-006.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-anchor-position/anchor-position-inline-004.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-anchor-position/anchor-position-inline-007.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-anchor-position/anchor-position-multicol-015.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-anchor-position/anchor-position-multicol-016.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-anchor-position/anchor-position-multicol-nested-001.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-anchor-position/container-queries/anchored-fallback-color-change.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-anchor-position/container-queries/anchored-fallback-style-containment.html [ ImageOnlyFailure ]
-imported/w3c/web-platform-tests/css/css-anchor-position/position-area-overflow-icb-001.html [ ImageOnlyFailure ]
 
 # This is passing only on mac-wk2
 webkit.org/b/299561 imported/w3c/web-platform-tests/css/css-anchor-position/anchor-scroll-chained-003.html [ ImageOnlyFailure ]
