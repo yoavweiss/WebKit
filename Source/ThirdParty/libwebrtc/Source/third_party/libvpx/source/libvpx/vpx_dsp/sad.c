@@ -32,8 +32,6 @@ static INLINE unsigned int sad(const uint8_t *src_ptr, int src_stride,
   return sad;
 }
 
-#if CONFIG_ENCODERS
-
 #define sadMxN(m, n)                                                          \
   unsigned int vpx_sad##m##x##n##_c(const uint8_t *src_ptr, int src_stride,   \
                                     const uint8_t *ref_ptr, int ref_stride) { \
@@ -72,30 +70,12 @@ static INLINE unsigned int sad(const uint8_t *src_ptr, int src_stride,
                              2 * ref_stride, (m), (n / 2));                    \
     }                                                                          \
   }
-#else  // !CONFIG_ENCODERS
-#define sadMxN(m, n)                                                          \
-  unsigned int vpx_sad##m##x##n##_c(const uint8_t *src_ptr, int src_stride,   \
-                                    const uint8_t *ref_ptr, int ref_stride) { \
-    return sad(src_ptr, src_stride, ref_ptr, ref_stride, m, n);               \
-  }
-
-#define sadMxNx4D(m, n)
-#endif  // CONFIG_ENCODERS
 
 /* clang-format off */
 // 64x64
 sadMxN(64, 64)
 sadMxNx4D(64, 64)
 
-// 32x32
-sadMxN(32, 32)
-sadMxNx4D(32, 32)
-
-// 16x16
-sadMxN(16, 16)
-sadMxNx4D(16, 16)
-
-#if CONFIG_ENCODERS
 // 64x32
 sadMxN(64, 32)
 sadMxNx4D(64, 32)
@@ -104,6 +84,10 @@ sadMxNx4D(64, 32)
 sadMxN(32, 64)
 sadMxNx4D(32, 64)
 
+// 32x32
+sadMxN(32, 32)
+sadMxNx4D(32, 32)
+
 // 32x16
 sadMxN(32, 16)
 sadMxNx4D(32, 16)
@@ -111,6 +95,10 @@ sadMxNx4D(32, 16)
 // 16x32
 sadMxN(16, 32)
 sadMxNx4D(16, 32)
+
+// 16x16
+sadMxN(16, 16)
+sadMxNx4D(16, 16)
 
 // 16x8
 sadMxN(16, 8)
@@ -135,10 +123,9 @@ sadMxNx4D(4, 8)
 // 4x4
 sadMxN(4, 4)
 sadMxNx4D(4, 4)
-#endif  // CONFIG_ENCODERS
 /* clang-format on */
 
-#if CONFIG_VP9_HIGHBITDEPTH && CONFIG_ENCODERS
+#if CONFIG_VP9_HIGHBITDEPTH
         static INLINE
     unsigned int highbd_sad(const uint8_t *src8_ptr, int src_stride,
                             const uint8_t *ref8_ptr, int ref_stride, int width,
@@ -266,4 +253,4 @@ highbd_sadMxN(4, 4)
 highbd_sadMxNx4D(4, 4)
 /* clang-format on */
 
-#endif  // CONFIG_VP9_HIGHBITDEPTH && CONFIG_ENCODERS
+#endif  // CONFIG_VP9_HIGHBITDEPTH

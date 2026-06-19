@@ -2915,7 +2915,9 @@ set(vpx_SOURCES
     Source/third_party/libvpx/source/libvpx/vp9/common/vp9_frame_buffers.c
     Source/third_party/libvpx/source/libvpx/vp9/common/vp9_idct.c
     Source/third_party/libvpx/source/libvpx/vp9/common/vp9_loopfilter.c
+    Source/third_party/libvpx/source/libvpx/vp9/common/vp9_mfqe.c
     Source/third_party/libvpx/source/libvpx/vp9/common/vp9_mvref_common.c
+    Source/third_party/libvpx/source/libvpx/vp9/common/vp9_postproc.c
     Source/third_party/libvpx/source/libvpx/vp9/common/vp9_pred_common.c
     Source/third_party/libvpx/source/libvpx/vp9/common/vp9_quant_common.c
     Source/third_party/libvpx/source/libvpx/vp9/common/vp9_reconinter.c
@@ -3073,7 +3075,6 @@ if (WTF_CPU_X86_64)
         Source/third_party/libvpx/source/libvpx/vpx_dsp/x86/highbd_idct4x4_add_sse4.c
         Source/third_party/libvpx/source/libvpx/vpx_dsp/x86/highbd_idct8x8_add_sse2.c
         Source/third_party/libvpx/source/libvpx/vpx_dsp/x86/highbd_idct8x8_add_sse4.c
-        Source/third_party/libvpx/source/libvpx/vpx_dsp/x86/highbd_intrapred_intrin_avx2.c
         Source/third_party/libvpx/source/libvpx/vpx_dsp/x86/highbd_intrapred_intrin_sse2.c
         Source/third_party/libvpx/source/libvpx/vpx_dsp/x86/highbd_intrapred_intrin_ssse3.c
         Source/third_party/libvpx/source/libvpx/vpx_dsp/x86/highbd_loopfilter_sse2.c
@@ -3128,6 +3129,7 @@ if (WTF_CPU_X86_64)
         Source/third_party/libvpx/source/libvpx/vp8/encoder/x86/dct_sse2.asm
         Source/third_party/libvpx/source/libvpx/vp8/encoder/x86/fwalsh_sse2.asm
         Source/third_party/libvpx/source/libvpx/vp8/encoder/x86/temporal_filter_apply_sse2.asm
+        Source/third_party/libvpx/source/libvpx/vp9/common/x86/vp9_mfqe_sse2.asm
         Source/third_party/libvpx/source/libvpx/vp9/encoder/x86/vp9_dct_sse2.asm
         Source/third_party/libvpx/source/libvpx/vp9/encoder/x86/vp9_error_sse2.asm
         Source/third_party/libvpx/source/libvpx/vpx_dsp/x86/add_noise_sse2.asm

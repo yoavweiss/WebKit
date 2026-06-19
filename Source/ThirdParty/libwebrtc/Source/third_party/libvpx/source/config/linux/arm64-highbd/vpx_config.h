@@ -9,7 +9,7 @@
 #ifndef VPX_CONFIG_H
 #define VPX_CONFIG_H
 
-#if defined(__APPLE__)
+#ifdef __APPLE__
 #include <TargetConditionals.h>
 #endif
 
@@ -31,13 +31,16 @@
 #define ARCH_LOONGARCH 0
 #define HAVE_NEON_ASM 0
 #define HAVE_NEON 1
-#if defined(__APPLE__) && ((TARGET_OS_IOS && !TARGET_OS_MACCATALYST) || TARGET_OS_TV || TARGET_OS_VISION)
+#if defined(__APPLE__) && TARGET_OS_IPHONE
 #define HAVE_NEON_DOTPROD 0
+#else
+#define HAVE_NEON_DOTPROD 1
+#endif
+#if defined(__APPLE__)
 #define HAVE_NEON_I8MM 0
 #define HAVE_SVE 0
 #define HAVE_SVE2 0
 #else
-#define HAVE_NEON_DOTPROD 1
 #define HAVE_NEON_I8MM 1
 #define HAVE_SVE 1
 #define HAVE_SVE2 1
@@ -46,7 +49,6 @@
 #define HAVE_DSPR2 0
 #define HAVE_MSA 0
 #define HAVE_MIPS64 0
-#define HAVE_X86_ASM 0
 #define HAVE_MMX 0
 #define HAVE_SSE 0
 #define HAVE_SSE2 0
@@ -62,7 +64,6 @@
 #define HAVE_LASX 0
 #define HAVE_VPX_PORTS 1
 #define HAVE_PTHREAD_H 1
-#define HAVE_PTHREAD_SETNAME_NP 1
 #define HAVE_UNISTD_H 0
 #define CONFIG_DEPENDENCY_TRACKING 1
 #define CONFIG_EXTERNAL_BUILD 1
@@ -84,7 +85,7 @@
 #define CONFIG_DC_RECON 0
 #define CONFIG_RUNTIME_CPU_DETECT 1
 #define CONFIG_POSTPROC 1
-#define CONFIG_VP9_POSTPROC 0
+#define CONFIG_VP9_POSTPROC 1
 #define CONFIG_MULTITHREAD 1
 #define CONFIG_INTERNAL_STATS 0
 #define CONFIG_VP8_ENCODER 1
@@ -124,6 +125,7 @@
 #define CONFIG_FP_MB_STATS 0
 #define CONFIG_EMULATE_HARDWARE 0
 #define CONFIG_NON_GREEDY_MV 0
+#define CONFIG_RATE_CTRL 0
 #define CONFIG_COLLECT_COMPONENT_TIMING 0
 #define DECODE_WIDTH_LIMIT 16384
 #define DECODE_HEIGHT_LIMIT 16384
