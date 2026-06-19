@@ -313,6 +313,16 @@ static inline WebKit::WebExtensionContext::PermissionMatchPatternsMap toImpl(NSD
     return Ref { *_webExtensionContext }->setHasAccessToPrivateData(hasAccess);
 }
 
+- (BOOL)_hasAccessToFileURLs
+{
+    return _webExtensionContext->hasAccessToFileURLs();
+}
+
+- (void)_setHasAccessToFileURLs:(BOOL)hasAccess
+{
+    return Ref { *_webExtensionContext }->setHasAccessToFileURLs(hasAccess);
+}
+
 static inline NSSet<WKWebExtensionPermission> *toAPI(const WebKit::WebExtensionContext::PermissionsMap::KeysConstIteratorRange& permissions)
 {
     if (!permissions.size())
