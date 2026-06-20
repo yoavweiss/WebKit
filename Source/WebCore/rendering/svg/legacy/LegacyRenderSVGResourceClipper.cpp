@@ -222,7 +222,7 @@ auto LegacyRenderSVGResourceClipper::applyClippingToContext(GraphicsContext& con
         if (resources && (clipper = resources->clipper())) {
             GraphicsContextStateSaver stateSaver(maskContext);
 
-            if (!clipper->applyClippingToContext(maskContext, *this, objectBoundingBox, clippedContentBounds))
+            if (!clipper->applyClippingToContext(maskContext, *this, objectBoundingBox, clippedContentBounds, usedZoom))
                 return { };
 
             succeeded = drawContentIntoMaskImage(Ref { *clipperData.imageBuffer }, objectBoundingBox, usedZoom);
