@@ -5305,6 +5305,11 @@ ALLOW_DEPRECATED_DECLARATIONS_BEGIN
 ALLOW_DEPRECATED_DECLARATIONS_END
 }
 
+bool WebViewImpl::shouldAllowWritingToolsAffordance() const
+{
+    return m_page->editorState().isEditableOrRanged() && !isSingleLineInputType(m_focusedElementInputType);
+}
+
 void WebViewImpl::addTextAnimationForAnimationID(WTF::UUID uuid, const WebCore::TextAnimationData& data)
 {
     if (!protect(m_page->preferences())->textAnimationsEnabled())
@@ -6967,9 +6972,9 @@ void WebViewImpl::updateTouchBar()
     if (touchBar.get() == m_currentTouchBar)
         return;
 
-    // If m_editableElementIsFocused is true, then we may have a non-editable selection right now just because
+    // If an editable element is focused, then we may have a non-editable selection right now just because
     // the user is clicking or tabbing between editable fields.
-    if (m_editableElementIsFocused && touchBar.get() != textTouchBar())
+    if (editableElementIsFocused() && touchBar.get() != textTouchBar())
         return;
 
     m_currentTouchBar = touchBar.get();
@@ -7349,15 +7354,6 @@ bool WebViewImpl::shouldRequestCandidates() const
     return false;
 }
 
-void WebViewImpl::setEditableElementIsFocused(bool editableElementIsFocused)
-{
-    m_editableElementIsFocused = editableElementIsFocused;
-
-    // If the editable elements have blurred, then we might need to get rid of the editing function bar.
-    if (!m_editableElementIsFocused)
-        updateTouchBar();
-}
-
 #else // !HAVE(TOUCH_BAR)
 
 void WebViewImpl::forceRequestCandidatesForTesting()
@@ -7369,12 +7365,47 @@ bool WebViewImpl::shouldRequestCandidates() const
     return false;
 }
 
-void WebViewImpl::setEditableElementIsFocused(bool editableElementIsFocused)
+#endif // HAVE(TOUCH_BAR)
+
+void WebViewImpl::setFocusedElementInputType(InputType inputType)
 {
-    m_editableElementIsFocused = editableElementIsFocused;
+    m_focusedElementInputType = inputType;
+
+#if HAVE(TOUCH_BAR)
+    // If the editable elements have blurred, then we might need to get rid of the editing function bar.
+    if (!editableElementIsFocused())
+        updateTouchBar();
+#endif
 }
 
-#endif // HAVE(TOUCH_BAR)
+bool WebViewImpl::editableElementIsFocused() const
+{
+    switch (m_focusedElementInputType) {
+    case InputType::None:
+    case InputType::Select:
+        return false;
+    case InputType::ContentEditable:
+    case InputType::Text:
+    case InputType::Password:
+    case InputType::TextArea:
+    case InputType::Search:
+    case InputType::Email:
+    case InputType::URL:
+    case InputType::Phone:
+    case InputType::Number:
+    case InputType::NumberPad:
+    case InputType::Date:
+    case InputType::DateTimeLocal:
+    case InputType::Month:
+    case InputType::Week:
+    case InputType::Time:
+    case InputType::Drawing:
+    case InputType::Color:
+        return true;
+    }
+    ASSERT_NOT_REACHED();
+    return false;
+}
 
 #if HAVE(REDESIGNED_TEXT_CURSOR)
 void WebViewImpl::updateCursorAccessoryPlacement()

@@ -203,7 +203,7 @@ private:
 
     void showDictationAlternativeUI(const WebCore::FloatRect& boundingBoxOfDictatedText, WebCore::DictationContext) final;
 
-    void setEditableElementIsFocused(bool) override;
+    void setFocusedElementInputType(InputType) override;
 
     void scrollingNodeScrollViewDidScroll(WebCore::ScrollingNodeID) override;
 

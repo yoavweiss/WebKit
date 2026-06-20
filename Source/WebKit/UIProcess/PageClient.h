@@ -186,6 +186,7 @@ namespace WebKit {
 enum class ColorControlSupportsAlpha : bool;
 enum class UndoOrRedo : bool;
 enum class ForceSoftwareCapturingViewportSnapshot : bool;
+enum class InputType : uint8_t;
 enum class TapHandlingResult : uint8_t;
 
 class ContextMenuContextData;
@@ -560,7 +561,7 @@ public:
 
     virtual void registerInsertionUndoGrouping() = 0;
 
-    virtual void setEditableElementIsFocused(bool) = 0;
+    virtual void setFocusedElementInputType(InputType) = 0;
 #endif // PLATFORM(MAC)
 
 #if ENABLE(HORIZONTAL_BANNER_VIEW_OVERLAYS)

@@ -2740,6 +2740,7 @@ std::optional<FocusedElementInformation> WebPage::focusedElementInformation()
 
     information.title = focusedElement->title();
     information.ariaLabel = focusedElement->attributeWithoutSynchronization(HTMLNames::aria_labelAttr);
+    information.elementType = inputTypeForElement(*focusedElement);
 
     if (RefPtr element = dynamicDowncast<HTMLSelectElement>(*focusedElement)) {
 #if USE(UICONTEXTMENU)
@@ -2747,8 +2748,6 @@ std::optional<FocusedElementInformation> WebPage::focusedElementInformation()
 #else
         bool selectPickerUsesMenu = false;
 #endif
-
-        information.elementType = InputType::Select;
 
         RefPtr<ContainerNode> parentGroup;
         int parentGroupID = 0;
@@ -2779,7 +2778,6 @@ std::optional<FocusedElementInformation> WebPage::focusedElementInformation()
     } else if (RefPtr element = dynamicDowncast<HTMLTextAreaElement>(*focusedElement)) {
         information.autocapitalizeType = element->autocapitalizeType();
         information.isAutocorrect = element->shouldAutocorrect();
-        information.elementType = InputType::TextArea;
         information.isReadOnly = element->isReadOnly();
         information.value = element->value();
         information.hasPlainText = !information.value.isEmpty();
@@ -2801,41 +2799,7 @@ std::optional<FocusedElementInformation> WebPage::focusedElementInformation()
         information.isAutocorrect = element->shouldAutocorrect();
         information.placeholder = element->attributeWithoutSynchronization(HTMLNames::placeholderAttr);
         information.hasEverBeenPasswordField = element->hasEverBeenPasswordField();
-        if (element->isPasswordField())
-            information.elementType = InputType::Password;
-        else if (element->isSearchField())
-            information.elementType = InputType::Search;
-        else if (element->isEmailField())
-            information.elementType = InputType::Email;
-        else if (element->isTelephoneField())
-            information.elementType = InputType::Phone;
-        else if (element->isNumberField())
-            information.elementType = element->getAttribute(HTMLNames::patternAttr) == "\\d*"_s || element->getAttribute(HTMLNames::patternAttr) == "[0-9]*"_s ? InputType::NumberPad : InputType::Number;
-        else if (element->isDateTimeLocalField())
-            information.elementType = InputType::DateTimeLocal;
-        else if (element->isDateField())
-            information.elementType = InputType::Date;
-        else if (element->isTimeField())
-            information.elementType = InputType::Time;
-        else if (element->isWeekField())
-            information.elementType = InputType::Week;
-        else if (element->isMonthField())
-            information.elementType = InputType::Month;
-        else if (element->isURLField())
-            information.elementType = InputType::URL;
-        else if (element->isText()) {
-            const AtomString& pattern = element->attributeWithoutSynchronization(HTMLNames::patternAttr);
-            if (pattern == "\\d*"_s || pattern == "[0-9]*"_s)
-                information.elementType = InputType::NumberPad;
-            else {
-                information.elementType = InputType::Text;
-                if (!information.formAction.isEmpty()
-                    && (element->getNameAttribute().contains("search"_s) || element->getIdAttribute().contains("search"_s) || element->attributeWithoutSynchronization(HTMLNames::titleAttr).contains("search"_s)))
-                    information.elementType = InputType::Search;
-            }
-        }
-        else if (element->isColorControl()) {
-            information.elementType = InputType::Color;
+        if (information.elementType == InputType::Color) {
             information.colorValue = element->valueAsColor();
             information.supportsAlpha = element->alpha() ? WebKit::ColorControlSupportsAlpha::Yes : WebKit::ColorControlSupportsAlpha::No;
             information.suggestedColors = element->suggestedColors();
@@ -2852,7 +2816,6 @@ std::optional<FocusedElementInformation> WebPage::focusedElementInformation()
         information.autofillFieldName = WebCore::toAutofillFieldName(element->autofillData().fieldName);
         information.nonAutofillCredentialType = element->autofillData().nonAutofillCredentialType;
     } else if (focusedElement->hasEditableStyle()) {
-        information.elementType = InputType::ContentEditable;
         if (RefPtr focusedHTMLElement = dynamicDowncast<HTMLElement>(*focusedElement)) {
             information.isAutocorrect = focusedHTMLElement->shouldAutocorrect();
             information.autocapitalizeType = focusedHTMLElement->autocapitalizeType();

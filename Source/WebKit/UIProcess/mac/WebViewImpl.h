@@ -34,6 +34,7 @@
 #include "AppKitSPI.h"
 #include "DrawingAreaInfo.h"
 #include "EditorState.h"
+#include "FocusedElementInformation.h"
 #include "ImageAnalysisUtilities.h"
 #include "PDFPluginIdentifier.h"
 #include "TransientZoomState.h"
@@ -462,7 +463,8 @@ public:
     void changeFontAttributesFromSender(id);
     void changeFontColorFromSender(id);
     bool validateUserInterfaceItem(id <NSValidatedUserInterfaceItem>);
-    void setEditableElementIsFocused(bool);
+    void setFocusedElementInputType(InputType);
+    bool editableElementIsFocused() const;
 
     enum class ContentRelativeChildViewsSuppressionType : uint8_t { Remove, Restore, TemporarilyRemove };
     void suppressContentRelativeChildViews(ContentRelativeChildViewsSuppressionType);
@@ -843,6 +845,7 @@ public:
 
 #if ENABLE(WRITING_TOOLS)
     void showWritingTools(WTRequestedTool = WTRequestedToolIndex);
+    bool shouldAllowWritingToolsAffordance() const;
 
     void addTextAnimationForAnimationID(WTF::UUID, const WebCore::TextAnimationData&);
     void removeTextAnimationForAnimationID(WTF::UUID);
@@ -1145,7 +1148,7 @@ private:
     NSInteger m_lastCandidateRequestSequenceNumber;
     NSRange m_softSpaceRange { NSNotFound, 0 };
     bool m_isHandlingAcceptedCandidate { false };
-    bool m_editableElementIsFocused { false };
+    InputType m_focusedElementInputType { InputType::None };
     bool m_isTextInsertionReplacingSoftSpace { false };
     RetainPtr<_WKWarningView> m_warningView;
     

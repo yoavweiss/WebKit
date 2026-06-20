@@ -32,6 +32,7 @@
 #import "APIPageConfiguration.h"
 #import "AppKitSPI.h"
 #import "DrawingAreaProxy.h"
+#import "FocusedElementInformation.h"
 #import "Logging.h"
 #import "NativeWebGestureEvent.h"
 #import "NativeWebKeyboardEvent.h"
@@ -819,9 +820,9 @@ void PageClientImpl::showDictationAlternativeUI(const WebCore::FloatRect& boundi
     });
 }
 
-void PageClientImpl::setEditableElementIsFocused(bool editableElementIsFocused)
+void PageClientImpl::setFocusedElementInputType(InputType inputType)
 {
-    protect(m_impl)->setEditableElementIsFocused(editableElementIsFocused);
+    protect(m_impl)->setFocusedElementInputType(inputType);
 }
 
 void PageClientImpl::scrollingNodeScrollViewDidScroll(WebCore::ScrollingNodeID)

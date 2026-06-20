@@ -75,6 +75,10 @@
 - (void)showWritingTools:(id)sender;
 @end
 
+@interface WKWebView (Staging_179113970)
+- (BOOL)allowsWritingToolsAffordance;
+@end
+
 @interface NSMenu (Extras)
 - (NSMenuItem *)itemWithIdentifier:(NSString *)identifier;
 @end
@@ -3547,6 +3551,28 @@ TEST(WritingTools, AppMenuEditableEmpty)
             continue;
 
         EXPECT_EQ([webView validateUserInterfaceItem:subItem], subItem.tag == WTRequestedToolIndex || subItem.tag == WTRequestedToolCompose);
+    }
+}
+
+TEST(WritingTools, ShouldAllowAffordance)
+{
+    {
+        RetainPtr webView = adoptNS([[WritingToolsWKWebView alloc] initWithHTMLString:@"<body><input id='field' type='text' value='AAAA BBBB CCCC'></body>" writingToolsBehavior:CocoaWritingToolsBehaviorComplete]);
+        [webView stringByEvaluatingJavaScript:@"field.focus(); field.setSelectionRange(0, field.value.length)"];
+        [webView waitForNextPresentationUpdate];
+        EXPECT_FALSE([webView allowsWritingToolsAffordance]);
+    }
+    {
+        RetainPtr webView = adoptNS([[WritingToolsWKWebView alloc] initWithHTMLString:@"<body><textarea id='field'>AAAA BBBB CCCC</textarea></body>" writingToolsBehavior:CocoaWritingToolsBehaviorComplete]);
+        [webView stringByEvaluatingJavaScript:@"field.focus(); field.setSelectionRange(0, field.value.length)"];
+        [webView waitForNextPresentationUpdate];
+        EXPECT_TRUE([webView allowsWritingToolsAffordance]);
+    }
+    {
+        RetainPtr webView = adoptNS([[WritingToolsWKWebView alloc] initWithHTMLString:@"<body contenteditable><p>AAAA BBBB CCCC</p></body>" writingToolsBehavior:CocoaWritingToolsBehaviorComplete]);
+        [webView focusDocumentBodyAndSelectAll];
+        [webView waitForNextPresentationUpdate];
+        EXPECT_TRUE([webView allowsWritingToolsAffordance]);
     }
 }
 

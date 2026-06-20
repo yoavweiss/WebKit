@@ -408,7 +408,7 @@ messages -> WebPageProxy {
     DismissCorrectionPanelSoon(enum:uint8_t WebCore::ReasonForDismissingAlternativeText reason) -> (String result) Synchronous
     RecordAutocorrectionResponse(enum:uint8_t WebCore::AutocorrectionResponse response, String replacedString, String replacementString);
 
-    SetEditableElementIsFocused(bool editableElementIsFocused)
+    SetFocusedElementInputType(enum:uint8_t WebKit::InputType inputType)
 
     HandleAcceptsFirstMouse(bool acceptsFirstMouse) CanDispatchOutOfOrder
 #endif

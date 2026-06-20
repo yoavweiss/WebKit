@@ -777,7 +777,12 @@ ALLOW_DEPRECATED_IMPLEMENTATIONS_BEGIN
     _impl->showWritingTools(tool);
 }
 
-#endif
+- (BOOL)allowsWritingToolsAffordance
+{
+    return _impl->shouldAllowWritingToolsAffordance();
+}
+
+#endif // ENABLE(WRITING_TOOLS)
 
 #if ENABLE(DRAG_SUPPORT)
 ALLOW_DEPRECATED_IMPLEMENTATIONS_BEGIN
