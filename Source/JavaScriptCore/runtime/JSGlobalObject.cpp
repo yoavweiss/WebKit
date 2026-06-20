@@ -2262,6 +2262,7 @@ capitalName ## Constructor* lowerName ## Constructor = featureFlag ? capitalName
     installObjectPropertyChangeAdaptiveWatchpoint(setupAdaptiveWatchpoint(this, this->arrayPrototype(), vm.propertyNames->join), m_arrayJoinWatchpointSet);
     installObjectPropertyChangeAdaptiveWatchpoint(setupAdaptiveWatchpoint(this, this->arrayPrototype(), vm.propertyNames->toString), m_arrayToStringWatchpointSet);
     installObjectPropertyChangeAdaptiveWatchpoint(setupAdaptiveWatchpoint(this, mapIteratorPrototype, vm.propertyNames->next), m_mapIteratorProtocolWatchpointSet);
+    installObjectPropertyChangeAdaptiveWatchpoint(setupAdaptiveWatchpoint(this, m_iteratorPrototype.get(), vm.propertyNames->iteratorSymbol), m_mapIteratorProtocolWatchpointSet);
     installObjectPropertyChangeAdaptiveWatchpoint(setupAdaptiveWatchpoint(this, setIteratorPrototype, vm.propertyNames->next), m_setIteratorProtocolWatchpointSet);
     installObjectPropertyChangeAdaptiveWatchpoint(setupAdaptiveWatchpoint(this, m_stringIteratorPrototype.get(), vm.propertyNames->next), m_stringIteratorProtocolWatchpointSet);
     installObjectPropertyChangeAdaptiveWatchpoint(setupAdaptiveWatchpoint(this, m_stringPrototype.get(), vm.propertyNames->iteratorSymbol), m_stringIteratorProtocolWatchpointSet);
@@ -2315,6 +2316,7 @@ capitalName ## Constructor* lowerName ## Constructor = featureFlag ? capitalName
     // invalidated when a "return" property appears anywhere on the iterator's prototype chain.
     installObjectAdaptiveStructureWatchpoint(setupAbsenceAdaptiveWatchpoint(this, arrayIteratorPrototype, vm.propertyNames->returnKeyword, m_iteratorPrototype.get()), m_arrayIteratorProtocolWatchpointSet);
     installObjectAdaptiveStructureWatchpoint(setupAbsenceAdaptiveWatchpoint(this, mapIteratorPrototype, vm.propertyNames->returnKeyword, m_iteratorPrototype.get()), m_mapIteratorProtocolWatchpointSet);
+    installObjectAdaptiveStructureWatchpoint(setupAbsenceAdaptiveWatchpoint(this, mapIteratorPrototype, vm.propertyNames->iteratorSymbol, m_iteratorPrototype.get()), m_mapIteratorProtocolWatchpointSet);
     installObjectAdaptiveStructureWatchpoint(setupAbsenceAdaptiveWatchpoint(this, setIteratorPrototype, vm.propertyNames->returnKeyword, m_iteratorPrototype.get()), m_setIteratorProtocolWatchpointSet);
     installObjectAdaptiveStructureWatchpoint(setupAbsenceAdaptiveWatchpoint(this, m_stringIteratorPrototype.get(), vm.propertyNames->returnKeyword, m_iteratorPrototype.get()), m_stringIteratorProtocolWatchpointSet);
     installObjectAdaptiveStructureWatchpoint(setupAbsenceAdaptiveWatchpoint(this, m_iteratorPrototype.get(), vm.propertyNames->returnKeyword, objectPrototype()), m_arrayIteratorProtocolWatchpointSet);
