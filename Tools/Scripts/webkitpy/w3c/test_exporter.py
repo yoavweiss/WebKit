@@ -326,10 +326,10 @@ class WebPlatformTestExporter(object):
         pr = self._remote.pull_requests.create(
             title=title,
             body=body,
-            head=self._wpt_repo.branch,
+            head=remote_branch_name,
         )
         if not pr:
-            _log.error(f"Failed to create pull-request for '{self._wpt_repo.branch}'\n")
+            _log.error(f"Failed to create pull-request for '{remote_branch_name}'\n")
             return None
         print(f"Created '{pr}'!")
         return pr
