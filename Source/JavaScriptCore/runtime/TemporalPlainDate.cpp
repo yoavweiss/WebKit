@@ -282,16 +282,14 @@ static TemporalPlainDate* fromImpl(JSGlobalObject* globalObject, JSValue itemVal
     auto string = itemValue.toWTFString(globalObject);
     RETURN_IF_EXCEPTION(scope, { });
 
-    auto dateTime = ISO8601::parseCalendarDateTime(string, TemporalDateFormat::Date);
+    // Step 4: result = ? ParseISODateTime(item, « TemporalDateTimeString[~Zoned] »).
+    auto dateTime = ISO8601::parseISODateTime(string, ISO8601::TemporalProduction::DateTimeUnzoned);
     if (dateTime) [[likely]] {
-        auto [plainDate, plainTimeOptional, timeZoneOptional, calendarOptional] = WTF::move(dateTime.value());
+        auto [plainDateOpt, plainTimeOptional, timeZoneOptional, calendarOptional, matched, isShortForm] = WTF::move(*dateTime);
+        ASSERT(plainDateOpt);
+        auto plainDate = WTF::move(*plainDateOpt);
 
-        // Step 4 ([~Zoned] grammar): reject Z designator.
-        if (timeZoneOptional && timeZoneOptional->m_z) [[unlikely]] {
-            throwRangeError(globalObject, scope, "invalid date string"_s);
-            return { };
-        }
-
+        // Steps 5-7: calendar = result.[[Calendar]]; if ~empty~ → "iso8601"; CanonicalizeCalendar.
         CalendarID calendarId = iso8601CalendarID();
         if (calendarOptional) {
             auto rawCal = StringView(*calendarOptional).convertToASCIILowercase();
@@ -302,6 +300,10 @@ static TemporalPlainDate* fromImpl(JSGlobalObject* globalObject, JSValue itemVal
             }
             calendarId = *canonicalized;
         }
+        // Steps 8-9: GetOptionsObject + GetTemporalOverflowOption.
+        //   Options aren't reachable on the compare path (compare takes no options arg); the
+        //   spec calls are no-ops on undefined and the overflow value is unused for strings.
+        // Steps 10-11: isoDate = CreateISODateRecord(...); Return ? CreateTemporalDate(isoDate, calendar).
         if (calendarId == iso8601CalendarID())
             RELEASE_AND_RETURN(scope, TemporalPlainDate::tryCreateIfValid(globalObject, globalObject->plainDateStructure(), WTF::move(plainDate)));
         RELEASE_AND_RETURN(scope, TemporalPlainDate::tryCreateIfValid(globalObject, globalObject->plainDateStructure(), WTF::move(plainDate), WTF::move(calendarId)));
@@ -379,18 +381,14 @@ TemporalPlainDate* TemporalPlainDate::from(JSGlobalObject* globalObject, JSValue
         return { };
     }
 
-    // Step 4: result = ? ParseISODateTime(item, «TemporalDateTimeString[~Zoned]»).
+    // Step 4: result = ? ParseISODateTime(item, « TemporalDateTimeString[~Zoned] »).
     auto string = itemValue.toWTFString(globalObject);
     RETURN_IF_EXCEPTION(scope, { });
-    auto dateTime = ISO8601::parseCalendarDateTime(string, TemporalDateFormat::Date);
+    auto dateTime = ISO8601::parseISODateTime(string, ISO8601::TemporalProduction::DateTimeUnzoned);
     if (dateTime) [[likely]] {
-        auto [plainDate, plainTimeOptional, timeZoneOptional, calendarOptional] = WTF::move(dateTime.value());
-
-        // Step 4 ([~Zoned] grammar): Z designator rejected before options are read.
-        if (timeZoneOptional && timeZoneOptional->m_z) [[unlikely]] {
-            throwRangeError(globalObject, scope, "invalid date string"_s);
-            return { };
-        }
+        auto [plainDateOpt, plainTimeOptional, timeZoneOptional, calendarOptional, matched, isShortForm] = WTF::move(*dateTime);
+        ASSERT(plainDateOpt);
+        auto plainDate = WTF::move(*plainDateOpt);
 
         // Steps 5-7: calendar = result.[[Calendar]]; if ~empty~ → "iso8601"; CanonicalizeCalendar.
         CalendarID calendarId = iso8601CalendarID();

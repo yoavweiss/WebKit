@@ -504,42 +504,25 @@ TemporalPlainTime* TemporalPlainTime::from(JSGlobalObject* globalObject, JSValue
         return { };
     }
 
-    // Step 3.b: parseResult = ? ParseISODateTime(item, «TemporalTimeString»).
-    // TemporalTimeString accepts both time-only ("14:30:00") and datetime ("2021-01-01T14:30:00")
-    // formats. Implemented as two parsers that mirror the grammar productions:
-    //   parseCalendarTime: time-only production.
-    //   parseCalendarDateTime: fallback for the datetime production.
-    // Strings with a Z designator are rejected (they throw RangeError per test262).
+    // Step 3.b: parseResult = ? ParseISODateTime(item, « TemporalTimeString »).
+    //   TemporalTimeString accepts both time-only ("14:30:00") and datetime ("2021-01-01T14:30:00")
+    //   forms; parseISODateTime tries the time-only production first then falls back to datetime.
     auto string = itemValue.toWTFString(globalObject);
     RETURN_IF_EXCEPTION(scope, { });
 
-    auto timeResult = ISO8601::parseCalendarTime(string);
-    if (timeResult) {
-        auto [plainTime, timeZoneOptional, calendarOptional] = WTF::move(timeResult.value());
-        if (!(timeZoneOptional && timeZoneOptional->m_z)) {
-            // Step 3.c: Assert _parseResult_.[[Time]] is not ~start-of-day~. (guaranteed by grammar)
-            // Step 3.d: Set _result_ to _parseResult_.[[Time]].
-            // Step 3.e: NOTE.
-            // Step 3.f: resolvedOptions = ? GetOptionsObject(options).
-            // Step 3.g: Perform ? GetTemporalOverflowOption(resolvedOptions). (result unused for strings)
-            // Step 4: Return ! CreateTemporalTime(_result_).
-            toTemporalOverflow(globalObject, optionsValue);
-            RETURN_IF_EXCEPTION(scope, { });
-            return TemporalPlainTime::create(vm, globalObject->plainTimeStructure(), WTF::move(plainTime));
-        }
-    }
-
-    // Time-only parse failed or was a Z string — try the datetime production.
-    auto dateTimeResult = ISO8601::parseCalendarDateTime(string, TemporalDateFormat::Date);
-    if (dateTimeResult) [[likely]] {
-        auto [plainDate, plainTimeOptional, timeZoneOptional, calendarOptional] = WTF::move(dateTimeResult.value());
-        // Require an explicit time (no ~start-of-day~, satisfying step 3.c Assert) and no Z.
-        if (plainTimeOptional && !(timeZoneOptional && timeZoneOptional->m_z)) {
-            // Steps 3.f-3.g + Step 4: same as time-only path above.
-            toTemporalOverflow(globalObject, optionsValue);
-            RETURN_IF_EXCEPTION(scope, { });
-            return TemporalPlainTime::create(vm, globalObject->plainTimeStructure(), WTF::move(plainTimeOptional.value()));
-        }
+    auto parsed = ISO8601::parseISODateTime(string, ISO8601::TemporalProduction::Time);
+    if (parsed) [[likely]] {
+        auto [plainDateOpt, plainTimeOpt, timeZoneOpt, calendarOpt, matched, isShortForm] = WTF::move(*parsed);
+        ASSERT(plainTimeOpt);
+        auto plainTime = WTF::move(*plainTimeOpt);
+        // Step 3.c: Assert _parseResult_.[[Time]] is not ~start-of-day~. (guaranteed by grammar)
+        // Step 3.d: Set _result_ to _parseResult_.[[Time]].
+        // Step 3.f: resolvedOptions = ? GetOptionsObject(options).
+        // Step 3.g: Perform ? GetTemporalOverflowOption(resolvedOptions). (result unused for strings)
+        // Step 4: Return ! CreateTemporalTime(_result_).
+        toTemporalOverflow(globalObject, optionsValue);
+        RETURN_IF_EXCEPTION(scope, { });
+        return TemporalPlainTime::create(vm, globalObject->plainTimeStructure(), WTF::move(plainTime));
     }
 
     // Step 3.b: ParseISODateTime failed → throw RangeError.

@@ -614,54 +614,14 @@ String temporalShowCalendarName(JSGlobalObject* globalObject, JSObject* options)
         "calendarName must be \"auto\", \"always\", \"never\", or \"critical\""_s, "auto"_s);
 }
 
+// ToTemporalCalendarIdentifier ( temporalCalendarLike )
 // https://tc39.es/proposal-temporal/#sec-temporal-totemporalcalendaridentifier
 CalendarID toTemporalCalendarIdentifier(JSGlobalObject* globalObject, JSValue calendarLike)
 {
     VM& vm = globalObject->vm();
     auto scope = DECLARE_THROW_SCOPE(vm);
 
-    if (calendarLike.isString()) {
-        auto calendarString = calendarLike.toWTFString(globalObject);
-        RETURN_IF_EXCEPTION(scope, iso8601CalendarID());
-
-        // Fast path: direct calendar ID (case-insensitive). isBuiltinCalendar handles legacy aliases.
-        if (auto calendarId = isBuiltinCalendar(calendarString))
-            return *calendarId;
-
-        // Try parsing as a temporal date string to extract the [u-ca=...] annotation.
-        // Try Date, then YearMonth, then MonthDay (YearMonth before MonthDay to avoid asserting on "2020-01").
-        auto parsed = ISO8601::parseCalendarDateTime(calendarString, TemporalDateFormat::Date);
-        if (!parsed)
-            parsed = ISO8601::parseCalendarDateTime(calendarString, TemporalDateFormat::YearMonth);
-        if (!parsed)
-            parsed = ISO8601::parseCalendarDateTime(calendarString, TemporalDateFormat::MonthDay);
-        if (!parsed) {
-            // Per spec ParseTemporalCalendarString, also try TemporalTimeString.
-            // A time string with no calendar annotation returns "iso8601".
-            auto parsedTime = ISO8601::parseCalendarTime(calendarString);
-            if (!parsedTime) [[unlikely]] {
-                throwRangeError(globalObject, scope, makeString("invalid calendar identifier: "_s, calendarString));
-                return iso8601CalendarID();
-            }
-            auto& calAnnotation = std::get<2>(parsedTime.value());
-            if (!calAnnotation)
-                return iso8601CalendarID();
-            if (auto calendarId = isBuiltinCalendar(StringView(*calAnnotation)))
-                return *calendarId;
-            throwRangeError(globalObject, scope, makeString("invalid calendar identifier: "_s, StringView(*calAnnotation)));
-            return iso8601CalendarID();
-        }
-        auto& calendarAnnotation = std::get<3>(parsed.value());
-        if (!calendarAnnotation)
-            return iso8601CalendarID();
-        if (auto calendarId = isBuiltinCalendar(StringView(*calendarAnnotation)))
-            return *calendarId;
-        throwRangeError(globalObject, scope, makeString("invalid calendar identifier: "_s, StringView(*calendarAnnotation)));
-        return iso8601CalendarID();
-    }
-
-    // Fast path: read [[Calendar]] from Temporal date-like objects without invoking
-    // the "calendar" property getter (per spec ToTemporalCalendar step 1.b).
+    // Step 1: If calendarLike is an Object with a Temporal-date-like internal slot, return its [[Calendar]].
     if (calendarLike.isObject()) {
         JSObject* obj = asObject(calendarLike);
         if (obj->inherits<TemporalPlainDate>())
@@ -676,7 +636,51 @@ CalendarID toTemporalCalendarIdentifier(JSGlobalObject* globalObject, JSValue ca
             return uncheckedDowncast<TemporalZonedDateTime>(obj)->calendarID();
     }
 
-    throwTypeError(globalObject, scope, "calendar argument must be a string or a Temporal date-like object"_s);
+    // Step 2: If calendarLike is not a String, throw TypeError.
+    if (!calendarLike.isString()) [[unlikely]] {
+        throwTypeError(globalObject, scope, "calendar must be a string or Temporal object"_s);
+        return iso8601CalendarID();
+    }
+
+    auto calendarString = calendarLike.toWTFString(globalObject);
+    RETURN_IF_EXCEPTION(scope, iso8601CalendarID());
+
+    // Fast path: bare builtin calendar id ("iso8601", "hebrew", ...). Skips
+    // ParseTemporalCalendarString entirely since both that op and CanonicalizeCalendar
+    // would just round-trip the string through the same isBuiltinCalendar lookup.
+    if (auto calendarId = isBuiltinCalendar(calendarString))
+        return *calendarId;
+
+    // Step 3: identifier = ? ParseTemporalCalendarString(string).
+    // https://tc39.es/proposal-temporal/#sec-temporal-parsetemporalcalendarstring
+    //   PTCS Step 1: parseResult = Completion(ParseISODateTime(string,
+    //     « TDS[+Zoned], TDS[~Zoned], TIS, TimeString, MonthDayString, YearMonthString »)).
+    //   PTCS Step 2: If normal completion → calendar (default "iso8601").
+    //   PTCS Steps 3-5: Otherwise, ParseText(string, AnnotationValue) fallback. We
+    //     collapse 3-5 with CanonicalizeCalendar below: any input that's not a builtin
+    //     name (fast path failed above) and isn't a Temporal date string can never pass
+    //     CanonicalizeCalendar, so throw immediately.
+    auto parsed = ISO8601::parseISODateTime(calendarString, {
+        ISO8601::TemporalProduction::DateTimeZoned,
+        ISO8601::TemporalProduction::DateTimeUnzoned,
+        ISO8601::TemporalProduction::Instant,
+        ISO8601::TemporalProduction::YearMonth,
+        ISO8601::TemporalProduction::MonthDay,
+        ISO8601::TemporalProduction::Time,
+    });
+    if (!parsed) [[unlikely]] {
+        throwRangeError(globalObject, scope, makeString("invalid calendar identifier: "_s, calendarString));
+        return iso8601CalendarID();
+    }
+    // PTCS Step 2.a-c: extract calendar (or default to "iso8601").
+    String identifier = parsed->calendar
+        ? StringView(*parsed->calendar).convertToASCIILowercase()
+        : "iso8601"_s;
+
+    // Step 4: Return ? CanonicalizeCalendar(identifier).
+    if (auto calendarId = isBuiltinCalendar(identifier))
+        return *calendarId;
+    throwRangeError(globalObject, scope, makeString("invalid calendar identifier: "_s, identifier));
     return iso8601CalendarID();
 }
 

@@ -168,29 +168,18 @@ static std::optional<ZDTEpochArgs> toEpochArgsFromString(JSGlobalObject* globalO
     String string = item->value(globalObject);
     RETURN_IF_EXCEPTION(scope, std::nullopt);
 
-    // Step 5.b: ParseISODateTime(item, «TemporalDateTimeString[+Zoned]»).
-    auto parsed = ISO8601::parseCalendarDateTime(string, TemporalDateFormat::Date);
+    // Step 5.b: ParseISODateTime(item, « TemporalDateTimeString[+Zoned] »).
+    //   The DateTimeZoned production already requires a bracket TZ annotation, so the
+    //   "TimeZoneAnnotation Parse Node present" check (spec step 5.d) is satisfied by parsing.
+    auto parsed = ISO8601::parseISODateTime(string, ISO8601::TemporalProduction::DateTimeZoned);
     if (!parsed) [[unlikely]] {
         throwRangeError(globalObject, scope, makeString("'"_s, ellipsizeAt(100, string), "' is not a valid Temporal.ZonedDateTime string"_s));
         return std::nullopt;
     }
-    auto [plainDate, plainTimeOptional, tzRecordOptional, calendarOptional] = WTF::move(*parsed);
-
-    if (!tzRecordOptional) [[unlikely]] {
-        throwRangeError(globalObject, scope, "Temporal.ZonedDateTime string requires a time zone annotation"_s);
-        return std::nullopt;
-    }
+    auto [plainDateOpt, plainTimeOptional, tzRecordOptional, calendarOptional, matched, isShortForm] = WTF::move(*parsed);
+    ASSERT(plainDateOpt && tzRecordOptional);
+    auto plainDate = WTF::move(*plainDateOpt);
     auto& tzRecord = *tzRecordOptional;
-
-    // Steps 5.c-5.d: The spec parses item as TemporalDateTimeString[+Zoned], which requires a
-    // bracket annotation. Our parser (parseCalendarDateTime) does not enforce the +Zoned flag,
-    // so we check explicitly and throw the RangeError that the grammar would normally prevent.
-    bool hasBracket = std::holds_alternative<int64_t>(tzRecord.m_nameOrOffset)
-        || !std::get<Vector<Latin1Character>>(tzRecord.m_nameOrOffset).isEmpty();
-    if (!hasBracket) [[unlikely]] {
-        throwRangeError(globalObject, scope, "Temporal.ZonedDateTime string requires a bracketed time zone annotation"_s);
-        return std::nullopt;
-    }
 
     // Step 5.e: timeZone = ? ToTemporalTimeZoneIdentifier(annotation). (fused into timeZoneFromRecord)
     auto timeZoneOpt = timeZoneFromRecord(tzRecord);

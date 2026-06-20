@@ -193,36 +193,23 @@ static TemporalPlainMonthDay* fromMonthDayString(JSGlobalObject* globalObject, W
     VM& vm = globalObject->vm();
     auto scope = DECLARE_THROW_SCOPE(vm);
 
-    // Step 4: ParseISODateTime(item, {TemporalMonthDayString}).
-    auto dateTime = ISO8601::parseCalendarDateTime(string, TemporalDateFormat::MonthDay);
-    if (!dateTime || (std::get<2>(dateTime.value()) && std::get<2>(dateTime.value())->m_z)) [[unlikely]] {
+    // Step 4: ParseISODateTime(item, « TemporalMonthDayString »).
+    auto dateTime = ISO8601::parseISODateTime(string, ISO8601::TemporalProduction::MonthDay);
+    if (!dateTime) [[unlikely]] {
         String message = tryMakeString("Temporal.PlainMonthDay.from: invalid date string "_s, string);
         throwRangeError(globalObject, scope, message.isNull() ? "Temporal.PlainMonthDay.from: invalid date string"_s : message);
         return { };
     }
-    auto [plainDate, plainTimeOptional, timeZoneOptional, calendarOptional] = WTF::move(*dateTime);
+    auto [plainDateOpt, plainTimeOptional, timeZoneOptional, calendarOptional, matched, isShortForm] = WTF::move(*dateTime);
+    ASSERT(plainDateOpt);
+    auto plainDate = WTF::move(*plainDateOpt);
 
-    // Steps 5-7: extract and canonicalize [[Calendar]].
-    // MM-DD short form only valid with iso8601.
-    bool looksLikeShortForm = false;
-    {
-        unsigned digitGroups = 0;
-        bool inDigits = false;
-        for (unsigned j = 0; j < string.length() && string[j] != '['; j++) {
-            if (isASCIIDigit(string[j])) {
-                if (!inDigits) {
-                    digitGroups++;
-                    inDigits = true;
-                }
-            } else
-                inDigits = false;
-        }
-        looksLikeShortForm = (digitGroups <= 2);
-    }
-    if (looksLikeShortForm && calendarOptional && !WTF::equalIgnoringASCIICase(StringView(*calendarOptional), "iso8601"_s)) [[unlikely]] {
-        throwRangeError(globalObject, scope, "PlainMonthDay string must use iso8601 calendar"_s);
-        return { };
-    }
+    // (parseISODateTime already enforced Step 4.a.ii.(4): short-form non-iso8601 → nullopt.)
+    bool looksLikeShortForm = isShortForm;
+
+    // Step 5: Let calendar be result.[[Calendar]].
+    // Step 6: If calendar is ~empty~, set calendar to "iso8601".
+    // Step 7: Set calendar to ? CanonicalizeCalendar(calendar).
     CalendarID calendarId = iso8601CalendarID();
     if (calendarOptional) {
         auto rawCal = StringView(*calendarOptional).convertToASCIILowercase();
@@ -241,11 +228,9 @@ static TemporalPlainMonthDay* fromMonthDayString(JSGlobalObject* globalObject, W
     }
 
     // Steps 11-12: isoDate = {year,month,day}; ISODateWithinLimits check.
-    // Re-parse as full date to recover the original year (MonthDay parser may strip it).
-    auto dateParse = ISO8601::parseCalendarDateTime(string, TemporalDateFormat::Date);
+    // For short form (no year), plainDate.year() defaults to a parser sentinel; for full form,
+    // it's the parsed year.
     int32_t fullYear = plainDate.year();
-    if (dateParse)
-        fullYear = std::get<0>(dateParse.value()).year();
     if (!ISO8601::isYearWithinLimits(fullYear) || !ISO8601::isDateTimeWithinLimits(fullYear, plainDate.month(), plainDate.day(), 12, 0, 0, 0, 0, 0)) [[unlikely]] {
         throwRangeError(globalObject, scope, "Date is not within ISO date time limits"_s);
         return { };
@@ -253,10 +238,9 @@ static TemporalPlainMonthDay* fromMonthDayString(JSGlobalObject* globalObject, W
 
     // Steps 13-15: ISODateToFields + CalendarMonthDayFromFields(~constrain~) + CreateTemporalMonthDay.
     // (Fused into plainMonthDayFromISODate for non-ISO full date strings.)
-    if (!looksLikeShortForm && dateParse) {
-        auto& fullDate = std::get<0>(dateParse.value());
-        if (ISO8601::isYearWithinLimits(fullDate.year())) {
-            auto resolved = TemporalCore::plainMonthDayFromISODate(calendarId, fullDate, TemporalOverflow::Constrain);
+    if (!looksLikeShortForm) {
+        if (ISO8601::isYearWithinLimits(plainDate.year())) {
+            auto resolved = TemporalCore::plainMonthDayFromISODate(calendarId, plainDate, TemporalOverflow::Constrain);
             if (!resolved) [[unlikely]] {
                 throwRangeError(globalObject, scope, String(resolved.error().message));
                 return { };

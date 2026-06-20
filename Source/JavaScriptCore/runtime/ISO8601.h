@@ -29,6 +29,7 @@
 #include <JavaScriptCore/IntlObject.h>
 #include <JavaScriptCore/TemporalObject.h>
 #include <wtf/Int128.h>
+#include <wtf/OptionSet.h>
 #include <wtf/TZoneMalloc.h>
 #include <wtf/text/StringBuilder.h>
 
@@ -475,10 +476,33 @@ std::optional<int64_t> parseUTCOffset(StringView, bool parseSubMinutePrecision =
 std::optional<int64_t> parseUTCOffsetInMinutes(StringView);
 enum class ValidateTimeZoneID : bool { No, Yes };
 using CalendarID = RFC9557Value;
-std::optional<std::tuple<PlainTime, std::optional<TimeZoneRecord>>> parseTime(StringView);
-std::optional<std::tuple<PlainTime, std::optional<TimeZoneRecord>, std::optional<CalendarID>>> parseCalendarTime(StringView);
-std::optional<std::tuple<PlainDate, std::optional<PlainTime>, std::optional<TimeZoneRecord>>> parseDateTime(StringView, TemporalDateFormat);
-JS_EXPORT_PRIVATE std::optional<std::tuple<PlainDate, std::optional<PlainTime>, std::optional<TimeZoneRecord>, std::optional<CalendarID>>> parseCalendarDateTime(StringView, TemporalDateFormat);
+
+enum class TemporalProduction : uint8_t {
+    Instant = 1 << 0, // TemporalInstantString
+    DateTimeZoned = 1 << 1, // TemporalDateTimeString[+Zoned]
+    DateTimeUnzoned = 1 << 2, // TemporalDateTimeString[~Zoned]
+    YearMonth = 1 << 3, // TemporalYearMonthString
+    MonthDay = 1 << 4, // TemporalMonthDayString
+    Time = 1 << 5, // TemporalTimeString
+};
+using TemporalProductionSet = OptionSet<TemporalProduction>;
+
+struct ParsedISODateTime {
+    std::optional<PlainDate> date;
+    std::optional<PlainTime> time;
+    std::optional<TimeZoneRecord> timeZone;
+    std::optional<CalendarID> calendar;
+    TemporalProduction matched { };
+    // True when the matched goal was the SHORT FORM:
+    //   AnnotatedYearMonth (DateDay absent) or AnnotatedMonthDay (DateYear absent).
+    // parseISODateTime already enforces Step 4.a.ii.(3)/(4) (short-form goals require
+    // iso8601 calendar — returns std::nullopt otherwise). This flag remains for
+    // consumers that branch on full-date vs short-form (e.g. PlainMonthDay).
+    bool isShortForm { false };
+};
+
+JS_EXPORT_PRIVATE std::optional<ParsedISODateTime> parseISODateTime(StringView, TemporalProductionSet);
+
 std::optional<TimeZone> JS_EXPORT_PRIVATE parseTemporalTimeZoneIdentifier(StringView);
 // Strict variant: accepts only a bare UTC offset or bare IANA name — no embedded datetime strings.
 std::optional<TimeZone> parseTimeZoneIdentifierStrict(StringView);

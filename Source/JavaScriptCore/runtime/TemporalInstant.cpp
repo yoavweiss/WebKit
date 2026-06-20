@@ -141,31 +141,23 @@ TemporalInstant* TemporalInstant::toInstant(JSGlobalObject* globalObject, JSValu
     RETURN_IF_EXCEPTION(scope, nullptr);
 
     // Step 3: Let parsed be ? ParseISODateTime(item, « TemporalInstantString »).
-    //   parseCalendarDateTime accepts a superset; the Time-present and Offset/Z-present guards
-    //   below restrict the accepted set to the TemporalInstantString production.
-    // FIXME: Replace with a unified ParseISODateTime(string, ProductionMask) that bakes in
-    //   per-production grammar restrictions, matching the spec abstract op 1:1. Today the four
-    //   parsers (parseCalendarDateTime, parseCalendarTime, parseDateTime, parseTime) each cover
-    //   a subset, forcing every consumer to re-implement production guards. See ISO8601.h.
-    auto parsedOpt = ISO8601::parseCalendarDateTime(string, TemporalDateFormat::Date);
+    auto parsedOpt = ISO8601::parseISODateTime(string, ISO8601::TemporalProduction::Instant);
     if (!parsedOpt) [[unlikely]] {
         throwRangeError(globalObject, scope, makeString("'"_s, ellipsizeAt(100, string), "' is not a valid Temporal.Instant string"_s));
         return nullptr;
     }
-    auto [plainDate, plainTimeOpt, timeZoneOpt, calendarOpt] = WTF::move(*parsedOpt);
-    if (!plainTimeOpt || !timeZoneOpt || (!timeZoneOpt->m_z && !timeZoneOpt->m_offset)) [[unlikely]] {
-        throwRangeError(globalObject, scope, makeString("'"_s, ellipsizeAt(100, string), "' is not a valid Temporal.Instant string"_s));
-        return nullptr;
-    }
+    auto [plainDateOpt, plainTimeOpt, timeZoneOpt, calendarOpt, matched, isShortForm] = WTF::move(*parsedOpt);
+    ASSERT(plainDateOpt && plainTimeOpt && timeZoneOpt);
 
     // Step 4: Assert: parsed.[[TimeZone]].[[OffsetString]] is not empty XOR parsed.[[TimeZone]].[[Z]] is true.
-    //   No-op: the grammar `DateTimeUTCOffset[+Z]` makes Z and offset mutually exclusive.
+    //   No-op: parseISODateTime guarantees this for the Instant production.
 
     // Step 5: offsetNanoseconds = Z ? 0 : ParseDateTimeUTCOffset(OffsetString).
     int64_t offsetNanoseconds = timeZoneOpt->m_z ? 0 : *timeZoneOpt->m_offset;
 
     // Step 6: Let time be parsed.[[Time]].
     const ISO8601::PlainTime& plainTime = *plainTimeOpt;
+    const ISO8601::PlainDate& plainDate = *plainDateOpt;
 
     // Step 7: Assert: time is not start-of-day. (No-op: parser guarantees this.)
 

@@ -552,36 +552,29 @@ static RelativeToRecord toRelativeTemporalObject(JSGlobalObject* globalObject, J
         return { };
     }
 
-    // Step 7: Let result be ? ParseISODateTime(value, «TemporalDateTimeString[+Zoned], TemporalDateTimeString[~Zoned]»).
+    // Step 7: Let result be ? ParseISODateTime(value, « TemporalDateTimeString[+Zoned], TemporalDateTimeString[~Zoned] »).
     String string = relativeToValue.toWTFString(globalObject);
     RETURN_IF_EXCEPTION(scope, { });
 
-    auto parsed = ISO8601::parseCalendarDateTime(string, TemporalDateFormat::Date);
+    auto parsed = ISO8601::parseISODateTime(string, { ISO8601::TemporalProduction::DateTimeZoned, ISO8601::TemporalProduction::DateTimeUnzoned });
     if (!parsed) [[unlikely]] {
         throwRangeError(globalObject, scope, makeString("'"_s, ellipsizeAt(200, string), "' is not a valid date or ZonedDateTime string"_s));
         return { };
     }
-    auto& [parsedDate, parsedTimeOpt, parsedTzOpt, parsedCalOpt] = *parsed;
+    auto& [parsedDateOpt, parsedTimeOpt, parsedTzOpt, parsedCalOpt, matched, isShortForm] = *parsed;
+    ASSERT(parsedDateOpt);
+    const auto& parsedDate = *parsedDateOpt;
 
     // Step 8: Let timeZone be result.[[TimeZone]].
-    // Steps 13-17 (ZDT path) vs step 12 (PlainDate path):
-    if (parsedTzOpt) {
-        bool hasBracket = std::holds_alternative<int64_t>(parsedTzOpt->m_nameOrOffset)
-            || !std::get<Vector<Latin1Character>>(parsedTzOpt->m_nameOrOffset).isEmpty();
-        if (hasBracket) {
-            // Bracket annotation present → steps 13-17 (ZDT): delegate to TemporalZonedDateTime::from
-            // which implements ToTemporalTimeZoneIdentifier + InterpretISODateTimeOffset.
-            auto* zdt = TemporalZonedDateTime::from(globalObject, relativeToValue, jsUndefined());
-            RETURN_IF_EXCEPTION(scope, { });
-            return RelativeToRecord { zdt, { }, false };
-        }
-        // Z without bracket: rejected — Z requires a bracket annotation per the grammar.
-        if (parsedTzOpt->m_z) [[unlikely]] {
-            throwRangeError(globalObject, scope, makeString("'"_s, ellipsizeAt(200, string), "' is not a valid relativeTo string: 'Z' designator requires a time zone annotation"_s));
-            return { };
-        }
-        // Bare numeric offset without bracket → annotation is ~empty~ → timeZone is ~unset~ → PlainDate.
+    // Steps 13-17 (ZDT path) vs step 12 (PlainDate path): DateTimeZoned matched → bracket present.
+    if (matched == ISO8601::TemporalProduction::DateTimeZoned) {
+        // Delegate to TemporalZonedDateTime::from which implements ToTemporalTimeZoneIdentifier
+        // + InterpretISODateTimeOffset.
+        auto* zdt = TemporalZonedDateTime::from(globalObject, relativeToValue, jsUndefined());
+        RETURN_IF_EXCEPTION(scope, { });
+        return RelativeToRecord { zdt, { }, false };
     }
+    // DateTimeUnzoned matched → no Z, no bracket required → PlainDate path.
 
     // Steps 9-11: calendar = result.[[Calendar]]; if ~empty~ → "iso8601"; CanonicalizeCalendar.
     CalendarID calendarId = iso8601CalendarID();

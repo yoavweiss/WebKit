@@ -194,43 +194,22 @@ static TemporalPlainYearMonth* fromYearMonthString(JSGlobalObject* globalObject,
     VM& vm = globalObject->vm();
     auto scope = DECLARE_THROW_SCOPE(vm);
 
-    // Step 4: ParseISODateTime(item, {TemporalYearMonthString}).
-    auto dateTime = ISO8601::parseCalendarDateTime(string, TemporalDateFormat::YearMonth);
-    if (!dateTime || (dateTime && std::get<2>(dateTime.value()) && std::get<2>(dateTime.value())->m_z)) {
+    // Step 4: ParseISODateTime(item, « TemporalYearMonthString »).
+    auto dateTime = ISO8601::parseISODateTime(string, ISO8601::TemporalProduction::YearMonth);
+    if (!dateTime) {
         String message = tryMakeString("Temporal.PlainYearMonth.from: invalid year-month string "_s, string);
         throwRangeError(globalObject, scope, message.isNull() ? "Temporal.PlainYearMonth.from: invalid year-month string"_s : message);
         return { };
     }
-    auto [plainDate, plainTimeOptional, timeZoneOptional, calendarOptional] = WTF::move(*dateTime);
-
-    // Detect year-month-only strings (e.g. "1976-11") by counting digit groups.
-    // A string with ≤ 2 digit groups has no day component; these are only valid with iso8601.
-    bool looksLikeYearMonthOnly = false;
-    {
-        int digitGroups = 0;
-        bool inDigits = false;
-        for (unsigned idx = 0; idx < string.length(); ++idx) {
-            UChar c = string[idx];
-            if (c >= '0' && c <= '9') {
-                if (!inDigits) {
-                    ++digitGroups;
-                    inDigits = true;
-                }
-            } else
-                inDigits = false;
-        }
-        looksLikeYearMonthOnly = (digitGroups <= 2);
-    }
+    auto [plainDateOpt, plainTimeOptional, timeZoneOptional, calendarOptional, matched, isShortForm] = WTF::move(*dateTime);
+    ASSERT(plainDateOpt);
+    auto plainDate = WTF::move(*plainDateOpt);
 
     // Steps 5-7: extract and canonicalize [[Calendar]].
+    // (parseISODateTime already enforced Step 4.a.ii.(3): short-form non-iso8601 → nullopt.)
     CalendarID calendarId = iso8601CalendarID();
     if (calendarOptional) {
         auto rawCal = StringView(*calendarOptional).convertToASCIILowercase();
-        // YYYY-MM format with non-iso8601 calendar annotation is invalid per spec.
-        if (looksLikeYearMonthOnly && !WTF::equalIgnoringASCIICase(StringView(*calendarOptional), "iso8601"_s)) [[unlikely]] {
-            throwRangeError(globalObject, scope, "YYYY-MM format is only valid with iso8601 calendar"_s);
-            return { };
-        }
         auto canonicalized = isBuiltinCalendar(rawCal);
         if (!canonicalized) [[unlikely]] {
             throwRangeError(globalObject, scope, makeString("'"_s, rawCal, "' is not a valid calendar identifier"_s));
@@ -240,10 +219,7 @@ static TemporalPlainYearMonth* fromYearMonthString(JSGlobalObject* globalObject,
     }
 
     // Step 10: isoDate = CreateISODateRecord(year, month, day).
-    // For iso8601 / year-month-only strings: plainDate (day=1) IS the record.
-    // For non-ISO full-date strings: the YearMonth parser produces day=1, but the
-    // spec needs the actual day to identify the correct calendar month — recovered
-    // into fullISODate below via a re-parse with TemporalDateFormat::Date.
+    //   For short form (YYYY-MM), parser stores day=1; for full date, parser extracts the actual day.
     // Step 11: ISOYearMonthWithinLimits — enforced inside tryCreateIfValid.
     // Step 12: ISODateToFields(calendar, isoDate, ~year-month~).
     // Steps 14-15: CalendarYearMonthFromFields(~constrain~) + CreateTemporalYearMonth — inside tryCreateIfValid.
@@ -252,19 +228,8 @@ static TemporalPlainYearMonth* fromYearMonthString(JSGlobalObject* globalObject,
 
     // Non-ISO steps 12+14+15: ISODateToFields → CalendarYearMonthFromFields → CreateTemporalYearMonth
     // (fused into plainYearMonthFromISODate + tryCreateIfValid).
-    // The YearMonth parser always stores day=1. For non-ISO full date strings (e.g.
-    // "2024-06-08[u-ca=islamicc]"), re-parse with Date format to recover the actual
-    // day so plainYearMonthFromISODate can determine the correct calendar month.
-    ISO8601::PlainDate fullISODate = plainDate;
-    if (!looksLikeYearMonthOnly) {
-        auto fullDateTime = ISO8601::parseCalendarDateTime(string, TemporalDateFormat::Date);
-        if (fullDateTime) {
-            auto& fullDate = std::get<0>(*fullDateTime);
-            if (ISO8601::isYearWithinLimits(fullDate.year()))
-                fullISODate = fullDate;
-        }
-    }
-    auto resolved = TemporalCore::plainYearMonthFromISODate(calendarId, fullISODate);
+    // For short form (YYYY-MM), parser stores day=1; otherwise day was extracted from the input.
+    auto resolved = TemporalCore::plainYearMonthFromISODate(calendarId, plainDate);
     if (!resolved) [[unlikely]] {
         throwRangeError(globalObject, scope, String(resolved.error().message));
         return { };

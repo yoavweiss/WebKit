@@ -378,10 +378,12 @@ static TemporalPlainDateTime* fromImpl(JSGlobalObject* globalObject, JSValue ite
     auto string = itemValue.toWTFString(globalObject);
     RETURN_IF_EXCEPTION(scope, { });
 
-    // Step 4: ParseISODateTime(item, {TemporalDateTimeString}).
-    auto dateTime = ISO8601::parseCalendarDateTime(string, TemporalDateFormat::Date);
+    // Step 4: ? ParseISODateTime(item, « TemporalDateTimeString[~Zoned] »).
+    auto dateTime = ISO8601::parseISODateTime(string, ISO8601::TemporalProduction::DateTimeUnzoned);
     if (dateTime) [[likely]] {
-        auto [plainDate, plainTimeOptional, timeZoneOptional, calendarOptional] = WTF::move(dateTime.value());
+        auto [plainDateOpt, plainTimeOptional, timeZoneOptional, calendarOptional, matched, isShortForm] = WTF::move(*dateTime);
+        ASSERT(plainDateOpt);
+        auto plainDate = WTF::move(*plainDateOpt);
         // Steps 5-7: extract and canonicalize [[Calendar]].
         CalendarID calendarId = iso8601CalendarID();
         if (calendarOptional) {
@@ -399,13 +401,11 @@ static TemporalPlainDateTime* fromImpl(JSGlobalObject* globalObject, JSValue ite
             RETURN_IF_EXCEPTION(scope, { });
         }
         // Steps 9-13: CreateISODateRecord + CombineISODateAndTimeRecord + CreateTemporalDateTime.
-        if (!(timeZoneOptional && timeZoneOptional->m_z)) {
-            auto* result = TemporalPlainDateTime::tryCreateIfValid(globalObject, globalObject->plainDateTimeStructure(), WTF::move(plainDate), plainTimeOptional.value_or(ISO8601::PlainTime()));
-            RETURN_IF_EXCEPTION(scope, { });
-            if (result && calendarId != iso8601CalendarID())
-                result->setCalendarID(calendarId);
-            return result;
-        }
+        auto* result = TemporalPlainDateTime::tryCreateIfValid(globalObject, globalObject->plainDateTimeStructure(), WTF::move(plainDate), plainTimeOptional.value_or(ISO8601::PlainTime()));
+        RETURN_IF_EXCEPTION(scope, { });
+        if (result && calendarId != iso8601CalendarID())
+            result->setCalendarID(calendarId);
+        return result;
     }
 
     throwRangeError(globalObject, scope, "invalid date string"_s);
