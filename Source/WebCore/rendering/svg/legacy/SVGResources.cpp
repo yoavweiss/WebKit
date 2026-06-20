@@ -86,7 +86,7 @@ static const MemoryCompactLookupOnlyRobinHoodHashSet<AtomString>& clipperFilterM
 
         // Not listed in the definitions is the clipPath element, the SVG spec says though:
         // The "clipPath" element or any of its children can specify property "clip-path".
-        // So we have to add clipPathTag here, otherwhise clip-path on clipPath will fail.
+        // So we have to add clipPathTag here, otherwise clip-path on clipPath will fail.
         // (Already mailed SVG WG, waiting for a solution)
         &SVGNames::clipPathTag,
 

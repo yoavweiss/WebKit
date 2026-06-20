@@ -68,7 +68,7 @@ private:
     ASCIILiteral renderName() const override { return "RenderSVGResourceMarker"_s; }
 
     // Generates a transformation matrix usable to render marker content. Handles scaling the marker content
-    // acording to SVGs markerUnits="strokeWidth" concept, when a strokeWidth value != -1 is passed in.
+    // according to SVGs markerUnits="strokeWidth" concept, when a strokeWidth value != -1 is passed in.
     AffineTransform markerContentTransformation(const AffineTransform& contentTransformation, const FloatPoint& origin, float strokeWidth = -1) const;
 
     AffineTransform viewportTransform() const;

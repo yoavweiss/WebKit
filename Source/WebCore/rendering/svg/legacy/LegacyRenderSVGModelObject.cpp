@@ -113,7 +113,7 @@ static void adjustRectForOutlineAndShadow(const LegacyRenderSVGModelObject& rend
 
 // Copied from RenderBox, this method likely requires further refactoring to work easily for both SVG and CSS Box Model content.
 // FIXME: This may also need to move into SVGRenderSupport as the RenderBox version depends
-// on borderBoundingBox() which SVG RenderBox subclases (like SVGRenderBlock) do not implement.
+// on borderBoundingBox() which SVG RenderBox subclasses (like SVGRenderBlock) do not implement.
 LayoutRect LegacyRenderSVGModelObject::outlineBoundsForRepaint(const RenderLayerModelObject* repaintContainer, const RenderGeometryMap*) const
 {
     LayoutRect box = enclosingLayoutRect(repaintRectInLocalCoordinates());

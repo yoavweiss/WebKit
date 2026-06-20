@@ -77,7 +77,7 @@ GradientData::Inputs LegacyRenderSVGResourceGradient::computeInputs(RenderElemen
 GradientData* LegacyRenderSVGResourceGradient::gradientDataForRenderer(RenderElement& renderer, const Style::ComputedStyle& style, OptionSet<RenderSVGResourceMode> resourceMode)
 {
     // Be sure to synchronize all SVG properties on the gradientElement _before_ processing any further.
-    // Otherwhise the call to collectGradientAttributes() in createTileImage(), may cause the SVG DOM property
+    // Otherwise the call to collectGradientAttributes() in createTileImage(), may cause the SVG DOM property
     // synchronization to kick in, which causes removeAllClientsFromCacheAndMarkForInvalidation() to be called, which in turn deletes our
     // GradientData object! Leaving out the line below will cause svg/dynamic-updates/SVG*GradientElement-svgdom* to crash.
     if (m_shouldCollectGradientAttributes) {

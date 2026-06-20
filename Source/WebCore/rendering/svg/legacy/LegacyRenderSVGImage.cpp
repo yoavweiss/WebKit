@@ -254,7 +254,7 @@ void LegacyRenderSVGImage::invalidateBufferedForeground()
 
 bool LegacyRenderSVGImage::nodeAtFloatPoint(const HitTestRequest& request, HitTestResult& result, const FloatPoint& pointInParent, HitTestAction hitTestAction)
 {
-    // We only draw in the forground phase, so we only hit-test then.
+    // We only draw in the foreground phase, so we only hit-test then.
     if (hitTestAction != HitTestAction::Foreground)
         return false;
 

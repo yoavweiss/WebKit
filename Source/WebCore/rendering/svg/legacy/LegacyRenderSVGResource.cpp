@@ -167,7 +167,7 @@ static void removeFromCacheAndInvalidateDependencies(RenderElement& renderer, bo
             // reference graph adjustments on changes, so we need to break possible cycles here.
             static NeverDestroyed<WeakHashSet<SVGElement, WeakPtrImplWithEventTargetData>> invalidatingDependencies;
             if (!invalidatingDependencies.get().add(element.get()).isNewEntry) [[unlikely]] {
-                // Reference cycle: we are in process of invalidating this dependant.
+                // Reference cycle: we are in process of invalidating this dependent.
                 continue;
             }
             LegacyRenderSVGResource::markForLayoutAndParentResourceInvalidationIfNeeded(*renderer, needsLayout, visitedRenderers);
