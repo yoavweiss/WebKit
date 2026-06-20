@@ -185,6 +185,14 @@
 #define HAVE_INT128_T 1
 #endif
 
+// Work around a clang static analyzer crash modeling __builtin_*_overflow on a
+// 128-bit result type (llvm/llvm-project#173795; fixed in
+// apple-clang-2100.3.6.4 / macOS 27 / Xcode 27). Set only for older analyzers,
+// so CheckedArithmetic.h takes its manual (non-builtin) 128-bit overflow path.
+#if defined(__clang_analyzer__) && defined(__apple_build_version__) && __apple_build_version__ < 21000323
+#define HAVE_BROKEN_STATIC_ANALYZER_INT128_OVERFLOW 1
+#endif
+
 #if OS(UNIX) && !OS(FUCHSIA)
 #define HAVE_RESOURCE_H 1
 #endif
