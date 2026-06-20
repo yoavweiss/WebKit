@@ -228,7 +228,7 @@ ExceptionOr<Ref<URLPattern>> URLPattern::create(ScriptExecutionContext& context,
     } else if (std::holds_alternative<URLPatternInit>(input)) {
         if (!baseURL.isNull())
             return Exception { ExceptionCode::TypeError, "Constructor with a URLPatternInit should have a null baseURL argument."_s };
-        init = std::get<URLPatternInit>(input);
+        init = WTF::move(std::get<URLPatternInit>(input));
     }
 
     auto maybeProcessedInit = processInit(WTF::move(init), BaseURLStringType::Pattern);

@@ -364,7 +364,7 @@ ExceptionOr<URLPatternInit> URLPatternConstructorStringParser::parse(ScriptExecu
 
     performParse(context);
 
-    return URLPatternInit { m_result };
+    return WTF::move(m_result);
 }
 
 }
