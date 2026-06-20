@@ -394,7 +394,7 @@ input, textarea, select, button {
 }
 
 input[type="hidden"] {
-    display: none;
+    display: none !important;
 }
 
 #if defined(WTF_PLATFORM_IOS_FAMILY) && WTF_PLATFORM_IOS_FAMILY
