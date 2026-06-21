@@ -194,6 +194,13 @@ if (COMPILER_IS_GCC_OR_CLANG)
     WEBKIT_PREPEND_GLOBAL_COMPILER_FLAGS(-gsimple-template-names)
     WEBKIT_PREPEND_GLOBAL_COMPILER_FLAGS("-mllvm -dwarf-linkage-names=Abstract")
 
+    # FIXME: Remove once the strict-aliasing violations exposed by 315506@main are fixed.
+    # Enabling strict aliasing (the compiler default at -O2) miscompiles type-punning code
+    # in the GTK and WPE ports, causing Release-only crashes and failures. https://webkit.org/b/317542
+    if (PORT STREQUAL "GTK" OR PORT STREQUAL "WPE")
+        WEBKIT_APPEND_GLOBAL_COMPILER_FLAGS(-fno-strict-aliasing)
+    endif ()
+
     # clang-cl.exe impersonates cl.exe so some clang arguments like -fno-rtti are
     # represented using cl.exe's options and should not be passed as flags, so
     # we do not add -fno-rtti or -fno-exceptions for clang-cl
