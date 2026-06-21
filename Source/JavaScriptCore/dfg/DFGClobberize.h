@@ -2307,6 +2307,7 @@ void clobberize(Graph& graph, Node* node, const ReadFunctor& read, const WriteFu
     case RegExpTest:
     case RegExpTestInline:
     case RegExpSplitFast:
+    case RegExpStringIteratorNext:
         // Even if we've proven known input types as RegExpObject and String,
         // accessing lastIndex is effectful if it's a global regexp.
         clobberTop();

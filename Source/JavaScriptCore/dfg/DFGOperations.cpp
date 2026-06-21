@@ -53,6 +53,7 @@
 #include "InterpreterInlines.h"
 #include "IntlCollator.h"
 #include "IntlObjectInlines.h"
+#include "IteratorOperations.h"
 #include "JITCode.h"
 #include "JITWorklist.h"
 #include "JSArrayBufferConstructor.h"
@@ -1727,6 +1728,35 @@ JSC_DEFINE_JIT_OPERATION(operationRegExpSplitFast, EncodedJSValue, (JSGlobalObje
     }
 
     OPERATION_RETURN(scope, JSValue::encode(regExpSplitFast(globalObject, regExpObject, string, limit)));
+}
+
+JSC_DEFINE_JIT_OPERATION(operationRegExpStringIteratorNext, EncodedJSValue, (JSGlobalObject* globalObject, JSCell* iterator))
+{
+    SuperSamplerScope superSamplerScope(false);
+
+    VM& vm = globalObject->vm();
+    CallFrame* callFrame = DECLARE_CALL_FRAME(vm);
+    JITOperationPrologueCallFrameTracer tracer(vm, callFrame);
+    auto scope = DECLARE_THROW_SCOPE(vm);
+
+    auto* regExpStringIterator = uncheckedDowncast<JSRegExpStringIterator>(iterator);
+    if (regExpStringIterator->isDone())
+        OPERATION_RETURN(scope, JSValue::encode(jsNull()));
+
+    OPERATION_RETURN(scope, JSValue::encode(regExpStringIterator->nextImpl(globalObject)));
+}
+
+JSC_DEFINE_JIT_OPERATION(operationCreateIteratorResultObject, JSCell*, (VM* vmPointer, Structure* structure, EncodedJSValue encodedValue, EncodedJSValue encodedDone))
+{
+    VM& vm = *vmPointer;
+    CallFrame* callFrame = DECLARE_CALL_FRAME(vm);
+    JITOperationPrologueCallFrameTracer tracer(vm, callFrame);
+    auto scope = DECLARE_THROW_SCOPE(vm);
+
+    JSObject* result = constructEmptyObject(vm, structure);
+    result->putDirectOffset(vm, iteratorResultObjectValuePropertyOffset, JSValue::decode(encodedValue));
+    result->putDirectOffset(vm, iteratorResultObjectDonePropertyOffset, JSValue::decode(encodedDone));
+    OPERATION_RETURN(scope, result);
 }
 
 JSC_DEFINE_JIT_OPERATION(operationRegExpMatchFastGlobalString, EncodedJSValue, (JSGlobalObject* globalObject, RegExp* regExp, JSString* string))

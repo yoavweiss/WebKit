@@ -379,6 +379,7 @@ bool doesGC(Graph& graph, Node* node)
     case RegExpMatchFast:
     case RegExpMatchFastGlobal:
     case RegExpSplitFast:
+    case RegExpStringIteratorNext:
     case RegExpTest:
     case RegExpTestInline:
     case RegExpSearch:

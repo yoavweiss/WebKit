@@ -56,10 +56,13 @@ JS_EXPORT_PRIVATE bool iteratorCompleteExported(JSGlobalObject*, JSValue iterRes
 JS_EXPORT_PRIVATE JSValue iteratorStep(JSGlobalObject*, IterationRecord);
 JS_EXPORT_PRIVATE JSValue iteratorStepWithCachedCall(JSGlobalObject*, IterationRecord, CachedCall*);
 JS_EXPORT_PRIVATE void iteratorClose(JSGlobalObject*, JSValue iterator);
-JS_EXPORT_PRIVATE JSObject* createIteratorResultObject(JSGlobalObject*, JSValue, bool done);
 
+// Property offsets in objects with the iteratorResultObjectStructure (see createIteratorResultObjectStructure).
 static constexpr PropertyOffset iteratorResultObjectValuePropertyOffset = 0;
 static constexpr PropertyOffset iteratorResultObjectDonePropertyOffset = 1;
+
+JS_EXPORT_PRIVATE JSObject* createIteratorResultObject(JSGlobalObject*, JSValue, bool done);
+
 Structure* createIteratorResultObjectStructure(VM&, JSGlobalObject&);
 
 JS_EXPORT_PRIVATE JSValue iteratorMethod(JSGlobalObject*, JSObject*);

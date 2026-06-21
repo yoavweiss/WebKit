@@ -2150,6 +2150,7 @@ public:
         case RegExpMatchFastGlobal:
         case RegExpSearch:
         case RegExpSplitFast:
+        case RegExpStringIteratorNext:
         case GetGlobalVar:
         case GetGlobalLexicalVariable:
         case StringReplace:
@@ -2473,6 +2474,7 @@ public:
         case NewWeakSet:
         case NewArrayWithSizeAndStructure:
         case NewTypedArrayBuffer:
+        case RegExpStringIteratorNext:
             return true;
         default:
             return false;

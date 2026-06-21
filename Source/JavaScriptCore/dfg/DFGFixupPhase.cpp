@@ -1928,6 +1928,11 @@ private:
             break;
         }
 
+        case RegExpStringIteratorNext: {
+            fixEdge<CellUse>(node->child1());
+            break;
+        }
+
         case StringReplace:
         case StringReplaceAll:
         case StringReplaceRegExp: {

@@ -212,6 +212,12 @@ ALWAYS_INLINE unsigned getRegExpObjectLastIndexAsUnsigned(JSGlobalObject* global
 
 ALWAYS_INLINE JSValue RegExpObject::execInline(JSGlobalObject* globalObject, JSString* string)
 {
+    MatchResult ignoredResult;
+    return execInline(globalObject, string, ignoredResult);
+}
+
+ALWAYS_INLINE JSValue RegExpObject::execInline(JSGlobalObject* globalObject, JSString* string, MatchResult& result)
+{
     VM& vm = globalObject->vm();
     auto scope = DECLARE_THROW_SCOPE(vm);
 
@@ -231,8 +237,7 @@ ALWAYS_INLINE JSValue RegExpObject::execInline(JSGlobalObject* globalObject, JSS
 
     if (!globalOrSticky)
         lastIndex = 0;
-    
-    MatchResult result;
+
     JSArray* array = createRegExpMatchesArray(vm, globalObject, string, input, regExp, lastIndex, result);
     if (!array) {
         RETURN_IF_EXCEPTION(scope, { });
@@ -294,6 +299,13 @@ inline uint64_t advanceStringUnicode(StringView s, unsigned length, uint64_t cur
         return currentIndex + 1;
 
     return currentIndex + 2;
+}
+
+inline uint64_t NODELETE advanceStringIndex(StringView str, unsigned strSize, uint64_t index, bool isUnicode)
+{
+    if (!isUnicode)
+        return ++index;
+    return advanceStringUnicode(str, strSize, index);
 }
 
 template<typename FixEndFunc>

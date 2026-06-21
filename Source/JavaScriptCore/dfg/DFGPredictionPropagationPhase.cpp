@@ -1046,6 +1046,7 @@ private:
         case RegExpMatchFast:
         case RegExpMatchFastGlobal:
         case RegExpSplitFast:
+        case RegExpStringIteratorNext:
         case StringReplace:
         case StringReplaceAll:
         case StringReplaceRegExp:

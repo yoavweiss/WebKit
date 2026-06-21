@@ -44,7 +44,6 @@
 #include "JSMapIterator.h"
 #include "JSModuleLoader.h"
 #include "JSPromise.h"
-#include "JSRegExpStringIterator.h"
 #include "JSSetIterator.h"
 #include "JSStringIterator.h"
 #include "JSWrapForValidIterator.h"
@@ -119,12 +118,6 @@ BytecodeIntrinsicRegistry::BytecodeIntrinsicRegistry(VM& vm)
     m_abstractModuleRecordFieldState.set(m_vm, jsNumber(static_cast<int32_t>(AbstractModuleRecord::Field::State)));
     m_wrapForValidIteratorFieldIteratedIterator.set(m_vm, jsNumber(static_cast<int32_t>(JSWrapForValidIterator::Field::IteratedIterator)));
     m_wrapForValidIteratorFieldIteratedNextMethod.set(m_vm, jsNumber(static_cast<int32_t>(JSWrapForValidIterator::Field::IteratedNextMethod)));
-    m_regExpStringIteratorFieldRegExp.set(m_vm, jsNumber(static_cast<int32_t>(JSRegExpStringIterator::Field::RegExp)));
-    m_regExpStringIteratorFieldString.set(m_vm, jsNumber(static_cast<int32_t>(JSRegExpStringIterator::Field::String)));
-    m_regExpStringIteratorFieldFlags.set(m_vm, jsNumber(static_cast<int32_t>(JSRegExpStringIterator::Field::Flags)));
-    m_regExpStringIteratorFlagGlobal.set(m_vm, jsNumber(static_cast<int32_t>(JSRegExpStringIterator::FlagBit::Global)));
-    m_regExpStringIteratorFlagFullUnicode.set(m_vm, jsNumber(static_cast<int32_t>(JSRegExpStringIterator::FlagBit::FullUnicode)));
-    m_regExpStringIteratorFlagDone.set(m_vm, jsNumber(static_cast<int32_t>(JSRegExpStringIterator::FlagBit::Done)));
     m_iteratorHelperFieldGenerator.set(m_vm, jsNumber(static_cast<int32_t>(JSIteratorHelper::Field::Generator)));
     m_iteratorHelperFieldUnderlyingIterator.set(m_vm, jsNumber(static_cast<int32_t>(JSIteratorHelper::Field::UnderlyingIterator)));
     m_disposableStackFieldState.set(m_vm, jsNumber(static_cast<int32_t>(JSDisposableStack::Field::State)));

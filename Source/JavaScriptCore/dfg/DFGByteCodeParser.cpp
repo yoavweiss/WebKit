@@ -3855,6 +3855,30 @@ auto ByteCodeParser::handleIntrinsicCall(Node* callee, Operand resultOperand, Ca
             return CallOptimizationResult::Inlined;
         }
 
+        case RegExpStringIteratorNextIntrinsic: {
+            if (!is64Bit())
+                return CallOptimizationResult::DidNothing;
+
+            if (m_inlineStackTop->m_exitProfile.hasExitSite(m_currentIndex, BadType))
+                return CallOptimizationResult::DidNothing;
+
+            if (m_inlineStackTop->m_exitProfile.hasExitSite(m_currentIndex, BadConstantValue))
+                return CallOptimizationResult::DidNothing;
+
+            if (m_inlineStackTop->m_exitProfile.hasExitSite(m_currentIndex, BadCache))
+                return CallOptimizationResult::DidNothing;
+
+            JSGlobalObject* globalObject = m_inlineStackTop->m_codeBlock->globalObject();
+            Structure* iteratorResultStructure = globalObject->iteratorResultObjectStructureConcurrently();
+            if (!iteratorResultStructure)
+                return CallOptimizationResult::DidNothing;
+
+            insertChecks();
+            Node* iterator = get(virtualRegisterForArgumentIncludingThis(0, registerOffset));
+            setResult(addToGraph(RegExpStringIteratorNext, OpInfo(m_graph.registerStructure(iteratorResultStructure)), OpInfo(prediction), iterator));
+            return CallOptimizationResult::Inlined;
+        }
+
         case ObjectCreateIntrinsic: {
             if (argumentCountIncludingThis != 2)
                 return CallOptimizationResult::DidNothing;

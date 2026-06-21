@@ -56,6 +56,7 @@ private:
 class RegExpObject;
 class JSString;
 
+JSValue regExpExec(JSGlobalObject*, JSValue thisValue, JSString* inputString);
 JSValue regExpMatchFast(JSGlobalObject*, RegExpObject*, JSString* inputString);
 JSValue regExpReplaceGeneric(JSGlobalObject*, JSObject* thisObject, JSString* inputString, JSValue replaceValue);
 JSValue regExpSearchFast(JSGlobalObject*, RegExpObject*, JSString* inputString);

@@ -104,14 +104,7 @@ void RegExpPrototype::finishCreation(VM& vm, JSGlobalObject* globalObject)
 
 // ------------------------------ Functions ---------------------------
 
-static inline uint64_t NODELETE advanceStringIndex(StringView str, unsigned strSize, uint64_t index, bool isUnicode)
-{
-    if (!isUnicode)
-        return ++index;
-    return advanceStringUnicode(str, strSize, index);
-}
-
-static inline JSValue regExpExec(JSGlobalObject* globalObject, JSValue thisValue, JSString* str)
+JSValue regExpExec(JSGlobalObject* globalObject, JSValue thisValue, JSString* str)
 {
     auto& vm = globalObject->vm();
     auto scope = DECLARE_THROW_SCOPE(vm);

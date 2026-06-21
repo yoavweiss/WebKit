@@ -67,6 +67,7 @@
 #include "FTLWeightedTarget.h"
 #include "HasOwnPropertyCache.h"
 #include "IntlObject.h"
+#include "IteratorOperations.h"
 #include "JITAddGenerator.h"
 #include "JITBitAndGenerator.h"
 #include "JITBitOrGenerator.h"
@@ -1860,6 +1861,9 @@ private:
             break;
         case RegExpSplitFast:
             compileRegExpSplitFast();
+            break;
+        case RegExpStringIteratorNext:
+            compileRegExpStringIteratorNext();
             break;
         case NewRegExp:
             compileNewRegExp();
@@ -19552,6 +19556,46 @@ IGNORE_CLANG_WARNINGS_END
         LValue limit = lowJSValue(m_node->child3());
         LValue result = vmCall(Int64, operationRegExpSplitFast, weakPointer(globalObject), base, argument, limit);
         setJSValue(result);
+    }
+
+    void compileRegExpStringIteratorNext()
+    {
+        JSGlobalObject* globalObject = m_graph.globalObjectFor(m_origin.semantic);
+        RegisteredStructure structure = m_node->structure();
+        ASSERT(structure->inlineCapacity() == 2);
+
+        LValue iterator = lowCell(m_node->child1());
+        FTL_TYPE_CHECK(jsValueValue(iterator), m_node->child1(), SpecObjectOther, isNotType(iterator, JSRegExpStringIteratorType));
+
+        // FIXME: Detach iterator advancement and result object creation from this node so that the iterator allocation can be sunk.
+        LValue match = vmCall(Int64, operationRegExpStringIteratorNext, weakPointer(globalObject), iterator);
+
+        LBasicBlock finishedCase = m_out.newBlock();
+        LBasicBlock continuation = m_out.newBlock();
+
+        LBasicBlock lastNext = m_out.insertNewBlocksBefore(finishedCase);
+
+        // Null means the iteration is (or already was) finished: the result is { undefined, true }.
+        ValueFromBlock matchValue = m_out.anchor(match);
+        ValueFromBlock matchDone = m_out.anchor(m_out.constInt64(JSValue::encode(jsBoolean(false))));
+        m_out.branch(
+            m_out.equal(match, m_out.constInt64(JSValue::encode(jsNull()))),
+            unsure(finishedCase), unsure(continuation));
+
+        m_out.appendTo(finishedCase, continuation);
+        ValueFromBlock finishedValue = m_out.anchor(m_out.constInt64(JSValue::encode(jsUndefined())));
+        ValueFromBlock finishedDone = m_out.anchor(m_out.constInt64(JSValue::encode(jsBoolean(true))));
+        m_out.jump(continuation);
+
+        m_out.appendTo(continuation, lastNext);
+        LValue value = m_out.phi(Int64, matchValue, finishedValue);
+        LValue done = m_out.phi(Int64, matchDone, finishedDone);
+
+        LValue resultObject = allocateObject(structure);
+        m_out.store64(value, m_out.baseIndex(m_heaps.properties.atAnyNumber(), resultObject, m_out.constInt64(iteratorResultObjectValuePropertyOffset), ScaleEight, JSObject::offsetOfInlineStorage()));
+        m_out.store64(done, m_out.baseIndex(m_heaps.properties.atAnyNumber(), resultObject, m_out.constInt64(iteratorResultObjectDonePropertyOffset), ScaleEight, JSObject::offsetOfInlineStorage()));
+        mutatorFence();
+        setJSValue(resultObject);
     }
 
     void compileNewRegExp()
