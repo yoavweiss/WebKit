@@ -301,19 +301,13 @@ void appendNumberFormatNotationOptionsToSkeleton(IntlType* intlInstance, StringB
         skeletonBuilder.append(" engineering"_s);
         break;
     case IntlNotation::Compact:
-        if constexpr (std::is_same_v<IntlType, JSC::IntlPluralRules>) {
-            // Intl.PluralRules does not support `compactDisplay` option
-            // https://github.com/tc39/ecma402/issues/1013
+        switch (intlInstance->m_compactDisplay) {
+        case CompactDisplay::Short:
             skeletonBuilder.append(" compact-short"_s);
-        } else {
-            switch (intlInstance->m_compactDisplay) {
-            case CompactDisplay::Short:
-                skeletonBuilder.append(" compact-short"_s);
-                break;
-            case CompactDisplay::Long:
-                skeletonBuilder.append(" compact-long"_s);
-                break;
-            }
+            break;
+        case CompactDisplay::Long:
+            skeletonBuilder.append(" compact-long"_s);
+            break;
         }
         break;
     }
