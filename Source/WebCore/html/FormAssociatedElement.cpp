@@ -30,11 +30,6 @@
 
 namespace WebCore {
 
-FormAssociatedElement::FormAssociatedElement(HTMLFormElement* form)
-    : m_formSetByParser(form)
-{
-}
-
 RefPtr<HTMLFormElement> FormAssociatedElement::formForBindings() const
 {
     // FIXME: The downcast should be unnecessary, but the WPT was written before https://github.com/WICG/webcomponents/issues/1072 was resolved. Update once the WPT has been updated.

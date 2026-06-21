@@ -74,23 +74,23 @@ static inline unsigned NODELETE computeLengthForAPIValue(StringView text)
     return text.length() - crlfCount;
 }
 
-HTMLTextAreaElement::HTMLTextAreaElement(const QualifiedName& tagName, Document& document, HTMLFormElement* form)
-    : HTMLTextFormControlElement(tagName, document, form)
+HTMLTextAreaElement::HTMLTextAreaElement(const QualifiedName& tagName, Document& document)
+    : HTMLTextFormControlElement(tagName, document)
 {
     ASSERT(hasTagName(textareaTag));
     setFormControlValueMatchesRenderer(true);
 }
 
-Ref<HTMLTextAreaElement> HTMLTextAreaElement::create(const QualifiedName& tagName, Document& document, HTMLFormElement* form)
+Ref<HTMLTextAreaElement> HTMLTextAreaElement::create(const QualifiedName& tagName, Document& document)
 {
-    Ref textArea = adoptRef(*new HTMLTextAreaElement(tagName, document, form));
+    Ref textArea = adoptRef(*new HTMLTextAreaElement(tagName, document));
     textArea->ensureUserAgentShadowRoot();
     return textArea;
 }
 
 Ref<HTMLTextAreaElement> HTMLTextAreaElement::create(Document& document)
 {
-    return create(textareaTag, document, nullptr);
+    return create(textareaTag, document);
 }
 
 void HTMLTextAreaElement::didAddUserAgentShadowRoot(ShadowRoot& root)

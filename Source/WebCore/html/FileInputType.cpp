@@ -230,7 +230,7 @@ void FileInputType::createShadowSubtree()
     ASSERT(element()->shadowRoot());
 
     Ref element = *this->element();
-    Ref button = HTMLInputElement::create(inputTag, protect(element->document()), nullptr, false);
+    Ref button = HTMLInputElement::create(inputTag, protect(element->document()), false);
     {
         ScriptDisallowedScope::EventAllowedScope eventAllowedScopeBeforeAppend { button };
         button->setAttributeWithoutSynchronization(typeAttr, InputTypeNames::button());

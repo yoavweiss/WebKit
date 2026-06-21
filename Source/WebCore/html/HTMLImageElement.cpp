@@ -87,9 +87,8 @@ WTF_MAKE_TZONE_ALLOCATED_IMPL(HTMLImageElement);
 
 using namespace HTMLNames;
 
-HTMLImageElement::HTMLImageElement(const QualifiedName& tagName, Document& document, HTMLFormElement* form)
+HTMLImageElement::HTMLImageElement(const QualifiedName& tagName, Document& document)
     : HTMLElement(tagName, document, { TypeFlag::HasCustomStyleResolveCallbacks, TypeFlag::HasDidMoveToNewDocument })
-    , FormAssociatedElement(form)
     , ActiveDOMObject(document)
     , m_imageLoader(makeUniqueWithoutRefCountedCheck<HTMLImageLoader>(*this))
     , m_imageDevicePixelRatio(1.0f)
@@ -99,14 +98,14 @@ HTMLImageElement::HTMLImageElement(const QualifiedName& tagName, Document& docum
 
 Ref<HTMLImageElement> HTMLImageElement::create(Document& document)
 {
-    auto image = adoptRef(*new HTMLImageElement(imgTag, document));
+    Ref image = adoptRef(*new HTMLImageElement(imgTag, document));
     image->suspendIfNeeded();
     return image;
 }
 
-Ref<HTMLImageElement> HTMLImageElement::create(const QualifiedName& tagName, Document& document, HTMLFormElement* form)
+Ref<HTMLImageElement> HTMLImageElement::create(const QualifiedName& tagName, Document& document)
 {
-    auto image = adoptRef(*new HTMLImageElement(tagName, document, form));
+    Ref image = adoptRef(*new HTMLImageElement(tagName, document));
     image->suspendIfNeeded();
     return image;
 }

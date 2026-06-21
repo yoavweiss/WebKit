@@ -56,22 +56,22 @@ WTF_MAKE_TZONE_ALLOCATED_IMPL(HTMLButtonElement);
 
 using namespace HTMLNames;
 
-inline HTMLButtonElement::HTMLButtonElement(const QualifiedName& tagName, Document& document, HTMLFormElement* form)
-    : HTMLFormControlElement(tagName, document, form)
+inline HTMLButtonElement::HTMLButtonElement(const QualifiedName& tagName, Document& document)
+    : HTMLFormControlElement(tagName, document)
     , m_type(Type::Submit)
     , m_isActivatedSubmit(false)
 {
     ASSERT(hasTagName(buttonTag));
 }
 
-Ref<HTMLButtonElement> HTMLButtonElement::create(const QualifiedName& tagName, Document& document, HTMLFormElement* form)
+Ref<HTMLButtonElement> HTMLButtonElement::create(const QualifiedName& tagName, Document& document)
 {
-    return adoptRef(*new HTMLButtonElement(tagName, document, form));
+    return adoptRef(*new HTMLButtonElement(tagName, document));
 }
 
 Ref<HTMLButtonElement> HTMLButtonElement::create(Document& document)
 {
-    return adoptRef(*new HTMLButtonElement(buttonTag, document, nullptr));
+    return adoptRef(*new HTMLButtonElement(buttonTag, document));
 }
 
 Node::NeedsPostConnectionSteps HTMLButtonElement::insertionSteps(InsertionType insertionType, ContainerNode& parentOfInsertedTree)

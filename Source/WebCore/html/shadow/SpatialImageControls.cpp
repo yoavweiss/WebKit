@@ -174,7 +174,7 @@ void ensureSpatialControls(HTMLImageElement& imageElement)
         style->setTextContent(String { shadowStyle });
         controlLayer->appendChild(WTF::move(style));
 
-        Ref button = HTMLButtonElement::create(HTMLNames::buttonTag, document.get(), nullptr);
+        Ref button = HTMLButtonElement::create(HTMLNames::buttonTag, document.get());
         button->setIdAttribute(spatialImageControlsButtonIdentifier());
         button->setAttributeWithoutSynchronization(HTMLNames::aria_labelAttr, AtomString(localizedMediaControlElementString("EnterFullscreenButton"_s)));
         controlLayer->appendChild(button);

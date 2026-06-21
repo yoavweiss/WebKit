@@ -66,7 +66,7 @@ class HTMLInputElement final : public HTMLTextFormControlElement {
 public:
     USING_CAN_MAKE_WEAKPTR(HTMLElement);
 
-    static Ref<HTMLInputElement> create(const QualifiedName&, Document&, HTMLFormElement*, bool createdByParser);
+    static Ref<HTMLInputElement> create(const QualifiedName&, Document&, bool createdByParser);
     virtual ~HTMLInputElement();
 
     WEBCORE_EXPORT bool NODELETE alpha();
@@ -363,7 +363,7 @@ public:
 
 private:
     enum class CreationType : uint8_t { Normal, ByParser, ByCloning };
-    HTMLInputElement(const QualifiedName&, Document&, HTMLFormElement*, CreationType);
+    HTMLInputElement(const QualifiedName&, Document&, CreationType);
 
     void defaultEventHandler(Event&) final;
 

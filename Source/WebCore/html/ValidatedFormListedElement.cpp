@@ -64,8 +64,7 @@ WTF_MAKE_TZONE_ALLOCATED_IMPL(ValidatedFormListedElement);
 
 using namespace HTMLNames;
 
-ValidatedFormListedElement::ValidatedFormListedElement(HTMLFormElement* form)
-    : FormListedElement { form }
+ValidatedFormListedElement::ValidatedFormListedElement()
 {
     ASSERT(!supportsReadOnly() || readOnlyBarsFromConstraintValidation());
 }

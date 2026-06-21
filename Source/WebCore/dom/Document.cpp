@@ -1725,7 +1725,7 @@ Ref<Element> Document::createElement(const QualifiedName& name, bool createdByPa
 
     // FIXME: Use registered namespaces and look up in a hash to find the right factory.
     if (name.namespaceURI() == xhtmlNamespaceURI) {
-        element = HTMLElementFactory::createKnownElement(name, *this, nullptr, createdByParser);
+        element = HTMLElementFactory::createKnownElement(name, *this, createdByParser);
         if (!element) [[unlikely]]
             element = createFallbackHTMLElement(*this, registry, name);
     } else if (name.namespaceURI() == SVGNames::svgNamespaceURI)
@@ -1959,7 +1959,7 @@ ExceptionOr<Ref<Element>> Document::createElementNS(const AtomString& namespaceU
 
     auto opportunisticallyMatchedBuiltinElement = ([&]() -> RefPtr<Element> {
         if (namespaceURI == xhtmlNamespaceURI)
-            return HTMLElementFactory::createKnownElement(qualifiedName, document, nullptr, /* createdByParser */ false);
+            return HTMLElementFactory::createKnownElement(qualifiedName, document, /* createdByParser */ false);
         if (namespaceURI == SVGNames::svgNamespaceURI)
             return SVGElementFactory::createKnownElement(qualifiedName, document, /* createdByParser */ false);
 #if ENABLE(MATHML)

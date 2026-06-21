@@ -44,8 +44,7 @@ WTF_MAKE_TZONE_ALLOCATED_IMPL(FormAssociatedCustomElement);
 using namespace HTMLNames;
 
 FormAssociatedCustomElement::FormAssociatedCustomElement(HTMLMaybeFormAssociatedCustomElement& element)
-    : ValidatedFormListedElement { nullptr }
-    , m_element { element }
+    : m_element { element }
 {
 }
 

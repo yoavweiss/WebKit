@@ -61,7 +61,7 @@ class HTMLImageElement
     WTF_OVERRIDE_DELETE_FOR_CHECKED_PTR(HTMLImageElement);
 public:
     static Ref<HTMLImageElement> create(Document&);
-    static Ref<HTMLImageElement> create(const QualifiedName&, Document&, HTMLFormElement* = nullptr);
+    static Ref<HTMLImageElement> create(const QualifiedName&, Document&);
     static Ref<HTMLImageElement> createForLegacyFactoryFunction(Document&, std::optional<unsigned> width, std::optional<unsigned> height);
 
     virtual ~HTMLImageElement();
@@ -178,7 +178,7 @@ public:
     Image* image() const;
 
 protected:
-    HTMLImageElement(const QualifiedName&, Document&, HTMLFormElement* = nullptr);
+    HTMLImageElement(const QualifiedName&, Document&);
 
     void didMoveToNewDocument(Document& oldDocument, Document& newDocument) override;
 

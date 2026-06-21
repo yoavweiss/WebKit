@@ -33,7 +33,7 @@ class HTMLButtonElement final : public HTMLFormControlElement {
     WTF_MAKE_TZONE_ALLOCATED(HTMLButtonElement);
     WTF_OVERRIDE_DELETE_FOR_CHECKED_PTR(HTMLButtonElement);
 public:
-    static Ref<HTMLButtonElement> create(const QualifiedName&, Document&, HTMLFormElement*);
+    static Ref<HTMLButtonElement> create(const QualifiedName&, Document&);
     static Ref<HTMLButtonElement> create(Document&);
     
     const AtomString& NODELETE value() const;
@@ -51,7 +51,7 @@ public:
     bool isDevolvableWidget() const override { return true; }
 
 private:
-    HTMLButtonElement(const QualifiedName& tagName, Document&, HTMLFormElement*);
+    HTMLButtonElement(const QualifiedName& tagName, Document&);
 
     enum class Type : uint8_t { Submit, Reset, Button };
 

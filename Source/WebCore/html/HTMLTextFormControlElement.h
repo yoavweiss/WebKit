@@ -121,7 +121,7 @@ public:
     WEBCORE_EXPORT void dispatchUserTextInputEvent();
 
 protected:
-    HTMLTextFormControlElement(const QualifiedName&, Document&, HTMLFormElement*);
+    HTMLTextFormControlElement(const QualifiedName&, Document&);
     virtual void updatePlaceholderText() = 0;
 
     void attributeChanged(const QualifiedName&, const AtomString& oldValue, const AtomString& newValue, AttributeModificationReason) override;

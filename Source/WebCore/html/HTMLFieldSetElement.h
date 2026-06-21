@@ -32,7 +32,7 @@ class HTMLFieldSetElement final : public HTMLFormControlElement {
     WTF_MAKE_TZONE_ALLOCATED(HTMLFieldSetElement);
     WTF_OVERRIDE_DELETE_FOR_CHECKED_PTR(HTMLFieldSetElement);
 public:
-    static Ref<HTMLFieldSetElement> create(const QualifiedName&, Document&, HTMLFormElement*);
+    static Ref<HTMLFieldSetElement> create(const QualifiedName&, Document&);
 
     HTMLLegendElement* NODELETE legend() const;
 
@@ -42,7 +42,7 @@ public:
     void removeInvalidDescendant(const HTMLElement&);
 
 private:
-    HTMLFieldSetElement(const QualifiedName&, Document&, HTMLFormElement*);
+    HTMLFieldSetElement(const QualifiedName&, Document&);
     ~HTMLFieldSetElement();
 
     bool isDisabledFormControl() const final;

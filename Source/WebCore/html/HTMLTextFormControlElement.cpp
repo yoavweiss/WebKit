@@ -124,8 +124,8 @@ static unsigned innerTextLengthFrom(TextControlInnerTextElement& innerText)
     return length;
 }
 
-HTMLTextFormControlElement::HTMLTextFormControlElement(const QualifiedName& tagName, Document& document, HTMLFormElement* form)
-    : HTMLFormControlElement(tagName, document, form)
+HTMLTextFormControlElement::HTMLTextFormControlElement(const QualifiedName& tagName, Document& document)
+    : HTMLFormControlElement(tagName, document)
     , m_cachedSelectionDirection(document.frame() && document.frame()->editor().behavior().shouldConsiderSelectionAsDirectional() ? SelectionHasForwardDirection : SelectionHasNoDirection)
 {
 }

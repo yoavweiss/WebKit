@@ -58,7 +58,7 @@ public:
     void ref() const final { HTMLFormControlElement::ref(); }
     void deref() const final { HTMLFormControlElement::deref(); }
 
-    static Ref<HTMLSelectElement> create(const QualifiedName&, Document&, HTMLFormElement*);
+    static Ref<HTMLSelectElement> create(const QualifiedName&, Document&);
     static Ref<HTMLSelectElement> create(Document&);
     ~HTMLSelectElement();
 
@@ -213,7 +213,7 @@ public:
     int typeAheadMatchIndex(KeyboardEvent&);
 
 protected:
-    HTMLSelectElement(const QualifiedName&, Document&, HTMLFormElement*);
+    HTMLSelectElement(const QualifiedName&, Document&);
 
 private:
     const AtomString& formControlType() const final;
