@@ -43,6 +43,9 @@
 /* Forced text track display name format that includes the language and/or locale (e.g. 'English Forced'). */
 "%@ Forced (text track)" = "%@ Forced";
 
+/* Generated text track display name format that includes the language and/or locale (e.g. 'English Generated'). */
+"%@ Generated (text track)" = "%@ Generated";
+
 /* visible name of the GPU process. The argument is the application name. */
 "%@ Graphics and Media" = "%@ Graphics and Media";
 
@@ -681,6 +684,9 @@
 
 /* WebKitErrorFrameLoadInterruptedByPolicyChange description */
 "Frame load interrupted" = "Frame load interrupted";
+
+/* Display name for text track kind 'generated'. */
+"Generated (text track)" = "Generated";
 
 /* Title of the Go button for zoomed form controls. */
 "Go" = "Go";
