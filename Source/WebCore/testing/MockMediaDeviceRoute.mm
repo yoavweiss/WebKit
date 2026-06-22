@@ -30,7 +30,11 @@
 
 #import "WebMockMediaDeviceRoute.h"
 #import <AVKit/AVKit.h>
+#import <wtf/SoftLinking.h>
 #import <wtf/TZoneMallocInlines.h>
+
+SOFT_LINK_FRAMEWORK(AVKit)
+SOFT_LINK_CLASS(AVKit, AVPlaybackUserInterfaceMediaSelectionOption)
 
 namespace WebCore {
 
@@ -114,7 +118,7 @@ void MockMediaDeviceRoute::setAudioOptions(const Vector<AudioOption>& audioOptio
 {
     RetainPtr options = [NSMutableArray arrayWithCapacity:audioOptions.size()];
     for (auto& option : audioOptions) {
-        RetainPtr platformOption = adoptNS([[AVPlaybackUserInterfaceMediaSelectionOption alloc] initWithDisplayName:option.displayName.createNSString().get() identifier:option.identifier.createNSString().get() extendedLanguageTag:option.extendedLanguageTag.createNSString().get() mediaCharacteristics:@[]]);
+        RetainPtr platformOption = adoptNS([allocAVPlaybackUserInterfaceMediaSelectionOptionInstance() initWithDisplayName:option.displayName.createNSString().get() identifier:option.identifier.createNSString().get() extendedLanguageTag:option.extendedLanguageTag.createNSString().get() mediaCharacteristics:@[]]);
         [options addObject:platformOption.get()];
     }
     [m_platformRoute setAudioOptions:options.get()];

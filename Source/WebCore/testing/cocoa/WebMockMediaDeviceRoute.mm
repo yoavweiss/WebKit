@@ -31,7 +31,11 @@
 #import "MockMediaDeviceRouteURLCallback.h"
 #import <WebCore/JSDOMPromise.h>
 #import <wtf/BlockPtr.h>
+#import <wtf/SoftLinking.h>
 #import <wtf/WeakObjCPtr.h>
+
+SOFT_LINK_FRAMEWORK(AVKit)
+SOFT_LINK_CLASS(AVKit, AVPlaybackUserInterfacePlaybackPosition)
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -74,7 +78,7 @@ NSErrorDomain const WebMockMediaDeviceRouteErrorDomain = @"WebMockMediaDeviceRou
 
 - (void)seekToPosition:(CMTime)position tolerance:(CMTime)tolerance
 {
-    RetainPtr playbackPosition = adoptNS([[AVPlaybackUserInterfacePlaybackPosition alloc] initWithPosition:position hostTime:CMClockGetTime(CMClockGetHostTimeClock()) rate:0]);
+    RetainPtr playbackPosition = adoptNS([allocAVPlaybackUserInterfacePlaybackPositionInstance() initWithPosition:position hostTime:CMClockGetTime(CMClockGetHostTimeClock()) rate:0]);
     self.playbackPosition = playbackPosition.get();
 }
 
