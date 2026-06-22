@@ -119,15 +119,28 @@ String MediaList::item(unsigned index) const
 
 ExceptionOr<void> MediaList::deleteMedium(const String& value)
 {
+    // https://drafts.csswg.org/cssom/#dom-medialist-deletemedium
+    // The value is parsed as a single media query; bail unless parsing
+    // produces exactly one query.
+    auto parsedQueries = MQ::MediaQueryParser::parse(value, strictCSSParserContext());
+    if (parsedQueries.size() != 1)
+        return Exception { ExceptionCode::NotFoundError };
+
+    auto serializeQuery = [](const MQ::MediaQuery& query) {
+        StringBuilder builder;
+        MQ::serialize(builder, query);
+        return builder.toString();
+    };
+    auto queryToRemove = serializeQuery(parsedQueries[0]);
     auto queries = mediaQueries();
-    for (unsigned i = 0; i < queries.size(); ++i) {
-        if (equalIgnoringASCIICase(item(i), value)) {
-            queries.removeAt(i);
-            setMediaQueries(WTF::move(queries));
-            return { };
-        }
-    }
-    return Exception { ExceptionCode::NotFoundError };
+    auto removedCount = queries.removeAllMatching([&](auto& query) {
+        return serializeQuery(query) == queryToRemove;
+    });
+    if (!removedCount)
+        return Exception { ExceptionCode::NotFoundError };
+
+    setMediaQueries(WTF::move(queries));
+    return { };
 }
 
 void MediaList::appendMedium(const String& value)
