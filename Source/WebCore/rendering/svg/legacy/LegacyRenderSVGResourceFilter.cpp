@@ -97,8 +97,7 @@ auto LegacyRenderSVGResourceFilter::applyResource(RenderElement& renderer, const
     }
 
     auto addResult = m_rendererFilterDataMap.set(renderer, makeUnique<FilterData>());
-    auto addedIterator = addResult.iterator;
-    auto filterData = addedIterator->value.get();
+    auto filterData = addResult.iterator->value.get();
 
     Ref filterElement = this->filterElement();
     RefPtr contextElement = dynamicDowncast<SVGElement>(renderer.element());
@@ -106,14 +105,14 @@ auto LegacyRenderSVGResourceFilter::applyResource(RenderElement& renderer, const
 
     auto filterRegion = SVGLengthContext::resolveRectangle(contextElement.get(), filterElement.get(), filterElement->filterUnits(), targetBoundingBox);
     if (filterRegion.isEmpty()) {
-        m_rendererFilterDataMap.remove(addedIterator);
+        m_rendererFilterDataMap.remove(renderer);
         return { };
     }
 
     // Determine absolute transformation matrix for filter.
     auto absoluteTransform = SVGRenderingContext::calculateTransformationToOutermostCoordinateSystem(renderer);
     if (!absoluteTransform.isInvertible()) {
-        m_rendererFilterDataMap.remove(addedIterator);
+        m_rendererFilterDataMap.remove(renderer);
         return { };
     }
 
@@ -138,7 +137,7 @@ auto LegacyRenderSVGResourceFilter::applyResource(RenderElement& renderer, const
     }, preferredFilterModes, renderingOptions, *context, RenderingResourceIdentifier::generate());
 
     if (!filterData->filter) {
-        m_rendererFilterDataMap.remove(addedIterator);
+        m_rendererFilterDataMap.remove(renderer);
         return { };
     }
 
@@ -156,7 +155,7 @@ auto LegacyRenderSVGResourceFilter::applyResource(RenderElement& renderer, const
 
     filterData->targetSwitcher = GraphicsContextSwitcher::create(*context, filterData->sourceImageRect, colorSpace, filterData->filter, &results);
     if (!filterData->targetSwitcher) {
-        m_rendererFilterDataMap.remove(addedIterator);
+        m_rendererFilterDataMap.remove(renderer);
         return { };
     }
     
