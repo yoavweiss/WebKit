@@ -481,7 +481,10 @@ void RenderLayerModelObject::updateHasSVGTransformFlags()
     // the DOM-order list. A stale classification either drops those descendants (when toggled
     // to transformed) or leaves them un-wrapped by the new transform (when toggled away).
     if (isTransformed() != wasTransformed) {
-        if (CheckedPtr layer = enclosingLayer())
+        // dirtyChildrenInDOMOrderForSVG() asserts m_svgData, so only an SVG layer may receive it. A
+        // non-SVG enclosing layer (reachable for an SVG renderer reparented under non-SVG content) has
+        // no DOM-order cache to rebuild.
+        if (CheckedPtr layer = enclosingLayer(); layer && layer->isSVGLayer())
             layer->dirtyChildrenInDOMOrderForSVG();
     }
 }
