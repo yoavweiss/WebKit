@@ -1771,27 +1771,6 @@ list(APPEND webrtc_SOURCES
     Source/third_party/boringssl/src/ssl/tls13_server.cc
     Source/third_party/boringssl/src/ssl/tls_method.cc
     Source/third_party/boringssl/src/ssl/tls_record.cc
-    Source/third_party/boringssl/src/tool/args.cc
-    Source/third_party/boringssl/src/tool/ciphers.cc
-    Source/third_party/boringssl/src/tool/client.cc
-    Source/third_party/boringssl/src/tool/const.cc
-    Source/third_party/boringssl/src/tool/digest.cc
-    Source/third_party/boringssl/src/tool/fd.cc
-    Source/third_party/boringssl/src/tool/file.cc
-    Source/third_party/boringssl/src/tool/generate_ech.cc
-    Source/third_party/boringssl/src/tool/generate_ed25519.cc
-    Source/third_party/boringssl/src/tool/genrsa.cc
-    Source/third_party/boringssl/src/tool/pkcs12.cc
-    Source/third_party/boringssl/src/tool/rand.cc
-    Source/third_party/boringssl/src/tool/server.cc
-    Source/third_party/boringssl/src/tool/sign.cc
-    Source/third_party/boringssl/src/tool/tool.cc
-    Source/third_party/boringssl/src/tool/transport_common.cc
-    Source/third_party/boringssl/src/util/ar/testdata/sample/bar.cc
-    Source/third_party/boringssl/src/util/bazel-example/example.cc
-    Source/third_party/boringssl/src/util/fipstools/acvp/modulewrapper/main.cc
-    Source/third_party/boringssl/src/util/fipstools/acvp/modulewrapper/modulewrapper.cc
-    Source/third_party/boringssl/src/util/fipstools/acvp/modulewrapper/proto.cc
 )
 
 if (WTF_CPU_X86_64 OR WTF_CPU_X86)

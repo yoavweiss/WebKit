@@ -1214,6 +1214,7 @@ list(APPEND WebCore_PRIVATE_FRAMEWORK_HEADERS
     platform/graphics/cocoa/MediaPlayerEnumsCocoa.h
     platform/graphics/cocoa/NullPlaybackSessionInterface.h
     platform/graphics/cocoa/NullVideoPresentationInterface.h
+    platform/graphics/cocoa/PeriodicSharedTimer.h
     platform/graphics/cocoa/ShareableCVPixelBuffer.h
     platform/graphics/cocoa/ShareableCVPixelFormat.h
     platform/graphics/cocoa/ShareableGainMap.h
