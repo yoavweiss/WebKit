@@ -28,6 +28,7 @@
 #import "ArgumentCodersCocoa.h"
 #import "CoreIPCCFDictionary.h"
 #import "CoreIPCError.h"
+#import "CoreIPCNSURLCredential.h"
 #import "CoreIPCNSURLRequest.h"
 #import "CoreIPCPKPayment.h"
 #import "CoreIPCPKPaymentMethod.h"
@@ -2012,6 +2013,29 @@ TEST(IPCSerialization, DDScannerResultPlist)
     EXPECT_TRUE(done);
 }
 #endif // HAVE(WK_SECURE_CODING_DATA_DETECTORS)
+
+#if HAVE(WK_SECURE_CODING_NSURLCREDENTIAL)
+
+@interface NSURLCredential (WKSecureCodingForTesting)
+- (instancetype)_initWithWebKitPropertyListData:(NSDictionary *)plist;
+@end
+
+TEST(IPCSerialization, NSURLCredentialKerberosFlags)
+{
+    RetainPtr credential = adoptNS([[NSURLCredential alloc] _initWithWebKitPropertyListData:@{
+        @"type": @(kURLCredentialKerberosTicket),
+        @"uuid": @"uuid",
+        @"flags": @{ @"name": @"value" },
+    }]);
+
+    IPC::Encoder encoder(IPC::MessageName::IPCTester_AsyncPing, 0);
+    encoder << WebKit::CoreIPCNSURLCredential { credential.get() };
+    auto decoder = IPC::Decoder::create(encoder.span(), encoder.releaseAttachments());
+    auto decoded = decoder->decode<WebKit::CoreIPCNSURLCredentialData>();
+    EXPECT_FALSE(decoded->flags->isEmpty());
+}
+
+#endif // HAVE(WK_SECURE_CODING_NSURLCREDENTIAL)
 
 @interface PKPaymentMerchantSession ()
 - (instancetype)initWithMerchantIdentifier:(NSString *)merchantIdentifier
