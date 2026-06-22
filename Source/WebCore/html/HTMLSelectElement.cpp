@@ -1210,8 +1210,8 @@ void HTMLSelectElement::setOptionsChangedOnRenderer()
     if (auto* renderer = this->renderer()) {
         if (auto* renderMenuList = dynamicDowncast<RenderMenuList>(*renderer))
             renderMenuList->setOptionsChanged(true);
-        else if (!usesMenuList())
-            downcast<RenderListBox>(*renderer).setOptionsChanged(true);
+        else if (auto* renderListBox = dynamicDowncast<RenderListBox>(*renderer))
+            renderListBox->setOptionsChanged(true);
     }
 
 #if !PLATFORM(IOS_FAMILY)
@@ -1912,7 +1912,9 @@ void HTMLSelectElement::listBoxDefaultEventHandler(Event& event)
             mouseEvent->setDefaultHandled();
         }
     } else if (event.type() == eventNames.mousemoveEvent && mouseEvent) {
-        CheckedRef renderListBox = downcast<RenderListBox>(*renderer());
+        CheckedPtr renderListBox = dynamicDowncast<RenderListBox>(*renderer());
+        if (!renderListBox)
+            return;
         if (renderListBox->canBeScrolledAndHasScrollableArea())
             return;
 
@@ -2043,7 +2045,8 @@ void HTMLSelectElement::listBoxDefaultEventHandler(Event& event)
                 setActiveSelectionAnchorIndex(m_activeSelectionEndIndex);
             }
 
-            downcast<RenderListBox>(*renderer).scrollToRevealElementAtListIndex(endIndex);
+            if (auto* renderListBox = dynamicDowncast<RenderListBox>(*renderer))
+                renderListBox->scrollToRevealElementAtListIndex(endIndex);
             if (selectNewItem) {
                 updateListBoxSelection(deselectOthers);
                 listBoxOnChange();
