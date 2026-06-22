@@ -703,9 +703,11 @@ bool RenderLayerModelObject::pointInSVGClippingArea(const FloatPoint& point) con
 
 bool RenderLayerModelObject::svgTransformAttributeChangeInducesLayerComposition()
 {
-    // True when a just-parsed SVG transform attribute flips whether this transformable
-    // container needs, so the change must create or destroy one.
-    if (!isRenderSVGTransformableContainer())
+    // True when a just-parsed SVG transform attribute flips whether this container needs a layer,
+    // so the change must create or destroy one. A 2D transform gates layer creation for any SVG
+    // container (requiresLayer() returns true for isTransformed() && isRenderSVGContainer()), which
+    // covers both <g> (RenderSVGTransformableContainer) and nested <svg> (RenderSVGViewportContainer).
+    if (!isRenderSVGContainer())
         return false;
     // requiresLayer() reads the cached hasSVGTransform() flag - so make sure it's not stale.
     updateHasSVGTransformFlags();
@@ -720,7 +722,7 @@ void RenderLayerModelObject::updateTransformAndRepaintForSVGAfterAttributeChange
 
     // A layer is neither created nor destroyed below, so probe it once up front.
     const bool isLayered = hasLayer();
-    ASSERT(!isRenderSVGTransformableContainer() || requiresLayer() == isLayered);
+    ASSERT(!isRenderSVGContainer() || requiresLayer() == isLayered);
 
     // Refresh the transform, returning the (previous, current) pair. For layered renderers this
     // forces a stacking context on an identity-to-non-identity transition (the batched flush skips
