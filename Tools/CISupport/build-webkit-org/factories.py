@@ -177,6 +177,14 @@ class BuildAndTestAllButJSCFactory(BuildAndTestFactory):
     JSCTestClass = None
 
 
+class BuildAndTestAllPlusTest262WebDriverMVTFactory(BuildAndTestFactory):
+    def __init__(self, platform, configuration, architectures, additionalArguments=None, device_model=None, **kwargs):
+        TestFactory.__init__(self, platform, configuration, architectures, additionalArguments, device_model, **kwargs)
+        self.addStep(RunTest262Tests())
+        self.addStep(RunWebDriverTests())
+        self.addStep(RunMVTTests())
+
+
 class BuildAndGenerateJSCBundleFactory(BuildFactory):
     shouldRunJSCBundleStep = True
 

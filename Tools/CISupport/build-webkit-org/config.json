@@ -244,6 +244,7 @@
 
                   { "name": "wpe-linux-bot-1", "platform": "wpe" },
                   { "name": "wpe-linux-bot-2", "platform": "wpe" },
+                  { "name": "wpe-linux-bot-3", "platform": "wpe" },
                   { "name": "wpe-linux-bot-4", "platform": "wpe" },
                   { "name": "wpe-linux-bot-5", "platform": "wpe" },
                   { "name": "wpe-linux-bot-7", "platform": "wpe" },
@@ -757,6 +758,11 @@
                     "name": "WPE-Linux-ARM64-bit-Release-JS-Tests", "factory": "TestJSFactory",
                     "platform": "wpe", "configuration": "release", "architectures": ["arm64"],
                     "workernames": ["wpe-linux-bot-40"]
+                  },
+                  {
+                    "name": "WPE-Linux-ARM64-bit-Release-v252-BuildAndTest", "factory": "BuildAndTestAllPlusTest262WebDriverMVTFactory",
+                    "platform": "wpe", "configuration": "release", "architectures": ["arm64"],
+                    "workernames": ["wpe-linux-bot-3"]
                   }
                 ],
 
@@ -785,6 +791,9 @@
                                      "WPE-Linux-ARM32-bit-Release-Debian-Stable-Build",
                                      "WPE-Linux-64-bit-Release-Non-Unified-Build",
                                      "WPE-Linux-ARM64-bit-Release-Build"]
+                  },
+                  { "type": "AnyBranchScheduler", "name": "webkitglib-v252", "change_filter": "webkitglib_v252_filter", "treeStableTimer": 45.0,
+                    "builderNames": ["WPE-Linux-ARM64-bit-Release-v252-BuildAndTest"]
                   },
                   { "type": "PlatformSpecificScheduler", "platform": "mac-tahoe", "branch": "main", "treeStableTimer": 45.0,
                   "builderNames": ["Apple-Tahoe-Release-Build", "Apple-Tahoe-Debug-Build", "Apple-Tahoe-LLINT-CLoop-BuildAndTest", "Apple-Tahoe-Safer-CPP-Checks"]
