@@ -319,7 +319,7 @@ bool StyleSheetContents::wrapperInsertRule(Ref<StyleRuleBase>&& rule, unsigned i
         if (!m_childRules.isEmpty() || !m_layerRulesBeforeImportRules.isEmpty())
             return false;
 
-        m_namespaceRules.insert(index, *namespaceRule);
+        m_namespaceRules.insert(childVectorIndex, *namespaceRule);
         
         // For now to be compatible with IE and Firefox if a namespace rule with the same
         // prefix is added, it overwrites previous ones.
