@@ -714,7 +714,7 @@ diff --git a/sources/meta-webkit/conf/distro/webkitdevci.conf b/sources/meta-web
 index 1f952c2..d299d1f 100644
 --- a/sources/meta-webkit/conf/distro/webkitdevci.conf
 +++ b/sources/meta-webkit/conf/distro/webkitdevci.conf
-@@ -47,6 +47,18 @@ PACKAGECONFIG:append:pn-weston-init = " no-idle-timeout"
+@@ -47,6 +47,17 @@ PACKAGECONFIG:append:pn-weston-init = " no-idle-timeout"
  PACKAGECONFIG:append:pn-php = " apache2"
  # Disable mysql support as we don't need to build mysql/mariadb
  PACKAGECONFIG:remove:pn-php = "mysql"
@@ -730,9 +730,8 @@ index 1f952c2..d299d1f 100644
  # Whitelist license from some deps.
  LICENSE_FLAGS_ACCEPTED:append = " commercial synaptics-killswitch"
 +
-+# The SDK host clang comes from the swift.org bundle (nativesdk-swift); keep
-+# meta-clang's nativesdk-clang out of the SDK host to avoid a conflict.
-+CLANGSDK = "0"
++# Optional support for clang if meta-clang is enabled
++CLANGSDK ?= "1"
 diff --git a/sources/meta-webkit/conf/layer.conf b/sources/meta-webkit/conf/layer.conf
 index 124c13d..1a38638 100644
 --- a/sources/meta-webkit/conf/layer.conf
@@ -746,6 +745,14 @@ index 124c13d..1a38638 100644
      "
  
  BBFILE_COLLECTIONS += "webkit"
+diff --git a/sources/meta-webkit/dynamic-layers/clang-layer/recipes-core/images/webkit-dev-ci-tools.bbappend b/sources/meta-webkit/dynamic-layers/clang-layer/recipes-core/images/webkit-dev-ci-tools.bbappend
+new file mode 100644
+index 0000000..b1950a5
+--- /dev/null
++++ b/sources/meta-webkit/dynamic-layers/clang-layer/recipes-core/images/webkit-dev-ci-tools.bbappend
+@@ -0,0 +1,2 @@
++TOOLCHAIN_HOST_TASK:append = " nativesdk-clang nativesdk-compiler-rt nativesdk-compiler-rt-sanitizers"
++IMAGE_INSTALL:append = " clang compiler-rt compiler-rt-sanitizers libcxx"
 diff --git a/sources/meta-webkit/recipes-browser/packagegroups/packagegroup-wpewebkit-depends.bb b/sources/meta-webkit/recipes-browser/packagegroups/packagegroup-wpewebkit-depends.bb
 index 205c058..9cf85c8 100644
 --- a/sources/meta-webkit/recipes-browser/packagegroups/packagegroup-wpewebkit-depends.bb
@@ -828,249 +835,3 @@ index 2355936..0820dd9 100644
          if ${@bb.utils.contains('PACKAGECONFIG', 'dhcp-ethernet', 'true', 'false', d)}; then
                 install -D -m0644 ${WORKDIR}/wired.network ${D}${systemd_unitdir}/network/80-wired.network
          fi
-diff --git a/sources/meta-webkit/recipes-browser/wpewebkit/wpewebkit_%.bbappend b/sources/meta-webkit/recipes-browser/wpewebkit/wpewebkit_%.bbappend
-new file mode 100644
-index 0000000..1a2b3c4
---- /dev/null
-+++ b/sources/meta-webkit/recipes-browser/wpewebkit/wpewebkit_%.bbappend
-@@ -0,0 +1,12 @@
-+# Optional Swift/C++ interop support for WPE WebKit (contributed upstream to
-+# meta-webkit). Off by default; enable per distro/image on a Swift-capable arch
-+# (aarch64/armv7; riscv64 has no upstream Swift target) with:
-+#     PACKAGECONFIG:append:pn-wpewebkit = " swift"
-+# CMAKE_Swift_COMPILER is the in-tree wrapper that ships in release tarballs;
-+# the Swift target triple is derived from CMAKE_SYSTEM_PROCESSOR in CMakeLists.txt.
-+PACKAGECONFIG[swift] = " \
-+    -DENABLE_SWIFT_DEMO_URI_SCHEME=ON -DENABLE_BACK_FORWARD_LIST_SWIFT=ON \
-+    -DCMAKE_Swift_COMPILER=${S}/Tools/Scripts/swift/swiftc-wrapper.sh \
-+    -DCMAKE_Swift_FLAGS_INIT='-sdk ${STAGING_DIR_TARGET} -resource-dir ${STAGING_DIR_TARGET}${libdir}/swift' \
-+    ,-DENABLE_SWIFT_DEMO_URI_SCHEME=OFF -DENABLE_BACK_FORWARD_LIST_SWIFT=OFF \
-+    ,swift-native swift-stdlib swift-foundation libdispatch"
-diff --git a/sources/meta-webkit/recipes-browser/packagegroups/packagegroup-wpewebkit-depends.bbappend b/sources/meta-webkit/recipes-browser/packagegroups/packagegroup-wpewebkit-depends.bbappend
-new file mode 100644
-index 0000000..2b3c4d5
---- /dev/null
-+++ b/sources/meta-webkit/recipes-browser/packagegroups/packagegroup-wpewebkit-depends.bbappend
-@@ -0,0 +1,4 @@
-+# Pull the Swift runtime (from meta-swift) into the WPE WebKit packagegroup.
-+# Only aarch64: Swift does not compile on armv7 at present and riscv64 has no
-+# upstream Swift target.
-+RDEPENDS:packagegroup-wpewebkit-depends-core:append:aarch64 = " swift-stdlib swift-foundation libdispatch"
-diff --git a/sources/meta-webkit/recipes-browser/images/webkit-dev-ci-tools.bbappend b/sources/meta-webkit/recipes-browser/images/webkit-dev-ci-tools.bbappend
-new file mode 100644
-index 0000000..3c4d5e6
---- /dev/null
-+++ b/sources/meta-webkit/recipes-browser/images/webkit-dev-ci-tools.bbappend
-@@ -0,0 +1,5 @@
-+# Pull the swift.org host toolchain (swiftc, clang, lld, ...) into populate_sdk
-+# so out-of-bitbake cross builds via cross-toolchain-helper find it on PATH.
-+# nativesdk-swift packages the prebuilt bundle through standard SDK packaging.
-+
-+TOOLCHAIN_HOST_TASK += "nativesdk-swift"
-diff --git a/sources/meta-webkit/recipes-devtools/swift/nativesdk-swift.bb b/sources/meta-webkit/recipes-devtools/swift/nativesdk-swift.bb
-new file mode 100644
-index 0000000..4d5e6f7
---- /dev/null
-+++ b/sources/meta-webkit/recipes-devtools/swift/nativesdk-swift.bb
-@@ -0,0 +1,106 @@
-+SUMMARY = "Swift toolchain bundle for the populate_sdk host (swift.org prebuilt)"
-+HOMEPAGE = "https://swift.org/install/"
-+LICENSE = "Apache-2.0"
-+LIC_FILES_CHKSUM = "file://${S}/usr/share/swift/LICENSE.txt;md5=f6c482a0548ea60d6c2e015776534035"
-+
-+# Pin the bundle version to whatever swift-native (meta-swift) is using so
-+# the SDK's host swiftc/clang match the target stdlib's build provenance.
-+require recipes-devtools/swift/swift-version.inc
-+PV = "${SWIFT_VERSION}"
-+
-+# swift.org publishes per-host-arch tarballs (x86_64 unsuffixed, aarch64
-+# "-aarch64"). Use SDK_ARCH so we pick the binary for the SDK host machine.
-+def swift_sdk_arch_suffix(d):
-+    sdk_arch = d.getVar('SDK_ARCH')
-+    return '' if sdk_arch == 'x86_64' else '-{}'.format(sdk_arch)
-+
-+def swift_sdk_arch_checksum(d):
-+    sha256 = {
-+        "x86_64":  "648daccc9062045cb42431f6c7d620858b729abccb6bb9075a6b990e6259e897",
-+        "aarch64": "8b85ce9e2a13802654e2a097d8720f0726d0900adc3579af1649190cc6cd49be",
-+    }
-+    return sha256[d.getVar('SDK_ARCH')]
-+
-+# The bundle's ELF interpreter is the host loader (arch-specific); pick it by
-+# SDK_ARCH so the .interp padding below targets the right one.
-+def swift_sdk_arch_interpreter(d):
-+    sdk_arch = d.getVar('SDK_ARCH')
-+    if sdk_arch == 'x86_64':
-+        return 'ld-linux-x86-64.so.2'
-+    if sdk_arch == 'aarch64':
-+        return 'ld-linux-aarch64.so.1'
-+    bb.fatal('Unsupported SDK_ARCH for nativesdk-swift: {}'.format(sdk_arch))
-+
-+SWIFT_ARCH_SUFFIX = "${@swift_sdk_arch_suffix(d)}"
-+SWIFT_SDK_INTERPRETER = "${@swift_sdk_arch_interpreter(d)}"
-+SWIFT_LINUX_DISTRO = "amazonlinux2"
-+
-+SRC_DIR = "${SWIFT_TAG}-${SWIFT_LINUX_DISTRO}${SWIFT_ARCH_SUFFIX}"
-+SRC_URI = "https://download.swift.org/swift-${SWIFT_VERSION}-release/${SWIFT_LINUX_DISTRO}${SWIFT_ARCH_SUFFIX}/${SWIFT_TAG}/${SWIFT_TAG}-${SWIFT_LINUX_DISTRO}${SWIFT_ARCH_SUFFIX}.tar.gz"
-+SRC_URI[sha256sum] = "${@swift_sdk_arch_checksum(d)}"
-+
-+S = "${WORKDIR}/${SRC_DIR}"
-+
-+DEPENDS = "patchelf-native"
-+
-+# swift.org only publishes x86_64 and aarch64 host bundles; the checksum/
-+# interpreter maps above only know those two. Restrict the recipe accordingly.
-+COMPATIBLE_HOST = "(x86_64|aarch64).*-linux*"
-+
-+inherit nativesdk
-+
-+do_install() {
-+    install -d ${D}${bindir} ${D}${libdir} ${D}${includedir} ${D}${datadir}
-+    cp -rd ${S}/usr/bin/.     ${D}${bindir}/
-+    cp -rd ${S}/usr/lib/.     ${D}${libdir}/
-+    cp -rd ${S}/usr/include/. ${D}${includedir}/
-+    cp -rd ${S}/usr/share/.   ${D}${datadir}/
-+    if [ -d ${S}/usr/libexec ]; then
-+        install -d ${D}${libexecdir}
-+        cp -rd ${S}/usr/libexec/. ${D}${libexecdir}/
-+    fi
-+
-+    # Drop the bundle's host-side libdispatch/Foundation/Block/os headers and
-+    # modulemaps: meta-swift already provides target-arch versions in the sysroot,
-+    # so keeping both makes swiftc see duplicate module definitions.
-+    for d in dispatch os Block CoreFoundation _FoundationCShims _foundation_unicode shims; do
-+        rm -rf ${D}${libdir}/swift/${d}
-+    done
-+
-+    # swift.org binaries have a short .interp; Yocto's relocate_sdk.py aborts when
-+    # the SDK install path is >= p_filesz, so grow the slot with patchelf. Anchor
-+    # the placeholder with ${SDKPATH}/ (not /lib*, which relocate_sdk.py skips as
-+    # an external marker) so the relocator still processes it, then pad.
-+    pad=$(printf '%440s' '' | tr ' ' 'x')
-+    long_interp="${SDKPATH}/${pad}/lib/${SWIFT_SDK_INTERPRETER}"
-+    for f in ${D}${bindir}/* ${D}${libexecdir}/swift/*; do
-+        [ -f "$f" ] || continue
-+        case "$(file -b "$f" 2>/dev/null)" in
-+            *ELF*executable*)
-+                patchelf --set-interpreter "$long_interp" "$f" 2>/dev/null || true
-+                ;;
-+        esac
-+    done
-+}
-+
-+# The swift.org bundle is self-contained and pre-stripped. Don't let
-+# Yocto's QA / packaging machinery rewrite it beyond .interp padding.
-+INSANE_SKIP:${PN} = "already-stripped libdir staticdev arch dev-so dev-elf textrel file-rdeps libdir"
-+INHIBIT_PACKAGE_STRIP = "1"
-+INHIBIT_PACKAGE_DEBUG_SPLIT = "1"
-+INHIBIT_SYSROOT_STRIP = "1"
-+
-+# The bundle is self-contained (its libs are found via $ORIGIN RPATH), but RPM's
-+# auto-provides scanner misses the bundled SONAMEs and emits bad Requires:; skip
-+# file-based dep generation entirely.
-+SKIP_FILEDEPS:${PN} = "1"
-+
-+# Single package; everything goes to the SDK host sysroot.
-+PACKAGES = "${PN}"
-+FILES:${PN} = " \
-+    ${bindir} \
-+    ${libdir} \
-+    ${includedir} \
-+    ${datadir} \
-+    ${libexecdir} \
-+"
-diff --git a/sources/meta-swift/classes/swift-common.bbclass b/sources/meta-swift/classes/swift-common.bbclass
---- a/sources/meta-swift/classes/swift-common.bbclass
-+++ b/sources/meta-swift/classes/swift-common.bbclass
-@@ -21,7 +21,9 @@
- 
- SWIFT_CLANG_VERSION = "21"
- 
--SWIFT_TARGET_NAME = "${@oe.utils.conditional('TARGET_ARCH', 'arm', 'armv7-unknown-linux-gnueabihf', '${TARGET_ARCH}-unknown-linux-gnu', d)}"
-+# Use Yocto's TARGET_SYS instead of the upstream Swift triple, so swiftc -target,
-+# .swiftinterface module names and clang's per-triple header lookup all agree.
-+SWIFT_TARGET_NAME = "${TARGET_SYS}"
- SWIFT_TARGET_ARCH = "${@oe.utils.conditional('TARGET_ARCH', 'arm', 'armv7', '${TARGET_ARCH}', d)}"
- TARGET_CPU_NAME = "${@oe.utils.conditional('TARGET_ARCH', 'arm', 'armv7-a', '${TARGET_ARCH}', d)}"
- 
-diff --git a/sources/meta-swift/recipes-devtools/swift/swift-stdlib.bb b/sources/meta-swift/recipes-devtools/swift/swift-stdlib.bb
---- a/sources/meta-swift/recipes-devtools/swift/swift-stdlib.bb
-+++ b/sources/meta-swift/recipes-devtools/swift/swift-stdlib.bb
-@@ -39,10 +39,18 @@
- SWIFT_CXX_FLAGS = "${SWIFT_C_FLAGS}"
- SWIFT_CXX_LINK_FLAGS = "${SWIFT_C_LINK_FLAGS}"
- 
-+# clang's libstdc++ heuristic wants crt*.o and the gcc-internal include dirs in
-+# one place, but Yocto splits them across usr/lib/<sys> and usr/lib/gcc/<sys>.
-+# Copy the missing crt entries in additively (symlinks aren't followed here).
- do_fix_gcc_install_dir() {
--    # symbolic links do not work, will not be found by Swift clang driver
--    # this is necessary to make the libstdc++ location heuristic work, necessary for C++ interop
--    (cd ${STAGING_DIR_TARGET}/usr/lib && rm -rf gcc && mkdir -p gcc && cp -rp ${TARGET_ARCH}${TARGET_VENDOR}-${TARGET_OS} gcc)
-+    src=${STAGING_DIR_TARGET}/usr/lib/${TARGET_SYS}/${SWIFT_GCC_VERSION}
-+    dst=${STAGING_DIR_TARGET}/usr/lib/gcc/${TARGET_SYS}/${SWIFT_GCC_VERSION}
-+    [ -d "${src}" ] || return 0
-+    mkdir -p "${dst}"
-+    for f in "${src}"/*; do
-+        bn=$(basename "${f}")
-+        [ -e "${dst}/${bn}" ] || cp -rp "${f}" "${dst}/${bn}"
-+    done
- }
- 
- addtask fix_gcc_install_dir before do_configure after do_prepare_recipe_sysroot
-diff --git a/sources/meta-swift/recipes-devtools/swift/swift-stdlib/0004-allow-overriding-SWIFT_SDK_LINUX_ARCH_TRIPLE.patch b/sources/meta-swift/recipes-devtools/swift/swift-stdlib/0004-allow-overriding-SWIFT_SDK_LINUX_ARCH_TRIPLE.patch
-new file mode 100644
---- /dev/null
-+++ b/sources/meta-swift/recipes-devtools/swift/swift-stdlib/0004-allow-overriding-SWIFT_SDK_LINUX_ARCH_TRIPLE.patch
-@@ -0,0 +1,30 @@
-+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-+From: Nikolas Zimmermann <nzimmermann@igalia.com>
-+Date: Thu, 28 May 2026 00:00:00 +0000
-+Subject: [PATCH] Allow overriding SWIFT_SDK_LINUX_ARCH_<arch>_TRIPLE
-+
-+Guard the per-arch defaults with if(NOT DEFINED) so meta-swift can supply
-+a Yocto-aligned triple (e.g. aarch64-poky-linux) from the toolchain file;
-+otherwise the stdlib emits modules named with the upstream triple and
-+consumers built with -target <vendor-triple> can't find them.
-+---
-+diff --git a/cmake/modules/SwiftConfigureSDK.cmake b/cmake/modules/SwiftConfigureSDK.cmake
-+--- a/cmake/modules/SwiftConfigureSDK.cmake
-++++ b/cmake/modules/SwiftConfigureSDK.cmake
-+@@ -422,7 +422,13 @@
-+         if(arch MATCHES "(armv5)")
-+-          set(SWIFT_SDK_LINUX_ARCH_${arch}_TRIPLE "${arch}-unknown-linux-gnueabi")
-++          if(NOT DEFINED SWIFT_SDK_LINUX_ARCH_${arch}_TRIPLE)
-++            set(SWIFT_SDK_LINUX_ARCH_${arch}_TRIPLE "${arch}-unknown-linux-gnueabi")
-++          endif()
-+         elseif(arch MATCHES "(armv6|armv7)")
-+-          set(SWIFT_SDK_LINUX_ARCH_${arch}_TRIPLE "${arch}-unknown-linux-gnueabihf")
-++          if(NOT DEFINED SWIFT_SDK_LINUX_ARCH_${arch}_TRIPLE)
-++            set(SWIFT_SDK_LINUX_ARCH_${arch}_TRIPLE "${arch}-unknown-linux-gnueabihf")
-++          endif()
-+         elseif(arch MATCHES "(aarch64|i686|powerpc|powerpc64|powerpc64le|s390x|x86_64|riscv64)")
-+-          set(SWIFT_SDK_LINUX_ARCH_${arch}_TRIPLE "${arch}-unknown-linux-gnu")
-++          if(NOT DEFINED SWIFT_SDK_LINUX_ARCH_${arch}_TRIPLE)
-++            set(SWIFT_SDK_LINUX_ARCH_${arch}_TRIPLE "${arch}-unknown-linux-gnu")
-++          endif()
-+         else()
-diff --git a/sources/meta-swift/recipes-devtools/swift/swift-stdlib.bb b/sources/meta-swift/recipes-devtools/swift/swift-stdlib.bb
---- a/sources/meta-swift/recipes-devtools/swift/swift-stdlib.bb
-+++ b/sources/meta-swift/recipes-devtools/swift/swift-stdlib.bb
-@@ -17,6 +17,7 @@
-     git://github.com/swiftlang/swift-experimental-string-processing.git;protocol=https;name=stringproc;tag=${SWIFT_TAG};nobranch=1;destsuffix=swift-experimental-string-processing; \
-     git://github.com/swiftlang/swift-syntax.git;protocol=https;name=syntax;tag=${SWIFT_TAG};nobranch=1;destsuffix=swift-syntax; \
-     file://0003-add-fix-for-metadataaccessor-abi-mismatch.patch;striplevel=1; \
-+    file://0004-allow-overriding-SWIFT_SDK_LINUX_ARCH_TRIPLE.patch;striplevel=1; \
-     "
- 
- S = "${UNPACKDIR}/swift"
-@@ -151,6 +152,9 @@
- set(SWIFT_HOST_VARIANT_ARCH ${SWIFT_TARGET_ARCH})
- set(SWIFT_SDKS LINUX)
- set(SWIFT_SDK_LINUX_ARCH_${SWIFT_TARGET_ARCH}_PATH ${STAGING_DIR_TARGET})
-+# Override the per-arch module triple so .swiftinterface filenames use the
-+# Yocto SDK triple. Requires patch 0004 to honour this.
-+set(SWIFT_SDK_LINUX_ARCH_${SWIFT_TARGET_ARCH}_TRIPLE ${SWIFT_TARGET_NAME})
- set(SWIFT_SDK_LINUX_ARCH_${SWIFT_TARGET_ARCH}_LIBC_INCLUDE_DIRECTORY ${STAGING_DIR_TARGET}/usr/include)
- set(SWIFT_SDK_LINUX_ARCH_${SWIFT_TARGET_ARCH}_LIBC_ARCHITECTURE_INCLUDE_DIRECTORY ${STAGING_DIR_TARGET}/usr/include)
- set(SWIFT_LINUX_${SWIFT_TARGET_ARCH}_ICU_I18N ${STAGING_DIR_TARGET}/usr/lib/libicui18n.so)
