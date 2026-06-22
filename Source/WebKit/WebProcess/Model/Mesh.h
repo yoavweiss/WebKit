@@ -33,6 +33,7 @@
 #include <wtf/text/WTFString.h>
 
 #if PLATFORM(COCOA)
+#include <WebCore/RenderingResourceIdentifier.h>
 #include <simd/simd.h>
 #include <wtf/MachSendRight.h>
 #endif
@@ -42,6 +43,7 @@ struct ResizeMeshDescriptor;
 }
 
 namespace WebCore {
+class NativeImage;
 class TransformationMatrix;
 enum class StageModeOperation : bool;
 }
@@ -93,6 +95,8 @@ public:
 #if PLATFORM(COCOA)
     virtual std::optional<WebModel::Float4x4> entityTransform() const = 0;
     virtual Vector<MachSendRight> ioSurfaceHandles() { return { }; }
+    virtual void paintCurrentFrameToImageBuffer(WebCore::RenderingResourceIdentifier, uint32_t) { }
+    virtual RefPtr<WebCore::NativeImage> getCurrentFrameAsNativeImage(uint32_t) { return nullptr; }
     virtual void updateRenderBuffers(WebModel::ResizeMeshDescriptor&&) { }
     virtual void sizeDidChange(unsigned, unsigned, CompletionHandler<void(Vector<MachSendRight>&&)>&& callback) { callback({ }); }
     virtual std::pair<simd_float4, simd_float4> getCenterAndExtents() const { return std::make_pair(simd_make_float4(0.f), simd_make_float4(0.f)); }

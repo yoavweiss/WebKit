@@ -50,7 +50,10 @@ struct ImageAsset;
 }
 
 namespace WebCore {
+class DestinationColorSpace;
+class FloatSize;
 class GraphicsLayerContentsDisplayDelegate;
+class ImageBuffer;
 class ModelPlayerClient;
 class Page;
 }
@@ -80,6 +83,7 @@ private:
     void load(WebCore::Model&, WebCore::LayoutSize, bool) final;
     void sizeDidChange(WebCore::LayoutSize) final;
     void configureGraphicsLayer(WebCore::GraphicsLayer&, WebCore::ModelPlayerGraphicsLayerConfiguration&&) final;
+    RefPtr<WebCore::ImageBuffer> snapshotCurrentFrame(const WebCore::FloatSize& deviceSize, const WebCore::DestinationColorSpace&) final;
     void enterFullscreen() final;
     void handleMouseDown(const WebCore::LayoutPoint&, MonotonicTime) final;
     void handleMouseMove(const WebCore::LayoutPoint&, MonotonicTime) final;
@@ -154,6 +158,7 @@ private:
     WeakPtr<WebCore::GraphicsLayer> m_graphicsLayer;
     uint32_t m_renderTextureIndex { 0 };
     uint32_t m_displayTextureIndex { 0 };
+    bool m_hasRenderedFrame { false };
     WebCore::StageModeOperation m_stageMode { WebCore::StageModeOperation::None };
     std::optional<WebCore::Color> m_backgroundColor;
     WebCore::IntSize m_currentPixelSize;
