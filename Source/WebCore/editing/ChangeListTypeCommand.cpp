@@ -32,6 +32,7 @@
 #include "FrameDestructionObserverInlines.h"
 #include "FrameSelection.h"
 #include "HTMLElement.h"
+#include "HTMLInterchange.h"
 #include "HTMLOListElement.h"
 #include "HTMLUListElement.h"
 #include "LocalFrameInlines.h"
@@ -83,12 +84,12 @@ static void removeSourceListAttributes(const HTMLElement& listToReplace, HTMLEle
     list.removeInlineStyleProperty(CSSPropertyListStyleType);
 
     Ref classList = list.classList();
-    bool sourceHasClassNameForSmartList = classList->contains("Apple-decimal-list"_s) || classList->contains("Apple-disc-list"_s) || classList->contains("Apple-dash-list"_s);
+    bool sourceHasClassNameForSmartList = classList->contains(AppleDecimalListClass) || classList->contains(AppleDiscListClass) || classList->contains(AppleDashListClass);
 
     if (sourceHasClassNameForSmartList) {
-        FixedVector<AtomString> classNamesToRemove { "Apple-dash-list"_s, (convertToUnorderedList ? "Apple-decimal-list"_s : "Apple-disc-list"_s) };
+        FixedVector<AtomString> classNamesToRemove { AppleDashListClass, (convertToUnorderedList ? AppleDecimalListClass : AppleDiscListClass) };
         classList->remove(classNamesToRemove);
-        classList->add(convertToUnorderedList ? "Apple-disc-list"_s : "Apple-decimal-list"_s);
+        classList->add(convertToUnorderedList ? AppleDiscListClass : AppleDecimalListClass);
     }
 
     RefPtr existingInlineStyle = listToReplace.inlineStyle();
