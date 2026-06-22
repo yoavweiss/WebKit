@@ -1429,7 +1429,7 @@ void WebPage::allFrameTreeSyncDataChangedInAnotherProcess(FrameIdentifier frameI
         coreFrame->updateFrameTreeSyncData(WTF::move(data));
 }
 
-void WebPage::updateUserActivationTimestamps(const Vector<FrameIdentifier>& frameIDs, MonotonicTime activationTime)
+void WebPage::updateUserActivationState(const Vector<FrameIdentifier>& frameIDs, MonotonicTime activationTime)
 {
     for (auto frameID : frameIDs) {
         RefPtr webFrame = WebProcess::singleton().webFrame(frameID);
@@ -1439,7 +1439,7 @@ void WebPage::updateUserActivationTimestamps(const Vector<FrameIdentifier>& fram
         if (!localFrame)
             continue;
         if (RefPtr window = localFrame->window())
-            window->setLastActivationTimestamp(activationTime);
+            window->updateActivation(activationTime);
     }
 }
 

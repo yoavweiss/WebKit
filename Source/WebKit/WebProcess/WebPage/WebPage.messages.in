@@ -230,7 +230,7 @@ messages -> WebPage WantsAsyncDispatchMessage {
     FrameTreeSyncDataChangedInAnotherProcess(WebCore::FrameIdentifier frameID, struct WebCore::FrameTreeSyncSerializationData frameTreeSyncData)
     AllFrameTreeSyncDataChangedInAnotherProcess(WebCore::FrameIdentifier frameID, Ref<WebCore::FrameTreeSyncData> frameTreeSyncData)
 
-    UpdateUserActivationTimestamps(Vector<WebCore::FrameIdentifier> frameIDs, MonotonicTime activationTime)
+    UpdateUserActivationState(Vector<WebCore::FrameIdentifier> frameIDs, MonotonicTime activationTime)
     ConsumeUserActivations(Vector<WebCore::FrameIdentifier> frameIDs)
 
     GetPDFFirstPageSize(WebCore::FrameIdentifier frameID) -> (WebCore::FloatSize size)

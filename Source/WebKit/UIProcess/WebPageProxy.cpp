@@ -8745,7 +8745,7 @@ void WebPageProxy::didNotifyUserActivation(IPC::Connection& connection, FrameIde
     }
 
     for (auto& [process, frameIDs] : framesByProcess)
-        protect(process)->send(Messages::WebPage::UpdateUserActivationTimestamps(frameIDs, activationTime), webPageIDInProcess(process));
+        protect(process)->send(Messages::WebPage::UpdateUserActivationState(frameIDs, activationTime), webPageIDInProcess(process));
 }
 
 void WebPageProxy::didConsumeUserActivation(IPC::Connection& connection, FrameIdentifier sourceFrameID)
