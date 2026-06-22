@@ -170,8 +170,15 @@ void RenderLayerModelObject::styleDidChange(Style::Difference diff, const Style:
         gainedOrLostLayer = true;
         if (oldStyle && oldStyle->blendMode() != BlendMode::Normal)
             layer()->willRemoveChildWithBlendMode();
-        setHasTransformRelatedProperty(false); // All transform-related properties force layers, so we know we don't have one or the object doesn't support them.
-        setHasSVGTransform(false); // Same reason as for setHasTransformRelatedProperty().
+        // For CSS renderers every transform-related property forces a layer, so reaching the
+        // layer-removal branch means there is no transform and these flags can be cleared. Under
+        // LBSE a plain 2D SVG transform needs no layer, so an SVG renderer can lose its layer while
+        // still being transformed. updateFromStyle() above already set the correct flags for it, so
+        // leave them untouched here.
+        if (!isSVGLayerAwareRenderer()) {
+            setHasTransformRelatedProperty(false);
+            setHasSVGTransform(false);
+        }
         setHasReflection(false);
 
         // Repaint the about to be destroyed self-painting layer when style change also triggers repaint.
