@@ -680,7 +680,7 @@
 // eglCreateImageKHR: AHardwareBuffer format 23 does not support enough features to use as a texture.
 298037344 PIXEL4ORXL GLES : ImageTestES3.RGBAHBUploadDataColorspace/* = SKIP
 42264513 PIXEL4ORXL GLES : MipmapTest.DefineValidExtraLevelAndUseItLater/* = SKIP
-42264513 PIXEL4ORXL GLES : MipmapTest.GenerateMipmapAfterModifyingBaseLevel/* = SKIPå
+42264513 PIXEL4ORXL GLES : MipmapTest.GenerateMipmapAfterModifyingBaseLevel/* = SKIP
 42264513 PIXEL4ORXL GLES : MipmapTest.GenerateMipmapAfterSingleLevelDraw/* = SKIP
 42264513 PIXEL4ORXL GLES : MipmapTest.GenerateMipmapFromInitDataThenRender/* = SKIP
 42264513 PIXEL4ORXL GLES : MipmapTest.GenerateMipmapFromRenderedImage/* = SKIP
