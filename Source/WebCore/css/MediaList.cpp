@@ -148,10 +148,25 @@ void MediaList::appendMedium(const String& value)
     if (value.isEmpty())
         return;
 
-    auto newQuery = MQ::MediaQueryParser::parse(value, strictCSSParserContext());
+    // https://drafts.csswg.org/cssom/#dom-medialist-appendmedium
+    auto parsedQueries = MQ::MediaQueryParser::parse(value, strictCSSParserContext());
+    if (parsedQueries.size() != 1)
+        return;
+
+    StringBuilder builder;
+    MQ::serialize(builder, parsedQueries[0]);
+    auto newQueryText = builder.toString();
 
     auto queries = mediaQueries();
-    queries.appendVector(newQuery);
+    bool alreadyPresent = queries.containsIf([&](auto& query) {
+        StringBuilder existingQueryBuilder;
+        MQ::serialize(existingQueryBuilder, query);
+        return existingQueryBuilder.toString() == newQueryText;
+    });
+    if (alreadyPresent)
+        return;
+
+    queries.append(WTF::move(parsedQueries[0]));
     setMediaQueries(WTF::move(queries));
 }
 
