@@ -298,9 +298,10 @@ WI.ObjectTreePropertyTreeElement = class ObjectTreePropertyTreeElement extends W
         // For Native methods, the toString is poor. We try to provide good function parameter strings.
         if (isFunctionStringNativeCode(resolvedValue.description)) {
             // Native function on a prototype, likely "Foo.prototype.method".
-            if (this._prototypeName) {
-                if (WI.NativePrototypeFunctionParameters[this._prototypeName]) {
-                    var params = WI.NativePrototypeFunctionParameters[this._prototypeName][this._property.name];
+            let prototypeName = this._prototypeName || this._sanitizedPrototypeString(this._propertyPath.object);
+            if (prototypeName) {
+                if (WI.NativePrototypeFunctionParameters[prototypeName]) {
+                    let params = WI.NativePrototypeFunctionParameters[prototypeName][this._property.name];
                     return params ? "(" + params + ")" : "()";
                 }
             }
