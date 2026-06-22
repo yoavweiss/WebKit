@@ -26,9 +26,12 @@
 #include "config.h"
 #include "StructuredCloneTags.h"
 
+#include "CommonIdentifiers.h"
 #include "ErrorInstance.h"
 #include "ExceptionScope.h"
+#include "JSCJSValuePropertyInlines.h"
 #include "JSGlobalObject.h"
+#include "JSObjectInlines.h"
 #include "PropertyDescriptor.h"
 #include "ThrowScope.h"
 
