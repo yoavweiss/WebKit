@@ -3219,6 +3219,16 @@ void NetworkProcess::terminateIdleServiceWorkers(WebCore::ProcessIdentifier proc
     callback();
 }
 
+void NetworkProcess::setWebProcessSuspended(WebCore::ProcessIdentifier processIdentifier, bool isSuspended)
+{
+    RefPtr connection = webProcessConnection(processIdentifier);
+    if (!connection)
+        return;
+
+    if (CheckedPtr session = networkSession(connection->sessionID()))
+        session->storageManager().setWebProcessSuspended(processIdentifier, isSuspended);
+}
+
 Seconds NetworkProcess::randomClosedPortDelay()
 {
     // Random delay in the range [10ms, 110ms).

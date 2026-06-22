@@ -54,6 +54,12 @@ WebCore::IDBServer::IDBConnectionToClient* IDBStorageRegistry::ensureConnectionT
     return &addResult.iterator->value->connectionToClient();
 }
 
+WebCore::IDBServer::IDBConnectionToClient* IDBStorageRegistry::existingConnectionToClient(WebCore::IDBConnectionIdentifier identifier)
+{
+    auto* connectionToClient = m_connectionsToClient.get(identifier);
+    return connectionToClient ? &connectionToClient->connectionToClient() : nullptr;
+}
+
 void IDBStorageRegistry::removeConnectionToClient(IPC::Connection::UniqueID connection)
 {
     auto allConnectionsToClient = std::exchange(m_connectionsToClient, { });

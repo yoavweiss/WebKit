@@ -138,6 +138,7 @@ public:
     void suspend(CompletionHandler<void()>&&);
     bool isSuspended() const;
     void resume();
+    void setWebProcessSuspended(WebCore::ProcessIdentifier, bool isSuspended);
     void handleLowMemoryWarning();
     void syncLocalStorage(CompletionHandler<void()>&&);
     void fetchLocalStorage(CompletionHandler<void(std::optional<HashMap<WebCore::ClientOrigin, HashMap<String, String>>>&&)>&&);

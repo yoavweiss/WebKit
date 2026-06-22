@@ -216,6 +216,8 @@ messages -> NetworkProcess : AuxiliaryProcess WantsAsyncDispatchMessage {
 
     TerminateIdleServiceWorkers(WebCore::ProcessIdentifier processIdentifier) -> ()
 
+    SetWebProcessSuspended(WebCore::ProcessIdentifier processIdentifier, bool isSuspended)
+
     ResetQuota(PAL::SessionID sessionID) -> ()
     SetOriginQuotaRatioEnabledForTesting(PAL::SessionID sessionID, bool enabled) -> ();
 #if PLATFORM(IOS_FAMILY)

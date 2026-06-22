@@ -247,5 +247,15 @@ void UniqueIDBDatabaseConnection::deleteTransaction(UniqueIDBDatabaseTransaction
     m_transactionMap.remove(transactionIdentifier);
 }
 
+void UniqueIDBDatabaseConnection::deleteTransactionsAbortedForClientSuspension()
+{
+    // Transactions aborted on the server while this connection's client was suspended are kept
+    // in the map so the client can learn about the abort if it resumes; on connection close
+    // there is no client left to tell.
+    m_transactionMap.removeIf([](auto& entry) {
+        return entry.value->suspensionAbortResult().has_value();
+    });
+}
+
 } // namespace IDBServer
 } // namespace WebCore

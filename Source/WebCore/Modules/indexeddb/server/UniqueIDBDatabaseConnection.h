@@ -85,6 +85,7 @@ public:
     bool NODELETE connectionIsClosing() const;
 
     void deleteTransaction(UniqueIDBDatabaseTransaction&);
+    void deleteTransactionsAbortedForClientSuspension();
 
 private:
     UniqueIDBDatabaseConnection(UniqueIDBDatabase&, ServerOpenDBRequest&);
