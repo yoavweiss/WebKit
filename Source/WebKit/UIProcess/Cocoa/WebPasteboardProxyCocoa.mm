@@ -40,6 +40,7 @@
 #import "WebPreferences.h"
 #import "WebProcessMessages.h"
 #import "WebProcessProxy.h"
+#import "WriteWebArchiveToPasteBoardResult.h"
 #import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 #import <WebCore/Color.h>
 #import <WebCore/DataOwnerType.h>
@@ -856,6 +857,44 @@ void WebPasteboardProxy::containsStringSafeForDOMToReadForType(IPC::Connection& 
     });
 }
 
+// Only allow exploring frames that descend from the provided root frame.
+static bool validateFrameIdentifiers(FrameIdentifier rootFrameIdentifier, const HashMap<FrameIdentifier, Ref<WebCore::LegacyWebArchive>>& localFrameArchives, const Vector<FrameIdentifier>& remoteFrameIdentifiers)
+{
+    auto isInSubtree = [&](WebFrameProxy& frame) {
+        for (RefPtr ancestor = &frame; ancestor; ancestor = ancestor->parentFrame()) {
+            if (ancestor->frameID() == rootFrameIdentifier)
+                return true;
+        }
+        return false;
+    };
+
+    auto isAllowed = [&](FrameIdentifier identifier) {
+        if (identifier == rootFrameIdentifier)
+            return true;
+        RefPtr frame = WebFrameProxy::webFrame(identifier);
+        return !frame || isInSubtree(*frame);
+    };
+
+    for (auto& [frameIdentifier, archive] : localFrameArchives) {
+        if (!isAllowed(frameIdentifier))
+            return false;
+        Ref protectedArchive = archive;
+        if (auto archiveFrameIdentifier = protectedArchive->frameIdentifier(); archiveFrameIdentifier && !isAllowed(*archiveFrameIdentifier))
+            return false;
+        for (auto subframeIdentifier : protectedArchive->subframeIdentifiers()) {
+            if (!isAllowed(subframeIdentifier))
+                return false;
+        }
+    }
+
+    for (auto identifier : remoteFrameIdentifiers) {
+        if (!isAllowed(identifier))
+            return false;
+    }
+
+    return true;
+}
+
 #if PLATFORM(IOS_FAMILY)
 
 void WebPasteboardProxy::writeURLToPasteboard(IPC::Connection& connection, const PasteboardURL& url, const String& pasteboardName, std::optional<WebPageProxyIdentifier> pageID)
@@ -903,6 +942,8 @@ void WebPasteboardProxy::writeWebContentToPasteboard(IPC::Connection& connection
         writeWebContentToPasteboardInternal(connection, content, pasteboardName, pageID);
         return;
     }
+
+    MESSAGE_CHECK(validateFrameIdentifiers(*rootFrameIdentifier, content.localFrameArchives, content.remoteFrameIdentifiers), connection);
 
     Ref senderProcess = WebProcessProxy::fromConnection(connection);
     auto localFrameArchives = content.localFrameArchives;
@@ -1014,30 +1055,33 @@ std::optional<WebPasteboardProxy::PasteboardAccessType> WebPasteboardProxy::Past
     return processes[matchIndex].second;
 }
 
-void WebPasteboardProxy::writeWebArchiveToPasteBoard(IPC::Connection& connection, const String& pasteboardName, WebCore::FrameIdentifier rootFrameIdentifier, HashMap<FrameIdentifier, Ref<LegacyWebArchive>>&& localFrameArchives, const Vector<FrameIdentifier>& remoteFrameIdentifiers, CompletionHandler<void(int64_t)>&& completionHandler)
+void WebPasteboardProxy::writeWebArchiveToPasteBoard(IPC::Connection& connection, const String& pasteboardName, WebCore::FrameIdentifier rootFrameIdentifier, HashMap<FrameIdentifier, Ref<LegacyWebArchive>>&& localFrameArchives, const Vector<FrameIdentifier>& remoteFrameIdentifiers, CompletionHandler<void(WriteWebArchiveToPasteBoardResult, int64_t)>&& completionHandler)
 {
-    MESSAGE_CHECK_COMPLETION(!pasteboardName.isEmpty(), connection, completionHandler(0));
+    MESSAGE_CHECK_COMPLETION(!pasteboardName.isEmpty(), connection, completionHandler(WriteWebArchiveToPasteBoardResult::FailureOther, 0));
+    MESSAGE_CHECK_COMPLETION(validateFrameIdentifiers(rootFrameIdentifier, localFrameArchives, remoteFrameIdentifiers), connection, completionHandler(WriteWebArchiveToPasteBoardResult::FailureDueToInvalidFrameIdentifiers, 0));
 
     Ref senderProcess = WebProcessProxy::fromConnection(connection);
     RefPtr webFrame = WebFrameProxy::webFrame(rootFrameIdentifier);
     if (!webFrame)
-        return completionHandler(0);
+        return completionHandler(WriteWebArchiveToPasteBoardResult::FailureOther, 0);
 
     RefPtr webPage = webFrame->page();
     if (!webPage)
-        return completionHandler(0);
+        return completionHandler(WriteWebArchiveToPasteBoardResult::FailureOther, 0);
 
     createOneWebArchiveFromFrames(senderProcess.get(), rootFrameIdentifier, WTF::move(localFrameArchives), remoteFrameIdentifiers, [connection = Ref { connection }, pasteboardName, pageIdentifier = webPage->identifier(), completionHandler = WTF::move(completionHandler)](auto result) mutable {
         if (!result)
-            return completionHandler(0);
+            return completionHandler(WriteWebArchiveToPasteBoardResult::FailureOther, 0);
 
         RetainPtr data = result->rawDataRepresentation();
         if (!data)
-            return completionHandler(0);
+            return completionHandler(WriteWebArchiveToPasteBoardResult::FailureOther, 0);
 
         RefPtr buffer = SharedBuffer::create(data.get());
         WebPasteboardProxy::singleton().setPasteboardBufferForType(connection.get(), pasteboardName, String { WebCore::WebArchivePboardType }, RefPtr { buffer }, pageIdentifier, [connection, pasteboardName, pageIdentifier, buffer, completionHandler = WTF::move(completionHandler)](auto) mutable {
-            WebPasteboardProxy::singleton().setPasteboardBufferForType(connection.get(), pasteboardName, UTTypeWebArchive.identifier, WTF::move(buffer), pageIdentifier, WTF::move(completionHandler));
+            WebPasteboardProxy::singleton().setPasteboardBufferForType(connection.get(), pasteboardName, UTTypeWebArchive.identifier, WTF::move(buffer), pageIdentifier, [completionHandler = WTF::move(completionHandler)](int64_t changeCount) mutable {
+                completionHandler(WriteWebArchiveToPasteBoardResult::Success, changeCount);
+            });
         });
     });
 }

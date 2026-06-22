@@ -42,6 +42,7 @@
 #include "WebPasteboardProxyMessages.h"
 #include "WebProcess.h"
 #include "WebProcessProxyMessages.h"
+#include "WriteWebArchiveToPasteBoardResult.h"
 #include <WebCore/AudioDestination.h>
 #include <WebCore/Color.h>
 #include <WebCore/Document.h>
@@ -294,7 +295,7 @@ int64_t WebPlatformStrategies::writeWebArchive(WebCore::LegacyWebArchive& webArc
         collectFrameWebArchives(identifier, localFrameWebArchives, remoteFrameIdentifiers);
 
     auto sendResult = protect(WebProcess::singleton().parentProcessConnection())->sendSync(Messages::WebPasteboardProxy::WriteWebArchiveToPasteBoard(pasteboardName, *frameIdentifier, WTF::move(localFrameWebArchives), WTF::move(remoteFrameIdentifiers)), 0);
-    auto [newChangeCount] = sendResult.takeReplyOr(0);
+    auto [result, newChangeCount] = sendResult.takeReplyOr(WriteWebArchiveToPasteBoardResult::FailureOther, 0);
     return newChangeCount;
 }
 

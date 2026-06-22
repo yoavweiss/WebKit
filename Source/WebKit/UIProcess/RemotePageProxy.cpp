@@ -118,6 +118,11 @@ RemotePageProxy::RemotePageProxy(WebPageProxy& page, WebProcessProxy& process, c
         m_process->setRunningBoardThrottlingEnabled();
 #endif
 
+#if ENABLE(IPC_TESTING_API)
+    if (protectedPage->preferences().ipcTestingAPIEnabled() && protectedPage->preferences().ignoreInvalidMessageWhenIPCTestingAPIEnabled())
+        m_process->setIgnoreInvalidMessageForTesting();
+#endif
+
     m_process->addRemotePageProxy(*this);
 
     protectedPage->didCreateRemotePage(*this);

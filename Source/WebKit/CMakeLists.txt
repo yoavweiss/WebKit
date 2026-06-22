@@ -587,6 +587,7 @@ set(WebKit_SERIALIZATION_IN_FILES
     Shared/WebsitePoliciesData.serialization.in
     Shared/WebsitePopUpPolicy.serialization.in
     Shared/WebsitePushAndNotificationsEnabledPolicy.serialization.in
+    Shared/WriteWebArchiveToPasteBoardResult.serialization.in
 
     Shared/API/APIArray.serialization.in
     Shared/API/APIData.serialization.in
