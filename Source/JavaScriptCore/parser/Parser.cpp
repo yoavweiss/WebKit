@@ -408,9 +408,11 @@ template <class TreeBuilder> TreeSourceElements Parser<LexerType>::parseSourceEl
     TreeSourceElements sourceElements = context.createSourceElements();
     const Identifier* directive = nullptr;
     unsigned directiveLiteralLength = 0;
-    auto savePoint = createSavePoint(context);
+    std::optional<SavePoint> savePoint;
     bool shouldCheckForUseStrict = mode == CheckForStrictMode;
-    
+    if (shouldCheckForUseStrict)
+        savePoint.emplace(createSavePoint(context));
+
     while (TreeStatement statement = parseStatementListItem(context, directive, &directiveLiteralLength)) {
         if (shouldCheckForUseStrict) {
             if (directive) {
@@ -429,7 +431,7 @@ template <class TreeBuilder> TreeSourceElements Parser<LexerType>::parseSourceEl
                         semanticFailIfFalse(isValidStrictMode(), "Invalid parameters or function name in strict mode");
                     }
                     // Since strict mode is changed, restoring lexer state by calling next() may cause errors.
-                    restoreSavePoint(context, savePoint);
+                    restoreSavePoint(context, *savePoint);
                     propagateError();
                     continue;
                 }
@@ -4495,7 +4497,7 @@ template <class TreeBuilder> TreeExpression Parser<LexerType>::parseConditionalE
     JSTokenLocation location(tokenLocation());
     TreeExpression cond = parseBinaryExpression(context);
     failIfFalse(cond, "Cannot parse expression");
-    if (!match(QUESTION))
+    if (!match(QUESTION)) [[likely]]
         return cond;
     m_parserState.nonTrivialExpressionCount++;
     m_parserState.nonLHSCount++;
@@ -4562,7 +4564,7 @@ template <class TreeBuilder> TreeExpression Parser<LexerType>::parseBinaryExpres
 
         context.appendBinaryExpressionInfo(operandStackDepth, current, exprStart, lastTokenEndPosition(), lastTokenEndPosition(), initialAssignments != m_parserState.assignmentCount);
         int precedence = isBinaryOperator(m_token.m_type);
-        if (!precedence)
+        if (!precedence) [[likely]]
             break;
 
         // 12.6 https://tc39.github.io/ecma262/#sec-exp-operator
