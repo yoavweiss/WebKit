@@ -98,6 +98,12 @@ public:
         return m_vector[block->index];
     }
 
+    template<typename... Args>
+    void clear(Args&&... args)
+    {
+        m_vector.fill(T(std::forward<Args>(args)...), m_vector.size());
+    }
+
 private:
     Vector<T> m_vector;
 };

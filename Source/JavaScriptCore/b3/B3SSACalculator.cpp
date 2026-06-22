@@ -65,6 +65,32 @@ SSACalculator::SSACalculator(Procedure& proc)
 
 SSACalculator::~SSACalculator() = default;
 
+void SSACalculator::ensureDominanceFrontiers()
+{
+    if (m_dominanceFrontiersComputed)
+        return;
+    m_dominanceFrontiersComputed = true;
+
+    m_dominanceFrontiers = IndexMap<BasicBlock*, Vector<BasicBlock*>>(m_proc.size());
+
+    // "A Simple, Fast Dominance Algorithm", Cooper, Harvey, and Kennedy, 2001.
+    // https://www.cs.tufts.edu/~nr/cs257/archive/keith-cooper/dom14.pdf
+    for (BasicBlock* block : m_proc) {
+        if (block->numPredecessors() < 2)
+            continue;
+        BasicBlock* idom = m_dominators->idom(block);
+        for (BasicBlock* predecessor : block->predecessors()) {
+            BasicBlock* runner = predecessor;
+            while (runner && runner != idom) {
+                auto& frontier = m_dominanceFrontiers[runner];
+                if (frontier.isEmpty() || frontier.last() != block)
+                    frontier.append(block);
+                runner = m_dominators->idom(runner);
+            }
+        }
+    }
+}
+
 void SSACalculator::reset()
 {
     m_variables.clear();
@@ -74,6 +100,7 @@ void SSACalculator::reset()
         m_data[blockIndex].m_defs.clear();
         m_data[blockIndex].m_phis.clear();
     }
+    m_dominanceFrontiersComputed = false;
 }
 
 SSACalculator::Variable* SSACalculator::newVariable()
@@ -102,7 +129,7 @@ SSACalculator::Def* SSACalculator::reachingDefAtTail(BasicBlock* startingBlock, 
     for (BasicBlock* block = startingBlock; block; block = m_dominators->idom(block)) {
         if (Def* def = m_data[block].m_defs.get(variable)) {
             for (BasicBlock* otherBlock = startingBlock; otherBlock != block; otherBlock = m_dominators->idom(otherBlock))
-                m_data[block].m_defs.add(variable, def);
+                m_data[otherBlock].m_defs.add(variable, def);
             return def;
         }
     }

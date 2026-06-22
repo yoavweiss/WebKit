@@ -111,21 +111,36 @@ public:
     void computePhis(const Functor& functor)
     {
         m_dominators = &m_proc.dominators();
-        for (Variable& variable : m_variables) {
-            m_dominators->forAllBlocksInPrunedIteratedDominanceFrontierOf(
-                variable.m_blocksWithDefs,
-                [&] (BasicBlock* block) -> bool {
-                    Value* phi = functor(&variable, block);
-                    if (!phi)
-                        return false;
+        ensureDominanceFrontiers();
 
-                    BlockData& data = m_data[block];
-                    Def* phiDef = m_phis.add(Def(&variable, block, phi));
+        // Iterated dominance frontier per variable, computed over the shared per-block
+        // dominance-frontier cache. The per-variable "visited" set is tracked with
+        // an epoch stamp so we don't allocate a fresh set for every variable.
+        Vector<BasicBlock*, 16> worklist;
+        IndexMap<BasicBlock*, unsigned> visited(m_proc.size(), 0);
+        for (SSACalculator::Variable& variable : m_variables) {
+            unsigned epoch = variable.index() + 1;
+            worklist.shrink(0);
+            worklist.appendVector(variable.m_blocksWithDefs);
+            while (!worklist.isEmpty()) {
+                BasicBlock* block = worklist.takeLast();
+                for (BasicBlock* to : m_dominanceFrontiers[block]) {
+                    if (visited[to] == epoch)
+                        continue;
+                    visited[to] = epoch;
+
+                    Value* phi = functor(&variable, to);
+                    if (!phi)
+                        continue;
+
+                    BlockData& data = m_data[to];
+                    Def* phiDef = m_phis.add(Def(&variable, to, phi));
                     data.m_phis.append(phiDef);
 
                     data.m_defs.add(&variable, phiDef);
-                    return true;
-                });
+                    worklist.append(to);
+                }
+            }
         }
     }
 
@@ -148,17 +163,22 @@ public:
     void dump(PrintStream&) const;
     
 private:
+    void ensureDominanceFrontiers();
+
     SegmentedVector<Variable> m_variables;
     Bag<Def> m_defs;
-    
+
     Bag<Def> m_phis;
-    
+
     struct BlockData {
         UncheckedKeyHashMap<Variable*, Def*> m_defs;
         Vector<Def*> m_phis;
     };
-    
+
     IndexMap<BasicBlock*, BlockData> m_data;
+
+    IndexMap<BasicBlock*, Vector<BasicBlock*>> m_dominanceFrontiers;
+    bool m_dominanceFrontiersComputed { false };
 
     Dominators* m_dominators { nullptr };
     Procedure& m_proc;

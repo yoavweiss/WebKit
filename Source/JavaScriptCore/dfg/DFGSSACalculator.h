@@ -29,6 +29,7 @@
 
 #include "DFGDominators.h"
 #include "DFGGraph.h"
+#include <wtf/IndexMap.h>
 
 namespace JSC { namespace DFG {
 
@@ -175,19 +176,34 @@ public:
     void computePhis(const Invocable<Node*(Variable*, BasicBlock*)> auto& functor)
     {
         DFG_ASSERT(m_graph, nullptr, m_graph.m_ssaDominators);
-        
+
+        ensureDominanceFrontiers();
+
+        // Iterated dominance frontier per variable, computed over the shared per-block
+        // dominance-frontier cache. The per-variable "visited" set is tracked with
+        // an epoch stamp so we don't allocate a fresh set for every variable.
+        Vector<BasicBlock*, 16> worklist;
+        BlockMap<unsigned> visited(m_graph);
+        visited.clear(0);
         for (Variable& variable : m_variables) {
-            m_graph.m_ssaDominators->forAllBlocksInPrunedIteratedDominanceFrontierOf(
-                variable.m_blocksWithDefs,
-                [&] (BasicBlock* block) -> bool {
-                    Node* phiNode = functor(&variable, block);
+            unsigned epoch = variable.index() + 1;
+            worklist.shrink(0);
+            worklist.appendVector(variable.m_blocksWithDefs);
+            while (!worklist.isEmpty()) {
+                BasicBlock* block = worklist.takeLast();
+                for (BasicBlock* to : m_dominanceFrontiers[block]) {
+                    if (visited[to] == epoch)
+                        continue;
+                    visited[to] = epoch;
+
+                    Node* phiNode = functor(&variable, to);
                     if (!phiNode)
-                        return false;
-                    
-                    BlockData& data = m_data[block];
-                    Def* phiDef = m_phis.add(Def(&variable, block, phiNode));
+                        continue;
+
+                    BlockData& data = m_data[to];
+                    Def* phiDef = m_phis.add(Def(&variable, to, phiNode));
                     data.m_phis.append(phiDef);
-                    
+
                     // Note that it's possible to have a block that looks like this before SSA
                     // conversion:
                     //
@@ -214,8 +230,9 @@ public:
                     // So, we rely on the fact that UncheckedKeyHashMap::add() does nothing if the key was
                     // already present.
                     data.m_defs.add(&variable, phiDef);
-                    return true;
-                });
+                    worklist.append(to);
+                }
+            }
         }
     }
     
@@ -238,18 +255,23 @@ public:
     void dump(PrintStream&) const;
     
 private:
+    void ensureDominanceFrontiers();
+
     SegmentedVector<Variable> m_variables;
     Bag<Def> m_defs;
-    
+
     Bag<Def> m_phis;
-    
+
     struct BlockData {
         UncheckedKeyHashMap<Variable*, Def*> m_defs;
         Vector<Def*> m_phis;
     };
-    
+
     BlockMap<BlockData> m_data;
-    
+
+    BlockMap<Vector<BasicBlock*>> m_dominanceFrontiers;
+    bool m_dominanceFrontiersComputed { false };
+
     Graph& m_graph;
 };
 
