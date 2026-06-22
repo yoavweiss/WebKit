@@ -41,9 +41,10 @@
 #include "RenderObjectInlines.h"
 #include "RenderView.h"
 #include "SVGElementInlines.h"
+#include "SVGElementTypeHelpers.h"
 #include "SVGGraphicsElement.h"
-#include "SVGNames.h"
 #include "SVGResourcesCache.h"
+#include "SVGUseElement.h"
 #include "ShadowRoot.h"
 #include <wtf/TZoneMallocInlines.h>
 
@@ -206,7 +207,7 @@ static bool NODELETE legacyIntersectsAllowingEmpty(const FloatRect& r, const Flo
 // image, line, path, polygon, polyline, rect, text and use.
 static bool NODELETE legacyIsGraphicsElement(const RenderElement& renderer)
 {
-    return renderer.isLegacyRenderSVGShape() || renderer.isRenderSVGText() || renderer.isLegacyRenderSVGImage() || renderer.element()->hasTagName(SVGNames::useTag);
+    return renderer.isLegacyRenderSVGShape() || renderer.isRenderSVGText() || renderer.isLegacyRenderSVGImage() || is<SVGUseElement>(renderer.element());
 }
 
 // The SVG addFocusRingRects() method adds rects in local coordinates so the default absoluteFocusRingQuads
