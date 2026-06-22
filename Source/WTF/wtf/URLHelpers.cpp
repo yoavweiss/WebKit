@@ -166,7 +166,11 @@ template<typename CharacterType> inline bool NODELETE isASCIIDigitOrValidHostCha
 template <UScriptCode ScriptType>
 bool isLookalikeSequence(const std::optional<char32_t>& previousCodePoint, char32_t codePoint)
 {
-    if (!previousCodePoint || *previousCodePoint == '/')
+    if (!previousCodePoint
+        || codePoint == '/' || *previousCodePoint == '/'
+        || codePoint == ':' // Only digits should be after a colon when used as a URL separator before a port, so no check for previousCodePoint here.
+        || codePoint == '?' || *previousCodePoint == '?'
+        || codePoint == '#' || *previousCodePoint == '#')
         return false;
 
     auto isLookalikePair = [] (char16_t first, char16_t second) {
