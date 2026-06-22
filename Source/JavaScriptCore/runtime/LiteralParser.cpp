@@ -1477,8 +1477,15 @@ JSValue LiteralParser<CharType, reviverMode>::parseRecursively(VM& vm, uint8_t* 
             // After parseRecursively, user code may have run (e.g. due to a __proto__ setter in a
             // nested object), which may have changed the structure of the object. This invalidates
             // any cached transition, so reset it to Identifier to take the slow path.
-            if (object->structure() != originalStructure && std::holds_alternative<ExistingProperty>(property)) [[unlikely]]
-                property = Identifier::fromUid(vm, std::get<ExistingProperty>(property).structure->transitionPropertyName());
+            if constexpr (parserMode != StrictJSON) {
+                if (object->structure() != originalStructure && std::holds_alternative<ExistingProperty>(property)) [[unlikely]]
+                    property = Identifier::fromUid(vm, std::get<ExistingProperty>(property).structure->transitionPropertyName());
+            } else {
+                // StrictJSON can skip this entirely! There is no replacer/reviver and __proto__ setters in
+                // a strict JSON value cannot run user code, so the parent object's structure is guaranteed not to have
+                // transitioned during the recursive parse of `value`.
+                ASSERT(object->structure() == originalStructure);
+            }
 
             // When creating JSON object in this fast path, we know the following.
             //   1. The object is definitely JSFinalObject.
