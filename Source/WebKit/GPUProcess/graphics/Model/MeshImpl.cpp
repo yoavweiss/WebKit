@@ -90,11 +90,6 @@ void MeshImpl::setFOV(float fovY)
     m_backing->setFOV(fovY);
 }
 
-void MeshImpl::setBackgroundColor(const WebModel::Float3& color)
-{
-    m_backing->setBackgroundColor(color);
-}
-
 void MeshImpl::play(bool play)
 {
     m_backing->play(play);

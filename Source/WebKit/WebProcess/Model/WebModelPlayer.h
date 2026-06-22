@@ -160,7 +160,6 @@ private:
     uint32_t m_displayTextureIndex { 0 };
     bool m_hasRenderedFrame { false };
     WebCore::StageModeOperation m_stageMode { WebCore::StageModeOperation::None };
-    std::optional<WebCore::Color> m_backgroundColor;
     WebCore::IntSize m_currentPixelSize;
     bool m_didFinishLoading { false };
     enum class PauseState {

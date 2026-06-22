@@ -69,21 +69,19 @@ namespace WebKit {
 
 class ModelDisplayBufferDisplayDelegate final : public WebCore::GraphicsLayerContentsDisplayDelegate {
 public:
-    static Ref<ModelDisplayBufferDisplayDelegate> create(WebModelPlayer& modelPlayer, bool isOpaque = false, float contentsScale = 1)
+    static Ref<ModelDisplayBufferDisplayDelegate> create(WebModelPlayer& modelPlayer, float contentsScale = 1)
     {
-        return adoptRef(*new ModelDisplayBufferDisplayDelegate(modelPlayer, isOpaque, contentsScale));
+        return adoptRef(*new ModelDisplayBufferDisplayDelegate(modelPlayer, contentsScale));
     }
     // GraphicsLayerContentsDisplayDelegate overrides.
     void prepareToDelegateDisplay(WebCore::PlatformCALayer& layer) final
     {
-        layer.setOpaque(m_isOpaque);
+        layer.setOpaque(false);
         layer.setContentsScale(m_contentsScale);
         layer.setContentsFormat(m_contentsFormat);
     }
     void display(WebCore::PlatformCALayer& layer) final
     {
-        if (layer.isOpaque() != m_isOpaque)
-            layer.setOpaque(m_isOpaque);
         if (m_displayBuffer) {
             layer.setContentsFormat(m_contentsFormat);
             layer.setDelegatedContents({ MachSendRight { m_displayBuffer }, { }, std::nullopt });
@@ -112,23 +110,16 @@ public:
     void setContentsFormat(WebCore::ContentsFormat contentsFormat)
     {
         m_contentsFormat = contentsFormat;
-        setOpaque(m_contentsFormat == WebCore::ContentsFormat::RGBA16F);
-    }
-    void setOpaque(bool opaque)
-    {
-        m_isOpaque = opaque;
     }
 private:
-    ModelDisplayBufferDisplayDelegate(WebModelPlayer& modelPlayer, bool isOpaque, float contentsScale)
+    ModelDisplayBufferDisplayDelegate(WebModelPlayer& modelPlayer, float contentsScale)
         : m_modelPlayer(modelPlayer)
         , m_contentsScale(contentsScale)
-        , m_isOpaque(isOpaque)
     {
     }
     ThreadSafeWeakPtr<WebModelPlayer> m_modelPlayer;
     WTF::MachSendRight m_displayBuffer;
     const float m_contentsScale;
-    bool m_isOpaque;
 #if ENABLE(PIXEL_FORMAT_RGBA16F)
     WebCore::ContentsFormat m_contentsFormat { WebCore::ContentsFormat::RGBA16F };
 #else
@@ -499,16 +490,6 @@ void WebModelPlayer::configureGraphicsLayer(WebCore::GraphicsLayer& graphicsLaye
 {
     m_graphicsLayer = graphicsLayer;
     graphicsLayer.setContentsDisplayDelegate(contentsDisplayDelegate(), WebCore::GraphicsLayer::ContentsLayerPurpose::Canvas);
-    if (RefPtr currentModel = m_currentModel) {
-        auto backgroundColor = configuration.backgroundColor;
-        if (backgroundColor.isValid() && m_backgroundColor != backgroundColor) {
-            m_backgroundColor = backgroundColor;
-            auto opaqueColor = backgroundColor.opaqueColor();
-            auto [r, g, b, _a] = opaqueColor.toResolvedColorComponentsInColorSpace(WebCore::ColorSpace::LinearSRGB);
-            currentModel->setBackgroundColor(simd_make_float3(r, g, b));
-            startUpdateLoopIfNeeded();
-        }
-    }
 }
 
 const MachSendRight* WebModelPlayer::displayBuffer() const
@@ -865,7 +846,6 @@ void WebModelPlayer::visibilityStateDidChange()
         m_modelLoader = nil;
         m_displayBuffers.clear();
         m_environmentMap = std::nullopt;
-        m_backgroundColor = std::nullopt;
         m_isUpdateLoopRunning = false;
         m_isUpdateScheduled = false;
         m_isUpdating = false;

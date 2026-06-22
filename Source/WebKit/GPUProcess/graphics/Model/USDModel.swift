@@ -1079,10 +1079,6 @@ extension WKBridgeReceiver {
         appRenderer.setFOV(fovY)
     }
 
-    func setBackgroundColor(_ color: simd_float3) {
-        appRenderer.setBackgroundColor(color)
-    }
-
     func setPlaying(_ play: Bool) {
     }
 
@@ -2864,9 +2860,6 @@ extension WKBridgeReceiver {
     }
 
     func setFOV(_ fovY: Float) {
-    }
-
-    func setBackgroundColor(_ color: simd_float3) {
     }
 
     func setPlaying(_ play: Bool) {

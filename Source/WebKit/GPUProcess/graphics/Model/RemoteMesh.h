@@ -96,7 +96,6 @@ private:
     void updateMaterial(Vector<WebModel::UpdateMaterialDescriptor>&&, CompletionHandler<void(bool)>&&);
     void updateTransform(const WebModel::Float4x4& transform);
     void setFOV(float fovY);
-    void setBackgroundColor(const WebModel::Float3&);
     void play(bool);
     void setEnvironmentMap(WebModel::UpdateTextureDescriptor&&);
     void updateContentsHeadroom(float);

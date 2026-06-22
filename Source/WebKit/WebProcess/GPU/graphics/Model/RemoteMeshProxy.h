@@ -114,7 +114,6 @@ private:
 #endif
     void setScale(float) final;
     void setFOV(float);
-    void setBackgroundColor(const WebModel::Float3&) final;
     void setViewportSize(float, float) final;
     void setStageMode(WebCore::StageModeOperation) final;
     void processRemovals(Vector<WebModel::TypedResourceId>&& meshRemovals, Vector<WebModel::TypedResourceId>&& materialRemovals, Vector<WebModel::TypedResourceId>&& textureRemovals, CompletionHandler<void(bool)>&&) final;

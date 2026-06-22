@@ -76,7 +76,6 @@ private:
     std::optional<WebModel::Float4x4> entityTransform() const final;
 #endif
     void setFOV(float) final;
-    void setBackgroundColor(const WebModel::Float3&) final;
     void play(bool) final;
     void setEnvironmentMap(WebModel::UpdateTextureDescriptor&&) final;
     void updateContentsHeadroom(float) final;

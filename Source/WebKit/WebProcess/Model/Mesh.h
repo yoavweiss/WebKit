@@ -82,7 +82,6 @@ public:
     virtual void setEntityTransform(const WebModel::Float4x4&) = 0;
     virtual void setScale(float) { }
     virtual void setFOV(float) { }
-    virtual void setBackgroundColor(const WebModel::Float3&) { }
     virtual void setViewportSize(float, float) { }
     virtual void setStageMode(WebCore::StageModeOperation) { }
     virtual void setRotation(float, float = 0.f, float = 0.f) { }

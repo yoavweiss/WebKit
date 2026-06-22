@@ -118,11 +118,6 @@ void RemoteMesh::setFOV(float fovY)
     m_backing->setFOV(fovY);
 }
 
-void RemoteMesh::setBackgroundColor(const WebModel::Float3& color)
-{
-    m_backing->setBackgroundColor(color);
-}
-
 void RemoteMesh::play(bool playing)
 {
     m_backing->play(playing);

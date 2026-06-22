@@ -305,16 +305,6 @@ void RemoteMeshProxy::setFOV(float fovY)
 #endif
 }
 
-void RemoteMeshProxy::setBackgroundColor(const WebModel::Float3& color)
-{
-#if ENABLE(GPU_PROCESS_MODEL)
-    auto sendResult = send(Messages::RemoteMesh::SetBackgroundColor(color));
-    UNUSED_PARAM(sendResult);
-#else
-    UNUSED_PARAM(color);
-#endif
-}
-
 bool RemoteMeshProxy::supportsTransform(const WebCore::TransformationMatrix& transformationMatrix)
 {
 #if ENABLE(GPU_PROCESS_MODEL)

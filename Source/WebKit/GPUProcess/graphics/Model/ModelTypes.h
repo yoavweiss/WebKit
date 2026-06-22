@@ -504,7 +504,6 @@ NS_SWIFT_SENDABLE
 - (BOOL)processRemovals:(NSArray<WKBridgeTypedResourceId *> *)meshRemovals materialRemovals:(NSArray<WKBridgeTypedResourceId *> *)materialRemovals  textureRemovals:(NSArray<WKBridgeTypedResourceId *> *)textureRemovals;
 - (void)setTransform:(simd_float4x4)transform;
 - (void)setFOV:(float)fovY;
-- (void)setBackgroundColor:(simd_float3)color;
 - (void)setPlaying:(BOOL)play;
 - (void)setEnvironmentMap:(WKBridgeUpdateTexture *)imageAsset;
 
