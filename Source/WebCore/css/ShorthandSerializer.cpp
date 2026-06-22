@@ -1556,7 +1556,7 @@ String ShorthandSerializer::serializeSingleAnimationRange(const CSSValue& value,
     if (RefPtr pair = dynamicDowncast<CSSValuePair>(value)) {
         bool isSameNameAsStart = isValueID(pair->first(), startValueID);
         bool isStartValue = type == Style::SingleAnimationRangeType::Start;
-        bool isDefaultValue = isDefault(dynamicDowncast<CSSPrimitiveValue>(pair->second()), Style::SingleAnimationRangeType::Start);
+        bool isDefaultValue = isDefault(dynamicDowncast<CSSPrimitiveValue>(pair->second()), type);
         if (isDefaultValue && (isStartValue || !isSameNameAsStart))
             return nameLiteral(valueID(pair->first()));
         return pair->cssText(m_serializationContext);
