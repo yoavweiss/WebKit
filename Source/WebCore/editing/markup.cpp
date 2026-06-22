@@ -200,7 +200,7 @@ void removeSubresourceURLAttributes(Ref<DocumentFragment>&& fragment, Function<b
         element->removeAttribute(attribute);
 }
 
-Ref<Page> createPageForSanitizingWebContent(Document* destinationDocument)
+Ref<Page> createPageForSanitizingWebContent(Document* destinationDocument, std::optional<PageConfiguration>&& overrideConfiguration)
 {
     bool useDarkAppearance = false;
     bool useElevatedUserInterfaceLevel = false;
@@ -223,9 +223,9 @@ Ref<Page> createPageForSanitizingWebContent(Document* destinationDocument)
         }
     }
 
-    auto pageConfiguration = pageConfigurationWithEmptyClients(std::nullopt, PAL::SessionID::defaultSessionID());
-    
-    Ref page = Page::create(WTF::move(pageConfiguration));
+    Ref page = Page::create(*WTF::move(overrideConfiguration).or_else([] {
+        return std::make_optional(pageConfigurationWithEmptyClients(std::nullopt, PAL::SessionID::defaultSessionID()));
+    }));
     page->setUseColorAppearance(useDarkAppearance, useElevatedUserInterfaceLevel);
 #if ENABLE(VIDEO)
     page->settings().setMediaEnabled(false);

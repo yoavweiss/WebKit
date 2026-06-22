@@ -7283,11 +7283,11 @@ static RetainPtr<_WKTextExtractionResult> createEmptyTextExtractionResult()
 
         if (filterUsingRules) {
 #if ENABLE(TEXT_EXTRACTION_FILTER)
-            filterCallbacks.append([page = strongSelf->_page](auto& text, auto&&, auto&& enclosingNodeID) mutable {
+            filterCallbacks.append([page = strongSelf->_page](auto& text, auto&&, auto&&) mutable {
                 WebKit::TextExtractionFilterPromise::Producer producer;
                 Ref promise = producer.promise();
 
-                page->applyTextExtractionFilter(text, WTF::move(enclosingNodeID), [producer = WTF::move(producer)](auto&& output) mutable {
+                page->applyTextExtractionFilter(text, [producer = WTF::move(producer)](auto&& output) mutable {
                     producer.settle(WTF::move(output));
                 });
 
@@ -7667,7 +7667,7 @@ static NSString *nameForAction(_WKTextExtractionAction action)
             WebKit::TextExtractionFilterPromise::Producer producer;
 
             Ref promise = producer.promise();
-            page->applyTextExtractionFilter(text, std::nullopt, [producer = WTF::move(producer)](auto&& output) mutable {
+            page->applyTextExtractionFilter(text, [producer = WTF::move(producer)](auto&& output) mutable {
                 producer.settle(WTF::move(output));
             });
 

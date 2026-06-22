@@ -2170,6 +2170,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     page/scrolling/ThreadedScrollingTree.h
     page/scrolling/ThreadedScrollingTreeScrollingNodeDelegate.h
     page/text-extraction/TextExtraction.h
+    page/text-extraction/TextExtractionScriptFiltering.h
     page/text-extraction/TextExtractionTypes.h
     page/writing-tools/WritingToolsTypes.h
 

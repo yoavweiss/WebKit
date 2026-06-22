@@ -2378,6 +2378,7 @@ page/scrolling/ThreadedScrollingCoordinator.cpp
 page/scrolling/ThreadedScrollingTree.cpp
 page/scrolling/ThreadedScrollingTreeScrollingNodeDelegate.cpp
 page/text-extraction/TextExtraction.cpp @header:RenderStyleGetters @cost:12
+page/text-extraction/TextExtractionScriptFiltering.cpp @header:RenderStyleGetters
 page/text-extraction/TextExtractionTypes.cpp
 platform/AudioDecoder.cpp
 platform/AudioEncoder.cpp
