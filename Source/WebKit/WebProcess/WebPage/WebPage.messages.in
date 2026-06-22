@@ -150,8 +150,6 @@ messages -> WebPage WantsAsyncDispatchMessage {
     GetRectsForGranularityWithSelectionOffset(enum:uint8_t WebCore::TextGranularity granularity, int32_t offset) -> (Vector<WebCore::SelectionGeometry> rect)
     GetRectsAtSelectionOffsetWithText(int32_t offset, String text) -> (Vector<WebCore::SelectionGeometry> rect)
     StoreSelectionForAccessibility(bool shouldStore)
-    StartAutoscrollAtPosition(WebCore::FloatPoint positionInWindow)
-    CancelAutoscroll()
     RequestFocusedElementInformation() -> (struct std::optional<WebKit::FocusedElementInformation> info)
     HardwareKeyboardAvailabilityChanged(struct WebKit::HardwareKeyboardState state)
     SetIsShowingInputViewForFocusedElement(bool showingInputView)
@@ -162,6 +160,11 @@ messages -> WebPage WantsAsyncDispatchMessage {
     TextInputContextsInRect(WebCore::FloatRect rect) -> (Vector<WebCore::ElementContext> contexts)
     FocusTextInputContextAndPlaceCaret(struct WebCore::ElementContext context, WebCore::IntPoint point) -> (bool success)
     ClearServiceWorkerEntitlementOverride() -> ()
+#endif
+
+#if PLATFORM(COCOA)
+    StartAutoscrollAtPosition(WebCore::FloatPoint positionInWindow)
+    CancelAutoscroll()
 #endif
 
     ProcessWillSuspend()

@@ -2139,6 +2139,18 @@ void WebPageProxy::updateSelectionWithExtentPointAndBoundary(WebCore::IntPoint p
     protect(legacyMainFrameProcess())->sendWithAsyncReply(Messages::WebPage::UpdateSelectionWithExtentPointAndBoundary(point, granularity, isInteractingWithFocusedElement, source), WTF::move(callback), webPageIDInMainFrameProcess());
 }
 
+void WebPageProxy::startAutoscrollAtPosition(const WebCore::FloatPoint& positionInWindow)
+{
+    m_isAutoscrolling = true;
+    protect(m_legacyMainFrameProcess)->send(Messages::WebPage::StartAutoscrollAtPosition(positionInWindow), webPageIDInMainFrameProcess());
+}
+
+void WebPageProxy::cancelAutoscroll()
+{
+    m_isAutoscrolling = false;
+    protect(m_legacyMainFrameProcess)->send(Messages::WebPage::CancelAutoscroll(), webPageIDInMainFrameProcess());
+}
+
 #if ENABLE(TWO_PHASE_CLICKS)
 
 void WebPageProxy::potentialTapAtPosition(std::optional<WebCore::FrameIdentifier> remoteFrameID, const WebCore::FloatPoint& position, bool shouldRequestMagnificationInformation, WebKit::TapIdentifier requestID, WebEventInputSource inputSource)

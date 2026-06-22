@@ -1872,38 +1872,6 @@ void WebPage::moveSelectionByOffset(int32_t offset, CompletionHandler<void()>&& 
         protect(frame->selection())->setSelectedRange(makeSimpleRange(position), position.affinity(), WebCore::FrameSelection::ShouldCloseTyping::Yes, UserTriggered::Yes);
     completionHandler();
 }
-    
-void WebPage::startAutoscrollAtPosition(const WebCore::FloatPoint& positionInWindow)
-{
-    RefPtr frame = m_page->focusController().focusedOrMainFrame();
-    if (!frame)
-        return;
-
-    if (m_focusedElement && m_focusedElement->renderer()) {
-        frame->eventHandler().startSelectionAutoscroll(protect(m_focusedElement->renderer()), positionInWindow);
-        return;
-    }
-
-    auto& selection = frame->selection().selection();
-    if (!selection.isRange())
-        return;
-
-    auto range = selection.toNormalizedRange();
-    if (!range)
-        return;
-
-    CheckedPtr renderer = range->start.container->renderer();
-    if (!renderer)
-        return;
-
-    frame->eventHandler().startSelectionAutoscroll(renderer, positionInWindow);
-}
-    
-void WebPage::cancelAutoscroll()
-{
-    if (RefPtr frame = m_page->focusController().focusedOrMainFrame())
-        frame->eventHandler().cancelSelectionAutoscroll();
-}
 
 void WebPage::requestEvasionRectsAboveSelection(CompletionHandler<void(const Vector<FloatRect>&)>&& reply)
 {

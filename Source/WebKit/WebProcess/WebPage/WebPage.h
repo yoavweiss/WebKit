@@ -1212,8 +1212,6 @@ public:
     void getRectsForGranularityWithSelectionOffset(WebCore::TextGranularity, int32_t, CompletionHandler<void(const Vector<WebCore::SelectionGeometry>&)>&&);
     void getRectsAtSelectionOffsetWithText(int32_t, const String&, CompletionHandler<void(const Vector<WebCore::SelectionGeometry>&)>&&);
     void storeSelectionForAccessibility(bool);
-    void startAutoscrollAtPosition(const WebCore::FloatPoint&);
-    void cancelAutoscroll();
     void requestEvasionRectsAboveSelection(CompletionHandler<void(const Vector<WebCore::FloatRect>&)>&&);
 
     void contentSizeCategoryDidChange(const String&);
@@ -1236,6 +1234,11 @@ public:
     void requestDocumentEditingContext(WebKit::DocumentEditingContextRequest&&, CompletionHandler<void(WebKit::DocumentEditingContext&&)>&&);
     bool shouldDrawVisuallyContiguousBidiSelection() const;
 #endif // PLATFORM(IOS_FAMILY)
+
+#if PLATFORM(COCOA)
+    void startAutoscrollAtPosition(const WebCore::FloatPoint&);
+    void cancelAutoscroll();
+#endif
 
     void willChangeSelectionForAccessibility() { m_isChangingSelectionForAccessibility = true; }
     void didChangeSelectionForAccessibility() { m_isChangingSelectionForAccessibility = false; }

@@ -3475,7 +3475,7 @@ IntPoint EventHandler::targetPositionInWindowForSelectionAutoscroll() const
     
 #endif // !PLATFORM(MAC)
     
-#if !PLATFORM(IOS_FAMILY)
+#if !PLATFORM(COCOA)
     
 bool EventHandler::shouldUpdateAutoscroll()
 {

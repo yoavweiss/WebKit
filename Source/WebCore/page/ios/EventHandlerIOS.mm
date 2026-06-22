@@ -582,39 +582,13 @@ PlatformMouseEvent EventHandler::currentPlatformMouseEvent() const
 {
     return PlatformEventFactory::createPlatformMouseEvent(currentEvent());
 }
-    
-void EventHandler::startSelectionAutoscroll(RenderObject* renderer, const FloatPoint& positionInWindow)
-{
-    Ref frame = m_frame.get();
-    RefPtr frameView = frame->view();
-    if (!frameView)
-        return;
-
-    m_targetAutoscrollPositionInRootView = roundedIntPoint(positionInWindow);
-    m_targetAutoscrollPositionInUnscrolledRootView = m_targetAutoscrollPositionInRootView - toIntSize(frameView->documentScrollPositionRelativeToViewOrigin());
-
-    if (!m_isAutoscrolling)
-        m_initialAutoscrollPositionInUnscrolledRootView = m_targetAutoscrollPositionInUnscrolledRootView;
-
-    m_isAutoscrolling = true;
-    m_autoscrollController->startAutoscrollForSelection(renderer);
-}
-
-void EventHandler::cancelSelectionAutoscroll()
-{
-    m_isAutoscrolling = false;
-    m_initialAutoscrollPositionInUnscrolledRootView = std::nullopt;
-    m_targetAutoscrollPositionInRootView = { };
-    m_targetAutoscrollPositionInUnscrolledRootView = { };
-    m_autoscrollController->stopAutoscrollTimer();
-}
 
 static IntPoint adjustAutoscrollDestinationForInsetEdges(IntPoint autoscrollPoint, std::optional<IntPoint> initialAutoscrollPoint, FloatRect unobscuredRootViewRect, float zoomScale)
 {
     IntPoint resultPoint = autoscrollPoint;
 
-    const float edgeInset = 100 / zoomScale;
-    const float maximumScrollingSpeed = 40 / zoomScale;
+    const float edgeInset = AutoscrollController::selectionAutoscrollEdgeDistance / zoomScale;
+    const float maximumScrollingSpeed = AutoscrollController::selectionAutoscrollMaximumSpeed / zoomScale;
     const float insetDistanceThreshold = edgeInset / 2;
 
     // FIXME: Ideally we would only inset on edges that touch the edge of the screen,
@@ -645,21 +619,21 @@ static IntPoint adjustAutoscrollDestinationForInsetEdges(IntPoint autoscrollPoin
     if (autoscrollPoint.x() < insetUnobscuredRootViewRect.x()) {
         float distanceFromEdge = autoscrollPoint.x() - insetUnobscuredRootViewRect.x();
         if (distanceFromEdge < 0)
-            resultPoint.setX(unobscuredRootViewRect.x() + ((distanceFromEdge / edgeInset) * maximumScrollingSpeed));
+            resultPoint.setX(unobscuredRootViewRect.x() + AutoscrollController::rampedSelectionAutoscrollDistance(distanceFromEdge, edgeInset, maximumScrollingSpeed));
     } else if (autoscrollPoint.x() >= insetUnobscuredRootViewRect.maxX()) {
         float distanceFromEdge = autoscrollPoint.x() - insetUnobscuredRootViewRect.maxX();
         if (distanceFromEdge > 0)
-            resultPoint.setX(unobscuredRootViewRect.maxX() + ((distanceFromEdge / edgeInset) * maximumScrollingSpeed));
+            resultPoint.setX(unobscuredRootViewRect.maxX() + AutoscrollController::rampedSelectionAutoscrollDistance(distanceFromEdge, edgeInset, maximumScrollingSpeed));
     }
 
     if (autoscrollPoint.y() < insetUnobscuredRootViewRect.y()) {
         float distanceFromEdge = autoscrollPoint.y() - insetUnobscuredRootViewRect.y();
         if (distanceFromEdge < 0)
-            resultPoint.setY(unobscuredRootViewRect.y() + ((distanceFromEdge / edgeInset) * maximumScrollingSpeed));
+            resultPoint.setY(unobscuredRootViewRect.y() + AutoscrollController::rampedSelectionAutoscrollDistance(distanceFromEdge, edgeInset, maximumScrollingSpeed));
     } else if (autoscrollPoint.y() >= insetUnobscuredRootViewRect.maxY()) {
         float distanceFromEdge = autoscrollPoint.y() - insetUnobscuredRootViewRect.maxY();
         if (distanceFromEdge > 0)
-            resultPoint.setY(unobscuredRootViewRect.maxY() + ((distanceFromEdge / edgeInset) * maximumScrollingSpeed));
+            resultPoint.setY(unobscuredRootViewRect.maxY() + AutoscrollController::rampedSelectionAutoscrollDistance(distanceFromEdge, edgeInset, maximumScrollingSpeed));
     }
 
     return resultPoint;
@@ -689,11 +663,6 @@ IntPoint EventHandler::targetPositionInWindowForSelectionAutoscroll() const
     unobscuredContentRectInUnscrolledRootView.move(-scrollPosition);
 
     return adjustAutoscrollDestinationForInsetEdges(m_targetAutoscrollPositionInUnscrolledRootView, m_initialAutoscrollPositionInUnscrolledRootView, unobscuredContentRectInUnscrolledRootView, page->pageScaleFactor()) + scrollPosition;
-}
-
-bool EventHandler::shouldUpdateAutoscroll()
-{
-    return m_isAutoscrolling;
 }
 
 #if ENABLE(MODEL_ELEMENT_STAGE_MODE_INTERACTION)

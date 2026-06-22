@@ -689,18 +689,6 @@ void WebPageProxy::storeSelectionForAccessibility(bool shouldStore)
     protect(m_legacyMainFrameProcess)->send(Messages::WebPage::StoreSelectionForAccessibility(shouldStore), webPageIDInMainFrameProcess());
 }
 
-void WebPageProxy::startAutoscrollAtPosition(const WebCore::FloatPoint& positionInWindow)
-{
-    m_isAutoscrolling = true;
-    protect(m_legacyMainFrameProcess)->send(Messages::WebPage::StartAutoscrollAtPosition(positionInWindow), webPageIDInMainFrameProcess());
-}
-
-void WebPageProxy::cancelAutoscroll()
-{
-    m_isAutoscrolling = false;
-    protect(m_legacyMainFrameProcess)->send(Messages::WebPage::CancelAutoscroll(), webPageIDInMainFrameProcess());
-}
-
 void WebPageProxy::moveSelectionByOffset(int32_t offset, CompletionHandler<void()>&& callbackFunction)
 {
     if (!hasRunningProcess()) {

@@ -67,6 +67,7 @@
 #import <WebCore/CSSKeywordValue.h>
 #import <WebCore/Chrome.h>
 #import <WebCore/ChromeClient.h>
+#import <WebCore/ContainerNodeInlines.h>
 #if ENABLE(CONTENT_CHANGE_OBSERVER)
 #import <WebCore/ContentChangeObserver.h>
 #endif
@@ -2862,6 +2863,38 @@ void WebPage::updateSelectionWithExtentPoint(WebCore::IntPoint point, bool isInt
 #else
     callback(true);
 #endif
+}
+
+void WebPage::startAutoscrollAtPosition(const WebCore::FloatPoint& positionInWindow)
+{
+    RefPtr frame = m_page->focusController().focusedOrMainFrame();
+    if (!frame)
+        return;
+
+    if (m_focusedElement && m_focusedElement->renderer()) {
+        frame->eventHandler().startSelectionAutoscroll(protect(m_focusedElement->renderer()), positionInWindow);
+        return;
+    }
+
+    auto& selection = frame->selection().selection();
+    if (!selection.isRange())
+        return;
+
+    auto range = selection.toNormalizedRange();
+    if (!range)
+        return;
+
+    CheckedPtr renderer = range->start.container->renderer();
+    if (!renderer)
+        return;
+
+    frame->eventHandler().startSelectionAutoscroll(renderer, positionInWindow);
+}
+
+void WebPage::cancelAutoscroll()
+{
+    if (RefPtr frame = m_page->focusController().focusedOrMainFrame())
+        frame->eventHandler().cancelSelectionAutoscroll();
 }
 
 void WebPage::selectTextWithGranularityAtPoint(WebCore::IntPoint point, WebCore::TextGranularity granularity, bool isInteractingWithFocusedElement, CompletionHandler<void()>&& completionHandler)

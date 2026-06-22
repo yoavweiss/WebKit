@@ -3284,7 +3284,7 @@ FloatRect UnifiedPDFPlugin::rectForSelectionInRootView(PDFSelection *selection) 
 void UnifiedPDFPlugin::beginAutoscroll()
 {
     if (!std::exchange(m_inActiveAutoscroll, true))
-        m_autoscrollTimer.startRepeating(WebCore::autoscrollInterval);
+        m_autoscrollTimer.startRepeating(WebCore::AutoscrollController::autoscrollInterval);
 }
 
 void UnifiedPDFPlugin::autoscrollTimerFired()

@@ -500,7 +500,7 @@ void FocusController::setFocusedFrame(Frame* frame, BroadcastFocusedFrame broadc
         } while (frame);
     }
 
-#if PLATFORM(IOS_FAMILY)
+#if PLATFORM(COCOA)
     if (oldFrame)
         oldFrame->eventHandler().cancelSelectionAutoscroll();
 #endif
