@@ -118,7 +118,6 @@
 #include "third_party/boringssl/src/pki/cert_errors.h"
 #include "third_party/boringssl/src/pki/parser.h"
 #include "third_party/boringssl/src/ssl/internal.h"
-#include "third_party/boringssl/src/tool/internal.h"
 #include "vpx/vpx_codec.h"
 
 #endif
