@@ -502,6 +502,26 @@ TEST(TextExtractionTests, TargetNodeWithSameOriginSubframe)
     EXPECT_TRUE([debugText containsString:@"subframe content"]);
 }
 
+TEST(TextExtractionTests, ExtractFromDocumentWithoutBody)
+{
+    RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 800, 600) configuration:^{
+        RetainPtr configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
+        [[configuration preferences] _setTextExtractionEnabled:YES];
+        return configuration.autorelease();
+    }()]);
+
+    RetainPtr request = adoptNS([[NSURLRequest alloc] initWithURL:adoptNS([[NSURL alloc] initWithString:@"data:application/xml,<root><item>hello%20world</item></root>"]).get()]);
+    [webView synchronouslyLoadRequest:request.get()];
+
+    RetainPtr debugText = [webView synchronouslyGetDebugText:^{
+        RetainPtr configuration = adoptNS([_WKTextExtractionConfiguration new]);
+        [configuration setFilterOptions:_WKTextExtractionFilterNone];
+        return configuration.autorelease();
+    }()];
+
+    EXPECT_NOT_NULL(debugText);
+}
+
 TEST(TextExtractionTests, ReplacementStrings)
 {
     RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 800, 600) configuration:^{
@@ -1869,7 +1889,7 @@ TEST(TextExtractionTests, RequestTextExtractionInSVGDocument)
     }];
     Util::run(&done);
 
-    EXPECT_NULL(resultItem);
+    EXPECT_NOT_NULL(resultItem);
 }
 
 #if PLATFORM(MAC)

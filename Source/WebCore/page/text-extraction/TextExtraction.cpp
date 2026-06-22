@@ -1419,15 +1419,21 @@ Result extractItem(Request&& request, LocalFrame& frame)
     if (!document)
         return { root, 0, { } };
 
-    RefPtr bodyElement = document->body();
-    if (!bodyElement)
+    RefPtr bodyOrDocumentElement = [&] -> RefPtr<Element> {
+        if (RefPtr bodyElement = document->body())
+            return bodyElement.get();
+
+        return document->documentElement();
+    }();
+
+    if (!bodyOrDocumentElement)
         return { root, 0, { } };
 
     document->updateLayoutIgnorePendingStylesheets();
 
     RefPtr extractionRootNode = [&] -> Node* {
         if (!request.targetNodeHandleIdentifier)
-            return bodyElement.get();
+            return bodyOrDocumentElement.get();
 
         return nodeFromJSHandle(*request.targetNodeHandleIdentifier);
     }();
@@ -2070,20 +2076,24 @@ static SelectOptionResult selectOptionByValue(NodeIdentifier identifier, const S
     return { };
 }
 
-static HTMLElement* NODELETE documentBodyElement(const LocalFrame& frame)
+static Element* NODELETE bodyOrDocumentElement(const LocalFrame& frame)
 {
-    if (auto* document = frame.document())
-        return document->body();
+    if (auto* document = frame.document()) {
+        if (auto* body = document->body())
+            return body;
+
+        return document->documentElement();
+    }
 
     return nullptr;
 }
 
-static RefPtr<Node> NODELETE resolveNodeWithBodyAsFallback(const LocalFrame& frame, std::optional<NodeIdentifier> identifier)
+static RefPtr<Node> NODELETE resolveNodeWithBodyOrDocumentElementAsFallback(const LocalFrame& frame, std::optional<NodeIdentifier> identifier)
 {
     if (identifier)
         return Node::fromIdentifier(WTF::move(*identifier));
 
-    return documentBodyElement(frame);
+    return bodyOrDocumentElement(frame);
 }
 
 static std::optional<SimpleRange> rangeForTextInContainer(const String& searchText, Ref<Node>&& node)
@@ -2096,7 +2106,7 @@ static std::optional<SimpleRange> rangeForTextInContainer(const String& searchTe
 
 static void selectText(LocalFrame& frame, std::optional<NodeIdentifier>&& identifier, const String& searchText, bool revealText, CompletionHandler<void(bool, String&&)>&& completion)
 {
-    RefPtr foundNode = resolveNodeWithBodyAsFallback(frame, identifier);
+    RefPtr foundNode = resolveNodeWithBodyOrDocumentElementAsFallback(frame, identifier);
     if (!foundNode)
         return completion(false, invalidNodeIdentifierDescription(WTF::move(identifier)));
 
@@ -2123,7 +2133,7 @@ static void selectText(LocalFrame& frame, std::optional<NodeIdentifier>&& identi
 
 static void highlightText(LocalFrame& frame, std::optional<NodeIdentifier>&& identifier, const String& searchText, bool scrollToVisible, CompletionHandler<void(bool, String&&)>&& completion)
 {
-    RefPtr foundNode = resolveNodeWithBodyAsFallback(frame, identifier);
+    RefPtr foundNode = resolveNodeWithBodyOrDocumentElementAsFallback(frame, identifier);
     if (!foundNode)
         return completion(false, invalidNodeIdentifierDescription(WTF::move(identifier)));
 
@@ -2346,7 +2356,7 @@ static String textDescription(LocalFrame& frame, std::optional<NodeIdentifier> i
     if (!identifier && searchText.isEmpty())
         return { };
 
-    RefPtr target = resolveNodeWithBodyAsFallback(frame, identifier);
+    RefPtr target = resolveNodeWithBodyOrDocumentElementAsFallback(frame, identifier);
     if (!target)
         return { };
 
@@ -2472,7 +2482,7 @@ static std::optional<std::pair<String, ScrollableContainer>> redirectToLargeScro
 static void scrollBy(LocalFrame& frame, std::optional<NodeIdentifier>&& identifier, FloatSize scrollDelta, CompletionHandler<void(bool, String&&)>&& completion)
 {
     bool identifierProvided = identifier.has_value();
-    RefPtr foundNode = resolveNodeWithBodyAsFallback(frame, identifier);
+    RefPtr foundNode = resolveNodeWithBodyOrDocumentElementAsFallback(frame, identifier);
     if (!foundNode)
         return completion(false, invalidNodeIdentifierDescription(WTF::move(identifier)));
 
@@ -2500,7 +2510,7 @@ static void scrollBy(LocalFrame& frame, std::optional<NodeIdentifier>&& identifi
 static void scrollToNextPage(LocalFrame& frame, std::optional<NodeIdentifier>&& identifier, CompletionHandler<void(bool, String&&)>&& completion)
 {
     bool identifierProvided = identifier.has_value();
-    RefPtr foundNode = resolveNodeWithBodyAsFallback(frame, identifier);
+    RefPtr foundNode = resolveNodeWithBodyOrDocumentElementAsFallback(frame, identifier);
     if (!foundNode)
         return completion(false, invalidNodeIdentifierDescription(WTF::move(identifier)));
 
@@ -2557,7 +2567,7 @@ static void scrollToNextPage(LocalFrame& frame, std::optional<NodeIdentifier>&& 
 
 static void scrollToReveal(LocalFrame& frame, std::optional<NodeIdentifier>&& identifier, String&& searchText, CompletionHandler<void(bool, String&&)>&& completion)
 {
-    RefPtr searchScope = resolveNodeWithBodyAsFallback(frame, identifier);
+    RefPtr searchScope = resolveNodeWithBodyOrDocumentElementAsFallback(frame, identifier);
     if (!searchScope)
         return completion(false, invalidNodeIdentifierDescription(WTF::move(identifier)));
 
@@ -2681,7 +2691,7 @@ static void dispatchInteraction(Interaction&& interaction, LocalFrame& frame, Co
         if (auto identifier = interaction.nodeIdentifier)
             return dispatchSimulatedClick(*identifier, WTF::move(interaction.text), WTF::move(completion));
 
-        if (RefPtr body = documentBodyElement(frame); body && !interaction.text.isEmpty())
+        if (RefPtr body = bodyOrDocumentElement(frame); body && !interaction.text.isEmpty())
             return dispatchSimulatedClick(*body, WTF::move(interaction.text), WTF::move(completion));
 
         return completion(false, "Missing nodeIdentifier and/or text"_s);
@@ -2744,7 +2754,7 @@ static void dispatchInteraction(Interaction&& interaction, LocalFrame& frame, Co
         if (auto identifier = interaction.nodeIdentifier)
             return dispatchSimulatedHover(*identifier, WTF::move(interaction.text), WTF::move(completion));
 
-        if (RefPtr body = documentBodyElement(frame); body && !interaction.text.isEmpty())
+        if (RefPtr body = bodyOrDocumentElement(frame); body && !interaction.text.isEmpty())
             return dispatchSimulatedHover(*body, WTF::move(interaction.text), WTF::move(completion));
 
         return completion(false, "Missing nodeIdentifier and/or text"_s);
@@ -2934,11 +2944,11 @@ RefPtr<Element> containerElementForExtractedText(const LocalFrame& frame, Extrac
 
 RefPtr<Element> containerElementForSearchTexts(const LocalFrame& frame, Vector<String>&& searchTexts, std::optional<NodeIdentifier>&& targetNodeIdentifier)
 {
-    RefPtr body = documentBodyElement(frame);
+    RefPtr body = bodyOrDocumentElement(frame);
     if (!body)
         return { };
 
-    RefPtr target = resolveNodeWithBodyAsFallback(frame, targetNodeIdentifier);
+    RefPtr target = resolveNodeWithBodyOrDocumentElementAsFallback(frame, targetNodeIdentifier);
     if (!target)
         return { };
 
@@ -2985,7 +2995,7 @@ std::optional<SimpleRange> rangeForExtractedText(const LocalFrame& frame, Extrac
 {
     auto [text, nodeIdentifier] = extractedText;
 
-    RefPtr node = resolveNodeWithBodyAsFallback(frame, nodeIdentifier);
+    RefPtr node = resolveNodeWithBodyOrDocumentElementAsFallback(frame, nodeIdentifier);
     if (text.isEmpty())
         return { makeRangeSelectingNodeContents(*node) };
 
@@ -3026,7 +3036,7 @@ void applyRules(const String& input, std::optional<NodeIdentifier>&& containerNo
     if (!document)
         return completion(input);
 
-    RefPtr containerNode = resolveNodeWithBodyAsFallback(*mainFrame, WTF::move(containerNodeID));
+    RefPtr containerNode = resolveNodeWithBodyOrDocumentElementAsFallback(*mainFrame, WTF::move(containerNodeID));
     if (!containerNode)
         return completion(input);
 
