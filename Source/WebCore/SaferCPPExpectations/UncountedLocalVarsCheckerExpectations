@@ -116,7 +116,6 @@ style/StyleBuilder.cpp
 style/StyleBuilderCustom.h
 style/StyleDifference.cpp
 style/StyleDocumentScope.cpp
-style/StyleExtractorCustom.h
 style/StyleInvalidationFunctions.h
 style/StyleRelations.cpp
 style/StyleScope.cpp

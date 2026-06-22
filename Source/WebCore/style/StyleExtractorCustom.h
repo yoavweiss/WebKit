@@ -1912,20 +1912,26 @@ template<CSSPropertyID property> inline Ref<CSSValue> extractFillLayerPropertySh
     // The computed properties are returned as lists of properties, with a list of layers in each.
     // We want to swap that around to have a list of layers, with a list of properties in each.
 
+    // A coordinated list longhand only serializes its specified values, which may be fewer
+    // than layerCount. The used value for a given layer repeats those values (modulo their
+    // count), so index into the longhand list by the layer index modulo its size.
+    auto valueForLayer = [&](const CSSValue& shorthandValue, size_t layerIndex) -> CSSValue& {
+        if (layerCount == 1)
+            return const_cast<CSSValue&>(shorthandValue);
+        auto& list = downcast<CSSValueList>(shorthandValue);
+        return const_cast<CSSValue&>(*list.item(layerIndex % list.size()));
+    };
+
     CSSValueListBuilder layers;
     for (size_t i = 0; i < layerCount; i++) {
         CSSValueListBuilder beforeList;
         if (i == layerCount - 1 && lastValue)
             beforeList.append(*lastValue);
-        for (size_t j = 0; j < propertiesBeforeSlashSeparator.length(); j++) {
-            auto& value = *before->item(j);
-            beforeList.append(const_cast<CSSValue&>(layerCount == 1 ? value : *downcast<CSSValueList>(value).item(i)));
-        }
+        for (size_t j = 0; j < propertiesBeforeSlashSeparator.length(); j++)
+            beforeList.append(valueForLayer(*before->item(j), i));
         CSSValueListBuilder afterList;
-        for (size_t j = 0; j < propertiesAfterSlashSeparator.length(); j++) {
-            auto& value = *after->item(j);
-            afterList.append(const_cast<CSSValue&>(layerCount == 1 ? value : *downcast<CSSValueList>(value).item(i)));
-        }
+        for (size_t j = 0; j < propertiesAfterSlashSeparator.length(); j++)
+            afterList.append(valueForLayer(*after->item(j), i));
         auto list = CSSValueList::createSlashSeparated(CSSValueList::createSpaceSeparated(WTF::move(beforeList)), CSSValueList::createSpaceSeparated(WTF::move(afterList)));
         if (layerCount == 1)
             return list;
