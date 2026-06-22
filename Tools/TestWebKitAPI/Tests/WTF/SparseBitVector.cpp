@@ -213,5 +213,74 @@ TEST(WTF_SparseBitVector, RandomizedAddRemoveAgainstReference)
     EXPECT_EQ(collect(bits), expected);
 }
 
+template<unsigned elementBits>
+static Vector<unsigned> collectViaIterator(const SparseBitVector<elementBits>& bits)
+{
+    Vector<unsigned> result;
+    for (unsigned index : bits)
+        result.append(index);
+    return result;
+}
+
+TEST(WTF_SparseBitVector, IteratorEmpty)
+{
+    SparseBitVector<> bits;
+    EXPECT_TRUE(bits.begin() == bits.end());
+    EXPECT_TRUE(collectViaIterator(bits).isEmpty());
+}
+
+TEST(WTF_SparseBitVector, IteratorSingleBit)
+{
+    SparseBitVector<> bits;
+    bits.set(42);
+    EXPECT_FALSE(bits.begin() == bits.end());
+
+    auto it = bits.begin();
+    EXPECT_EQ(*it, 42u);
+    ++it;
+    EXPECT_TRUE(it == bits.end());
+    EXPECT_EQ(collectViaIterator(bits), (Vector<unsigned> { 42 }));
+}
+
+TEST(WTF_SparseBitVector, IteratorWithinSingleElement)
+{
+    // All set bits live in the same element, exercising bit-iterator advancement only.
+    SparseBitVector<128> bits;
+    for (unsigned value : { 0u, 5u, 63u, 64u, 127u })
+        bits.set(value);
+    EXPECT_EQ(collectViaIterator(bits), (Vector<unsigned> { 0, 5, 63, 64, 127 }));
+}
+
+TEST(WTF_SparseBitVector, IteratorCrossesElementBoundaries)
+{
+    // Bits spread across multiple elements exercise the element-advance branch in operator++.
+    SparseBitVector<128> bits;
+    for (unsigned value : { 0u, 127u, 128u, 200u, 255u, 1000u, 100000u })
+        bits.set(value);
+    EXPECT_EQ(collectViaIterator(bits), (Vector<unsigned> { 0, 127, 128, 200, 255, 1000, 100000 }));
+}
+
+TEST(WTF_SparseBitVector, IteratorMatchesForEachSetBit)
+{
+    // The iterator must yield exactly the same sequence as forEachSetBit.
+    SparseBitVector<> bits;
+    for (unsigned value : { 5000u, 3u, 4999u, 200u, 0u, 127u, 128u, 129u, 1u, 1000003u })
+        bits.set(value);
+    EXPECT_EQ(collectViaIterator(bits), collect(bits));
+}
+
+TEST(WTF_SparseBitVector, IteratorAfterClear)
+{
+    SparseBitVector<> bits;
+    bits.set(1);
+    bits.set(100000);
+    bits.clear();
+    EXPECT_TRUE(bits.begin() == bits.end());
+    EXPECT_TRUE(collectViaIterator(bits).isEmpty());
+
+    bits.set(7);
+    EXPECT_EQ(collectViaIterator(bits), (Vector<unsigned> { 7 }));
+}
+
 } // namespace TestWebKitAPI
 

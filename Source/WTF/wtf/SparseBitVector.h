@@ -103,6 +103,57 @@ public:
         }
     }
 
+    class iterator {
+    public:
+        iterator() = default;
+
+        iterator(const SparseBitVector& owner, bool isEnd)
+            : m_owner(&owner)
+        {
+            if (isEnd || owner.m_elements.isEmpty()) {
+                m_elementIndex = owner.m_elements.size();
+                return;
+            }
+            m_bitIter = owner.m_elements[0].bits.begin();
+        }
+
+        unsigned operator*() const
+        {
+            const Element& element = m_owner->m_elements[m_elementIndex];
+            return element.index * elementBits + static_cast<unsigned>(*m_bitIter);
+        }
+
+        iterator& operator++()
+        {
+            ++m_bitIter;
+            if (m_bitIter == m_owner->m_elements[m_elementIndex].bits.end()) {
+                ++m_elementIndex;
+                if (m_elementIndex < m_owner->m_elements.size())
+                    m_bitIter = m_owner->m_elements[m_elementIndex].bits.begin();
+                else
+                    m_bitIter = { };
+            }
+            return *this;
+        }
+
+        bool operator==(const iterator& other) const
+        {
+            if (m_elementIndex != other.m_elementIndex)
+                return false;
+            if (!m_owner || m_elementIndex == m_owner->m_elements.size())
+                return true;
+            return m_bitIter == other.m_bitIter;
+        }
+
+    private:
+        const SparseBitVector* m_owner { nullptr };
+        size_t m_elementIndex { 0 };
+        typename BitSet<elementBits>::iterator m_bitIter;
+    };
+
+    iterator begin() const LIFETIME_BOUND { return iterator(*this, false); }
+    iterator end() const LIFETIME_BOUND { return iterator(*this, true); }
+
 private:
     struct Element {
         unsigned index { 0 };
