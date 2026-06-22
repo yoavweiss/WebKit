@@ -89,6 +89,11 @@ bool RenderMathMLOperator::hasOperatorFlag(MathMLOperatorDictionary::Flag flag) 
     return element().hasProperty(flag);
 }
 
+bool RenderMathMLOperator::isLargeOperatorInDisplayStyle() const
+{
+    return !hasOperatorFlag(MathMLOperatorDictionary::Stretchy) && hasOperatorFlag(MathMLOperatorDictionary::LargeOp) && style().mathStyle() == MathStyle::Normal;
+}
+
 LayoutUnit RenderMathMLOperator::leadingSpace() const
 {
     // FIXME: Negative leading spaces must be implemented (https://webkit.org/b/124830).

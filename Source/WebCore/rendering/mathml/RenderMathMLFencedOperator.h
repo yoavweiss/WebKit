@@ -48,8 +48,7 @@ private:
     LayoutUnit leadingSpace() const final;
     LayoutUnit trailingSpace() const final;
 
-    // minsize always has the default value "1em".
-    LayoutUnit minSize() const final { return LayoutUnit(style().fontCascade().size()); }
+    LayoutUnit minSize() const final;
 
     // maxsize always has the default value "infinity".
     LayoutUnit maxSize() const final { return intMaxForLayoutUnit; }

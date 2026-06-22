@@ -71,6 +71,12 @@ void RenderMathMLFencedOperator::updateOperatorContent(const String& operatorStr
     updateMathOperator();
 }
 
+// minsize always has the default value "1em".
+LayoutUnit RenderMathMLFencedOperator::minSize() const
+{
+    return LayoutUnit(style().fontCascade().size());
+}
+
 LayoutUnit RenderMathMLFencedOperator::leadingSpace() const
 {
     MathMLElement::Length leadingSpace;

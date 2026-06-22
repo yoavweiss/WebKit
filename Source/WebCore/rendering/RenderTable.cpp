@@ -62,6 +62,7 @@
 #include "RenderTreeBuilder.h"
 #include "RenderView.h"
 #include "Settings.h"
+#include "StyleComputedStyle+GettersInlines.h"
 #include "StylePrimitiveNumericTypes+Evaluation.h"
 #include "StylePrimitiveNumericTypes+EvaluationMinimum.h"
 #include <wtf/SetForScope.h>
@@ -114,6 +115,11 @@ RenderTableSection* RenderTable::bottomSection() const
             return tableSection;
     }
     return m_head.get();
+}
+
+bool RenderTable::collapseBorders() const
+{
+    return style().borderCollapse() == BorderCollapse::Collapse;
 }
 
 void RenderTable::styleDidChange(Style::Difference diff, const Style::ComputedStyle* oldStyle)

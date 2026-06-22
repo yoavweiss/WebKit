@@ -57,7 +57,7 @@ public:
     LayoutUnit hBorderSpacing() const { return m_hSpacing; }
     LayoutUnit vBorderSpacing() const { return m_vSpacing; }
     
-    bool collapseBorders() const { return style().borderCollapse() == BorderCollapse::Collapse; }
+    bool collapseBorders() const;
 
     LayoutUnit borderStart() const final { return m_borderStart; }
     LayoutUnit borderEnd() const final { return m_borderEnd; }
