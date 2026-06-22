@@ -286,7 +286,6 @@ Tests/WebKit/WKWebView/ShouldGoToBackForwardListItem.mm @nonARC
 Tests/WebKit/WKWebView/ShouldOpenExternalURLsInNewWindowActions.mm @nonARC
 Tests/WebKit/WKWebView/ShrinkToFit.mm @nonARC
 Tests/WebKit/WKWebView/ShouldOpenAppLinks.mm @nonARC
-Tests/WebKit/WKWebView/SimulateClickOverText.mm @nonARC
 Tests/WebKit/WKWebView/SiteIsolation.mm @nonARC
 Tests/WebKit/WKWebView/SnapshotStore.mm @nonARC
 Tests/WebKit/WKWebView/ImmersiveVideoMetadata.mm @nonARC
