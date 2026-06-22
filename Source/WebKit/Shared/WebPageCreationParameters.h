@@ -167,8 +167,8 @@ struct WebPageCreationParameters {
 
     WebCore::FloatBoxExtent obscuredContentInsets { };
 
-#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
-    bool hasBannerViewOverlay { false };
+#if HAVE(NSREFRESHCONTROLLER)
+    bool hasRefreshController { false };
 #endif
     float mediaVolume { 0 };
     WebCore::MediaProducerMutedStateFlags muted { };

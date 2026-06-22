@@ -37,6 +37,7 @@
 #import "APILegacyContextHistoryClient.h"
 #import "APINavigation.h"
 #import "APIPageConfiguration.h"
+#import "AppKitSPI.h"
 #import "CoreTextHelpers.h"
 #import "FrameProcess.h"
 #import "FullscreenClient.h"
@@ -1294,10 +1295,6 @@ namespace WebKit {
 
 using namespace WebCore;
 
-#if USE(APPLE_INTERNAL_SDK)
-#import <WebKitAdditions/WebViewImplAdditions.mm>
-#endif
-
 static NSTrackingAreaOptions trackingAreaOptions()
 {
     // Legacy style scrollbars have design details that rely on tracking the mouse all the time.
@@ -1532,10 +1529,10 @@ void WebViewImpl::didRelaunchProcess()
 
 void WebViewImpl::scrollingCoordinatorWasCreated()
 {
-#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
+#if HAVE(NSREFRESHCONTROLLER)
     if (CheckedPtr scrollingCoordinator = m_page->scrollingCoordinatorProxy()) {
-        scrollingCoordinator->setHasBannerViewOverlay(!!m_bannerView);
-        scrollingCoordinator->setBannerViewMaximumHeight(bannerViewMaximumHeight());
+        scrollingCoordinator->setHasRefreshController(!!m_refreshController);
+        scrollingCoordinator->setRefreshControllerSnappingThreshold(refreshControllerSnappingThreshold());
     }
 #endif
 }
@@ -1853,8 +1850,8 @@ void WebViewImpl::setFrameSize(CGSize)
     [m_layoutStrategy didChangeFrameSize];
     [m_warningView setFrame:[m_view.get() bounds]];
 
-#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
-    updateBannerViewFrame();
+#if HAVE(NSREFRESHCONTROLLER)
+    updateRefreshControllerFrame();
 #endif
 #if ENABLE(HORIZONTAL_BANNER_VIEW_OVERLAYS)
     updateWebContentDistancesFromEdges();
@@ -2027,8 +2024,8 @@ void WebViewImpl::setObscuredContentInsets(const FloatBoxExtent& insets)
 {
     m_page->setObscuredContentInsetsAsync(insets);
 
-#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
-    updateBannerViewFrame();
+#if HAVE(NSREFRESHCONTROLLER)
+    updateRefreshControllerFrame();
 #endif
 
 #if ENABLE(HORIZONTAL_BANNER_VIEW_OVERLAYS)
@@ -5477,8 +5474,8 @@ void WebViewImpl::scrollWheel(NSEvent *event)
     if (event.phase == NSEventPhaseBegan)
         dismissContentRelativeChildWindowsWithAnimation(false);
 
-#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
-    updateBannerViewForWheelEvent(event);
+#if HAVE(NSREFRESHCONTROLLER)
+    updateRefreshControllerForWheelEvent(event);
 #endif
 
     NativeWebWheelEvent webEvent { event, m_view.getAutoreleased() };
@@ -8067,6 +8064,141 @@ void WebViewImpl::endSuppressingSingleClickGestureForTextSelection()
     [m_appKitGestureController endSuppressingSingleClickGestureForTextSelection];
 }
 #endif // HAVE(APPKIT_GESTURES_SUPPORT)
+
+#if HAVE(NSREFRESHCONTROLLER)
+
+void WebViewImpl::setRefreshController(NSRefreshController *refreshController)
+{
+    if (m_refreshController == refreshController)
+        return;
+
+    if (m_refreshController) {
+        [[m_refreshController refreshControl] removeFromSuperview];
+        m_topScrollStretchForRefreshController = 0;
+        m_refreshControllerMask = nil;
+    }
+
+    m_refreshController = refreshController;
+
+    if (m_refreshController) {
+        [m_view addSubview:[m_refreshController refreshControl] positioned:NSWindowAbove relativeTo:nil];
+
+        // Ensure the refresh control's layer is above the web content layers
+        [[m_refreshController refreshControl] setWantsLayer:YES];
+        [[[m_refreshController refreshControl] layer] setZPosition:1];
+        [[[m_refreshController refreshControl] layer] setMasksToBounds:YES];
+
+        // Create a mask layer to clip the refresh control to its visible height
+        m_refreshControllerMask = adoptNS([[CAShapeLayer alloc] init]);
+        [[[m_refreshController refreshControl] layer] setMask:m_refreshControllerMask.get()];
+
+        updateRefreshControllerFrame();
+#if ENABLE(MANAGED_REFRESHCONTROL_APPEARANCE)
+        [m_view _updateRefreshControlAppearance];
+#endif
+    }
+
+    if (CheckedPtr scrollingCoordinator = m_page->scrollingCoordinatorProxy()) {
+        scrollingCoordinator->setHasRefreshController(!!m_refreshController);
+        scrollingCoordinator->setRefreshControllerSnappingThreshold(refreshControllerSnappingThreshold());
+    }
+
+#if HAVE(NSREFRESHCONTROLLER)
+    m_page->setHasRefreshController(!!m_refreshController);
+#endif
+}
+
+void WebViewImpl::applyRefreshControllerHeight(CGFloat height, bool animated)
+{
+    m_topScrollStretchForRefreshController = height;
+    if (CheckedPtr scrollingCoordinator = m_page->scrollingCoordinatorProxy())
+        scrollingCoordinator->setTopScrollStretchForRefreshController(height);
+}
+
+CGFloat WebViewImpl::topScrollStretchForRefreshController() const
+{
+    if (!m_refreshController || !m_canShowRefreshController)
+        return 0;
+
+    return m_cachedTopScrollStretch;
+}
+
+CGFloat WebViewImpl::refreshControllerSnappingThreshold() const
+{
+    if (!m_refreshController)
+        return 0;
+
+    return [[m_refreshController refreshControl] refreshControlDynamicDampeningThreshold];
+}
+
+void WebViewImpl::updateRefreshControllerFrame()
+{
+    if (!m_refreshController)
+        return;
+
+    auto viewBounds = [m_view bounds];
+    auto refreshHeight = [[m_refreshController refreshControl] frame].size.height;
+
+    auto insets = obscuredContentInsets();
+    auto topInset = insets.top();
+    auto leftInset = insets.left();
+    auto rightInset = insets.right();
+
+    auto width = viewBounds.size.width - leftInset - rightInset;
+
+    auto refreshFrame = NSMakeRect(leftInset, topInset, width, refreshHeight);
+    [[m_refreshController refreshControl] setFrame:refreshFrame];
+
+    if (m_refreshControllerMask) {
+        auto visibleHeight = topScrollStretchForRefreshController();
+        auto refreshHeight = refreshFrame.size.height;
+        auto maskRect = CGRectMake(leftInset, refreshHeight - visibleHeight, width, visibleHeight);
+        RetainPtr maskPath = adoptCF(CGPathCreateWithRect(maskRect, nullptr));
+        [m_refreshControllerMask setPath:maskPath.get()];
+    }
+
+    [[m_refreshController refreshControl] update];
+
+    if (CheckedPtr scrollingCoordinator = m_page->scrollingCoordinatorProxy())
+        scrollingCoordinator->setRefreshControllerSnappingThreshold(refreshControllerSnappingThreshold());
+}
+
+void WebViewImpl::topScrollStretchDidChange(CGFloat topScrollStretch)
+{
+    if (m_cachedTopScrollStretch == topScrollStretch)
+        return;
+
+    m_cachedTopScrollStretch = topScrollStretch;
+    if (m_refreshController)
+        updateRefreshControllerFrame();
+}
+
+void WebViewImpl::updateRefreshControllerForWheelEvent(NSEvent *event)
+{
+    if (!m_refreshController)
+        return;
+
+    // Track whether this scroll gesture began at the top of the page.
+    // Only allow refresh control activation for gestures that started at top.
+    if (event.phase == NSEventPhaseBegan)
+        m_canShowRefreshController = pageIsScrolledToTop();
+}
+
+#if HAVE(APPKIT_GESTURES_SUPPORT)
+void WebViewImpl::updateRefreshControllerForPanGesture(NSGestureRecognizerState state)
+{
+    if (!m_refreshController)
+        return;
+
+    // Track whether this scroll gesture began at the top of the page.
+    // Only allow refresh control activation for gestures that started at top.
+    if (state == NSGestureRecognizerStateBegan)
+        m_canShowRefreshController = pageIsScrolledToTop();
+}
+#endif
+
+#endif // HAVE(NSREFRESHCONTROLLER)
+
 
 } // namespace WebKit
 

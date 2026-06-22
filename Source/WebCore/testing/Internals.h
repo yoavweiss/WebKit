@@ -1008,8 +1008,8 @@ public:
     float NODELETE pageMediaVolume();
     void setPageMediaVolume(float);
 
-#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
-    void setPageHasBannerViewOverlayForTesting(bool);
+#if ENABLE(NSREFRESHCONTROLLER_TESTING)
+    void setPageHasRefreshControllerForTesting(bool);
 #endif
 
     String userVisibleString(const DOMURL&);

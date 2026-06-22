@@ -2523,6 +2523,86 @@ static _WKSelectionAttributes NODELETE selectionAttributes(const WebKit::EditorS
     _page->setNeedsScrollGeometryUpdates(needsScrollGeometryUpdates);
 }
 
+#if PLATFORM(IOS) || PLATFORM(VISION) || PLATFORM(MACCATALYST)
+
+#define CocoaRefreshControl UIRefreshControl
+#define CocoaDarkAppearance UIUserInterfaceStyleDark
+#define CocoaLightAppearance UIUserInterfaceStyleLight
+
+#elif HAVE(NSREFRESHCONTROLLER)
+
+#define CocoaRefreshControl NSRefreshControl
+#define CocoaDarkAppearance NSAppearanceNameDarkAqua
+#define CocoaLightAppearance NSAppearanceNameAqua
+
+#endif
+
+#if HAVE(NSREFRESHCONTROLLER)
+
+- (void)setRefreshController:(NSRefreshController *)refreshController
+{
+    THROW_IF_SUSPENDED;
+    _impl->setRefreshController(refreshController);
+}
+
+- (NSRefreshController *)refreshController
+{
+    return _impl->refreshController();
+}
+
+#endif
+
+#if ENABLE(MANAGED_REFRESHCONTROL_APPEARANCE)
+- (void)_updateRefreshControlAppearance
+{
+    if (!linkedOnOrAfterSDKWithBehavior(SDKAlignedBehavior::ManagedRefreshControlAppearance))
+        return;
+#if PLATFORM(MAC)
+    CocoaRefreshControl *refreshControl = [self.refreshController refreshControl];
+#else
+    UIRefreshControl *refreshControl = self.scrollView.refreshControl;
+#endif
+
+    if (!refreshControl)
+        return;
+
+    RetainPtr<WebCore::CocoaColor> effectiveColor = self._sampledTopFixedPositionContentColor;
+    CGFloat sampledTopColorAlpha = 0;
+    CGFloat effectiveColorWhiteComponent = 0;
+
+#if PLATFORM(MAC)
+    sampledTopColorAlpha = [effectiveColor alphaComponent];
+#else
+    [effectiveColor getWhite:nil alpha:&sampledTopColorAlpha];
+#endif
+
+    if (!sampledTopColorAlpha) {
+#if PLATFORM(MAC)
+        effectiveColor = self.underPageBackgroundColor;
+#else
+        effectiveColor = self.scrollView.backgroundColor;
+#endif
+    }
+
+#if PLATFORM(MAC)
+    RetainPtr grayscaleColor = [effectiveColor colorUsingColorSpace:NSColorSpace.genericGrayColorSpace];
+    if (!grayscaleColor)
+        return;
+    effectiveColorWhiteComponent = [grayscaleColor whiteComponent];
+#else
+    if (![effectiveColor getWhite:&effectiveColorWhiteComponent alpha:nil])
+        return;
+#endif
+
+    auto appearance = effectiveColorWhiteComponent <= 0.6 ? CocoaDarkAppearance : CocoaLightAppearance;
+#if PLATFORM(MAC)
+    [refreshControl setAppearance:[NSAppearance appearanceNamed:appearance]];
+#else
+    refreshControl.traitOverrides.userInterfaceStyle = appearance;
+#endif
+}
+#endif
+
 #if (USE(APPLE_INTERNAL_SDK) || (!PLATFORM(WATCHOS) && !PLATFORM(APPLETV))) || ENABLE(WRITING_TOOLS)
 
 static std::optional<WebCore::JSHandleIdentifier> jsHandleIdentifierInFrame(const WebKit::WebFrameProxy& frame, _WKJSHandle *nodeHandle)
@@ -3257,7 +3337,7 @@ WebCore::CocoaColor *sampledFixedPositionContentColor(const WebCore::FixedContai
 #endif // ENABLE(SWIFTUI)
 }
 
-#if ENABLE(SCROLL_STRETCH_NOTIFICATIONS)
+#if HAVE(NSREFRESHCONTROLLER)
 - (void)_topScrollStretchDidChange:(CGFloat)topScrollStretch
 {
     _impl->topScrollStretchDidChange(topScrollStretch);
@@ -4029,18 +4109,31 @@ struct WKWebViewData {
     protect(_page)->scrollToEdge(toRectEdges(edge), animated ? WebCore::ScrollIsAnimated::Yes : WebCore::ScrollIsAnimated::No);
 }
 
-#if !ENABLE(WEBVIEW_ADDITIONAL_SETUP) && (PLATFORM(MAC) || PLATFORM(IOS) || PLATFORM(VISION))
-
-- (void)_setWebViewInformation:(id)information
+- (void)_setPlatformRefreshControl:(id)control
 {
-}
-
-- (id)_webViewInformation
-{
-    return nil;
-}
-
+#if ENABLE(SWIFTUI_REFRESHABLE_MODIFIER)
+#if PLATFORM(MAC)
+    self.refreshController = control;
+#else
+    self.scrollView.refreshControl = control;
 #endif
+#else
+    UNUSED_VARIABLE(control);
+#endif
+}
+
+- (id)_platformRefreshControl
+{
+#if ENABLE(SWIFTUI_REFRESHABLE_MODIFIER)
+#if PLATFORM(MAC)
+    return self.refreshController;
+#else
+    return self.scrollView.refreshControl;
+#endif
+#else
+    return nil;
+#endif
+}
 
 - (id<WKImmersiveEnvironmentDelegate>)immersiveEnvironmentDelegate
 {
@@ -8199,11 +8292,11 @@ static OptionSet<WebCore::DataDetectorType> NODELETE coreDataDetectorTypes(_WKTe
     });
 }
 
-#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
+#if HAVE(NSREFRESHCONTROLLER)
 
-- (CGFloat)_bannerViewOverlayHeight
+- (CGFloat)_refreshControlVisibleHeight
 {
-    return _impl->bannerViewHeight();
+    return _impl->topScrollStretchForRefreshController();
 }
 
 #endif

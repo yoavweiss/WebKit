@@ -445,8 +445,8 @@ static NSString *gestureLogName(NSGestureRecognizer *gesture)
     if ([gesture state] == NSGestureRecognizerStateBegan)
         viewImpl->dismissContentRelativeChildWindowsWithAnimation(false);
 
-#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
-    viewImpl->updateBannerViewForPanGesture([gesture state]);
+#if HAVE(NSREFRESHCONTROLLER)
+    viewImpl->updateRefreshControllerForPanGesture([gesture state]);
 #endif
 
     [self sendWheelEventForGesture:_panGestureRecognizer];

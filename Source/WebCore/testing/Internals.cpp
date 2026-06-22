@@ -637,8 +637,8 @@ void Internals::resetToConsistentState(Page& page)
         page.setHeaderHeight(0);
         page.setFooterHeight(0);
         page.setObscuredContentInsets({ });
-#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
-        page.setHasBannerViewOverlay(false);
+#if HAVE(NSREFRESHCONTROLLER)
+        page.setHasRefreshController(false);
 #endif
         mainFrameView->setUseFixedLayout(false);
         mainFrameView->setFixedLayoutSize(IntSize());
@@ -6286,8 +6286,8 @@ float Internals::pageMediaVolume()
     return page->mediaVolume();
 }
 
-#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
-void Internals::setPageHasBannerViewOverlayForTesting(bool hasBannerViewOverlay)
+#if ENABLE(NSREFRESHCONTROLLER_TESTING)
+void Internals::setPageHasRefreshControllerForTesting(bool hasRefreshController)
 {
     RefPtr document = contextDocument();
     if (!document)
@@ -6297,7 +6297,7 @@ void Internals::setPageHasBannerViewOverlayForTesting(bool hasBannerViewOverlay)
     if (!page)
         return;
 
-    page->setHasBannerViewOverlay(hasBannerViewOverlay);
+    page->setHasRefreshController(hasRefreshController);
 }
 #endif
 

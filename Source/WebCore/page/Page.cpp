@@ -1991,13 +1991,13 @@ void Page::setShouldSuppressScrollbarAnimations(bool suppressAnimations)
     m_suppressScrollbarAnimations = suppressAnimations;
 }
 
-#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
-void Page::setHasBannerViewOverlay(bool hasBannerViewOverlay)
+#if HAVE(NSREFRESHCONTROLLER)
+void Page::setHasRefreshController(bool hasRefreshController)
 {
-    if (m_hasBannerViewOverlay == hasBannerViewOverlay)
+    if (m_hasRefreshController == hasRefreshController)
         return;
 
-    m_hasBannerViewOverlay = hasBannerViewOverlay;
+    m_hasRefreshController = hasRefreshController;
 
     RefPtr localMainFrame = this->localMainFrame();
     if (RefPtr view = localMainFrame ? localMainFrame->view() : nullptr)

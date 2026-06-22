@@ -3195,18 +3195,18 @@ const WebCore::FloatBoxExtent& WebPageProxy::obscuredContentInsets() const
     return m_internals->obscuredContentInsets;
 }
 
-#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
-void WebPageProxy::setHasBannerViewOverlay(bool hasBannerViewOverlay)
+#if HAVE(NSREFRESHCONTROLLER)
+void WebPageProxy::setHasRefreshController(bool hasRefreshController)
 {
-    if (m_internals->hasBannerViewOverlay == hasBannerViewOverlay)
+    if (m_internals->hasRefreshController == hasRefreshController)
         return;
 
-    m_internals->hasBannerViewOverlay = hasBannerViewOverlay;
+    m_internals->hasRefreshController = hasRefreshController;
 
     if (!hasRunningProcess())
         return;
 
-    send(Messages::WebPage::SetHasBannerViewOverlay(hasBannerViewOverlay));
+    send(Messages::WebPage::SetHasRefreshController(hasRefreshController));
 }
 #endif
 
@@ -13735,8 +13735,8 @@ WebPageCreationParameters WebPageProxy::creationParameters(WebProcessProxy& proc
     parameters.textZoomFactor = m_textZoomFactor;
     parameters.pageZoomFactor = m_pageZoomFactor;
     parameters.obscuredContentInsets = m_internals->obscuredContentInsets;
-#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
-    parameters.hasBannerViewOverlay = m_internals->hasBannerViewOverlay;
+#if HAVE(NSREFRESHCONTROLLER)
+    parameters.hasRefreshController = m_internals->hasRefreshController;
 #endif
     parameters.mediaVolume = m_mediaVolume;
     parameters.muted = internals().mutedState;

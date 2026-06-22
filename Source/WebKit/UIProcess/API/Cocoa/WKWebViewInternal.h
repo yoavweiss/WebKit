@@ -711,7 +711,7 @@ struct LiveResizeSnapshotState {
 - (void)_updateFixedContainerEdges:(const WebCore::FixedContainerEdges&)edges;
 - (void)_updateScrollGeometryWithContentOffset:(CGPoint)contentOffset contentSize:(CGSize)contentSize;
 
-#if ENABLE(SCROLL_STRETCH_NOTIFICATIONS)
+#if HAVE(NSREFRESHCONTROLLER)
 - (void)_topScrollStretchDidChange:(CGFloat)topScrollStretch;
 #endif
 
@@ -749,8 +749,8 @@ struct LiveResizeSnapshotState {
 
 - (void)_setContentOffsetX:(nullable NSNumber *)x y:(nullable NSNumber *)y animated:(BOOL)animated NS_SWIFT_NAME(_setContentOffset(x:y:animated:));
 
-#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
-@property (nonatomic, readonly) CGFloat _bannerViewOverlayHeight;
+#if HAVE(NSREFRESHCONTROLLER)
+@property (nonatomic, readonly) CGFloat _refreshControlVisibleHeight;
 #endif
 #endif // PLATFORM(MAC)
 

@@ -347,23 +347,62 @@ bool ScrollingEffectsController::modifyScrollDeltaForStretching(const PlatformWh
     return false;
 }
 
-#if !ENABLE(TOP_BANNER_VIEW_OVERLAYS)
-
-FloatSize ScrollingEffectsController::deltaWithAdditionalAdjustments(const FloatSize& delta, bool)
+FloatSize ScrollingEffectsController::deltaAdjustedForRefreshController(const FloatSize& delta, bool verticalDeltaOpposesStretch)
 {
+#if HAVE(NSREFRESHCONTROLLER)
+    // When pulling down to reveal a refresh control, reduce the rubber band stiffness
+    // to make it easier to pull.
+
+    if (!m_client.hasRefreshController()) {
+        m_skipAdditionalDeltaAdjustments = false;
+        return delta;
+    }
+
+    const auto stretchAmount = m_client.stretchAmount();
+    auto adjustedDelta = delta;
+
+    const auto refreshControlDynamicDampeningThreshold = m_client.refreshControllerSnappingThreshold();
+    static constexpr auto minimumStiffnessFactor = 0.1f;
+    static constexpr auto stiffnessRange = 0.9f;
+
+    auto verticalStretch = std::abs(static_cast<float>(stretchAmount.height()));
+
+    if (verticalStretch < 1.0f)
+        m_skipAdditionalDeltaAdjustments = false;
+
+    if (delta.height() && stretchAmount.height() < 0 && !verticalDeltaOpposesStretch) {
+        if (!m_skipAdditionalDeltaAdjustments && verticalStretch < refreshControlDynamicDampeningThreshold) {
+            auto progress = verticalStretch / refreshControlDynamicDampeningThreshold;
+
+            // Quartic curve: starts at 10% stiffness, ramps up to 100%.
+            auto stiffnessRatio = minimumStiffnessFactor + (stiffnessRange * progress * progress * progress * progress);
+            adjustedDelta.setHeight(delta.height() / stiffnessRatio);
+
+            // Lock in full stiffness once the threshold is crossed to prevent oscillation.
+            if (verticalStretch >= refreshControlDynamicDampeningThreshold)
+                m_skipAdditionalDeltaAdjustments = true;
+        } else
+            m_skipAdditionalDeltaAdjustments = true;
+    }
+
+    return adjustedDelta;
+#else
+    UNUSED_PARAM(verticalDeltaOpposesStretch);
     return delta;
+#endif
 }
 
-#endif
-
-#if !ENABLE(RUBBERBAND_PRESERVATION)
-
-bool ScrollingEffectsController::shouldAttemptRubberbandingRestoration(const RubberbandingState&)
+bool ScrollingEffectsController::shouldAttemptRubberbandingRestoration(const RubberbandingState& state)
 {
+#if HAVE(NSREFRESHCONTROLLER)
+    bool isTopStretched = state.rubberbandingEdges.top() || state.initialOverscroll.height() < 0;
+    bool isValidState = !state.initialOverscroll.isZero() || !state.initialVelocity.isZero();
+    return m_client.hasRefreshController() && isTopStretched && isValidState;
+#else
+    UNUSED_PARAM(state);
     return false;
-}
-
 #endif
+}
 
 bool ScrollingEffectsController::applyScrollDeltaWithStretching(const PlatformWheelEvent& wheelEvent, FloatSize delta, bool isHorizontallyStretched, bool isVerticallyStretched)
 {
@@ -417,7 +456,7 @@ bool ScrollingEffectsController::applyScrollDeltaWithStretching(const PlatformWh
 
     auto stretchAmount = m_client.stretchAmount();
 
-    FloatSize adjustedDelta = deltaWithAdditionalAdjustments(delta, verticalDeltaOpposesStretch);
+    FloatSize adjustedDelta = deltaAdjustedForRefreshController(delta, verticalDeltaOpposesStretch);
     auto stretchScrollForceDelta = adjustedDelta;
 
     if (horizontalDeltaOpposesStretch)

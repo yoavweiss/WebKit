@@ -58,6 +58,11 @@
 #ifdef __OBJC__
 #include "WKSeparatedImageView.h"
 #include "WKUIDelegatePrivate.h"
+#if PLATFORM(MAC) && HAVE(NSREFRESHCONTROLLER)
+// Spells out the NSRefreshControlHosting protocol referenced by WKWebView extensions
+// in WebKit-Swift-Generated.h. rdar://179255418
+#include "AppKitSPI.h"
+#endif
 #endif
 
 #if USE(APPLE_INTERNAL_SDK)

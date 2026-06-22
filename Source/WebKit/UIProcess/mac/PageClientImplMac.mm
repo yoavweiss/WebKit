@@ -830,7 +830,7 @@ void PageClientImpl::scrollingNodeScrollViewDidScroll(WebCore::ScrollingNodeID)
     protect(m_impl)->suppressContentRelativeChildViews(WebViewImpl::ContentRelativeChildViewsSuppressionType::TemporarilyRemove);
 }
 
-#if ENABLE(SCROLL_STRETCH_NOTIFICATIONS)
+#if HAVE(NSREFRESHCONTROLLER)
 void PageClientImpl::topScrollStretchDidChange(CGFloat topScrollStretch)
 {
     [webView() _topScrollStretchDidChange:topScrollStretch];

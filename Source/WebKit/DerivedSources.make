@@ -1116,9 +1116,7 @@ WEBKIT_ADDITIONS_SWIFT_FILES = \
 	NSGlassEffectView+Extras.swift \
 	TestWebKitAPILibraryAdditions.swift \
 	UIWindowScene+Extras.swift \
-	WebViewRepresentable+Extras.swift \
 	WKDeferringGestureRecognizerExtras.swift \
-	WKWebView+WKBannerViewOverlay.swift \
 	WKWebView+SystemTextExtraction.swift \
 	WKSExperienceController+Transitions.swift \
 #

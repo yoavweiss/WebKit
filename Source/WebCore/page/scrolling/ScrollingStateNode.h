@@ -201,9 +201,9 @@ enum class ScrollingStateNodeProperty : uint64_t {
     FooterHeight                                = HeaderHeight << 1,
     BehaviorForFixedElements                    = FooterHeight << 1,
     ObscuredContentInsets                       = BehaviorForFixedElements << 1,
-#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
-    BannerViewHeight                            = ObscuredContentInsets << 1,
-    VisualViewportIsSmallerThanLayoutViewport   = BannerViewHeight << 1,
+#if HAVE(NSREFRESHCONTROLLER)
+    TopScrollStretchForRefreshController        = ObscuredContentInsets << 1,
+    VisualViewportIsSmallerThanLayoutViewport   = TopScrollStretchForRefreshController << 1,
 #else
     VisualViewportIsSmallerThanLayoutViewport   = ObscuredContentInsets << 1,
 #endif

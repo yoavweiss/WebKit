@@ -881,18 +881,16 @@ public:
     void updateWebContentDistancesFromEdges();
 #endif
 
-#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
-    void setBannerView(WKBannerView *);
-    WKBannerView *bannerView() const LIFETIME_BOUND { return m_bannerView.get(); }
+#if HAVE(NSREFRESHCONTROLLER)
+    void setRefreshController(NSRefreshController *);
+    NSRefreshController *refreshController() const LIFETIME_BOUND { return m_refreshController.get(); }
 
-    void applyBannerViewOverlayHeight(CGFloat, bool);
-    CGFloat bannerViewHeight() const;
-    CGFloat bannerViewMaximumHeight() const;
-    void updateBannerViewForWheelEvent(NSEvent *);
-    void updateBannerViewForPanGesture(NSGestureRecognizerState);
-    void updateBannerViewFrame();
-#endif
-#if ENABLE(SCROLL_STRETCH_NOTIFICATIONS)
+    void applyRefreshControllerHeight(CGFloat, bool);
+    CGFloat topScrollStretchForRefreshController() const;
+    CGFloat refreshControllerSnappingThreshold() const;
+    void updateRefreshControllerForWheelEvent(NSEvent *);
+    void updateRefreshControllerForPanGesture(NSGestureRecognizerState);
+    void updateRefreshControllerFrame();
     void topScrollStretchDidChange(CGFloat topScrollStretch);
 #endif
 
@@ -1221,14 +1219,11 @@ private:
     std::optional<double> m_pageScaleBeforeTransientZoom;
 #endif
 
-#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
-    RetainPtr<WKBannerView> m_bannerView;
-    RetainPtr<CAShapeLayer> m_bannerViewMask;
-    CGFloat m_bannerViewHeight { 0 };
-    bool m_canShowBannerViewOverlay { false };
-#endif
-
-#if ENABLE(SCROLL_STRETCH_NOTIFICATIONS)
+#if HAVE(NSREFRESHCONTROLLER)
+    RetainPtr<NSRefreshController> m_refreshController;
+    RetainPtr<CAShapeLayer> m_refreshControllerMask;
+    CGFloat m_topScrollStretchForRefreshController { 0 };
+    bool m_canShowRefreshController { false };
     CGFloat m_cachedTopScrollStretch { 0 };
 #endif
 

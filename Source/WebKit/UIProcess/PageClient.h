@@ -573,7 +573,7 @@ public:
     virtual void didCommitMainFrameData(const MainFrameData&) = 0;
     virtual void layerTreeCommitComplete() { }
 
-#if ENABLE(SCROLL_STRETCH_NOTIFICATIONS)
+#if HAVE(NSREFRESHCONTROLLER)
     virtual void topScrollStretchDidChange(CGFloat) { }
 #endif
 

@@ -46,6 +46,11 @@ DECLARE_SYSTEM_HEADER
 #import <AppKit/NSScrollPocket_Private.h>
 #endif
 
+#if HAVE(NSREFRESHCONTROLLER)
+#import <AppKit/NSRefreshControl_Private.h>
+#import <AppKit/NSRefreshController_Private.h>
+#endif
+
 #else
 
 @class NSTextPlaceholder;
@@ -155,6 +160,12 @@ NSString * const NSInspectorBarTextAlignmentItemIdentifier = @"NSInspectorBarTex
 - (void)_invalidateCornerConfiguration;
 @end
 
+#endif
+
+#if HAVE(NSREFRESHCONTROLLER)
+@interface NSRefreshController (Staging_179255418)
+@property (strong, nonatomic, readonly) NSRefreshControl *refreshControl;
+@end
 #endif
 
 #endif

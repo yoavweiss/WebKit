@@ -1558,8 +1558,8 @@ header: <WebCore/ScrollingStateNode.h>
     FooterLayer
     BehaviorForFixedElements
     ObscuredContentInsets
-#if ENABLE(TOP_BANNER_VIEW_OVERLAYS)
-    BannerViewHeight
+#if HAVE(NSREFRESHCONTROLLER)
+    TopScrollStretchForRefreshController
 #endif
     VisualViewportIsSmallerThanLayoutViewport
     AsyncFrameOrOverflowScrollingEnabled

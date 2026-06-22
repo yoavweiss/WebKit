@@ -508,7 +508,7 @@ void RemoteLayerTreeDrawingAreaProxy::commitLayerTreeTransaction(IPC::Connection
 
         scrollingCoordinatorProxy->applyScrollingTreeLayerPositionsAfterCommit();
 
-#if ENABLE(SCROLL_STRETCH_NOTIFICATIONS)
+#if HAVE(NSREFRESHCONTROLLER)
         if (mainFrameData && !layerTreeTransaction.remoteContextHostedIdentifier()) {
             if (RefPtr pageClient = page->pageClient()) {
                 auto scrollPosition = scrollingCoordinatorProxy->currentMainFrameScrollPosition();
