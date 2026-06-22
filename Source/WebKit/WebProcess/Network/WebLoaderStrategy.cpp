@@ -935,9 +935,14 @@ void WebLoaderStrategy::browsingContextRemoved(LocalFrame& frame)
     RefPtr networkProcessConnection = WebProcess::singleton().existingNetworkProcessConnection();
     if (!networkProcessConnection)
         return;
+    RefPtr corePage = frame.page();
+    if (!corePage)
+        return;
+    RefPtr page = WebPage::fromCorePage(*corePage);
+    if (!page)
+        return;
 
-    Ref page = *WebPage::fromCorePage(*protect(frame.page()));
-    networkProcessConnection->connection().send(Messages::NetworkConnectionToWebProcess::BrowsingContextRemoved(page->webPageProxyIdentifier(), page->identifier(), WebFrame::fromCoreFrame(frame)->frameID()), 0);
+    networkProcessConnection->connection().send(Messages::NetworkConnectionToWebProcess::BrowsingContextRemoved(page->webPageProxyIdentifier(), page->identifier(), frame.frameID()), 0);
 }
 
 void WebLoaderStrategy::startPingLoad(LocalFrame& frame, ResourceRequest& request, const HTTPHeaderMap& originalRequestHeaders, const FetchOptions& options, ContentSecurityPolicyImposition policyCheck, PingLoadCompletionHandler&& completionHandler)
