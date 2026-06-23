@@ -150,7 +150,7 @@ macro(WEBKIT_OPTION_BEGIN)
     # an explicit -D against such a toolchain is rejected in WEBKIT_OPTION_END.
     set(ENABLE_SWIFT_DEMO_URI_SCHEME_DEFAULT OFF)
     set(ENABLE_BACK_FORWARD_LIST_SWIFT_DEFAULT OFF)
-    if ((PORT STREQUAL "GTK" OR PORT STREQUAL "WPE") AND COMPILER_IS_CLANG)
+    if (COMPILER_IS_CLANG)
         _WEBKIT_DETECT_SWIFT_CXX_INTEROP_SUPPORT(_swift_interop_ok)
         if (_swift_interop_ok)
             set(ENABLE_SWIFT_DEMO_URI_SCHEME_DEFAULT ON)
