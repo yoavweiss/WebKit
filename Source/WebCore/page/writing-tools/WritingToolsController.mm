@@ -820,6 +820,12 @@ void WritingToolsController::compositionSessionDidReceiveTextWithReplacementRang
 
     state->pendingReplacedRange = range;
 
+    if (session.compositionType == WritingTools::Session::CompositionType::Other) {
+        WTF::UUID emptyUUID { WTF::UUID::emptyValue };
+        compositionSessionDidReceiveTextWithReplacementRangeAsync(emptyUUID, emptyUUID, attributedText, range, context, finished, WebCore::TextAnimationRunMode::OnlyReplaceText);
+        return;
+    }
+
     // Must generate these UUID now to pass into the source animation for iOS to work.
     auto sourceAnimationUUID = WTF::UUID::createVersion4();
     auto destinationAnimationUUID = WTF::UUID::createVersion4();
