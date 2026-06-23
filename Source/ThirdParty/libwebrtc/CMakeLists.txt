@@ -2131,10 +2131,8 @@ if (APPLE)
     if (ENABLE_AV1)
         list(APPEND webrtc_SOURCES
             Source/webrtc/modules/video_coding/codecs/av1/dav1d_decoder.cc
-            Source/webrtc/modules/video_coding/codecs/av1/libaom_av1_decoder.cc
             Source/webrtc/modules/video_coding/codecs/av1/libaom_av1_encoder.cc
             Source/webrtc/modules/video_coding/codecs/av1/libaom_speed_config_factory.cc
-            Source/webrtc/webkit_sdk/objc/api/video_codec/RTCVideoDecoderAV1.mm
             Source/webrtc/webkit_sdk/objc/api/video_codec/RTCVideoEncoderAV1.mm
         )
     endif ()
@@ -3349,7 +3347,6 @@ if (ENABLE_AV1 AND APPLE)
         Source/third_party/libaom/source/libaom/aom_util/debug_util.c
         Source/third_party/libaom/source/libaom/av1/arg_defs.c
         Source/third_party/libaom/source/libaom/av1/av1_cx_iface.c
-        Source/third_party/libaom/source/libaom/av1/av1_dx_iface.c
         Source/third_party/libaom/source/libaom/av1/common/alloccommon.c
         Source/third_party/libaom/source/libaom/av1/common/av1_inv_txfm1d.c
         Source/third_party/libaom/source/libaom/av1/common/av1_inv_txfm2d.c
@@ -3359,7 +3356,6 @@ if (ENABLE_AV1 AND APPLE)
         Source/third_party/libaom/source/libaom/av1/common/blockd.c
         Source/third_party/libaom/source/libaom/av1/common/cdef.c
         Source/third_party/libaom/source/libaom/av1/common/cdef_block.c
-        Source/third_party/libaom/source/libaom/av1/common/cfl.c
         Source/third_party/libaom/source/libaom/av1/common/common_data.c
         Source/third_party/libaom/source/libaom/av1/common/convolve.c
         Source/third_party/libaom/source/libaom/av1/common/debugmodes.c
@@ -3375,7 +3371,6 @@ if (ENABLE_AV1 AND APPLE)
         Source/third_party/libaom/source/libaom/av1/common/reconinter.c
         Source/third_party/libaom/source/libaom/av1/common/reconintra.c
         Source/third_party/libaom/source/libaom/av1/common/resize.c
-        Source/third_party/libaom/source/libaom/av1/common/restoration.c
         Source/third_party/libaom/source/libaom/av1/common/scale.c
         Source/third_party/libaom/source/libaom/av1/common/scan.c
         Source/third_party/libaom/source/libaom/av1/common/seg_common.c
@@ -3383,15 +3378,6 @@ if (ENABLE_AV1 AND APPLE)
         Source/third_party/libaom/source/libaom/av1/common/tile_common.c
         Source/third_party/libaom/source/libaom/av1/common/timing.c
         Source/third_party/libaom/source/libaom/av1/common/txb_common.c
-        Source/third_party/libaom/source/libaom/av1/common/warped_motion.c
-        Source/third_party/libaom/source/libaom/av1/decoder/accounting.c
-        Source/third_party/libaom/source/libaom/av1/decoder/decodeframe.c
-        Source/third_party/libaom/source/libaom/av1/decoder/decodemv.c
-        Source/third_party/libaom/source/libaom/av1/decoder/decoder.c
-        Source/third_party/libaom/source/libaom/av1/decoder/decodetxb.c
-        Source/third_party/libaom/source/libaom/av1/decoder/detokenize.c
-        Source/third_party/libaom/source/libaom/av1/decoder/grain_synthesis.c
-        Source/third_party/libaom/source/libaom/av1/decoder/obu.c
         Source/third_party/libaom/source/libaom/av1/encoder/allintra_vis.c
         Source/third_party/libaom/source/libaom/av1/encoder/aq_complexity.c
         Source/third_party/libaom/source/libaom/av1/encoder/aq_cyclicrefresh.c
@@ -3401,7 +3387,6 @@ if (ENABLE_AV1 AND APPLE)
         Source/third_party/libaom/source/libaom/av1/encoder/av1_fwd_txfm2d.c
         Source/third_party/libaom/source/libaom/av1/encoder/av1_noise_estimate.c
         Source/third_party/libaom/source/libaom/av1/encoder/av1_quantize.c
-        Source/third_party/libaom/source/libaom/av1/encoder/av1_temporal_denoiser.c
         Source/third_party/libaom/source/libaom/av1/encoder/bitstream.c
         Source/third_party/libaom/source/libaom/av1/encoder/blockiness.c
         Source/third_party/libaom/source/libaom/av1/encoder/compound_type.c
@@ -3476,6 +3461,7 @@ if (ENABLE_AV1 AND APPLE)
             Source/third_party/libaom/source/libaom/aom_dsp/arm/aom_convolve8_neon.c
             Source/third_party/libaom/source/libaom/aom_dsp/arm/aom_convolve8_neon_dotprod.c
             Source/third_party/libaom/source/libaom/aom_dsp/arm/aom_convolve_copy_neon.c
+            Source/third_party/libaom/source/libaom/aom_dsp/arm/aom_scaled_convolve8_neon_dotprod.c
             Source/third_party/libaom/source/libaom/aom_dsp/arm/aom_scaled_convolve8_neon.c
             Source/third_party/libaom/source/libaom/aom_dsp/arm/avg_neon.c
             Source/third_party/libaom/source/libaom/aom_dsp/arm/avg_pred_neon.c
@@ -3496,17 +3482,20 @@ if (ENABLE_AV1 AND APPLE)
             Source/third_party/libaom/source/libaom/aom_dsp/arm/sse_neon.c
             Source/third_party/libaom/source/libaom/aom_dsp/arm/sse_neon_dotprod.c
             Source/third_party/libaom/source/libaom/aom_dsp/arm/subpel_variance_neon.c
+            Source/third_party/libaom/source/libaom/aom_dsp/arm/subpel_variance_neon_dotprod.c
             Source/third_party/libaom/source/libaom/aom_dsp/arm/subtract_neon.c
             Source/third_party/libaom/source/libaom/aom_dsp/arm/sum_squares_neon.c
             Source/third_party/libaom/source/libaom/aom_dsp/arm/sum_squares_neon_dotprod.c
             Source/third_party/libaom/source/libaom/aom_dsp/arm/variance_neon.c
             Source/third_party/libaom/source/libaom/aom_dsp/arm/variance_neon_dotprod.c
+            Source/third_party/libaom/source/libaom/av1/common/arm/av1_convolve_horiz_rs_neon.c
+            Source/third_party/libaom/source/libaom/av1/common/arm/av1_convolve_scale_neon.c
+            Source/third_party/libaom/source/libaom/av1/common/arm/av1_convolve_scale_neon_dotprod.c
             Source/third_party/libaom/source/libaom/av1/common/arm/av1_inv_txfm_neon.c
             Source/third_party/libaom/source/libaom/av1/common/arm/av1_txfm_neon.c
             Source/third_party/libaom/source/libaom/av1/common/arm/blend_a64_hmask_neon.c
             Source/third_party/libaom/source/libaom/av1/common/arm/blend_a64_vmask_neon.c
             Source/third_party/libaom/source/libaom/av1/common/arm/cdef_block_neon.c
-            Source/third_party/libaom/source/libaom/av1/common/arm/cfl_neon.c
             Source/third_party/libaom/source/libaom/av1/common/arm/compound_convolve_neon.c
             Source/third_party/libaom/source/libaom/av1/common/arm/compound_convolve_neon_dotprod.c
             Source/third_party/libaom/source/libaom/av1/common/arm/convolve_neon.c
@@ -3515,6 +3504,7 @@ if (ENABLE_AV1 AND APPLE)
             Source/third_party/libaom/source/libaom/av1/common/arm/reconinter_neon.c
             Source/third_party/libaom/source/libaom/av1/common/arm/reconintra_neon.c
             Source/third_party/libaom/source/libaom/av1/common/arm/resize_neon.c
+            Source/third_party/libaom/source/libaom/av1/common/arm/resize_neon_dotprod.c
             Source/third_party/libaom/source/libaom/av1/common/arm/selfguided_neon.c
             Source/third_party/libaom/source/libaom/av1/common/arm/warp_plane_neon.c
             Source/third_party/libaom/source/libaom/av1/common/arm/wiener_convolve_neon.c
