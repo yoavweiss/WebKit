@@ -487,7 +487,8 @@ void ContentSecurityPolicyDirectiveList::parse(const String& policy, ContentSecu
             if (auto directive = parseDirective(std::span { directiveBegin, buffer.position() })) {
                 ASSERT(!directive->name.isEmpty());
                 if (policyFrom == ContentSecurityPolicy::PolicyFrom::Inherited) {
-                    if (equalIgnoringASCIICase(directive->name, ContentSecurityPolicyDirectiveNames::upgradeInsecureRequests))
+                    if (equalIgnoringASCIICase(directive->name, ContentSecurityPolicyDirectiveNames::upgradeInsecureRequests)
+                        || equalIgnoringASCIICase(directive->name, ContentSecurityPolicyDirectiveNames::sandbox))
                         continue;
                 } else if (policyFrom == ContentSecurityPolicy::PolicyFrom::HTTPEquivMeta) {
                     if (equalIgnoringASCIICase(directive->name, ContentSecurityPolicyDirectiveNames::sandbox)
