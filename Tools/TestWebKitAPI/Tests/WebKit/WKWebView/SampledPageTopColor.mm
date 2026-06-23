@@ -38,6 +38,7 @@
 #import <WebKit/_WKFeature.h>
 #import <wtf/Function.h>
 #import <wtf/RetainPtr.h>
+#import <wtf/WeakObjCPtr.h>
 #import <wtf/text/StringBuilder.h>
 
 #if PLATFORM(IOS) || PLATFORM(MACCATALYST) || PLATFORM(VISION)
@@ -1098,6 +1099,59 @@ TEST(SampledPageTopColor, TopColorExtensionHeightDoesNotIncreaseWithoutRefreshCo
     [scrollView setContentOffset:CGPointMake(0, -75) animated:NO];
     [webView waitForNextPresentationUpdate];
     EXPECT_EQ(colorExtensionViewHeight(), 75.f);
+}
+
+TEST(SampledPageTopColor, ColorExtensionViewDeallocatesWithWebView)
+{
+    WeakObjCPtr<UIView> weakWebViewPtr;
+    WeakObjCPtr<UIView> weakColorExtensionViewPtr;
+
+    @autoreleasepool {
+        RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 800, 600)]);
+
+        auto insets = UIEdgeInsetsMake(75, 0, 0, 0);
+        auto insetSize = UIEdgeInsetsInsetRect([webView bounds], insets).size;
+        [webView _setObscuredInsets:insets];
+        RetainPtr scrollView = [webView scrollView];
+
+        [scrollView setContentInsetAdjustmentBehavior:UIScrollViewContentInsetAdjustmentNever];
+        [scrollView setContentInset:insets];
+
+        RetainPtr refreshControl = adoptNS([[UIRefreshControl alloc] init]);
+        [scrollView setRefreshControl:refreshControl];
+
+        [webView _overrideLayoutParametersWithMinimumLayoutSize:insetSize minimumUnobscuredSizeOverride:insetSize maximumUnobscuredSizeOverride:insetSize];
+
+        [webView synchronouslyLoadTestPageNamed:@"top-fixed-element"];
+        [webView waitForNextPresentationUpdate];
+
+        weakColorExtensionViewPtr = [webView _colorExtensionViewForTesting:UIRectEdgeTop];
+        EXPECT_NOT_NULL(weakColorExtensionViewPtr.get());
+
+        [webView synchronouslyLoadHTMLStringAndWaitUntilAllImmediateChildFramesPaint:@""];
+        [webView waitForNextPresentationUpdate];
+
+        weakWebViewPtr = webView;
+        [webView removeFromTestWindow];
+    }
+
+    while (true) {
+        @autoreleasepool {
+            if (!weakWebViewPtr.get())
+                break;
+
+            TestWebKitAPI::Util::spinRunLoop();
+        }
+    }
+
+    while (true) {
+        @autoreleasepool {
+            if (!weakColorExtensionViewPtr.get())
+                break;
+
+            TestWebKitAPI::Util::spinRunLoop();
+        }
+    }
 }
 
 #endif // PLATFORM(IOS_FAMILY) && ENABLE(CONTENT_INSET_BACKGROUND_FILL)
