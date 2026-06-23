@@ -163,6 +163,12 @@ NSString * const NSInspectorBarTextAlignmentItemIdentifier = @"NSInspectorBarTex
 #endif
 
 #if HAVE(NSREFRESHCONTROLLER)
+
+#if !defined(__has_include) || !__has_include(<AppKit/NSRefreshControl_Private.h>)
+@interface NSRefreshControl : NSView
+@end
+#endif
+
 @interface NSRefreshController (Staging_179255418)
 @property (strong, nonatomic, readonly) NSRefreshControl *refreshControl;
 @end

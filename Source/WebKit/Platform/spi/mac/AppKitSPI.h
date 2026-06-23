@@ -263,6 +263,11 @@ NS_HEADER_AUDIT_END(nullability, sendability)
 
 #if HAVE(NSREFRESHCONTROLLER)
 
+#if !defined(__has_include) || !__has_include(<AppKit/NSRefreshControl_Private.h>)
+@interface NSRefreshControl : NSView
+@end
+#endif
+
 @interface NSRefreshController (Staging_171939017)
 @property (strong, nonatomic, readonly) NSRefreshControl *refreshControl;
 @end

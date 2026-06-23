@@ -605,7 +605,10 @@ set(ObjCForwardingHeaders
 
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -compatibility_version 1 -current_version ${WEBKIT_MAC_VERSION}")
 # -Wl,-u forces a symbol reference so -dead_strip_dylibs won't prune the weak framework.
-target_link_options(WebKit PRIVATE -lsandbox -framework AuthKit -F${CMAKE_BINARY_DIR} -weak_framework WebInspectorUI -Wl,-u,_WebInspectorUIFrameworkLoad)
+target_link_options(WebKit PRIVATE -lsandbox -framework AuthKit -F${CMAKE_BINARY_DIR} -weak_framework WebInspectorUI -Wl,-u,_WebInspectorUIFrameworkLoad
+    "SHELL:-weak_framework CoreML"
+    "SHELL:-weak_framework NaturalLanguage"
+)
 add_dependencies(WebKit WebInspectorUIFramework)
 
 # Match WebKit.xcconfig REEXPORTED_FRAMEWORK_NAMES / REEXPORTED_LIBRARY_NAMES so

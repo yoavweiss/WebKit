@@ -3222,6 +3222,7 @@ elseif (WTF_CPU_ARM64)
         Source/third_party/libvpx/source/libvpx/vpx_dsp/arm/sse_neon.c
         Source/third_party/libvpx/source/libvpx/vpx_dsp/arm/sse_neon_dotprod.c
         Source/third_party/libvpx/source/libvpx/vpx_dsp/arm/subpel_variance_neon.c
+        Source/third_party/libvpx/source/libvpx/vpx_dsp/arm/subpel_variance_neon_dotprod.c
         Source/third_party/libvpx/source/libvpx/vpx_dsp/arm/subtract_neon.c
         Source/third_party/libvpx/source/libvpx/vpx_dsp/arm/sum_squares_neon.c
         Source/third_party/libvpx/source/libvpx/vpx_dsp/arm/variance_neon.c
