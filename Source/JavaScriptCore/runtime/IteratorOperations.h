@@ -273,7 +273,7 @@ void forEachInIterable(JSGlobalObject* globalObject, JSValue iterable, NOESCAPE 
             JSCell* storageCell = jsMap->storageOrSentinel(vm);
             if (storageCell != vm.orderedHashTableSentinel()) {
                 forEachInMapStorage(vm, globalObject, storageCell, 0, IterationKind::Entries, callback, [&](JSCell* currentStorageCell, JSMap::Helper::Entry entry) {
-                    JSMapIterator* iterator = JSMapIterator::create(vm, globalObject->mapIteratorStructure(), jsMap, IterationKind::Entries);
+                    JSMapIterator* iterator = JSMapIterator::create(vm, jsMap->realm()->mapIteratorStructure(), jsMap, IterationKind::Entries);
                     iterator->setStorage(vm, currentStorageCell);
                     iterator->setEntry(vm, entry);
                     iteratorClose(globalObject, iterator);
@@ -287,7 +287,7 @@ void forEachInIterable(JSGlobalObject* globalObject, JSValue iterable, NOESCAPE 
             JSCell* storageCell = jsSet->storageOrSentinel(vm);
             if (storageCell != vm.orderedHashTableSentinel()) {
                 forEachInSetStorage(vm, globalObject, storageCell, 0, callback, [&](JSCell* currentStorageCell, JSSet::Helper::Entry entry) {
-                    JSSetIterator* iterator = JSSetIterator::create(vm, globalObject->setIteratorStructure(), jsSet, IterationKind::Values);
+                    JSSetIterator* iterator = JSSetIterator::create(vm, jsSet->realm()->setIteratorStructure(), jsSet, IterationKind::Values);
                     iterator->setStorage(vm, currentStorageCell);
                     iterator->setEntry(vm, entry);
                     iteratorClose(globalObject, iterator);
