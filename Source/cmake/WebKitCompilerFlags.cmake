@@ -165,14 +165,9 @@ option(DEVELOPER_MODE_FATAL_WARNINGS "Build with warnings as errors if DEVELOPER
 set(DEVELOPER_MODE_CXX_FLAGS)
 if (DEVELOPER_MODE AND DEVELOPER_MODE_FATAL_WARNINGS)
     if (MSVC)
-        set(FATAL_WARNINGS_FLAG /WX)
-    else ()
-        set(FATAL_WARNINGS_FLAG -Werror)
-    endif ()
-
-    WEBKIT_CHECK_COMPILER_FLAGS(CXX CXX_COMPILER_SUPPORTS_WERROR ${FATAL_WARNINGS_FLAG})
-    if (CXX_COMPILER_SUPPORTS_WERROR)
-        set(DEVELOPER_MODE_CXX_FLAGS ${FATAL_WARNINGS_FLAG})
+        set(DEVELOPER_MODE_CXX_FLAGS "/WX")
+    elseif (COMPILER_IS_GCC_OR_CLANG)
+        set(DEVELOPER_MODE_CXX_FLAGS "-Werror")
     endif ()
 endif ()
 
@@ -196,10 +191,10 @@ if (COMPILER_IS_GCC_OR_CLANG)
 
     # FIXME: Remove once the strict-aliasing violations exposed by 315506@main are fixed.
     # Enabling strict aliasing (the compiler default at -O2) miscompiles type-punning code
-    # in the GTK and WPE ports, causing Release-only crashes and failures. https://webkit.org/b/317542
-    if (PORT STREQUAL "GTK" OR PORT STREQUAL "WPE")
-        WEBKIT_APPEND_GLOBAL_COMPILER_FLAGS(-fno-strict-aliasing)
-    endif ()
+    # in the GTK and WPE ports, causing Release-only crashes and failures. It also introduces
+    # -Wstrict-aliasing warnings when building with GCC.
+    # https://webkit.org/b/317542
+    WEBKIT_APPEND_GLOBAL_COMPILER_FLAGS(-fno-strict-aliasing)
 
     # clang-cl.exe impersonates cl.exe so some clang arguments like -fno-rtti are
     # represented using cl.exe's options and should not be passed as flags, so
