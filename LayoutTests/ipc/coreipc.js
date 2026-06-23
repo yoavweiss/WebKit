@@ -728,6 +728,8 @@ export class ArgumentSerializer {
                 }
                 throw new SerializationError(`Primitive value of type ${ argumentDefinition.type } is neither a number nor a bigint`);
             case 'String':
+                if (argument === null)
+                    return {value: null, type: 'String'};
                 if (typeof argument != 'string') {
                     throw new SerializationError(`Primitive value is not a string`);
                 }
