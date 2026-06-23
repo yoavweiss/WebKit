@@ -1850,6 +1850,17 @@ TEST(IPCSerialization, NSURLRequestNSURLProtocolProperties)
     runTestNS({ request.get() });
 }
 
+TEST(IPCSerialization, NSURLRequestAttribution)
+{
+    WebKit::CoreIPCNSURLRequestData requestData;
+    requestData.url = WebKit::CoreIPCURL([NSURL URLWithString:@"https://webkit.org/"]);
+    requestData.attribution = WebKit::NSURLRequestAttribution::User;
+
+    RetainPtr request = dynamic_objc_cast<NSURLRequest>(WebKit::CoreIPCNSURLRequest(WTF::move(requestData)).toID().get());
+    RetainPtr reconstructed = dynamic_objc_cast<NSURLRequest>(WebKit::CoreIPCNSURLRequest(request.get()).toID().get());
+    EXPECT_EQ([reconstructed attribution], NSURLRequestAttributionUser);
+}
+
 #endif // PLATFORM(COCOA) && HAVE(WK_SECURE_CODING_NSURLREQUEST)
 
 #if USE(AVFOUNDATION) && PLATFORM(MAC)
