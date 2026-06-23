@@ -1316,6 +1316,16 @@ webkit.org/b/316584 [ arm64 ] imported/w3c/web-platform-tests/wasm/core/simd/sim
 webkit.org/b/316585 [ arm64 ] fullscreen/full-screen-disables-viewport-clipping.html [ Pass ImageOnlyFailure ]
 webkit.org/b/316586 [ arm64 ] http/tests/cache/cache-control-immutable-http.html [ Pass Crash ]
 
+# Flaky refCount teardown crash (FontCascade::~FontCascade), much more frequent on arm64.
+webkit.org/b/316719 [ arm64 ] fast/inspector-support/cssURLQuotes.html [ Pass Crash ]
+webkit.org/b/316719 [ arm64 ] fast/layers/accumulated-offset-overflow-Render-geometry-map.html [ Pass Crash ]
+webkit.org/b/316719 [ arm64 ] fast/inline-block/001.html [ Pass Crash ]
+webkit.org/b/316719 [ arm64 ] fast/js-promise/js-promise-from-detached-iframe.html [ Pass Crash ]
+webkit.org/b/316719 [ arm64 ] fast/innerHTML/001.html [ Pass Crash ]
+webkit.org/b/316719 [ arm64 ] fast/invalid/001.html [ Pass Crash ]
+webkit.org/b/316719 [ arm64 ] fast/layout/bounding-client-rect-no-layer-updates.html [ Pass Crash ]
+webkit.org/b/316719 [ arm64 ] fast/images/png-suite/test.html [ Pass Crash ]
+
 webkit.org/b/315758 imported/w3c/web-platform-tests/webrtc/simulcast/vp8.https.html [ Crash Pass ]
 webkit.org/b/315758 imported/w3c/web-platform-tests/webrtc/simulcast/av1.https.html [ Crash Pass ]
 
