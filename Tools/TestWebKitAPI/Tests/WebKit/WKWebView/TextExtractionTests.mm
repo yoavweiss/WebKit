@@ -817,6 +817,29 @@ TEST(TextExtractionTests, RequestJSHandleForNodeIdentifier)
     EXPECT_NULL([extractionResult jsHandleForNodeIdentifier:nil searchText:@"text that does not exist"]);
 }
 
+TEST(TextExtractionTests, RequestJSHandleForStaleNodeIdentifier)
+{
+    RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 800, 600) configuration:^{
+        RetainPtr configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
+        [[configuration preferences] _setTextExtractionEnabled:YES];
+        return configuration.autorelease();
+    }()]);
+
+    [webView synchronouslyLoadTestPageNamed:@"debug-text-extraction"];
+
+    RetainPtr extractionResult = [webView synchronouslyExtractDebugTextResult:^{
+        RetainPtr configuration = adoptNS([_WKTextExtractionConfiguration new]);
+        [configuration setIncludeRects:NO];
+        [configuration setIncludeURLs:NO];
+        return configuration.autorelease();
+    }()];
+
+    RetainPtr nodeID = extractNodeIdentifier([extractionResult textContent], @"Compose a new message");
+    EXPECT_NOT_NULL(nodeID.get());
+    [webView synchronouslyLoadHTMLString:@"<body>different content</body>"];
+    EXPECT_NULL([extractionResult jsHandleForNodeIdentifier:nodeID searchText:nil]);
+}
+
 TEST(TextExtractionTests, RequestJSHandleForNodeIdentifierCaseSensitive)
 {
     RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 800, 600) configuration:^{

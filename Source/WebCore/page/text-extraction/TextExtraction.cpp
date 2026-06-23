@@ -2992,6 +2992,9 @@ std::optional<SimpleRange> rangeForExtractedText(const LocalFrame& frame, Extrac
     auto [text, nodeIdentifier] = extractedText;
 
     RefPtr node = resolveNodeWithBodyOrDocumentElementAsFallback(frame, nodeIdentifier);
+    if (!node)
+        return { };
+
     if (text.isEmpty())
         return { makeRangeSelectingNodeContents(*node) };
 
