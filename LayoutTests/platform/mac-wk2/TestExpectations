@@ -1380,8 +1380,11 @@ webkit.org/b/293808 [ Sequoia+ arm64 ] http/tests/webgpu/webgpu/shader [ Slow ]
 [ Debug ] http/tests/webgpu/webgpu/api/operation/render_pipeline/sample_mask.html [ Skip ]
 [ Debug ] http/tests/webgpu/webgpu/api/validation/image_copy/texture_related.html [ Skip ]
 [ Debug ] http/tests/webgpu/webgpu/api/validation/state/device_lost/destroy.html [ Skip ]
+
 [ Debug ] http/tests/webgpu/webgpu/shader/execution/expression/binary/f16_matrix_vector_multiplication.html [ Skip ]
 [ Debug ] http/tests/webgpu/webgpu/shader/validation/uniformity/uniformity.html [ Skip ]
+[ Debug ] http/tests/webgpu/webgpu/shader/execution/expression/call/builtin/distance.html [ Skip ]
+
 http/tests/webgpu/webgpu/api/operation/command_buffer/copyTextureToTexture.html [ Skip ]
 http/tests/webgpu/webgpu/api/operation/command_buffer/image_copy.html [ Skip ]
 http/tests/webgpu/webgpu/api/operation/resource_init/texture_zero.html [ Skip ]
@@ -1390,7 +1393,6 @@ http/tests/webgpu/webgpu/api/validation/render_pipeline/vertex_state.html [ Pass
 http/tests/webgpu/webgpu/api/validation/encoding/cmds/render/draw.html [ Skip ]
 http/tests/webgpu/webgpu/api/validation/createTexture.html [ Skip ]
 http/tests/webgpu/webgpu/api/validation/error_scope.html [ Skip ]
-[ Debug ] http/tests/webgpu/webgpu/shader/execution/expression/call/builtin/distance.html [ Skip ]
 
 # Slow tests or too slow for Intel
 [ arm64 ] http/tests/webgpu/webgpu/api/operation/vertex_state/correctness.html [ Slow ]
@@ -1408,59 +1410,57 @@ http/tests/webgpu/webgpu/api/validation/render_pipeline/misc.html [ Skip ]
 http/tests/webgpu/webgpu/api/validation/resource_usages/texture/in_render_common.html [ Skip ]
 http/tests/webgpu/webgpu/api/validation/capability_checks/limits/maxSampledTexturesPerShaderStage.html [ Skip ]
 http/tests/webgpu/webgpu/api/validation/capability_checks/limits/maxSamplersPerShaderStage.html [ Skip ]
-http/tests/webgpu/webgpu/shader/execution/expression/call/builtin/textureSampleBaseClampToEdge.html [ Skip ]
 
-http/tests/webgpu/webgpu/shader/execution/limits.html [ Skip ]
-http/tests/webgpu/webgpu/shader/execution/expression/binary/bitwise.html [ Skip ]
-http/tests/webgpu/webgpu/shader/execution/expression/binary/f16_matrix_matrix_multiplication.html [ Skip ]
-http/tests/webgpu/webgpu/shader/execution/expression/binary/f32_matrix_matrix_multiplication.html [ Skip ]
+[ arm64 ] http/tests/webgpu/webgpu/shader/execution/memory_layout.html [ Pass Failure ]
+
+# shader tests that timeout
+http/tests/webgpu/webgpu/shader/execution/expression/binary/bitwise.html [ Pass Timeout ]
+http/tests/webgpu/webgpu/shader/execution/expression/binary/f32_matrix_matrix_multiplication.html [ Pass Timeout ]
+http/tests/webgpu/webgpu/shader/execution/expression/call/builtin/textureDimensions.html [ Pass Timeout ]
+http/tests/webgpu/webgpu/shader/execution/expression/call/builtin/textureGather.html [ Timeout ]
+http/tests/webgpu/webgpu/shader/execution/expression/call/builtin/textureGatherCompare.html [ Timeout ]
+http/tests/webgpu/webgpu/shader/execution/expression/call/builtin/textureLoad.html [ Pass Timeout ]
+http/tests/webgpu/webgpu/shader/execution/expression/call/builtin/textureSample.html [ Timeout ]
+http/tests/webgpu/webgpu/shader/execution/expression/call/builtin/textureSampleBias.html [ Timeout ]
+http/tests/webgpu/webgpu/shader/execution/expression/call/builtin/textureSampleCompare.html [ Timeout ]
+http/tests/webgpu/webgpu/shader/execution/expression/call/builtin/textureSampleCompareLevel.html [ Timeout ]
+http/tests/webgpu/webgpu/shader/execution/expression/call/builtin/textureSampleGrad.html [ Timeout ]
+http/tests/webgpu/webgpu/shader/execution/expression/call/builtin/textureSampleLevel.html [ Timeout ]
+http/tests/webgpu/webgpu/shader/execution/robust_access.html [ Pass Timeout ]
+http/tests/webgpu/webgpu/shader/execution/zero_init.html [ Timeout ]
+http/tests/webgpu/webgpu/shader/execution/expression/call/builtin/mix.html [ Pass Timeout ]
+[ x86_64 ] http/tests/webgpu/webgpu/shader/execution/memory_layout.html [ Pass Failure Timeout ]
+
+
+[ Debug ] http/tests/webgpu/webgpu/shader/execution/expression/binary/f16_matrix_matrix_multiplication.html [ Pass Timeout ]
+[ Debug ] http/tests/webgpu/webgpu/shader/execution/expression/call/builtin/faceForward.html [ Pass Timeout ]
+[ Debug ] http/tests/webgpu/webgpu/shader/execution/expression/call/builtin/fwidth.html [ Pass Timeout ]
+[ Debug ] http/tests/webgpu/webgpu/shader/execution/expression/call/builtin/fwidthCoarse.html [ Pass Timeout ]
+[ Debug ] http/tests/webgpu/webgpu/shader/execution/expression/call/builtin/fwidthFine.html [ Pass Timeout ]
+[ Debug ] http/tests/webgpu/webgpu/shader/execution/expression/call/builtin/refract.html [ Pass Timeout ]
+
 webkit.org/b/308252 [ Debug arm64 ] http/tests/webgpu/webgpu/shader/execution/expression/call/builtin/bitcast.html [ Skip ]
-http/tests/webgpu/webgpu/shader/execution/expression/call/builtin/mix.html [ Skip ]
-http/tests/webgpu/webgpu/shader/execution/expression/call/builtin/textureDimensions.html [ Skip ]
-http/tests/webgpu/webgpu/shader/execution/expression/call/builtin/textureGather.html [ Skip ]
-http/tests/webgpu/webgpu/shader/execution/expression/call/builtin/textureGatherCompare.html [ Skip ]
-http/tests/webgpu/webgpu/shader/execution/expression/call/builtin/textureLoad.html [ Skip ]
-http/tests/webgpu/webgpu/shader/execution/expression/call/builtin/textureSample.html [ Skip ]
-http/tests/webgpu/webgpu/shader/execution/expression/call/builtin/textureSampleBias.html [ Skip ]
-http/tests/webgpu/webgpu/shader/execution/expression/call/builtin/textureSampleCompare.html [ Skip ]
-http/tests/webgpu/webgpu/shader/execution/expression/call/builtin/textureSampleCompareLevel.html [ Skip ]
-http/tests/webgpu/webgpu/shader/execution/expression/call/builtin/textureSampleGrad.html [ Skip ]
-http/tests/webgpu/webgpu/shader/execution/expression/call/builtin/textureSampleLevel.html [ Skip ]
-http/tests/webgpu/webgpu/shader/execution/robust_access.html [ Skip ]
-http/tests/webgpu/webgpu/shader/execution/zero_init.html [ Skip ]
 webkit.org/b/308252 [ Debug arm64 ] http/tests/webgpu/webgpu/shader/validation/expression/call/builtin/atan2.html [ Skip ]
 webkit.org/b/308252 [ Debug arm64 ] http/tests/webgpu/webgpu/shader/validation/expression/call/builtin/length.html [ Skip ]
-http/tests/webgpu/webgpu/shader/validation/expression/call/builtin/mix.html [ Skip ]
-http/tests/webgpu/webgpu/shader/execution/expression/constructor/non_zero.html [ Skip ]
-http/tests/webgpu/webgpu/shader/execution/expression/unary/af_arithmetic.html [ Skip ]
-http/tests/webgpu/webgpu/shader/execution/memory_layout.html [ Skip ]
-http/tests/webgpu/webgpu/shader/validation/expression/call/builtin/transpose.html [ Skip ]
-http/tests/webgpu/webgpu/shader/execution/expression/access/vector/components.html [ Skip ]
-http/tests/webgpu/webgpu/shader/execution/expression/call/builtin/refract.html [ Skip ]
 
 # test output is out of order
+http/tests/webgpu/webgpu/api/operation/memory_sync/buffer/multiple_buffers.html  [ Skip ]
+http/tests/webgpu/webgpu/api/operation/rendering/depth_clip_clamp.html  [ Skip ]
+http/tests/webgpu/webgpu/api/validation/getBindGroupLayout.html  [ Skip ]
+http/tests/webgpu/webgpu/api/validation/image_copy/buffer_texture_copies.html [ Skip ]
+
 http/tests/webgpu/webgpu/shader/validation/expression/call/builtin/dot.html [ Skip ]
 http/tests/webgpu/webgpu/shader/validation/expression/call/builtin/extractBits.html [ Skip ]
-webkit.org/b/308252 [ Debug ] http/tests/webgpu/webgpu/shader/validation/expression/call/builtin/fma.html [ Skip ]
 http/tests/webgpu/webgpu/shader/validation/expression/call/builtin/insertBits.html [ Skip ]
 http/tests/webgpu/webgpu/shader/validation/expression/call/builtin/textureSample.html [ Skip ]
 http/tests/webgpu/webgpu/shader/validation/expression/call/builtin/textureSampleGrad.html [ Skip ]
 http/tests/webgpu/webgpu/shader/validation/expression/call/builtin/textureSampleLevel.html [ Skip ]
 http/tests/webgpu/webgpu/shader/validation/parse/shadow_builtins.html [ Skip ]
-http/tests/webgpu/webgpu/api/operation/memory_sync/buffer/multiple_buffers.html  [ Skip ]
-http/tests/webgpu/webgpu/api/operation/rendering/depth_clip_clamp.html  [ Skip ]
-http/tests/webgpu/webgpu/api/validation/getBindGroupLayout.html  [ Skip ]
-http/tests/webgpu/webgpu/shader/execution/expression/precedence.html  [ Skip ]
 http/tests/webgpu/webgpu/shader/validation/expression/call/builtin/barriers.html  [ Skip ]
-http/tests/webgpu/webgpu/shader/validation/parse/literal.html  [ Skip ]
-http/tests/webgpu/webgpu/shader/validation/types/struct.html  [ Skip ]
+http/tests/webgpu/webgpu/shader/validation/expression/call/builtin/mix.html [ Skip ]
+http/tests/webgpu/webgpu/shader/execution/limits.html [ Skip ]
+
 [ Debug ]  http/tests/webgpu/webgpu/api/operation/buffers/map_ArrayBuffer.html [ Skip ]
-http/tests/webgpu/webgpu/api/validation/image_copy/buffer_texture_copies.html [ Skip ]
-http/tests/webgpu/webgpu/shader/execution/expression/binary/af_matrix_matrix_multiplication.html [ Skip ]
-http/tests/webgpu/webgpu/shader/execution/expression/call/builtin/faceForward.html [ Skip ]
-http/tests/webgpu/webgpu/shader/execution/expression/call/builtin/fwidth.html [ Skip ]
-http/tests/webgpu/webgpu/shader/execution/expression/call/builtin/fwidthCoarse.html [ Skip ]
-http/tests/webgpu/webgpu/shader/execution/expression/call/builtin/fwidthFine.html [ Skip ]
 
 # timeout on Intel Macs due to difference in handling infinite loops
 [ x86_64 ] fast/webgpu/regression/repro_283595-for.html [ Skip ]
@@ -1479,6 +1479,7 @@ http/tests/webgpu/webgpu/api/validation/createBindGroupLayout.html [ Skip ]
 
 # skipped debug due to https://bugs.webkit.org/show_bug.cgi?id=273961
 [ Release ] http/tests/webgpu/webgpu/api/operation/buffers/map.html [ Pass ]
+
 # skipped debug due to https://bugs.webkit.org/show_bug.cgi?id=273716
 [ Release ] http/tests/webgpu/webgpu/api/operation/buffers/map_ArrayBuffer.html [ Pass ]
 http/tests/webgpu/webgpu/api/operation/buffers/map_detach.html [ Pass ]
@@ -1502,7 +1503,6 @@ http/tests/webgpu/webgpu/api/validation/queue/submit.html [ Pass ]
 http/tests/webgpu/webgpu/api/validation/queue/destroyed [ Pass ]
 [ arm64 ] http/tests/webgpu/webgpu/api/operation/command_buffer/queries [ Pass ]
 
-http/tests/webgpu/webgpu/shader/execution/flow_control/switch.html [ Pass ]
 # arm64 release only because the tests are incredibly slow due to their extensiveness
 [ Release arm64 ] http/tests/webgpu/webgpu/shader/execution/shader_io [ Pass ]
 
@@ -1891,16 +1891,6 @@ webkit.org/b/296209 http/tests/workers/service/basic-timeout.https.html [ Pass F
 [ Sequoia Release arm64 ] http/tests/webgpu/webgpu/api/validation/capability_checks/limits/maxStorageTexturesInFragmentStage.html [ Failure ]
 [ Sequoia Release arm64 ] http/tests/webgpu/webgpu/api/validation/capability_checks/limits/maxStorageTexturesInVertexStage.html [ Failure ]
 [ Sequoia Release arm64 ] http/tests/webgpu/webgpu/api/validation/createPipelineLayout.html [ Failure ]
-[ Sequoia Release arm64 ] http/tests/webgpu/webgpu/shader/execution/expression/binary/bitwise_shift.html [ Failure ]
-[ Sequoia Release arm64 ] http/tests/webgpu/webgpu/shader/execution/flow_control/eval_order.html [ Failure ]
-[ Sequoia Release arm64 ] http/tests/webgpu/webgpu/shader/validation/decl/var.html [ Failure ]
-[ Sequoia Release arm64 ] http/tests/webgpu/webgpu/shader/validation/expression/binary/short_circuiting_and_or.html [ Failure ]
-[ Sequoia Release arm64 ] http/tests/webgpu/webgpu/shader/validation/expression/call/builtin/value_constructor.html [ Failure ]
-[ Sequoia Release arm64 ] http/tests/webgpu/webgpu/shader/validation/parse/identifiers.html [ Failure ]
-[ Sequoia Release arm64 ] http/tests/webgpu/webgpu/shader/validation/shader_io/interpolate.html [ Failure ]
-[ Sequoia Release arm64 ] http/tests/webgpu/webgpu/shader/validation/statement/continuing.html [ Failure ]
-[ Sequoia Release arm64 ] http/tests/webgpu/webgpu/shader/validation/statement/for.html [ Failure ]
-[ Sequoia Release arm64 ] http/tests/webgpu/webgpu/shader/validation/statement/phony.html [ Failure ]
 
 webkit.org/b/296300 [ Sequoia Debug arm64 ] webgl/2.0.y/conformance2/offscreencanvas/offscreencanvas-transfer-image-bitmap.html [ Pass Timeout ]
 
@@ -1909,8 +1899,6 @@ webkit.org/b/296297 fast/images/image-map-outline-with-paint-root-offset.html [ 
 webkit.org/b/296344 imported/w3c/web-platform-tests/webrtc/RTCRtpSender-replaceTrack.https.html [ Pass Failure ]
 
 webkit.org/b/296348 [ Sequoia ] http/tests/cache/disk-cache/shattered-deduplication.html [ Pass Failure ] 
-
-webkit.org/b/296571 [ Sequoia Debug arm64 ] http/tests/webgpu/webgpu/shader/execution/expression/binary/f32_matrix_vector_multiplication.html [ Timeout ]
 
 webkit.org/b/295746 webanimations/no-scheduling-while-filling-accelerated.html [ Pass Failure ]
 
@@ -2144,8 +2132,6 @@ webkit.org/b/306663 [ Debug arm64 ] webaudio/silent-audio-interrupted-in-backgro
 webkit.org/b/306670 [ Debug arm64 ] http/tests/webgpu/webgpu/api/validation/render_pipeline/resource_compatibility.html [ Pass Failure Timeout ]
 
 webkit.org/b/310823 [ Release arm64 ] imported/w3c/web-platform-tests/html/semantics/embedded-content/the-canvas-element/security.pattern.fillStyle.sub.html [ Pass Failure ]
-
-webkit.org/b/306808 http/tests/webgpu/webgpu/shader/validation/parse/blankspace.html [ Pass Failure ]
 
 webkit.org/b/306821 [ Tahoe ] fast/css-grid-layout/grid-item-display.html [ Pass Failure ]
 
