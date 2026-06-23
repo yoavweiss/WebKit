@@ -1214,7 +1214,7 @@ bool WebPageProxy::useGPUProcessForDOMRenderingEnabled() const
     for (RefPtr page = configuration->relatedPage(); page && !visitedPages.contains(*page); page = page->configuration().relatedPage()) {
         if (protect(page->preferences())->useGPUProcessForDOMRenderingEnabled())
             return true;
-        visitedPages.add(page.releaseNonNull());
+        visitedPages.add(*page);
     }
 
     return false;
