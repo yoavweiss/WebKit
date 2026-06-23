@@ -30,36 +30,6 @@ namespace WebCore {
 
 using namespace Inspector;
 
-Inspector::CommandResult<int> FrameDOMAgent::setNodeName(int, const String&)
-{
-    return makeUnexpected("Not yet implemented for frame targets"_s);
-}
-
-Inspector::CommandResult<void> FrameDOMAgent::setNodeValue(int, const String&)
-{
-    return makeUnexpected("Not yet implemented for frame targets"_s);
-}
-
-Inspector::CommandResult<void> FrameDOMAgent::removeNode(int)
-{
-    return makeUnexpected("Not yet implemented for frame targets"_s);
-}
-
-Inspector::CommandResult<void> FrameDOMAgent::setAttributeValue(int, const String&, const String&)
-{
-    return makeUnexpected("Not yet implemented for frame targets"_s);
-}
-
-Inspector::CommandResult<void> FrameDOMAgent::setAttributesAsText(int, const String&, const String&)
-{
-    return makeUnexpected("Not yet implemented for frame targets"_s);
-}
-
-Inspector::CommandResult<void> FrameDOMAgent::removeAttribute(int, const String&)
-{
-    return makeUnexpected("Not yet implemented for frame targets"_s);
-}
-
 #if ENABLE(INSPECTOR_ALTERNATE_DISPATCHERS)
 Inspector::CommandResult<Ref<JSON::ArrayOf<Inspector::Protocol::DOM::DataBinding>>> FrameDOMAgent::getDataBindingsForNode(int)
 {
@@ -83,16 +53,6 @@ Inspector::CommandResult<void> FrameDOMAgent::removeBreakpointForEventListener(i
 }
 
 Inspector::CommandResult<Ref<Inspector::Protocol::DOM::AccessibilityProperties>> FrameDOMAgent::getAccessibilityPropertiesForNode(int)
-{
-    return makeUnexpected("Not yet implemented for frame targets"_s);
-}
-
-Inspector::CommandResult<void> FrameDOMAgent::setOuterHTML(int, const String&)
-{
-    return makeUnexpected("Not yet implemented for frame targets"_s);
-}
-
-Inspector::CommandResult<void> FrameDOMAgent::insertAdjacentHTML(int, const String&, const String&)
 {
     return makeUnexpected("Not yet implemented for frame targets"_s);
 }
@@ -187,11 +147,6 @@ Inspector::CommandResult<void> FrameDOMAgent::hideFlexOverlay(std::optional<int>
 }
 
 Inspector::CommandResult<Ref<Inspector::Protocol::Runtime::RemoteObject>> FrameDOMAgent::resolveNode(int, const String&)
-{
-    return makeUnexpected("Not yet implemented for frame targets"_s);
-}
-
-Inspector::CommandResult<int> FrameDOMAgent::moveTo(int, int, std::optional<int>&&)
 {
     return makeUnexpected("Not yet implemented for frame targets"_s);
 }

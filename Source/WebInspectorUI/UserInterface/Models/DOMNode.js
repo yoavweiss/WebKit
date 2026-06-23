@@ -445,14 +445,8 @@ WI.DOMNode = class DOMNode extends WI.Object
             return;
         }
 
-        // FIXME: <https://webkit.org/b/298980> Mutating nodes in cross-origin frame targets is not yet supported.
-        if (this.owningTarget) {
-            callback("ERROR: not supported on cross-origin frame nodes");
-            return;
-        }
-
-        let target = WI.assumingMainTarget();
-        target.DOMAgent.setNodeName(this.id, name, this._makeUndoableCallback(callback));
+        let target = this.owningTarget || WI.assumingMainTarget();
+        target.DOMAgent.setNodeName(this.backendNodeId, name, this._makeUndoableCallback(callback));
     }
 
     localName()
@@ -513,14 +507,8 @@ WI.DOMNode = class DOMNode extends WI.Object
             return;
         }
 
-        // FIXME: <https://webkit.org/b/298980> Mutating nodes in cross-origin frame targets is not yet supported.
-        if (this.owningTarget) {
-            callback("ERROR: not supported on cross-origin frame nodes");
-            return;
-        }
-
-        let target = WI.assumingMainTarget();
-        target.DOMAgent.setNodeValue(this.id, value, this._makeUndoableCallback(callback));
+        let target = this.owningTarget || WI.assumingMainTarget();
+        target.DOMAgent.setNodeValue(this.backendNodeId, value, this._makeUndoableCallback(callback));
     }
 
     getAttribute(name)
@@ -537,14 +525,8 @@ WI.DOMNode = class DOMNode extends WI.Object
             return;
         }
 
-        // FIXME: <https://webkit.org/b/298980> Mutating nodes in cross-origin frame targets is not yet supported.
-        if (this.owningTarget) {
-            callback("ERROR: not supported on cross-origin frame nodes");
-            return;
-        }
-
-        let target = WI.assumingMainTarget();
-        target.DOMAgent.setAttributesAsText(this.id, text, name, this._makeUndoableCallback(callback));
+        let target = this.owningTarget || WI.assumingMainTarget();
+        target.DOMAgent.setAttributesAsText(this.backendNodeId, text, name, this._makeUndoableCallback(callback));
     }
 
     setAttributeValue(name, value, callback)
@@ -558,23 +540,15 @@ WI.DOMNode = class DOMNode extends WI.Object
             return;
         }
 
-        // FIXME: <https://webkit.org/b/298980> Mutating nodes in cross-origin frame targets is not yet supported.
-        if (this.owningTarget) {
-            if (!callback)
-                return Promise.reject("ERROR: not supported on cross-origin frame nodes");
-            callback("ERROR: not supported on cross-origin frame nodes");
-            return;
-        }
-
-        let target = WI.assumingMainTarget();
+        let target = this.owningTarget || WI.assumingMainTarget();
 
         if (!callback) {
-            return target.DOMAgent.setAttributeValue(this.id, name, value).then(() => {
+            return target.DOMAgent.setAttributeValue(this.backendNodeId, name, value).then(() => {
                 this._markUndoableState();
             });
         }
 
-        target.DOMAgent.setAttributeValue(this.id, name, value, this._makeUndoableCallback(callback));
+        target.DOMAgent.setAttributeValue(this.backendNodeId, name, value, this._makeUndoableCallback(callback));
     }
 
     attributes()
@@ -587,12 +561,6 @@ WI.DOMNode = class DOMNode extends WI.Object
         console.assert(!this._destroyed, this);
         if (this._destroyed) {
             callback("ERROR: node is destroyed");
-            return;
-        }
-
-        // FIXME: <https://webkit.org/b/298980> Mutating nodes in cross-origin frame targets is not yet supported.
-        if (this.owningTarget) {
-            callback("ERROR: not supported on cross-origin frame nodes");
             return;
         }
 
@@ -611,8 +579,8 @@ WI.DOMNode = class DOMNode extends WI.Object
             this._makeUndoableCallback(callback)(error);
         }
 
-        let target = WI.assumingMainTarget();
-        target.DOMAgent.removeAttribute(this.id, name, mycallback.bind(this));
+        let target = this.owningTarget || WI.assumingMainTarget();
+        target.DOMAgent.removeAttribute(this.backendNodeId, name, mycallback.bind(this));
     }
 
     toggleClass(className, flag)
@@ -947,14 +915,8 @@ WI.DOMNode = class DOMNode extends WI.Object
             return;
         }
 
-        // FIXME: <https://webkit.org/b/298980> Mutating nodes in cross-origin frame targets is not yet supported.
-        if (this.owningTarget) {
-            callback("ERROR: not supported on cross-origin frame nodes");
-            return;
-        }
-
-        let target = WI.assumingMainTarget();
-        target.DOMAgent.setOuterHTML(this.id, html, this._makeUndoableCallback(callback));
+        let target = this.owningTarget || WI.assumingMainTarget();
+        target.DOMAgent.setOuterHTML(this.backendNodeId, html, this._makeUndoableCallback(callback));
     }
 
     insertAdjacentHTML(position, html)
@@ -966,12 +928,8 @@ WI.DOMNode = class DOMNode extends WI.Object
         if (this.nodeType() !== Node.ELEMENT_NODE)
             return;
 
-        // FIXME: <https://webkit.org/b/298980> Mutating nodes in cross-origin frame targets is not yet supported.
-        if (this.owningTarget)
-            return;
-
-        let target = WI.assumingMainTarget();
-        target.DOMAgent.insertAdjacentHTML(this.id, position, html, this._makeUndoableCallback());
+        let target = this.owningTarget || WI.assumingMainTarget();
+        target.DOMAgent.insertAdjacentHTML(this.backendNodeId, position, html, this._makeUndoableCallback());
     }
 
     removeNode(callback)
@@ -982,14 +940,8 @@ WI.DOMNode = class DOMNode extends WI.Object
             return;
         }
 
-        // FIXME: <https://webkit.org/b/298980> Mutating nodes in cross-origin frame targets is not yet supported.
-        if (this.owningTarget) {
-            callback("ERROR: not supported on cross-origin frame nodes");
-            return;
-        }
-
-        let target = WI.assumingMainTarget();
-        target.DOMAgent.removeNode(this.id, this._makeUndoableCallback(callback));
+        let target = this.owningTarget || WI.assumingMainTarget();
+        target.DOMAgent.removeNode(this.backendNodeId, this._makeUndoableCallback(callback));
     }
 
     getEventListeners({includeAncestors} = {})
@@ -1327,14 +1279,15 @@ WI.DOMNode = class DOMNode extends WI.Object
             return;
         }
 
-        // FIXME: <https://webkit.org/b/298980> Mutating nodes in cross-origin frame targets is not yet supported.
-        if (this.owningTarget || targetNode.owningTarget || (anchorNode && anchorNode.owningTarget)) {
-            callback("ERROR: not supported on cross-origin frame nodes");
+        // moveTo requires source, target, and anchor to live in the same agent. Cross-target
+        // moves cannot resolve nodeIds across processes; reject up front.
+        if (this.owningTarget !== targetNode.owningTarget || (anchorNode && anchorNode.owningTarget !== this.owningTarget)) {
+            callback("ERROR: cannot move nodes across frame targets");
             return;
         }
 
-        let target = WI.assumingMainTarget();
-        target.DOMAgent.moveTo(this.id, targetNode.id, anchorNode ? anchorNode.id : undefined, this._makeUndoableCallback(callback));
+        let target = this.owningTarget || WI.assumingMainTarget();
+        target.DOMAgent.moveTo(this.backendNodeId, targetNode.backendNodeId, anchorNode ? anchorNode.backendNodeId : undefined, this._makeUndoableCallback(callback));
     }
 
     isXMLNode()

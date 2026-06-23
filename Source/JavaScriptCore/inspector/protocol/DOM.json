@@ -356,7 +356,7 @@
         {
             "name": "setNodeName",
             "description": "Sets node name for a node with given id.",
-            "targetTypes": ["page"],
+            "targetTypes": ["frame", "page"],
             "parameters": [
                 { "name": "nodeId", "$ref": "NodeId", "description": "Id of the node to set name for." },
                 { "name": "name", "type": "string", "description": "New node's name." }
@@ -368,6 +368,7 @@
         {
             "name": "setNodeValue",
             "description": "Sets node value for a node with given id.",
+            "targetTypes": ["frame", "page"],
             "parameters": [
                 { "name": "nodeId", "$ref": "NodeId", "description": "Id of the node to set value for." },
                 { "name": "value", "type": "string", "description": "New node's value." }
@@ -376,6 +377,7 @@
         {
             "name": "removeNode",
             "description": "Removes node with given id.",
+            "targetTypes": ["frame", "page"],
             "parameters": [
                 { "name": "nodeId", "$ref": "NodeId", "description": "Id of the node to remove." }
             ]
@@ -383,6 +385,7 @@
         {
             "name": "setAttributeValue",
             "description": "Sets attribute for an element with given id.",
+            "targetTypes": ["frame", "page"],
             "parameters": [
                 { "name": "nodeId", "$ref": "NodeId", "description": "Id of the element to set attribute for." },
                 { "name": "name", "type": "string", "description": "Attribute name." },
@@ -392,6 +395,7 @@
         {
             "name": "setAttributesAsText",
             "description": "Sets attributes on element with given id. This method is useful when user edits some existing attribute value and types in several attribute name/value pairs.",
+            "targetTypes": ["frame", "page"],
             "parameters": [
                 { "name": "nodeId", "$ref": "NodeId", "description": "Id of the element to set attributes for." },
                 { "name": "text", "type": "string", "description": "Text with a number of attributes. Will parse this text using HTML parser." },
@@ -401,6 +405,7 @@
         {
             "name": "removeAttribute",
             "description": "Removes attribute with given name from an element with given id.",
+            "targetTypes": ["frame", "page"],
             "parameters": [
                 { "name": "nodeId", "$ref": "NodeId", "description": "Id of the element to remove attribute from." },
                 { "name": "name", "type": "string", "description": "Name of the attribute to remove." }
@@ -498,6 +503,7 @@
         {
             "name": "setOuterHTML",
             "description": "Sets node HTML markup, returns new node id.",
+            "targetTypes": ["frame", "page"],
             "parameters": [
                 { "name": "nodeId", "$ref": "NodeId", "description": "Id of the node to set markup for." },
                 { "name": "outerHTML", "type": "string", "description": "Outer HTML markup to set." }
@@ -505,7 +511,7 @@
         },
         {
             "name": "insertAdjacentHTML",
-            "targetTypes": ["page"],
+            "targetTypes": ["frame", "page"],
             "parameters": [
                 { "name": "nodeId", "$ref": "NodeId" },
                 { "name": "position", "type": "string" },
@@ -762,6 +768,7 @@
         {
             "name": "moveTo",
             "description": "Moves node into the new container, places it before the given anchor.",
+            "targetTypes": ["frame", "page"],
             "parameters": [
                 { "name": "nodeId", "$ref": "NodeId", "description": "Id of the node to drop." },
                 { "name": "targetNodeId", "$ref": "NodeId", "description": "Id of the element to drop into." },

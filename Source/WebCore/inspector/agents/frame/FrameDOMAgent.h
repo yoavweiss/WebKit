@@ -160,6 +160,8 @@ private:
 
     RefPtr<Node> assertNode(Inspector::Protocol::ErrorString&, Inspector::Protocol::DOM::NodeId);
     RefPtr<Element> assertElement(Inspector::Protocol::ErrorString&, Inspector::Protocol::DOM::NodeId);
+    RefPtr<Node> assertEditableNode(Inspector::Protocol::ErrorString&, Inspector::Protocol::DOM::NodeId);
+    RefPtr<Element> assertEditableElement(Inspector::Protocol::ErrorString&, Inspector::Protocol::DOM::NodeId);
 
     Ref<Inspector::Protocol::DOM::Node> buildObjectForNode(Node*, int depth);
     Ref<JSON::ArrayOf<String>> buildArrayForElementAttributes(Element*);
