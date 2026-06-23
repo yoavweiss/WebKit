@@ -111,8 +111,12 @@ WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
 RefPtr<LogStream> LogStream::create(WebProcessProxy& process, IPC::StreamServerConnectionHandle&& serverConnection, LogStreamIdentifier identifier, CompletionHandler<void(IPC::Semaphore& streamWakeUpSemaphore, IPC::Semaphore& streamClientWaitSemaphore)>&& completionHandler)
 {
     RefPtr connection = IPC::StreamServerConnection::tryCreate(WTF::move(serverConnection), { });
-    if (!connection)
+    if (!connection) {
+        IPC::Semaphore invalidWakeUpSemaphore;
+        IPC::Semaphore invalidClientWaitSemaphore;
+        completionHandler(invalidWakeUpSemaphore, invalidClientWaitSemaphore);
         return nullptr;
+    }
     static NeverDestroyed<Ref<IPC::StreamConnectionWorkQueue>> logQueue = IPC::StreamConnectionWorkQueue::create("Log work queue"_s);
 
     Ref instance = adoptRef(*new LogStream(process, connection.releaseNonNull(), identifier));
