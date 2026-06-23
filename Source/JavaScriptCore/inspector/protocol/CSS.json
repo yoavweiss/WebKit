@@ -356,7 +356,7 @@
         {
             "name": "getFontDataForNode",
             "description": "Returns the primary font of the computed font cascade for a DOM node identified by <code>nodeId</code>.",
-            "targetTypes": ["page"],
+            "targetTypes": ["frame", "page"],
             "parameters": [
                 { "name": "nodeId", "$ref": "DOM.NodeId" }
             ],
@@ -475,7 +475,7 @@
         {
             "name": "forcePseudoState",
             "description": "Ensures that the given node will have specified pseudo-classes whenever its style is computed by the browser.",
-            "targetTypes": ["page"],
+            "targetTypes": ["frame", "page"],
             "parameters": [
                 { "name": "nodeId", "$ref": "DOM.NodeId", "description": "The element id for which to force the pseudo state." },
                 { "name": "forcedPseudoClasses", "type": "array", "items": { "$ref": "ForceablePseudoClass" }, "description": "Element pseudo classes to force when computing the element's style." }

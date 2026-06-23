@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "CSSSelector.h"
 #include "InspectorStyleSheet.h"
 #include "InspectorWebAgentBase.h"
 #include <JavaScriptCore/InspectorBackendDispatchers.h>
@@ -40,9 +41,19 @@ class CSSFrontendDispatcher;
 
 namespace WebCore {
 
+class CSSStyleRule;
 class CSSStyleSheet;
 class Document;
+class Element;
 class LocalFrame;
+class Node;
+class StyledElement;
+class StyleRule;
+
+namespace Style {
+class Resolver;
+struct PseudoElementIdentifier;
+}
 
 class FrameCSSAgent final : public InspectorAgentBase, public Inspector::CSSBackendDispatcherHandler, public InspectorStyleSheet::Listener, public CanMakeCheckedPtr<FrameCSSAgent> {
     WTF_MAKE_NONCOPYABLE(FrameCSSAgent);
@@ -81,14 +92,21 @@ public:
     void styleSheetChanged(InspectorStyleSheet*) override;
 
     // InspectorInstrumentation
+    bool forcePseudoState(const Element&, CSSSelector::PseudoClass);
     void documentDetached(Document&);
     void mediaQueryResultChanged();
     void activeStyleSheetsUpdated(Document&);
 
 private:
     void reset();
+    RefPtr<Element> elementForId(Inspector::Protocol::ErrorString&, Inspector::Protocol::DOM::NodeId);
     InspectorStyleSheet& bindStyleSheet(CSSStyleSheet*);
     InspectorStyleSheet* assertStyleSheetForId(Inspector::Protocol::ErrorString&, const Inspector::Protocol::CSS::StyleSheetId&);
+    InspectorStyleSheetForInlineStyle& asInspectorStyleSheet(StyledElement&);
+    RefPtr<Inspector::Protocol::CSS::CSSStyle> buildObjectForAttributesStyle(StyledElement&);
+    RefPtr<Inspector::Protocol::CSS::CSSRule> buildObjectForRule(const StyleRule*, Style::Resolver&, Element&);
+    RefPtr<Inspector::Protocol::CSS::CSSRule> buildObjectForRule(CSSStyleRule*);
+    Ref<JSON::ArrayOf<Inspector::Protocol::CSS::RuleMatch>> buildArrayForMatchedRuleList(const Vector<Ref<const StyleRule>>&, Style::Resolver&, Element&, std::optional<Style::PseudoElementIdentifier>);
     void collectAllDocumentStyleSheets(Document&, Vector<CSSStyleSheet*>&);
     void collectStyleSheets(CSSStyleSheet*, Vector<CSSStyleSheet*>&);
     void setActiveStyleSheetsForDocument(Document&, Vector<CSSStyleSheet*>&);
@@ -103,6 +121,10 @@ private:
     HashMap<CSSStyleSheet*, Ref<InspectorStyleSheet>> m_cssStyleSheetToInspectorStyleSheet;
     HashMap<Ref<Document>, Vector<Ref<InspectorStyleSheet>>> m_documentToInspectorStyleSheet;
     HashMap<Document*, HashSet<CSSStyleSheet*>> m_documentToKnownCSSStyleSheets;
+    HashMap<Node*, Ref<InspectorStyleSheetForInlineStyle>> m_nodeToInspectorStyleSheet;
+    using PseudoClassHashSet = HashSet<CSSSelector::PseudoClass, IntHash<CSSSelector::PseudoClass>, WTF::StrongEnumHashTraits<CSSSelector::PseudoClass>>;
+    HashMap<Inspector::Protocol::DOM::NodeId, PseudoClassHashSet> m_nodeIdToForcedPseudoState;
+    HashSet<Document*> m_documentsWithForcedPseudoStates;
     int m_lastStyleSheetId { 1 };
     bool m_creatingViaInspectorStyleSheet { false };
 };

@@ -397,6 +397,11 @@ bool InspectorInstrumentation::forcePseudoStateImpl(InstrumentingAgents& instrum
 {
     if (CheckedPtr cssAgent = instrumentingAgents.enabledCSSAgent())
         return cssAgent->forcePseudoState(element, pseudoState);
+
+    if (RefPtr frame = element.document().frame()) {
+        if (CheckedPtr frameCSSAgent = frame->inspectorController().instrumentingAgents().enabledFrameCSSAgent())
+            return frameCSSAgent->forcePseudoState(element, pseudoState);
+    }
     return false;
 }
 

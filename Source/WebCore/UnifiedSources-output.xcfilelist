@@ -643,6 +643,7 @@ $(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/unified-sources/UnifiedSource77-hea
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/unified-sources/UnifiedSource77.cpp
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/unified-sources/UnifiedSource78-header-RenderStyleGetters.cpp
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/unified-sources/UnifiedSource78.cpp
+$(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/unified-sources/UnifiedSource79-header-RenderStyleGetters.cpp
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/unified-sources/UnifiedSource79.cpp
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/unified-sources/UnifiedSource8-header-RenderStyleGetters.cpp
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/unified-sources/UnifiedSource8-nonARC.mm

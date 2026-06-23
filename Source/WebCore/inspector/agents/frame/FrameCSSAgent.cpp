@@ -26,18 +26,27 @@
 #include "config.h"
 #include "FrameCSSAgent.h"
 
+#include "CSSComputedStyleDeclaration.h"
 #include "CSSImportRule.h"
 #include "CSSParserContext.h"
 #include "CSSProperty.h"
 #include "CSSPropertyNames.h"
 #include "CSSPropertyParserState.h"
 #include "CSSPropertyParsing.h"
+#include "CSSStyleRule.h"
 #include "CSSStyleSheet.h"
 #include "CSSValueKeywords.h"
 #include "CommonAtomStrings.h"
 #include "ContentSecurityPolicy.h"
 #include "Document.h"
+#include "DocumentInlines.h"
 #include "DocumentPage.h"
+#include "ElementAncestorIteratorInlines.h"
+#include "ExtensionStyleSheets.h"
+#include "Font.h"
+#include "FontCascadeInlines.h"
+#include "FontPlatformData.h"
+#include "FrameDOMAgent.h"
 #include "HTMLHeadElement.h"
 #include "HTMLStyleElement.h"
 #include "InspectorDOMAgent.h"
@@ -47,10 +56,19 @@
 #include "LocalFrameInlines.h"
 #include "Page.h"
 #include "PageInspectorController.h"
+#include "PseudoElement.h"
+#include "PseudoElementIdentifier.h"
+#include "RenderStyleConstants.h"
+#include "SelectorChecker.h"
+#include "StyleDisplay.h"
 #include "StyleDocumentScope.h"
+#include "StyleProperties.h"
 #include "StylePropertyShorthand.h"
+#include "StyleResolver.h"
+#include "StyleRule.h"
 #include "StyleScope.h"
 #include "StyleSheetContents.h"
+#include "StyledElement.h"
 #include <JavaScriptCore/InspectorFrontendDispatchers.h>
 #include <JavaScriptCore/InspectorProtocolObjects.h>
 #include <wtf/TZoneMallocInlines.h>
@@ -58,6 +76,67 @@
 namespace WebCore {
 
 WTF_MAKE_TZONE_ALLOCATED_IMPL(FrameCSSAgent);
+
+static std::optional<Inspector::Protocol::CSS::PseudoId> protocolValueForPseudoElementType(PseudoElementType pseudoElementType)
+{
+    switch (pseudoElementType) {
+    case PseudoElementType::FirstLine:
+        return Inspector::Protocol::CSS::PseudoId::FirstLine;
+    case PseudoElementType::FirstLetter:
+        return Inspector::Protocol::CSS::PseudoId::FirstLetter;
+    case PseudoElementType::GrammarError:
+        return Inspector::Protocol::CSS::PseudoId::GrammarError;
+    case PseudoElementType::Marker:
+        return Inspector::Protocol::CSS::PseudoId::Marker;
+    case PseudoElementType::Backdrop:
+        return Inspector::Protocol::CSS::PseudoId::Backdrop;
+    case PseudoElementType::Before:
+        return Inspector::Protocol::CSS::PseudoId::Before;
+    case PseudoElementType::After:
+        return Inspector::Protocol::CSS::PseudoId::After;
+    case PseudoElementType::Selection:
+        return Inspector::Protocol::CSS::PseudoId::Selection;
+    case PseudoElementType::Highlight:
+        return Inspector::Protocol::CSS::PseudoId::Highlight;
+    case PseudoElementType::SpellingError:
+        return Inspector::Protocol::CSS::PseudoId::SpellingError;
+    case PseudoElementType::TargetText:
+        return Inspector::Protocol::CSS::PseudoId::TargetText;
+    case PseudoElementType::Checkmark:
+        return Inspector::Protocol::CSS::PseudoId::Checkmark;
+    case PseudoElementType::PickerIcon:
+        return Inspector::Protocol::CSS::PseudoId::PickerIcon;
+    case PseudoElementType::ViewTransition:
+        return Inspector::Protocol::CSS::PseudoId::ViewTransition;
+    case PseudoElementType::ViewTransitionGroup:
+        return Inspector::Protocol::CSS::PseudoId::ViewTransitionGroup;
+    case PseudoElementType::ViewTransitionImagePair:
+        return Inspector::Protocol::CSS::PseudoId::ViewTransitionImagePair;
+    case PseudoElementType::ViewTransitionOld:
+        return Inspector::Protocol::CSS::PseudoId::ViewTransitionOld;
+    case PseudoElementType::ViewTransitionNew:
+        return Inspector::Protocol::CSS::PseudoId::ViewTransitionNew;
+    case PseudoElementType::WebKitResizer:
+        return Inspector::Protocol::CSS::PseudoId::WebKitResizer;
+    case PseudoElementType::WebKitScrollbar:
+        return Inspector::Protocol::CSS::PseudoId::WebKitScrollbar;
+    case PseudoElementType::WebKitScrollbarThumb:
+        return Inspector::Protocol::CSS::PseudoId::WebKitScrollbarThumb;
+    case PseudoElementType::WebKitScrollbarButton:
+        return Inspector::Protocol::CSS::PseudoId::WebKitScrollbarButton;
+    case PseudoElementType::WebKitScrollbarTrack:
+        return Inspector::Protocol::CSS::PseudoId::WebKitScrollbarTrack;
+    case PseudoElementType::WebKitScrollbarTrackPiece:
+        return Inspector::Protocol::CSS::PseudoId::WebKitScrollbarTrackPiece;
+    case PseudoElementType::WebKitScrollbarCorner:
+        return Inspector::Protocol::CSS::PseudoId::WebKitScrollbarCorner;
+    case PseudoElementType::InternalWritingSuggestions:
+        return { };
+    default:
+        ASSERT_NOT_REACHED();
+        return { };
+    }
+}
 
 FrameCSSAgent::FrameCSSAgent(FrameAgentContext& context)
     : InspectorAgentBase("CSS"_s, context)
@@ -101,28 +180,146 @@ Inspector::CommandResult<void> FrameCSSAgent::disable()
     return { };
 }
 
-Inspector::CommandResult<Ref<JSON::ArrayOf<Inspector::Protocol::CSS::CSSComputedStyleProperty>>> FrameCSSAgent::getComputedStyleForNode(Inspector::Protocol::DOM::NodeId)
+Inspector::CommandResult<Ref<JSON::ArrayOf<Inspector::Protocol::CSS::CSSComputedStyleProperty>>> FrameCSSAgent::getComputedStyleForNode(Inspector::Protocol::DOM::NodeId nodeId)
 {
-    // FIXME: <https://webkit.org/b/314424>: Implement nodeId-dependent CSS commands for frame targets.
-    return makeUnexpected("Not supported on frame targets"_s);
+    Inspector::Protocol::ErrorString errorString;
+
+    RefPtr element = elementForId(errorString, nodeId);
+    if (!element)
+        return makeUnexpected(errorString);
+
+    if (!element->isConnected())
+        return makeUnexpected("Element for given nodeId was not connected to DOM tree."_s);
+
+    auto computedStyleInfo = CSSComputedStyleDeclaration::create(*element, CSSComputedStyleDeclaration::AllowVisited::Yes);
+    auto inspectorStyle = InspectorStyle::create(InspectorCSSId(), WTF::move(computedStyleInfo), nullptr);
+    return inspectorStyle->buildArrayForComputedStyle();
 }
 
-Inspector::CommandResult<Ref<Inspector::Protocol::CSS::Font>> FrameCSSAgent::getFontDataForNode(Inspector::Protocol::DOM::NodeId)
+Inspector::CommandResult<Ref<Inspector::Protocol::CSS::Font>> FrameCSSAgent::getFontDataForNode(Inspector::Protocol::DOM::NodeId nodeId)
 {
-    // FIXME: <https://webkit.org/b/314424>: Implement nodeId-dependent CSS commands for frame targets.
-    return makeUnexpected("Not supported on frame targets"_s);
+    Inspector::Protocol::ErrorString errorString;
+    RefPtr element = elementForId(errorString, nodeId);
+    if (!element)
+        return makeUnexpected(errorString);
+
+    CheckedPtr computedStyle = element->computedStyle();
+    if (!computedStyle)
+        return makeUnexpected("No computed style for node."_s);
+
+    Ref font = protect(computedStyle->fontCascade())->primaryFont();
+    auto& fontPlatformData = font->platformData();
+
+    auto resultVariationAxes = JSON::ArrayOf<Inspector::Protocol::CSS::FontVariationAxis>::create();
+    for (auto& variationAxis : fontPlatformData.variationAxes(ShouldLocalizeAxisNames::Yes)) {
+        auto axis = Inspector::Protocol::CSS::FontVariationAxis::create()
+            .setTag(variationAxis.tag())
+            .setMinimumValue(variationAxis.minimumValue())
+            .setMaximumValue(variationAxis.maximumValue())
+            .setDefaultValue(variationAxis.defaultValue())
+            .release();
+        if (variationAxis.name().length() && variationAxis.name() != variationAxis.tag())
+            axis->setName(variationAxis.name());
+        resultVariationAxes->addItem(WTF::move(axis));
+    }
+
+    auto protocolFont = Inspector::Protocol::CSS::Font::create()
+        .setDisplayName(fontPlatformData.familyName())
+        .setVariationAxes(WTF::move(resultVariationAxes))
+        .release();
+    protocolFont->setSynthesizedBold(fontPlatformData.syntheticBold());
+    protocolFont->setSynthesizedOblique(fontPlatformData.syntheticOblique());
+
+    return protocolFont;
 }
 
-Inspector::CommandResultOf<RefPtr<Inspector::Protocol::CSS::CSSStyle>, RefPtr<Inspector::Protocol::CSS::CSSStyle>> FrameCSSAgent::getInlineStylesForNode(Inspector::Protocol::DOM::NodeId)
+Inspector::CommandResultOf<RefPtr<Inspector::Protocol::CSS::CSSStyle>, RefPtr<Inspector::Protocol::CSS::CSSStyle>> FrameCSSAgent::getInlineStylesForNode(Inspector::Protocol::DOM::NodeId nodeId)
 {
-    // FIXME: <https://webkit.org/b/314424>: Implement nodeId-dependent CSS commands for frame targets.
-    return makeUnexpected("Not supported on frame targets"_s);
+    Inspector::Protocol::ErrorString errorString;
+
+    RefPtr element = elementForId(errorString, nodeId);
+    if (!element)
+        return makeUnexpected(errorString);
+
+    RefPtr styledElement = dynamicDowncast<StyledElement>(*element);
+    if (!styledElement)
+        return { { nullptr, nullptr } };
+
+    Ref styleSheet = asInspectorStyleSheet(*styledElement);
+    return { { styleSheet->buildObjectForStyle(protect(styledElement->cssomStyle()).ptr()), buildObjectForAttributesStyle(*styledElement) } };
 }
 
-Inspector::CommandResultOf<RefPtr<JSON::ArrayOf<Inspector::Protocol::CSS::RuleMatch>>, RefPtr<JSON::ArrayOf<Inspector::Protocol::CSS::PseudoIdMatches>>, RefPtr<JSON::ArrayOf<Inspector::Protocol::CSS::InheritedStyleEntry>>> FrameCSSAgent::getMatchedStylesForNode(Inspector::Protocol::DOM::NodeId, std::optional<bool>&&, std::optional<bool>&&)
+Inspector::CommandResultOf<RefPtr<JSON::ArrayOf<Inspector::Protocol::CSS::RuleMatch>>, RefPtr<JSON::ArrayOf<Inspector::Protocol::CSS::PseudoIdMatches>>, RefPtr<JSON::ArrayOf<Inspector::Protocol::CSS::InheritedStyleEntry>>> FrameCSSAgent::getMatchedStylesForNode(Inspector::Protocol::DOM::NodeId nodeId, std::optional<bool>&& includePseudo, std::optional<bool>&& includeInherited)
 {
-    // FIXME: <https://webkit.org/b/314424>: Implement nodeId-dependent CSS commands for frame targets.
-    return makeUnexpected("Not supported on frame targets"_s);
+    Inspector::Protocol::ErrorString errorString;
+
+    RefPtr element = elementForId(errorString, nodeId);
+    if (!element)
+        return makeUnexpected(errorString);
+
+    if (!element->isConnected())
+        return makeUnexpected("Element for given nodeId was not connected to DOM tree."_s);
+
+    RefPtr originalElement = element;
+    auto elementPseudoId = element->pseudoElementIdentifier();
+    if (elementPseudoId) {
+        element = downcast<PseudoElement>(*element).hostElement();
+        if (!element)
+            return makeUnexpected("Missing parent of pseudo-element node for given nodeId"_s);
+    }
+
+    Ref styleResolver = element->styleResolver();
+    auto matchedRules = styleResolver->pseudoStyleRulesForElement(element, elementPseudoId, Style::Resolver::AllCSSRules);
+    auto matchedCSSRules = buildArrayForMatchedRuleList(matchedRules, styleResolver, *element, elementPseudoId);
+    RefPtr<JSON::ArrayOf<Inspector::Protocol::CSS::PseudoIdMatches>> pseudoElements;
+    RefPtr<JSON::ArrayOf<Inspector::Protocol::CSS::InheritedStyleEntry>> inherited;
+
+    if (!originalElement->isPseudoElement()) {
+        if (!includePseudo || *includePseudo) {
+            pseudoElements = JSON::ArrayOf<Inspector::Protocol::CSS::PseudoIdMatches>::create();
+            for (auto pseudoElementType : allPseudoElementTypes) {
+                if (pseudoElementType == PseudoElementType::Marker && element->computedStyle()->display() != Style::DisplayType::BlockFlowListItem)
+                    continue;
+                if (pseudoElementType == PseudoElementType::Backdrop && !element->isInTopLayer())
+                    continue;
+                if (pseudoElementType == PseudoElementType::ViewTransition && (!element->document().activeViewTransition() || element != element->document().documentElement()))
+                    continue;
+
+                auto pseudoElementIdentifier = Style::PseudoElementIdentifier { pseudoElementType };
+                if (isNamedViewTransitionPseudoElement(pseudoElementIdentifier))
+                    continue;
+
+                if (auto protocolPseudoId = protocolValueForPseudoElementType(pseudoElementType)) {
+                    auto pseudoRules = styleResolver->pseudoStyleRulesForElement(element, pseudoElementType, Style::Resolver::AllCSSRules);
+                    if (!pseudoRules.isEmpty()) {
+                        auto matches = Inspector::Protocol::CSS::PseudoIdMatches::create()
+                            .setPseudoId(protocolPseudoId.value())
+                            .setMatches(buildArrayForMatchedRuleList(pseudoRules, styleResolver, *element, pseudoElementIdentifier))
+                            .release();
+                        pseudoElements->addItem(WTF::move(matches));
+                    }
+                }
+            }
+        }
+
+        if (!includeInherited || *includeInherited) {
+            inherited = JSON::ArrayOf<Inspector::Protocol::CSS::InheritedStyleEntry>::create();
+            for (Ref ancestor : ancestorsOfType<Element>(*element)) {
+                Ref parentStyleResolver = ancestor->styleResolver();
+                auto parentMatchedRules = parentStyleResolver->styleRulesForElement(ancestor.ptr(), Style::Resolver::AllCSSRules);
+                auto entry = Inspector::Protocol::CSS::InheritedStyleEntry::create()
+                    .setMatchedCSSRules(buildArrayForMatchedRuleList(parentMatchedRules, styleResolver, ancestor, { }))
+                    .release();
+                if (RefPtr styledElement = dynamicDowncast<StyledElement>(ancestor); styledElement && protect(styledElement->cssomStyle())->length()) {
+                    Ref inlineStyleSheet = asInspectorStyleSheet(*styledElement);
+                    entry->setInlineStyle(inlineStyleSheet->buildObjectForStyle(protect(inlineStyleSheet->styleForId(InspectorCSSId(inlineStyleSheet->id(), 0)))));
+                }
+                inherited->addItem(WTF::move(entry));
+            }
+        }
+    }
+
+    return { { WTF::move(matchedCSSRules), WTF::move(pseudoElements), WTF::move(inherited) } };
 }
 
 Inspector::CommandResult<Ref<JSON::ArrayOf<Inspector::Protocol::CSS::CSSStyleSheetHeader>>> FrameCSSAgent::getAllStyleSheets()
@@ -306,10 +503,79 @@ Inspector::CommandResult<Ref<JSON::ArrayOf<String>>> FrameCSSAgent::getSupported
     return makeUnexpected("Not supported on frame targets"_s);
 }
 
-Inspector::CommandResult<void> FrameCSSAgent::forcePseudoState(Inspector::Protocol::DOM::NodeId, Ref<JSON::Array>&&)
+Inspector::CommandResult<void> FrameCSSAgent::forcePseudoState(Inspector::Protocol::DOM::NodeId nodeId, Ref<JSON::Array>&& forcedPseudoClasses)
 {
-    // FIXME: <https://webkit.org/b/314424>: Implement nodeId-dependent CSS commands for frame targets.
-    return makeUnexpected("Not supported on frame targets"_s);
+    Inspector::Protocol::ErrorString errorString;
+
+    RefPtr element = elementForId(errorString, nodeId);
+    if (!element)
+        return makeUnexpected(errorString);
+
+    PseudoClassHashSet forcedPseudoClassesToSet;
+    for (const auto& pseudoClassValue : forcedPseudoClasses.get()) {
+        auto pseudoClassString = pseudoClassValue->asString();
+        if (!pseudoClassString)
+            return makeUnexpected("Unexpected non-string value in given forcedPseudoClasses"_s);
+
+        auto pseudoClass = Inspector::Protocol::Helpers::parseEnumValueFromString<Inspector::Protocol::CSS::ForceablePseudoClass>(pseudoClassString);
+        if (!pseudoClass)
+            return makeUnexpected(makeString("Unknown forcedPseudoClass: "_s, pseudoClassString));
+
+        switch (*pseudoClass) {
+        case Inspector::Protocol::CSS::ForceablePseudoClass::Active:
+            forcedPseudoClassesToSet.add(CSSSelector::PseudoClass::Active);
+            break;
+        case Inspector::Protocol::CSS::ForceablePseudoClass::Hover:
+            forcedPseudoClassesToSet.add(CSSSelector::PseudoClass::Hover);
+            break;
+        case Inspector::Protocol::CSS::ForceablePseudoClass::Focus:
+            forcedPseudoClassesToSet.add(CSSSelector::PseudoClass::Focus);
+            break;
+        case Inspector::Protocol::CSS::ForceablePseudoClass::FocusVisible:
+            forcedPseudoClassesToSet.add(CSSSelector::PseudoClass::FocusVisible);
+            break;
+        case Inspector::Protocol::CSS::ForceablePseudoClass::FocusWithin:
+            forcedPseudoClassesToSet.add(CSSSelector::PseudoClass::FocusWithin);
+            break;
+        case Inspector::Protocol::CSS::ForceablePseudoClass::Target:
+            forcedPseudoClassesToSet.add(CSSSelector::PseudoClass::Target);
+            break;
+        case Inspector::Protocol::CSS::ForceablePseudoClass::Visited:
+            forcedPseudoClassesToSet.add(CSSSelector::PseudoClass::Visited);
+            break;
+        }
+    }
+
+    if (!forcedPseudoClassesToSet.isEmpty()) {
+        m_nodeIdToForcedPseudoState.set(nodeId, WTF::move(forcedPseudoClassesToSet));
+        m_documentsWithForcedPseudoStates.add(&element->document());
+    } else {
+        if (!m_nodeIdToForcedPseudoState.remove(nodeId))
+            return { };
+        if (m_nodeIdToForcedPseudoState.isEmpty())
+            m_documentsWithForcedPseudoStates.clear();
+    }
+
+    element->document().styleScope().didChangeStyleSheetEnvironment();
+
+    return { };
+}
+
+bool FrameCSSAgent::forcePseudoState(const Element& element, CSSSelector::PseudoClass pseudoClass)
+{
+    if (m_nodeIdToForcedPseudoState.isEmpty())
+        return false;
+
+    Ref agents = m_instrumentingAgents.get();
+    CheckedPtr domAgent = agents->persistentFrameDOMAgent();
+    if (!domAgent)
+        return false;
+
+    auto nodeId = domAgent->boundNodeId(&element);
+    if (!nodeId)
+        return false;
+
+    return m_nodeIdToForcedPseudoState.get(nodeId).contains(pseudoClass);
 }
 
 Inspector::CommandResult<void> FrameCSSAgent::setLayoutContextTypeChangedMode(Inspector::Protocol::CSS::LayoutContextTypeChangedMode)
@@ -351,6 +617,110 @@ void FrameCSSAgent::reset()
     m_cssStyleSheetToInspectorStyleSheet.clear();
     m_documentToInspectorStyleSheet.clear();
     m_documentToKnownCSSStyleSheets.clear();
+    m_nodeToInspectorStyleSheet.clear();
+
+    for (auto& document : m_documentsWithForcedPseudoStates)
+        document->styleScope().didChangeStyleSheetEnvironment();
+    m_nodeIdToForcedPseudoState.clear();
+    m_documentsWithForcedPseudoStates.clear();
+}
+
+RefPtr<Element> FrameCSSAgent::elementForId(Inspector::Protocol::ErrorString& errorString, Inspector::Protocol::DOM::NodeId nodeId)
+{
+    Ref agents = m_instrumentingAgents.get();
+    CheckedPtr domAgent = agents->persistentFrameDOMAgent();
+    if (!domAgent) {
+        errorString = "DOM domain must be enabled"_s;
+        return nullptr;
+    }
+    RefPtr node = domAgent->nodeForId(nodeId);
+    if (!node) {
+        errorString = "Missing node for given nodeId"_s;
+        return nullptr;
+    }
+    RefPtr element = dynamicDowncast<Element>(*node);
+    if (!element)
+        errorString = "Node for given nodeId is not an element"_s;
+    return element;
+}
+
+InspectorStyleSheetForInlineStyle& FrameCSSAgent::asInspectorStyleSheet(StyledElement& element)
+{
+    auto it = m_nodeToInspectorStyleSheet.find(&element);
+    if (it != m_nodeToInspectorStyleSheet.end())
+        return it->value;
+
+    auto id = String::number(m_lastStyleSheetId++);
+    Ref identifierRegistry = protect(protect(m_inspectedFrame->page())->inspectorController())->identifierRegistry();
+    auto inspectorStyleSheet = InspectorStyleSheetForInlineStyle::create(identifierRegistry, id, element, Inspector::Protocol::CSS::StyleSheetOrigin::Author, this);
+    m_idToInspectorStyleSheet.set(id, inspectorStyleSheet.copyRef());
+    return m_nodeToInspectorStyleSheet.set(&element, WTF::move(inspectorStyleSheet)).iterator->value;
+}
+
+RefPtr<Inspector::Protocol::CSS::CSSStyle> FrameCSSAgent::buildObjectForAttributesStyle(StyledElement& element)
+{
+    RefPtr presentationalHintStyle = element.presentationalHintStyle();
+    if (!presentationalHintStyle)
+        return nullptr;
+    auto mutableStyle = presentationalHintStyle->mutableCopy();
+    auto inspectorStyle = InspectorStyle::create(InspectorCSSId(), mutableStyle->ensureCSSStyleProperties(), nullptr);
+    return inspectorStyle->buildObjectForStyle();
+}
+
+RefPtr<Inspector::Protocol::CSS::CSSRule> FrameCSSAgent::buildObjectForRule(const StyleRule* styleRule, Style::Resolver& styleResolver, Element& element)
+{
+    if (!styleRule)
+        return nullptr;
+
+    Ref document = element.document();
+    styleResolver.inspectorCSSOMWrappers().collectDocumentWrappers(protect(document->extensionStyleSheets()));
+    styleResolver.inspectorCSSOMWrappers().collectScopeWrappers(document->styleScope());
+    if (RefPtr shadowRoot = element.shadowRoot())
+        styleResolver.inspectorCSSOMWrappers().collectScopeWrappers(protect(shadowRoot->styleScope()));
+
+    return buildObjectForRule(protect(styleResolver.inspectorCSSOMWrappers().getWrapperForRuleInSheets(styleRule)));
+}
+
+RefPtr<Inspector::Protocol::CSS::CSSRule> FrameCSSAgent::buildObjectForRule(CSSStyleRule* rule)
+{
+    if (!rule)
+        return nullptr;
+    ASSERT(rule->parentStyleSheet());
+    return protect(bindStyleSheet(protect(rule->parentStyleSheet())))->buildObjectForRule(protect(rule));
+}
+
+Ref<JSON::ArrayOf<Inspector::Protocol::CSS::RuleMatch>> FrameCSSAgent::buildArrayForMatchedRuleList(const Vector<Ref<const StyleRule>>& matchedRules, Style::Resolver& styleResolver, Element& element, std::optional<Style::PseudoElementIdentifier> pseudoElementIdentifier)
+{
+    auto result = JSON::ArrayOf<Inspector::Protocol::CSS::RuleMatch>::create();
+
+    SelectorChecker::CheckingContext context(SelectorChecker::Mode::CollectingRules);
+    if (pseudoElementIdentifier)
+        context.setRequestedPseudoElement(*pseudoElementIdentifier);
+    SelectorChecker selectorChecker(element.document());
+
+    for (auto& matchedRule : matchedRules) {
+        RefPtr ruleObject = buildObjectForRule(matchedRule.ptr(), styleResolver, element);
+        if (!ruleObject)
+            continue;
+
+        auto matchingSelectors = JSON::ArrayOf<int>::create();
+        const CSSSelectorList& selectorList = matchedRule->selectorList();
+        int index = 0;
+        for (auto& selector : selectorList) {
+            bool matched = selectorChecker.match(selector, element, context);
+            if (matched)
+                matchingSelectors->addItem(index);
+            ++index;
+        }
+
+        auto match = Inspector::Protocol::CSS::RuleMatch::create()
+            .setRule(ruleObject.releaseNonNull())
+            .setMatchingSelectors(WTF::move(matchingSelectors))
+            .release();
+        result->addItem(WTF::move(match));
+    }
+
+    return result;
 }
 
 InspectorStyleSheet& FrameCSSAgent::bindStyleSheet(CSSStyleSheet* styleSheet)
