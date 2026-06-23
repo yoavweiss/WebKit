@@ -1491,6 +1491,16 @@ static WebCore::EditableLinkBehavior NODELETE toEditableLinkBehavior(_WKEditable
     protect(*_preferences)->setPitchCorrectionAlgorithm(pitchCorrectionAlgorithm);
 }
 
+- (_WKNavigatorWebDriverActivePolicy)_navigatorWebDriverActivePolicy
+{
+    return static_cast<_WKNavigatorWebDriverActivePolicy>(protect(*_preferences)->navigatorWebDriverActivePolicy());
+}
+
+- (void)_setNavigatorWebDriverActivePolicy:(_WKNavigatorWebDriverActivePolicy)policy
+{
+    protect(*_preferences)->setNavigatorWebDriverActivePolicy(policy);
+}
+
 - (BOOL)_mediaSessionEnabled
 {
     return protect(*_preferences)->mediaSessionEnabled();

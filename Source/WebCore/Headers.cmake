@@ -787,6 +787,8 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     Modules/webdatabase/DatabaseTracker.h
     Modules/webdatabase/OriginLock.h
 
+    Modules/webdriver/NavigatorWebDriverActivePolicy.h
+
     Modules/websockets/ThreadableWebSocketChannel.h
     Modules/websockets/WebSocketChannelClient.h
     Modules/websockets/WebSocketChannelInspector.h
