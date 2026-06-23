@@ -1002,11 +1002,11 @@ ALLOW_NEW_API_WITHOUT_GUARDS_END
     case NSGestureRecognizerStateChanged: {
         if (!_dragGestureHasSentMouseDown)
             break;
-        if (_gestureDraggingSession)
-            [_gestureDraggingSession updateDragWithGesture:gesture];
-        else {
+        // Drive WebCore's drag-initiation hysteresis. Once the session exists, AppKit tracks the
+        // gesture itself and WebCore is driven by the platform drag callbacks, so we stop feeding it.
+        if (!_gestureDraggingSession) {
             RetainPtr mouseDragged = [NSEvent mouseEventWithType:NSEventTypeLeftMouseDragged location:locationInWindow modifierFlags:modifierFlags timestamp:timestamp windowNumber:windowNumber context:nil eventNumber:0 clickCount:1 pressure:1.0];
-            viewImpl->mouseDragged(mouseDragged.get(), WebKit::WebEventInputSource::Automation, WebCore::PlatformMouseEvent::CanInitiateDrag::Yes);
+            viewImpl->mouseDragged(mouseDragged, WebKit::WebEventInputSource::Automation, WebCore::PlatformMouseEvent::CanInitiateDrag::Yes);
         }
         break;
     }
@@ -1015,8 +1015,6 @@ ALLOW_NEW_API_WITHOUT_GUARDS_END
     case NSGestureRecognizerStateFailed: {
         if (!_dragGestureHasSentMouseDown)
             break;
-        if (_gestureDraggingSession)
-            [_gestureDraggingSession updateDragWithGesture:gesture];
 
         RetainPtr mouseUp = [NSEvent mouseEventWithType:NSEventTypeLeftMouseUp location:locationInWindow modifierFlags:modifierFlags timestamp:timestamp windowNumber:windowNumber context:nil eventNumber:0 clickCount:1 pressure:0.0];
         viewImpl->mouseUp(mouseUp.get(), WebKit::WebEventInputSource::Automation, WebCore::PlatformMouseEvent::CanInitiateDrag::Yes);
