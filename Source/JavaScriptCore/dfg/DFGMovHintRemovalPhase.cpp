@@ -28,13 +28,13 @@
 
 #if ENABLE(DFG_JIT)
 
-#include "DFGBlockMapInlines.h"
 #include "DFGGraph.h"
 #include "DFGInsertionSet.h"
 #include "DFGMayExit.h"
 #include "DFGPhase.h"
 #include "JSCJSValueInlines.h"
 #include "OperandsInlines.h"
+#include <wtf/IndexMap.h>
 
 namespace JSC { namespace DFG {
 
@@ -77,8 +77,8 @@ public:
         //         phantom, and the heap promotion (e.g. StructurePLoc) is
         //         pruned at the use site.
         //   Def:  MovHint kills its destination local.
-        BlockMap<Operands<bool>> liveAtHead(m_graph);
-        BlockMap<Operands<bool>> liveAtTail(m_graph);
+        IndexMap<BasicBlock*, Operands<bool>> liveAtHead(m_graph.numBlocks());
+        IndexMap<BasicBlock*, Operands<bool>> liveAtTail(m_graph.numBlocks());
 
         for (BasicBlock* block : m_graph.blocksInNaturalOrder()) {
             liveAtHead[block] = Operands<bool>(OperandsLike, block->variablesAtHead, false);

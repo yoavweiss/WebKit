@@ -183,8 +183,7 @@ public:
         // dominance-frontier cache. The per-variable "visited" set is tracked with
         // an epoch stamp so we don't allocate a fresh set for every variable.
         Vector<BasicBlock*, 16> worklist;
-        BlockMap<unsigned> visited(m_graph);
-        visited.clear(0);
+        IndexMap<BasicBlock*, unsigned> visited(m_graph.numBlocks());
         for (Variable& variable : m_variables) {
             unsigned epoch = variable.index() + 1;
             worklist.shrink(0);
@@ -267,9 +266,9 @@ private:
         Vector<Def*> m_phis;
     };
 
-    BlockMap<BlockData> m_data;
+    IndexMap<BasicBlock*, BlockData> m_data;
 
-    BlockMap<Vector<BasicBlock*>> m_dominanceFrontiers;
+    IndexMap<BasicBlock*, Vector<BasicBlock*>> m_dominanceFrontiers;
     bool m_dominanceFrontiersComputed { false };
 
     Graph& m_graph;

@@ -631,7 +631,7 @@ public:
 
     void appendBlock(std::unique_ptr<BasicBlock>&& basicBlock)
     {
-        basicBlock->index = m_blocks.size();
+        basicBlock->setIndex(m_blocks.size());
         m_blocks.append(WTF::move(basicBlock));
     }
     
@@ -642,7 +642,7 @@ public:
     
     void killBlock(BasicBlock* basicBlock)
     {
-        killBlock(basicBlock->index);
+        killBlock(basicBlock->index());
     }
     
     void killBlockAndItsContents(BasicBlock*);

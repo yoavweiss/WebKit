@@ -28,7 +28,6 @@
 
 #if ENABLE(DFG_JIT)
 
-#include "DFGBlockMapInlines.h"
 #include "DFGClobbersExitState.h"
 #include "DFGCombinedLiveness.h"
 #include "DFGGraph.h"
@@ -53,6 +52,7 @@
 #include "JSSetIterator.h"
 #include "JSStringIterator.h"
 #include "JSWrapForValidIterator.h"
+#include <wtf/IndexMap.h>
 
 namespace JSC { namespace DFG {
 
@@ -857,8 +857,8 @@ private:
 
     void performAnalysis()
     {
-        m_heapAtHead = BlockMap<LocalHeap>(m_graph);
-        m_heapAtTail = BlockMap<LocalHeap>(m_graph);
+        m_heapAtHead = IndexMap<BasicBlock*, LocalHeap>(m_graph.numBlocks());
+        m_heapAtTail = IndexMap<BasicBlock*, LocalHeap>(m_graph.numBlocks());
 
         bool changed;
         do {
@@ -3068,8 +3068,8 @@ escapeChildren:
 
     UncheckedKeyHashMap<unsigned, Node*, WTF::IntHash<unsigned>, WTF::UnsignedWithZeroKeyHashTraits<unsigned>> m_constants;
 
-    BlockMap<LocalHeap> m_heapAtHead;
-    BlockMap<LocalHeap> m_heapAtTail;
+    IndexMap<BasicBlock*, LocalHeap> m_heapAtHead;
+    IndexMap<BasicBlock*, LocalHeap> m_heapAtTail;
     LocalHeap m_heap;
 
     Node* m_bottom { nullptr };

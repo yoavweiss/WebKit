@@ -2260,7 +2260,7 @@ void SpeculativeJIT::compileCurrentBlock()
     
     ASSERT(m_block->isReachable);
     
-    blockHeads()[m_block->index] = label();
+    blockHeads()[m_block->index()] = label();
 
     if (!m_block->intersectionOfCFAHasVisited) {
         // Don't generate code for basic blocks that are unreachable according to CFA.
@@ -13710,7 +13710,7 @@ void SpeculativeJIT::addBranch(const JumpList& jump, BasicBlock* destination)
 void SpeculativeJIT::linkBranches()
 {
     for (auto& branch : m_branches)
-        branch.jump.linkTo(blockHeads()[branch.destination->index], this);
+        branch.jump.linkTo(blockHeads()[branch.destination->index()], this);
 }
 
 void SpeculativeJIT::compileStoreBarrier(Node* node)

@@ -28,7 +28,7 @@
 
 #if ENABLE(DFG_JIT)
 
-#include "DFGBlockMapInlines.h"
+#include <wtf/IndexMap.h>
 #include "DFGGraph.h"
 #include "DFGPhase.h"
 #include "JSCJSValueInlines.h"
@@ -46,7 +46,7 @@ class BackwardsPropagationPhase : public Phase {
 public:
     BackwardsPropagationPhase(Graph& graph)
         : Phase(graph, "backwards propagation"_s, !graph.afterFixup())
-        , m_flagsAtHead(graph)
+        , m_flagsAtHead(graph.numBlocks())
     {
     }
 
@@ -720,7 +720,7 @@ private:
     
     bool m_allowNestedOverflowingAdditions;
 
-    BlockMap<Operands<NodeFlags>> m_flagsAtHead;
+    IndexMap<BasicBlock*, Operands<NodeFlags>> m_flagsAtHead;
     Operands<NodeFlags> m_currentFlags;
 };
 

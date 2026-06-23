@@ -512,8 +512,6 @@
 		0FC20CB61852E2C600C9E954 /* DFGStrengthReductionPhase.h in Headers */ = {isa = PBXBuildFile; fileRef = 0FC20CB41852E2C600C9E954 /* DFGStrengthReductionPhase.h */; };
 		0FC20CBA18556A3500C9E954 /* DFGSSALoweringPhase.h in Headers */ = {isa = PBXBuildFile; fileRef = 0FC20CB818556A3500C9E954 /* DFGSSALoweringPhase.h */; };
 		0FC314121814559100033232 /* RegisterSet.h in Headers */ = {isa = PBXBuildFile; fileRef = 0FC314101814559100033232 /* RegisterSet.h */; settings = {ATTRIBUTES = (Private, ); }; };
-		0FC3CCFC19ADA410006AC72A /* DFGBlockMap.h in Headers */ = {isa = PBXBuildFile; fileRef = 0FC3CCF519ADA410006AC72A /* DFGBlockMap.h */; };
-		0FC3CCFD19ADA410006AC72A /* DFGBlockMapInlines.h in Headers */ = {isa = PBXBuildFile; fileRef = 0FC3CCF619ADA410006AC72A /* DFGBlockMapInlines.h */; };
 		0FC3CCFE19ADA410006AC72A /* DFGBlockSet.h in Headers */ = {isa = PBXBuildFile; fileRef = 0FC3CCF719ADA410006AC72A /* DFGBlockSet.h */; };
 		0FC3CD0019ADA410006AC72A /* DFGBlockWorklist.h in Headers */ = {isa = PBXBuildFile; fileRef = 0FC3CCF919ADA410006AC72A /* DFGBlockWorklist.h */; };
 		0FC712DF17CD877C008CC93C /* DeferredCompilationCallback.h in Headers */ = {isa = PBXBuildFile; fileRef = 0FC712DD17CD8778008CC93C /* DeferredCompilationCallback.h */; settings = {ATTRIBUTES = (Private, ); }; };
@@ -3550,8 +3548,6 @@
 		0FC20CB818556A3500C9E954 /* DFGSSALoweringPhase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DFGSSALoweringPhase.h; path = dfg/DFGSSALoweringPhase.h; sourceTree = "<group>"; };
 		0FC314101814559100033232 /* RegisterSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RegisterSet.h; sourceTree = "<group>"; };
 		0FC3141418146D7000033232 /* RegisterSet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RegisterSet.cpp; sourceTree = "<group>"; };
-		0FC3CCF519ADA410006AC72A /* DFGBlockMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DFGBlockMap.h; path = dfg/DFGBlockMap.h; sourceTree = "<group>"; };
-		0FC3CCF619ADA410006AC72A /* DFGBlockMapInlines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DFGBlockMapInlines.h; path = dfg/DFGBlockMapInlines.h; sourceTree = "<group>"; };
 		0FC3CCF719ADA410006AC72A /* DFGBlockSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DFGBlockSet.h; path = dfg/DFGBlockSet.h; sourceTree = "<group>"; };
 		0FC3CCF919ADA410006AC72A /* DFGBlockWorklist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DFGBlockWorklist.h; path = dfg/DFGBlockWorklist.h; sourceTree = "<group>"; };
 		0FC712DC17CD8778008CC93C /* DeferredCompilationCallback.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DeferredCompilationCallback.cpp; sourceTree = "<group>"; };
@@ -9847,8 +9843,6 @@
 				0FD5652216AB780A00197653 /* DFGBasicBlockInlines.h */,
 				A7D89CE417A0B8CC00773AD8 /* DFGBlockInsertionSet.cpp */,
 				A7D89CE517A0B8CC00773AD8 /* DFGBlockInsertionSet.h */,
-				0FC3CCF519ADA410006AC72A /* DFGBlockMap.h */,
-				0FC3CCF619ADA410006AC72A /* DFGBlockMapInlines.h */,
 				0FBF158A19B7A53100695DD0 /* DFGBlockSet.cpp */,
 				0FC3CCF719ADA410006AC72A /* DFGBlockSet.h */,
 				0FBF158B19B7A53100695DD0 /* DFGBlockSetInlines.h */,
@@ -11558,8 +11552,6 @@
 				0F620176143FCD3B0068B77C /* DFGBasicBlock.h in Headers */,
 				0FFB921A16D02EC50055A5DB /* DFGBasicBlockInlines.h in Headers */,
 				A7D89CF417A0B8CC00773AD8 /* DFGBlockInsertionSet.h in Headers */,
-				0FC3CCFC19ADA410006AC72A /* DFGBlockMap.h in Headers */,
-				0FC3CCFD19ADA410006AC72A /* DFGBlockMapInlines.h in Headers */,
 				0FC3CCFE19ADA410006AC72A /* DFGBlockSet.h in Headers */,
 				0FBF158D19B7A53100695DD0 /* DFGBlockSetInlines.h in Headers */,
 				0FC3CD0019ADA410006AC72A /* DFGBlockWorklist.h in Headers */,

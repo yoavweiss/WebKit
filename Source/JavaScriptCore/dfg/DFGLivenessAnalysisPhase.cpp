@@ -28,12 +28,12 @@
 
 #if ENABLE(DFG_JIT)
 
-#include "DFGBlockMapInlines.h"
 #include "DFGFlowIndexing.h"
 #include "DFGGraph.h"
 #include "DFGPhase.h"
 #include "JSCJSValueInlines.h"
 #include <wtf/BitVector.h>
+#include <wtf/IndexMap.h>
 #include <wtf/IndexSparseSet.h>
 #include <wtf/SparseBitVector.h>
 
@@ -81,7 +81,7 @@ public:
     {
         return Row(m_store.mutableSpan().subspan(static_cast<size_t>(blockIndex) * m_wordsPerSet, m_wordsPerSet));
     }
-    Row operator[](BasicBlock* block) { return (*this)[block->index]; }
+    Row operator[](BasicBlock* block) { return (*this)[block->index()]; }
 
 private:
     size_t m_wordsPerSet { 0 };
@@ -91,14 +91,14 @@ private:
 class SparseTailStorage {
 public:
     SparseTailStorage(Graph& graph, unsigned, unsigned)
-        : m_map(graph)
+        : m_map(graph.numBlocks())
     { }
 
     SparseBitVector<>& operator[](BlockIndex blockIndex) LIFETIME_BOUND { return m_map[blockIndex]; }
     SparseBitVector<>& operator[](BasicBlock* block) LIFETIME_BOUND { return m_map[block]; }
 
 private:
-    BlockMap<SparseBitVector<>> m_map;
+    IndexMap<BasicBlock*, SparseBitVector<>> m_map;
 };
 
 template<typename TailStorage>
@@ -108,7 +108,7 @@ public:
         : Phase(graph, "liveness analysis"_s)
         , m_dirtyBlocks(m_graph.numBlocks())
         , m_indexing(*m_graph.m_indexingCache)
-        , m_liveAtHead(m_graph)
+        , m_liveAtHead(m_graph.numBlocks())
         , m_liveAtTail(m_graph, m_graph.numBlocks(), m_indexing.numIndices())
         , m_workset(m_indexing.numIndices())
     {
@@ -212,8 +212,8 @@ private:
             auto&& liveAtTail = m_liveAtTail[predecessor];
             for (unsigned newValue : m_workset) {
                 if (liveAtTail.add(newValue)) {
-                    if (!m_dirtyBlocks.quickSet(predecessor->index))
-                        m_worklist.append(predecessor->index);
+                    if (!m_dirtyBlocks.quickSet(predecessor->index()))
+                        m_worklist.append(predecessor->index());
                 }
             }
         }
@@ -225,7 +225,7 @@ private:
     FlowIndexing& m_indexing;
 
     // Live values per block edge.
-    BlockMap<Vector<unsigned, 0, UnsafeVectorOverflow, 1>> m_liveAtHead;
+    IndexMap<BasicBlock*, Vector<unsigned, 0, UnsafeVectorOverflow, 1>> m_liveAtHead;
     TailStorage m_liveAtTail;
 
     // Single sparse set allocated once and used by every basic block.

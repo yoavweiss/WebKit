@@ -164,7 +164,7 @@ public:
 
     BasicBlock* nextBlock()
     {
-        for (BlockIndex resultIndex = m_block->index + 1; ; resultIndex++) {
+        for (BlockIndex resultIndex = m_block->index() + 1; ; resultIndex++) {
             if (resultIndex >= m_graph.numBlocks())
                 return nullptr;
             if (BasicBlock* result = m_graph.block(resultIndex))

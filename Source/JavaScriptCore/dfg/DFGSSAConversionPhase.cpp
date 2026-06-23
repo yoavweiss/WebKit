@@ -30,7 +30,6 @@
 
 #include "DFGBasicBlockInlines.h"
 #include "DFGBlockInsertionSet.h"
-#include "DFGBlockMapInlines.h"
 #include "DFGGraph.h"
 #include "DFGInsertionSet.h"
 #include "DFGPhase.h"

@@ -536,7 +536,7 @@ void Graph::dumpBlockHeader(PrintStream& out, const char* prefixStr, BasicBlock*
             out.print(prefix, "  Loop header, contains:");
             Vector<BlockIndex> sortedBlockList;
             for (unsigned i = 0; i < loop->size(); ++i)
-                sortedBlockList.append(unboxLoopNode(loop->at(i))->index);
+                sortedBlockList.append(unboxLoopNode(loop->at(i))->index());
             std::ranges::sort(sortedBlockList);
             for (unsigned i = 0; i < sortedBlockList.size(); ++i)
                 out.print(" #", sortedBlockList[i]);
@@ -600,7 +600,7 @@ void Graph::dump(PrintStream& out, DumpContext* context)
     }
     else {
         for (const auto& pair : m_rootToArguments)
-            out.print(prefix, "  Arguments for block#", pair.key->index, ": ", listDump(pair.value), "\n");
+            out.print(prefix, "  Arguments for block#", pair.key->index(), ": ", listDump(pair.value), "\n");
     }
     out.print("\n");
     
@@ -609,7 +609,7 @@ void Graph::dump(PrintStream& out, DumpContext* context)
         BasicBlock* block = m_blocks[b].get();
         if (!block)
             continue;
-        prefix.blockIndex = block->index;
+        prefix.blockIndex = block->index();
         dumpBlockHeader(out, Prefix::noString, block, DumpAllPhis, context);
         out.print(prefix, "  States: ", block->cfaStructureClobberStateAtHead);
         if (!block->cfaHasVisited)
@@ -2182,7 +2182,7 @@ void Graph::appendIonGraphPass(const String& passName)
                         auto* block = node->successor(i);
                         if (!block)
                             continue;
-                        stream.print(comma, "block "_s, block->index);
+                        stream.print(comma, "block "_s, block->index());
                     }
                 }
 
@@ -2199,13 +2199,13 @@ void Graph::appendIonGraphPass(const String& passName)
             }
 
             for (auto* predecessor : block->predecessors)
-                predecessors->pushInteger(predecessor->index);
+                predecessors->pushInteger(predecessor->index());
 
             for (auto* successor : block->successors())
-                successors->pushInteger(successor->index);
+                successors->pushInteger(successor->index());
 
-            ionBlock->setInteger("ptr"_s, block->index + 1);
-            ionBlock->setInteger("id"_s, block->index);
+            ionBlock->setInteger("ptr"_s, block->index() + 1);
+            ionBlock->setInteger("id"_s, block->index());
             ionBlock->setInteger("loopDepth"_s, 0);
             ionBlock->setArray("attributes"_s, WTF::move(attributes));
             ionBlock->setArray("predecessors"_s, WTF::move(predecessors));

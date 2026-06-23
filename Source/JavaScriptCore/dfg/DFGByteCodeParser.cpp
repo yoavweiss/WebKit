@@ -1436,7 +1436,7 @@ BasicBlock* ByteCodeParser::allocateUntargetableBlock()
     auto block = makeUnique<BasicBlock>(BytecodeIndex(), m_numArguments, m_numLocals, m_numTmps, 1);
     BasicBlock* blockPtr = block.get();
     m_graph.appendBlock(WTF::move(block));
-    VERBOSE_LOG("Adding new untargetable block: ", blockPtr->index, "\n");
+    VERBOSE_LOG("Adding new untargetable block: ", blockPtr->index(), "\n");
     return blockPtr;
 }
 

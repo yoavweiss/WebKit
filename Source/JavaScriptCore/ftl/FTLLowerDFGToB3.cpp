@@ -497,7 +497,7 @@ private:
         LBasicBlock lowBlock = m_blocks.get(m_highBlock);
 
         m_nextHighBlock = nullptr;
-        for (BlockIndex nextBlockIndex = m_highBlock->index + 1; nextBlockIndex < m_graph.numBlocks(); ++nextBlockIndex) {
+        for (BlockIndex nextBlockIndex = m_highBlock->index() + 1; nextBlockIndex < m_graph.numBlocks(); ++nextBlockIndex) {
             m_nextHighBlock = m_graph.block(nextBlockIndex);
             if (m_nextHighBlock)
                 break;
@@ -27135,7 +27135,7 @@ IGNORE_CLANG_WARNINGS_END
     }
     void crash(DFG::BasicBlock* block, Node* node)
     {
-        BlockIndex blockIndex = block->index;
+        BlockIndex blockIndex = block->index();
         unsigned nodeIndex = node ? node->index() : UINT_MAX;
 #if !ASSERT_ENABLED
         auto nodeOp = node ? node->op() : LastNodeType;
