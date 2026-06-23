@@ -308,6 +308,22 @@ TEST(URLExtras, URLExtras_PercentEncodedIDN)
     EXPECT_STREQ("http://xn--mnchen-3ya.de/", originalDataAsString(WTF::URLWithUserTypedString(@"http://m%C3%BCnchen.de/", nil)));
 }
 
+TEST(URLExtras, URLExtras_InvalidACELabel)
+{
+    // xn--8i7caa Punycode-decodes to U+FF57 U+FF57 U+FF57 (FULLWIDTH LATIN SMALL LETTER W),
+    // which has UTS#46 "mapped" status — so the post-decode label fails validation. ASCII
+    // inputs are nevertheless accepted as-is.
+
+    EXPECT_STREQ("http://xn--8i7caa.example/", originalDataAsString(WTF::URLWithUserTypedString(@"http://xn--8i7caa.example/", nil)));
+    EXPECT_STREQ("http://xn--8i7caa.example/", userVisibleString(WTF::URLWithUserTypedString(@"http://xn--8i7caa.example/", nil)));
+
+    EXPECT_STREQ("http://xn--8i7caa.example/", originalDataAsString(literalURL("http://xn--8i7caa.example/")));
+    EXPECT_STREQ("http://xn--8i7caa.example/", userVisibleString(literalURL("http://xn--8i7caa.example/")));
+
+    EXPECT_STREQ("xn--8i7caa.example", [WTF::encodeHostName(@"xn--8i7caa.example") UTF8String]);
+    EXPECT_NULL([@"xn--8i7caa.example" _wk_decodeHostName]);
+}
+
 TEST(URLExtras, URLExtras_IPv6)
 {
     // IPv6 hosts pass through unchanged.
