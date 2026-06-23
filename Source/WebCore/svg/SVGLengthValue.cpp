@@ -369,12 +369,8 @@ ExceptionOr<void> SVGLengthValue::setValueAsString(StringView string)
     // CSS::Range only clamps to boundaries, but we historically handled
     // overflow values like "-45e58" to 0 instead of FLT_MAX.
     // FIXME: Consider setting to a proper value
-    auto isFloatOverflow = [](const auto& parsedValue) {
-        if (auto raw = parsedValue.raw()) {
-            double value = raw->value;
-            return value > FLT_MAX || value < -FLT_MAX;
-        }
-        return true;
+    auto isFloatOverflow = [](const auto& value) {
+        return value > FLT_MAX || value < -FLT_MAX;
     };
 
     auto parserContext = CSSParserContext { SVGAttributeMode };
@@ -385,30 +381,27 @@ ExceptionOr<void> SVGLengthValue::setValueAsString(StringView string)
     CSSTokenizer tokenizer(trimmedString.toString());
     auto tokenRange = tokenizer.tokenRange();
 
-    if (auto number = CSSPropertyParserHelpers::MetaConsumer<CSS::Number<>>::consume(tokenRange, parserState, { })) {
-        if (!tokenRange.atEnd())
-            return Exception { ExceptionCode::SyntaxError };
+    auto parsedValue = CSSPropertyParserHelpers::MetaConsumer<CSS::Number<>, CSS::LengthPercentage<>>::consume(tokenRange, parserState, { });
+    if (!parsedValue || !tokenRange.atEnd())
+        return Exception { ExceptionCode::SyntaxError };
 
-        m_value = isFloatOverflow(*number) ? CSS::Number<>(0) : WTF::move(*number);
-
-        return { };
-    }
-
-    tokenRange = tokenizer.tokenRange();
-    if (auto length = CSSPropertyParserHelpers::MetaConsumer<CSS::LengthPercentage<>>::consume(tokenRange, parserState, { })) {
-        if (!tokenRange.atEnd())
-            return Exception { ExceptionCode::SyntaxError };
-
-        // FIXME: Add support for calculated lengths.
-        if (length->isCalc())
-            return Exception { ExceptionCode::SyntaxError };
-
-        m_value = WTF::move(*length);
-
-        return { };
-    }
-
-    return Exception { ExceptionCode::SyntaxError };
+    return WTF::switchOn(WTF::move(*parsedValue),
+        [&](CSS::Number<>&& number) -> ExceptionOr<void> {
+            auto raw = number.raw();
+            if (!raw || isFloatOverflow(raw->value))
+                m_value = CSS::Number<>(0);
+            else
+                m_value = WTF::move(number);
+            return { };
+        },
+        [&](CSS::LengthPercentage<>&& length) -> ExceptionOr<void> {
+            // FIXME: Add support for calculated lengths.
+            if (length.isCalc())
+                return Exception { ExceptionCode::SyntaxError };
+            m_value = WTF::move(length);
+            return { };
+        }
+    );
 }
 
 ExceptionOr<void> SVGLengthValue::convertToSpecifiedUnits(const SVGLengthContext& context, SVGLengthType targetType)
