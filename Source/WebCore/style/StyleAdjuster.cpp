@@ -475,36 +475,35 @@ void Adjuster::adjust(Style::ComputedStyle& style) const
         if (style.display() == DisplayType::InlineFlow && !style.pseudoElementType() && style.writingMode().computedWritingMode() != m_parentStyle.writingMode().computedWritingMode())
             style.setDisplayMaintainingOriginalDisplay(DisplayType::InlineFlowRoot);
 
+        auto display = style.display();
+
         // We do not honor position:relative or position:sticky on table row groups. Table rows are
         // allowed to be position:relative (they extend RenderBlock and can be proper containing blocks).
-        if ((style.display() == DisplayType::TableHeaderGroup || style.display() == DisplayType::TableRowGroup
-            || style.display() == DisplayType::TableFooterGroup)
+        if ((display == DisplayType::TableHeaderGroup || display == DisplayType::TableRowGroup || display == DisplayType::TableFooterGroup)
             && style.position() == PositionType::Relative)
             style.setPosition(PositionType::Static);
 
         // writing-mode does not apply to table row groups, table column groups, table rows, and table columns.
-        if (style.display() == DisplayType::TableColumn || style.display() == DisplayType::TableColumnGroup || style.display() == DisplayType::TableFooterGroup
-            || style.display() == DisplayType::TableHeaderGroup || style.display() == DisplayType::TableRow || style.display() == DisplayType::TableRowGroup)
+        if (display.isInternalTableBox() && display != DisplayType::TableCell)
             style.setWritingMode(m_parentStyle.writingMode().computedWritingMode());
 
         // FIXME: Adjust this once CSSWG clarifies exactly how the initial value should compute on other display types.
         // For now, this gives mostly backwards-compatible behavior.
-        if (style.display() == DisplayType::BlockGrid || style.display() == DisplayType::InlineGrid) {
+        auto adjustGridAutoFlow = [&](GridAutoFlow::Direction direction) {
             if (auto gridAutoFlow = style.gridAutoFlow(); gridAutoFlow.direction() == GridAutoFlow::Direction::Normal) {
-                gridAutoFlow.setDirection(GridAutoFlow::Direction::Row);
+                gridAutoFlow.setDirection(direction);
                 style.setGridAutoFlow(gridAutoFlow);
             }
-        } else if (style.display() == DisplayType::BlockGridLanes || style.display() == DisplayType::InlineGridLanes) {
-            if (auto gridAutoFlow = style.gridAutoFlow(); gridAutoFlow.direction() == GridAutoFlow::Direction::Normal) {
-                if (!style.gridTemplateRows().isNone() && style.gridTemplateColumns().isNone())
-                    gridAutoFlow.setDirection(GridAutoFlow::Direction::Column);
-                else
-                    gridAutoFlow.setDirection(GridAutoFlow::Direction::Row);
-                style.setGridAutoFlow(gridAutoFlow);
-            }
+        };
+        if (display.isGridBox())
+            adjustGridAutoFlow(GridAutoFlow::Direction::Row);
+        else if (display.isGridLanesBox()) {
+            auto direction = (!style.gridTemplateRows().isNone() && style.gridTemplateColumns().isNone())
+                ? GridAutoFlow::Direction::Column : GridAutoFlow::Direction::Row;
+            adjustGridAutoFlow(direction);
         }
 
-        if (style.display().isDeprecatedFlexibleBox()) {
+        if (display.isDeprecatedFlexibleBox()) {
             // FIXME: Since we don't support block-flow on flexible boxes yet, disallow setting
             // of block-flow to anything other than StyleWritingMode::HorizontalTb.
             // https://bugs.webkit.org/show_bug.cgi?id=46418 - Flexible box support.
@@ -738,10 +737,8 @@ void Adjuster::adjust(Style::ComputedStyle& style) const
         style.setJustifyItems(m_parentBoxStyle.justifyItems());
 
 #if HAVE(CORE_MATERIAL)
-    if (appleVisualEffectNeedsBackdrop(style.appleVisualEffect()))
-        style.setUsedAppleVisualEffectForSubtree(style.appleVisualEffect());
-    else
-        style.setUsedAppleVisualEffectForSubtree(m_parentStyle.usedAppleVisualEffectForSubtree());
+    auto appleVisualEffect = style.appleVisualEffect();
+    style.setUsedAppleVisualEffectForSubtree(appleVisualEffectNeedsBackdrop(appleVisualEffect) ? appleVisualEffect : m_parentStyle.usedAppleVisualEffectForSubtree());
 #endif
 
     style.setUsedTouchAction(computeUsedTouchAction(style, m_parentStyle.usedTouchAction()));
@@ -788,10 +785,9 @@ void Adjuster::adjust(Style::ComputedStyle& style) const
 #endif
     }
 
-    if (m_parentStyle.contentVisibility() != ContentVisibility::Hidden) {
-        if (m_element && ContainmentChecker { style, *m_element }.isSkippedContentRoot())
-            style.setUsedContentVisibility(style.contentVisibility());
-    }
+    if (m_parentStyle.contentVisibility() != ContentVisibility::Hidden && m_element && ContainmentChecker { style, *m_element }.isSkippedContentRoot())
+        style.setUsedContentVisibility(style.contentVisibility());
+
     if (style.contentVisibility() == ContentVisibility::Auto) {
         style.setContainIntrinsicWidth(style.containIntrinsicWidth().addingAuto());
         style.setContainIntrinsicHeight(style.containIntrinsicHeight().addingAuto());
