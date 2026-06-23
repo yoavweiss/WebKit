@@ -684,24 +684,14 @@ void WebGL2RenderingContext::deleteFramebuffer(WebGLFramebuffer* framebuffer)
     if (!deleteObject(locker, framebuffer))
         return;
 
-    GCGLenum target = 0;
-    RefPtr context = m_context;
-    if (framebuffer == m_framebufferBinding) {
-        if (framebuffer == m_readFramebufferBinding) {
-            target = GraphicsContextGL::FRAMEBUFFER;
-            m_framebufferBinding = nullptr;
-            m_readFramebufferBinding = nullptr;
-        } else {
-            target = GraphicsContextGL::DRAW_FRAMEBUFFER;
-            m_framebufferBinding = nullptr;
-        }
-        context->bindFramebuffer(GraphicsContextGL::READ_FRAMEBUFFER, 0);
-    } else if (framebuffer == m_readFramebufferBinding) {
-        target = GraphicsContextGL::READ_FRAMEBUFFER;
+    if (framebuffer == m_readFramebufferBinding) {
         m_readFramebufferBinding = nullptr;
-    }
-    if (target)
-        context->bindFramebuffer(target, 0);
+        if (framebuffer == m_framebufferBinding)
+            setFramebuffer(locker, GraphicsContextGL::FRAMEBUFFER, nullptr);
+        else
+            setFramebuffer(locker, GraphicsContextGL::READ_FRAMEBUFFER, nullptr);
+    } else if (framebuffer == m_framebufferBinding)
+        setFramebuffer(locker, GraphicsContextGL::DRAW_FRAMEBUFFER, nullptr);
 }
 
 void WebGL2RenderingContext::framebufferTextureLayer(GCGLenum target, GCGLenum attachment, WebGLTexture* texture, GCGLint level, GCGLint layer)
