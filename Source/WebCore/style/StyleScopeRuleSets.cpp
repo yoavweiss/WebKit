@@ -394,13 +394,17 @@ static Vector<InvalidationRuleSet>* ensureInvalidationRuleSets(const KeyType& ke
                     return CSSSelectorList { *key.invalidationSelector };
                 return CSSSelectorList { };
             }();
+            // Null scopeSelector means scope-breaking; otherwise wrap a copy so it outlives this cache.
+            RefPtr<const RefCountedCSSSelectorList> scopeSelector;
+            if (!key.scopeSelector->isEmpty())
+                scopeSelector = RefCountedCSSSelectorList::create(CSSSelectorList { *key.scopeSelector });
             return InvalidationRuleSet {
                 WTF::move(entry.value),
                 WTF::move(invalidationSelector),
                 key.matchElement,
                 key.isNegation,
                 hasArgumentProperties(*key.invalidationSelector),
-                *key.scopeSelector
+                WTF::move(scopeSelector)
             };
         }));
     }).iterator->value.get();

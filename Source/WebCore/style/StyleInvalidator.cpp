@@ -426,7 +426,7 @@ void Invalidator::invalidateStyleWithMatchElement(Element& element, MatchElement
                     for (auto& ruleSet : m_ruleSets) {
                         if (!ruleSet.scopeSelector)
                             return element.document().documentElement();
-                        for (auto& selector : *ruleSet.scopeSelector) {
+                        for (auto& selector : ruleSet.scopeSelector->selectorList()) {
                             if (selectorChecker.match(selector, *ancestor, checkingContext))
                                 return ancestor;
                         }
@@ -628,18 +628,16 @@ void Invalidator::invalidateInShadowTreeIfNeeded(Element& element)
 
 void Invalidator::addToMatchElementRuleSets(Invalidator::MatchElementRuleSets& matchElementRuleSets, const InvalidationRuleSet& invalidationRuleSet)
 {
-    auto& scopeSelector = invalidationRuleSet.scopeSelector;
     matchElementRuleSets.ensure(invalidationRuleSet.matchElement, [] {
         return InvalidationRuleSetVector { };
-    }).iterator->value.append({ invalidationRuleSet.ruleSet.copyRef(), IsNegation::No, scopeSelector.isEmpty() ? nullptr : &scopeSelector });
+    }).iterator->value.append({ invalidationRuleSet.ruleSet.copyRef(), IsNegation::No, invalidationRuleSet.scopeSelector });
 }
 
 void Invalidator::addToMatchElementRuleSetsRespectingNegation(Invalidator::MatchElementRuleSets& matchElementRuleSets, const InvalidationRuleSet& invalidationRuleSet)
 {
-    auto& scopeSelector = invalidationRuleSet.scopeSelector;
     matchElementRuleSets.ensure(invalidationRuleSet.matchElement, [] {
         return InvalidationRuleSetVector { };
-    }).iterator->value.append({ invalidationRuleSet.ruleSet.copyRef(), invalidationRuleSet.isNegation, scopeSelector.isEmpty() ? nullptr : &scopeSelector });
+    }).iterator->value.append({ invalidationRuleSet.ruleSet.copyRef(), invalidationRuleSet.isNegation, invalidationRuleSet.scopeSelector });
 }
 
 void Invalidator::invalidateWithMatchElementRuleSets(Element& element, const MatchElementRuleSets& matchElementRuleSets)

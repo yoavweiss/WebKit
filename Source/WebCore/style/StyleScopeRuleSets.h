@@ -75,8 +75,8 @@ struct InvalidationRuleSet {
     //   - Specific selectors: strong scope.
     //   - Universal `*`: weak scope (bearer has no compound peer); scope element is still
     //     DOM-identifiable relative to a changed element.
-    //   - Empty: scope-breaking (nested :is()/:not() reaches outside the scope).
-    CSSSelectorList scopeSelector;
+    //   - Null: scope-breaking (nested :is()/:not() reaches outside the scope).
+    RefPtr<const RefCountedCSSSelectorList> scopeSelector;
 };
 
 enum class SelectorsForStyleAttribute : uint8_t { None, SubjectPositionOnly, NonSubjectPosition };

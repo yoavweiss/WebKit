@@ -55,7 +55,9 @@ using CascadeLayerPriority = uint16_t;
 struct RuleSetAndNegation {
     RefPtr<const RuleSet> ruleSet;
     IsNegation isNegation { IsNegation::No };
-    const CSSSelectorList* scopeSelector { nullptr };
+    // Selector for the :has() scope element, used to bound invalidation traversal.
+    // Null means scope-breaking (no scope element can be identified).
+    RefPtr<const RefCountedCSSSelectorList> scopeSelector { };
 };
 using InvalidationRuleSetVector = Vector<RuleSetAndNegation, 1>;
 
