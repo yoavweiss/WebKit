@@ -2687,7 +2687,11 @@ static CGFloat liveResizeMinimumWidthDifference()
     auto endLiveResizeHysteresis = 500_ms;
     bool didEndLiveResizeImmediately = false;
 #if ENABLE(RESPONSIVE_LIVE_RESIZE_UPDATE)
-    if ([self _shouldForceEndLiveResize]) {
+    if ([self _shouldForceEndLiveResize]
+#if ENABLE(FULLSCREEN_API)
+        && ![_fullScreenWindowController isFullScreen]
+#endif
+    ) {
         endLiveResizeHysteresis = 0_ms;
         didEndLiveResizeImmediately = true;
     }
@@ -3798,6 +3802,16 @@ static WebCore::UserInterfaceLayoutDirection toUserInterfaceLayoutDirection(UISe
 {
     if (_liveResizeSnapshotState)
         [self _removeLiveSnapshotState];
+
+    _perProcessState.transactionIDForEndLiveResize = std::nullopt;
+    _perProcessState.waitingForEndLiveResizePresentationUpdate = NO;
+
+#if ENABLE(FULLSCREEN_API)
+    if ([_fullScreenWindowController isFullScreen]) {
+        [self _endLiveResizeDefault];
+        return;
+    }
+#endif
 
     if (RefPtr drawingArea = downcast<WebKit::RemoteLayerTreeDrawingAreaProxy>(_page->drawingArea()))
         _perProcessState.transactionIDForEndLiveResize = drawingArea->nextMainFrameLayerTreeTransactionID();
