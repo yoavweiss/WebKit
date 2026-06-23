@@ -16335,7 +16335,6 @@
 				07A1B2C32F900D010000ABCD /* TestWebKitAPILibraryAdditions.swift */,
 				BC8699B3116AADAA002A925B /* WKView.mm */,
 				BC8699B4116AADAA002A925B /* WKViewInternal.h */,
-				2ADBEA4B2F358BEF00EDB398 /* WKWebView+WKBannerViewOverlay.swift */,
 				0FFED99023A3203800EEF459 /* WKWebViewMac.h */,
 				0FFED98F23A3203700EEF459 /* WKWebViewMac.mm */,
 				0F45A333239D89AF00294ABF /* WKWebViewPrivateForTestingMac.h */,
