@@ -491,10 +491,12 @@ enum class CompositionLayerType : uint8_t {
     Quad,
     Equirect,
     Cylinder,
+    Cube,
 };
 
 enum class LayerLayout : uint8_t {
     Mono,
+    Stereo,
     StereoLeftRight,
     StereoTopBottom,
 };
@@ -534,6 +536,11 @@ struct DeviceLayer {
         FrameData::Pose poseInLocalSpace;
     };
     std::optional<CylinderLayerData> cylinderLayerData;
+    struct CubeLayerData {
+        // Cube layers are mono and positioned solely by their orientation relative to the layer's space.
+        FrameData::FloatQuaternion orientation;
+    };
+    std::optional<CubeLayerData> cubeLayerData;
 #endif
 };
 

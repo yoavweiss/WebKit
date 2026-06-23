@@ -582,6 +582,7 @@ Modules/webxr/WebXRRay.cpp
 Modules/webxr/XRReferenceSpaceEvent.cpp
 Modules/webxr/XRSessionEvent.cpp
 Modules/webxr/XRSubImage.cpp
+Modules/webxr/XRWebGLCubeLayerBacking.cpp
 Modules/webxr/XRWebGLCylinderLayerBacking.cpp
 Modules/webxr/XRWebGLEquirectLayerBacking.cpp
 Modules/webxr/XRWebGLLayerBacking.cpp

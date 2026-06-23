@@ -79,7 +79,7 @@ public:
     ExceptionOr<Ref<XRQuadLayer>> createQuadLayer(ScriptExecutionContext&, const XRQuadLayerInit&);
     ExceptionOr<Ref<XRCylinderLayer>> createCylinderLayer(ScriptExecutionContext&, const XRCylinderLayerInit&);
     ExceptionOr<Ref<XREquirectLayer>> createEquirectLayer(ScriptExecutionContext&, const XREquirectLayerInit&);
-    ExceptionOr<Ref<XRCubeLayer>> createCubeLayer(const XRCubeLayerInit&) { RELEASE_ASSERT_NOT_REACHED(); }
+    ExceptionOr<Ref<XRCubeLayer>> createCubeLayer(ScriptExecutionContext&, const XRCubeLayerInit&);
 
     Ref<WebXRViewport> initializeViewport(IntSize, XRLayerLayout, XRTextureType, int offset, int num);
 

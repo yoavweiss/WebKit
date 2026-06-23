@@ -120,16 +120,26 @@ void XRWebGLLayerBacking::endFrame(PlatformXR::DeviceLayer& layerData)
 }
 #endif
 
-RefPtr<WebGLOpaqueTexture> XRWebGLLayerBacking::currentColorTexture() const
+RefPtr<WebGLOpaqueTexture> XRWebGLLayerBacking::currentColorTexture(uint32_t index) const
 {
-    if (auto texture = m_colorSwapchain->currentTexture())
+    if (auto texture = m_colorSwapchain->currentTextureAtIndex(index))
         return WebGLOpaqueTexture::create(*m_colorSwapchain->context(), texture, m_colorSwapchain->textureTarget());
     return nullptr;
 }
 
-RefPtr<WebGLOpaqueTexture> XRWebGLLayerBacking::currentDepthTexture() const
+bool XRWebGLLayerBacking::requiresPerViewColorTextures() const
 {
-    if (auto texture = m_depthSwapchain->currentTexture())
+    // Non-array stereo cube layers use two separate GL_TEXTURE_CUBE_MAP objects (one per eye);
+    // all other layer types (including TextureArray cube, which uses one TEXTURE_2D_ARRAY) use one texture.
+    // That's because you cannot concat multiple cube map textures into a single side-by-side cube map texture.
+    return m_colorSwapchain->textureTarget() == GraphicsContextGL::TEXTURE_CUBE_MAP && m_colorTextureArrayLength > 1;
+}
+
+RefPtr<WebGLOpaqueTexture> XRWebGLLayerBacking::currentDepthTexture(uint32_t index) const
+{
+    if (!m_depthSwapchain)
+        return nullptr;
+    if (auto texture = m_depthSwapchain->currentTextureAtIndex(index))
         return WebGLOpaqueTexture::create(*m_depthSwapchain->context(), texture, m_depthSwapchain->textureTarget());
     return nullptr;
 }
@@ -162,18 +172,33 @@ ExceptionOr<XRWebGLLayerBacking::XRLayerSwapchains> XRWebGLLayerBacking::createC
     if (!device)
         return Exception { ExceptionCode::OperationError, "Cannot create a composition layer without a valid device."_s };
 
-    auto [layerSize, layerLayout] = computeNonProjectionLayerSize(init.viewPixelWidth, init.viewPixelHeight, init.layout);
+    bool useTextureArray = init.textureType == XRTextureType::TextureArray;
+
+    IntSize layerSize;
+    PlatformXR::LayerLayout layerLayout;
+    GCGLenum colorTextureType;
+    uint32_t arrayLength;
+
+    if (layerType == PlatformXR::CompositionLayerType::Cube) {
+        bool isStereo = init.layout == XRLayerLayout::Stereo;
+        layerSize = IntSize { static_cast<int>(init.viewPixelWidth), static_cast<int>(init.viewPixelHeight) };
+        layerLayout = init.layout == XRLayerLayout::Stereo ? PlatformXR::LayerLayout::Stereo : PlatformXR::LayerLayout::Mono;
+        // TextureArray: one TEXTURE_2D_ARRAY with 6 faces per eye (spec: +X,-X,+Y,-Y,+Z,-Z; right eye starts at layer 6 for stereo)
+        // Non-array: one GL_TEXTURE_CUBE_MAP per eye
+        colorTextureType = useTextureArray ? GL::TEXTURE_2D_ARRAY : GL::TEXTURE_CUBE_MAP;
+        arrayLength = useTextureArray ? (isStereo ? 12 : 6) : (isStereo ? 2 : 1);
+    } else {
+        std::tie(layerSize, layerLayout) = computeNonProjectionLayerSize(init.viewPixelWidth, init.viewPixelHeight, init.layout);
+        colorTextureType = useTextureArray ? GL::TEXTURE_2D_ARRAY : GL::TEXTURE_2D;
+        uint32_t slicesPerLayer = layerLayout == PlatformXR::LayerLayout::Mono ? 1 : 2;
+        arrayLength = computeArrayLength(useTextureArray, slicesPerLayer);
+    }
 
     auto layerInfo = device->createCompositionLayer(layerType, layerSize, layerLayout);
     if (!layerInfo)
         return Exception { ExceptionCode::OperationError, "Unable to create a composition layer."_s };
 
-    bool useTextureArray = init.textureType == XRTextureType::TextureArray;
-    GCGLenum colorTextureType = useTextureArray ? GL::TEXTURE_2D_ARRAY : GL::TEXTURE_2D;
-    uint32_t slicesPerLayer = layerLayout == PlatformXR::LayerLayout::Mono ? 1 : 2;
-    uint32_t arrayLength = computeArrayLength(useTextureArray, slicesPerLayer);
-
-    return XRWebGLLayerBacking::createColorAndDepthSwapchains(context, layerInfo->handle, init.colorFormat, init.depthFormat, layerSize, init.clearOnAccess, layerInfo->numImages, arrayLength, colorTextureType);
+    return createColorAndDepthSwapchains(context, layerInfo->handle, init.colorFormat, init.depthFormat, layerSize, init.clearOnAccess, layerInfo->numImages, arrayLength, colorTextureType);
 }
 
 ExceptionOr<XRWebGLLayerBacking::XRLayerSwapchains> XRWebGLLayerBacking::createProjectionLayerSwapchains(WebXRSession& session, WebGLRenderingContextBase& context, const XRProjectionLayerInit& init)
@@ -204,7 +229,11 @@ ExceptionOr<XRWebGLLayerBacking::XRLayerSwapchains> XRWebGLLayerBacking::createC
     std::unique_ptr<WebXRWebGLSwapchain> depthSwapchain;
 
     bool useTextureArray = colorTextureType == GL::TEXTURE_2D_ARRAY;
-    if (useTextureArray) {
+    bool isCube = colorTextureType == GL::TEXTURE_CUBE_MAP;
+    if (isCube) {
+        auto colorFormats = swapchainFormatsForLayerFormat(colorFormat);
+        colorSwapchain = WebXRWebGLCubeSwapchain::create(context, WebXRSwapchain::SwapchainTargetFlags::Color, colorFormats.internalFormat, clearOnAccess, numImages, arrayLength);
+    } else if (useTextureArray) {
         auto colorFormats = swapchainFormatsForLayerFormat(colorFormat);
         colorSwapchain = WebXRWebGLTextureArraySwapchain::create(context, WebXRSwapchain::SwapchainTargetFlags::Color, colorFormats.internalFormat, clearOnAccess, numImages, arrayLength);
     } else
@@ -214,7 +243,7 @@ ExceptionOr<XRWebGLLayerBacking::XRLayerSwapchains> XRWebGLLayerBacking::createC
         return Exception { ExceptionCode::OperationError, "Failed to create a WebGL swapchain."_s };
 
     if (depthFormat && *depthFormat) {
-        IntSize depthSize = useTextureArray ? IntSize(size.width() / static_cast<int>(arrayLength), size.height()) : size;
+        IntSize depthSize = (!isCube && useTextureArray) ? IntSize(size.width() / static_cast<int>(arrayLength), size.height()) : size;
         depthSwapchain = createDepthSwapchain(context, *depthFormat, depthSize, clearOnAccess, numImages, arrayLength, colorTextureType);
     }
 

@@ -1,6 +1,5 @@
-
 /*
- * Copyright (C) 2025 Apple, Inc. All rights reserved.
+ * Copyright (C) 2026 Igalia S.L. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -25,45 +24,32 @@
  */
 
 #include "config.h"
-#include "XRCubeLayer.h"
+#include "XRWebGLCubeLayerBacking.h"
 
 #if ENABLE(WEBXR_LAYERS)
 
+#include "WebXRSession.h"
+#include "WebXRWebGLSwapchain.h"
+#include "XRCubeLayerInit.h"
 #include <wtf/TZoneMallocInlines.h>
 
 namespace WebCore {
 
-WTF_MAKE_TZONE_ALLOCATED_IMPL(XRCubeLayer);
+WTF_MAKE_TZONE_ALLOCATED_IMPL(XRWebGLCubeLayerBacking);
 
-XRCubeLayer::XRCubeLayer(ScriptExecutionContext& scriptExecutionContext, WebXRSession& session, Ref<XRLayerBacking>&& backing, const XRCubeLayerInit& init)
-    : XRCompositionLayer(&scriptExecutionContext, session, WTF::move(backing), init, init.space, nullptr)
-    , m_orientation(init.orientation ? Ref<DOMPointReadOnly>(*init.orientation) : DOMPointReadOnly::create(0, 0, 0, 1))
+ExceptionOr<Ref<XRWebGLCubeLayerBacking>> XRWebGLCubeLayerBacking::create(WebXRSession& session, WebGLRenderingContextBase& context, const XRCubeLayerInit& init)
 {
-    setIsStatic(init.isStatic);
+    auto swapchains = XRWebGLLayerBacking::createCompositionLayerSwapchains(session, context, PlatformXR::CompositionLayerType::Cube, init);
+    if (swapchains.hasException())
+        return swapchains.releaseException();
+    auto [handle, colorSwapchain, depthSwapchain, arrayLength] = swapchains.releaseReturnValue();
+    return adoptRef(*new XRWebGLCubeLayerBacking(handle, WTF::move(colorSwapchain), WTF::move(depthSwapchain), arrayLength, init));
 }
 
-XRCubeLayer::~XRCubeLayer() = default;
-
-void XRCubeLayer::setOrientation(DOMPointReadOnly& orientation)
+XRWebGLCubeLayerBacking::XRWebGLCubeLayerBacking(PlatformXR::LayerHandle handle, std::unique_ptr<WebXRWebGLSwapchain>&& colorSwapchain, std::unique_ptr<WebXRWebGLSwapchain>&& depthSwapchain, uint32_t colorTextureArrayLength, const XRCubeLayerInit& init)
+    : XRWebGLLayerBacking(handle, WTF::move(colorSwapchain), WTF::move(depthSwapchain), colorTextureArrayLength)
+    , m_init(init)
 {
-    m_orientation = orientation;
-    setNeedsRedraw(true);
-}
-
-void XRCubeLayer::fillInTypeSpecificDeviceLayerData(PlatformXR::DeviceLayer& layerData) const
-{
-#if PLATFORM(GTK) || PLATFORM(WPE)
-    layerData.cubeLayerData = {
-        .orientation = {
-            static_cast<float>(m_orientation->x()),
-            static_cast<float>(m_orientation->y()),
-            static_cast<float>(m_orientation->z()),
-            static_cast<float>(m_orientation->w()),
-        },
-    };
-#else
-    UNUSED_PARAM(layerData);
-#endif
 }
 
 } // namespace WebCore
