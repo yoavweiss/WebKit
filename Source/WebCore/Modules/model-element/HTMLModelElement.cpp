@@ -1918,8 +1918,10 @@ Node::NeedsPostConnectionSteps HTMLModelElement::insertionSteps(InsertionType in
     if (insertionType.connectedToDocument) {
         Ref document = this->document();
         document->registerForVisibilityStateChangedCallbacks(*this);
-        m_modelPlayerProvider = document->page()->modelPlayerProvider();
-        LazyLoadModelObserver::observe(*this);
+        if (RefPtr page = document->page()) {
+            m_modelPlayerProvider = page->modelPlayerProvider();
+            LazyLoadModelObserver::observe(*this);
+        }
     }
 
     return insertResult;
