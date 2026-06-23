@@ -1854,6 +1854,8 @@ webkit.org/b/295743 [ Debug ] media/video-display-aspect-ratio.html [ Pass Failu
 [ Sequoia ] imported/w3c/web-platform-tests/digital-credentials/allow-attribute-with-get.https.html [ Skip ]
 [ Sequoia ] imported/w3c/web-platform-tests/digital-credentials/get.https.html [ Skip ]
 [ Sequoia ] imported/w3c/web-platform-tests/digital-credentials/user-activation-get.https.html [ Skip ]
+# FIXME: Needs bug. On arm64 Debug (internal DC UI), non-fully-active get() returns UnknownError instead of AbortError.
+[ arm64 Debug ] imported/w3c/web-platform-tests/digital-credentials/get-non-fully-active.https.html [ Pass Failure ]
 
 # FIXME: Needs bug.
 http/tests/resourceLoadStatistics/website-data-removal-for-site-navigated-to-with-unfiltered-link-decoration-before-short-deletion.html [ Failure ]
