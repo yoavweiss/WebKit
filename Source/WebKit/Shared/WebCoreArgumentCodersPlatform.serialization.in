@@ -2576,11 +2576,11 @@ struct WebCore::OrganizationStorageAccessPromptQuirk {
 };
 
 #if ENABLE(SHAREABLE_RESOURCE)
-header: <WebCore/ShareableResource.h>
-[CustomHeader, RValue] class WebCore::ShareableResourceHandle {
+webkit_platform_headers: <WebCore/ShareableResource.h>
+[CustomHeader, RValue, WebKitPlatform] class WebCore::ShareableResourceHandle {
     WebCore::SharedMemoryHandle m_handle;
     unsigned m_offset;
-    [Validator='!(Checked<unsigned> { *m_offset } + *m_size).hasOverflowed() && (*m_offset + *m_size <= m_handle->size())'] unsigned m_size;
+    [Validator='!(CheckedUint32 { *m_offset } + *m_size).hasOverflowed() && (*m_offset + *m_size <= m_handle->size())'] unsigned m_size;
 }
 #endif
 
