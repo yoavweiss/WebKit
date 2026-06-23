@@ -130,9 +130,12 @@ public:
     // m_buffered into the caller. Useful for short-circuit checks on the main
     // thread which would otherwise pay a full PlatformTimeRanges copy via buffered().
     bool isBufferedEqual(const PlatformTimeRanges&) const;
+    bool isBuffered(const PlatformTimeRanges&) const;
     PlatformTimeRanges seekable() const;
 
     bool hasBufferedData() const;
+    bool hasCurrentTime() const;
+    bool hasFutureTime() const;
     bool hasFutureTime(const MediaTime& currentTime) const;
     static constexpr MediaTime futureDataThreshold() { return MediaTime { 1001, 24000 }; }
     bool hasFutureTime(const MediaTime& currentTime, const MediaTime& threshold) const;
@@ -168,6 +171,7 @@ private:
     bool canCompleteWaitForTarget() const WTF_REQUIRES_CAPABILITY(m_dispatcher.get());
     void completeWaitForTarget() WTF_REQUIRES_CAPABILITY(m_dispatcher.get());
     void tryCompleteWaitForTarget() WTF_REQUIRES_CAPABILITY(m_dispatcher.get());
+    bool hasBufferedTime(const MediaTime&) const;
 
     MediaTime m_duration WTF_GUARDED_BY_LOCK(m_lock) { MediaTime::invalidTime() };
     PlatformTimeRanges m_buffered WTF_GUARDED_BY_LOCK(m_lock);

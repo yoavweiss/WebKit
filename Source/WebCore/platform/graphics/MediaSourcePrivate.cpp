@@ -43,6 +43,14 @@ bool MediaSourcePrivate::hasFutureTime(const MediaTime& currentTime) const
     return hasFutureTime(currentTime, futureDataThreshold());
 }
 
+bool MediaSourcePrivate::hasFutureTime() const
+{
+    if (m_readyState.load() == MediaSourceReadyState::Closed)
+        return false;
+    auto threshold = timeIsProgressing() ? MediaTime::zeroTime() : futureDataThreshold();
+    return hasFutureTime(currentTime(), threshold);
+}
+
 bool MediaSourcePrivate::hasFutureTime(const MediaTime& currentTime, const MediaTime& threshold) const
 {
     if (currentTime >= duration())
@@ -69,6 +77,37 @@ bool MediaSourcePrivate::hasFutureTime(const MediaTime& currentTime, const Media
     // So we check if currentTime could progress further from its current value by at least one
     // video frame if paused, or if currentTime could go still progress.
     return localEnd - currentTime > threshold;
+}
+
+bool MediaSourcePrivate::hasBufferedTime(const MediaTime& time) const
+{
+    if (m_readyState.load() == MediaSourceReadyState::Closed)
+        return false;
+
+    if (time.isInvalid())
+        return false;
+
+    if (time > duration())
+        return false;
+
+    auto ranges = buffered();
+    if (!ranges.length())
+        return false;
+
+    return abs(ranges.nearest(time) - time) <= timeFudgeFactor();
+}
+
+bool MediaSourcePrivate::hasCurrentTime() const
+{
+    return hasBufferedTime(currentTime());
+}
+
+bool MediaSourcePrivate::isBuffered(const PlatformTimeRanges& ranges) const
+{
+    if (m_readyState.load() == MediaSourceReadyState::Closed)
+        return false;
+
+    return buffered().containWithEpsilon(ranges, timeFudgeFactor());
 }
 
 MediaSourcePrivate::MediaSourcePrivate(MediaSourcePrivateClient& client)
@@ -141,22 +180,14 @@ void MediaSourcePrivate::cancelPendingWaitForTarget()
 bool MediaSourcePrivate::canCompleteWaitForTarget() const
 {
     assertIsCurrent(m_dispatcher.get());
-    SeekTarget target;
+    MediaTime targetTime;
     {
         Locker locker { m_lock };
         if (!m_pendingSeekTarget)
             return false;
-        target = *m_pendingSeekTarget;
+        targetTime = m_pendingSeekTarget->time;
     }
-    if (target.time.isInvalid())
-        return false;
-    auto totalDuration = duration();
-    if (totalDuration.isValid() && target.time > totalDuration)
-        return false;
-    auto ranges = buffered();
-    if (!ranges.length())
-        return false;
-    return abs(ranges.nearest(target.time) - target.time) <= timeFudgeFactor();
+    return hasBufferedTime(targetTime);
 }
 
 void MediaSourcePrivate::completeWaitForTarget()

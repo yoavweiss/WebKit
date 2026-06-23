@@ -417,51 +417,6 @@ bool MediaSource::contentTypeShouldGenerateTimestamps(const ContentType& content
     return contentType.containerType() == "audio/aac"_s || contentType.containerType() == "audio/mpeg"_s;
 }
 
-bool MediaSource::hasBufferedTime(const MediaTime& time)
-{
-    if (isClosed())
-        return false;
-
-    if (time.isInvalid())
-        return false;
-
-    if (time > duration())
-        return false;
-
-    Ref msp = *m_private;
-    auto ranges = msp->buffered();
-    if (!ranges.length())
-        return false;
-
-    return abs(ranges.nearest(time) - time) <= msp->timeFudgeFactor();
-}
-
-bool MediaSource::hasCurrentTime()
-{
-    return hasBufferedTime(currentTime());
-}
-
-bool MediaSource::hasFutureTime()
-{
-    if (isClosed())
-        return false;
-
-    Ref msp = *m_private;
-
-    return msp->hasFutureTime(currentTime(), msp->timeIsProgressing() ? MediaTime::zeroTime() : MediaSourcePrivate::futureDataThreshold());
-}
-
-bool MediaSource::isBuffered(const PlatformTimeRanges& ranges) const
-{
-    if (isClosed())
-        return true;
-
-    Ref msp = *m_private;
-
-    auto bufferedRanges = msp->buffered();
-    return bufferedRanges.containWithEpsilon(ranges, msp->timeFudgeFactor());
-}
-
 void MediaSource::monitorSourceBuffers()
 {
     if (isClosed())
@@ -481,7 +436,7 @@ void MediaSource::monitorSourceBuffers()
     }
 
     // ↳ If HTMLMediaElement.buffered does not contain a TimeRange for the current playback position:
-    if (!hasCurrentTime()) {
+    if (!msp->hasCurrentTime()) {
         // 1. Set the HTMLMediaElement.readyState attribute to HAVE_METADATA.
         // 2. If this is the first transition to HAVE_METADATA, then queue a task to fire a simple event
         // named loadedmetadata at the media element.
@@ -503,7 +458,7 @@ void MediaSource::monitorSourceBuffers()
     };
     PlatformTimeRanges neededBufferedRange { currentTime, std::max(currentTime, limitAhead(kHaveEnoughDataThreshold)) };
 
-    if (isBuffered(neededBufferedRange)) {
+    if (msp->isBuffered(neededBufferedRange)) {
         // 1. Set the HTMLMediaElement.readyState attribute to HAVE_ENOUGH_DATA.
         // 2. Queue a task to fire a simple event named canplaythrough at the media element.
         // 3. Playback may resume at this point if it was previously suspended by a transition to HAVE_CURRENT_DATA.
@@ -515,7 +470,7 @@ void MediaSource::monitorSourceBuffers()
 
     // ↳ If HTMLMediaElement.buffered contains a TimeRange that includes the current playback
     //  position and some time beyond the current playback position, then run the following steps:
-    if (hasFutureTime()) {
+    if (msp->hasFutureTime()) {
         // 1. Set the HTMLMediaElement.readyState attribute to HAVE_FUTURE_DATA.
         // 2. If the previous value of HTMLMediaElement.readyState was less than HAVE_FUTURE_DATA, then queue a task to fire a simple event named canplay at the media element.
         // 3. Playback may resume at this point if it was previously suspended by a transition to HAVE_CURRENT_DATA.

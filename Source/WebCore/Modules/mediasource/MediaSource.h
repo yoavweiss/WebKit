@@ -175,8 +175,6 @@ public:
 protected:
     MediaSource(ScriptExecutionContext&, MediaSourceInit&&);
 
-    bool isBuffered(const PlatformTimeRanges&) const;
-
     void scheduleEvent(const AtomString& eventName);
     void notifyElementUpdateMediaState() const;
     void ensureWeakOnHTMLMediaElementContext(Function<void(HTMLMediaElement&)>&&) const;
@@ -224,10 +222,6 @@ private:
 
     void regenerateActiveSourceBuffers();
     void updateBufferedIfNeeded(bool forced = false);
-
-    bool hasBufferedTime(const MediaTime&);
-    bool hasCurrentTime();
-    bool hasFutureTime();
 
     static URLRegistry* s_registry;
 
