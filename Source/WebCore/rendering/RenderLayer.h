@@ -62,6 +62,7 @@
 #include <WebCore/TransformationMatrix.h>
 #include <wtf/InlineWeakPtr.h>
 #include <wtf/Markable.h>
+#include <wtf/Range.h>
 #include <wtf/UniquelyOwned.h>
 
 namespace WTF {
@@ -472,10 +473,14 @@ public:
     inline RenderSVGHiddenContainer* enclosingHiddenOrResourceContainerForSVG() const;
     void paintResourceLayerForSVG(GraphicsContext&, const AffineTransform&);
     void dirtyChildrenInDOMOrderForSVG();
+    void invalidateEnclosingSVGContainerSegmentation();
     bool shouldSkipRepaintAfterLayoutForSVG() const;
     bool hasFailedFilterForSVG() const;
     bool shouldSkipHitTestForSVG() const;
     void updateAncestorDependentStateForSVG();
+    bool isCompositedSVGPaintOrderChild() const;
+    bool paintsInlineInSVGContainer() const;
+    bool isFlattenedByEnclosingSVGReferenceFilter() const;
 
     void repaintIncludingDescendants();
 
@@ -1037,7 +1042,7 @@ private:
     bool setupClipPathIfNeededForSVG(OptionSet<PaintLayerFlag>&);
     bool paintForegroundForFragmentsForSVG(const LayerFragments&, GraphicsContext&, const LayerPaintingInfo&, OptionSet<PaintBehavior>, RenderObject*);
     void paintNegativeZOrderChildrenForSVG(GraphicsContext&, const LayerPaintingInfo&, OptionSet<PaintLayerFlag>);
-    void paintForegroundChildrenForSVG(GraphicsContext&, const LayerPaintingInfo&, const LayerPaintingInfo& localPaintingInfo, OptionSet<PaintLayerFlag>, const LayerFragments&, OptionSet<PaintBehavior>, RenderObject* subtreePaintRoot);
+    void paintForegroundChildrenForSVG(GraphicsContext&, const LayerPaintingInfo&, const LayerPaintingInfo& localPaintingInfo, OptionSet<PaintLayerFlag>, const LayerFragments&, OptionSet<PaintBehavior>, RenderObject* subtreePaintRoot, std::optional<WTF::Range<unsigned>> svgPaintOrderItemRange);
     struct HitLayer {
         RenderLayer* layer { nullptr };
         double zOffset = 0;
@@ -1050,7 +1055,7 @@ private:
     // children), signaling that the parent needs a "split" entry.
     bool appendChildrenInDOMOrderForSVG(RenderElement& parent, LayoutSize ancestorOffset, bool& anyNonZeroZIndex);
     const Vector<SVGPaintOrderLayerItem>& childrenInDOMOrderForSVG();
-    void paintChildrenInDOMOrderForSVG(GraphicsContext&, const LayerPaintingInfo&, OptionSet<PaintLayerFlag>, const LayerFragments&, OptionSet<PaintBehavior>, RenderObject*);
+    void paintChildrenInDOMOrderForSVG(GraphicsContext&, const LayerPaintingInfo&, OptionSet<PaintLayerFlag>, const LayerFragments&, OptionSet<PaintBehavior>, RenderObject*, std::optional<WTF::Range<unsigned>> svgPaintOrderItemRange);
     void paintNonLayerChildForFragmentsForSVG(RenderElement&, const LayoutSize& accumulatedAncestorOffset, PaintPhase, const LayerFragments&, GraphicsContext&, const LayerPaintingInfo&, OptionSet<PaintBehavior>, RenderObject*, const LayoutPoint& containerBaseOffset, bool isSVGRoot);
     void paintRendererByApplyingTransformForSVG(GraphicsContext&, CheckedRef<RenderElement>, const LayoutSize& positionOffset, const LayerPaintingInfo&, OptionSet<PaintLayerFlag>, OptionSet<PaintBehavior>, RenderObject*, const LayoutSize& nominalPreTranslation = { });
     void paintSubtreeWithinTransformScopeForSVG(GraphicsContext&, RenderElement& container, const LayoutPoint& paintOffset, const LayerPaintingInfo&, OptionSet<PaintLayerFlag>, OptionSet<PaintBehavior>, RenderObject*);
@@ -1253,7 +1258,7 @@ private:
 
     void paintLayerContentsAndReflection(GraphicsContext&, const LayerPaintingInfo&, OptionSet<PaintLayerFlag>);
     void paintLayerByApplyingTransform(GraphicsContext&, const LayerPaintingInfo&, OptionSet<PaintLayerFlag>, const LayoutSize& translationOffset = LayoutSize());
-    void paintLayerContents(GraphicsContext&, const LayerPaintingInfo&, OptionSet<PaintLayerFlag>);
+    void paintLayerContents(GraphicsContext&, const LayerPaintingInfo&, OptionSet<PaintLayerFlag>, std::optional<WTF::Range<unsigned>> svgPaintOrderItemRange = std::nullopt);
     void paintList(LayerList, GraphicsContext&, const LayerPaintingInfo&, OptionSet<PaintLayerFlag>);
 
     void updatePaintingInfoForFragments(LayerFragments&, const LayerPaintingInfo&, OptionSet<PaintLayerFlag>, bool shouldPaintContent, const LayoutSize& offsetFromRoot);

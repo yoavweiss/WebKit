@@ -102,6 +102,7 @@ platform/graphics/filters/software/FEMorphologySoftwareApplier.cpp
 rendering/RenderCounter.cpp
 [ iOS ] rendering/RenderImage.cpp
 rendering/RenderLayer.cpp
+rendering/RenderLayerBackingSVGAdditions.cpp
 [ iOS ] rendering/RenderLayerCompositor.cpp
 rendering/RenderTreeAsText.cpp
 rendering/cocoa/RenderThemeCocoa.mm

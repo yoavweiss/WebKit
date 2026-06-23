@@ -27,6 +27,7 @@
 #include "RenderBoxInlines.h"
 #include "RenderDescendantIterator.h"
 #include "RenderElementInlines.h"
+#include "RenderIterator.h"
 #include "RenderLayerBacking.h"
 #include "RenderLayerFilters.h"
 #include "RenderLayerInlines.h"
@@ -148,7 +149,7 @@ void RenderLayer::paintNegativeZOrderChildrenForSVG(GraphicsContext& context, co
     // (paintChildrenInDOMOrderForSVG handles all children including negative z-index).
 }
 
-void RenderLayer::paintForegroundChildrenForSVG(GraphicsContext& context, const LayerPaintingInfo& paintingInfo, const LayerPaintingInfo& localPaintingInfo, OptionSet<PaintLayerFlag> paintFlags, const LayerFragments& layerFragments, OptionSet<PaintBehavior> paintBehavior, RenderObject* subtreePaintRoot)
+void RenderLayer::paintForegroundChildrenForSVG(GraphicsContext& context, const LayerPaintingInfo& paintingInfo, const LayerPaintingInfo& localPaintingInfo, OptionSet<PaintLayerFlag> paintFlags, const LayerFragments& layerFragments, OptionSet<PaintBehavior> paintBehavior, RenderObject* subtreePaintRoot, std::optional<WTF::Range<unsigned>> svgPaintOrderItemRange)
 {
     ASSERT(m_svgData);
 
@@ -160,7 +161,7 @@ void RenderLayer::paintForegroundChildrenForSVG(GraphicsContext& context, const 
         return;
     }
 
-    paintChildrenInDOMOrderForSVG(context, localPaintingInfo, paintFlags, layerFragments, paintBehavior, subtreePaintRoot);
+    paintChildrenInDOMOrderForSVG(context, localPaintingInfo, paintFlags, layerFragments, paintBehavior, subtreePaintRoot, svgPaintOrderItemRange);
 }
 
 RenderLayer::HitLayer RenderLayer::hitTestChildrenForSVG(RenderLayer* rootLayer, const HitTestRequest& request, HitTestResult& result, const LayoutRect& hitTestRect, const HitTestLocation& hitTestLocation, const HitTestingTransformState* transformState, double* zOffsetForDescendants)
@@ -184,6 +185,36 @@ bool RenderLayer::shouldSkipRepaintAfterLayoutForSVG() const
 
     // The SVG containers themselves never trigger repaints, only their contents are allowed to.
     return is<RenderSVGContainer>(renderer()) && !shouldPaintWithFilters();
+}
+
+bool RenderLayer::isCompositedSVGPaintOrderChild() const
+{
+    // A child that paints outside the container's DOM-order walk: it owns a backing store, or hosts a
+    // composited descendant parented under its layer. Either way, trailing non-composited siblings must
+    // paint above it through an overlay segment layer.
+    return compositedWithOwnBackingStore(*this) || hasCompositingDescendant();
+}
+
+bool RenderLayer::paintsInlineInSVGContainer() const
+{
+    // A layer without its own backing store is painted inline by the container's DOM-order walk.
+    return !compositedWithOwnBackingStore(*this);
+}
+
+bool RenderLayer::isFlattenedByEnclosingSVGReferenceFilter() const
+{
+    // A non-compositable (reference) SVG filter renders its whole subtree into a single software buffer,
+    // so a descendant must not composite independently, which would let it escape the filter. Walk the
+    // SVG layer ancestry (below the SVG root, whose reference filter is handled separately) for such a
+    // filter.
+    for (CheckedPtr ancestor = parent(); ancestor; ancestor = ancestor->parent()) {
+        auto& renderer = ancestor->renderer();
+        if (!renderer.isSVGLayerAwareRenderer() || renderer.isRenderSVGRoot())
+            return false;
+        if (renderer.style().filter().hasReferenceFilter())
+            return true;
+    }
+    return false;
 }
 
 bool RenderLayer::shouldSkipHitTestForSVG() const
@@ -234,6 +265,21 @@ void RenderLayer::dirtyChildrenInDOMOrderForSVG()
     ASSERT(m_svgData);
     m_svgData->childrenInDOMOrder.shrink(0); // Use shrink(0) instead of clear() to retain our capacity.
     m_svgData->childrenInDOMOrderDirty = true;
+
+    // Segment ranges index into this flat list, so a rebuild invalidates them. Schedule a configuration
+    // update so the segments are recomputed off the fresh list.
+    if (isComposited() && backing()->hasSVGPaintOrderSegments())
+        setNeedsCompositingConfigurationUpdate();
+}
+
+void RenderLayer::invalidateEnclosingSVGContainerSegmentation()
+{
+    if (!isSVGLayer())
+        return;
+    // This layer's composited-child status in its enclosing SVG container may have changed, so that
+    // container has to recompute its paint-order segments.
+    if (CheckedPtr enclosing = enclosingCompositingLayerForRepaint(ExcludeSelf).layer)
+        enclosing->setNeedsCompositingConfigurationUpdate();
 }
 
 void RenderLayer::collectChildrenInDOMOrderForSVG()
@@ -390,7 +436,7 @@ void RenderLayer::paintNonLayerChildForFragmentsForSVG(RenderElement& childRende
 }
 
 void RenderLayer::paintChildrenInDOMOrderForSVG(GraphicsContext& context, const LayerPaintingInfo& paintingInfo, OptionSet<PaintLayerFlag> paintFlags,
-    const LayerFragments& layerFragments, OptionSet<PaintBehavior> paintBehavior, RenderObject* subtreePaintRootForRenderer)
+    const LayerFragments& layerFragments, OptionSet<PaintBehavior> paintBehavior, RenderObject* subtreePaintRootForRenderer, std::optional<WTF::Range<unsigned>> svgPaintOrderItemRange)
 {
     ASSERT(m_svgData);
     auto& allChildren = childrenInDOMOrderForSVG();
@@ -410,10 +456,25 @@ void RenderLayer::paintChildrenInDOMOrderForSVG(GraphicsContext& context, const 
     } else if (auto* svgRoot = dynamicDowncast<RenderSVGRoot>(renderer()))
         containerBaseOffset = svgRoot->location();
 
-    for (auto& childToPaint : allChildren) {
+    // When this layer paints as a single paint-order segment (paintIntoLayer passes the range of the
+    // GraphicsLayer being painted), walk only that segment's half-open range of the flat list. The
+    // rootLayer == this check keeps the range tied to this layer: a child layer paints through its own
+    // paintLayer call, which carries no range, so it cannot leak into the child's flat list.
+    size_t beginIndex = 0;
+    size_t endIndex = allChildren.size();
+    if (svgPaintOrderItemRange && paintingInfo.rootLayer == this) {
+        ASSERT(svgPaintOrderItemRange->end() <= allChildren.size());
+        beginIndex = svgPaintOrderItemRange->begin();
+        endIndex = std::min<size_t>(svgPaintOrderItemRange->end(), allChildren.size());
+    }
+
+    for (size_t index = beginIndex; index < endIndex; ++index) {
+        auto& childToPaint = allChildren[index];
         if (CheckedPtr childLayer = childToPaint.layer.get()) {
-            // Composited children paint themselves via the compositor.
-            if (childLayer->isComposited())
+            // Children that own a backing store paint through the compositor and an overlay segment layer
+            // paints above them. A composited child that paints into a composited ancestor has no own
+            // GraphicsLayer, so it must still paint inline here (see paintsInlineInSVGContainer()).
+            if (!childLayer->paintsInlineInSVGContainer() && !paintBehavior.contains(PaintBehavior::FlattenCompositingLayers))
                 continue;
 
             if (isPaintingResourceLayerForSVG() && !layerResourceOffset.isZero()) {

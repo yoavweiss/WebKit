@@ -3673,7 +3673,7 @@ void RenderLayer::applyFilters(GraphicsContext& originalContext, const LayerPain
     m_filters->applyFilterEffect(originalContext);
 }
 
-void RenderLayer::paintLayerContents(GraphicsContext& context, const LayerPaintingInfo& paintingInfo, OptionSet<PaintLayerFlag> paintFlags)
+void RenderLayer::paintLayerContents(GraphicsContext& context, const LayerPaintingInfo& paintingInfo, OptionSet<PaintLayerFlag> paintFlags, std::optional<WTF::Range<unsigned>> svgPaintOrderItemRange)
 {
     ASSERT(isSelfPaintingLayer() || hasSelfPaintingLayerDescendant());
 
@@ -3686,6 +3686,9 @@ void RenderLayer::paintLayerContents(GraphicsContext& context, const LayerPainti
     bool isPaintingOverlayScrollbars = localPaintFlags.contains(PaintLayerFlag::PaintingOverlayScrollbars);
     bool isPaintingCompositedForeground = localPaintFlags.contains(PaintLayerFlag::PaintingCompositingForegroundPhase);
     bool isPaintingCompositedBackground = localPaintFlags.contains(PaintLayerFlag::PaintingCompositingBackgroundPhase);
+    // This SVG container layer is painting an overlay paint-order segment, so it paints only its
+    // flat-list slice. The container's own foreground and outline belong to the primary segment (the primary layer).
+    bool isPaintingOverlaySVGSegment = svgPaintOrderItemRange && paintingInfo.rootLayer == this && svgPaintOrderItemRange->begin();
     bool isPaintingOverflowContents = localPaintFlags.contains(PaintLayerFlag::PaintingOverflowContents);
     bool isCollectingEventRegion = localPaintFlags.contains(PaintLayerFlag::CollectingEventRegion);
     bool isCollectingAccessibilityRegion = is<AccessibilityRegionContext>(paintingInfo.regionContext);
@@ -3881,6 +3884,11 @@ void RenderLayer::paintLayerContents(GraphicsContext& context, const LayerPainti
             if (localPaintFlags.contains(PaintLayerFlag::PaintingOverflowContentsRoot))
                 return false;
 
+            // An overlay SVG paint-order segment paints only its child slice. The container's own
+            // outline is painted once by the primary graphics layer (the primary segment).
+            if (isPaintingOverlaySVGSegment)
+                return false;
+
             // Paint outlines in the background phase for a scroll container so that they don't scroll with the content.
             // FIXME: inset outlines will have the wrong z-ordering with scrolled content. See also webkit.org/b/249457.
             if (localPaintFlags.contains(PaintLayerFlag::PaintingOverflowContainer))
@@ -3927,7 +3935,7 @@ void RenderLayer::paintLayerContents(GraphicsContext& context, const LayerPainti
             }
         }
 
-        if (isPaintingCompositedForeground && shouldPaintContent)
+        if (isPaintingCompositedForeground && shouldPaintContent && !isPaintingOverlaySVGSegment)
             paintForegroundForFragments(layerFragments, currentContext, context, paintingInfo.paintDirtyRect, haveTransparency, localPaintingInfo, paintBehavior, subtreePaintRootForRenderer);
 
         if (isCollectingEventRegion && !isInsideSkippedSubtree)
@@ -3941,7 +3949,7 @@ void RenderLayer::paintLayerContents(GraphicsContext& context, const LayerPainti
 
         if (isPaintingCompositedForeground) {
             if (m_svgData)
-                paintForegroundChildrenForSVG(currentContext, paintingInfo, localPaintingInfo, localPaintFlags, layerFragments, paintBehavior, subtreePaintRootForRenderer);
+                paintForegroundChildrenForSVG(currentContext, paintingInfo, localPaintingInfo, localPaintFlags, layerFragments, paintBehavior, subtreePaintRootForRenderer, svgPaintOrderItemRange);
             else {
                 // Paint any child layers that have overflow.
                 paintList(normalFlowLayers(), currentContext, paintingInfo, localPaintFlags);
@@ -6188,6 +6196,12 @@ void RenderLayer::styleChanged(Style::Difference diff, const Style::ComputedStyl
 {
     setIsNormalFlowOnly(shouldBeNormalFlowOnly());
     setCanBeBackdropRoot(computeCanBeBackdropRoot());
+
+    // Make every SVG layer a stacking context, so a composited child ("anchor") stays in this layer's
+    // own paint-order lists rather than escaping to an ancestor's, which the paint-order segmentation
+    // relies on. Done here at style time, where mutating the z-order lists is allowed.
+    if (m_svgData)
+        setIsOpportunisticStackingContext(true);
 
     if (setIsCSSStackingContext(shouldBeCSSStackingContext())) {
         if (parent()) {

@@ -372,6 +372,14 @@ inline bool ComputedStyle::hasTransformRelatedProperty() const
         || !perspective().isNone();
 }
 
+inline bool ComputedStyle::has3DTransformOperation() const
+{
+    return transform().has3DOperation()
+        || translate().is3DOperation()
+        || scale().is3DOperation()
+        || rotate().is3DOperation();
+}
+
 inline bool ComputedStyle::hasUsedAppearance() const
 {
     return usedAppearance() != StyleAppearance::None && usedAppearance() != StyleAppearance::Base;

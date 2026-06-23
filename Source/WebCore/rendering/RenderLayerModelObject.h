@@ -164,6 +164,9 @@ protected:
     virtual void updateFromStyle() { }
 
 private:
+    bool createLayerIfAllowed();
+    void removeOnlyThisLayerWithRepaint();
+
     RenderSVGResourceMarker* svgMarkerResourceFromStyle(const Style::SVGMarkerResource&) const;
 
     UniquelyOwnedPtr<RenderLayer> m_layer;

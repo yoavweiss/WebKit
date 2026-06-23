@@ -119,7 +119,11 @@ void RenderSVGViewportContainer::updateFromStyle()
 {
     RenderSVGContainer::updateFromStyle();
 
-    if (SVGRenderSupport::isOverflowHidden(*this))
+    // Overflow for the outermost <svg> element is handled by RenderSVGRoot, not here. Even though the
+    // outermost (anonymous) viewport container always takes a layer, it must not install its own overflow
+    // clip, which would clip (and corrupt the clip rects of, e.g. filter backgrounds for) descendants
+    // through a coordinate space RenderSVGRoot already accounts for.
+    if (!isOutermostSVGViewportContainer() && SVGRenderSupport::isOverflowHidden(*this))
         setHasNonVisibleOverflow();
 }
 
@@ -193,8 +197,11 @@ void RenderSVGViewportContainer::applyTransform(TransformationMatrix& transform,
 
 LayoutRect RenderSVGViewportContainer::overflowClipRect(const LayoutPoint& location, OverlayScrollbarSizeRelevancy, PaintPhase) const
 {
-    // Overflow for the outermost <svg> element is handled in RenderSVGRoot, not here.
-    ASSERT(!isOutermostSVGViewportContainer());
+    // The outermost <svg> element's overflow is clipped by RenderSVGRoot, not here. That viewport container
+    // never sets up an overflow clip (see updateFromStyle), so this code normally is not reached for it.
+    // Return an infinite rect, which clips nothing, in case it is.
+    if (isOutermostSVGViewportContainer())
+        return LayoutRect::infiniteRect();
     Ref useSVGSVGElement = svgSVGElement();
 
     auto clipRect = enclosingLayoutRect(viewport());

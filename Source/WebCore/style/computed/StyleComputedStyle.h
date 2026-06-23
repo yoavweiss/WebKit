@@ -241,6 +241,8 @@ public:
     inline bool hasTransformRelatedProperty() const;
     inline bool affectsTransform() const;
 
+    inline bool has3DTransformOperation() const;
+
 private:
     ComputedStyle(ComputedStyle&, ComputedStyle&&);
 };

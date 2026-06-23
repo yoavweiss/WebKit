@@ -3000,6 +3000,7 @@ rendering/RenderImageResource.cpp @header:RenderStyleGetters @cost:5
 rendering/RenderInline.cpp @header:RenderStyleGetters @cost:7
 rendering/RenderLayer.cpp @header:RenderStyleGetters @cost:11
 rendering/RenderLayerBacking.cpp @header:RenderStyleGetters @cost:10
+rendering/RenderLayerBackingSVGAdditions.cpp @header:RenderStyleGetters @cost:7
 rendering/RenderLayerCompositor.cpp @header:RenderStyleGetters @cost:9
 rendering/RenderLayerFilters.cpp @header:RenderStyleGetters @cost:6
 rendering/RenderLayerModelObject.cpp @header:RenderStyleGetters @cost:8

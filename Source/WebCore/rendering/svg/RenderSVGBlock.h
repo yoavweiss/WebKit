@@ -32,6 +32,9 @@ class RenderSVGBlock : public RenderBlockFlow {
 public:
     inline SVGGraphicsElement& graphicsElement() const;
 
+    LayoutPoint currentSVGLayoutLocation() const final { return location(); }
+    void setCurrentSVGLayoutLocation(const LayoutPoint& location) final { setLocation(location); }
+
 protected:
     RenderSVGBlock(Type, SVGGraphicsElement&, Style::ComputedStyle&&);
     virtual ~RenderSVGBlock();
@@ -49,9 +52,6 @@ private:
 
     void boundingRects(Vector<LayoutRect>&, const LayoutPoint& accumulatedOffset) const override;
     void absoluteQuads(Vector<FloatQuad>&, bool* wasFixed) const override;
-
-    LayoutPoint currentSVGLayoutLocation() const final { return location(); }
-    void setCurrentSVGLayoutLocation(const LayoutPoint& location) final { setLocation(location); }
 
     FloatRect referenceBoxRect(CSSBoxType) const final;
 

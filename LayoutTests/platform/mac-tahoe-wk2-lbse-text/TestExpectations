@@ -121,7 +121,6 @@ svg/dynamic-updates/SVGMaskElement-svgdom-y-prop.html                [ ImageOnly
 imported/w3c/web-platform-tests/svg/interact/scripted/svg-pointer-events-bbox.html [ Failure ]
 
 # Failing WPT reftests
-imported/w3c/web-platform-tests/svg/extensibility/foreignObject/will-change-in-foreign-object-paint-order.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/svg/painting/marker-009.svg                                                    [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/svg/painting/reftests/non-scaling-stroke-001.html                              [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/svg/painting/reftests/non-scaling-stroke-002.html                              [ ImageOnlyFailure ]
@@ -272,8 +271,10 @@ imported/w3c/web-platform-tests/svg/extensibility/foreignObject/foreign-object-w
 imported/w3c/web-platform-tests/svg/extensibility/foreignObject/isolation-with-html.html                          [ Pass ]
 imported/w3c/web-platform-tests/svg/extensibility/foreignObject/isolation-with-svg.html                           [ Pass ]
 imported/w3c/web-platform-tests/svg/extensibility/foreignObject/scroll-transform-nested-stacked-children.html     [ Pass ]
+imported/w3c/web-platform-tests/svg/extensibility/foreignObject/will-change-in-foreign-object-paint-order.html    [ Pass ]
 imported/w3c/web-platform-tests/svg/layout/svg-foreign-relayout-001.html                                          [ Pass ]
 imported/w3c/web-platform-tests/svg/layout/svg-foreign-relayout-002.html                                          [ Pass ]
+imported/w3c/web-platform-tests/svg/linking/reftests/media-fragment-override-multiple.html                        [ Pass ]
 imported/w3c/web-platform-tests/svg/linking/reftests/media-fragment-override-multiple.html                        [ Pass ]
 imported/w3c/web-platform-tests/svg/painting/reftests/non-scaling-stroke-003.html                                 [ Pass ]
 imported/w3c/web-platform-tests/svg/path/distance/pathlength-circle-mutating.svg                                  [ Pass ]
@@ -292,19 +293,15 @@ svg/W3C-SVG-1.1/text-intro-02-b.svg                                             
 svg/W3C-SVG-1.1/text-intro-03-b.svg                                                                               [ Pass ]
 svg/W3C-SVG-1.1/text-intro-04-t.svg                                                                               [ Pass ]
 svg/W3C-SVG-1.1/text-text-06-t.svg                                                                                [ Pass ]
+svg/compositing/anonymous-RenderSVGViewportContainer-no-repaints.html                                             [ Pass ]
+svg/compositing/foreground-layer-composited-html-in-foreignobject-between-rects.html                              [ Pass ]
+svg/compositing/foreground-layer-composited-svg-rect-and-foreignobject-interleaved.html                           [ Pass ]
+svg/compositing/foreground-layer-mixed-svg-and-foreignobject-composited.html                                      [ Pass ]
+svg/compositing/foreground-layer-multiple-foreignobjects-composited.html                                          [ Pass ]
+svg/compositing/transform-change-repainting-no-viewBox-repaintRects.html                                          [ Pass ]
+svg/compositing/transform-change-repainting-viewBox-repaintRects.html                                             [ Pass ]
 svg/repaint/text-repainting-after-modifying-transform.html                                                        [ Pass ]
 svg/transforms/layout-tiny-elements-in-scaled-group.svg                                                           [ Pass ]
 svg/transforms/rotation-origin-in-small-units.svg                                                                 [ Pass ]
 svg/transforms/rotation-tiny-element-in-group.svg                                                                 [ Pass ]
 svg/transforms/translation-tiny-element.svg                                                                       [ Pass ]
-
-# webkit.org/b/308565 LBSE specific compositing tests (pass under LBSE, fail under legacy SVG engine)
-svg/compositing/foreground-layer-composited-html-in-foreignobject-between-rects.html  [ Pass ]
-svg/compositing/foreground-layer-composited-svg-rect-and-foreignobject-interleaved.html [ Pass ]
-svg/compositing/foreground-layer-mixed-svg-and-foreignobject-composited.html          [ Pass ]
-svg/compositing/foreground-layer-multiple-foreignobjects-composited.html              [ Pass ]
-
-# webkit.org/b/59346 Repaint tests fully functional under LBSE (conditional layer creation)
-svg/compositing/anonymous-RenderSVGViewportContainer-no-repaints.html                 [ Pass ]
-svg/compositing/transform-change-repainting-no-viewBox-repaintRects.html              [ Pass ]
-svg/compositing/transform-change-repainting-viewBox-repaintRects.html                 [ Pass ]
