@@ -42,10 +42,6 @@
 
 namespace WebCore {
 
-#if USE(APPLE_INTERNAL_SDK)
-#import <WebKitAdditions/ScrollingEffectsControllerAdditions.mm>
-#endif
-
 static const Seconds scrollVelocityZeroingTimeout = 100_ms;
 static const float rubberbandDirectionLockStretchRatio = 1;
 static const float rubberbandMinimumRequiredDeltaBeforeStretch = 10;
