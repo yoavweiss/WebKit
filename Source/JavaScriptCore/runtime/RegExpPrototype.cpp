@@ -1012,7 +1012,11 @@ JSValue regExpSplitSlow(JSGlobalObject* globalObject, JSObject* thisObject, JSSt
 
     // 8. If flags contains "y", let newFlags be flags.
     // 9. Else, let newFlags be the string-concatenation of flags and "y".
-    String newFlags = flags.contains('y') ? flags : makeString(flags, 'y');
+    String newFlags = flags.contains('y') ? flags : tryMakeString(flags, 'y');
+    if (newFlags.isNull()) [[unlikely]] {
+        throwOutOfMemoryError(globalObject, scope);
+        return { };
+    }
 
     // 10. Let splitter be ? Construct(speciesCtor, « regexp, newFlags »).
     MarkedArgumentBuffer constructorArgs;
