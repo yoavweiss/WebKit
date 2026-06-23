@@ -747,7 +747,7 @@ typedef NS_OPTIONS(NSUInteger, WKWebViewDataType) {
  @discussion Setting this property adds the refresh controller above the web
  content when scrolling past the top of the page.
  */
-@property (strong, nullable) NSRefreshController *refreshController WK_API_AVAILABLE(WK_MAC_TBA);
+@property (strong, nullable) NSRefreshController *refreshController WK_API_AVAILABLE(macos(WK_MAC_TBA));
 #endif
 
 @end
