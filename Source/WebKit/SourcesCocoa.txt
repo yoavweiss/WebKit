@@ -941,7 +941,6 @@ LogStreamMessageReceiver.cpp
 Shared/LogStream.mm @no-unify-when(bundle<=8)
 ModelConnectionToWebProcessMessageReceiver.cpp
 MediaPlayerPrivateRemoteMessageReceiver.cpp @cost:5
-MediaSourcePrivateRemoteMessageReceiverMessageReceiver.cpp
 ModelProcessConnectionMessageReceiver.cpp
 ModelProcessMessageReceiver.cpp
 ModelProcessModelPlayerProxyMessageReceiver.cpp

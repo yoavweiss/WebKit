@@ -38,6 +38,7 @@ messages -> RemoteMediaSourceProxy {
     SetTimeFudgeFactor(MediaTime fudgeFactor)
     MarkEndOfStream(enum:uint8_t WebCore::MediaSourcePrivateEndOfStreamStatus status)
     UnmarkEndOfStream()
+    CancelPendingWaitForTarget()
     Shutdown()
 }
 

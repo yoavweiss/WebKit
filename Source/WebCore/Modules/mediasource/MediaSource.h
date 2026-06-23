@@ -110,7 +110,6 @@ public:
     bool NODELETE attachToElement(WeakPtr<HTMLMediaElement>&&);
     void elementIsShuttingDown();
     void detachFromElement();
-    bool isSeeking() const { return !!m_pendingSeekTarget; }
     PlatformTimeRanges seekable();
     ExceptionOr<void> setLiveSeekableRange(double start, double end);
     ExceptionOr<void> clearLiveSeekableRange();
@@ -205,7 +204,6 @@ private:
 
     void removeSourceBufferWithOptionalDestruction(SourceBuffer&, bool withDestruction);
 
-    Ref<MediaTimePromise> waitForTarget(const SeekTarget&);
     using RendererType = MediaSourcePrivateClient::RendererType;
     void failedToCreateRenderer(RendererType);
 
@@ -231,14 +229,10 @@ private:
     bool hasCurrentTime();
     bool hasFutureTime();
 
-    void completeSeek();
-
     static URLRegistry* s_registry;
 
     const Ref<SourceBufferList> m_sourceBuffers;
     const Ref<SourceBufferList> m_activeSourceBuffers;
-    std::optional<SeekTarget> m_pendingSeekTarget;
-    std::optional<MediaTimePromise::AutoRejectProducer> m_seekTargetPromise;
     bool m_openDeferred { false };
     bool m_sourceopenPending { false };
     bool m_isAttached { false };

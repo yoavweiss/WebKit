@@ -29,7 +29,6 @@
 #if ENABLE(GPU_PROCESS) && ENABLE(MEDIA_SOURCE)
 
 #include "GPUConnectionToWebProcess.h"
-#include "MediaSourcePrivateRemoteMessageReceiverMessages.h"
 #include "RemoteMediaPlayerManagerProxy.h"
 #include "RemoteMediaPlayerProxy.h"
 #include "RemoteMediaSourceProxyMessages.h"
@@ -93,14 +92,6 @@ void RemoteMediaSourceProxy::reOpen()
     ASSERT(m_private);
 }
 
-Ref<MediaTimePromise> RemoteMediaSourceProxy::waitForTarget(const SeekTarget& target)
-{
-    if (RefPtr connection = connectionToWebProcess())
-        return connection->connection().sendWithPromisedReply<MediaPromiseConverter>(Messages::MediaSourcePrivateRemoteMessageReceiver::ProxyWaitForTarget(target), m_identifier);
-
-    return MediaTimePromise::createAndReject(PlatformMediaError::IPCError);
-}
-
 #if !RELEASE_LOG_DISABLED
 void RemoteMediaSourceProxy::setLogIdentifier(uint64_t)
 {
@@ -159,6 +150,12 @@ void RemoteMediaSourceProxy::unmarkEndOfStream()
 {
     if (RefPtr protectedPrivate = m_private)
         protectedPrivate->unmarkEndOfStream();
+}
+
+void RemoteMediaSourceProxy::cancelPendingWaitForTarget()
+{
+    if (RefPtr protectedPrivate = m_private)
+        protectedPrivate->cancelPendingWaitForTarget();
 }
 
 

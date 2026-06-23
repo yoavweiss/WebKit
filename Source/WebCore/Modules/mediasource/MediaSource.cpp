@@ -154,17 +154,6 @@ private:
         }, true);
     }
 
-    Ref<MediaTimePromise> waitForTarget(const SeekTarget& target) final
-    {
-        MediaTimePromise::AutoRejectProducer producer(PlatformMediaError::SourceRemoved);
-        auto promise = producer.promise();
-
-        ensureWeakOnDispatcher([producer = WTF::move(producer), target](MediaSource& parent) mutable {
-            parent.waitForTarget(target)->chainTo(WTF::move(producer));
-        });
-        return promise;
-    }
-
     RefPtr<MediaSourcePrivate> mediaSourcePrivate() const final
     {
         Locker locker { m_lock };
@@ -360,9 +349,6 @@ MediaTime MediaSource::duration() const
 
 MediaTime MediaSource::currentTime() const
 {
-    if (m_pendingSeekTarget)
-        return m_pendingSeekTarget->time;
-
     if (RefPtr msp = m_private)
         return msp->currentTime();
     return MediaTime::zeroTime();
@@ -371,94 +357,6 @@ MediaTime MediaSource::currentTime() const
 PlatformTimeRanges MediaSource::buffered() const
 {
     return isClosed() ? PlatformTimeRanges::emptyRanges() : protect(m_private)->buffered();
-}
-
-Ref<MediaTimePromise> MediaSource::waitForTarget(const SeekTarget& target)
-{
-    ALWAYS_LOG(LOGIDENTIFIER, target.time);
-
-    // 2.4.3 Seeking
-    // https://rawgit.com/w3c/media-source/45627646344eea0170dd1cbc5a3d508ca751abb8/media-source-respec.html#mediasource-seeking
-
-    RefPtr msp = m_private;
-    if (!msp)
-        return MediaTimePromise::createAndReject(PlatformMediaError::SourceRemoved);
-
-    if (m_seekTargetPromise) {
-        ALWAYS_LOG(LOGIDENTIFIER, "Previous seeking to ", m_pendingSeekTarget->time, "pending, cancelling it");
-        m_seekTargetPromise->reject(PlatformMediaError::Cancelled);
-    }
-    m_seekTargetPromise.emplace(PlatformMediaError::SourceRemoved);
-    Ref promise = m_seekTargetPromise->promise();
-    m_pendingSeekTarget = target;
-
-    // Run the following steps as part of the "Wait until the user agent has established whether or not the
-    // media data for the new playback position is available, and, if it is, until it has decoded enough data
-    // to play back that position" step of the seek algorithm:
-    // ↳ If new playback position is not in any TimeRange of HTMLMediaElement.buffered
-    if (!hasBufferedTime(target.time)) {
-        ALWAYS_LOG(LOGIDENTIFIER, "No data at seeked time, waiting");
-        // 1. If the HTMLMediaElement.readyState attribute is greater than HAVE_METADATA,
-        // then set the HTMLMediaElement.readyState attribute to HAVE_METADATA.
-        msp->setMediaPlayerReadyState(MediaPlayer::ReadyState::HaveMetadata);
-
-        // 2. The media element waits until an appendBuffer() or an appendStream() call causes the coded
-        // frame processing algorithm to set the HTMLMediaElement.readyState attribute to a value greater
-        // than HAVE_METADATA.
-        monitorSourceBuffers();
-
-        return promise;
-    }
-    // ↳ Otherwise
-    // Continue
-    completeSeek();
-    return promise;
-}
-
-void MediaSource::completeSeek()
-{
-    if (isClosed())
-        return;
-    // 2.4.3 Seeking, ctd.
-    // https://dvcs.w3.org/hg/html-media/raw-file/tip/media-source/media-source.html#mediasource-seeking
-
-    ASSERT(m_pendingSeekTarget && m_seekTargetPromise);
-
-    ALWAYS_LOG(LOGIDENTIFIER, m_pendingSeekTarget->time);
-
-    // 2. The media element resets all decoders and initializes each one with data from the appropriate
-    // initialization segment.
-    // 3. The media element feeds coded frames from the active track buffers into the decoders starting
-    // with the closest random access point before the new playback position.
-    auto seekTarget = *m_pendingSeekTarget;
-    m_pendingSeekTarget.reset();
-
-    MediaTimePromise::AutoRejectProducer producer(PlatformMediaError::SourceRemoved);
-    Ref promise = producer.promise();
-
-    protect(scriptExecutionContext())->enqueueTaskWhenSettled(SourceBuffer::ComputeSeekPromise::all(WTF::map(m_activeSourceBuffers.get(), [&](auto&& sourceBuffer) {
-        return sourceBuffer->computeSeekTime(seekTarget);
-    })), TaskSource::MediaElement, [producer = WTF::move(producer), weakThis = WeakPtr { *this }, time = seekTarget.time](auto&& results) {
-        RefPtr protectedThis = weakThis.get();
-        if (!protectedThis || protectedThis->isClosed())
-            return;
-
-        if (!results)
-            return producer.reject(results.error());
-
-        auto seekTime = time;
-        for (auto& result : *results) {
-            if (abs(time - result) > abs(time - seekTime))
-                seekTime = result;
-        }
-
-        // 4. Resume the seek algorithm at the "Await a stable state" step.
-        protectedThis->monitorSourceBuffers();
-
-        producer.resolve(seekTime);
-    });
-    promise->chainTo(WTF::move(*m_seekTargetPromise));
-    m_seekTargetPromise.reset();
 }
 
 PlatformTimeRanges MediaSource::seekable()
@@ -611,9 +509,6 @@ void MediaSource::monitorSourceBuffers()
         // 3. Playback may resume at this point if it was previously suspended by a transition to HAVE_CURRENT_DATA.
         msp->setMediaPlayerReadyState(MediaPlayer::ReadyState::HaveEnoughData);
 
-        if (m_pendingSeekTarget)
-            completeSeek();
-
         // 4. Abort these steps.
         return;
     }
@@ -625,9 +520,6 @@ void MediaSource::monitorSourceBuffers()
         // 2. If the previous value of HTMLMediaElement.readyState was less than HAVE_FUTURE_DATA, then queue a task to fire a simple event named canplay at the media element.
         // 3. Playback may resume at this point if it was previously suspended by a transition to HAVE_CURRENT_DATA.
         msp->setMediaPlayerReadyState(MediaPlayer::ReadyState::HaveFutureData);
-
-        if (m_pendingSeekTarget)
-            completeSeek();
 
         // 4. Abort these steps.
         return;
@@ -642,9 +534,6 @@ void MediaSource::monitorSourceBuffers()
     // 3. Playback is suspended at this point since the media element doesn't have enough data to
     // advance the media timeline.
     msp->setMediaPlayerReadyState(MediaPlayer::ReadyState::HaveCurrentData);
-
-    if (m_pendingSeekTarget)
-        completeSeek();
 
     // 4. Abort these steps.
 }
@@ -1371,7 +1260,8 @@ void MediaSource::stop()
     ensureWeakOnHTMLMediaElementContext([](auto& mediaElement) {
         mediaElement.detachMediaSource();
     });
-    m_seekTargetPromise.reset();
+    if (RefPtr msp = m_private)
+        msp->cancelPendingWaitForTarget();
     setPrivate(nullptr);
 }
 
@@ -1410,9 +1300,8 @@ void MediaSource::onReadyStateChange(ReadyState oldState, ReadyState newState)
 
     // MediaSource's readyState transitions from "open" to "closed" or "ended" to "closed".
     if (oldState > ReadyState::Closed && newState == ReadyState::Closed) {
-        if (m_seekTargetPromise)
-            m_seekTargetPromise->reject(PlatformMediaError::Cancelled);
-        m_seekTargetPromise.reset();
+        if (RefPtr msp = m_private)
+            msp->cancelPendingWaitForTarget();
         scheduleEvent(eventNames().sourcecloseEvent);
     }
 

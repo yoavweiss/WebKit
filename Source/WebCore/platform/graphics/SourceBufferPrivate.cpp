@@ -288,39 +288,28 @@ void SourceBufferPrivate::reenqueSamples(TrackID trackID, NeedsFlush needsFlush)
     reenqueueMediaForTime(trackBuffer->second, trackID, currentTime(), needsFlush);
 }
 
-Ref<SourceBufferPrivate::ComputeSeekPromise> SourceBufferPrivate::computeSeekTime(const SeekTarget& target)
+MediaTime SourceBufferPrivate::computeSeekTime(const SeekTarget& target)
 {
-    // Called on SourceBuffer's thread
-    ASSERT(isOnCreationThread());
-    return invokeAsync(m_dispatcher, [weakThis = ThreadSafeWeakPtr { *this }, target] {
-        RefPtr protectedThis = weakThis.get();
-        if (!protectedThis)
-            return ComputeSeekPromise::createAndReject(PlatformMediaError::BufferRemoved);
-        RefPtr client = protectedThis->client();
-        if (!client)
-            return ComputeSeekPromise::createAndReject(PlatformMediaError::BufferRemoved);
+    assertIsCurrent(m_dispatcher.get());
 
-        auto seekTime = target.time;
+    auto seekTime = target.time;
 
-        if (target.negativeThreshold || target.positiveThreshold) {
-            protectedThis->iterateTrackBuffers([&](auto& trackBuffer) {
-                // Find the sample which contains the target time.
-                auto trackSeekTime = trackBuffer.findSeekTimeForTargetTime(target.time, target.negativeThreshold, target.positiveThreshold);
+    if (target.negativeThreshold || target.positiveThreshold) {
+        iterateTrackBuffers([&](auto& trackBuffer) {
+            // Find the sample which contains the target time.
+            auto trackSeekTime = trackBuffer.findSeekTimeForTargetTime(target.time, target.negativeThreshold, target.positiveThreshold);
 
-                if (trackSeekTime.isValid() && abs(target.time - trackSeekTime) > abs(target.time - seekTime))
-                    seekTime = trackSeekTime;
-            });
-        }
-        // When converting from a double-precision float to a MediaTime, a certain amount of precision is lost. If that
-        // results in a round-trip between `float in -> MediaTime -> float out` where in != out, we will wait forever for
-        // the time jump observer to fire.
-        if (seekTime.hasDoubleValue())
-            seekTime = MediaTime::createWithDouble(seekTime.toDouble(), MediaTime::DefaultTimeScale);
+            if (trackSeekTime.isValid() && abs(target.time - trackSeekTime) > abs(target.time - seekTime))
+                seekTime = trackSeekTime;
+        });
+    }
+    // When converting from a double-precision float to a MediaTime, a certain amount of precision is lost. If that
+    // results in a round-trip between `float in -> MediaTime -> float out` where in != out, we will wait forever for
+    // the time jump observer to fire.
+    if (seekTime.hasDoubleValue())
+        seekTime = MediaTime::createWithDouble(seekTime.toDouble(), MediaTime::DefaultTimeScale);
 
-        protectedThis->computeEvictionData();
-
-        return ComputeSeekPromise::createAndResolve(seekTime);
-    });
+    return seekTime;
 }
 
 void SourceBufferPrivate::reenqueueMediaForTime(const MediaTime& time)

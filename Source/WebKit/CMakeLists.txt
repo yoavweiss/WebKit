@@ -360,7 +360,6 @@ set(WebKit_MESSAGES_IN_FILES
     WebProcess/GPU/media/RemoteAudioHardwareListener
     WebProcess/GPU/media/RemoteMediaResourceLoaderProxy
     WebProcess/GPU/media/MediaPlayerPrivateRemote
-    WebProcess/GPU/media/MediaSourcePrivateRemoteMessageReceiver
     WebProcess/GPU/media/RemoteAudioSession
     WebProcess/GPU/media/RemoteAudioSourceProviderManager
     WebProcess/GPU/media/RemoteCDMInstance

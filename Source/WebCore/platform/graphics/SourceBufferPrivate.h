@@ -120,8 +120,7 @@ public:
     virtual void setAppendWindowEnd(const MediaTime&);
     std::pair<MediaTime, MediaTime> appendWindow() const;
 
-    using ComputeSeekPromise = MediaTimePromise;
-    WEBCORE_EXPORT virtual Ref<ComputeSeekPromise> computeSeekTime(const SeekTarget&);
+    WEBCORE_EXPORT MediaTime computeSeekTime(const SeekTarget&);
     WEBCORE_EXPORT virtual void reenqueueMediaForTime(const MediaTime&);
     WEBCORE_EXPORT virtual void updateTrackIds(Vector<std::pair<TrackID, TrackID>>&& trackIdPairs);
 

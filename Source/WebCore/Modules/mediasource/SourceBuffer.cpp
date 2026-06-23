@@ -566,12 +566,6 @@ void SourceBuffer::removedFromMediaSource()
     m_extraMemoryCost = 0;
 }
 
-Ref<SourceBuffer::ComputeSeekPromise> SourceBuffer::computeSeekTime(const SeekTarget& target)
-{
-    ALWAYS_LOG(LOGIDENTIFIER, target);
-    return m_private->computeSeekTime(target);
-}
-
 bool SourceBuffer::virtualHasPendingActivity() const
 {
     return !!m_source;

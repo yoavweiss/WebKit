@@ -101,8 +101,6 @@ $(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/LogStreamMessageReceiver.cpp
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/LogStreamMessages.h
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/MediaPlayerPrivateRemoteMessageReceiver.cpp
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/MediaPlayerPrivateRemoteMessages.h
-$(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/MediaSourcePrivateRemoteMessageReceiverMessageReceiver.cpp
-$(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/MediaSourcePrivateRemoteMessageReceiverMessages.h
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/MessageArgumentDescriptions.cpp
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/MessageNames.cpp
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/MessageNames.h
