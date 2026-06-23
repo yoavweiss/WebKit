@@ -6685,6 +6685,33 @@ webkit.org/b/206753 imported/w3c/web-platform-tests/css/css-backgrounds/border-i
 webkit.org/b/206753 imported/w3c/web-platform-tests/css/css-backgrounds/border-image-repeat-round-stretch-001.html [ ImageOnlyFailure ]
 webkit.org/b/206753 imported/w3c/web-platform-tests/css/css-backgrounds/border-image-repeat-stretch-round-001.html [ ImageOnlyFailure ]
 
+imported/w3c/web-platform-tests/css/css-backgrounds/background-clip/clip-border-area-corner-shape.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-backgrounds/background-clip/clip-border-area-text.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-backgrounds/background-clip/clip-border-shape-table-part-background.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-backgrounds/background-clip/clip-text-background-table-cell.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-backgrounds/background-clip/clip-text-blend-mode.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-backgrounds/background-clip/clip-text-constrain-geometry.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-backgrounds/background-clip/clip-text-relative-child.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-backgrounds/background-clip/clip-text-stacking-context-child-002.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-backgrounds/background-clip/clip-text-stacking-context-child.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-backgrounds/box-shadow-radius-generated.html?width=10&height=10&spread=70&radius=100% [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-backgrounds/box-shadow-radius-generated.html?width=200&height=40&spread=50&radius=0%2050%%2050% [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-backgrounds/box-shadow-radius-generated.html?width=200&height=40&spread=50&radius=100px%20/%2020px [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-backgrounds/box-shadow-radius-generated.html?width=200&height=40&spread=50&radius=20px%20/%204px [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-backgrounds/box-shadow-radius-generated.html?width=250&height=30&spread=100&radius=10px [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-backgrounds/box-shadow-radius-generated.html?width=300&height=50&spread=30&radius=15px [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-backgrounds/box-shadow-radius-generated.html?width=300&height=50&spread=30&radius=1px%201px%2049px%2049px [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-backgrounds/box-shadow-radius-generated.html?width=300&height=50&spread=30&radius=25px [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-backgrounds/box-shadow-radius-generated.html?width=300&height=50&spread=30&radius=50% [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-backgrounds/box-shadow-radius-generated.html?width=300&height=50&spread=30&radius=50%%2050%%201px%2050% [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-backgrounds/box-shadow-radius-generated.html?width=300&height=60&spread=30&radius=0px%200px%2030px%2030px [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-backgrounds/box-shadow-radius-generated.html?width=300&height=60&spread=30&radius=20px%2020px%2040px%2040px [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-backgrounds/box-shadow-radius-generated.html?width=50&height=50&spread=50&radius=1px [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-backgrounds/local-attachment-flex-column-reverse-scroll.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-backgrounds/local-attachment-flex-row-reverse-scroll.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-backgrounds/local-attachment-rtl-scroll.html [ ImageOnlyFailure ]
+
+
 # Flaky test that sometimes passes and sometimes fails.
 imported/w3c/web-platform-tests/screen-orientation/nested-documents.html [ Pass Failure ]
 
@@ -7125,12 +7152,12 @@ imported/w3c/web-platform-tests/css/css-view-transitions/pseudo-element-overflow
 imported/w3c/web-platform-tests/css/css-view-transitions/iframe-transition.sub.html [ Skip ]
 
 # Reftests with variants are not supported
-imported/w3c/web-platform-tests/css/css-view-transitions/web-animations-api-parse-pseudo-argument.html?first-pseudo=::view-transition-group(%20%20%20%20%20%20first%20) [ Skip ]
-imported/w3c/web-platform-tests/css/css-view-transitions/web-animations-api-parse-pseudo-argument.html?first-pseudo=::view-transition-group(%20first [ Skip ]
-imported/w3c/web-platform-tests/css/css-view-transitions/web-animations-api-parse-pseudo-argument.html?first-pseudo=::view-transition-group(%20first) [ Skip ]
-imported/w3c/web-platform-tests/css/css-view-transitions/web-animations-api-parse-pseudo-argument.html?first-pseudo=::view-transition-group(first [ Skip ]
-imported/w3c/web-platform-tests/css/css-view-transitions/web-animations-api-parse-pseudo-argument.html?first-pseudo=::view-transition-group(first%20) [ Skip ]
-imported/w3c/web-platform-tests/css/css-view-transitions/web-animations-api-parse-pseudo-argument.html?first-pseudo=::view-transition-group(first) [ Skip ]
+webkit.org/b/311897 imported/w3c/web-platform-tests/css/css-view-transitions/web-animations-api-parse-pseudo-argument.html?first-pseudo=::view-transition-group(%20%20%20%20%20%20first%20) [ Skip ]
+webkit.org/b/311897 imported/w3c/web-platform-tests/css/css-view-transitions/web-animations-api-parse-pseudo-argument.html?first-pseudo=::view-transition-group(%20first [ Skip ]
+webkit.org/b/311897 imported/w3c/web-platform-tests/css/css-view-transitions/web-animations-api-parse-pseudo-argument.html?first-pseudo=::view-transition-group(%20first) [ Skip ]
+webkit.org/b/311897 imported/w3c/web-platform-tests/css/css-view-transitions/web-animations-api-parse-pseudo-argument.html?first-pseudo=::view-transition-group(first [ Skip ]
+webkit.org/b/311897 imported/w3c/web-platform-tests/css/css-view-transitions/web-animations-api-parse-pseudo-argument.html?first-pseudo=::view-transition-group(first%20) [ Skip ]
+webkit.org/b/311897 imported/w3c/web-platform-tests/css/css-view-transitions/web-animations-api-parse-pseudo-argument.html?first-pseudo=::view-transition-group(first) [ Skip ]
 
 # View transitions Level 2 - types.
 # Test doesn't seem to pass on Chrome Canary.

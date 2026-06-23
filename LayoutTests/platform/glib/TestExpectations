@@ -5259,6 +5259,7 @@ webkit.org/b/306384 fast/text/vertical-displacement-simple-codepath.html [ Image
 webkit.org/b/306384 fast/text/vertical-quotation-marks.html [ ImageOnlyFailure ]
 webkit.org/b/306384 imported/w3c/web-platform-tests/css/css-align/content-distribution/place-content-shorthand-007.html [ ImageOnlyFailure ]
 webkit.org/b/306384 imported/w3c/web-platform-tests/css/css-backgrounds/background-color-body-propagation-009.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-backgrounds/background-clip/clip-text-multiline-background-image.html [ ImageOnlyFailure ]
 webkit.org/b/306384 imported/w3c/web-platform-tests/css/css-contain/content-visibility/content-visibility-hidden-and-float-inside-skipped-subtree.html [ ImageOnlyFailure ]
 webkit.org/b/306384 imported/w3c/web-platform-tests/css/css-contain/content-visibility/content-visibility-resize-observer-no-error.html [ ImageOnlyFailure ]
 webkit.org/b/306384 imported/w3c/web-platform-tests/css/css-grid/grid-model/grid-floats-no-intrude-002.html [ ImageOnlyFailure ]
