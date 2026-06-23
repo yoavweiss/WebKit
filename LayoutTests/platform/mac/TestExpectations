@@ -881,6 +881,8 @@ webkit.org/b/142726 fast/images/animated-png.html [ Skip ]
 webkit.org/b/145432 media/video-transformed-by-javascript.html [ Failure ]
 
 webkit.org/b/140022 http/tests/media/track-in-band-hls-metadata.html [ Pass Timeout Failure ]
+webkit.org/b/317607 http/tests/media/track/text-track-cross-origin-in-band.html [ Pass Failure ]
+webkit.org/b/317607 http/tests/media/track/track-removal-clears-pending-list.html [ Failure ]
 
 # <rdar://problem/21263363>
 http/tests/media/remove-while-loading.html [ Skip ]

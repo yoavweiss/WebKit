@@ -5602,6 +5602,9 @@ webkit.org/b/317119 fast/repaint/layer-repaint-with-layout-delta-2.html [ Pass I
 fast/dom/HTMLImageElement/sizes/image-sizes-js-change.html [ Pass Failure ]
 gamepad/gamepad-event-handlers.html [ Pass Timeout ]
 
+webkit.org/b/317607 http/tests/media/track/text-track-cross-origin-in-band.html [ Failure ]
+webkit.org/b/317607 http/tests/media/track/track-removal-clears-pending-list.html [ Failure ]
+
 # End: Common failures between GTK and WPE.
 
 #////////////////////////////////////////////////////////////////////////////////////////
