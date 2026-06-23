@@ -23,6 +23,7 @@ selectors = [
     { name = "lookUpURL:isMainFrame:hasHighConfidenceOfSafety:cachedResult:completionHandler:", class = "SSBLookupContext" },
     { name = "_getListsForNamespace:collectionId:completionHandler:", class = "SSBLookupContext" },
 ]
+requires = ["HAVE_SAFE_BROWSING"]
 
 [[not-web-essential]]
 request = "rdar://166711133"

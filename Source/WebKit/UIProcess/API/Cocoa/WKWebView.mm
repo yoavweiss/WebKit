@@ -8217,8 +8217,8 @@ static OptionSet<WebCore::DataDetectorType> NODELETE coreDataDetectorTypes(_WKTe
     if (RefPtr filter = WebKit::TextExtractionFilter::singletonIfCreated())
         filter->resetCache();
 
-    if (_textExtractionURLCache)
-        _textExtractionURLCache->clear();
+    if (RefPtr cache = _textExtractionURLCache)
+        cache->clear();
 
     _textValidationCache.clear();
     _textExtractionRecognizedWords = { };

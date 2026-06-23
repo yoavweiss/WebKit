@@ -1371,6 +1371,9 @@ with open(sys.argv[2], 'wb') as f:
             ${WEBKIT_DIR}/Resources/ResourceLoadStatistics/corePrediction_model
             ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/WebKit.framework/corePrediction_model
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            ${WEBKIT_DIR}/Resources/TextExtractionFilter.mlmodel
+            ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/WebKit.framework/TextExtractionFilter.mlmodel
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
             ${_wk_assets_staging}/Assets.car
             ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/WebKit.framework/Assets.car
         COMMAND ${CMAKE_COMMAND} -E rm -rf

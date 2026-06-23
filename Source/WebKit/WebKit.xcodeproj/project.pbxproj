@@ -1632,6 +1632,7 @@
 		6BC94707C9319F43B957AF30 /* WKImmersiveEnvironmentDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 860A5EA0FD5FBC32B5398AC3 /* WKImmersiveEnvironmentDelegate.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6BD05865220CE8C2000BED5C /* PrivateClickMeasurementManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 6BD05863220CE8C2000BED5C /* PrivateClickMeasurementManager.h */; };
 		6BE969C11E54D452008B7483 /* corePrediction_model in Resources */ = {isa = PBXBuildFile; fileRef = 6BE969C01E54D452008B7483 /* corePrediction_model */; };
+		F4A1B2C30000000000000001 /* TextExtractionFilter.mlmodel in Resources */ = {isa = PBXBuildFile; fileRef = F4A1B2C30000000000000002 /* TextExtractionFilter.mlmodel */; };
 		6BE969CB1E54D4CF008B7483 /* ResourceLoadStatisticsClassifierCocoa.h in Headers */ = {isa = PBXBuildFile; fileRef = 6BE969C91E54D4CF008B7483 /* ResourceLoadStatisticsClassifierCocoa.h */; };
 		6BE969CD1E54E054008B7483 /* ResourceLoadStatisticsClassifier.h in Headers */ = {isa = PBXBuildFile; fileRef = 6BE969CC1E54E054008B7483 /* ResourceLoadStatisticsClassifier.h */; };
 		6D4DF20C2D824242001F964C /* ScreenTimeWebsiteDataSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = 6D77DBC22D80D3D6008ED0DD /* ScreenTimeWebsiteDataSupport.h */; };
@@ -6943,6 +6944,7 @@
 		6BD05863220CE8C2000BED5C /* PrivateClickMeasurementManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PrivateClickMeasurementManager.h; sourceTree = "<group>"; };
 		6BD05864220CE8C2000BED5C /* PrivateClickMeasurementManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = PrivateClickMeasurementManager.cpp; sourceTree = "<group>"; };
 		6BE969C01E54D452008B7483 /* corePrediction_model */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = corePrediction_model; sourceTree = "<group>"; };
+		F4A1B2C30000000000000002 /* TextExtractionFilter.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; name = TextExtractionFilter.mlmodel; path = Resources/TextExtractionFilter.mlmodel; sourceTree = "<group>"; };
 		6BE969C61E54D4B6008B7483 /* ResourceLoadStatisticsClassifier.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ResourceLoadStatisticsClassifier.cpp; sourceTree = "<group>"; };
 		6BE969C81E54D4CF008B7483 /* ResourceLoadStatisticsClassifierCocoa.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ResourceLoadStatisticsClassifierCocoa.cpp; sourceTree = "<group>"; };
 		6BE969C91E54D4CF008B7483 /* ResourceLoadStatisticsClassifierCocoa.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ResourceLoadStatisticsClassifierCocoa.h; sourceTree = "<group>"; };
@@ -9950,6 +9952,7 @@
 				8DC2EF5A0486A6940098B216 /* Info.plist */,
 				089C1666FE841158C02AAC07 /* InfoPlist.strings */,
 				5C8BC796218CB58A00813886 /* SafeBrowsing.xcassets */,
+				F4A1B2C30000000000000002 /* TextExtractionFilter.mlmodel */,
 				E1D26A4C1759634E0095BFD1 /* WebContentProcess.xib */,
 				E133FD891423DD7F00FC7BFB /* WebKit.icns */,
 				517B5F6B275AE50B002DC22D /* webpushtool.entitlements */,
@@ -20524,6 +20527,7 @@
 				0DF0187C2FA847F70077DA6B /* studio_lighting_objectmode_v3.reibl in Resources */,
 				0DF0187E2FA847F70077DA6B /* studio_lighting_objectmode_v3_diffmap.ktx in Resources */,
 				0DF0187D2FA847F70077DA6B /* studio_lighting_objectmode_v3_specmap.ktx in Resources */,
+				F4A1B2C30000000000000001 /* TextExtractionFilter.mlmodel in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
