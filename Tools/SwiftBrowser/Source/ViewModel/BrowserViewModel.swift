@@ -171,6 +171,15 @@ final class BrowserViewModel {
         page.load(request)
     }
 
+    func reload() async {
+        do {
+            for try await _ in page.reload() {
+            }
+        } catch {
+            Self.logger.error("Reload failed: \(error)")
+        }
+    }
+
     func exportAsPDF() {
         Task {
             guard let data = try? await page.exported(as: .pdf) else {
