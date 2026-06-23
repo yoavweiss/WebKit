@@ -146,7 +146,7 @@ void prepareForGeneration(Code& code)
 
     // This is needed to satisfy a requirement of B3::StackmapValue. This also removes dead
     // code. We can avoid running this when certain optimizations are disabled.
-    if (code.needsUsedRegisters())
+    if (code.optLevel() >= 2 || code.needsUsedRegisters())
         reportUsedRegisters(code);
 
     // Attempt to remove false dependencies between instructions created by partial register changes.
