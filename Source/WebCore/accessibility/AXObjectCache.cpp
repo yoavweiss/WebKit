@@ -6188,9 +6188,14 @@ AXTreeData AXObjectCache::treeData(std::optional<OptionSet<AXStreamOptions>> add
 
             // There's no root — maybe there's a pending ID that can't be hydrated into an actual root object?
             if (std::optional pendingRootID = tree->pendingRootNodeID())
-                stream << "Has pending root ID " << *pendingRootID << ". Object exists for that ID in the isolated tree: " << tree->unsafeHasObjectForID(*pendingRootID);
+                stream << "Has pending root ID " << *pendingRootID << ". Object exists for that ID in the isolated tree: " << tree->unsafeHasObjectForID(*pendingRootID) << ". ";
             else
-                stream << "No pending root ID.";
+                stream << "No pending root ID. ";
+
+            if (std::optional rootID = tree->unsafeRootNodeID())
+                stream << "Has root ID " << *rootID << ". Object exists for that ID in the isolated tree: " << tree->unsafeHasObjectForID(*rootID) << ".";
+            else
+                stream << "No root ID.";
         } else
             stream << "No isolated tree!";
 
