@@ -53,5 +53,7 @@
 #endif
 #undef IsPowerOf2
 #undef RoundTo
+#undef Read8
+#undef RoundUp
 
 #endif // USE(LIBWEBRTC)
