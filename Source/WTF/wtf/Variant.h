@@ -1520,6 +1520,11 @@ namespace mpark {
               alt_at<I>(in_place_t{}, lib::forward<Args>(args)...);
       }
 
+// GCC 14 through 16 emit a bogus -Wuninitialized for index_ when these
+// accessors are inlined into HashTable bucket teardown (e.g.
+// HashMap<GenericHashKey<...>, ...>::remove()), even though index_ is set by
+// every base constructor. Clang and GCC <= 13 are unaffected.
+IGNORE_GCC_WARNINGS_BEGIN("uninitialized")
       inline constexpr bool valueless_by_exception() const noexcept {
         return index_ == static_cast<index_t<Ts...>>(-1);
       }
@@ -1527,6 +1532,7 @@ namespace mpark {
       inline constexpr std::size_t index() const noexcept {
         return valueless_by_exception() ? variant_npos : index_;
       }
+IGNORE_GCC_WARNINGS_END
 
       template <std::size_t I> inline constexpr alt_at<I> &get_alt() & noexcept {
         return *std::launder(reinterpret_cast<alt_at<I> *>(data_.storage_));
