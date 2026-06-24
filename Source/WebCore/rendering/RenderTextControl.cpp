@@ -62,7 +62,7 @@ HTMLTextFormControlElement& NODELETE RenderTextControl::textFormControlElement()
 
 RefPtr<TextControlInnerTextElement> RenderTextControl::innerTextElement() const
 {
-    return textFormControlElement().innerTextElement();
+    return protect(textFormControlElement())->innerTextElement();
 }
 
 void RenderTextControl::styleDidChange(Style::Difference diff, const Style::ComputedStyle* oldStyle)
@@ -71,12 +71,13 @@ void RenderTextControl::styleDidChange(Style::Difference diff, const Style::Comp
     auto innerText = innerTextElement();
     if (!innerText)
         return;
+    Ref formControlElement = textFormControlElement();
     RenderTextControlInnerBlock* innerTextRenderer = innerText->renderer();
     if (innerTextRenderer && oldStyle) {
         // FIXME: The height property of the inner text block style may be mutated by RenderTextControlSingleLine::layout.
         // See if the original has changed before setting it and triggering a layout.
-        auto newInnerTextStyle = textFormControlElement().createInnerTextStyle(style());
-        auto oldInnerTextStyle = textFormControlElement().createInnerTextStyle(*oldStyle);
+        auto newInnerTextStyle = formControlElement->createInnerTextStyle(style());
+        auto oldInnerTextStyle = formControlElement->createInnerTextStyle(*oldStyle);
         if (newInnerTextStyle != oldInnerTextStyle)
             innerTextRenderer->setStyle(WTF::move(newInnerTextStyle));
         else if (diff == Style::DifferenceResult::RepaintIfText || diff == Style::DifferenceResult::Repaint) {
@@ -85,7 +86,7 @@ void RenderTextControl::styleDidChange(Style::Difference diff, const Style::Comp
             innerTextRenderer->repaint();
         }
     }
-    textFormControlElement().updatePlaceholderVisibility();
+    formControlElement->updatePlaceholderVisibility();
 }
 
 int RenderTextControl::scrollbarThickness() const
@@ -106,7 +107,7 @@ RenderBox::LogicalExtentComputedValues RenderTextControl::computeLogicalHeight(L
             return logicalHeightExtent;
 
         auto placeholderLogicalHeight = [&] -> LayoutUnit {
-            CheckedPtr placeholder = textFormControlElement().placeholderElement();
+            CheckedPtr placeholder = protect(textFormControlElement())->placeholderElement();
             if (!placeholder)
                 return { };
             CheckedPtr placeholderBox = placeholder->renderBox();
@@ -197,7 +198,7 @@ std::pair<LayoutUnit, LayoutUnit> RenderTextControl::computeIntrinsicLogicalWidt
     // Use average character width. Matches IE.
     auto minLogicalWidth = LayoutUnit { };
     auto maxLogicalWidth = preferredContentLogicalWidth(const_cast<RenderTextControl*>(this)->getAverageCharWidth());
-    maxLogicalWidth = RenderTheme::singleton().adjustedMaximumLogicalWidthForControl(style(), textFormControlElement(), maxLogicalWidth);
+    maxLogicalWidth = RenderTheme::singleton().adjustedMaximumLogicalWidthForControl(style(), protect(textFormControlElement()), maxLogicalWidth);
 
     auto& logicalWidth = style().logicalWidth();
     if (logicalWidth.isCalculated())
@@ -234,7 +235,7 @@ void RenderTextControl::layoutExcludedChildren(RelayoutChildren relayoutChildren
 {
     RenderBlockFlow::layoutExcludedChildren(relayoutChildren);
 
-    RefPtr placeholder = textFormControlElement().placeholderElement();
+    RefPtr placeholder = protect(textFormControlElement())->placeholderElement();
     if (!placeholder)
         return;
 

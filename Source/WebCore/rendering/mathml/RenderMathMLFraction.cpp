@@ -86,7 +86,7 @@ LayoutUnit RenderMathMLFraction::defaultLineThickness() const
 
 LayoutUnit RenderMathMLFraction::lineThickness() const
 {
-    return std::max<LayoutUnit>(toUserUnits(element().lineThickness(), style(), defaultLineThickness()), 0);
+    return std::max<LayoutUnit>(toUserUnits(protect(element())->lineThickness(), style(), defaultLineThickness()), 0);
 }
 
 float RenderMathMLFraction::relativeLineThickness() const
@@ -264,7 +264,7 @@ void RenderMathMLFraction::layoutBlock(RelayoutChildren relayoutChildren, Layout
 
     LayoutUnit verticalOffset = 0; // This is the top of the renderer.
     verticalOffset += numerator().marginBefore();
-    LayoutPoint numeratorLocation(numerator().marginLeft() + horizontalOffset(numerator(), element().numeratorAlignment()), verticalOffset);
+    LayoutPoint numeratorLocation(numerator().marginLeft() + horizontalOffset(numerator(), protect(element())->numeratorAlignment()), verticalOffset);
     numerator().setLocation(numeratorLocation);
 
     LayoutUnit denominatorAscent = ascentForChild(denominator()) + denominator().marginBefore();
@@ -273,7 +273,7 @@ void RenderMathMLFraction::layoutBlock(RelayoutChildren relayoutChildren, Layout
     verticalOffset += parameters.denominatorShiftDown - denominatorAscent;
 
     verticalOffset += denominator().marginBefore();
-    LayoutPoint denominatorLocation(denominator().marginLeft() + horizontalOffset(denominator(), element().denominatorAlignment()), verticalOffset);
+    LayoutPoint denominatorLocation(denominator().marginLeft() + horizontalOffset(denominator(), protect(element())->denominatorAlignment()), verticalOffset);
     denominator().setLocation(denominatorLocation);
 
     verticalOffset += denominator().logicalHeight() + denominator().marginAfter(); // This is the bottom of our renderer.
@@ -303,8 +303,8 @@ void RenderMathMLFraction::paint(PaintInfo& info, const LayoutPoint& paintOffset
     LayoutUnit barY = borderAndPaddingBefore() + fractionAscent() - mathAxisHeight() - thickness / 2;
     LayoutUnit barWidth = logicalWidth() - borderAndPaddingLogicalWidth();
 
-    auto barOrigin = roundPointToDevicePixels(paintOffset + location() + LayoutPoint(barX, barY), document().deviceScaleFactor());
-    auto barEnd = roundPointToDevicePixels(paintOffset + location() + LayoutPoint(barX + barWidth, barY + thickness), document().deviceScaleFactor());
+    auto barOrigin = roundPointToDevicePixels(paintOffset + location() + LayoutPoint(barX, barY), protect(document())->deviceScaleFactor());
+    auto barEnd = roundPointToDevicePixels(paintOffset + location() + LayoutPoint(barX + barWidth, barY + thickness), protect(document())->deviceScaleFactor());
 
     GraphicsContextStateSaver stateSaver(info.context());
 

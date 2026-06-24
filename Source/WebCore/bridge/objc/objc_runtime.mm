@@ -109,7 +109,7 @@ JSValue ObjcField::valueFromInstance(JSGlobalObject* lexicalGlobalObject, const 
 
     @try {
         if (id objcValue = [targetObject valueForKey:(__bridge NSString *)_name.get()])
-            result = convertObjcValueToValue(lexicalGlobalObject, &objcValue, ObjcObjectType, instance->rootObject());
+            result = convertObjcValueToValue(lexicalGlobalObject, &objcValue, ObjcObjectType, protect(instance->rootObject()).get());
         {
             JSLockHolder lock(lexicalGlobalObject);
             ObjcInstance::moveGlobalExceptionToExecState(lexicalGlobalObject);
@@ -319,7 +319,7 @@ JSC_DEFINE_HOST_FUNCTION(convertObjCFallbackObjectToPrimitive, (JSGlobalObject* 
         return throwVMTypeError(lexicalGlobalObject, scope, "ObjcFallbackObject[Symbol.toPrimitive] method called on incompatible |this| value."_s);
 
     scope.release();
-    return JSValue::encode(thisObject->getInternalObjCInstance()->getValueOfUndefinedField(lexicalGlobalObject, Identifier::fromString(vm, thisObject->propertyName())));
+    return JSValue::encode(protect(thisObject->getInternalObjCInstance())->getValueOfUndefinedField(lexicalGlobalObject, Identifier::fromString(vm, thisObject->propertyName())));
 }
 
 bool ObjcFallbackObjectImp::toBoolean(JSGlobalObject*) const

@@ -161,7 +161,7 @@ void SVGTRefElement::detachTarget()
     // Mark the referenced ID as pending.
     auto target = SVGURIReference::targetElementFromIRIString(href(), protect(document()));
     if (!target.identifier.isEmpty())
-        treeScopeForSVGReferences().addPendingSVGResource(target.identifier, *this);
+        treeScopeForSVGReferences().addPendingSVGResource(target.identifier, protect(*this));
 }
 
 void SVGTRefElement::attributeChanged(const QualifiedName& name, const AtomString& oldValue, const AtomString& newValue, AttributeModificationReason attributeModificationReason)
@@ -218,12 +218,12 @@ void SVGTRefElement::buildPendingResource()
     if (!isConnected())
         return;
 
-    auto target = SVGURIReference::targetElementFromIRIString(href(), treeScopeForSVGReferences());
+    auto target = SVGURIReference::targetElementFromIRIString(href(), protect(treeScopeForSVGReferences()));
     if (!target.element) {
         if (target.identifier.isEmpty())
             return;
 
-        treeScopeForSVGReferences().addPendingSVGResource(target.identifier, *this);
+        treeScopeForSVGReferences().addPendingSVGResource(target.identifier, protect(*this));
         ASSERT(hasPendingResources());
         return;
     }

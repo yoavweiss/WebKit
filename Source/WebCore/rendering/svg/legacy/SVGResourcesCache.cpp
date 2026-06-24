@@ -94,7 +94,7 @@ static inline SVGResourcesCache& resourcesCacheFromRenderer(const RenderElement&
     if (renderer.document().settings().layerBasedSVGEngineEnabled())
         RELEASE_ASSERT_NOT_REACHED();
 
-    return renderer.document().svgExtensions().resourcesCache();
+    return protect(renderer.document())->svgExtensions().resourcesCache();
 }
 
 SVGResources* SVGResourcesCache::cachedResourcesForRenderer(const RenderElement& renderer)
@@ -280,7 +280,7 @@ void SVGResourcesCache::resourceDestroyed(LegacyRenderSVGResourceContainer& reso
         if (it.value->resourceDestroyed(resource)) {
             // Mark users of destroyed resources as pending resolution based on the id of the old resource.
             Ref clientElement = *it.key->element();
-            clientElement->treeScopeForSVGReferences().addPendingSVGResource(resource.element().getIdAttribute(), downcast<SVGElement>(clientElement.get()));
+            protect(clientElement)->treeScopeForSVGReferences().addPendingSVGResource(resource.element().getIdAttribute(), downcast<SVGElement>(clientElement.get()));
         }
     }
 }

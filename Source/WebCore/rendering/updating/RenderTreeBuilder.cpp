@@ -525,7 +525,7 @@ void RenderTreeBuilder::attachToRenderElementInternal(RenderElement& parent, Ren
             parent.setChildNeedsLayout();
     }
 
-    if (AXObjectCache* cache = parent.document().axObjectCache())
+    if (SUPPRESS_UNCOUNTED_ARG CheckedPtr cache = parent.document().axObjectCache())
         cache->childrenChanged(parent, newChild);
 
     if (parent.hasOutlineAutoAncestor() || parent.outlineStyleForRepaint().outlineStyle() == OutlineStyle::Auto)
@@ -1059,7 +1059,7 @@ RenderPtr<RenderObject> RenderTreeBuilder::detachFromRenderElement(RenderElement
     // and the code running here would force an untimely rebuilding, leaving |child| dangling.
     auto childToTake = parent.detachRendererInternal(child);
 
-    if (AXObjectCache* cache = parent.document().existingAXObjectCache())
+    if (AXObjectCache* cache = protect(parent.document())->existingAXObjectCache())
         cache->childrenChanged(parent);
 
     return childToTake;
@@ -1093,7 +1093,7 @@ void RenderTreeBuilder::reportVisuallyNonEmptyContent(const RenderElement& paren
     if (isAnyOf<RenderHTMLCanvas, RenderEmbeddedObject>(child)) {
         // Actual size is not known yet, report the default intrinsic size for replaced elements.
         auto& replacedRenderer = downcast<RenderReplaced>(child);
-        m_view.frameView().incrementVisuallyNonEmptyPixelCount(roundedIntSize(replacedRenderer.intrinsicSize()));
+        protect(m_view.frameView())->incrementVisuallyNonEmptyPixelCount(roundedIntSize(replacedRenderer.intrinsicSize()));
         return;
     }
     if (child.isRenderOrLegacyRenderSVGRoot()) {
@@ -1113,7 +1113,7 @@ void RenderTreeBuilder::reportVisuallyNonEmptyContent(const RenderElement& paren
             candidateSize = *size;
 
         if (!candidateSize.isEmpty())
-            m_view.frameView().incrementVisuallyNonEmptyPixelCount(candidateSize);
+            protect(m_view.frameView())->incrementVisuallyNonEmptyPixelCount(candidateSize);
         return;
     }
 }

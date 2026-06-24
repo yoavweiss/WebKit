@@ -186,7 +186,7 @@ void RenderSVGInline::styleDidChange(Style::Difference diff, const Style::Comput
 
 bool RenderSVGInline::needsHasSVGTransformFlags() const
 {
-    return graphicsElement().hasTransformRelatedAttributes();
+    return protect(graphicsElement())->hasTransformRelatedAttributes();
 }
 
 void RenderSVGInline::updateFromStyle()

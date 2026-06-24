@@ -88,7 +88,7 @@ void ScopeRuleSets::updateUserAgentMediaQueryStyleIfNeeded() const
     m_userAgentMediaQueryStyle = RuleSet::create();
 
     RuleSetBuilder builder(*m_userAgentMediaQueryStyle, mediaQueryEvaluator, &m_styleResolver);
-    builder.addRulesFromSheet(*UserAgentStyle::mediaQueryStyleSheet);
+    SUPPRESS_UNCOUNTED_ARG builder.addRulesFromSheet(*UserAgentStyle::mediaQueryStyleSheet);
 }
 
 RuleSet* ScopeRuleSets::dynamicViewTransitionsStyle() const
@@ -122,21 +122,21 @@ RuleSet* ScopeRuleSets::styleForDeclarationOrigin(DeclarationOrigin origin)
 
 void ScopeRuleSets::initializeUserStyle()
 {
-    CheckedRef extensionStyleSheets = m_styleResolver.document().extensionStyleSheets();
+    CheckedRef extensionStyleSheets = protect(m_styleResolver.document())->extensionStyleSheets();
     auto& mediaQueryEvaluator = m_styleResolver.mediaQueryEvaluator();
 
     auto userStyle = RuleSet::create();
 
     if (RefPtr pageUserSheet = extensionStyleSheets->pageUserSheet()) {
         RuleSetBuilder builder(userStyle, mediaQueryEvaluator, &m_styleResolver);
-        builder.addRulesFromSheet(pageUserSheet->contents());
+        builder.addRulesFromSheet(protect(pageUserSheet->contents()));
     }
 
 #if ENABLE(APP_BOUND_DOMAINS)
-    auto* page = m_styleResolver.document().page();
-    auto* localMainFrame = page ? dynamicDowncast<LocalFrame>(page->mainFrame()) : nullptr;
+    RefPtr page = m_styleResolver.document().page();
+    RefPtr localMainFrame = page ? dynamicDowncast<LocalFrame>(page->mainFrame()) : nullptr;
     if (!extensionStyleSheets->injectedUserStyleSheets().isEmpty() && page && localMainFrame && localMainFrame->loader().client().shouldEnableInAppBrowserPrivacyProtections())
-        m_styleResolver.document().addConsoleMessage(MessageSource::Security, MessageLevel::Warning, "Ignoring user style sheet for non-app bound domain."_s);
+        protect(m_styleResolver.document())->addConsoleMessage(MessageSource::Security, MessageLevel::Warning, "Ignoring user style sheet for non-app bound domain."_s);
     else {
         collectRulesFromUserStyleSheets(extensionStyleSheets->injectedUserStyleSheets(), userStyle, mediaQueryEvaluator);
         if (page && localMainFrame && !extensionStyleSheets->injectedUserStyleSheets().isEmpty())
@@ -156,7 +156,7 @@ void ScopeRuleSets::collectRulesFromUserStyleSheets(const Vector<Ref<CSSStyleShe
     RuleSetBuilder builder(userStyle, mediaQueryEvaluator, &m_styleResolver);
     for (auto& sheet : userSheets) {
         ASSERT(sheet->contents().isUserStyleSheet());
-        builder.addRulesFromSheet(sheet->contents());
+        builder.addRulesFromSheet(protect(sheet->contents()));
     }
 }
 
@@ -256,7 +256,7 @@ void ScopeRuleSets::appendAuthorStyleSheets(std::span<const Ref<CSSStyleSheet>> 
             }
         }
 
-        builder.addRulesFromSheet(cssSheet->contents(), cssSheet->mediaQueries());
+        builder.addRulesFromSheet(protect(cssSheet->contents()), cssSheet->mediaQueries());
         inspectorCSSOMWrappers.collectFromStyleSheetIfNeeded(cssSheet);
         previous = cssSheet.ptr();
     }
@@ -381,7 +381,7 @@ static Vector<InvalidationRuleSet>* ensureInvalidationRuleSets(const KeyType& ke
                 return RuleSet::create();
             }).iterator->value;
 
-            ruleSet->addRule(*feature.styleRule, feature.selectorIndex, feature.selectorListIndex);
+            ruleSet->addRule(protect(*feature.styleRule), feature.selectorIndex, feature.selectorListIndex);
         }
 
         return makeUnique<Vector<InvalidationRuleSet>>(WTF::map(ruleSetMap, [](auto& entry) {
@@ -480,7 +480,7 @@ SelectorsForStyleAttribute ScopeRuleSets::selectorsForStyleAttribute() const
 
 bool ScopeRuleSets::hasMatchingUserOrAuthorStyle(NOESCAPE const WTF::Function<bool(RuleSet&)>& predicate)
 {
-    if (m_authorStyle && predicate(*m_authorStyle))
+    if (m_authorStyle && predicate(protect(*m_authorStyle)))
         return true;
 
     if (RefPtr userStyle = this->userStyle(); userStyle && predicate(*userStyle))

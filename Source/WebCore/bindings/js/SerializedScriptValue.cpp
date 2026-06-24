@@ -3501,7 +3501,7 @@ private:
 
         if (!m_offscreenCanvases[index])
             m_offscreenCanvases[index] = OffscreenCanvas::create(*protect(executionContext(m_lexicalGlobalObject)), WTF::move(m_detachedOffscreenCanvases.at(index)));
-        return getJSValue(*m_offscreenCanvases[index]);
+        return getJSValue(protect(*m_offscreenCanvases[index]));
     }
 
     JSValue readInMemoryOffscreenCanvas()
@@ -3585,7 +3585,7 @@ private:
             auto detachedChannel = WTF::move(m_detachedRTCDataChannels.at(index));
             m_rtcDataChannels[index] = RTCDataChannel::create(*protect(executionContext(m_lexicalGlobalObject)), detachedChannel->identifier, WTF::move(detachedChannel->label), WTF::move(detachedChannel->options), detachedChannel->state);
         }
-        return getJSValue(*m_rtcDataChannels[index]);
+        return getJSValue(protect(*m_rtcDataChannels[index]));
     }
 
     JSValue readRTCEncodedAudioFrame()
@@ -3600,7 +3600,7 @@ private:
 
         if (!m_rtcEncodedAudioFrames[index])
             m_rtcEncodedAudioFrames[index] = RTCEncodedAudioFrame::create(WTF::move(m_serializedRTCEncodedAudioFrames.at(index)));
-        return getJSValue(*m_rtcEncodedAudioFrames[index]);
+        return getJSValue(protect(*m_rtcEncodedAudioFrames[index]));
     }
 
     JSValue readRTCEncodedVideoFrame()
@@ -3615,7 +3615,7 @@ private:
 
         if (!m_rtcEncodedVideoFrames[index])
             m_rtcEncodedVideoFrames[index] = RTCEncodedVideoFrame::create(WTF::move(m_serializedRTCEncodedVideoFrames.at(index)));
-        return getJSValue(*m_rtcEncodedVideoFrames[index]);
+        return getJSValue(protect(*m_rtcEncodedVideoFrames[index]));
     }
 #endif
     JSValue readReadableStream()
@@ -3643,7 +3643,7 @@ private:
             }
             addResult.iterator->value = readableStreamOrError.releaseReturnValue();
         }
-        return getJSValue(*addResult.iterator->value);
+        return getJSValue(protect(*addResult.iterator->value));
     }
     JSValue readWritableStream()
     {
@@ -3670,7 +3670,7 @@ private:
             }
             addResult.iterator->value = writableStreamOrError.releaseReturnValue();
         }
-        return getJSValue(*addResult.iterator->value);
+        return getJSValue(protect(*addResult.iterator->value));
     }
     JSValue readTransformStream()
     {
@@ -3697,7 +3697,7 @@ private:
             }
             addResult.iterator->value = transformStreamOrError.releaseReturnValue();
         }
-        return getJSValue(*addResult.iterator->value);
+        return getJSValue(protect(*addResult.iterator->value));
     }
 #if ENABLE(WEB_CODECS)
     JSValue readWebCodecsEncodedVideoChunk()
@@ -3712,7 +3712,7 @@ private:
 
         if (!m_videoChunks[index])
             m_videoChunks[index] = WebCodecsEncodedVideoChunk::create(WTF::move(m_serializedVideoChunks.at(index)));
-        return getJSValue(*m_videoChunks[index]);
+        return getJSValue(protect(*m_videoChunks[index]));
     }
     JSValue readWebCodecsVideoFrame()
     {
@@ -3726,7 +3726,7 @@ private:
 
         if (!m_videoFrames[index])
             m_videoFrames[index] = WebCodecsVideoFrame::create(*protect(executionContext(m_lexicalGlobalObject)), WTF::move(m_serializedVideoFrames.at(index)));
-        return getJSValue(*m_videoFrames[index]);
+        return getJSValue(protect(*m_videoFrames[index]));
     }
     JSValue readWebCodecsEncodedAudioChunk()
     {
@@ -3740,7 +3740,7 @@ private:
 
         if (!m_audioChunks[index])
             m_audioChunks[index] = WebCodecsEncodedAudioChunk::create(WTF::move(m_serializedAudioChunks.at(index)));
-        return getJSValue(*m_audioChunks[index]);
+        return getJSValue(protect(*m_audioChunks[index]));
     }
     JSValue readWebCodecsAudioData()
     {
@@ -3754,7 +3754,7 @@ private:
 
         if (!m_audioData[index])
             m_audioData[index] = WebCodecsAudioData::create(*protect(executionContext(m_lexicalGlobalObject)), WTF::move(m_serializedAudioData.at(index)));
-        return getJSValue(*m_audioData[index]);
+        return getJSValue(protect(*m_audioData[index]));
     }
 #endif
 
@@ -3770,7 +3770,7 @@ private:
 
         if (!m_mediaStreamTracks[index])
             m_mediaStreamTracks[index] = MediaStreamTrack::create(*protect(executionContext(m_lexicalGlobalObject)), makeUniqueRefFromNonNullUniquePtr(std::exchange(m_detachedMediaStreamTracks.at(index), { })));
-        return getJSValue(*m_mediaStreamTracks[index]);
+        return getJSValue(protect(*m_mediaStreamTracks[index]));
     }
     JSValue readMediaStreamTrackHandle()
     {
@@ -3784,7 +3784,7 @@ private:
         if (!m_mediaStreamTrackHandles[index])
             m_mediaStreamTrackHandles[index] = MediaStreamTrackHandle::create(WTF::move(*std::exchange(m_detachedMediaStreamTrackHandles.at(index), { })));
 
-        return getJSValue(*m_mediaStreamTrackHandles[index]);
+        return getJSValue(protect(*m_mediaStreamTrackHandles[index]));
     }
 #endif
 
@@ -3800,7 +3800,7 @@ private:
 
         if (!m_mediaSourceHandles[index])
             m_mediaSourceHandles[index] = MediaSourceHandle::create(std::exchange(m_detachedMediaSourceHandles.at(index), { }).releaseNonNull());
-        return getJSValue(*m_mediaSourceHandles[index]);
+        return getJSValue(protect(*m_mediaSourceHandles[index]));
     }
 #endif
 
@@ -4164,7 +4164,7 @@ public:
 
             if (!m_arrayBuffers[index])
                 m_arrayBuffers[index] = ArrayBuffer::create(WTF::move(m_arrayBufferContents->at(index)));
-            return getJSValue(*m_arrayBuffers[index]);
+            return getJSValue(protect(*m_arrayBuffers[index]));
         }
         case SharedArrayBufferTag: {
             // https://html.spec.whatwg.org/multipage/structured-data.html#structureddeserialize

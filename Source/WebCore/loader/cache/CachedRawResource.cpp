@@ -123,7 +123,7 @@ void CachedRawResource::finishLoading(const FragmentedSharedBuffer* data, const 
     }
 
 #if USE(QUICK_LOOK)
-    m_allowEncodedDataReplacement = m_loader && !m_loader->isQuickLookResource();
+    m_allowEncodedDataReplacement = m_loader && !protect(m_loader)->isQuickLookResource();
 #endif
 
     CachedResource::finishLoading(data, metrics);
@@ -363,7 +363,7 @@ void CachedRawResource::previewResponseReceived(ResourceResponse&& newResponse)
     RefPtr protectedThis { this };
     CachedResource::previewResponseReceived(WTF::move(newResponse));
     CachedResourceClientWalker<CachedRawResourceClient> walker(*this);
-    while (CachedRawResourceClient* c = walker.next())
+    while (RefPtr c = walker.next())
         c->previewResponseReceived(*this, response());
 }
 

@@ -816,7 +816,7 @@ void RenderObject::collectSelectionGeometries(Vector<SelectionGeometry>& geometr
     }
 
     for (auto& quad : quads)
-        geometries.append(SelectionGeometry(quad, HTMLElement::selectionRenderingBehavior(node()), isHorizontalWritingMode(), view().pageNumberForBlockProgressionOffset(quad.enclosingBoundingBox().x())));
+        geometries.append(SelectionGeometry(quad, HTMLElement::selectionRenderingBehavior(protect(node())), isHorizontalWritingMode(), view().pageNumberForBlockProgressionOffset(quad.enclosingBoundingBox().x())));
 }
 
 IntRect RenderObject::absoluteBoundingBoxRect(bool useTransforms, bool* wasFixed) const
@@ -851,7 +851,7 @@ void RenderObject::absoluteFocusRingQuads(Vector<FloatQuad>& quads)
     // descendants.
     FloatPoint absolutePoint = localToAbsolute();
     auto rects = OutlinePainter::collectFocusRingRects(*elementRenderer, flooredLayoutPoint(absolutePoint), nullptr);
-    float deviceScaleFactor = document().deviceScaleFactor();
+    float deviceScaleFactor = protect(document())->deviceScaleFactor();
     for (auto rect : rects) {
         rect.moveBy(LayoutPoint(-absolutePoint));
         quads.append(localToAbsoluteQuad(FloatQuad(snapRectToDevicePixels(rect, deviceScaleFactor))));
@@ -1086,7 +1086,7 @@ void RenderObject::repaintSlowRepaintObject() const
     // If this is the root background, we need to check if there is an extended background rect. If
     // there is, then we should not allow painting to clip to the layer size.
     if (isDocumentElementRenderer() || isBody()) {
-        shouldClipToLayer = !view->frameView().hasExtendedBackgroundRectForPainting();
+        shouldClipToLayer = !protect(view->frameView())->hasExtendedBackgroundRectForPainting();
         repaintRect = snappedIntRect(view->backgroundRect());
     } else
         repaintRect = snappedIntRect(clippedOverflowRectForRepaint(repaintContainer.get()));
@@ -1120,7 +1120,7 @@ auto RenderObject::rectsForRepaintingAfterLayout(const RenderLayerModelObject* r
 
     auto result = computeRects(localRects, repaintContainer, visibleRectContextForRepaint());
     if (result.outlineBoundsRect)
-        result.outlineBoundsRect = LayoutRect(snapRectToDevicePixels(*result.outlineBoundsRect, document().deviceScaleFactor()));
+        result.outlineBoundsRect = LayoutRect(snapRectToDevicePixels(*result.outlineBoundsRect, protect(document())->deviceScaleFactor()));
 
     return result;
 }
@@ -1642,7 +1642,7 @@ bool RenderObject::participatesInPreserve3D() const
 
 HostWindow* RenderObject::hostWindow() const
 {
-    return view().frameView().root() ? view().frameView().root()->hostWindow() : nullptr;
+    return view().frameView().root() ? protect(view().frameView().root())->hostWindow() : nullptr;
 }
 
 bool RenderObject::isRooted() const
@@ -1779,7 +1779,7 @@ void RenderObject::willBeDestroyed()
     ASSERT(!m_parent);
     ASSERT(renderTreeBeingDestroyed() || !is<RenderElement>(*this) || !view().frameView().hasSlowRepaintObject(downcast<RenderElement>(*this)));
 
-    if (CheckedPtr cache = document().existingAXObjectCache())
+    if (SUPPRESS_UNCOUNTED_ARG CheckedPtr cache = document().existingAXObjectCache())
         cache->remove(*this);
 
     setCapturedInViewTransition(false);
@@ -1939,10 +1939,10 @@ PositionWithAffinity RenderObject::createPositionWithAffinity(int offset, Affini
             // If it can be found, we prefer a visually equivalent position that is editable. 
             Position position = makeDeprecatedLegacyPosition(node.get(), convertOffsetInTextFragmentToNodeOffset(*this, offset));
             Position candidate = position.downstream(CanCrossEditingBoundary);
-            if (candidate.deprecatedNode()->hasEditableStyle())
+            if (protect(candidate.deprecatedNode())->hasEditableStyle())
                 return PositionWithAffinity(candidate, affinity);
             candidate = position.upstream(CanCrossEditingBoundary);
-            if (candidate.deprecatedNode()->hasEditableStyle())
+            if (protect(candidate.deprecatedNode())->hasEditableStyle())
                 return PositionWithAffinity(candidate, affinity);
         }
         // FIXME: Eliminate legacy editing positions
@@ -2006,12 +2006,12 @@ CursorDirective RenderObject::getCursor(const LayoutPoint&, Cursor&) const
 
 bool RenderObject::useDarkAppearance() const
 {
-    return document().useDarkAppearance(&style());
+    return protect(document())->useDarkAppearance(&style());
 }
 
 OptionSet<StyleColorOptions> RenderObject::styleColorOptions() const
 {
-    return document().styleColorOptions(&style());
+    return protect(document())->styleColorOptions(&style());
 }
 
 void RenderObject::setSelectionState(HighlightState state)
@@ -2279,7 +2279,7 @@ static Vector<FloatRect> borderAndTextRects(const SimpleRange& range, Coordinate
 {
     Vector<FloatRect> rects;
 
-    range.start.document().updateLayoutIgnorePendingStylesheets();
+    protect(range.start.document())->updateLayoutIgnorePendingStylesheets();
 
     bool useVisibleBounds = behavior.contains(RenderObject::BoundingRectBehavior::UseVisibleBounds);
 
@@ -2319,7 +2319,7 @@ static Vector<FloatRect> borderAndTextRects(const SimpleRange& range, Coordinate
                     );
                     if (!rootClippedBounds)
                         continue;
-                    auto snappedBounds = snapRectToDevicePixels(rootClippedBounds->clippedOverflowRect, node->document().deviceScaleFactor());
+                    auto snappedBounds = snapRectToDevicePixels(rootClippedBounds->clippedOverflowRect, protect(node->document())->deviceScaleFactor());
                     if (space == CoordinateSpace::Client)
                         protect(node->document())->convertAbsoluteToClientRect(snappedBounds, renderer->style());
                     rects.append(snappedBounds);
@@ -2402,7 +2402,7 @@ bool RenderObject::effectiveCapturedInViewTransition() const
     if (isDocumentElementRenderer())
         return false;
     if (isRenderView())
-        return document().activeViewTransitionCapturedDocumentElement();
+        return protect(document())->activeViewTransitionCapturedDocumentElement();
     return capturedInViewTransition();
 }
 
@@ -2509,7 +2509,7 @@ static void makeBidiSelectionVisuallyContiguousIfNeeded(const SelectionEndpointD
     UNUSED_PARAM(range);
     UNUSED_PARAM(geometries);
 #else
-    if (!range.startContainer().document().editor().shouldDrawVisuallyContiguousBidiSelection())
+    if (!protect(range.startContainer().document())->editor().shouldDrawVisuallyContiguousBidiSelection())
         return;
 
     FloatPoint selectionStartTop;
@@ -3003,7 +3003,7 @@ String RenderObject::description() const
 
     builder.append(renderName(), ' ');
     if (node())
-        builder.append(' ', node()->description());
+        builder.append(' ', protect(node())->description());
     
     return builder.toString();
 }
@@ -3014,7 +3014,7 @@ String RenderObject::debugDescription() const
 
     builder.append(renderName(), " 0x"_s, hex(reinterpret_cast<uintptr_t>(this), Lowercase));
     if (node())
-        builder.append(' ', node()->debugDescription());
+        builder.append(' ', protect(node())->debugDescription());
     
     return builder.toString();
 }

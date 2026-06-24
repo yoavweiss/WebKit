@@ -100,10 +100,10 @@ static std::optional<Exception> checkImageUsability(ScriptExecutionContext& cont
 {
     return WTF::switchOn(source,
         [&](const Ref<HTMLImageElement>& imageElement) -> std::optional<Exception> {
-            if (!imageElement->originClean(*context.securityOrigin()))
+            if (!imageElement->originClean(protect(*context.securityOrigin())))
                 return Exception { ExceptionCode::SecurityError, "Image element is tainted"_s };
 
-            RefPtr image = imageElement->cachedImage() ? imageElement->cachedImage()->image() : nullptr;
+            RefPtr image = imageElement->cachedImage() ? protect(imageElement->cachedImage())->image() : nullptr;
             if (!image)
                 return Exception { ExceptionCode::InvalidStateError,  "Image element has no data"_s };
             if (!image->width() || !image->height())
@@ -114,7 +114,7 @@ static std::optional<Exception> checkImageUsability(ScriptExecutionContext& cont
             if (imageElement->renderingTaintsOrigin())
                 return Exception { ExceptionCode::SecurityError, "Image element is tainted"_s };
 
-            RefPtr image = imageElement->cachedImage() ? imageElement->cachedImage()->image() : nullptr;
+            RefPtr image = imageElement->cachedImage() ? protect(imageElement->cachedImage())->image() : nullptr;
             if (!image)
                 return Exception { ExceptionCode::InvalidStateError,  "Image element has no data"_s };
             if (!image->width() || !image->height())
@@ -177,7 +177,7 @@ ExceptionOr<Ref<WebCodecsVideoFrame>> WebCodecsVideoFrame::create(ScriptExecutio
             if (!init.timestamp)
                 return Exception { ExceptionCode::TypeError,  "timestamp is not provided"_s };
 
-            auto image = imageElement->cachedImage()->image()->currentNativeImage();
+            auto image = protect(imageElement)->cachedImage()->image()->currentNativeImage();
             if (!image)
                 return Exception { ExceptionCode::InvalidStateError,  "Image element has no video frame"_s };
 
@@ -187,7 +187,7 @@ ExceptionOr<Ref<WebCodecsVideoFrame>> WebCodecsVideoFrame::create(ScriptExecutio
             if (!init.timestamp)
                 return Exception { ExceptionCode::TypeError,  "timestamp is not provided"_s };
 
-            auto image = imageElement->cachedImage()->image()->currentNativeImage();
+            auto image = protect(imageElement)->cachedImage()->image()->currentNativeImage();
             if (!image)
                 return Exception { ExceptionCode::InvalidStateError,  "Image element has no video frame"_s };
 
@@ -197,7 +197,7 @@ ExceptionOr<Ref<WebCodecsVideoFrame>> WebCodecsVideoFrame::create(ScriptExecutio
             if (!init.timestamp)
                 return Exception { ExceptionCode::TypeError,  "timestamp is not provided"_s };
 
-            auto image = cssImage->image()->image()->currentNativeImage();
+            auto image = protect(cssImage)->image()->image()->currentNativeImage();
             if (!image)
                 return Exception { ExceptionCode::InvalidStateError,  "CSS Image has no video frame"_s };
 
@@ -205,7 +205,7 @@ ExceptionOr<Ref<WebCodecsVideoFrame>> WebCodecsVideoFrame::create(ScriptExecutio
         },
 #if ENABLE(VIDEO)
         [&](Ref<HTMLVideoElement>&& video) -> ExceptionOr<Ref<WebCodecsVideoFrame>> {
-            RefPtr videoFrame = video->player() ? video->player()->videoFrameForCurrentTime() : nullptr;
+            RefPtr videoFrame = video->player() ? protect(video->player())->videoFrameForCurrentTime() : nullptr;
             if (!videoFrame)
                 return Exception { ExceptionCode::InvalidStateError,  "Video element has no video frame"_s };
             return initializeFrameFromOtherFrame(context, videoFrame.releaseNonNull(), WTF::move(init), VideoFrame::ShouldCloneWithDifferentTimestamp::No);
@@ -344,8 +344,8 @@ Ref<WebCodecsVideoFrame> WebCodecsVideoFrame::create(ScriptExecutionContext& con
     result->m_data.internalFrame = WTF::move(videoFrame);
     result->m_data.format = init.format;
 
-    result->m_data.codedWidth = result->m_data.internalFrame->presentationSize().width();
-    result->m_data.codedHeight = result->m_data.internalFrame->presentationSize().height();
+    result->m_data.codedWidth = protect(result->m_data.internalFrame)->presentationSize().width();
+    result->m_data.codedHeight = protect(result->m_data.internalFrame)->presentationSize().height();
 
     result->m_data.visibleLeft = 0;
     result->m_data.visibleTop = 0;
@@ -362,7 +362,7 @@ Ref<WebCodecsVideoFrame> WebCodecsVideoFrame::create(ScriptExecutionContext& con
     result->m_data.displayHeight = init.displayHeight.value_or(result->m_data.visibleHeight);
 
     result->m_data.duration = init.duration;
-    result->m_data.internalFrame = result->m_data.internalFrame->updateTimestamp(timestampToMediaTime(init.timestamp), VideoFrame::ShouldCloneWithDifferentTimestamp::No);
+    result->m_data.internalFrame = protect(result->m_data.internalFrame)->updateTimestamp(timestampToMediaTime(init.timestamp), VideoFrame::ShouldCloneWithDifferentTimestamp::No);
     result->m_data.timestamp = init.timestamp;
 
     return result;
@@ -411,7 +411,7 @@ ExceptionOr<Ref<WebCodecsVideoFrame>> WebCodecsVideoFrame::initializeFrameFromOt
 
     result->m_data.duration = init.duration ? init.duration : videoFrame->m_data.duration;
     if (init.timestamp)
-        result->m_data.internalFrame = result->m_data.internalFrame->updateTimestamp(timestampToMediaTime(*init.timestamp), shouldCloneWithDifferentTimestamp);
+        result->m_data.internalFrame = protect(result->m_data.internalFrame)->updateTimestamp(timestampToMediaTime(*init.timestamp), shouldCloneWithDifferentTimestamp);
     result->m_data.timestamp = mediaTimeToTimestamp(result->m_data.internalFrame->presentationTime());
 
     return result;
@@ -435,7 +435,7 @@ ExceptionOr<Ref<WebCodecsVideoFrame>> WebCodecsVideoFrame::initializeFrameFromOt
 
     result->m_data.duration = init.duration;
     if (init.timestamp)
-        result->m_data.internalFrame = result->m_data.internalFrame->updateTimestamp(timestampToMediaTime(*init.timestamp), shouldCloneWithDifferentTimestamp);
+        result->m_data.internalFrame = protect(result->m_data.internalFrame)->updateTimestamp(timestampToMediaTime(*init.timestamp), shouldCloneWithDifferentTimestamp);
     result->m_data.timestamp = mediaTimeToTimestamp(result->m_data.internalFrame->presentationTime());
 
     return result;
@@ -464,7 +464,7 @@ ExceptionOr<Ref<WebCodecsVideoFrame>> WebCodecsVideoFrame::initializeFrameWithRe
 
     result->m_data.duration = init.duration;
     if (init.timestamp)
-        result->m_data.internalFrame = result->m_data.internalFrame->updateTimestamp(timestampToMediaTime(*init.timestamp), VideoFrame::ShouldCloneWithDifferentTimestamp::No);
+        result->m_data.internalFrame = protect(result->m_data.internalFrame)->updateTimestamp(timestampToMediaTime(*init.timestamp), VideoFrame::ShouldCloneWithDifferentTimestamp::No);
     result->m_data.timestamp = mediaTimeToTimestamp(result->m_data.internalFrame->presentationTime());
 
     return result;
@@ -510,7 +510,7 @@ void WebCodecsVideoFrame::copyTo(BufferSource&& source, CopyToOptions&& options,
     }
 
     auto buffer = source.mutableSpan();
-    m_data.internalFrame->copyTo(buffer, *m_data.format, WTF::move(combinedLayout.computedLayouts), [source = WTF::move(source), promise = WTF::move(promise)](auto planeLayouts) mutable {
+    protect(m_data.internalFrame)->copyTo(buffer, *m_data.format, WTF::move(combinedLayout.computedLayouts), [source = WTF::move(source), promise = WTF::move(promise)](auto planeLayouts) mutable {
         if (!planeLayouts) {
             promise.reject(Exception { ExceptionCode::TypeError,  "Unable to copy data"_s });
             return;

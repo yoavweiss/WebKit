@@ -320,7 +320,7 @@ static VisiblePosition visualWordPosition(const VisiblePosition& visiblePosition
     if (visiblePosition.isNull() || !visiblePosition.deepEquivalent().document())
         return VisiblePosition();
 
-    visiblePosition.deepEquivalent().document()->updateLayoutIgnorePendingStylesheets();
+    protect(visiblePosition.deepEquivalent().document())->updateLayoutIgnorePendingStylesheets();
 
     TextDirection blockDirection = directionOfEnclosingBlock(visiblePosition.deepEquivalent());
     InlineIterator::LeafBoxIterator previouslyVisitedBox;

@@ -212,7 +212,7 @@ void CDMSessionAVContentKeySession::releaseKeys()
         if (storagePath.isEmpty())
             return;
 
-        RetainPtr certificateData = WTF::toNSData(m_certificate->span());
+        RetainPtr certificateData = WTF::toNSData(protect(m_certificate)->span());
         NSArray* expiredSessions = [PAL::getAVContentKeySessionClassSingleton() pendingExpiredSessionReportsWithAppIdentifier:certificateData.get() storageDirectoryAtURL:[NSURL fileURLWithPath:storagePath.createNSString().get()]];
         for (NSData* expiredSessionData in expiredSessions) {
             static const NSString *PlaybackSessionIdKey = @"PlaybackSessionID";
@@ -260,7 +260,7 @@ bool CDMSessionAVContentKeySession::update(Uint8Array* key, RefPtr<Uint8Array>& 
             return false;
         }
 
-        RetainPtr certificateData = WTF::toNSData(m_certificate->span());
+        RetainPtr certificateData = WTF::toNSData(protect(m_certificate)->span());
 
         if ([PAL::getAVContentKeySessionClassSingleton() respondsToSelector:@selector(removePendingExpiredSessionReports:withAppIdentifier:storageDirectoryAtURL:)])
             [PAL::getAVContentKeySessionClassSingleton() removePendingExpiredSessionReports:@[m_expiredSession.get()] withAppIdentifier:certificateData.get() storageDirectoryAtURL:[NSURL fileURLWithPath:storagePath.createNSString().get()]];
@@ -296,8 +296,8 @@ bool CDMSessionAVContentKeySession::update(Uint8Array* key, RefPtr<Uint8Array>& 
     }
 
     if (!hasContentKeyRequest()) {
-        RetainPtr<NSData> nsInitData = m_initData ? m_initData->createNSData() : nil;
-        RetainPtr nsIdentifier = m_identifier ? WTF::toNSData(m_identifier->span()) : nil;
+        RetainPtr<NSData> nsInitData = m_initData ? protect(m_initData)->createNSData() : nil;
+        RetainPtr nsIdentifier = m_identifier ? WTF::toNSData(protect(m_identifier)->span()) : nil;
         if ([contentKeySession() respondsToSelector:@selector(processContentKeyRequestWithIdentifier:initializationData:options:)])
             [contentKeySession() processContentKeyRequestWithIdentifier:nsIdentifier.get() initializationData:nsInitData.get() options:nil];
         else
@@ -309,7 +309,7 @@ bool CDMSessionAVContentKeySession::update(Uint8Array* key, RefPtr<Uint8Array>& 
 
     if (shouldGenerateKeyRequest) {
         ASSERT(contentKeyRequest);
-        RetainPtr certificateData = WTF::toNSData(m_certificate->span());
+        RetainPtr certificateData = WTF::toNSData(protect(m_certificate)->span());
 
         RetainPtr options = CDMInstanceSessionFairPlayStreamingAVFObjC::optionsForKeyRequestWithHashSalt(Ref { *m_client }->mediaKeysHashSalt());
 
@@ -326,7 +326,7 @@ bool CDMSessionAVContentKeySession::update(Uint8Array* key, RefPtr<Uint8Array>& 
         systemCode = 0;
         RetainPtr<id> nsIdentifier;
         if (m_identifier)
-            nsIdentifier = WTF::toNSData(m_identifier->span());
+            nsIdentifier = WTF::toNSData(protect(m_identifier)->span());
         else
             nsIdentifier = contentKeyRequest.get().identifier;
 
@@ -409,7 +409,7 @@ void CDMSessionAVContentKeySession::removeRenderer(AudioVideoRenderer& renderer)
 RefPtr<Uint8Array> CDMSessionAVContentKeySession::generateKeyReleaseMessage(unsigned short& errorCode, uint32_t& systemCode)
 {
     ASSERT(m_mode == KeyRelease);
-    RetainPtr certificateData = WTF::toNSData(m_certificate->span());
+    RetainPtr certificateData = WTF::toNSData(protect(m_certificate)->span());
 
     String storagePath = this->storagePath();
     if (storagePath.isEmpty() || ![PAL::getAVContentKeySessionClassSingleton() respondsToSelector:@selector(pendingExpiredSessionReportsWithAppIdentifier:storageDirectoryAtURL:)]) {

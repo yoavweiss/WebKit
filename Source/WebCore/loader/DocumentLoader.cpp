@@ -824,7 +824,7 @@ std::optional<CrossOriginOpenerPolicyEnforcementResult> DocumentLoader::doCrossO
 
     URL openerURL;
     if (RefPtr openerFrame = dynamicDowncast<LocalFrame>(frame->opener()))
-        openerURL = openerFrame->document() ? openerFrame->document()->url() : URL();
+        openerURL = openerFrame->document() ? protect(openerFrame->document())->url() : URL();
 
     auto currentCoopEnforcementResult = CrossOriginOpenerPolicyEnforcementResult::from(document->url(), document->securityOrigin(), document->crossOriginOpenerPolicy(), m_triggeringAction.requester(), openerURL);
 
@@ -1009,7 +1009,7 @@ void DocumentLoader::responseReceived(ResourceResponse&& response, CompletionHan
 
     if (m_isLoadingMultipartContent) {
         setupForMultipartReplace();
-        m_mainResource->clear();
+        protect(*m_mainResource)->clear();
     } else if (response.isMultipart())
         m_isLoadingMultipartContent = true;
 
@@ -1386,7 +1386,7 @@ void DocumentLoader::commitData(const SharedBuffer& data)
                     || source == ResourceResponse::Source::MemoryCacheAfterValidation;
                 if (RefPtr frameLoader = this->frameLoader())
                     finalMetrics.fromPrefetch = frameLoader->documentPrefetcher().wasPrefetched(url());
-                protect(window->performance())->addNavigationTiming(*this, document, *m_mainResource, timing(), finalMetrics);
+                protect(window->performance())->addNavigationTiming(*this, document, protect(*m_mainResource), timing(), finalMetrics);
             }
         }
 
@@ -1480,7 +1480,7 @@ void DocumentLoader::checkLoadComplete()
         return;
 
     ASSERT(this == frameLoader()->activeDocumentLoader());
-    m_frame->document()->window()->finishedLoading();
+    protect(*m_frame)->document()->window()->finishedLoading();
 }
 
 void DocumentLoader::applyPoliciesToSettings()
@@ -1567,7 +1567,7 @@ void DocumentLoader::detachFromFrame(LoadWillContinueInAnotherProcess loadWillCo
     // frame have any loads active, so kill all the loads.
     stopLoading();
     if (m_mainResource && m_mainResource->hasClient(*this))
-        m_mainResource->removeClient(*this);
+        protect(*m_mainResource)->removeClient(*this);
 #if ENABLE(CONTENT_FILTERING)
     if (RefPtr contentFilter = m_contentFilter)
         contentFilter->stopFilteringMainResource();
@@ -1828,7 +1828,7 @@ Vector<Ref<ArchiveResource>> DocumentLoader::subresources() const
 
     Vector<Ref<ArchiveResource>> subresources;
     for (auto& handle : m_cachedResourceLoader->allCachedResources().values()) {
-        if (auto subresource = this->subresource(handle->url()))
+        if (auto subresource = this->subresource(protect(*handle)->url()))
             subresources.append(subresource.releaseNonNull());
     }
     return subresources;
@@ -2432,7 +2432,7 @@ void DocumentLoader::clearMainResource()
 {
     ASSERT(isMainThread());
     if (m_mainResource && m_mainResource->hasClient(*this))
-        m_mainResource->removeClient(*this);
+        protect(*m_mainResource)->removeClient(*this);
 #if ENABLE(CONTENT_FILTERING)
     if (RefPtr contentFilter = m_contentFilter)
         contentFilter->stopFilteringMainResource();
@@ -2586,9 +2586,9 @@ void DocumentLoader::becomeMainResourceClient()
 {
 #if ENABLE(CONTENT_FILTERING)
     if (RefPtr contentFilter = m_contentFilter)
-        contentFilter->startFilteringMainResource(*m_mainResource);
+        contentFilter->startFilteringMainResource(protect(*m_mainResource));
 #endif
-    m_mainResource->addClient(*this);
+    protect(*m_mainResource)->addClient(*this);
 }
 
 #if ENABLE(CONTENT_EXTENSIONS)
@@ -2628,12 +2628,12 @@ PreviewConverter* DocumentLoader::previewConverter() const
 
 void DocumentLoader::addConsoleMessage(MessageSource messageSource, MessageLevel messageLevel, const String& message, unsigned long requestIdentifier)
 {
-    frame()->document()->addConsoleMessage(messageSource, messageLevel, message, requestIdentifier);
+    protect(frame())->document()->addConsoleMessage(messageSource, messageLevel, message, requestIdentifier);
 }
 
 void DocumentLoader::enqueueSecurityPolicyViolationEvent(SecurityPolicyViolationEventInit&& eventInit)
 {
-    frame()->document()->enqueueSecurityPolicyViolationEvent(WTF::move(eventInit));
+    protect(frame())->document()->enqueueSecurityPolicyViolationEvent(WTF::move(eventInit));
 }
 
 #if ENABLE(CONTENT_FILTERING)
@@ -2671,7 +2671,7 @@ URL DocumentLoader::mainDocumentURL() const
     if (!loaderFrame)
         return { };
 
-    if (RefPtr origin = loaderFrame->mainFrame().frameDocumentSecurityOrigin())
+    if (RefPtr origin = protect(loaderFrame->mainFrame())->frameDocumentSecurityOrigin())
         return origin->toURL();
 
     return { };

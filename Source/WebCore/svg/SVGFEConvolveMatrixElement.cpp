@@ -92,7 +92,7 @@ void SVGFEConvolveMatrixElement::attributeChanged(const QualifiedName& name, con
         break;
     }
     case AttributeNames::kernelMatrixAttr:
-        m_kernelMatrix->baseVal()->parse(newValue);
+        protect(m_kernelMatrix)->baseVal()->parse(newValue);
         break;
     case AttributeNames::divisorAttr: {
         auto result = parseNumber(newValue);

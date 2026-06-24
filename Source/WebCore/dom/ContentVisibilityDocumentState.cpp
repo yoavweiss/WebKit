@@ -72,7 +72,7 @@ private:
 
         for (auto& entry : entries) {
             if (RefPtr element = entry->target())
-                element->document().contentVisibilityDocumentState().updateViewportProximity(*element, entry->isIntersecting() ? ViewportProximity::Near : ViewportProximity::Far);
+                protect(element->document())->contentVisibilityDocumentState().updateViewportProximity(*element, entry->isIntersecting() ? ViewportProximity::Near : ViewportProximity::Far);
         }
         return { };
     }
@@ -205,8 +205,8 @@ HadInitialVisibleContentVisibilityDetermination ContentVisibilityDocumentState::
     auto hadInitialVisibleContentVisibilityDetermination = HadInitialVisibleContentVisibilityDetermination::No;
     if (!elementsToCheck.isEmpty()) {
         Ref document = elementsToCheck.first()->document();
-        if (m_observer->updateObservations(*protect(document->frame())) == IntersectionObserver::NeedNotify::Yes)
-            m_observer->notify();
+        if (protect(m_observer)->updateObservations(*protect(document->frame())) == IntersectionObserver::NeedNotify::Yes)
+            protect(m_observer)->notify();
 
         for (auto& element : elementsToCheck) {
             checkRelevancyOfContentVisibilityElement(element, { ContentRelevancy::OnScreen });

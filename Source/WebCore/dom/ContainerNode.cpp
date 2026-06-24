@@ -744,7 +744,7 @@ void ContainerNode::parserInsertBefore(Node& newChild, Node& nextChild)
 
     executeNodeInsertionWithScriptAssertion(*this, newChild, &nextChild, ChildChange::Source::Parser, ReplacedAllChildren::No, [&] {
         if (&document() != &newChild.document())
-            document().adoptNode(newChild);
+            protect(document())->adoptNode(newChild);
 
         insertBeforeCommon(nextChild, newChild);
         newChild.setTreeScopeRecursively(treeScope());
@@ -879,7 +879,7 @@ void ContainerNode::removeBetween(Node* previousChild, Node* nextChild, Node& ol
     destroyRenderTreeIfNeeded(oldChild);
 
     if (hasShadowRootContainingSlots()) [[unlikely]]
-        shadowRoot()->willRemoveAssignedNode(oldChild);
+        protect(shadowRoot())->willRemoveAssignedNode(oldChild);
 
     if (nextChild) {
         nextChild->setPreviousSibling(previousChild);
@@ -947,7 +947,7 @@ void ContainerNode::replaceAll(Node* node)
 // https://dom.spec.whatwg.org/#string-replace-all
 void ContainerNode::stringReplaceAll(String&& string)
 {
-    replaceAll(string.isEmpty() ? nullptr : document().createTextNode(WTF::move(string)).ptr());
+    replaceAll(string.isEmpty() ? nullptr : protect(document())->createTextNode(WTF::move(string)).ptr());
 }
 
 inline void ContainerNode::rebuildSVGExtensionsElementsIfNecessary()
@@ -1075,7 +1075,7 @@ void ContainerNode::parserAppendChild(Node& newChild)
 
     executeNodeInsertionWithScriptAssertion(*this, newChild, nullptr, ChildChange::Source::Parser, ReplacedAllChildren::No, [&] {
         if (&document() != &newChild.document())
-            document().adoptNode(newChild);
+            protect(document())->adoptNode(newChild);
 
         appendChildCommon(newChild);
         newChild.setTreeScopeRecursively(treeScope());

@@ -66,7 +66,7 @@ void LegacyRenderSVGImage::notifyFinished(CachedResource& newImage, const Networ
         return;
 
     if (RefPtr image = dynamicDowncast<SVGImageElement>(LegacyRenderSVGModelObject::element()))
-        page().didFinishLoadingImageForSVGImage(*image);
+        protect(page())->didFinishLoadingImageForSVGImage(*image);
 
     LegacyRenderSVGModelObject::notifyFinished(newImage, metrics, loadWillContinueInAnotherProcess);
 }
@@ -121,7 +121,7 @@ bool LegacyRenderSVGImage::updateImageViewport()
     m_objectBoundingBox = calculateObjectBoundingBox();
 
     bool updatedViewport = false;
-    URL imageSourceURL = document().encodingParseURL(imageElement().imageSourceURL());
+    URL imageSourceURL = protect(document())->encodingParseURL(protect(imageElement())->imageSourceURL());
 
     // Images with preserveAspectRatio=none should force non-uniform scaling. This can be achieved
     // by setting the image's container size to its intrinsic size.
@@ -157,7 +157,7 @@ void LegacyRenderSVGImage::layout()
 
     bool transformOrBoundariesUpdate = m_needsTransformUpdate || m_needsBoundariesUpdate;
     if (m_needsTransformUpdate) {
-        m_localTransform = imageElement().animatedLocalTransform();
+        m_localTransform = protect(imageElement())->animatedLocalTransform();
         m_needsTransformUpdate = false;
     }
 

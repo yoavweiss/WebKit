@@ -264,14 +264,14 @@ void ApplyBlockElementCommand::rangeForParagraphSplittingTextNodesIfNeeded(const
                 return;
             }
             if (isStartAndEndOnSameNode)
-                start = firstPositionInOrBeforeNode(endContainer->previousSibling());
+                start = firstPositionInOrBeforeNode(protect(endContainer->previousSibling()));
             if (isEndAndEndOfLastParagraphOnSameNode) {
                 if (static_cast<unsigned>(m_endOfLastParagraph.offsetInContainerNode()) == endOffset)
-                    m_endOfLastParagraph = lastPositionInOrAfterNode(endContainer->previousSibling());
+                    m_endOfLastParagraph = lastPositionInOrAfterNode(protect(endContainer->previousSibling()));
                 else
                     m_endOfLastParagraph = Position(endContainer.get(), m_endOfLastParagraph.offsetInContainerNode() - endOffset);
             }
-            end = lastPositionInNode(*endContainer->previousSibling());
+            end = lastPositionInNode(*protect(endContainer->previousSibling()));
         }
     }
 }

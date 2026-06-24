@@ -67,7 +67,7 @@ static void loadPendingImage(Document& document, const Image* image, const Eleme
         }
     }
 
-    const_cast<Image&>(*image).load(document.cachedResourceLoader(), options);
+    const_cast<Image&>(*image).load(protect(document.cachedResourceLoader()), options);
 }
 
 void loadPendingResources(Style::ComputedStyle& style, Document& document, const Element* element)

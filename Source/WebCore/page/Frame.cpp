@@ -382,11 +382,6 @@ bool Frame::frameCanCreatePaymentSession() const
     return m_frameTreeSyncData->frameCanCreatePaymentSession;
 }
 
-bool Frame::isPrinting() const
-{
-    return m_isPrinting;
-}
-
 RefPtr<Frame> Frame::parent() const
 {
     return tree().parent();

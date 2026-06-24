@@ -350,7 +350,7 @@ bool SVGResources::markerReverseStart() const
 {
     return m_markerData
         && m_markerData->markerStart
-        && m_markerData->markerStart->markerElement().orientType() == SVGMarkerOrientAutoStartReverse;
+        && protect(m_markerData->markerStart->markerElement())->orientType() == SVGMarkerOrientAutoStartReverse;
 }
 
 void SVGResources::removeClientFromCacheAndMarkForInvalidation(RenderElement& renderer, bool markForInvalidation) const

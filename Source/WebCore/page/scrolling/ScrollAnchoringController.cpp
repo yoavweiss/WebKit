@@ -195,7 +195,7 @@ void ScrollAnchoringController::invalidate()
 
     if (m_isQueuedForScrollPositionUpdate) {
         m_isQueuedForScrollPositionUpdate = false;
-        frameView().dequeueScrollableAreaForScrollAnchoringUpdate(m_owningScrollableArea);
+        protect(frameView())->dequeueScrollableAreaForScrollAnchoringUpdate(m_owningScrollableArea);
     }
 }
 
@@ -612,7 +612,7 @@ void ScrollAnchoringController::updateBeforeLayout()
 
     LOG_WITH_STREAM(ScrollAnchoring, stream << "ScrollAnchoringController " << this << " updateBeforeLayout() - anchor " << *m_anchorObject << " offset " << m_lastAnchorOffset << " suppressedByStyleChange " << m_anchoringSuppressedByStyleChange);
 
-    frameView().queueScrollableAreaForScrollAnchoringUpdate(m_owningScrollableArea);
+    protect(frameView())->queueScrollableAreaForScrollAnchoringUpdate(m_owningScrollableArea);
     m_isQueuedForScrollPositionUpdate = true;
 }
 
@@ -650,7 +650,7 @@ void ScrollAnchoringController::adjustScrollPositionForAnchoring()
     // FIXME: Handle content-visibility.
 
     if (scrollerBox->isRenderView()) {
-        auto pageScale = frameView().frame().frameScaleFactor();
+        auto pageScale = protect(frameView())->frame().frameScaleFactor();
         adjustment.scale(pageScale);
     }
 

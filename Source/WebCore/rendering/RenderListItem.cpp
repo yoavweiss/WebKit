@@ -157,7 +157,7 @@ static RenderListItem* nextListItemHelper(const Element& list, const Element& el
 
 static inline RenderListItem* nextListItem(const Element& list, const RenderListItem& item)
 {
-    return nextListItemHelper(list, *item.element());
+    return nextListItemHelper(list, protect(*item.element()));
 }
 
 static inline RenderListItem* firstListItem(const Element& list)

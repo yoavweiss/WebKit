@@ -459,8 +459,8 @@ void ScrollableArea::availableContentSizeChanged(AvailableSizeChangeReason)
 
 bool ScrollableArea::hasOverlayScrollbars() const
 {
-    return (verticalScrollbar() && verticalScrollbar()->isOverlayScrollbar())
-        || (horizontalScrollbar() && horizontalScrollbar()->isOverlayScrollbar());
+    return (verticalScrollbar() && protect(verticalScrollbar())->isOverlayScrollbar())
+        || (horizontalScrollbar() && protect(horizontalScrollbar())->isOverlayScrollbar());
 }
 
 bool ScrollableArea::canShowNonOverlayScrollbars() const
@@ -753,12 +753,12 @@ RectEdges<bool> ScrollableArea::edgePinnedState() const
 
 int ScrollableArea::horizontalScrollbarIntrusion() const
 {
-    return verticalScrollbar() ? verticalScrollbar()->occupiedWidth() : 0;
+    return verticalScrollbar() ? protect(verticalScrollbar())->occupiedWidth() : 0;
 }
 
 int ScrollableArea::verticalScrollbarIntrusion() const
 {
-    return horizontalScrollbar() ? horizontalScrollbar()->occupiedHeight() : 0;
+    return horizontalScrollbar() ? protect(horizontalScrollbar())->occupiedHeight() : 0;
 }
 
 IntSize ScrollableArea::scrollbarIntrusion() const

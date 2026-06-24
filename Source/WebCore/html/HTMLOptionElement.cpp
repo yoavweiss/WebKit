@@ -581,7 +581,7 @@ bool HTMLOptionElement::isDisabledFormControl() const
         return true;
 
     if (!document().settings().htmlEnhancedSelectParsingEnabled()) {
-        auto* parentOptGroup = dynamicDowncast<HTMLOptGroupElement>(parentNode());
+        RefPtr parentOptGroup = dynamicDowncast<HTMLOptGroupElement>(parentNode());
         return parentOptGroup && parentOptGroup->isDisabledFormControl();
     }
 

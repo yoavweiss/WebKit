@@ -126,8 +126,8 @@ auto LegacyRenderSVGResourceFilter::applyResource(RenderElement& renderer, const
     // Determine scale factor for filter. The size of intermediate ImageBuffers shouldn't be bigger than kMaxFilterSize.
     ImageBuffer::sizeNeedsClamping(filterData->sourceImageRect.size(), filterScale);
 
-    auto preferredFilterModes = renderer.page().preferredFilterRenderingModes(*context);
-    auto renderingOptions(renderer.settings().showDebugBorders() ? std::make_optional(FilterRenderingOption::ShowDebugOverlay) : std::nullopt);
+    auto preferredFilterModes = protect(renderer.page())->preferredFilterRenderingModes(*context);
+    auto renderingOptions(protect(renderer.settings())->showDebugBorders() ? std::make_optional(FilterRenderingOption::ShowDebugOverlay) : std::nullopt);
 
     // Create the SVGFilterRenderer object.
     filterData->filter = SVGFilterRenderer::create(contextElement.get(), filterElement, {
@@ -149,7 +149,7 @@ auto LegacyRenderSVGResourceFilter::applyResource(RenderElement& renderer, const
     auto colorSpace = DestinationColorSpace::LinearSRGB();
 #endif
 
-    auto& results = filterData->filter->ensureResults([&]() {
+    auto& results = protect(filterData->filter)->ensureResults([&]() {
         return makeUnique<FilterResults>();
     });
 
@@ -250,7 +250,7 @@ void LegacyRenderSVGResourceFilter::markFilterForRepaint(FilterEffect& effect)
         // Repaint the image on the screen.
         markClientForInvalidation(objectFilterDataPair.key, RepaintInvalidation);
 
-        filterData->filter->clearEffectResult(effect);
+        protect(filterData->filter)->clearEffectResult(effect);
     }
 }
 

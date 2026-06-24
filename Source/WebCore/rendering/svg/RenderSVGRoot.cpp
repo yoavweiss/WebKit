@@ -102,7 +102,8 @@ FloatSize RenderSVGRoot::computeIntrinsicSize() const
     if (shouldApplySizeOrInlineSizeContainment())
         return { intrinsicLogicalWidth(), intrinsicLogicalHeight() };
     // https://www.w3.org/TR/SVG/coords.html#IntrinsicSizing
-    FloatSize intrinsicSize = { svgSVGElement().intrinsicWidth(), svgSVGElement().intrinsicHeight() };
+    Ref element = svgSVGElement();
+    FloatSize intrinsicSize = { element->intrinsicWidth(), element->intrinsicHeight() };
     // Transpose for vertical writing mode
     if (!isHorizontalWritingMode())
         return intrinsicSize.transposedSize();
@@ -125,7 +126,7 @@ FloatSize RenderSVGRoot::preferredAspectRatioAsSize() const
     if (!intrinsicSize.isEmpty())
         intrinsicRatioValue = { intrinsicSize.width(), intrinsicSize.height() }; 
     else {
-        FloatSize viewBoxSize = svgSVGElement().currentViewBoxRect().size();
+        FloatSize viewBoxSize = protect(svgSVGElement())->currentViewBoxRect().size();
         if (!viewBoxSize.isEmpty()) {
             // The viewBox can only yield an intrinsic ratio, not an intrinsic size.
             if (isHorizontalWritingMode())
@@ -144,7 +145,7 @@ FloatSize RenderSVGRoot::preferredAspectRatioAsSize() const
 
 bool RenderSVGRoot::isEmbeddedThroughSVGImage() const
 {
-    return isInSVGImage(&svgSVGElement());
+    return isInSVGImage(protect(svgSVGElement()).ptr());
 }
 
 bool RenderSVGRoot::isEmbeddedThroughFrameContainingSVGDocument() const
@@ -182,7 +183,7 @@ LayoutUnit RenderSVGRoot::computeReplacedLogicalWidth(ShouldComputePreferred sho
 
     // Standalone SVG / SVG embedded via SVGImage (background-image/border-image/etc) / Inline SVG.
     auto result = RenderReplaced::computeReplacedLogicalWidth(shouldComputePreferred);
-    if (svgSVGElement().hasIntrinsicWidth())
+    if (protect(svgSVGElement())->hasIntrinsicWidth())
         return result;
 
     // Percentage units are not scaled, Length(100, %) resolves to 100% of the unzoomed RenderView content size.
@@ -218,7 +219,7 @@ LayoutUnit RenderSVGRoot::computeReplacedLogicalHeight(std::optional<LayoutUnit>
 
     // Standalone SVG / SVG embedded via SVGImage (background-image/border-image/etc) / Inline SVG.
     auto result = RenderReplaced::computeReplacedLogicalHeight(estimatedUsedWidth);
-    if (svgSVGElement().hasIntrinsicHeight())
+    if (protect(svgSVGElement())->hasIntrinsicHeight())
         return result;
 
     // Percentage units are not scaled, Length(100, %) resolves to 100% of the unzoomed RenderView content size.
@@ -404,7 +405,7 @@ void RenderSVGRoot::paintObject(PaintInfo& paintInfo, const LayoutPoint& paintOf
     if (!firstChild()) {
         // FIXME: We should only call addRelevantUnpaintedObject() if there is no filter. Revisit this if we add filter support to LBSE.
         if (paintInfo.phase == PaintPhase::Foreground)
-            page().addRelevantUnpaintedObject(*this, visualOverflowRect());
+            protect(page())->addRelevantUnpaintedObject(*this, visualOverflowRect());
         return;
     }
 
@@ -483,7 +484,7 @@ bool RenderSVGRoot::needsHasSVGTransformFlags() const
     // of the SVG subtree doesn't know anything about subpixel offsets, we'll have to stop use/set
     // 'adjustedSubpixelOffset' starting at the RenderSVGRoot boundary. This mostly affects inline
     // SVG documents and SVGs embedded via <object> / <embed>.
-    return svgSVGElement().hasTransformRelatedAttributes() || paintingAffectedByExternalOffset();
+    return protect(svgSVGElement())->hasTransformRelatedAttributes() || paintingAffectedByExternalOffset();
 }
 
 void RenderSVGRoot::updateFromStyle()

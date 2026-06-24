@@ -106,7 +106,7 @@ void ImageOverlayController::selectionQuadsDidChange(LocalFrame& frame, const Ve
     m_selectionBackgroundColor = overlayHostRenderer->selectionBackgroundColor();
     m_selectionClipRect = overlayHostRenderer->absoluteBoundingBoxRect();
 
-    installPageOverlayIfNeeded().setNeedsDisplay();
+    protect(installPageOverlayIfNeeded())->setNeedsDisplay();
 }
 
 bool ImageOverlayController::shouldUsePageOverlayToPaintSelection(const RenderElement& renderer)

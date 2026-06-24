@@ -75,7 +75,7 @@ WritingToolsController::EditingScope::EditingScope(Document& document)
 
 WritingToolsController::EditingScope::~EditingScope()
 {
-    m_document->editor().setSuppressEditingForWritingTools(m_editingWasSuppressed);
+    protect(m_document)->editor().setSuppressEditingForWritingTools(m_editingWasSuppressed);
 }
 
 #pragma mark - Overloaded TextIterator-based static functions.
@@ -483,7 +483,7 @@ void WritingToolsController::proofreadingSessionDidUpdateStateForSuggestion(cons
 
         // Ensure that the details popover is moved down a tiny bit so that it does not overlap the suggestion underline.
 
-        auto rect = document->view()->contentsToRootView(unionRect(RenderObject::absoluteTextRects(rangeToReplace)));
+        auto rect = protect(document)->view()->contentsToRootView(unionRect(RenderObject::absoluteTextRects(rangeToReplace)));
 
         if (CheckedPtr renderStyle = node.renderStyle()) {
             CheckedRef font = Style::fontCascade(*renderStyle);
@@ -1205,7 +1205,7 @@ void WritingToolsController::showOriginalCompositionForSession()
         auto oldSize = stack.size();
 
         // Each call to `unapply` indirectly results in a call to `respondToUnappliedEditing`, which decrements the size of the stack.
-        stack.last()->ensureComposition()->unapply();
+        protect(stack.last())->ensureComposition()->unapply();
 
         RELEASE_ASSERT(oldSize > stack.size());
     }
@@ -1227,7 +1227,7 @@ void WritingToolsController::showRewrittenCompositionForSession()
         auto oldSize = stack.size();
 
         // Each call to `reapply` indirectly results in a call to `respondToReappliedEditing`, which decrements the size of the stack.
-        stack.last()->ensureComposition()->reapply();
+        protect(stack.last())->ensureComposition()->reapply();
 
         RELEASE_ASSERT(oldSize > stack.size());
     }
@@ -1345,7 +1345,7 @@ void WritingToolsController::replaceContentsOfRangeInSession(ProofreadingState& 
 
     {
         EditingScope editingScope { *document };
-        document->editor().replaceSelectionWithText(replacementText, Editor::SelectReplacement::Yes, Editor::SmartReplace::No, EditAction::InsertReplacement);
+        protect(document)->editor().replaceSelectionWithText(replacementText, Editor::SelectReplacement::Yes, Editor::SmartReplace::No, EditAction::InsertReplacement);
     }
 
     auto selection = document->selection().selection();
@@ -1365,7 +1365,7 @@ void WritingToolsController::replaceContentsOfRangeInSession(CompositionState& s
     if (state.session.compositionType == WritingTools::Session::CompositionType::SmartReply)
         platformReplacementText = attributedStringApplyingBodyTextColorIfNecessary(*document(), platformReplacementText.get());
 
-    RefPtr fragment = createFragment(*document()->frame(), platformReplacementText.get(), { FragmentCreationOptions::NoInterchangeNewlines, FragmentCreationOptions::SanitizeMarkup });
+    RefPtr fragment = createFragment(protect(*document()->frame()), platformReplacementText.get(), { FragmentCreationOptions::NoInterchangeNewlines, FragmentCreationOptions::SanitizeMarkup });
     if (!fragment) {
         ASSERT_NOT_REACHED();
         return;
@@ -1377,14 +1377,14 @@ void WritingToolsController::replaceContentsOfRangeInSession(CompositionState& s
     auto matchStyle = hasAttributes ? WritingToolsCompositionCommand::MatchStyle::No : WritingToolsCompositionCommand::MatchStyle::Yes;
 
     EditingScope editingScope { *document() };
-    state.reappliedCommands.last()->replaceContentsOfRangeWithFragment(WTF::move(fragment), range, matchStyle, commandState);
+    protect(state.reappliedCommands.last())->replaceContentsOfRangeWithFragment(WTF::move(fragment), range, matchStyle, commandState);
 }
 
 void WritingToolsController::commitComposition(CompositionState& state, Document& document)
 {
     {
         EditingScope editingScope { document };
-        state.reappliedCommands.last()->commit();
+        protect(state.reappliedCommands.last())->commit();
     }
     compositionSessionDidFinishReplacement();
 }

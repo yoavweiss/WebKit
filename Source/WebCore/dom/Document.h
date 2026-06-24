@@ -747,7 +747,7 @@ public:
     void setStateForNewFormElements(const Vector<AtomString>&);
 
     inline LocalFrameView* view() const; // Defined in DocumentView.h.
-    inline Page* page() const; // Defined in DocumentPage.h.
+    inline Page* NODELETE page() const; // Defined in DocumentPage.h.
     WEBCORE_EXPORT RefPtr<LocalFrame> localMainFrame() const;
     const Settings& settings() const { return m_settings.get(); }
     EditingBehavior NODELETE editingBehavior() const;
@@ -755,7 +755,7 @@ public:
     inline Quirks& quirks(); // Defined in DocumentQuirks.h
     inline const Quirks& quirks() const; // Defined in DocumentQuirks.h
 
-    WEBCORE_EXPORT float deviceScaleFactor() const;
+    WEBCORE_EXPORT float NODELETE deviceScaleFactor() const;
 
     WEBCORE_EXPORT bool NODELETE useElevatedUserInterfaceLevel() const;
     WEBCORE_EXPORT bool useDarkAppearance(const Style::ComputedStyle*) const;
@@ -885,7 +885,7 @@ public:
 
     bool wellFormed() const { return m_wellFormed; }
 
-    const URL& url() const LIFETIME_BOUND final { return m_url; }
+    const URL& NODELETE url() const LIFETIME_BOUND final { return m_url; }
     WEBCORE_EXPORT void setURL(URL&&);
     WEBCORE_EXPORT const URL& urlForBindings();
 

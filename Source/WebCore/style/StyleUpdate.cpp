@@ -124,7 +124,7 @@ void Update::addText(Text& text, Element* parent, TextUpdate&& textUpdate)
 
 void Update::addText(Text& text, TextUpdate&& textUpdate)
 {
-    addText(text, composedTreeAncestors(text).first(), WTF::move(textUpdate));
+    addText(text, protect(composedTreeAncestors(text).first()), WTF::move(textUpdate));
 }
 
 void Update::addSVGRendererUpdate(SVGElement& element)

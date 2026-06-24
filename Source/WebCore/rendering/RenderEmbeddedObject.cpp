@@ -92,7 +92,7 @@ RenderEmbeddedObject::~RenderEmbeddedObject() = default;
 
 void RenderEmbeddedObject::willBeDestroyed()
 {
-    view().frameView().removeEmbeddedObjectToUpdate(*this);
+    protect(view())->frameView().removeEmbeddedObjectToUpdate(*this);
     RenderWidget::willBeDestroyed();
 }
 
@@ -203,13 +203,13 @@ void RenderEmbeddedObject::paint(PaintInfo& paintInfo, const LayoutPoint& paintO
 
     if (isPluginUnavailable()) {
         if (countsTowardsRelevantObjects)
-            page().addRelevantUnpaintedObject(*this, visualOverflowRect());
+            protect(page())->addRelevantUnpaintedObject(*this, visualOverflowRect());
         RenderReplaced::paint(paintInfo, paintOffset);
         return;
     }
 
     if (countsTowardsRelevantObjects)
-        page().addRelevantRepaintedObject(*this, visualOverflowRect());
+        protect(page())->addRelevantRepaintedObject(*this, visualOverflowRect());
 
     RenderWidget::paint(paintInfo, paintOffset);
 }
@@ -283,7 +283,7 @@ void RenderEmbeddedObject::paintReplaced(PaintInfo& paintInfo, const LayoutPoint
     context.setFillColor(replacementTextColor);
     context.drawBidiText(font, run, FloatPoint(labelX, labelY));
 
-    if (shouldUnavailablePluginMessageBeButton(page(), m_pluginUnavailabilityReason)) {
+    if (shouldUnavailablePluginMessageBeButton(protect(page()), m_pluginUnavailabilityReason)) {
         arrowRect.inflate(-replacementArrowCirclePadding);
 
         context.beginTransparencyLayer(1.0);
@@ -311,7 +311,7 @@ LayoutRect RenderEmbeddedObject::getReplacementTextGeometry(const LayoutPoint& a
 
 void RenderEmbeddedObject::getReplacementTextGeometry(const LayoutPoint& accumulatedOffset, FloatRect& contentRect, FloatRect& indicatorRect, FloatRect& replacementTextRect, FloatRect& arrowRect, FontCascade& font, TextRun& run, float& textWidth) const
 {
-    bool includesArrow = shouldUnavailablePluginMessageBeButton(page(), m_pluginUnavailabilityReason);
+    bool includesArrow = shouldUnavailablePluginMessageBeButton(protect(page()), m_pluginUnavailabilityReason);
 
     contentRect = contentBoxRect();
     contentRect.moveBy(roundedIntPoint(accumulatedOffset));
@@ -357,7 +357,7 @@ void RenderEmbeddedObject::layout()
     updateLayerTransform();
 
     if (!widget())
-        view().frameView().addEmbeddedObjectToUpdate(*this);
+        protect(view())->frameView().addEmbeddedObjectToUpdate(*this);
 
     clearNeedsLayout();
 
@@ -417,7 +417,7 @@ bool RenderEmbeddedObject::isInUnavailablePluginIndicator(const MouseEvent& even
 
 void RenderEmbeddedObject::handleUnavailablePluginIndicatorEvent(Event* event)
 {
-    if (!shouldUnavailablePluginMessageBeButton(page(), m_pluginUnavailabilityReason))
+    if (!shouldUnavailablePluginMessageBeButton(protect(page()), m_pluginUnavailabilityReason))
         return;
 
     RefPtr mouseEvent = dynamicDowncast<MouseEvent>(*event);
@@ -454,11 +454,11 @@ void RenderEmbeddedObject::handleUnavailablePluginIndicatorEvent(Event* event)
 
 CursorDirective RenderEmbeddedObject::getCursor(const LayoutPoint& point, Cursor& cursor) const
 {
-    if (isPluginUnavailable() && shouldUnavailablePluginMessageBeButton(page(), m_pluginUnavailabilityReason) && isInUnavailablePluginIndicator(point)) {
+    if (isPluginUnavailable() && shouldUnavailablePluginMessageBeButton(protect(page()), m_pluginUnavailabilityReason) && isInUnavailablePluginIndicator(point)) {
         cursor = handCursor();
         return CursorDirective::SetCursor;
     }
-    if (widget() && widget()->isPluginViewBase()) {
+    if (widget() && protect(widget())->isPluginViewBase()) {
         // A plug-in is responsible for setting the cursor when the pointer is over it.
         return CursorDirective::DoNotSetCursor;
     }

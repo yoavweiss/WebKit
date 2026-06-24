@@ -81,7 +81,7 @@ GradientData* LegacyRenderSVGResourceGradient::gradientDataForRenderer(RenderEle
     // synchronization to kick in, which causes removeAllClientsFromCacheAndMarkForInvalidation() to be called, which in turn deletes our
     // GradientData object! Leaving out the line below will cause svg/dynamic-updates/SVG*GradientElement-svgdom* to crash.
     if (m_shouldCollectGradientAttributes) {
-        gradientElement().synchronizeAllAttributes();
+        protect(gradientElement())->synchronizeAllAttributes();
         if (!collectGradientAttributes())
             return nullptr;
 
@@ -235,7 +235,7 @@ bool TextGradientClipper::applyResource(RenderElement& renderer, const Style::Co
         return false;
 
     m_savedContext = context;
-    context = &m_imageBuffer->context();
+    context = &protect(m_imageBuffer)->context();
 
     applyGradientResource(renderer, style, *context, gradientData, resourceMode);
     return true;

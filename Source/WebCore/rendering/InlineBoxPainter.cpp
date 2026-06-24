@@ -220,7 +220,7 @@ void InlineBoxPainter::paintDecorations()
         paintBoxShadow(Style::ShadowStyle::Normal, paintRect);
 
     auto color = style.visitedDependentBackgroundColor(m_paintInfo.paintBehavior);
-    auto compositeOp = renderer().document().compositeOperatorForBackgroundColor(color, renderer());
+    auto compositeOp = protect(renderer().document())->compositeOperatorForBackgroundColor(color, renderer());
 
     Style::ColorResolver colorResolver { style };
     color = colorResolver.colorApplyingColorFilter(color);

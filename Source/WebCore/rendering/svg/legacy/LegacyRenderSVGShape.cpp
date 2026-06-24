@@ -156,7 +156,7 @@ void LegacyRenderSVGShape::layout()
     }
 
     if (m_needsTransformUpdate) {
-        m_localTransform = graphicsElement().animatedLocalTransform();
+        m_localTransform = protect(graphicsElement())->animatedLocalTransform();
         m_needsTransformUpdate = false;
         updateCachedBoundariesInParents = true;
     }

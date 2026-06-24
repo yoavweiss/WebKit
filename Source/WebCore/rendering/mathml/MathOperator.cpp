@@ -41,7 +41,7 @@ namespace WebCore {
 
 static inline FloatRect boundsForGlyph(const GlyphData& data)
 {
-    return data.font ? data.font->boundsForGlyph(data.glyph) : FloatRect();
+    return data.font ? protect(data.font.get())->boundsForGlyph(data.glyph) : FloatRect();
 }
 
 static inline float heightForGlyph(const GlyphData& data)
@@ -58,7 +58,7 @@ static inline void getAscentAndDescentForGlyph(const GlyphData& data, LayoutUnit
 
 static inline float advanceWidthForGlyph(const GlyphData& data)
 {
-    return data.font ? data.font->widthForGlyph(data.glyph) : 0;
+    return data.font ? protect(data.font.get())->widthForGlyph(data.glyph) : 0;
 }
 
 // FIXME: This hardcoded data can be removed when OpenType MATH font are widely available (http://wkbug/156837).
@@ -236,9 +236,9 @@ void MathOperator::getMathVariantsWithFallback(const Style::ComputedStyle& style
 {
     // In general, we first try and find contruction for the base glyph.
     GlyphData baseGlyph;
-    if (!getBaseGlyph(style, baseGlyph) || !baseGlyph.font->mathData())
+    if (!getBaseGlyph(style, baseGlyph) || !protect(baseGlyph.font.get())->mathData())
         return;
-    baseGlyph.font->mathData()->getMathVariants(baseGlyph.glyph, isVertical, sizeVariants, assemblyParts);
+    protect(baseGlyph.font.get())->mathData()->getMathVariants(baseGlyph.glyph, isVertical, sizeVariants, assemblyParts);
     if (!sizeVariants.isEmpty() || !assemblyParts.isEmpty())
         return;
 
@@ -250,7 +250,7 @@ void MathOperator::getMathVariantsWithFallback(const Style::ComputedStyle& style
                 GlyphData glyphData;
                 if (!getGlyph(style, fallbacks[j], glyphData))
                     continue;
-                glyphData.font->mathData()->getMathVariants(glyphData.glyph, isVertical, sizeVariants, assemblyParts);
+                protect(glyphData.font.get())->mathData()->getMathVariants(glyphData.glyph, isVertical, sizeVariants, assemblyParts);
                 if (!sizeVariants.isEmpty() || !assemblyParts.isEmpty())
                     return;
             }
@@ -264,21 +264,21 @@ void MathOperator::calculateDisplayStyleLargeOperator(const Style::ComputedStyle
     ASSERT(m_operatorType == Type::DisplayOperator);
 
     GlyphData baseGlyph;
-    if (!getBaseGlyph(style, baseGlyph) || !baseGlyph.font->mathData())
+    if (!getBaseGlyph(style, baseGlyph) || !protect(baseGlyph.font.get())->mathData())
         return;
 
-    float displayOperatorMinHeight = baseGlyph.font->mathData()->getMathConstant(*baseGlyph.font, OpenTypeMathData::MathConstant::DisplayOperatorMinHeight);
+    float displayOperatorMinHeight = protect(baseGlyph.font.get())->mathData()->getMathConstant(protect(*baseGlyph.font), OpenTypeMathData::MathConstant::DisplayOperatorMinHeight);
 
     Vector<Glyph> sizeVariants;
     Vector<OpenTypeMathData::AssemblyPart> assemblyParts;
-    baseGlyph.font->mathData()->getMathVariants(baseGlyph.glyph, true, sizeVariants, assemblyParts);
+    protect(baseGlyph.font.get())->mathData()->getMathVariants(baseGlyph.glyph, true, sizeVariants, assemblyParts);
 
     // We choose the first size variant that is larger than the expected displayOperatorMinHeight and otherwise fallback to the largest variant.
     for (auto& sizeVariant : sizeVariants) {
         GlyphData glyphData(sizeVariant, baseGlyph.font.get());
         setSizeVariant(glyphData);
         m_maxPreferredWidth = m_width;
-        m_italicCorrection = glyphData.font->mathData()->getItalicCorrection(*glyphData.font, glyphData.glyph);
+        m_italicCorrection = protect(glyphData.font.get())->mathData()->getItalicCorrection(protect(*glyphData.font), glyphData.glyph);
         if (heightForGlyph(glyphData) >= displayOperatorMinHeight)
             break;
     }
@@ -403,7 +403,7 @@ void MathOperator::calculateStretchyData(const Style::ComputedStyle& style, bool
     }
 
     GlyphAssemblyData assemblyData;
-    if (baseGlyph.font->mathData()) {
+    if (protect(baseGlyph.font.get())->mathData()) {
         Vector<Glyph> sizeVariants;
         Vector<OpenTypeMathData::AssemblyPart> assemblyParts;
         getMathVariantsWithFallback(style, isVertical, sizeVariants, assemblyParts);
@@ -544,7 +544,7 @@ LayoutRect MathOperator::paintGlyph(const Style::ComputedStyle& style, PaintInfo
 
     // FIXME: If we're just drawing a single glyph, why do we need to compute an advance?
     auto advance = makeGlyphBufferAdvance(advanceWidthForGlyph(data));
-    info.context().drawGlyphs(*data.font, singleElementSpan(data.glyph), singleElementSpan(advance), origin, style.fontCascade().fontDescription().usedFontSmoothing());
+    info.context().drawGlyphs(protect(*data.font), singleElementSpan(data.glyph), singleElementSpan(advance), origin, style.fontCascade().fontDescription().usedFontSmoothing());
 
     return glyphPaintRect;
 }
@@ -759,7 +759,7 @@ void MathOperator::paint(const Style::ComputedStyle& style, PaintInfo& info, con
 
     // FIXME: If we're just drawing a single glyph, why do we need to compute an advance?
     auto advance = makeGlyphBufferAdvance(advanceWidthForGlyph(glyphData));
-    paintInfo.context().drawGlyphs(*glyphData.font, singleElementSpan(glyphData.glyph), singleElementSpan(advance), operatorOrigin, style.fontCascade().fontDescription().usedFontSmoothing());
+    paintInfo.context().drawGlyphs(protect(*glyphData.font), singleElementSpan(glyphData.glyph), singleElementSpan(advance), operatorOrigin, style.fontCascade().fontDescription().usedFontSmoothing());
 }
 
 }

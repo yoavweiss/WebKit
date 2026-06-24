@@ -8049,7 +8049,7 @@ RefPtr<Document> Document::sameOriginTopLevelTraversable() const
 
 bool Document::printing() const
 {
-    if (RefPtr frame = m_frame.get())
+    if (auto* frame = m_frame.get())
         return frame->isPrinting();
     return false;
 }
@@ -10957,7 +10957,7 @@ Vector<Ref<WebAnimation>> Document::matchingAnimations(NOESCAPE const Function<b
     };
 
     for (auto& animation : WebAnimation::instances()) {
-        if (animation->isRelevant() && effectCanBeListed(animation->effect()))
+        if (animation->isRelevant() && effectCanBeListed(protect(animation->effect())))
             animations.append(animation);
     }
 

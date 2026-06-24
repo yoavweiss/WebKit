@@ -455,7 +455,7 @@ void RenderQuote::updateTextRenderer(RenderTreeBuilder& builder)
         renderText->setContentString(m_text);
         return;
     }
-    builder.attach(*this, createRenderer<RenderTextFragment>(document(), m_text));
+    builder.attach(*this, createRenderer<RenderTextFragment>(protect(document()), m_text));
 }
 
 String RenderQuote::computeText() const

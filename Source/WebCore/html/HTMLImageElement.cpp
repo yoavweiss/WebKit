@@ -976,10 +976,10 @@ bool HTMLImageElement::isSystemPreviewImage() const
     if (!document().settings().systemPreviewEnabled())
         return false;
 
-    auto* parent = parentElement();
-    if (auto* anchorElement = dynamicDowncast<HTMLAnchorElement>(parent))
+    RefPtr parent = parentElement();
+    if (RefPtr anchorElement = dynamicDowncast<HTMLAnchorElement>(parent))
         return anchorElement->isSystemPreviewLink();
-    if (auto* pictureElement = dynamicDowncast<HTMLPictureElement>(parent))
+    if (RefPtr pictureElement = dynamicDowncast<HTMLPictureElement>(parent))
         return pictureElement->isSystemPreviewImage();
     return false;
 }

@@ -396,7 +396,7 @@ public:
 
     static bool changeRequiresLayout(const Style::ComputedStyle& a, const Style::ComputedStyle& b, OptionSet<DifferenceContextSensitiveProperty>& changedContextSensitiveProperties)
     {
-        if (&a.svgData() != &b.svgData() && svgDataChangeRequiresLayout(a.svgData(), b.svgData()))
+        SUPPRESS_UNCOUNTED_ARG if (&a.svgData() != &b.svgData() && svgDataChangeRequiresLayout(a.svgData(), b.svgData()))
             return true;
 
         if (&a.nonInheritedData() != &b.nonInheritedData()) {
@@ -454,16 +454,16 @@ public:
             return true;
 
         if (&a.nonInheritedData() != &b.nonInheritedData()) {
-            if (a.nonInheritedData().miscData.ptr() != b.nonInheritedData().miscData.ptr()
+            SUPPRESS_UNCOUNTED_ARG if (a.nonInheritedData().miscData.ptr() != b.nonInheritedData().miscData.ptr()
                 && miscDataChangeRequiresLayout(*a.nonInheritedData().miscData, *b.nonInheritedData().miscData, changedContextSensitiveProperties))
                 return true;
 
-            if (a.nonInheritedData().rareData.ptr() != b.nonInheritedData().rareData.ptr()
+            SUPPRESS_UNCOUNTED_ARG if (a.nonInheritedData().rareData.ptr() != b.nonInheritedData().rareData.ptr()
                 && rareDataChangeRequiresLayout(*a.nonInheritedData().rareData, *b.nonInheritedData().rareData, changedContextSensitiveProperties))
                 return true;
         }
 
-        if (&a.inheritedRareData() != &b.inheritedRareData()
+        SUPPRESS_UNCOUNTED_ARG if (&a.inheritedRareData() != &b.inheritedRareData()
             && rareInheritedDataChangeRequiresLayout(a.inheritedRareData(), b.inheritedRareData()))
             return true;
 
@@ -621,11 +621,11 @@ public:
                 }
             }
 
-            if (a.nonInheritedData().miscData.ptr() != b.nonInheritedData().miscData.ptr()
+            SUPPRESS_UNCOUNTED_ARG if (a.nonInheritedData().miscData.ptr() != b.nonInheritedData().miscData.ptr()
                 && miscDataChangeRequiresLayerRepaint(*a.nonInheritedData().miscData, *b.nonInheritedData().miscData, changedContextSensitiveProperties))
                 return true;
 
-            if (a.nonInheritedData().rareData.ptr() != b.nonInheritedData().rareData.ptr()
+            SUPPRESS_UNCOUNTED_ARG if (a.nonInheritedData().rareData.ptr() != b.nonInheritedData().rareData.ptr()
                 && rareDataChangeRequiresLayerRepaint(*a.nonInheritedData().rareData, *b.nonInheritedData().rareData, changedContextSensitiveProperties))
                 return true;
         }
@@ -816,8 +816,8 @@ public:
             for (auto& watchPropertiesMap : { propertiesA, propertiesB }) {
                 for (auto& name : watchPropertiesMap) {
                     if (isCustomPropertyName(name)) {
-                        auto valueA = a.customPropertyValue(name);
-                        auto valueB = b.customPropertyValue(name);
+                        SUPPRESS_UNCOUNTED_LOCAL auto* valueA = a.customPropertyValue(name);
+                        SUPPRESS_UNCOUNTED_LOCAL auto* valueB = b.customPropertyValue(name);
 
                         if (valueA != valueB && (!valueA || !valueB || *valueA != *valueB))
                             return true;
@@ -840,7 +840,7 @@ public:
         bool currentColorDiffers = a.inheritedData().color != b.inheritedData().color;
 
         if (currentColorDiffers || &a.svgData() != &b.svgData()) {
-            if (svgDataChangeRequiresRepaint(a.svgData(), b.svgData(), currentColorDiffers))
+            SUPPRESS_UNCOUNTED_ARG if (svgDataChangeRequiresRepaint(a.svgData(), b.svgData(), currentColorDiffers))
                 return true;
         }
 
@@ -855,7 +855,7 @@ public:
 
         if (currentColorDiffers || &a.nonInheritedData() != &b.nonInheritedData()) {
             if (currentColorDiffers || a.nonInheritedData().backgroundData.ptr() != b.nonInheritedData().backgroundData.ptr()) {
-                if (!isEquivalentForPainting(*a.nonInheritedData().backgroundData, *b.nonInheritedData().backgroundData, currentColorDiffers))
+                SUPPRESS_UNCOUNTED_ARG if (!isEquivalentForPainting(*a.nonInheritedData().backgroundData, *b.nonInheritedData().backgroundData, currentColorDiffers))
                     return true;
             }
 
@@ -866,20 +866,20 @@ public:
         }
 
         if (&a.nonInheritedData() != &b.nonInheritedData()) {
-            if (a.nonInheritedData().miscData.ptr() != b.nonInheritedData().miscData.ptr()
+            SUPPRESS_UNCOUNTED_ARG if (a.nonInheritedData().miscData.ptr() != b.nonInheritedData().miscData.ptr()
                 && miscDataChangeRequiresRepaint(*a.nonInheritedData().miscData, *b.nonInheritedData().miscData, changedContextSensitiveProperties))
                 return true;
 
-            if (a.nonInheritedData().rareData.ptr() != b.nonInheritedData().rareData.ptr()
+            SUPPRESS_UNCOUNTED_ARG if (a.nonInheritedData().rareData.ptr() != b.nonInheritedData().rareData.ptr()
                 && rareDataChangeRequiresRepaint(*a.nonInheritedData().rareData, *b.nonInheritedData().rareData, changedContextSensitiveProperties))
                 return true;
         }
 
-        if (&a.inheritedRareData() != &b.inheritedRareData()
+        SUPPRESS_UNCOUNTED_ARG if (&a.inheritedRareData() != &b.inheritedRareData()
             && rareInheritedDataChangeRequiresRepaint(a.inheritedRareData(), b.inheritedRareData()))
             return true;
 
-        if (changedCustomPaintWatchedProperty(a, *a.nonInheritedData().rareData, b, *b.nonInheritedData().rareData))
+        SUPPRESS_UNCOUNTED_ARG if (changedCustomPaintWatchedProperty(a, *a.nonInheritedData().rareData, b, *b.nonInheritedData().rareData))
             return true;
 
         return false;

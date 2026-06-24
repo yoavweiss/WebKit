@@ -525,7 +525,7 @@ void HTMLPlugInElement::scheduleUpdateForAfterStyleResolution()
 bool HTMLPlugInElement::shouldBypassCSPForPDFPlugin(const String& contentType) const
 {
 #if ENABLE(PDF_PLUGIN)
-    return document().frame()->loader().client().shouldUsePDFPlugin(contentType, document().url().path());
+    return document().frame()->loader().client().shouldUsePDFPlugin(contentType, protect(document())->url().path());
 #else
     UNUSED_PARAM(contentType);
     return false;

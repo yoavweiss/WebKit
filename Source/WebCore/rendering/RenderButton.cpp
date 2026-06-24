@@ -59,7 +59,7 @@ HTMLFormControlElement& NODELETE RenderButton::formControlElement() const
 
 bool RenderButton::canBeSelectionLeaf() const
 {
-    return formControlElement().hasEditableStyle();
+    return protect(formControlElement())->hasEditableStyle();
 }
 
 bool RenderButton::hasLineIfEmpty() const
@@ -117,7 +117,7 @@ void RenderButton::setText(const String& str)
         return;
 
     if (!m_buttonText) {
-        auto newButtonText = createRenderer<RenderTextFragment>(document(), str);
+        auto newButtonText = createRenderer<RenderTextFragment>(protect(document()), str);
         m_buttonText = *newButtonText;
         // FIXME: This mutation should go through the normal RenderTreeBuilder path.
         if (RenderTreeBuilder::current())

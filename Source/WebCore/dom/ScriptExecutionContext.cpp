@@ -1069,7 +1069,7 @@ bool ScriptExecutionContext::requiresScriptTrackingPrivacyProtection(ScriptTrack
         break;
     }
 
-    RefPtr document = dynamicDowncast<Document>(*this);
+    auto* document = dynamicDowncast<Document>(*this);
     if (!document)
         return true;
 

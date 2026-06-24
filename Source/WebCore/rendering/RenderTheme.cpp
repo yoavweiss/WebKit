@@ -888,7 +888,7 @@ bool RenderTheme::paint(const RenderBox& box, const PaintInfo& paintInfo, const 
     
     auto appearance = box.style().usedAppearance();
 
-    if (!canPaint(paintInfo, box.settings(), appearance)) [[unlikely]]
+    if (!canPaint(paintInfo, protect(box.settings()), appearance)) [[unlikely]]
         return false;
 
     float deviceScaleFactor = protect(box.document())->deviceScaleFactor();

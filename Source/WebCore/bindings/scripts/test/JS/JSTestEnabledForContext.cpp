@@ -232,7 +232,7 @@ void JSTestEnabledForContextOwner::finalize(JSC::Handle<JSC::Unknown> handle, vo
 {
     SUPPRESS_MEMORY_UNSAFE_CAST auto* jsTestEnabledForContext = static_cast<JSTestEnabledForContext*>(handle.slot()->asCell());
     auto& world = *static_cast<DOMWrapperWorld*>(context);
-    uncacheWrapper(world, protect(jsTestEnabledForContext->wrapped()).ptr(), jsTestEnabledForContext);
+    SUPPRESS_UNCOUNTED_ARG uncacheWrapper(world, &jsTestEnabledForContext->wrapped(), jsTestEnabledForContext);
 }
 
 WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN

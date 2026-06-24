@@ -51,7 +51,7 @@ bool LegacyRenderSVGTransformableContainer::calculateLocalTransform()
     // need to respect the translations induced by their corresponding use elements x/y attributes.
     RefPtr useElement = dynamicDowncast<SVGUseElement>(element.get());
     if (!useElement && element->isInShadowTree() && is<SVGGElement>(element)) {
-        if (auto* correspondingElement = dynamicDowncast<SVGUseElement>(element->correspondingElement()))
+        if (RefPtr correspondingElement = dynamicDowncast<SVGUseElement>(element->correspondingElement()))
             useElement = correspondingElement;
     }
 

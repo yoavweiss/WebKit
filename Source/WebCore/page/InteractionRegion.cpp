@@ -355,7 +355,7 @@ static RefPtr<Image> findIconImage(const RenderObject& renderer)
         if (!renderImage->cachedImage() || renderImage->cachedImage()->errorOccurred())
             return nullptr;
 
-        RefPtr image = renderImage->cachedImage()->imageForRenderer(renderImage);
+        RefPtr image = protect(*renderImage->cachedImage())->imageForRenderer(renderImage);
         if (!image)
             return nullptr;
 
@@ -370,9 +370,9 @@ static RefPtr<Image> findIconImage(const RenderObject& renderer)
 static std::optional<std::pair<Ref<SVGSVGElement>, Ref<SVGGraphicsElement>>> findSVGClipElements(const RenderObject& renderer)
 {
     if (const auto& renderShape = dynamicDowncast<LegacyRenderSVGShape>(renderer)) {
-        auto& shapeElement = renderShape->graphicsElement();
-        if (auto* owner = shapeElement.ownerSVGElement())
-            return std::make_pair(Ref { *owner }, Ref { shapeElement });
+        Ref shapeElement = renderShape->graphicsElement();
+        if (RefPtr owner = shapeElement->ownerSVGElement())
+            return std::make_pair(Ref { *owner }, shapeElement.copyRef());
     }
 
     return std::nullopt;
@@ -505,7 +505,7 @@ std::optional<InteractionRegion> interactionRegionForRenderedRegion(const Render
                 if (!renderImage->cachedImage())
                     return false;
 
-                return cachedImageIsPhoto(*renderImage->cachedImage());
+                return cachedImageIsPhoto(protect(*renderImage->cachedImage()));
             }();
         } else if (auto& backgroundLayers = regionRenderer.style().backgroundLayers(); Style::hasImageInAnyLayer(backgroundLayers)) {
             isPhoto = [&]() -> bool {
@@ -513,7 +513,7 @@ std::optional<InteractionRegion> interactionRegionForRenderedRegion(const Render
                 if (!backgroundImage || !backgroundImage->cachedImage())
                     return false;
 
-                return cachedImageIsPhoto(*backgroundImage->cachedImage());
+                return cachedImageIsPhoto(protect(*backgroundImage->cachedImage()));
             }();
         }
     }
@@ -633,7 +633,7 @@ std::optional<InteractionRegion> interactionRegionForRenderedRegion(const Render
             if (borderRadii.bottomRight().minDimension() == maxRadius)
                 maskedCorners.add(InteractionRegion::CornerMask::MaxXMaxYCorner);
         } else
-            clipPath = borderShape.pathForOuterShape(regionRendererBox->document().deviceScaleFactor());
+            clipPath = borderShape.pathForOuterShape(protect(regionRendererBox->document())->deviceScaleFactor());
     }
 
     bool canTweakShape = !isPhoto

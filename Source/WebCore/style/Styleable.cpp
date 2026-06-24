@@ -326,7 +326,7 @@ void Styleable::willChangeRenderer() const
 
 OptionSet<AnimationImpact> Styleable::applyKeyframeEffects(Style::ComputedStyle& targetStyle, HashSet<AnimatableCSSProperty>& affectedProperties, const Style::ComputedStyle* previousLastStyleChangeEventStyle, const Style::ResolutionContext& resolutionContext) const
 {
-    return element.ensureKeyframeEffectStack(pseudoElementIdentifier).applyKeyframeEffects(targetStyle, affectedProperties, previousLastStyleChangeEventStyle, resolutionContext);
+    return protect(element)->ensureKeyframeEffectStack(pseudoElementIdentifier).applyKeyframeEffects(targetStyle, affectedProperties, previousLastStyleChangeEventStyle, resolutionContext);
 }
 
 void Styleable::cancelStyleOriginatedAnimations() const
@@ -378,7 +378,7 @@ bool Styleable::animationListContainsNewlyValidAnimation(const Style::Animations
         return false;
 
     for (auto& currentAnimation : animations.usedValues()) {
-        if (auto keyframesName = currentAnimation.name().tryKeyframesName(); keyframesName && !keyframesName->name.isEmpty() && keyframeEffectStack.containsInvalidCSSAnimationName(keyframesName->name) && keyframesRuleExistsForAnimation(element, *keyframesName))
+        if (auto keyframesName = currentAnimation.name().tryKeyframesName(); keyframesName && !keyframesName->name.isEmpty() && keyframeEffectStack.containsInvalidCSSAnimationName(keyframesName->name) && keyframesRuleExistsForAnimation(protect(element), *keyframesName))
             return true;
     }
 
@@ -426,7 +426,7 @@ void Styleable::updateCSSAnimations(const Style::ComputedStyle* currentStyle, co
             if (!keyframesName || keyframesName->name.isEmpty())
                 continue;
 
-            if (!keyframesRuleExistsForAnimation(element, *keyframesName)) {
+            if (!keyframesRuleExistsForAnimation(protect(element), *keyframesName)) {
                 keyframeEffectStack.addInvalidCSSAnimationName(keyframesName->name);
                 continue;
             }
@@ -471,7 +471,7 @@ void Styleable::updateCSSAnimations(const Style::ComputedStyle* currentStyle, co
 
     keyframeEffectStack.setCSSAnimationList(Style::Animations { currentAnimationList });
 
-    element.cssAnimationsDidUpdate(pseudoElementIdentifier);
+    protect(element)->cssAnimationsDidUpdate(pseudoElementIdentifier);
 }
 
 static KeyframeEffect* keyframeEffectForElementAndProperty(const Styleable& styleable, const AnimatableCSSProperty& property)
@@ -766,11 +766,11 @@ void Styleable::updateCSSTransitions(const Style::ComputedStyle& currentStyle, c
 
     // In case this element is newly getting a "display: none" we need to cancel all of its transitions and disregard new ones,
     // unless it will transition the "display" property itself.
-    if (!currentStyle.transitions().isInitial() && currentStyle.display() != Style::DisplayType::None && newStyle.display() == Style::DisplayType::None && !styleHasDisplayTransition(newStyle, element)) {
+    if (!currentStyle.transitions().isInitial() && currentStyle.display() != Style::DisplayType::None && newStyle.display() == Style::DisplayType::None && !styleHasDisplayTransition(newStyle, protect(element))) {
         if (hasRunningTransitions()) {
             auto runningTransitions = ensureRunningTransitionsByProperty();
             for (const auto& cssTransitionsByAnimatableCSSPropertyMapItem : runningTransitions)
-                cssTransitionsByAnimatableCSSPropertyMapItem.value->cancelFromStyle();
+                protect(cssTransitionsByAnimatableCSSPropertyMapItem.value)->cancelFromStyle();
         }
         return;
     }
@@ -844,10 +844,10 @@ void Styleable::updateCSSTransitions(const Style::ComputedStyle& currentStyle, c
                 return IterationStatus::Continue;
             });
         };
-        gatherAnimatableCustomProperties(currentStyle.inheritedCustomProperties());
-        gatherAnimatableCustomProperties(currentStyle.nonInheritedCustomProperties());
-        gatherAnimatableCustomProperties(newStyle.inheritedCustomProperties());
-        gatherAnimatableCustomProperties(newStyle.nonInheritedCustomProperties());
+        gatherAnimatableCustomProperties(protect(currentStyle.inheritedCustomProperties()));
+        gatherAnimatableCustomProperties(protect(currentStyle.nonInheritedCustomProperties()));
+        gatherAnimatableCustomProperties(protect(newStyle.inheritedCustomProperties()));
+        gatherAnimatableCustomProperties(protect(newStyle.nonInheritedCustomProperties()));
     }
 
     transitionProperties.m_properties.forEachSetBit([&](unsigned index) {
@@ -976,17 +976,17 @@ bool Styleable::capturedInViewTransition() const
 
 void Styleable::setCapturedInViewTransition(AtomString captureName)
 {
-    element.setViewTransitionCapturedName(pseudoElementIdentifier, captureName);
+    protect(element)->setViewTransitionCapturedName(pseudoElementIdentifier, captureName);
     if (CheckedPtr renderer = this->renderer()) {
         bool changed = renderer->setCapturedInViewTransition(!captureName.isNull());
         if (changed)
-            element.invalidateStyleAndLayerComposition();
+            protect(element)->invalidateStyleAndLayerComposition();
     }
 }
 
 WTF::TextStream& operator<<(WTF::TextStream& ts, const Styleable& styleable)
 {
-    ts << styleable.element << ", "_s << styleable.pseudoElementIdentifier;
+    ts << protect(styleable.element) << ", "_s << styleable.pseudoElementIdentifier;
     return ts;
 }
 

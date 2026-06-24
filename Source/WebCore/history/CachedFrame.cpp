@@ -76,7 +76,7 @@ void CachedFrameBase::initializeWithLocalFrame(LocalFrame& frame)
 {
     m_document = frame.document();
     m_documentLoader = frame.loader().documentLoader();
-    m_url = frame.document()->url();
+    m_url = protect(frame.document())->url();
 }
 
 CachedFrameBase::~CachedFrameBase()

@@ -537,7 +537,7 @@ void RenderView::repaintViewRectangle(const LayoutRect& repaintRect)
             // left scrollbar (if one exists).
             Ref frameView = this->frameView();
             if (frameView->verticalScrollbar() && frameView->shouldPlaceVerticalScrollbarOnLeft())
-                adjustedRect.move(LayoutSize(frameView->verticalScrollbar()->occupiedWidth(), 0));
+                adjustedRect.move(LayoutSize(protect(frameView->verticalScrollbar())->occupiedWidth(), 0));
 
             ownerBox->repaintRectangle(adjustedRect);
         }
@@ -599,7 +599,7 @@ void RenderView::flushAccumulatedRepaintRegion() const
         // left scrollbar (if one exists).
         Ref frameView = this->frameView();
         if (frameView->verticalScrollbar() && frameView->shouldPlaceVerticalScrollbarOnLeft())
-            rectOffsetLayoutSize += LayoutSize { frameView->verticalScrollbar()->occupiedWidth(), 0 };
+            rectOffsetLayoutSize += LayoutSize { protect(frameView->verticalScrollbar())->occupiedWidth(), 0 };
 
         rectOffset = roundedIntSize(rectOffsetLayoutSize);
     }
@@ -674,7 +674,7 @@ void RenderView::absoluteQuads(Vector<FloatQuad>& quads, bool* wasFixed) const
 
 bool RenderView::printing() const
 {
-    return protect(document())->printing();
+    SUPPRESS_UNCOUNTED_ARG return document().printing();
 }
 
 bool RenderView::shouldUsePrintingLayout() const
@@ -742,7 +742,7 @@ bool RenderView::shouldPaintBaseBackground() const
             // iframes should fill with a base color if the used color scheme of the
             // element and the used color scheme of the embedded document’s root
             // element do not match.
-            bool useDarkAppearance = parentFrameView->appearanceOfOwnerElementOfChildFrame(frameView->frame()).contains(FrameOwnerElementAppearance::IsDark);
+            bool useDarkAppearance = parentFrameView->appearanceOfOwnerElementOfChildFrame(protect(frameView->frame())).contains(FrameOwnerElementAppearance::IsDark);
             if (frameView->useDarkAppearance() != useDarkAppearance)
                 return !frameView->isTransparent();
         }
@@ -1003,7 +1003,7 @@ void RenderView::resumePausedImageAnimationsIfNeeded(const IntRect& visibleRect)
         }
     }
     for (auto& pair : toRemove)
-        removeRendererWithPausedImageAnimations(*pair.first, *pair.second);
+        removeRendererWithPausedImageAnimations(*pair.first, protect(*pair.second));
 
     Vector<Ref<SVGSVGElement>> svgSvgElementsToRemove;
     m_SVGSVGElementsWithPausedImageAnimation.forEach([&] (WeakPtr<SVGSVGElement, WeakPtrImplWithEventTargetData> svgSvgElement) {
@@ -1068,10 +1068,10 @@ void RenderView::updatePlayStateForAllAnimations(const IntRect& visibleRect)
 
         for (auto& layer : renderElement.style().backgroundLayers().usedValues()) {
             RefPtr image = layer.image().tryStyleImage();
-            updateAnimation(image ? image->cachedImage() : nullptr);
+            updateAnimation(image ? protect(image->cachedImage()) : nullptr);
         }
         if (auto* renderImage = dynamicDowncast<RenderImage>(renderElement))
-            updateAnimation(renderImage->cachedImage());
+            updateAnimation(protect(renderImage->cachedImage()));
 
         if (needsRepaint)
             renderElement.repaint();

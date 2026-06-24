@@ -199,9 +199,9 @@ MediaSession::~MediaSession()
     m_platformSession->invalidateClient();
 
     if (m_metadata)
-        m_metadata->resetMediaSession();
+        protect(m_metadata)->resetMediaSession();
     if (m_defaultMetadata)
-        m_defaultMetadata->resetMediaSession();
+        protect(m_defaultMetadata)->resetMediaSession();
 }
 
 void MediaSession::suspend(ReasonForSuspension reason)
@@ -230,10 +230,10 @@ void MediaSession::setMetadata(RefPtr<MediaMetadata>&& metadata)
 {
     ALWAYS_LOG(LOGIDENTIFIER);
     if (m_metadata)
-        m_metadata->resetMediaSession();
+        protect(m_metadata)->resetMediaSession();
     m_metadata = WTF::move(metadata);
     if (m_metadata)
-        m_metadata->setMediaSession(*this);
+        protect(m_metadata)->setMediaSession(*this);
     notifyMetadataObservers(m_metadata);
 }
 
@@ -602,13 +602,13 @@ void MediaSession::updateNowPlayingInfo(NowPlayingInfo& info)
 
     if (!m_defaultArtworkAttempted && (!m_metadata || m_metadata->artwork().isEmpty())) {
         m_defaultArtworkAttempted = true;
-        if (auto images = fallbackArtwork(document() ? document()->loader() : nullptr); images.size())
+        if (auto images = fallbackArtwork(document() ? protect(document()->loader()) : nullptr); images.size())
             m_defaultMetadata = MediaMetadata::create(*this, WTF::move(images));
     }
 
     if (RefPtr metadataWithImage = m_metadata && m_metadata->artworkImage() ? m_metadata : (m_defaultMetadata && m_defaultMetadata->artworkImage() ? m_defaultMetadata : nullptr)) {
         ASSERT(metadataWithImage->artworkImage()->data(), "An image must always have associated data");
-        info.metadata.artwork = { { metadataWithImage->artworkSrc(), metadataWithImage->artworkImage()->mimeType(), metadataWithImage->artworkImage() } };
+        info.metadata.artwork = { { metadataWithImage->artworkSrc(), protect(metadataWithImage->artworkImage())->mimeType(), metadataWithImage->artworkImage() } };
     }
     if (m_metadata) {
         info.metadata.title = m_metadata->title();
@@ -631,7 +631,7 @@ void MediaSession::updateCaptureState(bool isActive, DOMPromiseDeferred<void>&& 
         return;
     }
 
-    auto* controller = UserMediaController::from(document->page());
+    auto* controller = UserMediaController::from(protect(document->page()));
     if (!controller) {
         promise.reject(Exception { ExceptionCode::InvalidStateError, "Unable to proceed with the request."_s });
         return;

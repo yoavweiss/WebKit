@@ -178,12 +178,12 @@ inline CSSValue& NODELETE ShorthandSerializer::longhandValue(unsigned index) con
 
 inline String ShorthandSerializer::serializeValue(Longhand longhand) const
 {
-    return WebCore::serializeLonghandValue(m_serializationContext, longhand.property, longhand.value);
+    return WebCore::serializeLonghandValue(m_serializationContext, longhand.property, protect(longhand.value));
 }
 
 inline bool ShorthandSerializer::isInitialValue(Longhand longhand)
 {
-    return isInitialValueForLonghand(longhand.property, longhand.value);
+    return isInitialValueForLonghand(longhand.property, protect(longhand.value));
 }
 
 inline unsigned NODELETE ShorthandSerializer::longhandIndex(unsigned index, CSSPropertyID longhand) const
@@ -194,7 +194,7 @@ inline unsigned NODELETE ShorthandSerializer::longhandIndex(unsigned index, CSSP
 
 inline CSSValueID ShorthandSerializer::longhandValueID(unsigned index) const
 {
-    return WebCore::longhandValueID(longhandProperty(index), longhandValue(index));
+    return WebCore::longhandValueID(longhandProperty(index), protect(longhandValue(index)));
 }
 
 inline String ShorthandSerializer::serializeLonghandValue(unsigned index) const
@@ -652,11 +652,11 @@ String ShorthandSerializer::serializeCoordinatingListPropertyGroup() const
     for (unsigned listItemIndex = 0; listItemIndex < numberOfItemsForCoordinatingListBaseProperty; ++listItemIndex) {
         LayerValues layerValues { m_shorthand };
         for (unsigned longhandIndex = 0; longhandIndex < length(); ++longhandIndex) {
-            auto& value = longhandValue(longhandIndex);
-            if (auto* valueList = dynamicDowncast<CSSValueList>(&value))
-                layerValues.set(longhandIndex, valueList->item(listItemIndex));
+            Ref value = longhandValue(longhandIndex);
+            if (RefPtr valueList = dynamicDowncast<CSSValueList>(value.ptr()))
+                layerValues.set(longhandIndex, protect(valueList->item(listItemIndex)));
             else
-                layerValues.set(longhandIndex, &value);
+                layerValues.set(longhandIndex, value.ptr());
         }
         // The coordinating list base property must never be skipped.
         layerValues.skip(0) = false;
@@ -680,7 +680,7 @@ String ShorthandSerializer::serializeLayered() const
         for (unsigned j = 0; j < length(); j++) {
             Ref value = longhandValue(j);
             if (RefPtr valueList = dynamicDowncast<CSSValueList>(value.ptr()))
-                layerValues.set(j, valueList->item(i));
+                layerValues.set(j, protect(valueList->item(i)));
             else {
                 // Color is only in the last layer. Other singletons are only in the first.
                 auto singletonLayer = longhandProperty(j) == CSSPropertyBackgroundColor ? numLayers - 1 : 0;
@@ -951,7 +951,7 @@ String ShorthandSerializer::serializeBorderRadius() const
 
     bool serializeBoth = false;
     for (unsigned i = 0; i < 4; ++i) {
-        if (!horizontalRadii[i]->equals(*verticalRadii[i])) {
+        if (!protect(*horizontalRadii[i])->equals(protect(*verticalRadii[i]))) {
             serializeBoth = true;
             break;
         }
@@ -959,14 +959,18 @@ String ShorthandSerializer::serializeBorderRadius() const
 
     StringBuilder result;
     auto serializeRadii = [&](const std::array<RefPtr<const CSSValue>, 4>& r) {
-        if (!r[3]->equals(*r[1]))
-            result.append(r[0]->cssText(m_serializationContext), ' ', r[1]->cssText(m_serializationContext), ' ', r[2]->cssText(m_serializationContext), ' ', r[3]->cssText(m_serializationContext));
-        else if (!r[2]->equals(*r[0]) || (m_shorthand.id() == CSSPropertyWebkitBorderRadius && !serializeBoth && !r[1]->equals(*r[0])))
-            result.append(r[0]->cssText(m_serializationContext), ' ', r[1]->cssText(m_serializationContext), ' ', r[2]->cssText(m_serializationContext));
-        else if (!r[1]->equals(*r[0]))
-            result.append(r[0]->cssText(m_serializationContext), ' ', r[1]->cssText(m_serializationContext));
+        Ref r0 = *r[0];
+        Ref r1 = *r[1];
+        Ref r2 = *r[2];
+        Ref r3 = *r[3];
+        if (!r3->equals(r1))
+            result.append(r0->cssText(m_serializationContext), ' ', r1->cssText(m_serializationContext), ' ', r2->cssText(m_serializationContext), ' ', r3->cssText(m_serializationContext));
+        else if (!r2->equals(r0) || (m_shorthand.id() == CSSPropertyWebkitBorderRadius && !serializeBoth && !r1->equals(r0)))
+            result.append(r0->cssText(m_serializationContext), ' ', r1->cssText(m_serializationContext), ' ', r2->cssText(m_serializationContext));
+        else if (!r1->equals(r0))
+            result.append(r0->cssText(m_serializationContext), ' ', r1->cssText(m_serializationContext));
         else
-            result.append(r[0]->cssText(m_serializationContext));
+            result.append(r0->cssText(m_serializationContext));
     };
     serializeRadii(horizontalRadii);
     if (serializeBoth) {
@@ -1591,7 +1595,7 @@ String ShorthandSerializer::serializeAnimationRange() const
             auto startID = startPair ? valueID(startPair->first()) : valueID(start);
 
             auto serializedStart = serializeSingleAnimationRange(*start, Style::SingleAnimationRangeType::Start);
-            auto serializedEnd = serializeSingleAnimationRange(*endList->item(i), Style::SingleAnimationRangeType::End, startID);
+            auto serializedEnd = serializeSingleAnimationRange(protect(*endList->item(i)), Style::SingleAnimationRangeType::End, startID);
             builder.append(
                 serializedEnd.isEmpty() ? serializedStart : makeString(serializedStart, ' ', serializedEnd),
                 (i < startList->size() - 1) ? ", "_s : emptyString()

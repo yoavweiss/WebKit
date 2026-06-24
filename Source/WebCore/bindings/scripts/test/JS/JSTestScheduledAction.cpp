@@ -237,7 +237,7 @@ void JSTestScheduledActionOwner::finalize(JSC::Handle<JSC::Unknown> handle, void
 {
     SUPPRESS_MEMORY_UNSAFE_CAST auto* jsTestScheduledAction = static_cast<JSTestScheduledAction*>(handle.slot()->asCell());
     auto& world = *static_cast<DOMWrapperWorld*>(context);
-    uncacheWrapper(world, protect(jsTestScheduledAction->wrapped()).ptr(), jsTestScheduledAction);
+    SUPPRESS_UNCOUNTED_ARG uncacheWrapper(world, &jsTestScheduledAction->wrapped(), jsTestScheduledAction);
 }
 
 WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN

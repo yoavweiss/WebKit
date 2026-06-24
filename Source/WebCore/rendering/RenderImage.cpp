@@ -209,11 +209,11 @@ IntSize RenderImage::imageSizeForError(CachedImage* newImage) const
 
     FloatSize imageSize;
     if (newImage->willPaintBrokenImage()) {
-        auto brokenImageAndImageScaleFactor = newImage->brokenImage(document().deviceScaleFactor());
+        auto brokenImageAndImageScaleFactor = newImage->brokenImage(protect(document())->deviceScaleFactor());
         imageSize = brokenImageAndImageScaleFactor.first->size();
         imageSize.scale(1 / brokenImageAndImageScaleFactor.second);
     } else
-        imageSize = newImage->imageForRenderer(this)->size();
+        imageSize = protect(newImage->imageForRenderer(this))->size();
 
     // imageSize() returns 0 for the error image. We need the true size of the
     // error image, so we have to get it by grabbing image() directly.
@@ -257,7 +257,7 @@ void RenderImage::styleDidChange(Style::Difference diff, const Style::ComputedSt
 {
     RenderReplaced::styleDidChange(diff, oldStyle);
     if (m_needsToSetSizeForAltText) {
-        if (!m_altText.isEmpty() && setImageSizeForAltText(cachedImage()))
+        if (!m_altText.isEmpty() && setImageSizeForAltText(protect(cachedImage())))
             repaintOrMarkForLayout(ImageSizeChangeForAltText);
         m_needsToSetSizeForAltText = false;
     }
@@ -276,7 +276,7 @@ void RenderImage::styleDidChange(Style::Difference diff, const Style::ComputedSt
 bool RenderImage::shouldCollapseToEmpty() const
 {
     auto imageRepresentsNothing = [&] {
-        if (!element()->hasAttribute(HTMLNames::altAttr))
+        if (!protect(element())->hasAttribute(HTMLNames::altAttr))
             return false;
         return imageResource().errorOccurred() && m_altText.isEmpty();
     };
@@ -332,15 +332,15 @@ void RenderImage::imageChanged(WrappedImagePtr newImage, const IntRect* rect)
             ASSERT(element());
             if (element()) {
                 m_needsToSetSizeForAltText = true;
-                element()->invalidateStyle();
+                protect(element())->invalidateStyle();
             }
             return;
         }
-        imageSizeChange = setImageSizeForAltText(cachedImage());
+        imageSizeChange = setImageSizeForAltText(protect(cachedImage()));
     }
     repaintOrMarkForLayout(imageSizeChange, rect);
-    if (CheckedPtr cache = document().existingAXObjectCache())
-        cache->deferRecomputeIsIgnoredIfNeeded(element());
+    if (CheckedPtr cache = protect(document())->existingAXObjectCache())
+        cache->deferRecomputeIsIgnoredIfNeeded(protect(element()));
 
     if (RefPtr image = cachedImage(); image && image->currentFrameIsComplete(this)) {
         if (auto styleable = Styleable::fromRenderer(*this))
@@ -431,7 +431,7 @@ void RenderImage::notifyFinished(CachedResource& newImage, const NetworkLoadMetr
     }
 
     if (RefPtr image = dynamicDowncast<HTMLImageElement>(element()))
-        page().didFinishLoadingImageForElement(*image);
+        protect(page())->didFinishLoadingImageForElement(*image);
 
     RenderReplaced::notifyFinished(newImage, metrics, loadWillContinueInAnotherProcess);
 }
@@ -513,7 +513,7 @@ void RenderImage::paintIncompleteImageOutline(PaintInfo& paintInfo, LayoutPoint 
     context.setStrokeStyle(StrokeStyle::SolidStroke);
     context.setStrokeColor(Color::lightGray);
     context.setFillColor(Color::transparentBlack);
-    context.drawRect(snapRectToDevicePixels(LayoutRect({ paintOffset.x() + borderWidths.left() + padding.left(), paintOffset.y() + borderWidths.top() + padding.top() }, contentSize), document().deviceScaleFactor()), borderWidth);
+    context.drawRect(snapRectToDevicePixels(LayoutRect({ paintOffset.x() + borderWidths.left() + padding.left(), paintOffset.y() + borderWidths.top() + padding.top() }, contentSize), protect(document())->deviceScaleFactor()), borderWidth);
 }
 
 static bool NODELETE isDeferredImage(Element* element)
@@ -528,9 +528,9 @@ void RenderImage::paintMissingImageState(PaintInfo& paintInfo, const LayoutPoint
         return;
 
     if (paintInfo.phase == PaintPhase::Foreground)
-        page().addRelevantUnpaintedObject(*this, visualOverflowRect());
+        protect(page())->addRelevantUnpaintedObject(*this, visualOverflowRect());
 
-    float deviceScaleFactor = document().deviceScaleFactor();
+    float deviceScaleFactor = protect(document())->deviceScaleFactor();
     LayoutUnit missingImageBorderWidth(1 / deviceScaleFactor);
 
     paintIncompleteImageOutline(paintInfo, paintOffset, missingImageBorderWidth);
@@ -553,7 +553,7 @@ void RenderImage::paintMissingImageState(PaintInfo& paintInfo, const LayoutPoint
 
     if (shouldDisplayBrokenImageIcon() && !image->isNull() && usableSize.width() >= image->width() && usableSize.height() >= image->height()) {
         // Call brokenImage() explicitly to ensure we get the broken image icon at the appropriate resolution.
-        auto brokenImageAndImageScaleFactor = cachedImage()->brokenImage(deviceScaleFactor);
+        auto brokenImageAndImageScaleFactor = protect(cachedImage())->brokenImage(deviceScaleFactor);
         image = brokenImageAndImageScaleFactor.first.get();
         FloatSize imageSize = image->size();
         imageSize.scale(1 / brokenImageAndImageScaleFactor.second);
@@ -578,7 +578,7 @@ void RenderImage::paintMissingImageState(PaintInfo& paintInfo, const LayoutPoint
     auto& fontCascade = style.fontCascade();
     auto& fontMetrics = fontCascade.metricsOfPrimaryFont();
     auto isHorizontal = writingMode().isHorizontal();
-    auto encodedDisplayString = document().displayStringModifiedByEncoding(m_altText);
+    auto encodedDisplayString = protect(document())->displayStringModifiedByEncoding(m_altText);
     auto textRun = RenderBlock::constructTextRun(encodedDisplayString, style, ExpansionBehavior::defaultBehavior(), RespectDirection | RespectDirectionOverride);
     auto textWidth = LayoutUnit { fontCascade.width(textRun) };
 
@@ -605,7 +605,7 @@ void RenderImage::paintMissingImageState(PaintInfo& paintInfo, const LayoutPoint
             return paintOffset + LayoutPoint { contentHorizontalOffset, contentVerticalOffset };
         };
         auto textOrigin = altTextLocation();
-        textOrigin.setY(roundToDevicePixel(LayoutUnit { textOrigin.y() }, document().deviceScaleFactor()));
+        textOrigin.setY(roundToDevicePixel(LayoutUnit { textOrigin.y() }, protect(document())->deviceScaleFactor()));
         context.drawBidiText(fontCascade, textRun, textOrigin);
     } else {
         // FIXME: TextBoxPainter has this logic already, maybe we should transition to some painter class.
@@ -618,13 +618,13 @@ void RenderImage::paintMissingImageState(PaintInfo& paintInfo, const LayoutPoint
             visualLeft = size().width() - visualRight;
         visualLeft += adjustedPaintOffset.x();
 
-        visualLeft = roundToDevicePixel(visualLeft, document().deviceScaleFactor());
-        adjustedPaintOffset.setY(roundToDevicePixel(adjustedPaintOffset.y(), document().deviceScaleFactor()));
+        visualLeft = roundToDevicePixel(visualLeft, protect(document())->deviceScaleFactor());
+        adjustedPaintOffset.setY(roundToDevicePixel(adjustedPaintOffset.y(), protect(document())->deviceScaleFactor()));
 
         auto rotationRect = LayoutRect { visualLeft, adjustedPaintOffset.y(), textWidth, contentLogicalHeight };
         context.concatCTM(rotation(rotationRect, RotationDirection::Clockwise));
         auto textOrigin = LayoutPoint { visualLeft, adjustedPaintOffset.y() + (settings().subpixelInlineLayoutEnabled() ? fontCascade.metricsOfPrimaryFont().ascent() : fontCascade.metricsOfPrimaryFont().intAscent()) };
-        context.drawBidiText(fontCascade, textRun, roundPointToDevicePixels(textOrigin, document().deviceScaleFactor()));
+        context.drawBidiText(fontCascade, textRun, roundPointToDevicePixels(textOrigin, protect(document())->deviceScaleFactor()));
         context.concatCTM(rotation(rotationRect, RotationDirection::Counterclockwise));
     }
 }
@@ -636,19 +636,19 @@ void RenderImage::paintReplaced(PaintInfo& paintInfo, const LayoutPoint& paintOf
     GraphicsContext& context = paintInfo.context();
     if (context.invalidatingImagesWithAsyncDecodes()) {
         if (cachedImage() && cachedImage()->isClientWaitingForAsyncDecoding(cachedImageClient()))
-            cachedImage()->removeAllClientsWaitingForAsyncDecoding();
+            protect(cachedImage())->removeAllClientsWaitingForAsyncDecoding();
         return;
     }
 
     auto contentBoxRect = this->contentBoxRect();
-    float deviceScaleFactor = document().deviceScaleFactor();
+    float deviceScaleFactor = protect(document())->deviceScaleFactor();
     LayoutUnit missingImageBorderWidth(1 / deviceScaleFactor);
 
     if (isDeferredImage(element()))
         return;
 
     if (context.detectingContentfulPaint()) {
-        if (!context.contentfulPaintDetected() && cachedImage() && cachedImage()->canRender(this, deviceScaleFactor) && !contentBoxRect.isEmpty())
+        if (!context.contentfulPaintDetected() && cachedImage() && protect(cachedImage())->canRender(this, deviceScaleFactor) && !contentBoxRect.isEmpty())
             context.setContentfulPaintDetected();
         return;
     }
@@ -669,7 +669,7 @@ void RenderImage::paintReplaced(PaintInfo& paintInfo, const LayoutPoint& paintOf
             paintIncompleteImageOutline(paintInfo, paintOffset, missingImageBorderWidth);
 
         if (paintInfo.phase == PaintPhase::Foreground)
-            page().addRelevantUnpaintedObject(*this, visualOverflowRect());
+            protect(page())->addRelevantUnpaintedObject(*this, visualOverflowRect());
         return;
     }
 
@@ -701,15 +701,15 @@ void RenderImage::paintReplaced(PaintInfo& paintInfo, const LayoutPoint& paintOf
         // to refine this in the future to account for the portion of the image that has painted.
         LayoutRect visibleRect = intersection(replacedContentRect, contentBoxRect);
         if (cachedImage()->isLoading() || result == ImageDrawResult::DidRequestDecoding)
-            page().addRelevantUnpaintedObject(*this, visibleRect);
+            protect(page())->addRelevantUnpaintedObject(*this, visibleRect);
         else
-            page().addRelevantRepaintedObject(*this, visibleRect);
+            protect(page())->addRelevantRepaintedObject(*this, visibleRect);
 
-        if (cachedImage()->currentFrameIsComplete(this)) {
+        if (protect(cachedImage())->currentFrameIsComplete(this)) {
             if (auto styleable = Styleable::fromRenderer(*this)) {
                 auto localVisibleRect = visibleRect;
                 localVisibleRect.moveBy(-paintOffset);
-                protect(document())->didPaintImage(styleable->element, cachedImage(), localVisibleRect);
+                protect(document())->didPaintImage(protect(styleable->element), protect(cachedImage()), localVisibleRect);
             }
         }
     }
@@ -725,7 +725,7 @@ void RenderImage::paint(PaintInfo& paintInfo, const LayoutPoint& paintOffset)
 
 void RenderImage::paintAreaElementFocusRing(PaintInfo& paintInfo, const LayoutPoint& paintOffset)
 {
-    if (document().printing() || !frame().selection().isFocusedAndActive())
+    if (protect(document())->printing() || !frame().selection().isFocusedAndActive())
         return;
     
     if (paintInfo.context().paintingDisabled() && !paintInfo.context().performingPaintInvalidation())
@@ -809,16 +809,16 @@ ImageDrawResult RenderImage::paintIntoRect(PaintInfo& paintInfo, const FloatRect
         drawResult = paintInfo.context().drawImage(*img, rect, options);
 
     if (drawResult == ImageDrawResult::DidRequestDecoding)
-        imageResource().cachedImage()->addClientWaitingForAsyncDecoding(cachedImageClient());
+        protect(imageResource().cachedImage())->addClientWaitingForAsyncDecoding(protect(cachedImageClient()));
 
 #if USE(SYSTEM_PREVIEW)
-    auto* imageElement = dynamicDowncast<HTMLImageElement>(element());
+    RefPtr imageElement = dynamicDowncast<HTMLImageElement>(element());
     if (imageElement && imageElement->isSystemPreviewImage() && drawResult == ImageDrawResult::DidDraw && imageElement->document().settings().systemPreviewEnabled())
         theme().paintSystemPreviewBadge(*img, paintInfo, rect);
 #endif
 
     if (element() && !paintInfo.context().paintingDisabled())
-        element()->setHasEverPaintedImages(true);
+        protect(element())->setHasEverPaintedImages(true);
 
     return drawResult;
 }
@@ -847,7 +847,7 @@ bool RenderImage::foregroundIsKnownToBeOpaqueInRect(const LayoutRect& localRect,
         return false;
 
     // Check for image with alpha.
-    return cachedImage() && cachedImage()->currentFrameKnownToBeOpaque(this);
+    return cachedImage() && protect(cachedImage())->currentFrameKnownToBeOpaque(this);
 }
 
 bool RenderImage::computeBackgroundIsKnownToBeObscured(const LayoutPoint& paintOffset)
@@ -885,7 +885,7 @@ bool RenderImage::nodeAtPoint(const HitTestRequest& request, HitTestResult& resu
             mapLocation.scale(scaleFactor);
 
             if (map->mapMouseEvent(mapLocation, contentBox.size(), tempResult))
-                tempResult.setInnerNonSharedNode(element());
+                tempResult.setInnerNonSharedNode(protect(element()));
         }
     }
 

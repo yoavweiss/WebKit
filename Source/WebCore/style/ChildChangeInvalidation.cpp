@@ -83,7 +83,8 @@ static bool isSiblingHasRelation(const MatchElement& matchElement)
 
 void ChildChangeInvalidation::invalidateForChangedElement(Element& changedElement, MatchingHasSelectors& matchingHasSelectors, ChangedElementRelation changedElementRelation)
 {
-    auto& ruleSets = parentElement().styleResolver().ruleSets();
+    Ref resolver = parentElement().styleResolver();
+    auto& ruleSets = resolver->ruleSets();
 
     Invalidator::MatchElementRuleSets matchElementRuleSets;
 
@@ -266,7 +267,8 @@ void ChildChangeInvalidation::traverseRemovedElements(Function&& function)
     if (m_childChange.isInsertion() && m_childChange.type != ContainerNode::ChildChange::Type::AllChildrenReplaced)
         return;
 
-    auto& features = parentElement().styleResolver().ruleSets().features();
+    Ref resolver = parentElement().styleResolver();
+    auto& features = resolver->ruleSets().features();
     bool needsDescendantTraversal = Style::needsDescendantTraversal(features);
 
     RefPtr firstToRemove = m_childChange.previousSiblingElement ? m_childChange.previousSiblingElement->nextElementSibling() : parentElement().firstElementChild();
@@ -291,7 +293,8 @@ void ChildChangeInvalidation::traverseAddedElements(Function&& function)
     auto callFunctionOnInclusiveDescendants = [&](Element& element) {
         function(element);
 
-        auto& features = parentElement().styleResolver().ruleSets().features();
+        Ref resolver = parentElement().styleResolver();
+        auto& features = resolver->ruleSets().features();
         if (!needsDescendantTraversal(features))
             return;
 

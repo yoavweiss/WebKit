@@ -137,7 +137,7 @@ RenderElement& RenderTreeBuilder::Table::findOrCreateParentForChild(RenderTable&
             // COLGROUPs and anonymous RenderTableCols (generated wrappers for COLs) are direct children of the table renderer.
             return parent;
         }
-        auto newColGroup = createRenderer<RenderTableCol>(parent.document(), Style::ComputedStyle::createAnonymousStyleWithDisplay(parent.style(), Style::DisplayType::TableColumnGroup));
+        auto newColGroup = createRenderer<RenderTableCol>(parent.document(), Style::ComputedStyle::createAnonymousStyleWithDisplay(protect(parent.style()), Style::DisplayType::TableColumnGroup));
         newColGroup->initializeStyle();
         auto& colGroup = *newColGroup;
         m_builder.attach(parent, WTF::move(newColGroup), beforeChild);

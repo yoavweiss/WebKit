@@ -83,7 +83,7 @@ RefPtr<WebCore::Image> PaintImage::image(const RenderElement* renderer, const Fl
     if (size.isEmpty())
         return nullptr;
 
-    RefPtr selectedGlobalScope = renderer->document().paintWorkletGlobalScopeForName(m_name.value);
+    RefPtr selectedGlobalScope = protect(renderer->document())->paintWorkletGlobalScopeForName(m_name.value);
     if (!selectedGlobalScope)
         return nullptr;
 

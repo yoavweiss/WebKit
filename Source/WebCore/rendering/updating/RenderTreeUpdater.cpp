@@ -228,7 +228,7 @@ static bool shouldCreateRenderer(const Element& element, const RenderElement& pa
 {
     if (!parentRenderer.canHaveChildren() && !(element.isPseudoElement() && parentRenderer.canHaveGeneratedChildren()))
         return false;
-    if (parentRenderer.element() && !parentRenderer.element()->childShouldCreateRenderer(element))
+    if (parentRenderer.element() && !protect(parentRenderer.element())->childShouldCreateRenderer(element))
         return false;
     return true;
 }
@@ -337,7 +337,7 @@ void RenderTreeUpdater::popParent()
 {
     auto& parent = m_parentStack.last();
     if (parent.element)
-        updateAfterDescendants(*parent.element, parent.update);
+        updateAfterDescendants(protect(*parent.element), parent.update);
 
     if (&parent != &renderingParent())
         renderTreePosition().invalidateNextSibling();
@@ -539,7 +539,7 @@ bool RenderTreeUpdater::textRendererIsNeeded(const Text& textNode)
     auto& parentRenderer = renderingParent.renderTreePosition->parent();
     if (!parentRenderer.canHaveChildren())
         return false;
-    if (parentRenderer.element() && !parentRenderer.element()->childShouldCreateRenderer(textNode))
+    if (parentRenderer.element() && !protect(parentRenderer.element())->childShouldCreateRenderer(textNode))
         return false;
     if (textNode.isEditingText())
         return true;
@@ -611,7 +611,7 @@ void RenderTreeUpdater::createTextRenderer(Text& textNode, const Style::TextUpda
     if (textUpdate && textUpdate->inheritedDisplayContentsStyle && *textUpdate->inheritedDisplayContentsStyle) {
         // Wrap text renderer into anonymous inline so we can give it a style.
         // This is to support "<div style='display:contents;color:green'>text</div>" type cases
-        auto newDisplayContentsAnonymousWrapper = WebCore::createRenderer<RenderInline>(RenderObject::Type::Inline, textNode.document(), Style::ComputedStyle::clone(**textUpdate->inheritedDisplayContentsStyle));
+        auto newDisplayContentsAnonymousWrapper = WebCore::createRenderer<RenderInline>(RenderObject::Type::Inline, protect(textNode.document()), Style::ComputedStyle::clone(**textUpdate->inheritedDisplayContentsStyle));
         newDisplayContentsAnonymousWrapper->initializeStyle();
         auto& displayContentsAnonymousWrapper = *newDisplayContentsAnonymousWrapper;
         m_builder.attach(renderTreePosition.parent(), WTF::move(newDisplayContentsAnonymousWrapper), renderTreePosition.nextSibling());
@@ -936,7 +936,7 @@ void RenderTreeUpdater::tearDownRenderersInternal(Element& root, TeardownType te
             continue;
         }
 
-        push(downcast<Element>(*it));
+        SUPPRESS_UNCOUNTED_ARG push(downcast<Element>(*it));
     }
 
     pop(0, needsDescendantRepaintAndLayout);

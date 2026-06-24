@@ -256,13 +256,13 @@ OpenTypeMathData::OpenTypeMathData(const FontPlatformData& font)
         return;
     }
 
-    const OpenType::MathConstants* mathConstants = math->mathConstants(*m_mathBuffer);
+    const OpenType::MathConstants* mathConstants = math->mathConstants(protect(*m_mathBuffer));
     if (!mathConstants) {
         m_mathBuffer = nullptr;
         return;
     }
 
-    const OpenType::MathVariants* mathVariants = math->mathVariants(*m_mathBuffer);
+    const OpenType::MathVariants* mathVariants = math->mathVariants(protect(*m_mathBuffer));
     if (!mathVariants)
         m_mathBuffer = nullptr;
 }
@@ -284,7 +284,7 @@ float OpenTypeMathData::getMathConstant(const Font& font, MathConstant constant)
 
     auto* math = OpenType::validateTableSingle<OpenType::MATHTable>(m_mathBuffer);
     ASSERT(math);
-    const OpenType::MathConstants* mathConstants = math->mathConstants(*m_mathBuffer);
+    const OpenType::MathConstants* mathConstants = math->mathConstants(protect(*m_mathBuffer));
     ASSERT(mathConstants);
 
     auto index = std::to_underlying(constant);
@@ -322,15 +322,15 @@ float OpenTypeMathData::getItalicCorrection(const Font& font, Glyph glyph) const
 {
     auto* math = OpenType::validateTableSingle<OpenType::MATHTable>(m_mathBuffer);
     ASSERT(math);
-    const OpenType::MathGlyphInfo* mathGlyphInfo = math->mathGlyphInfo(*m_mathBuffer);
+    const OpenType::MathGlyphInfo* mathGlyphInfo = math->mathGlyphInfo(protect(*m_mathBuffer));
     if (!mathGlyphInfo)
         return 0;
 
-    const OpenType::MathItalicsCorrectionInfo* mathItalicsCorrectionInfo = mathGlyphInfo->mathItalicsCorrectionInfo(*m_mathBuffer);
+    const OpenType::MathItalicsCorrectionInfo* mathItalicsCorrectionInfo = mathGlyphInfo->mathItalicsCorrectionInfo(protect(*m_mathBuffer));
     if (!mathItalicsCorrectionInfo)
         return 0;
 
-    return mathItalicsCorrectionInfo->getItalicCorrection(*m_mathBuffer, glyph) * font.sizePerUnit();
+    return mathItalicsCorrectionInfo->getItalicCorrection(protect(*m_mathBuffer), glyph) * font.sizePerUnit();
 #elif USE(HARFBUZZ)
 float OpenTypeMathData::getItalicCorrection(const Font& font, Glyph glyph) const
 {
@@ -350,15 +350,15 @@ void OpenTypeMathData::getMathVariants(Glyph glyph, bool isVertical, Vector<Glyp
     assemblyParts.clear();
     auto* math = OpenType::validateTableSingle<OpenType::MATHTable>(m_mathBuffer);
     ASSERT(math);
-    const OpenType::MathVariants* mathVariants = math->mathVariants(*m_mathBuffer);
+    const OpenType::MathVariants* mathVariants = math->mathVariants(protect(*m_mathBuffer));
     ASSERT(mathVariants);
 
-    const OpenType::MathGlyphConstruction* mathGlyphConstruction = mathVariants->mathGlyphConstruction(*m_mathBuffer, glyph, isVertical);
+    const OpenType::MathGlyphConstruction* mathGlyphConstruction = mathVariants->mathGlyphConstruction(protect(*m_mathBuffer), glyph, isVertical);
     if (!mathGlyphConstruction)
         return;
 
-    mathGlyphConstruction->getSizeVariants(*m_mathBuffer, sizeVariants);
-    mathGlyphConstruction->getAssemblyParts(*m_mathBuffer, assemblyParts);
+    mathGlyphConstruction->getSizeVariants(protect(*m_mathBuffer), sizeVariants);
+    mathGlyphConstruction->getAssemblyParts(protect(*m_mathBuffer), assemblyParts);
 #elif USE(HARFBUZZ)
 void OpenTypeMathData::getMathVariants(Glyph glyph, bool isVertical, Vector<Glyph>& sizeVariants, Vector<AssemblyPart>& assemblyParts) const
 {

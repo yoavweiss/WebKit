@@ -94,7 +94,7 @@ Range::~Range()
 
 Node* Range::commonAncestorContainer() const
 {
-    return commonInclusiveAncestor(startContainer(), endContainer());
+    return commonInclusiveAncestor(protect(startContainer()), protect(endContainer()));
 }
 
 void Range::updateAssociatedSelection()
@@ -347,7 +347,7 @@ ExceptionOr<RefPtr<DocumentFragment>> Range::processContents(ActionType action)
 
     Vector<Ref<Element>> elementsToUpgrade;
     {
-        CustomElementReactionStack customElementsReactionHoldingTank(commonRoot->document().globalObject());
+        CustomElementReactionStack customElementsReactionHoldingTank(protect(commonRoot->document())->globalObject());
 
         // Since mutation events can modify the range during the process, the boundary points need to be saved.
         RangeBoundaryPoint originalStart(m_start);
@@ -746,7 +746,7 @@ String Range::toString() const
 ExceptionOr<Ref<DocumentFragment>> Range::createContextualFragment(Variant<Ref<TrustedHTML>, String>&& markup)
 {
     Ref node = startContainer();
-    auto stringValueHolder = trustedTypeCompliantString(node->document().contextDocument(), WTF::move(markup), "Range createContextualFragment"_s);
+    auto stringValueHolder = trustedTypeCompliantString(protect(node->document().contextDocument()), WTF::move(markup), "Range createContextualFragment"_s);
 
     if (stringValueHolder.hasException())
         return stringValueHolder.releaseException();
@@ -754,7 +754,7 @@ ExceptionOr<Ref<DocumentFragment>> Range::createContextualFragment(Variant<Ref<T
     RefPtr<Element> element;
     if (isAnyOf<Document, DocumentFragment>(node))
         element = nullptr;
-    else if (auto* maybeElement = dynamicDowncast<Element>(node.ptr()))
+    else if (RefPtr maybeElement = dynamicDowncast<Element>(node.ptr()))
         element = maybeElement;
     else
         element = node->parentElement();
@@ -1168,7 +1168,7 @@ std::optional<SimpleRange> makeSimpleRange(const RefPtr<Range>& range)
 
 Ref<Range> createLiveRange(const SimpleRange& range)
 {
-    Ref result = Range::create(range.start.document());
+    Ref result = Range::create(protect(range.start.document()));
     setBothEndpoints(result, range);
     return result;
 }

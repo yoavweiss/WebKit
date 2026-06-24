@@ -550,7 +550,7 @@ public:
     bool isForcedStackingContext() const { return m_forcedStackingContext; }
     bool isOpportunisticStackingContext() const { return m_isOpportunisticStackingContext; }
 
-    RenderLayerCompositor& compositor() const { return protect(renderer().view())->compositor(); }
+    RenderLayerCompositor& compositor() const { SUPPRESS_UNCOUNTED_ARG return renderer().view().compositor(); }
 
     // Notification from the renderer that its content changed (e.g. current frame of image changed).
     // Allows updates of layer content without repainting.

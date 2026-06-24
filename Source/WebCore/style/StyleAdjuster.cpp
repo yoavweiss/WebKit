@@ -145,7 +145,7 @@ static bool shouldInheritTextDecorationsInEffect(const Style::ComputedStyle& sty
         if (!element)
             return false;
         RefPtr parentNode = element->parentNode();
-        return parentNode && parentNode->isUserAgentShadowRoot() && parentNode->parentOrShadowHostElement()->isMediaElement();
+        return parentNode && parentNode->isUserAgentShadowRoot() && protect(parentNode->parentOrShadowHostElement())->isMediaElement();
 #else
         return false;
 #endif
@@ -748,7 +748,7 @@ void Adjuster::adjust(Style::ComputedStyle& style) const
         return is<HTMLElement>(element) && element->hasAttributeWithoutSynchronization(HTMLNames::inertAttr);
     };
     auto isInertSubtreeRoot = [this, hasInertAttribute] (const Element* element) -> bool {
-        if (m_document->activeModalDialog() && element == m_document->documentElement())
+        SUPPRESS_UNCOUNTED_ARG if (m_document->activeModalDialog() && element == m_document->documentElement())
             return true;
         if (hasInertAttribute(element))
             return true;
@@ -763,7 +763,7 @@ void Adjuster::adjust(Style::ComputedStyle& style) const
 
     if (RefPtr element = m_element) {
         // Make sure the active dialog is interactable when the whole document is blocked by the modal dialog
-        if (element == m_document->activeModalDialog() && !hasInertAttribute(element.get()))
+        SUPPRESS_UNCOUNTED_ARG if (element == m_document->activeModalDialog() && !hasInertAttribute(element.get()))
             style.setEffectiveInert(false);
 
 #if ENABLE(FULLSCREEN_API)
@@ -771,7 +771,7 @@ void Adjuster::adjust(Style::ComputedStyle& style) const
             style.setEffectiveInert(false);
 #endif
 
-        style.setEventListenerRegionTypes(computeEventListenerRegionTypes(m_document, style, *m_element, m_parentStyle.eventListenerRegionTypes()));
+        style.setEventListenerRegionTypes(computeEventListenerRegionTypes(m_document, style, protect(*m_element), m_parentStyle.eventListenerRegionTypes()));
 
 #if ENABLE(INTERACTION_REGIONS_IN_EVENT_REGION)
         // Every element will automatically get an interaction region which is not useful, ignoring the `cursor: pointer;` on the body.
@@ -781,7 +781,7 @@ void Adjuster::adjust(Style::ComputedStyle& style) const
 
 #if ENABLE(TEXT_AUTOSIZING)
         if (m_document->settings().textAutosizingUsesIdempotentMode())
-            adjustForTextAutosizing(style, *m_element);
+            adjustForTextAutosizing(style, protect(*m_element));
 #endif
     }
 
@@ -910,7 +910,7 @@ void Adjuster::adjustSVGElementStyle(Style::ComputedStyle& style, const SVGEleme
         // children inherit the correct (unzoomed) computed size. The SVG root transform handles
         // the zoom scaling, consistent with other SVG content.
         auto fontDescription = style.fontDescription();
-        auto computedFontSize = computedFontSizeFromSpecifiedSize(fontDescription.specifiedSize(), fontDescription.isAbsoluteSize(), /*useSVGZoomRules=*/true, style, svgElement.document());
+        auto computedFontSize = computedFontSizeFromSpecifiedSize(fontDescription.specifiedSize(), fontDescription.isAbsoluteSize(), /*useSVGZoomRules=*/true, style, protect(svgElement.document()));
         fontDescription.setComputedSize(computedFontSize.size, computedFontSize.usedZoomFactor);
         style.setFontDescription(WTF::move(fontDescription));
     }
@@ -971,7 +971,8 @@ void Adjuster::adjustForSiteSpecificQuirks(Style::ComputedStyle& style) const
     if (!m_element)
         return;
 
-    const auto& documentQuirks = m_document->quirks();
+    Ref document = m_document.get();
+    const auto& documentQuirks = document->quirks();
 
     if (!documentQuirks.hasRelevantQuirks())
         return;
@@ -1060,7 +1061,7 @@ void Adjuster::adjustForSiteSpecificQuirks(Style::ComputedStyle& style) const
             style.setUserSelect(UserSelect::None);
     }
 
-    if (auto tikTokOverflowingContentQuery = documentQuirks.needsTikTokOverflowingContentQuirk(*m_element, m_parentStyle)) {
+    if (auto tikTokOverflowingContentQuery = documentQuirks.needsTikTokOverflowingContentQuirk(protect(*m_element), m_parentStyle)) {
         if (*tikTokOverflowingContentQuery == Quirks::TikTokOverflowingContentQuirkType::CommentsSectionQuirk)  {
             style.setFlexShrink({ 1 });
             style.setMinWidth(0_css_px);
@@ -1077,7 +1078,7 @@ void Adjuster::adjustForSiteSpecificQuirks(Style::ComputedStyle& style) const
             static MainThreadNeverDestroyed<const AtomString> videoElementID("vjs_video_3_html5_api"_s);
 
             if (m_element->hasClassName(instreamNativeVideoDivClass)) {
-                RefPtr video = dynamicDowncast<HTMLVideoElement>(m_element->treeScope().getElementById(videoElementID));
+                RefPtr video = dynamicDowncast<HTMLVideoElement>(protect(m_element)->treeScope().getElementById(videoElementID));
                 if (video && video->isFullscreen())
                     style.setDisplayMaintainingOriginalDisplay(DisplayType::BlockFlow);
             }
@@ -1093,7 +1094,7 @@ void Adjuster::adjustForSiteSpecificQuirks(Style::ComputedStyle& style) const
 #endif
 #endif
 
-    if (documentQuirks.needsExpediaGroupAnimationQuirk(*m_element)) {
+    if (documentQuirks.needsExpediaGroupAnimationQuirk(protect(*m_element))) {
         // We need to reset animation styles that are mistakenly overridden:
         //     animation-delay: 0s, 0.06s;
         //     animation-duration: 0.18s, 0.06s;
@@ -1115,7 +1116,7 @@ void Adjuster::adjustForSiteSpecificQuirks(Style::ComputedStyle& style) const
     }
 
 #if PLATFORM(IOS_FAMILY)
-    if (documentQuirks.needsClaudeSidebarViewportUnitQuirk(*m_element, style))
+    if (documentQuirks.needsClaudeSidebarViewportUnitQuirk(protect(*m_element), style))
         style.setHeight(PreferredSize::Fixed { m_document->renderView()->sizeForCSSDynamicViewportUnits().height() });
 
     if (documentQuirks.needsAmazonDesignMenuViewportUnitQuirk(style, m_parentStyle)) {
@@ -1138,7 +1139,7 @@ void Adjuster::adjustForSiteSpecificQuirks(Style::ComputedStyle& style) const
     }
 #endif
 
-    if (documentQuirks.needsInstagramResizingReelsQuirk(*m_element, style, m_parentStyle))
+    if (documentQuirks.needsInstagramResizingReelsQuirk(protect(*m_element), style, m_parentStyle))
         style.setFlexGrow(1);
 }
 
@@ -1234,7 +1235,7 @@ void Adjuster::propagateToDocumentElementAndInitialContainingBlock(Update& updat
     if (writingMode != documentElementStyle->writingMode().computedWritingMode() || direction != documentElementStyle->writingMode().computedTextDirection()) {
         auto* documentElementUpdate = update.elementUpdate(*document.documentElement());
         if (!documentElementUpdate) {
-            update.addElement(*document.documentElement(), nullptr, { Style::ComputedStyle::clonePtr(*documentElementStyle) });
+            update.addElement(protect(*document.documentElement()), nullptr, { Style::ComputedStyle::clonePtr(*documentElementStyle) });
             documentElementUpdate = update.elementUpdate(*document.documentElement());
         }
         documentElementUpdate->style->setWritingMode(writingMode);

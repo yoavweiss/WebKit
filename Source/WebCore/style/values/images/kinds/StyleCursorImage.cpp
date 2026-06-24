@@ -116,7 +116,7 @@ void CursorImage::setContainerContextForRenderer(const RenderElement& renderer, 
 {
     if (!hasCachedImage())
         return;
-    cachedImage()->setContainerContextForClient(renderer.cachedImageClient(), LayoutSize(containerSize), containerZoom, !url.isNull() ? url : m_originalURL.resolved);
+    protect(cachedImage())->setContainerContextForClient(renderer.cachedImageClient(), LayoutSize(containerSize), containerZoom, !url.isNull() ? url : m_originalURL.resolved);
 }
 
 bool CursorImage::usesDataProtocol() const

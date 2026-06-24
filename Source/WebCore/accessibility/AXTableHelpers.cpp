@@ -139,7 +139,7 @@ HTMLTableElement* tableElementIncludingAncestors(Node* node, RenderObject* rende
     if (auto* childTable = dynamicDowncast<HTMLTableElement>(firstChild->node()))
         return childTable;
     // FIXME: This might find an unrelated parent table element.
-    return ancestorsOfType<HTMLTableElement>(*(firstChild->node())).first();
+    return ancestorsOfType<HTMLTableElement>(protect(*(firstChild->node()))).first();
 }
 
 bool tableElementIndicatesAccessibleTable(HTMLTableElement& tableElement)

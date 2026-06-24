@@ -215,7 +215,7 @@ RenderPtr<RenderElement> RenderElement::createFor(Element& element, Style::Compu
 {
     if (!rendererTypeOverride) {
         if (RefPtr styleImage = minimallySupportedContentDataImage(style.content()); styleImage && !element.isPseudoElement()) {
-            Style::loadPendingResources(style, element.document(), &element);
+            Style::loadPendingResources(style, protect(element.document()), &element);
             auto image = createRenderer<RenderImage>(RenderObject::Type::Image, element, WTF::move(style), styleImage.get());
             image->setIsGeneratedContent();
             image->updateAltText();
@@ -334,7 +334,7 @@ Style::Difference RenderElement::adjustStyleDifference(Style::Difference diff) c
     }
 
     if (diff.contextSensitiveProperties & Style::DifferenceContextSensitiveProperty::ClipPath) {
-        if (hasLayer() && downcast<RenderLayerModelObject>(*this).layer()->willCompositeClipPath())
+        if (hasLayer() && protect(downcast<RenderLayerModelObject>(*this))->layer()->willCompositeClipPath())
             diff.result = std::max(diff.result, Style::DifferenceResult::RecompositeLayer);
         else
             diff.result = std::max(diff.result, Style::DifferenceResult::Repaint);
@@ -759,7 +759,7 @@ static RenderLayer* findNextLayer(const RenderElement& currRenderer, const Rende
     // Step 4: If |checkParent| is set, climb up to our parent and check its siblings that
     // follow us to see if we can locate a layer.
     if (checkParent && currRenderer.parent())
-        return findNextLayer(*protect(currRenderer.parent()), parentLayer, &currRenderer, true);
+        SUPPRESS_UNCOUNTED_ARG return findNextLayer(*currRenderer.parent(), parentLayer, &currRenderer, true);
 
     return nullptr;
 }
@@ -939,7 +939,7 @@ void RenderElement::styleWillChange(Style::Difference diff, const Style::Compute
                 ContentVisibilityDocumentState::unobserve(*protect(element()));
             auto wasSkippedContent = oldStyle->contentVisibility() == ContentVisibility::Hidden ? IsSkippedContent::Yes : IsSkippedContent::No;
             auto isSkippedContent = newStyle.contentVisibility() == ContentVisibility::Hidden ? IsSkippedContent::Yes : IsSkippedContent::No;
-            ContentVisibilityDocumentState::updateAnimations(*element(), wasSkippedContent, isSkippedContent);
+            ContentVisibilityDocumentState::updateAnimations(protect(*element()), wasSkippedContent, isSkippedContent);
         }
         if ((contentVisibilityChanged || !oldStyle) && newStyle.contentVisibility() == ContentVisibility::Auto)
             ContentVisibilityDocumentState::observe(*protect(element()));
@@ -994,7 +994,7 @@ void RenderElement::styleWillChange(Style::Difference diff, const Style::Compute
             bool wasEditable = m_style.usedUserModify() != UserModify::ReadOnly;
             bool isEditable = newStyle.usedUserModify() != UserModify::ReadOnly;
             if (wasEditable != isEditable)
-                return page().shouldBuildEditableRegion();
+                return protect(page())->shouldBuildEditableRegion();
 #endif
             return false;
         };
@@ -1064,12 +1064,12 @@ void RenderElement::styleWillChange(Style::Difference diff, const Style::Compute
 
     if (view().frameView().hasSlowRepaintObject(*this)) {
         if (!newStyleSlowScroll)
-            view().frameView().removeSlowRepaintObject(*this);
+            protect(view())->frameView().removeSlowRepaintObject(*this);
     } else if (newStyleSlowScroll)
-        view().frameView().addSlowRepaintObject(*this);
+        protect(view())->frameView().addSlowRepaintObject(*this);
 
     if (isDocumentElementRenderer() || isBody())
-        view().frameView().updateExtendBackgroundIfNecessary();
+        protect(view())->frameView().updateExtendBackgroundIfNecessary();
 }
 
 inline void RenderCounter::rendererStyleChanged(RenderElement& renderer, const Style::ComputedStyle* oldStyle, const Style::ComputedStyle& newStyle)
@@ -1295,10 +1295,10 @@ void RenderElement::willBeDestroyed()
 {
 #if ENABLE(CONTENT_CHANGE_OBSERVER)
     if (!renderTreeBeingDestroyed() && element())
-        document().contentChangeObserver().rendererWillBeDestroyed(*element());
+        protect(document())->contentChangeObserver().rendererWillBeDestroyed(protect(*element()));
 #endif
     if (Style::hasImageWithAttachment(m_style.backgroundLayers(), FillAttachment::FixedBackground) && !settings().fixedBackgroundsPaintRelativeToDocument())
-        view().frameView().removeSlowRepaintObject(*this);
+        protect(view())->frameView().removeSlowRepaintObject(*this);
 
     unregisterForVisibleInViewportCallback();
 
@@ -1728,7 +1728,7 @@ bool RenderElement::isVisibleIgnoringGeometry() const
         return false;
     if (style().usedVisibility() != Visibility::Visible)
         return false;
-    if (view().frameView().isOffscreen())
+    if (protect(view())->frameView().isOffscreen())
         return false;
 
     return true;
@@ -1815,7 +1815,7 @@ VisibleInViewportState RenderElement::imageFrameAvailable(CachedImage& image, Im
     if (isVisible || animatingState == ImageAnimatingState::No)
         imageChanged(&image, changeRect);
 
-    if (element() && image.image()->isBitmapImage())
+    if (element() && protect(image)->image()->isBitmapImage())
         protect(element())->dispatchWebKitImageReadyEventForTesting();
 
     return isVisible ? VisibleInViewportState::Yes : VisibleInViewportState::No;
@@ -1834,7 +1834,7 @@ void RenderElement::notifyFinished(CachedResource& resource, const NetworkLoadMe
     if (auto* cachedImage = dynamicDowncast<CachedImage>(resource))
         imageContentChanged(*cachedImage);
 
-    protect(document().cachedResourceLoader())->notifyFinished(resource);
+    protect(protect(document())->cachedResourceLoader())->notifyFinished(resource);
 }
 
 bool RenderElement::allowsAnimation() const
@@ -1855,7 +1855,7 @@ void RenderElement::imageContentChanged(CachedImage& cachedImage)
 #if HAVE(SUPPORT_HDR_DISPLAY)
     if (!document().hasHDRContent()) {
         if (cachedImage.hasHDRContent())
-            document().setHasHDRContent();
+            protect(document())->setHasHDRContent();
     }
 
     if (document().hasHDRContent()) {
@@ -2124,7 +2124,7 @@ bool RenderElement::getLeadingCorner(FloatPoint& point, bool& insideFixed) const
     // If the target doesn't have any children or siblings that could be used to calculate the scroll position, we must be
     // at the end of the document. Scroll to the bottom. FIXME: who said anything about scrolling?
     if (!o && document().view()) {
-        point = FloatPoint(0, document().view()->contentsHeight());
+        point = FloatPoint(0, protect(document())->view()->contentsHeight());
         return true;
     }
     return false;
@@ -2263,7 +2263,7 @@ void RenderElement::updateOutlineAutoAncestor(bool hasOutlineAuto)
 
 bool RenderElement::hasOutlineAnnotation() const
 {
-    return element() && element()->isLink() && (document().printing() || (view().frameView().paintBehavior() & PaintBehavior::AnnotateLinks));
+    return element() && element()->isLink() && (protect(document())->printing() || (view().frameView().paintBehavior() & PaintBehavior::AnnotateLinks));
 }
 
 bool RenderElement::hasSelfPaintingLayer() const
@@ -2525,9 +2525,9 @@ void RenderElement::clearReferencedSVGResources()
 // This needs to run when the entire render tree has been constructed, so can't be called from styleDidChange.
 void RenderElement::updateReferencedSVGResources()
 {
-    auto referencedElementIDs = ReferencedSVGResources::referencedSVGResourceIDs(style(), document());
+    auto referencedElementIDs = ReferencedSVGResources::referencedSVGResourceIDs(style(), protect(document()));
     if (!referencedElementIDs.isEmpty())
-        ensureReferencedSVGResources().updateReferencedResources(treeScopeForSVGReferences(), referencedElementIDs);
+        ensureReferencedSVGResources().updateReferencedResources(protect(treeScopeForSVGReferences()), referencedElementIDs);
     else
         clearReferencedSVGResources();
 }

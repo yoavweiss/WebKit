@@ -263,7 +263,7 @@ void Invalidator::invalidateStyle(ShadowRoot& shadowRoot)
     ASSERT(!m_dirtiesAllStyle);
 
     if (m_ruleInformation.hasHostPseudoClassRules && shadowRoot.host())
-        shadowRoot.host()->invalidateStyle();
+        protect(shadowRoot.host())->invalidateStyle();
 
     for (Ref child : childrenOfType<Element>(shadowRoot)) {
         SelectorMatchingState selectorMatchingState;
@@ -498,7 +498,7 @@ void Invalidator::invalidateStyleWithMatchElement(Element& element, MatchElement
         // Remaining non-subject :has() cases fall back to full document traversal.
 
         SelectorMatchingState selectorMatchingState;
-        invalidateStyleForDescendants(*element.document().documentElement(), &selectorMatchingState);
+        invalidateStyleForDescendants(*protect(element.document().documentElement()), &selectorMatchingState);
         return;
     }
 

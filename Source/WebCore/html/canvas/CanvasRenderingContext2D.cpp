@@ -253,7 +253,7 @@ void CanvasRenderingContext2D::setFontWithoutUpdatingStyle(const String& newFont
     realizeSaves();
     modifiableState().unparsedFont = newFontSafeCopy;
 
-    modifiableState().font.initialize(document->fontSelector(), *fontCascade);
+    modifiableState().font.initialize(protect(document->fontSelector()), *fontCascade);
     ASSERT(state().font.realized());
     ASSERT(state().font.isPopulated());
 
@@ -290,7 +290,7 @@ CanvasDirection CanvasRenderingContext2D::direction() const
 
 void CanvasRenderingContext2D::fillText(const String& text, double x, double y, std::optional<double> maxWidth)
 {
-    canvasBase().recordLastFillText(text);
+    protect(canvasBase())->recordLastFillText(text);
     drawTextInternal(text, x, y, true, maxWidth);
 }
 

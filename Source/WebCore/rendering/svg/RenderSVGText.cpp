@@ -340,7 +340,7 @@ void RenderSVGText::layout()
     // We update the transform now because updateScaledFont() needs it, but we do it a second time at the end of the layout,
     // since the transform reference box may change because of the font change.
     if (!isLayerBasedSVGEngineEnabled() && m_needsTransformUpdate) {
-        m_localTransform = textElement().animatedLocalTransform();
+        m_localTransform = protect(textElement())->animatedLocalTransform();
         updateCachedBoundariesInParents = true;
     }
 
@@ -435,7 +435,7 @@ void RenderSVGText::layout()
     } else {
         if (m_needsTransformUpdate) {
             if (previousReferenceBoxRect != transformReferenceBoxRect())
-                m_localTransform = textElement().animatedLocalTransform();
+                m_localTransform = protect(textElement())->animatedLocalTransform();
             m_needsTransformUpdate = false;
         }
         if (!updateCachedBoundariesInParents)
@@ -915,7 +915,7 @@ void RenderSVGText::paintInlineChildren(PaintInfo& paintInfo, const LayoutPoint&
     if (paintInfo.phase != PaintPhase::Foreground && paintInfo.phase != PaintPhase::Selection)
         return;
 
-    bool isPrinting = document().printing();
+    bool isPrinting = protect(document())->printing();
     bool hasSelection = !isPrinting && selectionState() != RenderObject::HighlightState::None;
     bool shouldPaintSelectionHighlight = !(paintInfo.paintBehavior.contains(PaintBehavior::SkipSelectionHighlight));
 

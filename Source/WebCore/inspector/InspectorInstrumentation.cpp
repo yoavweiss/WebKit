@@ -859,7 +859,7 @@ void InspectorInstrumentation::didCommitLoadImpl(InstrumentingAgents& instrument
             cssAgent->reset();
 
         if (CheckedPtr domAgent = instrumentingAgents.persistentDOMAgent())
-            domAgent->setDocument(frame.document());
+            domAgent->setDocument(protect(frame.document()));
 
         if (auto* layerTreeAgent = instrumentingAgents.enabledLayerTreeAgent())
             layerTreeAgent->reset();
@@ -892,7 +892,7 @@ void InspectorInstrumentation::didCommitLoadImpl(InstrumentingAgents& instrument
         animationAgent->frameNavigated(frame);
 
     if (CheckedPtr domAgent = instrumentingAgents.persistentDOMAgent())
-        domAgent->didCommitLoad(frame.document());
+        domAgent->didCommitLoad(protect(frame.document()));
 
     if (frame.isMainFrame()) {
         if (CheckedPtr pageTimelineAgent = instrumentingAgents.trackingPageTimelineAgent())
@@ -1125,7 +1125,7 @@ void InspectorInstrumentation::didEnqueueFirstContentfulPaintImpl(InstrumentingA
 void InspectorInstrumentation::didEnqueueLargestContentfulPaintImpl(InstrumentingAgents& instrumentingAgents, const LargestContentfulPaint& entry)
 {
     if (auto* timelineAgent = instrumentingAgents.trackingTimelineAgent())
-        timelineAgent->didEnqueueLargestContentfulPaint(entry.element(), entry.size());
+        timelineAgent->didEnqueueLargestContentfulPaint(protect(entry.element()), entry.size());
 }
 
 void InspectorInstrumentation::consoleStartRecordingCanvasImpl(InstrumentingAgents& instrumentingAgents, CanvasRenderingContext& context, JSC::JSGlobalObject& exec, JSC::JSObject* options)

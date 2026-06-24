@@ -874,7 +874,7 @@ void JSTestDefaultToJSONOwner::finalize(JSC::Handle<JSC::Unknown> handle, void* 
 {
     SUPPRESS_MEMORY_UNSAFE_CAST auto* jsTestDefaultToJSON = static_cast<JSTestDefaultToJSON*>(handle.slot()->asCell());
     auto& world = *static_cast<DOMWrapperWorld*>(context);
-    uncacheWrapper(world, protect(jsTestDefaultToJSON->wrapped()).ptr(), jsTestDefaultToJSON);
+    SUPPRESS_UNCOUNTED_ARG uncacheWrapper(world, &jsTestDefaultToJSON->wrapped(), jsTestDefaultToJSON);
 }
 
 WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN

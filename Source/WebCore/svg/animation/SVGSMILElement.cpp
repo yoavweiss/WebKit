@@ -637,7 +637,7 @@ void SVGSMILElement::disconnectConditions()
             RefPtr eventBase = eventBaseFor(condition);
             if (eventBase)
                 eventBase->removeEventListener(condition.m_name, Ref { *condition.m_eventListener }, { .capture = false });
-            condition.m_eventListener->disconnectAnimation();
+            protect(condition.m_eventListener)->disconnectAnimation();
             condition.m_eventListener = nullptr;
         } else if (condition.m_type == Condition::Syncbase) {
             if (condition.m_syncbase)
@@ -687,7 +687,7 @@ void SVGSMILElement::setTargetElement(SVGElement* target)
 
 SMILTime SVGSMILElement::elapsed() const
 {
-    return m_timeContainer ? m_timeContainer->elapsed() : 0;
+    return m_timeContainer ? protect(m_timeContainer)->elapsed() : 0;
 }
 
 bool SVGSMILElement::isFrozen() const

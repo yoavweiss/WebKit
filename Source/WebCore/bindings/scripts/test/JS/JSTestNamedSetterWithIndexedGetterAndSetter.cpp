@@ -529,7 +529,7 @@ void JSTestNamedSetterWithIndexedGetterAndSetterOwner::finalize(JSC::Handle<JSC:
 {
     SUPPRESS_MEMORY_UNSAFE_CAST auto* jsTestNamedSetterWithIndexedGetterAndSetter = static_cast<JSTestNamedSetterWithIndexedGetterAndSetter*>(handle.slot()->asCell());
     auto& world = *static_cast<DOMWrapperWorld*>(context);
-    uncacheWrapper(world, protect(jsTestNamedSetterWithIndexedGetterAndSetter->wrapped()).ptr(), jsTestNamedSetterWithIndexedGetterAndSetter);
+    SUPPRESS_UNCOUNTED_ARG uncacheWrapper(world, &jsTestNamedSetterWithIndexedGetterAndSetter->wrapped(), jsTestNamedSetterWithIndexedGetterAndSetter);
 }
 
 WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN

@@ -424,7 +424,7 @@ FloatRect Path::fastBoundingRect() const
     if (auto* segment = asSingle())
         return segment->fastBoundingRect();
 
-    if (RefPtr impl = asImpl())
+    SUPPRESS_UNCOUNTED_LOCAL if (auto* impl = asImpl())
         return impl->fastBoundingRect();
 
     return { };

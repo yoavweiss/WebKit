@@ -62,7 +62,7 @@ JSC::VM& commonVMSlow()
     ScriptController::initializeMainThread();
 
 #if PLATFORM(IOS_FAMILY)
-    RunLoop* runLoop = RunLoop::webIfExists();
+    RefPtr runLoop = RunLoop::webIfExists();
 #else
     RunLoop* runLoop = nullptr;
 #endif

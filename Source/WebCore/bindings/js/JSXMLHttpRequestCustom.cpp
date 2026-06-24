@@ -67,7 +67,7 @@ JSValue JSXMLHttpRequest::response(JSGlobalObject& lexicalGlobalObject) const
     case XMLHttpRequest::ResponseType::EmptyString:
     case XMLHttpRequest::ResponseType::Text: {
         auto scope = DECLARE_THROW_SCOPE(lexicalGlobalObject.vm());
-        return cacheResult(toJS<IDLNullable<IDLUSVString>>(lexicalGlobalObject, scope, wrapped().responseText()));
+        return cacheResult(toJS<IDLNullable<IDLUSVString>>(lexicalGlobalObject, scope, protect(wrapped())->responseText()));
     }
     default:
         break;
@@ -84,28 +84,28 @@ JSValue JSXMLHttpRequest::response(JSGlobalObject& lexicalGlobalObject) const
         return jsUndefined();
 
     case XMLHttpRequest::ResponseType::Json:
-        value = toJS<IDLJSON>(*realm(), wrapped().responseTextIgnoringResponseType());
+        value = toJS<IDLJSON>(*realm(), protect(wrapped())->responseTextIgnoringResponseType());
         if (!value)
             value = jsNull();
         break;
 
     case XMLHttpRequest::ResponseType::Document: {
-        auto document = wrapped().responseXML();
+        auto document = protect(wrapped())->responseXML();
         ASSERT(!document.hasException());
         value = toJS<IDLNullable<IDLInterface<Document>>>(lexicalGlobalObject, *realm(), document.releaseReturnValue());
         break;
     }
 
     case XMLHttpRequest::ResponseType::Blob:
-        value = toJSNewlyCreated<IDLInterface<Blob>>(lexicalGlobalObject, *realm(), wrapped().createResponseBlob());
+        value = toJSNewlyCreated<IDLInterface<Blob>>(lexicalGlobalObject, *realm(), protect(wrapped())->createResponseBlob());
         break;
 
     case XMLHttpRequest::ResponseType::Arraybuffer:
-        value = toJS<IDLNullable<IDLInterface<ArrayBuffer>>>(lexicalGlobalObject, *realm(), wrapped().createResponseArrayBuffer());
+        value = toJS<IDLNullable<IDLInterface<ArrayBuffer>>>(lexicalGlobalObject, *realm(), protect(wrapped())->createResponseArrayBuffer());
         break;
     }
 
-    wrapped().didCacheResponse();
+    protect(wrapped())->didCacheResponse();
     return cacheResult(value);
 }
 

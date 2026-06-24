@@ -325,7 +325,7 @@ void JSTestDefaultToJSONCustomGetterOwner::finalize(JSC::Handle<JSC::Unknown> ha
 {
     SUPPRESS_MEMORY_UNSAFE_CAST auto* jsTestDefaultToJSONCustomGetter = static_cast<JSTestDefaultToJSONCustomGetter*>(handle.slot()->asCell());
     auto& world = *static_cast<DOMWrapperWorld*>(context);
-    uncacheWrapper(world, protect(jsTestDefaultToJSONCustomGetter->wrapped()).ptr(), jsTestDefaultToJSONCustomGetter);
+    SUPPRESS_UNCOUNTED_ARG uncacheWrapper(world, &jsTestDefaultToJSONCustomGetter->wrapped(), jsTestDefaultToJSONCustomGetter);
 }
 
 WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN

@@ -323,7 +323,7 @@ void JSTestAsyncKeyValueIterableOwner::finalize(JSC::Handle<JSC::Unknown> handle
 {
     SUPPRESS_MEMORY_UNSAFE_CAST auto* jsTestAsyncKeyValueIterable = static_cast<JSTestAsyncKeyValueIterable*>(handle.slot()->asCell());
     auto& world = *static_cast<DOMWrapperWorld*>(context);
-    uncacheWrapper(world, protect(jsTestAsyncKeyValueIterable->wrapped()).ptr(), jsTestAsyncKeyValueIterable);
+    SUPPRESS_UNCOUNTED_ARG uncacheWrapper(world, &jsTestAsyncKeyValueIterable->wrapped(), jsTestAsyncKeyValueIterable);
 }
 
 WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN

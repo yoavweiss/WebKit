@@ -64,7 +64,7 @@ ArtworkImageLoader::ArtworkImageLoader(Document& document, const String& src, Ar
 ArtworkImageLoader::~ArtworkImageLoader()
 {
     if (m_cachedImage)
-        m_cachedImage->removeClient(*this);
+        protect(m_cachedImage)->removeClient(*this);
 }
 
 void ArtworkImageLoader::requestImageResource()
@@ -79,17 +79,17 @@ void ArtworkImageLoader::requestImageResource()
     m_cachedImage = protect(document->cachedResourceLoader())->requestImage(WTF::move(request)).value_or(nullptr);
 
     if (m_cachedImage)
-        m_cachedImage->addClient(*this);
+        protect(m_cachedImage)->addClient(*this);
 }
 
 void ArtworkImageLoader::notifyFinished(CachedResource& resource, const NetworkLoadMetrics&, LoadWillContinueInAnotherProcess)
 {
     ASSERT_UNUSED(resource, &resource == m_cachedImage);
-    if (m_cachedImage->loadFailedOrCanceled() || m_cachedImage->errorOccurred() || !m_cachedImage->image()) {
+    if (m_cachedImage->loadFailedOrCanceled() || m_cachedImage->errorOccurred() || !protect(m_cachedImage)->image()) {
         m_callback(nullptr);
         return;
     }
-    Ref image = *m_cachedImage->image();
+    Ref image = *protect(m_cachedImage.get())->image();
     image->subresourcesAreFinished(nullptr, [image, callback = std::exchange(m_callback, { })]() mutable {
         callback(image.ptr());
     });
@@ -274,7 +274,7 @@ void MediaMetadata::tryNextArtworkImage(uint32_t index, Vector<Pair>&& artworks)
         if (image && image->data() && image->width() && image->height()) {
             IntSize size { int(image->width()), int(image->height()) };
             float imageScore = imageDimensionsScore(size.width(), size.height(), s_minimumSize, s_idealSize);
-            if (!index || (m_artworkImage && (imageDimensionsScore(m_artworkImage->width(), m_artworkImage->height(), s_minimumSize, s_idealSize) < imageScore))) {
+            if (!index || (m_artworkImage && (imageDimensionsScore(protect(m_artworkImage)->width(), protect(m_artworkImage)->height(), s_minimumSize, s_idealSize) < imageScore))) {
                 m_artworkImageSrc = artworkImageSrc;
                 setArtworkImage(image);
                 metadataUpdated();
@@ -287,7 +287,7 @@ void MediaMetadata::tryNextArtworkImage(uint32_t index, Vector<Pair>&& artworks)
         if (++index < artworks.size())
             tryNextArtworkImage(index, WTF::move(artworks));
     });
-    m_artworkLoader->requestImageResource();
+    protect(m_artworkLoader)->requestImageResource();
 }
 
 void MediaMetadata::setArtworkImage(Image* image)

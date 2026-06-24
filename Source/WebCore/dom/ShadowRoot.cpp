@@ -135,7 +135,7 @@ Node::NeedsPostConnectionSteps ShadowRoot::insertionSteps(InsertionType insertio
 {
     DocumentFragment::insertionSteps(insertionType, parentOfInsertedTree);
     if (!m_hasScopedCustomElementRegistry && usesNullCustomElementRegistry() && !parentOfInsertedTree.usesNullCustomElementRegistry()) {
-        if (RefPtr registry = CustomElementRegistry::registryForElement(*host())) {
+        if (RefPtr registry = CustomElementRegistry::registryForElement(protect(*host()))) {
             clearUsesNullCustomElementRegistry();
             setCustomElementRegistry(WTF::move(registry));
         }
@@ -171,7 +171,7 @@ void ShadowRoot::childrenChanged(const ChildChange& childChange)
     case ChildChange::Type::ElementInserted:
     case ChildChange::Type::ElementAndTextInserted:
     case ChildChange::Type::ElementRemoved:
-        m_host->invalidateStyleForSubtree();
+        protect(m_host)->invalidateStyleForSubtree();
         break;
     case ChildChange::Type::TextInserted:
     case ChildChange::Type::TextRemoved:
@@ -234,19 +234,19 @@ ExceptionOr<void> ShadowRoot::replaceChildrenWithMarkup(const String& markup, Op
         return { };
     }
 
-    auto fragment = createFragmentForInnerOuterHTML(*protect(host()), markup, policy, customElementRegistry());
+    auto fragment = createFragmentForInnerOuterHTML(*protect(host()), markup, policy, protect(customElementRegistry()));
     if (fragment.hasException())
         return fragment.releaseException();
     bool usedFastPath = fragment.returnValue()->hasWasParsedWithFastPath();
     auto result = replaceChildrenWithFragment(*this, fragment.releaseReturnValue());
     if (!result.hasException() && usedFastPath)
-        document().updateCachedSetInnerHTML(markup, *this, *protect(host()));
+        protect(document())->updateCachedSetInnerHTML(markup, *this, *protect(host()));
     return result;
 }
 
 ExceptionOr<void> ShadowRoot::setHTMLUnsafe(Variant<Ref<TrustedHTML>, String>&& html)
 {
-    auto stringValueHolder = trustedTypeCompliantString(document().contextDocument(), WTF::move(html), "ShadowRoot setHTMLUnsafe"_s);
+    auto stringValueHolder = trustedTypeCompliantString(protect(document().contextDocument()), WTF::move(html), "ShadowRoot setHTMLUnsafe"_s);
 
     if (stringValueHolder.hasException())
         return stringValueHolder.releaseException();
@@ -266,7 +266,7 @@ String ShadowRoot::innerHTML() const
 
 ExceptionOr<void> ShadowRoot::setInnerHTML(Variant<Ref<TrustedHTML>, String>&& html)
 {
-    auto stringValueHolder = trustedTypeCompliantString(document().contextDocument(), WTF::move(html), "ShadowRoot innerHTML"_s);
+    auto stringValueHolder = trustedTypeCompliantString(protect(document().contextDocument()), WTF::move(html), "ShadowRoot innerHTML"_s);
 
     if (stringValueHolder.hasException())
         return stringValueHolder.releaseException();
@@ -464,14 +464,14 @@ Vector<Ref<ShadowRoot>> assignedShadowRootsIfSlotted(const Node& node)
     Vector<Ref<ShadowRoot>> result;
     for (CheckedPtr slot = node.assignedSlot(); slot; slot = slot->assignedSlot()) {
         ASSERT(slot->containingShadowRoot());
-        result.append(*slot->containingShadowRoot());
+        result.append(protect(*slot->containingShadowRoot()));
     }
     return result;
 }
 
 Vector<Ref<WebAnimation>> ShadowRoot::getAnimations()
 {
-    return document().matchingAnimations([&](Element& target) {
+    return protect(document())->matchingAnimations([&](Element& target) {
         return target.containingShadowRoot() == this;
     });
 }
@@ -486,7 +486,7 @@ void ShadowRoot::setReferenceTarget(const AtomString& referenceTarget)
 
     m_referenceTarget = referenceTarget;
 
-    if (CheckedPtr cache = document().existingAXObjectCache())
+    if (CheckedPtr cache = protect(document())->existingAXObjectCache())
         cache->handleReferenceTargetChanged();
 }
 

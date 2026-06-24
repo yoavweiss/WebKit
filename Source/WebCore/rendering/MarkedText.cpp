@@ -196,7 +196,7 @@ Vector<MarkedText> MarkedText::collectForDocumentMarkers(const RenderText& rende
     if (!markerController)
         return { };
 
-    auto markers = markerController->markersFor(*renderer.textNode());
+    auto markers = markerController->markersFor(*protect(renderer.textNode()));
 
     auto markedTextTypeForMarkerType = [] (DocumentMarkerType type) {
         switch (type) {
@@ -369,7 +369,7 @@ Vector<MarkedText> MarkedText::collectForDictationStreamingOpacity(const RenderT
     if (!markerController)
         return { };
 
-    auto markers = markerController->markersFor(*renderer.textNode(), DocumentMarkerType::DictationStreamingOpacity);
+    auto markers = markerController->markersFor(*protect(renderer.textNode()), DocumentMarkerType::DictationStreamingOpacity);
     if (markers.isEmpty())
         return { };
 

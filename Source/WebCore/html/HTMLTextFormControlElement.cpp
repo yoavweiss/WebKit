@@ -664,9 +664,9 @@ void HTMLTextFormControlElement::effectiveSpellcheckAttributeChanged(bool isSpel
 
     auto selection = VisibleSelection::selectionFromContentsOfNode(innerTextElement.get());
     if (isSpellcheckEnabled)
-        document().editor().markMisspellingsAndBadGrammar(selection);
+        protect(document())->editor().markMisspellingsAndBadGrammar(selection);
     else
-        document().editor().clearMisspellingsAndBadGrammar(selection);
+        protect(document())->editor().clearMisspellingsAndBadGrammar(selection);
 }
 
 void HTMLTextFormControlElement::disabledStateChanged()
@@ -742,12 +742,12 @@ void HTMLTextFormControlElement::setInnerTextValue(String&& value)
             innerText->setInnerText(WTF::move(value));
 
             if (endsWithNewLine)
-                innerText->appendChild(HTMLBRElement::create(document()));
+                innerText->appendChild(HTMLBRElement::create(protect(document())));
         }
 
 #if PLATFORM(COCOA) || USE(ATSPI)
         if (textIsChanged && renderer()) {
-            if (CheckedPtr cache = document().existingAXObjectCache())
+            if (CheckedPtr cache = protect(document())->existingAXObjectCache())
                 cache->deferTextReplacementNotificationForTextControl(*this, previousValue);
         }
 #endif
@@ -982,8 +982,8 @@ void HTMLTextFormControlElement::adjustInnerTextStyle(const Style::ComputedStyle
 
 bool HTMLTextFormControlElement::shouldApplyScriptTrackingPrivacyProtection() const
 {
-    return (wasEverChangedByUserEdit() || !wasCreatedByTaintedScript())
-        && protect(document())->requiresScriptTrackingPrivacyProtection(ScriptTrackingPrivacyCategory::FormControls);
+    SUPPRESS_UNCOUNTED_ARG return (wasEverChangedByUserEdit() || !wasCreatedByTaintedScript())
+        && document().requiresScriptTrackingPrivacyProtection(ScriptTrackingPrivacyCategory::FormControls);
 }
 
 } // namespace WebCore

@@ -158,7 +158,7 @@ bool FontCascade::isCurrent(const FontSelector& fontSelector) const
 
 unsigned FontCascade::fontSelectorVersion() const
 {
-    return m_fontSelector ? Ref { *m_fontSelector }->version() : 0;
+    return m_fontSelector ? m_fontSelector->version() : 0;
 }
 
 void FontCascade::updateFonts(Ref<FontCascadeFonts>&& fonts) const
@@ -475,7 +475,7 @@ GlyphData FontCascade::glyphDataForCharacter(char32_t c, bool mirror, FontVarian
 
     auto emojiPolicy = resolvedEmojiPolicy.value_or(resolveEmojiPolicy(m_fontDescription.variantEmoji(), c));
 
-    return protect(fonts())->glyphDataForCharacter(c, m_fontDescription, protect(fontSelector()).get(), variant, emojiPolicy);
+    SUPPRESS_UNCOUNTED_ARG return fonts()->glyphDataForCharacter(c, m_fontDescription, fontSelector(), variant, emojiPolicy);
 }
 
 

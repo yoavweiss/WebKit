@@ -118,7 +118,7 @@ void RenderListMarker::paintFromAssociatedListItemLayer(PaintInfo& paintInfo, co
 void RenderListMarker::willBeDestroyed()
 {
     if (m_image)
-        m_image->removeClient(*this);
+        protect(m_image)->removeClient(*this);
     RenderBox::willBeDestroyed();
 }
 
@@ -147,16 +147,16 @@ void RenderListMarker::styleDidChange(Style::Difference diff, const Style::Compu
 
     if (RefPtr newImage = style().listStyleImage().tryStyleImage(); m_image != newImage) {
         if (m_image)
-            m_image->removeClient(*this);
+            protect(m_image)->removeClient(*this);
         m_image = WTF::move(newImage);
         if (m_image)
-            m_image->addClient(*this);
+            protect(m_image)->addClient(*this);
     }
 }
 
 bool RenderListMarker::isImage() const
 {
-    return m_image && !m_image->errorOccurred();
+    return m_image && !protect(m_image)->errorOccurred();
 }
 
 LayoutRect RenderListMarker::localSelectionRect()
@@ -215,9 +215,9 @@ static auto textRunForContent(ListMarkerTextContent textContent, const Style::Co
 
 void RenderListMarker::paintDisclosureMarker(GraphicsContext& context, const FloatRect& markerRect)
 {
-    auto systemUIFontCascade = disclosureMarkerFontCascade(style(), document());
+    auto systemUIFontCascade = disclosureMarkerFontCascade(style(), protect(document()));
     auto textOrigin = FloatPoint { markerRect.x(), markerRect.y() + snap(systemUIFontCascade.metricsOfPrimaryFont().ascent(), *this) };
-    textOrigin = roundPointToDevicePixels(LayoutPoint(textOrigin), document().deviceScaleFactor(), writingMode().isLogicalLeftInlineStart());
+    textOrigin = roundPointToDevicePixels(LayoutPoint(textOrigin), protect(document())->deviceScaleFactor(), writingMode().isLogicalLeftInlineStart());
     context.drawText(systemUIFontCascade, textRunForContent(m_textContent, style()), textOrigin);
 }
 
@@ -254,7 +254,7 @@ void RenderListMarker::paint(PaintInfo& paintInfo, const LayoutPoint& paintOffse
     GraphicsContext& context = paintInfo.context();
 
     if (isImage()) {
-        if (RefPtr markerImage = m_image->image(this, markerRect.size(), context))
+        if (RefPtr markerImage = protect(m_image)->image(this, markerRect.size(), context))
             context.drawImage(*markerImage, markerRect, { imageOrientation() });
         if (selectionState() != HighlightState::None) {
             LayoutRect selectionRect = localSelectionRect();
@@ -310,7 +310,7 @@ void RenderListMarker::paint(PaintInfo& paintInfo, const LayoutPoint& paintOffse
     }
 
     auto textOrigin = FloatPoint { markerRect.x(), markerRect.y() + snap(style().fontCascade().metricsOfPrimaryFont().ascent(), *this) };
-    textOrigin = roundPointToDevicePixels(LayoutPoint(textOrigin), document().deviceScaleFactor(), writingMode().isLogicalLeftInlineStart());
+    textOrigin = roundPointToDevicePixels(LayoutPoint(textOrigin), protect(document())->deviceScaleFactor(), writingMode().isLogicalLeftInlineStart());
     context.drawText(style().fontCascade(), textRunForContent(m_textContent, style()), textOrigin);
 }
 
@@ -338,8 +338,9 @@ void RenderListMarker::layout()
 
     if (isImage()) {
         updateInlineMarginsAndContent();
-        setWidth(m_image->imageSize(this, style().usedZoom()).width());
-        setHeight(m_image->imageSize(this, style().usedZoom()).height());
+        RefPtr image = m_image;
+        setWidth(image->imageSize(this, style().usedZoom()).width());
+        setHeight(image->imageSize(this, style().usedZoom()).height());
         m_layoutBounds = { height(), 0 };
     } else {
         setLogicalWidth(minContentLogicalWidthContribution());
@@ -361,8 +362,9 @@ void RenderListMarker::layout()
 void RenderListMarker::imageChanged(WrappedImagePtr o, const IntRect* rect)
 {
     if (parent()) {
-        if (m_image && o == m_image->data()) {
-            if (width() != m_image->imageSize(this, style().usedZoom()).width() || height() != m_image->imageSize(this, style().usedZoom()).height() || m_image->errorOccurred())
+        RefPtr image = m_image;
+        if (image && o == image->data()) {
+            if (width() != image->imageSize(this, style().usedZoom()).width() || height() != image->imageSize(this, style().usedZoom()).height() || image->errorOccurred())
                 setNeedsLayoutAndInvalidateContentLogicalWidths();
             else
                 repaint();
@@ -386,7 +388,7 @@ void RenderListMarker::updateContent()
         LayoutUnit bulletWidth = style().metricsOfPrimaryFont().intAscent() / 2_lu;
         LayoutSize defaultBulletSize(bulletWidth, bulletWidth);
         LayoutSize imageSize = calculateImageIntrinsicDimensions(m_image.get(), defaultBulletSize, ScaleByUsedZoom::No);
-        m_image->setContainerContextForRenderer(*this, imageSize, style().usedZoom());
+        protect(m_image)->setContainerContextForRenderer(*this, imageSize, style().usedZoom());
         m_textContent = {
             .textWithSuffix = emptyString(),
             .textWithoutSuffixLength = 0,
@@ -442,7 +444,7 @@ void RenderListMarker::computeIntrinsicLogicalWidthContributions()
     updateContent();
 
     if (isImage()) {
-        LayoutSize imageSize = LayoutSize(m_image->imageSize(this, style().usedZoom()));
+        LayoutSize imageSize = LayoutSize(protect(m_image)->imageSize(this, style().usedZoom()));
         m_maxContentLogicalWidthContribution = writingMode().isHorizontal() ? imageSize.width() : imageSize.height();
         m_minContentLogicalWidthContribution = m_maxContentLogicalWidthContribution;
         clearContentLogicalWidthsInvalidation();
@@ -453,7 +455,7 @@ void RenderListMarker::computeIntrinsicLogicalWidthContributions()
     std::optional<FontCascade> systemUIFontCascade;
     // Use system-ui font for disclosure triangles
     if (isDisclosureMarker())
-        systemUIFontCascade = disclosureMarkerFontCascade(style(), document());
+        systemUIFontCascade = disclosureMarkerFontCascade(style(), protect(document()));
 
     auto& font = systemUIFontCascade ? *systemUIFontCascade : style().fontCascade();
 
@@ -535,7 +537,7 @@ Node* RenderListMarker::nodeForHitTest() const
 FloatRect RenderListMarker::relativeMarkerRect()
 {
     if (isImage())
-        return { 0.f, 0.f, m_image->imageSize(this, style().usedZoom()).width(), m_image->imageSize(this, style().usedZoom()).height() };
+        return { 0.f, 0.f, protect(m_image)->imageSize(this, style().usedZoom()).width(), protect(m_image)->imageSize(this, style().usedZoom()).height() };
 
     FloatRect relativeRect;
     if (widthUsesMetricsOfPrimaryFont()) {
@@ -549,7 +551,7 @@ FloatRect RenderListMarker::relativeMarkerRect()
 
         // Use system-ui font for disclosure triangles
         if (isDisclosureMarker()) {
-            auto systemUIFontCascade = disclosureMarkerFontCascade(style(), document());
+            auto systemUIFontCascade = disclosureMarkerFontCascade(style(), protect(document()));
             auto& fontMetrics = style().metricsOfPrimaryFont();
             auto& systemUIFontMetrics = systemUIFontCascade.metricsOfPrimaryFont();
             auto width = systemUIFontCascade.width(textRunForContent(m_textContent, style()));

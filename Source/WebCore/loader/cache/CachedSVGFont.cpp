@@ -89,7 +89,7 @@ bool CachedSVGFont::ensureCustomFontData()
 
             ScriptDisallowedScope::DisableAssertionsInScope disabledScope;
 
-            externalSVGDocument->setMarkupUnsafe(decoder->decodeAndFlush(m_data->makeContiguous()->span()), { ParserContentPolicy::AllowDeclarativeShadowRoots });
+            externalSVGDocument->setMarkupUnsafe(decoder->decodeAndFlush(protect(m_data)->makeContiguous()->span()), { ParserContentPolicy::AllowDeclarativeShadowRoots });
             sawError = decoder->sawError();
             m_externalSVGDocument = WTF::move(externalSVGDocument);
         }

@@ -108,7 +108,7 @@ SVGElement::~SVGElement()
     protect(document->svgExtensions())->removeElementToRebuild(*this);
 
     if (hasPendingResources()) {
-        treeScopeForSVGReferences().removeElementFromPendingSVGResources(*this);
+        protect(treeScopeForSVGReferences())->removeElementFromPendingSVGResources(*this);
         ASSERT(!hasPendingResources());
     }
 }
@@ -196,7 +196,7 @@ void SVGElement::removingSteps(RemovalType removalType, ContainerNode& oldParent
     }
 
     if (hasPendingResources())
-        treeScopeForSVGReferences().removeElementFromPendingSVGResources(*this);
+        protect(treeScopeForSVGReferences())->removeElementFromPendingSVGResources(*this);
 
     if (removalType.disconnectedFromDocument) {
         Ref<Document> document = this->document();
@@ -673,7 +673,7 @@ inline const Style::ComputedStyle* SVGElementRareData::overrideComputedStyle(Ele
         return nullptr;
     if (!m_overrideComputedStyle || m_needsOverrideComputedStyleUpdate) {
         // The style computed here contains no CSS Animations/Transitions or SMIL induced rules - this is needed to compute the "base value" for the SMIL animation sandwhich model.
-        m_overrideComputedStyle = element.styleResolver().styleForElement(element, { parentStyle }, RuleMatchingBehavior::MatchAllRulesExcludingSMIL).style;
+        m_overrideComputedStyle = protect(element.styleResolver())->styleForElement(element, { parentStyle }, RuleMatchingBehavior::MatchAllRulesExcludingSMIL).style;
         m_needsOverrideComputedStyleUpdate = false;
     }
     ASSERT(m_overrideComputedStyle);
@@ -1072,7 +1072,7 @@ Node::NeedsPostConnectionSteps SVGElement::insertionSteps(InsertionType insertio
     hideNonce();
 
     if (needsPendingResourceHandling() && insertionType.connectedToDocument && !isInShadowTree()) {
-        if (treeScopeForSVGReferences().isIdOfPendingSVGResource(getIdAttribute()))
+        if (protect(treeScopeForSVGReferences())->isIdOfPendingSVGResource(getIdAttribute()))
             return NeedsPostConnectionSteps::Yes;
     }
 

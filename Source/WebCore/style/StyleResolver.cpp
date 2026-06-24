@@ -186,7 +186,7 @@ Resolver::Resolver(Document& document, ScopeType scopeType)
     , m_scopeType(scopeType)
     , m_ruleSets(*this)
     , m_matchedDeclarationsCache(*this)
-    , m_matchAuthorAndUserStyles(settings().authorAndUserStylesEnabled())
+    , m_matchAuthorAndUserStyles(protect(document.settings())->authorAndUserStylesEnabled())
 {
     initialize();
 }
@@ -230,7 +230,7 @@ void Resolver::addCurrentSVGFontFaceRules()
     if (document().svgExtensionsIfExists()) {
         auto& svgFontFaceElements = document().svgExtensionsIfExists()->svgFontFaceElements();
         for (Ref svgFontFaceElement : svgFontFaceElements)
-            document().fontSelector().addFontFaceRule(svgFontFaceElement->fontFaceRule(), svgFontFaceElement->isInUserAgentShadowTree());
+            protect(document())->fontSelector().addFontFaceRule(svgFontFaceElement->fontFaceRule(), svgFontFaceElement->isInUserAgentShadowTree());
     }
 }
 
@@ -239,7 +239,7 @@ void Resolver::appendAuthorStyleSheets(std::span<const Ref<CSSStyleSheet>> style
     m_ruleSets.appendAuthorStyleSheets(styleSheets, &m_mediaQueryEvaluator, m_inspectorCSSOMWrappers);
 
     if (auto renderView = document().renderView())
-        renderView->style().fontCascade().update(&document().fontSelector());
+        renderView->style().fontCascade().update(&protect(document())->fontSelector());
 }
 
 KeyframesRuleMap& Resolver::userAgentKeyframes()
@@ -259,7 +259,7 @@ void Resolver::addKeyframeStyle(Ref<StyleRuleKeyframes>&& rule)
 {
     const auto& animationName = rule->name();
     m_keyframesRuleMap.set(animationName, WTF::move(rule));
-    document().keyframesRuleDidChange(animationName);
+    protect(document())->keyframesRuleDidChange(animationName);
 }
 
 auto Resolver::initializeStateAndStyle(const Element& element, const ResolutionContext& context, std::unique_ptr<Style::ComputedStyle>&& initialStyle) -> State
@@ -287,7 +287,7 @@ auto Resolver::initializeStateAndStyle(const Element& element, const ResolutionC
     if (element.isLink()) {
         auto& style = *state.style();
         style.setIsLink(true);
-        InsideLink linkState = document().visitedLinkState().determineLinkState(element);
+        InsideLink linkState = protect(document())->visitedLinkState().determineLinkState(element);
         if (linkState != InsideLink::NotInside) {
             bool forceVisited = InspectorInstrumentation::forcePseudoState(element, CSSSelector::PseudoClass::Visited);
             if (forceVisited)
@@ -369,7 +369,7 @@ UnadjustedStyle Resolver::unadjustedStyleForCachedMatchResult(Element& element, 
         copyRelations(*state.style(), *unadjustedStyle.style);
     }
 
-    applyMatchedProperties(state, *unadjustedStyle.matchResult, WTF::move(cachedResult.changedProperties));
+    applyMatchedProperties(state, protect(*unadjustedStyle.matchResult), WTF::move(cachedResult.changedProperties));
 
     return {
         .style = state.takeStyle(),
@@ -516,7 +516,7 @@ Vector<Ref<StyleRuleKeyframe>> Resolver::keyframeRulesForName(const AtomString& 
         for (auto key : originalKeyframe->keys()) {
             KeyframeUniqueKey uniqueKey { key, timingFunction, compositeOperation };
             if (RefPtr existingStyleRuleKeyframe = keyframesMap.get(uniqueKey)) {
-                existingStyleRuleKeyframe->mutableProperties().mergeAndOverrideOnConflict(originalKeyframe->properties());
+                protect(existingStyleRuleKeyframe->mutableProperties())->mergeAndOverrideOnConflict(originalKeyframe->properties());
                 if (existingStyleRuleKeyframe->keys()[0].rangeName == CSSValueNormal)
                     continue;
                 deduplicatedKeyframes.removeFirstMatching([&](const auto& styleRuleKeyframe) {
@@ -526,7 +526,7 @@ Vector<Ref<StyleRuleKeyframe>> Resolver::keyframeRulesForName(const AtomString& 
             } else {
                 auto styleRuleKeyframe = StyleRuleKeyframe::create(MutableStyleProperties::create());
                 styleRuleKeyframe->setKey(key);
-                styleRuleKeyframe->mutableProperties().mergeAndOverrideOnConflict(originalKeyframe->properties());
+                protect(styleRuleKeyframe->mutableProperties())->mergeAndOverrideOnConflict(originalKeyframe->properties());
                 keyframesMap.set(uniqueKey, styleRuleKeyframe);
                 deduplicatedKeyframes.append(styleRuleKeyframe);
             }
@@ -634,9 +634,9 @@ std::unique_ptr<Style::ComputedStyle> Resolver::defaultStyleForElement(const Ele
     fontDescription.setOneFamily(WebCore::FontFamily { standardFamily, FontFamilyKind::Generic });
     fontDescription.setKeywordSizeFromIdentifier(CSSValueMedium);
 
-    auto size = fontSizeForKeyword(CSSValueMedium, false, document());
+    auto size = fontSizeForKeyword(CSSValueMedium, false, protect(document()));
     fontDescription.setSpecifiedSize(size);
-    auto computedFontSize = computedFontSizeFromSpecifiedSize(size, fontDescription.isAbsoluteSize(), is<SVGElement>(element), *style, document());
+    auto computedFontSize = computedFontSizeFromSpecifiedSize(size, fontDescription.isAbsoluteSize(), is<SVGElement>(element), *style, protect(document()));
     fontDescription.setComputedSize(computedFontSize.size, computedFontSize.usedZoomFactor);
 
     fontDescription.setShouldAllowUserInstalledFonts(settings().shouldAllowUserInstalledFonts() ? AllowUserInstalledFonts::Yes : AllowUserInstalledFonts::No);

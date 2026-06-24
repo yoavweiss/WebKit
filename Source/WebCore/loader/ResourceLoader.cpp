@@ -543,7 +543,7 @@ bool ResourceLoader::shouldAllowResourceToAskForCredentials() const
     RefPtr frame = m_frame.get();
     if (!frame)
         return false;
-    RefPtr topFrameSecurityOrigin = frame->tree().top().frameDocumentSecurityOrigin();
+    RefPtr topFrameSecurityOrigin = protect(frame->tree().top())->frameDocumentSecurityOrigin();
     if (!topFrameSecurityOrigin)
         return false;
     return topFrameSecurityOrigin->canRequest(m_request.url(), OriginAccessPatternsForWebProcess::singleton());
@@ -865,12 +865,12 @@ void ResourceLoader::didReceiveAuthenticationChallenge(ResourceHandle* handle, c
     if (m_options.storedCredentialsPolicy == StoredCredentialsPolicy::Use) {
         if (isAllowedToAskUserForCredentials() && m_identifier) {
             if (RefPtr frameLoader = this->frameLoader())
-                frameLoader->notifier().didReceiveAuthenticationChallenge(*m_identifier, documentLoader(), challenge);
+                frameLoader->notifier().didReceiveAuthenticationChallenge(*m_identifier, protect(documentLoader()), challenge);
             return;
         }
         didBlockAuthenticationChallenge();
     }
-    challenge.authenticationClient()->receivedRequestToContinueWithoutCredential(challenge);
+    protect(challenge.authenticationClient())->receivedRequestToContinueWithoutCredential(challenge);
     ASSERT(!m_handle || !m_handle->hasAuthenticationChallenge());
 }
 

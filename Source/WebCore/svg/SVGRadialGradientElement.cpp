@@ -167,7 +167,7 @@ bool SVGRadialGradientElement::collectGradientAttributes(RadialGradientAttribute
     while (true) {
         // Respect xlink:href, take attributes from referenced element
         auto target = SVGURIReference::targetElementFromIRIString(current->href(), treeScopeForSVGReferences());
-        if (RefPtr gradientElement = dynamicDowncast<SVGGradientElement>(target.element.get())) {
+        if (RefPtr gradientElement = dynamicDowncast<SVGGradientElement>(protect(target.element).get())) {
             current = gradientElement.releaseNonNull();
 
             // Cycle detection

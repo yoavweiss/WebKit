@@ -290,7 +290,7 @@ void JSTestAsyncIterableWithoutFlagsOwner::finalize(JSC::Handle<JSC::Unknown> ha
 {
     SUPPRESS_MEMORY_UNSAFE_CAST auto* jsTestAsyncIterableWithoutFlags = static_cast<JSTestAsyncIterableWithoutFlags*>(handle.slot()->asCell());
     auto& world = *static_cast<DOMWrapperWorld*>(context);
-    uncacheWrapper(world, protect(jsTestAsyncIterableWithoutFlags->wrapped()).ptr(), jsTestAsyncIterableWithoutFlags);
+    SUPPRESS_UNCOUNTED_ARG uncacheWrapper(world, &jsTestAsyncIterableWithoutFlags->wrapped(), jsTestAsyncIterableWithoutFlags);
 }
 
 WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN

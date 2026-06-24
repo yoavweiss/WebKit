@@ -282,7 +282,7 @@ void RenderThemeIOS::adjustTextFieldStyle(Style::ComputedStyle& style, const Ele
     }
 
     auto adjustBackgroundColor = [&] {
-        auto styleColorOptions = element->document().styleColorOptions(&style);
+        auto styleColorOptions = protect(element->document())->styleColorOptions(&style);
         if (style.backgroundColor() != systemColor(CSSValueAppleSystemOpaqueTertiaryFill, styleColorOptions))
             return;
 
@@ -334,7 +334,7 @@ void RenderThemeIOS::paintTextFieldDecorations(const RenderBox& box, const Paint
     GraphicsContextStateSaver stateSaver(context);
 
     auto shouldPaintFillAndInnerShadow = false;
-    auto element = box.element();
+    RefPtr element = box.element();
     if (RefPtr input = dynamicDowncast<HTMLInputElement>(*element)) {
         if (input->isTextField() && !input->isSearchField())
             shouldPaintFillAndInnerShadow = true;
@@ -343,11 +343,11 @@ void RenderThemeIOS::paintTextFieldDecorations(const RenderBox& box, const Paint
 
     if (PAL::currentUserInterfaceIdiomIsVision() && shouldPaintFillAndInnerShadow) {
         auto borderShape = BorderShape::shapeForBorderRect(box.style(), LayoutRect(rect));
-        auto path = borderShape.pathForOuterShape(box.document().deviceScaleFactor());
+        auto path = borderShape.pathForOuterShape(protect(box.document())->deviceScaleFactor());
         context.setFillColor(Color::black.colorWithAlphaByte(10));
         context.drawPath(path);
         context.clipPath(path);
-        paintTextFieldInnerShadow(paintInfo,  borderShape.deprecatedPixelSnappedRoundedRect(box.document().deviceScaleFactor()));
+        paintTextFieldInnerShadow(paintInfo,  borderShape.deprecatedPixelSnappedRoundedRect(protect(box.document())->deviceScaleFactor()));
     }
 }
 
@@ -926,7 +926,7 @@ void RenderThemeIOS::adjustButtonLikeControlStyle(Style::ComputedStyle& style, c
         return;
 
     if (!style.accentColor().isAuto()) {
-        auto tintColor = style.usedAccentColor(element.document().styleColorOptions(&style));
+        auto tintColor = style.usedAccentColor(protect(element.document())->styleColorOptions(&style));
         if (isSubmitStyleButton(&element))
             style.setBackgroundColor(WTF::move(tintColor));
         else
@@ -1035,7 +1035,7 @@ Color RenderThemeIOS::insertionPointColor()
 
 Color RenderThemeIOS::autocorrectionReplacementMarkerColor(const RenderText& renderer) const
 {
-    auto caretColor = CaretBase::computeCaretColor(renderer.style(), renderer.textNode());
+    auto caretColor = CaretBase::computeCaretColor(renderer.style(), protect(renderer.textNode()));
     if (!caretColor.isValid())
         caretColor = insertionPointColor();
 
@@ -1845,11 +1845,11 @@ void RenderThemeIOS::paintSliderTicks(const RenderElement& box, const PaintInfo&
     GraphicsContextStateSaver stateSaver(context);
 
     auto value = input->valueAsNumber();
-    auto deviceScaleFactor = box.document().deviceScaleFactor();
+    auto deviceScaleFactor = protect(box.document())->deviceScaleFactor();
     auto styleColorOptions = box.styleColorOptions();
 
     bool isInlineFlipped = (!isHorizontal && box.writingMode().isHorizontal()) || box.writingMode().isInlineFlipped();
-    for (auto& optionElement : dataList->suggestions()) {
+    for (Ref optionElement : dataList->suggestions()) {
         if (auto optionValue = input->listOptionValueAsDouble(optionElement)) {
             auto tickFraction = (*optionValue - min) / (max - min);
             auto tickRatio = isInlineFlipped ? 1.0 - tickFraction : tickFraction;

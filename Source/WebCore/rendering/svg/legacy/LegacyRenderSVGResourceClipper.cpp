@@ -140,7 +140,7 @@ auto LegacyRenderSVGResourceClipper::pathOnlyClipping(GraphicsContext& context, 
 
     // Only one visible shape/path was found. Directly continue clipping and transform the content to userspace if necessary.
     std::optional<AffineTransform> transform;
-    if (clipPathElement().clipPathUnits() == SVGUnitTypes::SVG_UNIT_TYPE_OBJECTBOUNDINGBOX) {
+    if (protect(clipPathElement())->clipPathUnits() == SVGUnitTypes::SVG_UNIT_TYPE_OBJECTBOUNDINGBOX) {
         transform.emplace();
         transform->translate(objectBoundingBox.location());
         transform->scale(objectBoundingBox.size());
@@ -191,7 +191,7 @@ auto LegacyRenderSVGResourceClipper::applyClippingToContext(GraphicsContext& con
 {
     LOG_WITH_STREAM(SVG, stream << "LegacyRenderSVGResourceClipper " << this << " applyClippingToContext: renderer " << &renderer << " objectBoundingBox " << objectBoundingBox << " clippedContentBounds " << clippedContentBounds);
 
-    AffineTransform animatedLocalTransform = clipPathElement().animatedLocalTransform();
+    AffineTransform animatedLocalTransform = protect(clipPathElement())->animatedLocalTransform();
 
     auto clipResult = pathOnlyClipping(context, renderer, animatedLocalTransform, objectBoundingBox, usedZoom);
     if (resourceWasApplied(clipResult)) {
@@ -212,7 +212,7 @@ auto LegacyRenderSVGResourceClipper::applyClippingToContext(GraphicsContext& con
         if (!clipperData.imageBuffer)
             return { };
 
-        GraphicsContext& maskContext = clipperData.imageBuffer->context();
+        GraphicsContext& maskContext = protect(clipperData.imageBuffer)->context();
         maskContext.concatCTM(animatedLocalTransform);
 
         // clipPath can also be clipped by another clipPath.
@@ -246,7 +246,7 @@ bool LegacyRenderSVGResourceClipper::drawContentIntoMaskImage(ImageBuffer& maskI
     GraphicsContext& maskContext = maskImageBuffer.context();
 
     AffineTransform maskContentTransformation;
-    if (clipPathElement().clipPathUnits() == SVGUnitTypes::SVG_UNIT_TYPE_OBJECTBOUNDINGBOX) {
+    if (protect(clipPathElement())->clipPathUnits() == SVGUnitTypes::SVG_UNIT_TYPE_OBJECTBOUNDINGBOX) {
         maskContentTransformation.translate(objectBoundingBox.location());
         maskContentTransformation.scale(objectBoundingBox.size());
         maskContext.concatCTM(maskContentTransformation);
@@ -346,9 +346,9 @@ bool LegacyRenderSVGResourceClipper::hitTestClipContent(const FloatRect& objectB
 
     // The forward transform order is: OBB first, then local transform.
     // So the inverse order is: inverse local first, then inverse OBB.
-    point = valueOrDefault(clipPathElement().animatedLocalTransform().inverse()).mapPoint(point);
+    point = valueOrDefault(protect(clipPathElement())->animatedLocalTransform().inverse()).mapPoint(point);
 
-    if (clipPathElement().clipPathUnits() == SVGUnitTypes::SVG_UNIT_TYPE_OBJECTBOUNDINGBOX) {
+    if (protect(clipPathElement())->clipPathUnits() == SVGUnitTypes::SVG_UNIT_TYPE_OBJECTBOUNDINGBOX) {
         AffineTransform transform;
         transform.translate(objectBoundingBox.location());
         transform.scale(objectBoundingBox.size());
@@ -387,7 +387,7 @@ FloatRect LegacyRenderSVGResourceClipper::resourceBoundingBox(const RenderObject
 
     auto clipBoundaries = m_clipBoundaries[repaintRectCalculation];
 
-    if (clipPathElement().clipPathUnits() == SVGUnitTypes::SVG_UNIT_TYPE_OBJECTBOUNDINGBOX) {
+    if (protect(clipPathElement())->clipPathUnits() == SVGUnitTypes::SVG_UNIT_TYPE_OBJECTBOUNDINGBOX) {
         FloatRect objectBoundingBox = object.objectBoundingBox();
         AffineTransform transform;
         transform.translate(objectBoundingBox.location());
@@ -395,7 +395,7 @@ FloatRect LegacyRenderSVGResourceClipper::resourceBoundingBox(const RenderObject
         clipBoundaries = transform.mapRect(clipBoundaries);
     }
 
-    return clipPathElement().animatedLocalTransform().mapRect(clipBoundaries);
+    return protect(clipPathElement())->animatedLocalTransform().mapRect(clipBoundaries);
 }
 
 }

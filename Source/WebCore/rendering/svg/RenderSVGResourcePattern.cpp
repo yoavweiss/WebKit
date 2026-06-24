@@ -62,7 +62,7 @@ void RenderSVGResourcePattern::collectPatternAttributesIfNeeded()
             break;
         current->collectPatternAttributes(attributes);
 
-        auto target = SVGURIReference::targetElementFromIRIString(current->href(), current->treeScopeForSVGReferences());
+        auto target = SVGURIReference::targetElementFromIRIString(current->href(), protect(current->treeScopeForSVGReferences()));
         current = dynamicDowncast<SVGPatternElement>(target.element.get());
     }
 

@@ -61,7 +61,7 @@ AtomString MediaQueryMatcher::mediaType() const
     if (!m_document || !m_document->frame() || !m_document->frame()->view())
         return nullAtom();
 
-    return m_document->frame()->view()->mediaType();
+    return protect(m_document->frame()->view())->mediaType();
 }
 
 bool MediaQueryMatcher::evaluate(const MQ::MediaQueryList& queries)
@@ -87,9 +87,9 @@ RefPtr<MediaQueryList> MediaQueryMatcher::matchMedia(const String& query)
     if (!m_document)
         return nullptr;
 
-    auto queries = MQ::MediaQueryParser::parse(query, m_document->cssParserContext());
+    auto queries = MQ::MediaQueryParser::parse(query, protect(m_document)->cssParserContext());
     bool matches = evaluate(queries);
-    return MediaQueryList::create(*m_document, *this, WTF::move(queries), matches);
+    return MediaQueryList::create(protect(*m_document), *this, WTF::move(queries), matches);
 }
 
 void MediaQueryMatcher::evaluateAll(EventMode eventMode)

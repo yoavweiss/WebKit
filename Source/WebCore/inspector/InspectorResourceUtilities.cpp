@@ -116,7 +116,7 @@ Vector<CachedResource*> cachedResourcesForFrame(LocalFrame* frame)
 {
     Vector<CachedResource*> result;
 
-    for (auto& cachedResourceHandle : frame->document()->cachedResourceLoader().allCachedResources().values()) {
+    for (auto& cachedResourceHandle : protect(frame->document())->cachedResourceLoader().allCachedResources().values()) {
         RefPtr cachedResource = cachedResourceHandle;
         if (cachedResource->resourceRequest().hiddenFromInspector())
             continue;
@@ -146,7 +146,7 @@ bool mainResourceContent(LocalFrame* frame, bool withBase64Encode, String* resul
     RefPtr<FragmentedSharedBuffer> buffer = frame->loader().documentLoader()->mainResourceData();
     if (!buffer)
         return false;
-    return dataContent(buffer->makeContiguous()->span(), frame->document()->encoding(), withBase64Encode, result);
+    return dataContent(buffer->makeContiguous()->span(), protect(frame->document())->encoding(), withBase64Encode, result);
 }
 
 void resourceContent(Inspector::Protocol::ErrorString& errorString, LocalFrame* frame, const URL& url, String* result, bool* base64Encoded)
@@ -246,10 +246,10 @@ RefPtr<CachedResource> cachedResource(const LocalFrame* frame, const URL& url)
     if (url.isNull())
         return nullptr;
 
-    RefPtr cachedResource = frame->document()->cachedResourceLoader().cachedResource(MemoryCache::removeFragmentIdentifierIfNeeded(url));
+    RefPtr cachedResource = protect(frame->document())->cachedResourceLoader().cachedResource(MemoryCache::removeFragmentIdentifierIfNeeded(url));
     if (!cachedResource) {
         ResourceRequest request(URL { url });
-        request.setDomainForCachePartition(frame->document()->domainForCachePartition());
+        request.setDomainForCachePartition(protect(frame->document())->domainForCachePartition());
         cachedResource = MemoryCache::singleton().resourceForRequest(request, frame->page()->sessionID());
     }
 
@@ -323,7 +323,7 @@ LocalFrame* findFrameWithSecurityOrigin(Page& page, const String& originRawStrin
         SUPPRESS_UNCOUNTED_LOCAL auto* localFrame = dynamicDowncast<LocalFrame>(frame);
         if (!localFrame)
             continue;
-        if (localFrame->document()->securityOrigin().toRawString() == originRawString)
+        if (protect(localFrame->document())->securityOrigin().toRawString() == originRawString)
             return localFrame;
     }
     return nullptr;

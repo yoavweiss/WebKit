@@ -560,7 +560,7 @@ void RenderText::styleDidChange(Style::Difference diff, const Style::ComputedSty
     if (needsLayoutBoxStyleUpdate)
         LayoutIntegration::LineLayout::updateStyle(*this);
 
-    if (CheckedPtr cache = document().existingAXObjectCache())
+    if (CheckedPtr cache = protect(document())->existingAXObjectCache())
         cache->onStyleChange(*this, diff, oldStyle, newStyle);
 
     setHorizontalWritingMode(newStyle.writingMode().isHorizontal());
@@ -657,7 +657,7 @@ void RenderText::collectSelectionGeometries(Vector<SelectionGeometry>& rects, un
         auto absoluteQuad = localToAbsoluteQuad(FloatRect(rect), MapCoordinatesMode::UseTransforms, &isFixed);
         bool boxIsHorizontal = !is<InlineIterator::SVGTextBoxIterator>(textBox) ? textBox->isHorizontal() : !writingMode().isVertical();
 
-        auto selectionGeometry = SelectionGeometry(absoluteQuad, HTMLElement::selectionRenderingBehavior(textNode()), textBox->direction(), extentsRect.x(), extentsRect.maxX(), extentsRect.maxY(), 0, textBox->isLineBreak(), isFirstOnLine, isLastOnLine, containsStart, containsEnd, boxIsHorizontal, isFixed, view().pageNumberForBlockProgressionOffset(absoluteQuad.enclosingBoundingBox().x()));
+        auto selectionGeometry = SelectionGeometry(absoluteQuad, HTMLElement::selectionRenderingBehavior(protect(textNode())), textBox->direction(), extentsRect.x(), extentsRect.maxX(), extentsRect.maxY(), 0, textBox->isLineBreak(), isFirstOnLine, isLastOnLine, containsStart, containsEnd, boxIsHorizontal, isFixed, view().pageNumberForBlockProgressionOffset(absoluteQuad.enclosingBoundingBox().x()));
         selectionGeometry.setSeparateFromPreviousLine(separateLines);
         rects.append(selectionGeometry);
     }
@@ -1594,7 +1594,7 @@ Vector<std::pair<unsigned, unsigned>> RenderText::contentRangesBetweenOffsetsFor
     if (!markerController)
         return { };
 
-    auto markers = markerController->markersFor(*textNode(), type);
+    auto markers = markerController->markersFor(protect(*textNode()), type);
     if (markers.isEmpty())
         return { };
 
@@ -1912,8 +1912,8 @@ void RenderText::setTextInternal(const String& text, bool force)
 
     updateRenderedText(text);
 
-    if (AXObjectCache* cache = document().existingAXObjectCache())
-        cache->deferTextChangedIfNeeded(textNode());
+    if (AXObjectCache* cache = protect(document())->existingAXObjectCache())
+        cache->deferTextChangedIfNeeded(protect(textNode()));
 }
 
 void RenderText::updateRenderedText(const String& text)

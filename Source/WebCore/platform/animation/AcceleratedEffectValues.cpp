@@ -52,9 +52,9 @@ AcceleratedEffectValues AcceleratedEffectValues::clone() const
     auto clonedTransformOrigin = transformOrigin;
     auto clonedTransformBox = transformBox;
     auto clonedTransform = transform.clone();
-    RefPtr clonedTranslate = translate ? RefPtr { translate->clone() } : nullptr;
-    RefPtr clonedScale = scale ? RefPtr { scale->clone() } : nullptr;
-    RefPtr clonedRotate = rotate ? RefPtr { rotate->clone() } : nullptr;
+    RefPtr clonedTranslate = translate ? RefPtr { protect(translate)->clone() } : nullptr;
+    RefPtr clonedScale = scale ? RefPtr { protect(scale)->clone() } : nullptr;
+    RefPtr clonedRotate = rotate ? RefPtr { protect(rotate)->clone() } : nullptr;
     auto clonedOffsetPath = offsetPath;
     auto clonedOffsetDistance = offsetDistance;
     auto clonedOffsetPosition = offsetPosition;
@@ -156,15 +156,15 @@ TransformationMatrix AcceleratedEffectValues::computedTransformationMatrix(const
 
     // 3. Translate by the computed X, Y, and Z values of translate.
     if (translate)
-        translate->apply(matrix);
+        protect(translate)->apply(matrix);
 
     // 4. Rotate by the computed <angle> about the specified axis of rotate.
     if (rotate)
-        rotate->apply(matrix);
+        protect(rotate)->apply(matrix);
 
     // 5. Scale by the computed X, Y, and Z values of scale.
     if (scale)
-        scale->apply(matrix);
+        protect(scale)->apply(matrix);
 
     // 6. Translate and rotate by the transform specified by offset.
     if (transformOperationData) {

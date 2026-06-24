@@ -67,11 +67,11 @@ void RenderScrollbarPart::layout()
 void RenderScrollbarPart::layoutHorizontalPart()
 {
     if (m_part == ScrollbarBGPart) {
-        setWidth(m_scrollbar->width());
+        setWidth(protect(m_scrollbar.get())->width());
         computeScrollbarHeight();
     } else {
         computeScrollbarWidth();
-        setHeight(m_scrollbar->height());
+        setHeight(protect(m_scrollbar.get())->height());
     }
 }
 
@@ -79,11 +79,11 @@ void RenderScrollbarPart::layoutVerticalPart()
 {
     if (m_part == ScrollbarBGPart) {
         computeScrollbarWidth();
-        setHeight(m_scrollbar->height());
+        setHeight(protect(m_scrollbar.get())->height());
     } else {
-        setWidth(m_scrollbar->width());
+        setWidth(protect(m_scrollbar.get())->width());
         computeScrollbarHeight();
-    } 
+    }
 }
 
 static int calcScrollbarThicknessUsing(const Style::PreferredSize& preferredSize, Style::ZoomFactor zoomFactor)
@@ -109,7 +109,7 @@ static int calcScrollbarThicknessUsing(const Style::MaximumSize& maximumSize, St
 
 void RenderScrollbarPart::computeScrollbarWidth()
 {
-    if (!m_scrollbar->owningRenderer())
+    if (!protect(m_scrollbar.get())->owningRenderer())
         return;
     auto zoomFactor = style().usedZoomForLength();
     auto width = calcScrollbarThicknessUsing(style().width(), zoomFactor);
@@ -124,7 +124,7 @@ void RenderScrollbarPart::computeScrollbarWidth()
 
 void RenderScrollbarPart::computeScrollbarHeight()
 {
-    if (!m_scrollbar->owningRenderer())
+    if (!protect(m_scrollbar.get())->owningRenderer())
         return;
     auto zoomFactor = style().usedZoomForLength();
     auto height = calcScrollbarThicknessUsing(style().height(), zoomFactor);
@@ -145,13 +145,13 @@ void RenderScrollbarPart::styleDidChange(Style::Difference diff, const Style::Co
     setFloating(false);
     setHasNonVisibleOverflow(false);
     if (oldStyle && m_scrollbar && m_part != NoPart && diff >= Style::DifferenceResult::Repaint)
-        m_scrollbar->theme().invalidatePart(*m_scrollbar, m_part);
+        m_scrollbar->theme().invalidatePart(protect(*m_scrollbar), m_part);
 }
 
 void RenderScrollbarPart::imageChanged(WrappedImagePtr image, const IntRect* rect)
 {
     if (m_scrollbar && m_part != NoPart)
-        m_scrollbar->theme().invalidatePart(*m_scrollbar, m_part);
+        m_scrollbar->theme().invalidatePart(protect(*m_scrollbar), m_part);
     else {
         CheckedRef frameView = view().frameView();
         if (frameView->isFrameViewScrollCorner(*this)) {
@@ -204,7 +204,7 @@ RenderBox* RenderScrollbarPart::rendererOwningScrollbar() const
 {
     if (!m_scrollbar)
         return nullptr;
-    return m_scrollbar->owningRenderer();
+    return protect(m_scrollbar.get())->owningRenderer();
 }
 
 }

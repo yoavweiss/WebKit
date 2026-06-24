@@ -204,7 +204,7 @@ static inline RenderSVGResourceMarker* NODELETE markerForType(SVGMarkerType type
 
 bool RenderSVGPath::shouldGenerateMarkerPositions() const
 {
-    if (style().hasMarkers() && graphicsElement().supportsMarkers())
+    if (style().hasMarkers() && protect(graphicsElement())->supportsMarkers())
         return svgMarkerStartResourceFromStyle() || svgMarkerMidResourceFromStyle() || svgMarkerEndResourceFromStyle();
     return false;
 }

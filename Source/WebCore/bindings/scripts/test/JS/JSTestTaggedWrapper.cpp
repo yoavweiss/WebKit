@@ -206,7 +206,7 @@ void JSTestTaggedWrapperOwner::finalize(JSC::Handle<JSC::Unknown> handle, void* 
 {
     SUPPRESS_MEMORY_UNSAFE_CAST auto* jsTestTaggedWrapper = static_cast<JSTestTaggedWrapper*>(handle.slot()->asCell());
     auto& world = *static_cast<DOMWrapperWorld*>(context);
-    uncacheWrapper(world, protect(jsTestTaggedWrapper->wrapped()).ptr(), jsTestTaggedWrapper);
+    SUPPRESS_UNCOUNTED_ARG uncacheWrapper(world, &jsTestTaggedWrapper->wrapped(), jsTestTaggedWrapper);
 }
 
 WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN

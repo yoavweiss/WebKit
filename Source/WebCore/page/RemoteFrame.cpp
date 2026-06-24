@@ -96,7 +96,7 @@ void RemoteFrame::didFinishLoadInAnotherProcess()
     m_preventsParentFromBeingComplete = false;
 
     if (RefPtr ownerElement = this->ownerElement())
-        ownerElement->document().checkCompleted();
+        protect(ownerElement->document())->checkCompleted();
 }
 
 bool RemoteFrame::preventsParentFromBeingComplete() const
@@ -179,7 +179,7 @@ String RemoteFrame::customNavigatorPlatform() const
 
 URL RemoteFrame::urlForConsoleLog() const
 {
-    return frameDocumentSecurityOrigin()->toURL();
+    return protect(frameDocumentSecurityOrigin())->toURL();
 }
 
 OptionSet<AdvancedPrivacyProtections> RemoteFrame::advancedPrivacyProtections() const

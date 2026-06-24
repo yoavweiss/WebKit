@@ -79,7 +79,7 @@ static bool matchesActiveViewTransitionTypePseudoClass(const Element& element, c
         return false;
 
     if (const RefPtr viewTransition = element.document().activeViewTransition()) {
-        const auto& activeTypes = viewTransition->types();
+        Ref activeTypes = viewTransition->types();
 
         for (const auto& type : types) {
             // https://github.com/w3c/csswg-drafts/issues/9534#issuecomment-1802364085
@@ -87,7 +87,7 @@ static bool matchesActiveViewTransitionTypePseudoClass(const Element& element, c
             if (equalLettersIgnoringASCIICase(type, "none"_s) || startsWithLettersIgnoringASCIICase(type, "-ua-"_s))
                 continue;
 
-            if (activeTypes.hasType(type))
+            if (activeTypes->hasType(type))
                 return true;
         }
     }
@@ -473,7 +473,7 @@ SelectorChecker::MatchResult SelectorChecker::matchRecursively(CheckingContext& 
     case CSSSelector::Relation::DirectAdjacent:
         {
             auto relation = context.isMatchElement ? Style::Relation::AffectedByPreviousSibling : Style::Relation::DescendantsAffectedByPreviousSibling;
-            addStyleRelation(checkingContext, *context.element, relation);
+            addStyleRelation(checkingContext, protect(*context.element), relation);
 
             CheckedPtr previousElement = context.element->previousElementSibling();
             if (!previousElement)
@@ -491,12 +491,12 @@ SelectorChecker::MatchResult SelectorChecker::matchRecursively(CheckingContext& 
         }
     case CSSSelector::Relation::IndirectAdjacent: {
         auto relation = context.isMatchElement ? Style::Relation::AffectedByPreviousSibling : Style::Relation::DescendantsAffectedByPreviousSibling;
-        addStyleRelation(checkingContext, *context.element, relation);
+        addStyleRelation(checkingContext, protect(*context.element), relation);
 
         nextContext.element = context.element->previousElementSibling();
         nextContext.firstSelectorOfTheFragment = nextContext.selector;
         for (; nextContext.element; nextContext.element = nextContext.element->previousElementSibling()) {
-            addStyleRelation(checkingContext, *nextContext.element, Style::Relation::AffectsNextSibling);
+            addStyleRelation(checkingContext, protect(*nextContext.element), Style::Relation::AffectsNextSibling);
 
             EnumSet<PseudoElementType> ignoredPseudoElements;
             MatchResult result = matchRecursively(checkingContext, nextContext, ignoredPseudoElements);
@@ -546,7 +546,7 @@ SelectorChecker::MatchResult SelectorChecker::matchRecursively(CheckingContext& 
         // Continue matching in the scope where this rule came from.
         RefPtr host = checkingContext.styleScopeOrdinal == Style::ScopeOrdinal::Element
             ? protect(context.element->shadowHost())
-            : Style::hostForScopeOrdinal(*context.element, checkingContext.styleScopeOrdinal);
+            : Style::hostForScopeOrdinal(protect(*context.element), checkingContext.styleScopeOrdinal);
         if (!host)
             return MatchResult::fails(Match::SelectorFailsCompletely);
 
@@ -562,7 +562,7 @@ SelectorChecker::MatchResult SelectorChecker::matchRecursively(CheckingContext& 
     }
     case CSSSelector::Relation::ShadowSlotted: {
         // We continue matching in the scope where this rule came from.
-        auto slot = Style::assignedSlotForScopeOrdinal(*context.element, checkingContext.styleScopeOrdinal);
+        auto slot = Style::assignedSlotForScopeOrdinal(protect(*context.element), checkingContext.styleScopeOrdinal);
         if (!slot)
             return MatchResult::fails(Match::SelectorFailsCompletely);
 
@@ -903,7 +903,7 @@ bool SelectorChecker::checkOne(CheckingContext& checkingContext, LocalContext& c
                         }
                     }
                 }
-                addStyleRelation(checkingContext, *context.element, Style::Relation::AffectedByEmpty, result);
+                addStyleRelation(checkingContext, protect(*context.element), Style::Relation::AffectedByEmpty, result);
 
                 return result;
             }
@@ -1361,7 +1361,7 @@ bool SelectorChecker::checkOne(CheckingContext& checkingContext, LocalContext& c
                     return;
                 }
 
-                RefPtr ruleScopeHost = Style::hostForScopeOrdinal(*context.element, checkingContext.styleScopeOrdinal);
+                RefPtr ruleScopeHost = Style::hostForScopeOrdinal(protect(*context.element), checkingContext.styleScopeOrdinal);
 
                 Vector<AtomString, 1> mappedNames { partName };
                 for (CheckedPtr shadowRoot = element->containingShadowRoot(); shadowRoot; shadowRoot = shadowRoot->host()->containingShadowRoot()) {

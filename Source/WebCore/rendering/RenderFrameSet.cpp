@@ -439,7 +439,7 @@ void RenderFrameSet::layout()
         oldBounds = clippedOverflowRectForRepaint(repaintContainer.get());
     }
 
-    if (!parent()->isRenderFrameSet() && !document().printing()) {
+    if (!parent()->isRenderFrameSet() && !protect(document())->printing()) {
         setWidth(view().viewWidth());
         setHeight(view().viewHeight());
     }

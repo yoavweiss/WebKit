@@ -86,7 +86,7 @@ bool LegacyRenderSVGViewportContainer::calculateLocalTransform()
 
 AffineTransform LegacyRenderSVGViewportContainer::viewportTransform() const
 {
-    return svgSVGElement().viewBoxToViewTransform(m_viewport.width(), m_viewport.height());
+    return protect(svgSVGElement())->viewBoxToViewTransform(m_viewport.width(), m_viewport.height());
 }
 
 bool LegacyRenderSVGViewportContainer::pointIsInsideViewportClip(const FloatPoint& pointInParent)

@@ -887,10 +887,10 @@ RefPtr<Element> SVGSVGElement::getElementById(const AtomString& id)
         return nullptr;
     }
 
-    RefPtr element = treeScope().getElementById(id);
+    RefPtr element = protect(treeScope())->getElementById(id);
     if (element && element->isDescendantOf(*this))
         return element;
-    if (treeScope().containsMultipleElementsWithId(id)) {
+    if (protect(treeScope())->containsMultipleElementsWithId(id)) {
         for (auto& element : *treeScope().getAllElementsById(id)) {
             if (element->isDescendantOf(*this))
                 return element.ptr();

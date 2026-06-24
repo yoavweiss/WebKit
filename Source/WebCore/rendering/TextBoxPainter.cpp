@@ -207,9 +207,9 @@ TextBoxPainter::TextBoxPainter(const LayoutIntegration::InlineContent& inlineCon
 {
     ASSERT(paintInfo.phase == PaintPhase::Foreground || paintInfo.phase == PaintPhase::Selection || paintInfo.phase == PaintPhase::TextClip || paintInfo.phase == PaintPhase::EventRegion || paintInfo.phase == PaintPhase::Accessibility);
 
-    Ref editor = m_renderer->frame().editor();
-    m_containsComposition = m_renderer->textNode() && editor->compositionNode() == m_renderer->textNode();
-    m_compositionWithCustomUnderlines = m_containsComposition && editor->compositionUsesCustomUnderlines();
+    SUPPRESS_UNCOUNTED_LOCAL auto& editor = m_renderer->frame().editor();
+    m_containsComposition = m_renderer->textNode() && editor.compositionNode() == m_renderer->textNode();
+    m_compositionWithCustomUnderlines = m_containsComposition && editor.compositionUsesCustomUnderlines();
 }
 
 TextBoxPainter::~TextBoxPainter() = default;
@@ -284,7 +284,7 @@ void TextBoxPainter::paint()
         if (m_compositionWithCustomUnderlines)
             paintCompositionUnderlines();
 
-        m_renderer->page().addRelevantRepaintedObject(m_renderer, enclosingLayoutRect(m_paintRect));
+        protect(m_renderer->page())->addRelevantRepaintedObject(m_renderer, enclosingLayoutRect(m_paintRect));
 
         bool isOnlyTextBoxForElement = [&]() {
             if (m_textBox.boxIndex() != 1)
@@ -323,7 +323,7 @@ void TextBoxPainter::paintCompositionForeground(const StyledMarkedText& markedTe
         if (!m_containsComposition)
             return false;
 
-        Ref editor = m_renderer->frame().editor();
+        Ref editor = protect(m_renderer->frame())->editor();
         return editor->compositionUsesCustomHighlights();
     };
 
@@ -335,7 +335,7 @@ void TextBoxPainter::paintCompositionForeground(const StyledMarkedText& markedTe
     // The highlight ranges must be "packed" so that there is no non-empty interval between
     // any two adjacent highlight ranges. This is needed since otherwise, `paintForeground`
     // will not be called in those would-be non-empty intervals.
-    Ref editor = m_renderer->frame().editor();
+    Ref editor = protect(m_renderer->frame())->editor();
     auto highlights = editor->customCompositionHighlights();
 
     Vector<CompositionHighlight> highlightsWithForeground;
@@ -528,7 +528,7 @@ void TextBoxPainter::paintForegroundAndDecorations()
 void TextBoxPainter::paintBackgroundFill()
 {
     if (m_containsComposition && !m_compositionWithCustomUnderlines) {
-        Ref editor = m_renderer->frame().editor();
+        Ref editor = protect(m_renderer->frame())->editor();
 
         if (editor->compositionUsesCustomHighlights()) {
             for (auto& highlight : editor->customCompositionHighlights()) {
@@ -1202,7 +1202,8 @@ void TextBoxPainter::fillCompositionUnderline(float start, float width, const Co
 
 void TextBoxPainter::paintCompositionUnderlines()
 {        
-    auto& underlines = m_renderer->frame().editor().customCompositionUnderlines();
+    Ref protectedFrame = m_renderer->frame();
+    auto& underlines = protectedFrame->editor().customCompositionUnderlines();
     auto underlineCount = underlines.size();
 
     if (!underlineCount)
@@ -1431,7 +1432,7 @@ void TextBoxPainter::paintPlatformDocumentMarker(const MarkedText& markedText)
     constexpr static bool useSimplifiedSuggestionUnderline = false;
 #endif
     if (!useSimplifiedSuggestionUnderline && markedText.type == MarkedText::Type::WritingToolsTextSuggestion) {
-        drawWritingToolsUnderline(m_paintInfo.context(), bounds,  m_renderer->frame().view()->size());
+        drawWritingToolsUnderline(m_paintInfo.context(), bounds,  protect(m_renderer->frame().view())->size());
         return;
     }
 #endif

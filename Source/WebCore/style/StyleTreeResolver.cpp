@@ -150,7 +150,7 @@ void TreeResolver::pushScope(ShadowRoot& shadowRoot)
 void TreeResolver::pushEnclosingScope()
 {
     ASSERT(scope().enclosingScope);
-    m_scopeStack.append(*scope().enclosingScope);
+    m_scopeStack.append(protect(*scope().enclosingScope));
 }
 
 void TreeResolver::popScope()
@@ -357,7 +357,7 @@ auto TreeResolver::resolveElement(Element& element, const Style::ComputedStyle* 
     if (isDocumentElement) {
         if (styleChangeAffectsRelativeUnits(*update.style, existingStyle)) {
             // "rem" units are relative to the document element's font size so we need to recompute everything.
-            scope().resolver->invalidateMatchedDeclarationsCache();
+            protect(scope().resolver)->invalidateMatchedDeclarationsCache();
             descendantsToResolve = DescendantsToResolve::All;
         }
     }
@@ -630,7 +630,7 @@ std::optional<ResolvedStyle> TreeResolver::resolveAncestorFirstLinePseudoElement
         if (!resolutionContext)
             return { };
 
-        auto elementStyle = scope().resolver->styleForElement(element, *resolutionContext);
+        auto elementStyle = protect(scope().resolver)->styleForElement(element, *resolutionContext);
         elementStyle.style->setPseudoElementIdentifier({ { PseudoElementType::FirstLine } });
 
         return elementStyle;
@@ -665,7 +665,7 @@ std::optional<ResolvedStyle> TreeResolver::resolveAncestorFirstLinePseudoElement
     // Can't use the cached state since the element being resolved is not the current one.
     resolutionContext.selectorMatchingState = nullptr;
 
-    return scope().resolver->styleForPseudoElement(*firstLineElement, { PseudoElementType::FirstLine }, resolutionContext);
+    return protect(scope().resolver)->styleForPseudoElement(*firstLineElement, { PseudoElementType::FirstLine }, resolutionContext);
 }
 
 std::optional<ResolvedStyle> TreeResolver::resolveAncestorFirstLetterPseudoElement(Element& element, const ElementUpdate& elementUpdate, ResolutionContext& resolutionContext)
@@ -706,7 +706,7 @@ std::optional<ResolvedStyle> TreeResolver::resolveAncestorFirstLetterPseudoEleme
     // Can't use the cached state since the element being resolved is not the current one.
     resolutionContext.selectorMatchingState = nullptr;
 
-    return scope().resolver->styleForPseudoElement(*firstLetterElement, { PseudoElementType::FirstLetter }, resolutionContext);
+    return protect(scope().resolver)->styleForPseudoElement(*firstLetterElement, { PseudoElementType::FirstLetter }, resolutionContext);
 }
 
 ResolutionContext TreeResolver::makeResolutionContext()
@@ -838,7 +838,7 @@ ElementUpdate TreeResolver::createAnimatedElementUpdate(ResolvedStyle&& resolved
         // A styleable gets its style resolved multiple times for anchor positioning.
         // Therefore when updating animation is deferred, save the old style so it's restored
         // (using beforeResolutionStyle) and can be used when animation is finally updated/applied.
-        saveBeforeResolutionStyleForInterleaving(styleable.element, oldStyle);
+        saveBeforeResolutionStyleForInterleaving(protect(styleable.element), oldStyle);
     }
 
     auto unanimatedDisplay = resolvedStyle.style->display();
@@ -960,7 +960,7 @@ ElementUpdate TreeResolver::createAnimatedElementUpdate(ResolvedStyle&& resolved
         return keyframeEffectStack->containsProperty(CSSPropertyDisplay);
     }();
 
-    if (!affectsRenderedSubtree(styleable.element, *newStyle) && !animationsAffectedDisplay) {
+    SUPPRESS_UNCOUNTED_ARG if (!affectsRenderedSubtree(styleable.element, *newStyle) && !animationsAffectedDisplay) {
         // If after updating animations we end up not rendering this element or its subtree
         // and the update did not change the "display" value then we should cancel all
         // style-originated animations while ensuring that the new ones are canceled silently,
@@ -1303,7 +1303,7 @@ void TreeResolver::resolveComposedTree()
                 TextUpdate textUpdate;
                 textUpdate.inheritedDisplayContentsStyle = createInheritedDisplayContentsStyleIfNeeded(parent.style, parentBoxStyle());
 
-                m_update->addText(*text, parent.element, WTF::move(textUpdate));
+                m_update->addText(*text, protect(parent.element), WTF::move(textUpdate));
             }
 
             if (!containsOnlyASCIIWhitespace)
@@ -1365,7 +1365,7 @@ void TreeResolver::resolveComposedTree()
             descendantsToResolve = elementDescendantsToResolve;
 
             if (style || element->hasDisplayNone())
-                m_update->addElement(element.get(), parent.element, WTF::move(elementUpdate));
+                m_update->addElement(element.get(), protect(parent.element), WTF::move(elementUpdate));
             if (style && element.ptr() == m_document->documentElement())
                 m_computedDocumentElementStyle = Style::ComputedStyle::clonePtr(*style);
             clearNeedsStyleResolution(element.get());
@@ -1515,7 +1515,7 @@ std::unique_ptr<Update> TreeResolver::resolve()
     for (auto& [element, state] : m_queryContainerStates) {
         // Ensure that resumed resolution reaches the container.
         if (!state.invalidated) {
-            element->invalidateForResumingQueryContainerResolution();
+            protect(element)->invalidateForResumingQueryContainerResolution();
             state.invalidated = true;
 
             m_needsInterleavedLayout = true;
@@ -1529,7 +1529,7 @@ std::unique_ptr<Update> TreeResolver::resolve()
 
         // Ensure that style resolution visits any unresolved anchor-positioned elements.
         if (state->stage < AnchorPositionResolutionStage::Resolved) {
-            anchorPositioned->element.invalidateForResumingAnchorPositionedElementResolution();
+            protect(anchorPositioned->element)->invalidateForResumingAnchorPositionedElementResolution();
             m_needsInterleavedLayout = true;
         }
     }
@@ -1540,7 +1540,7 @@ std::unique_ptr<Update> TreeResolver::resolve()
             continue;
 
         if (!options.chosen) {
-            styleable->element.invalidateForResumingAnchorPositionedElementResolution();
+            protect(styleable->element)->invalidateForResumingAnchorPositionedElementResolution();
             m_needsInterleavedLayout = true;
         }
     }
@@ -1566,7 +1566,7 @@ std::unique_ptr<Update> TreeResolver::resolve()
 
             if (anchorPositionedReferencesChangedAnchorNames) {
                 // Invalidate the anchor-positioned element, so subsequent style resolution rounds would visit it.
-                anchorPositioned->element.invalidateForResumingAnchorPositionedElementResolution();
+                protect(anchorPositioned->element)->invalidateForResumingAnchorPositionedElementResolution();
 
                 // Mark that additional style resolution round is needed.
                 m_needsInterleavedLayout = true;
@@ -1695,7 +1695,7 @@ std::unique_ptr<Style::ComputedStyle> TreeResolver::generatePositionOption(const
 
         // "If an at-rule or property defines a name that other CSS constructs can refer to it by, ... it must be defined as a tree-scoped name."
         // https://drafts.csswg.org/css-scoping-1/#shadow-names
-        return Style::Scope::resolveTreeScopedReference(styleable.element, *fallback.ruleAndTactics.rule, [](const Style::Scope& scope, const AtomString& name) -> RefPtr<const StyleProperties> {
+        return Style::Scope::resolveTreeScopedReference(protect(styleable.element), *fallback.ruleAndTactics.rule, [](const Style::Scope& scope, const AtomString& name) -> RefPtr<const StyleProperties> {
             auto& ruleSet = scope.resolverIfExists()->ruleSets().authorStyle();
             RefPtr rule = ruleSet.positionTryRuleForName(name);
             if (!rule)

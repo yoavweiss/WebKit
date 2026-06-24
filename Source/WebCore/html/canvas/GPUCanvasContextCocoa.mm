@@ -197,7 +197,7 @@ GPUCanvasContextCocoa::GPUCanvasContextCocoa(CanvasBase& canvas, Ref<GPUComposit
 {
 #if HAVE(SUPPORT_HDR_DISPLAY)
     if (document)
-        document->addScreenPropertiesChangedObserver(*m_screenPropertiesChangedObserver);
+        document->addScreenPropertiesChangedObserver(protect(*m_screenPropertiesChangedObserver));
     else
         m_screenPropertiesChangedObserver = nullptr;
 #else
@@ -352,7 +352,7 @@ void GPUCanvasContextCocoa::didUpdateCanvasSizeProperties(bool)
 
 RefPtr<ImageBuffer> GPUCanvasContextCocoa::surfaceBufferToImageBuffer(SurfaceBuffer)
 {
-    RefPtr scriptExecutionContext = canvasBase().scriptExecutionContext();
+    RefPtr scriptExecutionContext = protect(canvasBase())->scriptExecutionContext();
     if (!scriptExecutionContext)
         return nullptr;
     const auto size = canvasBase().size();
@@ -392,7 +392,7 @@ RefPtr<ImageBuffer> GPUCanvasContextCocoa::surfaceBufferToImageBuffer(SurfaceBuf
 
 RefPtr<ImageBuffer> GPUCanvasContextCocoa::transferToImageBuffer()
 {
-    RefPtr scriptExecutionContext = canvasBase().scriptExecutionContext();
+    RefPtr scriptExecutionContext = protect(canvasBase())->scriptExecutionContext();
     if (!scriptExecutionContext)
         return nullptr;
     const auto size = canvasBase().size();
@@ -468,11 +468,11 @@ ExceptionOr<void> GPUCanvasContextCocoa::configure(GPUCanvasConfiguration&& conf
     if (configuration.usage & GPUTextureUsage::TRANSIENT_ATTACHMENT)
         return Exception { ExceptionCode::TypeError, "GPUCanvasContextCocoa::configure: Can not configure a canvas with a transient backing"_s };
 
-    if (auto error = configuration.device->errorValidatingSupportedFormat(configuration.format))
+    if (auto error = protect(configuration.device)->errorValidatingSupportedFormat(configuration.format))
         return Exception { ExceptionCode::TypeError, makeString("GPUCanvasContext.configure: Unsupported texture format: "_s, *error) };
 
     for (auto viewFormat : configuration.viewFormats) {
-        if (auto error = configuration.device->errorValidatingSupportedFormat(viewFormat))
+        if (auto error = protect(configuration.device)->errorValidatingSupportedFormat(viewFormat))
             return Exception { ExceptionCode::TypeError, makeString("Unsupported texture view format: "_s, *error) };
     }
 
@@ -481,7 +481,7 @@ ExceptionOr<void> GPUCanvasContextCocoa::configure(GPUCanvasConfiguration&& conf
 
     if (configuration.toneMapping.mode != GPUCanvasToneMappingMode::Standard) {
 #if ENABLE(HDR_FOR_WEBGPU)
-        RefPtr scriptExecutionContext = canvasBase().scriptExecutionContext();
+        RefPtr scriptExecutionContext = protect(canvasBase())->scriptExecutionContext();
         if (!scriptExecutionContext || !scriptExecutionContext->settingsValues().webGPUHDREnabled)
             configuration.toneMapping.mode = GPUCanvasToneMappingMode::Standard;
 #else

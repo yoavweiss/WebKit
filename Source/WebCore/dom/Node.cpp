@@ -1074,12 +1074,12 @@ void Node::invalidateNodeListAndCollectionCachesInAncestors()
             lists->clearChildNodeListCache();
     }
 
-    document().invalidateQuerySelectorAllResults(*this);
+    SUPPRESS_UNCOUNTED_ARG document().invalidateQuerySelectorAllResults(*this);
 
     if (!document().shouldInvalidateNodeListAndCollectionCaches())
         return;
 
-    document().invalidateNodeListAndCollectionCaches([](auto& list) {
+    protect(document())->invalidateNodeListAndCollectionCaches([](auto& list) {
         list.invalidateCache();
     });
 
@@ -1105,7 +1105,7 @@ void Node::invalidateNodeListCollectionAndInnerHTMLPrefixCachesInAncestorsForAtt
         return;
 
     if (shouldInvalidate) {
-        document().invalidateNodeListAndCollectionCaches([&attrName](auto& list) {
+        protect(document())->invalidateNodeListAndCollectionCaches([&attrName](auto& list) {
             list.invalidateCacheForAttribute(attrName);
         });
     }
@@ -1271,7 +1271,7 @@ bool Node::canStartSelection() const
         if (style.userDrag() == UserDrag::Element && style.usedUserSelect() == UserSelect::None)
             return false;
     }
-    return parentOrShadowHostNode() ? parentOrShadowHostNode()->canStartSelection() : true;
+    return parentOrShadowHostNode() ? protect(parentOrShadowHostNode())->canStartSelection() : true;
 }
 
 Element* Node::shadowHost() const
@@ -1538,7 +1538,7 @@ void Node::updateShadowIncludingRootForSubtree()
 
 bool Node::isRootEditableElement() const
 {
-    return hasEditableStyle() && isElementNode() && (!parentNode() || !parentNode()->hasEditableStyle()
+    return hasEditableStyle() && isElementNode() && (!parentNode() || !protect(parentNode())->hasEditableStyle()
         || !parentNode()->isElementNode() || document().body() == this);
 }
 
@@ -2102,22 +2102,22 @@ void Node::showTreeForThisAcrossFrame() const
 void NodeListsNodeData::invalidateCaches()
 {
     for (auto& atomName : m_atomNameCaches)
-        atomName.value->invalidateCache();
+        protect(atomName.value)->invalidateCache();
 
     for (auto& collection : m_cachedCollections)
-        collection.value->invalidateCache();
+        protect(collection.value)->invalidateCache();
 
     for (auto& tagCollection : m_tagCollectionNSCache)
-        tagCollection.value->invalidateCache();
+        protect(tagCollection.value)->invalidateCache();
 }
 
 void NodeListsNodeData::invalidateCachesForAttribute(const QualifiedName& attrName)
 {
     for (auto& atomName : m_atomNameCaches)
-        atomName.value->invalidateCacheForAttribute(attrName);
+        protect(atomName.value)->invalidateCacheForAttribute(attrName);
 
     for (auto& collection : m_cachedCollections)
-        collection.value->invalidateCacheForAttribute(attrName);
+        protect(collection.value)->invalidateCacheForAttribute(attrName);
 }
 
 void Node::getSubresourceURLs(OrderedHashSet<URL>& urls) const

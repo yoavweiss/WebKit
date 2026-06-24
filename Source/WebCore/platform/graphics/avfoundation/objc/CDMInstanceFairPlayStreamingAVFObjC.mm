@@ -529,7 +529,7 @@ void CDMInstanceFairPlayStreamingAVFObjC::requestDidSucceed(AVContentKeyRequest 
 
 bool CDMInstanceFairPlayStreamingAVFObjC::shouldRetryRequestForReason(AVContentKeyRequest *request, NSString *reason)
 {
-    if (auto* session = sessionForRequest(request))
+    if (RefPtr session = sessionForRequest(request))
         return session->shouldRetryRequestForReason(request, reason);
 
     ASSERT_NOT_REACHED();
@@ -963,13 +963,13 @@ void CDMInstanceSessionFairPlayStreamingAVFObjC::updateLicense(const String&, Li
                 return false;
 
             if (hasError) {
-                auto errorCode = errorFindResults->value->asInteger();
+                auto errorCode = protect(errorFindResults->value)->asInteger();
                 if (!errorCode)
                     return false;
                 auto error = adoptNS([[NSError alloc] initWithDomain:@"org.webkit.eme" code:*errorCode userInfo:nil]);
                 [request processContentKeyResponseError:error.get()];
             } else if (hasPayload) {
-                auto payloadString = payloadFindResults->value->asString();
+                auto payloadString = protect(payloadFindResults->value)->asString();
                 if (!payloadString)
                     return false;
                 auto payloadVector = base64Decode(payloadString);
@@ -1186,7 +1186,7 @@ void CDMInstanceSessionFairPlayStreamingAVFObjC::didProvideRequest(AVContentKeyR
         return;
     }
 
-    RetainPtr<NSData> contentIdentifier = keyIDs.first()->makeContiguous()->createNSData();
+    RetainPtr<NSData> contentIdentifier = protect(keyIDs.first())->makeContiguous()->createNSData();
     @try {
         RetainPtr options = optionsForKeyRequestWithHashSalt(m_instance->mediaKeysHashSalt());
         [request makeStreamingContentKeyRequestDataForApp:appIdentifier.get() contentIdentifier:contentIdentifier.get() options:options.get() completionHandler:[this, weakThis = WeakPtr { *this }] (NSData *contentKeyRequestData, NSError *error) mutable {
@@ -1208,7 +1208,7 @@ void CDMInstanceSessionFairPlayStreamingAVFObjC::didProvideRequest(AVContentKeyR
                 else if (m_requestLicenseCallback)
                     m_requestLicenseCallback(SharedBuffer::create(contentKeyRequestData.get()), m_sessionId, false, Succeeded);
                 else if (m_client)
-                    m_client->sendMessage(CDMMessageType::LicenseRequest, SharedBuffer::create(contentKeyRequestData.get()));
+                    protect(m_client.get())->sendMessage(CDMMessageType::LicenseRequest, SharedBuffer::create(contentKeyRequestData.get()));
                 ASSERT(!m_requestLicenseCallback);
             });
         }];
@@ -1407,7 +1407,7 @@ void CDMInstanceSessionFairPlayStreamingAVFObjC::didProvideRenewingRequest(AVCon
         appIdentifier = certificate->makeContiguous()->createNSData();
     auto keyIDs = keyIDsForRequest(m_currentRequest.value());
 
-    RetainPtr<NSData> contentIdentifier = keyIDs.first()->makeContiguous()->createNSData();
+    RetainPtr<NSData> contentIdentifier = protect(keyIDs.first())->makeContiguous()->createNSData();
     @try {
         RetainPtr options = optionsForKeyRequestWithHashSalt(m_instance->mediaKeysHashSalt());
         [request makeStreamingContentKeyRequestDataForApp:appIdentifier.get() contentIdentifier:contentIdentifier.get() options:options.get() completionHandler:[this, weakThis = WeakPtr { *this }] (NSData *contentKeyRequestData, NSError *error) mutable {
@@ -1420,7 +1420,7 @@ void CDMInstanceSessionFairPlayStreamingAVFObjC::didProvideRenewingRequest(AVCon
                 else if (m_updateLicenseCallback)
                     m_updateLicenseCallback(false, std::nullopt, std::nullopt, Message(MessageType::LicenseRenewal, SharedBuffer::create(contentKeyRequestData.get())), Succeeded);
                 else if (m_client)
-                    m_client->sendMessage(CDMMessageType::LicenseRenewal, SharedBuffer::create(contentKeyRequestData.get()));
+                    protect(m_client.get())->sendMessage(CDMMessageType::LicenseRenewal, SharedBuffer::create(contentKeyRequestData.get()));
                 ASSERT(!m_updateLicenseCallback);
             });
         }];
@@ -1577,7 +1577,7 @@ void CDMInstanceSessionFairPlayStreamingAVFObjC::sessionIdentifierChanged(NSData
 
     m_sessionId = sessionId;
     if (m_client)
-        m_client->sessionIdChanged(m_sessionId);
+        protect(m_client.get())->sessionIdChanged(m_sessionId);
 }
 
 void CDMInstanceSessionFairPlayStreamingAVFObjC::groupSessionIdentifierChanged(AVContentKeyReportGroup*, NSData *sessionIdentifier)
@@ -1645,7 +1645,7 @@ void CDMInstanceSessionFairPlayStreamingAVFObjC::outputObscuredDueToInsufficient
     updateKeyStatuses();
 
     if (m_client)
-        m_client->updateKeyStatuses(copyKeyStatuses());
+        protect(m_client.get())->updateKeyStatuses(copyKeyStatuses());
 }
 
 void CDMInstanceSessionFairPlayStreamingAVFObjC::externalProtectionStatusDidChangeForContentKey(AVContentKey *)
@@ -1731,7 +1731,7 @@ void CDMInstanceSessionFairPlayStreamingAVFObjC::updateProtectionStatus()
     updateKeyStatuses();
 
     if (m_client)
-        m_client->updateKeyStatuses(copyKeyStatuses());
+        protect(m_client.get())->updateKeyStatuses(copyKeyStatuses());
 }
 
 bool CDMInstanceSessionFairPlayStreamingAVFObjC::ensureSessionOrGroup(KeyGroupingStrategy keyGroupingStrategy)

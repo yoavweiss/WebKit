@@ -833,7 +833,7 @@ void JSTestConditionalIncludesOwner::finalize(JSC::Handle<JSC::Unknown> handle, 
 {
     SUPPRESS_MEMORY_UNSAFE_CAST auto* jsTestConditionalIncludes = static_cast<JSTestConditionalIncludes*>(handle.slot()->asCell());
     auto& world = *static_cast<DOMWrapperWorld*>(context);
-    uncacheWrapper(world, protect(jsTestConditionalIncludes->wrapped()).ptr(), jsTestConditionalIncludes);
+    SUPPRESS_UNCOUNTED_ARG uncacheWrapper(world, &jsTestConditionalIncludes->wrapped(), jsTestConditionalIncludes);
 }
 
 WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN

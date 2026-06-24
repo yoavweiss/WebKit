@@ -122,7 +122,7 @@ void DOMWrapperWorld::setWrappersTableWritable(bool writable)
             return;
     }
     if (m_wrappersTableBase)
-        RELEASE_ASSERT(!mprotect(m_wrappersTableBase, m_wrappersTableSize, PROT_READ | (writable ? PROT_WRITE : 0)));
+        SUPPRESS_NODELETE RELEASE_ASSERT(!mprotect(m_wrappersTableBase, m_wrappersTableSize, PROT_READ | (writable ? PROT_WRITE : 0)));
 }
 
 void WrapperMutationScope::enter()
@@ -170,7 +170,7 @@ DOMWrapperWorld::~DOMWrapperWorld()
 
     // These items are created lazily.
     while (!m_jsWindowProxies.isEmpty())
-        (*m_jsWindowProxies.begin())->destroyJSWindowProxy(*this);
+        protect(*m_jsWindowProxies.begin())->destroyJSWindowProxy(*this);
 }
 
 void DOMWrapperWorld::clearWrappers()
@@ -189,7 +189,7 @@ void DOMWrapperWorld::clearWrappers()
 
     // These items are created lazily.
     while (!m_jsWindowProxies.isEmpty())
-        (*m_jsWindowProxies.begin())->destroyJSWindowProxy(*this);
+        protect(*m_jsWindowProxies.begin())->destroyJSWindowProxy(*this);
 }
 
 void DOMWrapperWorld::addEventListener(JSEventListener& listener)

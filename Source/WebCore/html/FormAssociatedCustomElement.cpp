@@ -217,7 +217,7 @@ void FormAssociatedCustomElement::invalidateElementsCollectionCachesInAncestors(
     if (RefPtr form = this->form())
         invalidateElementsCache(*form);
 
-    for (Ref ancestor : lineageOfType<HTMLFieldSetElement>(*m_element))
+    for (Ref ancestor : lineageOfType<HTMLFieldSetElement>(protect(*m_element)))
         invalidateElementsCache(ancestor.get());
 }
 

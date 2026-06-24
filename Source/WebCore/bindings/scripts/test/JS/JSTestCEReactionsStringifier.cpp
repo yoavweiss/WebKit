@@ -304,7 +304,7 @@ void JSTestCEReactionsStringifierOwner::finalize(JSC::Handle<JSC::Unknown> handl
 {
     SUPPRESS_MEMORY_UNSAFE_CAST auto* jsTestCEReactionsStringifier = static_cast<JSTestCEReactionsStringifier*>(handle.slot()->asCell());
     auto& world = *static_cast<DOMWrapperWorld*>(context);
-    uncacheWrapper(world, protect(jsTestCEReactionsStringifier->wrapped()).ptr(), jsTestCEReactionsStringifier);
+    SUPPRESS_UNCOUNTED_ARG uncacheWrapper(world, &jsTestCEReactionsStringifier->wrapped(), jsTestCEReactionsStringifier);
 }
 
 WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN

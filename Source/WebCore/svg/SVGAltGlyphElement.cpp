@@ -81,7 +81,7 @@ RenderPtr<RenderElement> SVGAltGlyphElement::createElementRenderer(Style::Comput
 bool SVGAltGlyphElement::hasValidGlyphElements(Vector<String>& glyphNames) const
 {
     // No need to support altGlyph referencing another node inside a shadow tree.
-    auto target = targetElementFromIRIString(getAttribute(SVGNames::hrefAttr, XLinkNames::hrefAttr), document());
+    auto target = targetElementFromIRIString(getAttribute(SVGNames::hrefAttr, XLinkNames::hrefAttr), protect(document()));
 
     if (is<SVGGlyphElement>(target.element)) {
         glyphNames.append(target.identifier);

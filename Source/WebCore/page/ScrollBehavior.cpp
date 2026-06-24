@@ -43,7 +43,7 @@ bool useSmoothScrolling(ScrollBehavior behavior, Element* associatedElement)
     // FIXME: Should we use document()->scrollingElement()?
     // See https://bugs.webkit.org/show_bug.cgi?id=205059
     RefPtr element = associatedElement;
-    if (element == element->document().scrollingElement())
+    if (element == protect(element->document())->scrollingElement())
         element = element->document().documentElement();
 
     if (!element->renderer())

@@ -105,7 +105,7 @@ private:
 WTF_MAKE_TZONE_ALLOCATED_IMPL(ExpectIdTargetObserver);
 
 ExpectIdTargetObserver::ExpectIdTargetObserver(const AtomString& id, HTMLLinkElement& element)
-    : IdTargetObserver(element.treeScope().idTargetObserverRegistry(), id)
+    : IdTargetObserver(protect(element)->treeScope().idTargetObserverRegistry(), id)
     , m_element(element)
 {
 }
@@ -138,10 +138,10 @@ Ref<HTMLLinkElement> HTMLLinkElement::create(const QualifiedName& tagName, Docum
 HTMLLinkElement::~HTMLLinkElement()
 {
     if (m_sheet)
-        m_sheet->clearOwnerNode();
+        protect(m_sheet)->clearOwnerNode();
 
     if (m_cachedSheet)
-        m_cachedSheet->removeClient(*this);
+        protect(m_cachedSheet)->removeClient(*this);
 
     if (CheckedPtr styleScope = m_styleScope)
         styleScope->removeStyleSheetCandidateNode(*this);
@@ -229,7 +229,7 @@ void HTMLLinkElement::attributeChanged(const QualifiedName& name, const AtomStri
         break;
     case AttributeNames::blockingAttr:
         blocking().associatedAttributeValueChanged();
-        if (blocking().contains("render"_s)) {
+        if (protect(blocking())->contains("render"_s)) {
             processInternalResourceLink();
             if (m_loading && mediaAttributeMatches() && !isAlternate())
                 potentiallyBlockRendering();
@@ -251,7 +251,7 @@ void HTMLLinkElement::attributeChanged(const QualifiedName& name, const AtomStri
         break;
     case AttributeNames::titleAttr:
         if (m_sheet && !isInShadowTree())
-            m_sheet->setTitle(newValue);
+            protect(m_sheet)->setTitle(newValue);
         break;
     default:
         HTMLElement::attributeChanged(name, oldValue, newValue, attributeModificationReason);
@@ -418,7 +418,7 @@ void HTMLLinkElement::clearSheet()
 {
     ASSERT(m_sheet);
     ASSERT(m_sheet->ownerNode() == this);
-    m_sheet->clearOwnerNode();
+    protect(m_sheet)->clearOwnerNode();
     m_sheet = nullptr;
 }
 
@@ -550,18 +550,18 @@ void HTMLLinkElement::initializeStyleSheet(Ref<StyleSheetContents>&& styleSheet,
 {
     if (m_sheet) {
         ASSERT(m_sheet->ownerNode() == this);
-        m_sheet->clearOwnerNode();
+        protect(m_sheet)->clearOwnerNode();
     }
 
     m_sheet = CSSStyleSheet::create(WTF::move(styleSheet), *this, cachedStyleSheet.isCORSSameOrigin());
-    m_sheet->setMediaQueries(MQ::MediaQueryParser::parse(m_media, context.context));
+    protect(m_sheet)->setMediaQueries(MQ::MediaQueryParser::parse(m_media, context.context));
     if (!isInShadowTree())
-        m_sheet->setTitle(title());
+        protect(m_sheet)->setTitle(title());
 
     if (CheckedPtr styleScope = m_styleScope)
-        styleScope->establishPreferredStylesheetSetName(*this, *m_sheet);
+        styleScope->establishPreferredStylesheetSetName(*this, protect(*m_sheet));
 
-    if (!m_sheet->canAccessRules())
+    if (!protect(m_sheet)->canAccessRules())
         m_sheet->contents().setAsLoadedFromOpaqueSource();
 }
 
@@ -608,7 +608,7 @@ void HTMLLinkElement::setCSSStyleSheet(const String& href, const URL& baseURL, A
 
     // FIXME: Set the visibility option based on m_sheet being clean or not.
     // Best approach might be to set it on the style sheet content itself or its context parser otherwise.
-    if (!styleSheet.get().parseAuthorStyleSheet(cachedStyleSheet, &document->securityOrigin())) {
+    if (!styleSheet.get().parseAuthorStyleSheet(cachedStyleSheet, protect(document->securityOrigin()).ptr())) {
         m_loading = false;
         sheetLoaded();
         notifyLoadedSheetAndAllCriticalSubresources(true);
@@ -648,7 +648,7 @@ bool HTMLLinkElement::mediaAttributeMatches() const
     auto mediaQueryList = MQ::MediaQueryParser::parse(m_media, document->cssParserContext());
     LOG(MediaQueries, "HTMLLinkElement::mediaAttributeMatches");
 
-    MQ::MediaQueryEvaluator evaluator(document->frame()->view()->mediaType(), document.get());
+    MQ::MediaQueryEvaluator evaluator(protect(document->frame())->view()->mediaType(), document.get());
     return evaluator.evaluate(mediaQueryList);
 }
 
@@ -775,7 +775,7 @@ void HTMLLinkElement::addSubresourceAttributeURLs(OrderedHashSet<URL>& urls) con
     addSubresourceURL(urls, href());
 
     if (RefPtr styleSheet = this->sheet()) {
-        styleSheet->contents().traverseSubresources([&] (auto& resource) {
+        protect(styleSheet->contents())->traverseSubresources([&] (auto& resource) {
             urls.add(resource.url());
             return false;
         });

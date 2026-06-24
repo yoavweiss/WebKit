@@ -488,7 +488,7 @@ bool Quirks::shouldDisableElementFullscreenQuirk() const
     // (Ref: rdar://121473410)
     // YouTube.com does not provide AirPlay controls in fullscreen
     // (Ref: rdar://121471373)
-    if (!m_quirksData.shouldDisableElementFullscreen && !m_document->isTopDocument()) {
+    if (!m_quirksData.shouldDisableElementFullscreen && !protect(m_document)->isTopDocument()) {
         m_quirksData.shouldDisableElementFullscreen = isEmbedDomain("x.com"_s)
             || (PAL::currentUserInterfaceIdiomIsSmallScreen() && isYoutubeEmbedDomain());
     }
@@ -958,7 +958,7 @@ bool Quirks::shouldSilenceResizeObservers() const
     // ResizeObservers are silenced on YouTube during the 'homing out' snapshout sequence to
     // resolve rdar://109837319. This is due to a bug on the site that is causing unexpected
     // content layout and can be removed when it is addressed.
-    auto* page = m_document->page();
+    RefPtr page = m_document->page();
     if (!page || !page->isTakingSnapshotsForApplicationSuspension())
         return false;
 
@@ -979,7 +979,7 @@ bool Quirks::shouldSilenceWindowResizeEventsDuringApplicationSnapshotting() cons
     // We silence window resize events during the 'homing out' snapshot sequence when on icloud.com/mail
     // to address <rdar://131836301>, on nytimes.com to address <rdar://problem/59763843>, and on
     // x.com (twitter) to address <rdar://problem/58804852> & <rdar://problem/61731801>.
-    auto* page = m_document->page();
+    RefPtr page = m_document->page();
     if (!page || !page->isTakingSnapshotsForApplicationSuspension())
         return false;
 
@@ -1006,7 +1006,7 @@ bool Quirks::shouldSilenceMediaQueryListChangeEvents() const
 
     // We silence MediaQueryList's change events during the 'homing out' snapshot sequence when on x.com (twitter)
     // to address <rdar://problem/58804852> & <rdar://problem/61731801>.
-    auto* page = m_document->page();
+    RefPtr page = m_document->page();
     if (!page || !page->isTakingSnapshotsForApplicationSuspension())
         return false;
 
@@ -1119,7 +1119,7 @@ bool Quirks::shouldOpenAsAboutBlank(const String& stringToOpen) const
     if (!m_quirksData.isGoogleDocs)
         return false;
 
-    auto openerURL = m_document->url();
+    auto openerURL = protect(m_document)->url();
     if (!m_document->frame() || !m_document->frame()->loader().userAgent(openerURL).contains("Macintosh"_s))
         return false;
 
@@ -1543,7 +1543,7 @@ Quirks::StorageAccessResult Quirks::triggerOptionalStorageAccessQuirk(Element& e
 
     QUIRKS_EARLY_RETURN_IF_DISABLED_WITH_VALUE(Quirks::StorageAccessResult::ShouldNotCancelEvent);
 
-    RegistrableDomain domain { m_document->url() };
+    RegistrableDomain domain { protect(m_document)->url() };
 
     static NeverDestroyed<HashSet<RegistrableDomain>> kinjaQuirks = [] {
         HashSet<RegistrableDomain> set;
@@ -4265,7 +4265,7 @@ void Quirks::determineRelevantQuirks()
 
     auto findResult = dispatchMap->find(quirkDomainWithoutPSL);
     if (findResult != dispatchMap->end())
-        (findResult->value)(m_quirksData, quirksURL, quirksDomainString, m_document->url());
+        (findResult->value)(m_quirksData, quirksURL, quirksDomainString, protect(m_document)->url());
 
     // Note: `needsDisableDOMPasteAccessQuirk` needs a live document to assess
     // Note: `shouldDisableElementFullscreen` needs a live document for embedded sites

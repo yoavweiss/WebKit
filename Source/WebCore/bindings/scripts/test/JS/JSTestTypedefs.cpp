@@ -848,7 +848,7 @@ void JSTestTypedefsOwner::finalize(JSC::Handle<JSC::Unknown> handle, void* conte
 {
     SUPPRESS_MEMORY_UNSAFE_CAST auto* jsTestTypedefs = static_cast<JSTestTypedefs*>(handle.slot()->asCell());
     auto& world = *static_cast<DOMWrapperWorld*>(context);
-    uncacheWrapper(world, protect(jsTestTypedefs->wrapped()).ptr(), jsTestTypedefs);
+    SUPPRESS_UNCOUNTED_ARG uncacheWrapper(world, &jsTestTypedefs->wrapped(), jsTestTypedefs);
 }
 
 WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN

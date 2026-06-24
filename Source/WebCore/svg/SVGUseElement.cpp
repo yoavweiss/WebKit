@@ -426,7 +426,7 @@ static void removeDisallowedElementsFromSubtree(SVGElement& subtree)
     Vector<Ref<Element>> disallowedElements;
     for (auto it = descendantsOfType<Element>(subtree).begin(); it; ) {
         if (isDisallowedElement(*it)) {
-            disallowedElements.append(*it);
+            disallowedElements.append(protect(*it));
             it.traverseNextSkippingChildren();
             continue;
         }
@@ -445,7 +445,7 @@ static void removeSymbolElementsFromSubtree(SVGElement& subtree)
     Vector<Ref<Element>> symbolElements;
     for (auto it = descendantsOfType<Element>(subtree).begin(); it; ) {
         if (is<SVGSymbolElement>(*it)) {
-            symbolElements.append(*it);
+            symbolElements.append(protect(*it));
             it.traverseNextSkippingChildren();
             continue;
         }
@@ -464,7 +464,7 @@ static void associateClonesWithOriginals(SVGElement& clone, SVGElement& original
     // doing transformations like removing disallowed elements or expanding elements.
     clone.setCorrespondingElement(&original);
     for (auto pair : descendantsOfType<SVGElement>(clone, original))
-        pair.first.setCorrespondingElement(Ref { pair.second }.ptr());
+        protect(pair.first)->setCorrespondingElement(Ref { pair.second }.ptr());
 }
 
 static void associateReplacementCloneWithOriginal(SVGElement& replacementClone, SVGElement& originalClone)
@@ -493,7 +493,7 @@ RefPtr<SVGElement> SVGUseElement::findTarget(AtomString* targetID) const
     RefPtr correspondingElement = this->correspondingElement();
     Ref original = correspondingElement ? downcast<SVGUseElement>(*correspondingElement) : *this;
 
-    auto targetResult = targetElementFromIRIString(original->href(), original->treeScope(), original->externalDocument());
+    auto targetResult = targetElementFromIRIString(original->href(), original->treeScope(), protect(original->externalDocument()).get());
     if (targetID) {
         *targetID = WTF::move(targetResult.identifier);
         // If the reference is external, don't return the target ID to the caller.
@@ -511,8 +511,8 @@ RefPtr<SVGElement> SVGUseElement::findTarget(AtomString* targetID) const
         return nullptr;
 
     if (correspondingElement) {
-        for (auto& ancestor : lineageOfType<SVGElement>(*this)) {
-            if (ancestor.correspondingElement() == target)
+        for (Ref ancestor : lineageOfType<SVGElement>(*this)) {
+            if (ancestor->correspondingElement() == target)
                 return nullptr;
         }
     } else {
@@ -543,7 +543,7 @@ static void cloneDataAndChildren(SVGElement& replacementClone, SVGElement& origi
     ASSERT(!replacementClone.parentNode());
 
     replacementClone.cloneDataFromElement(originalClone);
-    originalClone.cloneChildNodes(replacementClone.document(), nullptr, replacementClone);
+    originalClone.cloneChildNodes(protect(replacementClone.document()), nullptr, replacementClone);
     associateReplacementClonesWithOriginals(replacementClone, originalClone);
     removeDisallowedElementsFromSubtree(replacementClone);
 }
@@ -668,7 +668,7 @@ void SVGUseElement::updateExternalDocument()
     if (isConnected() && isExternalURIReference(href(), document))
         externalDocumentURL = document->encodingParseURL(href());
 
-    if (externalDocumentURL == (m_externalDocument ? m_externalDocument->url() : URL()))
+    if (externalDocumentURL == (m_externalDocument ? protect(*m_externalDocument)->url() : URL()))
         return;
 
     if (RefPtr externalDocument = m_externalDocument)

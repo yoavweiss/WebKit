@@ -107,7 +107,7 @@ ExceptionOr<Ref<SharedWorker>> SharedWorker::create(Document& document, Variant<
     }
 
     auto channel = MessageChannel::create(document);
-    auto transferredPort = channel->port2().disentangle();
+    auto transferredPort = protect(channel->port2())->disentangle();
 
     ClientOrigin clientOrigin { document.topOrigin().data(), document.securityOrigin().data() };
     SharedWorkerKey key { clientOrigin, url, options.name };
@@ -121,7 +121,7 @@ ExceptionOr<Ref<SharedWorker>> SharedWorker::create(Document& document, Variant<
         return sharedWorker;
     }
 
-    sharedWorkerMainThreadConnection()->requestSharedWorker(key, sharedWorker->identifier(), WTF::move(transferredPort), options);
+    protect(sharedWorkerMainThreadConnection())->requestSharedWorker(key, sharedWorker->identifier(), WTF::move(transferredPort), options);
     return sharedWorker;
 }
 
@@ -176,13 +176,13 @@ void SharedWorker::stop()
 {
     SHARED_WORKER_RELEASE_LOG("stop:");
     m_isActive = false;
-    sharedWorkerMainThreadConnection()->sharedWorkerObjectIsGoingAway(m_key, identifier());
+    protect(sharedWorkerMainThreadConnection())->sharedWorkerObjectIsGoingAway(m_key, identifier());
 }
 
 void SharedWorker::suspend(ReasonForSuspension reason)
 {
     if (reason == ReasonForSuspension::BackForwardCache) {
-        sharedWorkerMainThreadConnection()->suspendForBackForwardCache(m_key, identifier());
+        protect(sharedWorkerMainThreadConnection())->suspendForBackForwardCache(m_key, identifier());
         m_isSuspendedForBackForwardCache = true;
     }
 }
@@ -190,7 +190,7 @@ void SharedWorker::suspend(ReasonForSuspension reason)
 void SharedWorker::resume()
 {
     if (m_isSuspendedForBackForwardCache) {
-        sharedWorkerMainThreadConnection()->resumeForBackForwardCache(m_key, identifier());
+        protect(sharedWorkerMainThreadConnection())->resumeForBackForwardCache(m_key, identifier());
         m_isSuspendedForBackForwardCache = false;
     }
 }

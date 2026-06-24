@@ -338,7 +338,7 @@ bool IntersectionObserver::removeTargetRegistration(Element& target)
 
 void IntersectionObserver::removeAllTargets()
 {
-    for (auto& target : m_observationTargets) {
+    for (Ref target : m_observationTargets) {
         bool removed = removeTargetRegistration(target);
         ASSERT_UNUSED(removed, removed);
     }
@@ -684,7 +684,7 @@ auto IntersectionObserver::computeIntersectionState(const IntersectionObserverRe
             return result->clippedOverflowRect;
         }
 
-        return computeClippedRectInRootContentsSpace(localTargetBounds, target.document().securityOrigin(), targetRenderer, scrollMarginBox());
+        return computeClippedRectInRootContentsSpace(localTargetBounds, protect(protect(target)->document().securityOrigin()), targetRenderer, scrollMarginBox());
     }();
 
     auto rootLocalIntersectionRect = intersectionState.rootBounds;
@@ -857,8 +857,8 @@ std::optional<ReducedResolutionSeconds> IntersectionObserver::nowTimestamp() con
         auto* context = m_callback->scriptExecutionContext();
         if (!context)
             return std::nullopt;
-        auto& document = downcast<Document>(*context);
-        window = document.window();
+        Ref document = downcast<Document>(*context);
+        window = document->window();
         if (!window)
             return std::nullopt;
     }

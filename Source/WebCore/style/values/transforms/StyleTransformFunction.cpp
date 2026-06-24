@@ -71,12 +71,12 @@ static RefPtr<const TransformFunctionBase> createMatrixTransformFunction(const C
 
     auto zoom = state.cssToLengthConversionData().zoom();
     return MatrixTransformFunction::create(
-        toStyleFromCSSValue<Number<>>(state, function->item(0)).value,
-        toStyleFromCSSValue<Number<>>(state, function->item(1)).value,
-        toStyleFromCSSValue<Number<>>(state, function->item(2)).value,
-        toStyleFromCSSValue<Number<>>(state, function->item(3)).value,
-        toStyleFromCSSValue<Number<>>(state, function->item(4)).value * zoom,
-        toStyleFromCSSValue<Number<>>(state, function->item(5)).value * zoom
+        toStyleFromCSSValue<Number<>>(state, protect(function->item(0))).value,
+        toStyleFromCSSValue<Number<>>(state, protect(function->item(1))).value,
+        toStyleFromCSSValue<Number<>>(state, protect(function->item(2))).value,
+        toStyleFromCSSValue<Number<>>(state, protect(function->item(3))).value,
+        toStyleFromCSSValue<Number<>>(state, protect(function->item(4))).value * zoom,
+        toStyleFromCSSValue<Number<>>(state, protect(function->item(5))).value * zoom
     );
 }
 
@@ -90,22 +90,22 @@ static RefPtr<const TransformFunctionBase> createMatrix3dTransformFunction(const
         return { };
 
     TransformationMatrix matrix(
-        toStyleFromCSSValue<Number<>>(state, function->item(0)).value,
-        toStyleFromCSSValue<Number<>>(state, function->item(1)).value,
-        toStyleFromCSSValue<Number<>>(state, function->item(2)).value,
-        toStyleFromCSSValue<Number<>>(state, function->item(3)).value,
-        toStyleFromCSSValue<Number<>>(state, function->item(4)).value,
-        toStyleFromCSSValue<Number<>>(state, function->item(5)).value,
-        toStyleFromCSSValue<Number<>>(state, function->item(6)).value,
-        toStyleFromCSSValue<Number<>>(state, function->item(7)).value,
-        toStyleFromCSSValue<Number<>>(state, function->item(8)).value,
-        toStyleFromCSSValue<Number<>>(state, function->item(9)).value,
-        toStyleFromCSSValue<Number<>>(state, function->item(10)).value,
-        toStyleFromCSSValue<Number<>>(state, function->item(11)).value,
-        toStyleFromCSSValue<Number<>>(state, function->item(12)).value,
-        toStyleFromCSSValue<Number<>>(state, function->item(13)).value,
-        toStyleFromCSSValue<Number<>>(state, function->item(14)).value,
-        toStyleFromCSSValue<Number<>>(state, function->item(15)).value
+        toStyleFromCSSValue<Number<>>(state, protect(function->item(0))).value,
+        toStyleFromCSSValue<Number<>>(state, protect(function->item(1))).value,
+        toStyleFromCSSValue<Number<>>(state, protect(function->item(2))).value,
+        toStyleFromCSSValue<Number<>>(state, protect(function->item(3))).value,
+        toStyleFromCSSValue<Number<>>(state, protect(function->item(4))).value,
+        toStyleFromCSSValue<Number<>>(state, protect(function->item(5))).value,
+        toStyleFromCSSValue<Number<>>(state, protect(function->item(6))).value,
+        toStyleFromCSSValue<Number<>>(state, protect(function->item(7))).value,
+        toStyleFromCSSValue<Number<>>(state, protect(function->item(8))).value,
+        toStyleFromCSSValue<Number<>>(state, protect(function->item(9))).value,
+        toStyleFromCSSValue<Number<>>(state, protect(function->item(10))).value,
+        toStyleFromCSSValue<Number<>>(state, protect(function->item(11))).value,
+        toStyleFromCSSValue<Number<>>(state, protect(function->item(12))).value,
+        toStyleFromCSSValue<Number<>>(state, protect(function->item(13))).value,
+        toStyleFromCSSValue<Number<>>(state, protect(function->item(14))).value,
+        toStyleFromCSSValue<Number<>>(state, protect(function->item(15))).value
     );
     matrix.zoom(state.cssToLengthConversionData().zoom());
 
@@ -126,7 +126,7 @@ static RefPtr<const TransformFunctionBase> createRotateTransformFunction(const C
     auto x = 0_css_number;
     auto y = 0_css_number;
     auto z = 1_css_number;
-    auto angle = toStyleFromCSSValue<Angle<>>(state, function->item(0));
+    auto angle = toStyleFromCSSValue<Angle<>>(state, protect(function->item(0)));
 
     return RotateTransformFunction::create(x, y, z, angle, TransformFunctionType::Rotate);
 }
@@ -140,10 +140,10 @@ static RefPtr<const TransformFunctionBase> createRotate3dTransformFunction(const
     if (!function)
         return { };
 
-    auto x = toStyleFromCSSValue<Number<>>(state, function->item(0));
-    auto y = toStyleFromCSSValue<Number<>>(state, function->item(1));
-    auto z = toStyleFromCSSValue<Number<>>(state, function->item(2));
-    auto angle = toStyleFromCSSValue<Angle<>>(state, function->item(3));
+    auto x = toStyleFromCSSValue<Number<>>(state, protect(function->item(0)));
+    auto y = toStyleFromCSSValue<Number<>>(state, protect(function->item(1)));
+    auto z = toStyleFromCSSValue<Number<>>(state, protect(function->item(2)));
+    auto angle = toStyleFromCSSValue<Angle<>>(state, protect(function->item(3)));
 
     return RotateTransformFunction::create(x, y, z, angle, TransformFunctionType::Rotate3D);
 }
@@ -160,7 +160,7 @@ static RefPtr<const TransformFunctionBase> createRotateXTransformFunction(const 
     auto x = 1_css_number;
     auto y = 0_css_number;
     auto z = 0_css_number;
-    auto angle = toStyleFromCSSValue<Angle<>>(state, function->item(0));
+    auto angle = toStyleFromCSSValue<Angle<>>(state, protect(function->item(0)));
 
     return RotateTransformFunction::create(x, y, z, angle, TransformFunctionType::RotateX);
 }
@@ -177,7 +177,7 @@ static RefPtr<const TransformFunctionBase> createRotateYTransformFunction(const 
     auto x = 0_css_number;
     auto y = 1_css_number;
     auto z = 0_css_number;
-    auto angle = toStyleFromCSSValue<Angle<>>(state, function->item(0));
+    auto angle = toStyleFromCSSValue<Angle<>>(state, protect(function->item(0)));
 
     return RotateTransformFunction::create(x, y, z, angle, TransformFunctionType::RotateY);
 }
@@ -194,7 +194,7 @@ static RefPtr<const TransformFunctionBase> createRotateZTransformFunction(const 
     auto x = 0_css_number;
     auto y = 0_css_number;
     auto z = 1_css_number;
-    auto angle = toStyleFromCSSValue<Angle<>>(state, function->item(0));
+    auto angle = toStyleFromCSSValue<Angle<>>(state, protect(function->item(0)));
 
     return RotateTransformFunction::create(x, y, z, angle, TransformFunctionType::RotateZ);
 }
@@ -210,8 +210,8 @@ static RefPtr<const TransformFunctionBase> createSkewTransformFunction(const CSS
     if (!function)
         return { };
 
-    auto angleX = toStyleFromCSSValue<Angle<>>(state, function->item(0));
-    auto angleY = function->size() > 1 ? toStyleFromCSSValue<Angle<>>(state, function->item(1)) : Angle<> { 0_css_deg };
+    auto angleX = toStyleFromCSSValue<Angle<>>(state, protect(function->item(0)));
+    auto angleY = function->size() > 1 ? toStyleFromCSSValue<Angle<>>(state, protect(function->item(1))) : Angle<> { 0_css_deg };
 
     return SkewTransformFunction::create(angleX, angleY, TransformFunctionType::Skew);
 }
@@ -225,7 +225,7 @@ static RefPtr<const TransformFunctionBase> createSkewXTransformFunction(const CS
     if (!function)
         return { };
 
-    auto angleX = toStyleFromCSSValue<Angle<>>(state, function->item(0));
+    auto angleX = toStyleFromCSSValue<Angle<>>(state, protect(function->item(0)));
     auto angleY = 0_css_deg;
 
     return SkewTransformFunction::create(angleX, angleY, TransformFunctionType::SkewX);
@@ -241,7 +241,7 @@ static RefPtr<const TransformFunctionBase> createSkewYTransformFunction(const CS
         return { };
 
     auto angleX = 0_css_deg;
-    auto angleY = toStyleFromCSSValue<Angle<>>(state, function->item(0));
+    auto angleY = toStyleFromCSSValue<Angle<>>(state, protect(function->item(0)));
 
     return SkewTransformFunction::create(angleX, angleY, TransformFunctionType::SkewY);
 }
@@ -257,8 +257,8 @@ static RefPtr<const TransformFunctionBase> createScaleTransformFunction(const CS
     if (!function)
         return { };
 
-    auto sx = toStyleFromCSSValue<NumberOrPercentageResolvedToNumber<>>(state, function->item(0));
-    auto sy = function->size() > 1 ? toStyleFromCSSValue<NumberOrPercentageResolvedToNumber<>>(state, function->item(1)) : sx;
+    auto sx = toStyleFromCSSValue<NumberOrPercentageResolvedToNumber<>>(state, protect(function->item(0)));
+    auto sy = function->size() > 1 ? toStyleFromCSSValue<NumberOrPercentageResolvedToNumber<>>(state, protect(function->item(1))) : sx;
     auto sz = 1_css_number;
 
     return ScaleTransformFunction::create(sx, sy, sz, TransformFunctionType::Scale);
@@ -273,9 +273,9 @@ static RefPtr<const TransformFunctionBase> createScale3dTransformFunction(const 
     if (!function)
         return { };
 
-    auto sx = toStyleFromCSSValue<NumberOrPercentageResolvedToNumber<>>(state, function->item(0));
-    auto sy = toStyleFromCSSValue<NumberOrPercentageResolvedToNumber<>>(state, function->item(1));
-    auto sz = toStyleFromCSSValue<NumberOrPercentageResolvedToNumber<>>(state, function->item(2));
+    auto sx = toStyleFromCSSValue<NumberOrPercentageResolvedToNumber<>>(state, protect(function->item(0)));
+    auto sy = toStyleFromCSSValue<NumberOrPercentageResolvedToNumber<>>(state, protect(function->item(1)));
+    auto sz = toStyleFromCSSValue<NumberOrPercentageResolvedToNumber<>>(state, protect(function->item(2)));
 
     return ScaleTransformFunction::create(sx, sy, sz, TransformFunctionType::Scale3D);
 }
@@ -289,7 +289,7 @@ static RefPtr<const TransformFunctionBase> createScaleXTransformFunction(const C
     if (!function)
         return { };
 
-    auto sx = toStyleFromCSSValue<NumberOrPercentageResolvedToNumber<>>(state, function->item(0));
+    auto sx = toStyleFromCSSValue<NumberOrPercentageResolvedToNumber<>>(state, protect(function->item(0)));
     auto sy = 1_css_number;
     auto sz = 1_css_number;
 
@@ -307,7 +307,7 @@ static RefPtr<const TransformFunctionBase> createScaleYTransformFunction(const C
 
 
     auto sx = 1_css_number;
-    auto sy = toStyleFromCSSValue<NumberOrPercentageResolvedToNumber<>>(state, function->item(0));
+    auto sy = toStyleFromCSSValue<NumberOrPercentageResolvedToNumber<>>(state, protect(function->item(0)));
     auto sz = 1_css_number;
 
     return ScaleTransformFunction::create(sx, sy, sz, TransformFunctionType::ScaleY);
@@ -325,7 +325,7 @@ static RefPtr<const TransformFunctionBase> createScaleZTransformFunction(const C
 
     auto sx = 1_css_number;
     auto sy = 1_css_number;
-    auto sz = toStyleFromCSSValue<NumberOrPercentageResolvedToNumber<>>(state, function->item(0));
+    auto sz = toStyleFromCSSValue<NumberOrPercentageResolvedToNumber<>>(state, protect(function->item(0)));
 
     return ScaleTransformFunction::create(sx, sy, sz, TransformFunctionType::ScaleZ);
 }
@@ -341,8 +341,8 @@ static RefPtr<const TransformFunctionBase> createTranslateTransformFunction(cons
     if (!function)
         return { };
 
-    auto tx = toStyleFromCSSValue<TranslateTransformFunction::LengthPercentage>(state, function->item(0));
-    auto ty = function->size() > 1 ? toStyleFromCSSValue<TranslateTransformFunction::LengthPercentage>(state, function->item(1)) : TranslateTransformFunction::LengthPercentage { 0_css_px };
+    auto tx = toStyleFromCSSValue<TranslateTransformFunction::LengthPercentage>(state, protect(function->item(0)));
+    auto ty = function->size() > 1 ? toStyleFromCSSValue<TranslateTransformFunction::LengthPercentage>(state, protect(function->item(1))) : TranslateTransformFunction::LengthPercentage { 0_css_px };
     auto tz = 0_css_px;
 
     return TranslateTransformFunction::create(WTF::move(tx), WTF::move(ty), WTF::move(tz), TransformFunctionType::Translate);
@@ -357,9 +357,9 @@ static RefPtr<const TransformFunctionBase> createTranslate3dTransformFunction(co
     if (!function)
         return { };
 
-    auto tx = toStyleFromCSSValue<TranslateTransformFunction::LengthPercentage>(state, function->item(0));
-    auto ty = toStyleFromCSSValue<TranslateTransformFunction::LengthPercentage>(state, function->item(1));
-    auto tz = toStyleFromCSSValue<TranslateTransformFunction::Length>(state, function->item(2));
+    auto tx = toStyleFromCSSValue<TranslateTransformFunction::LengthPercentage>(state, protect(function->item(0)));
+    auto ty = toStyleFromCSSValue<TranslateTransformFunction::LengthPercentage>(state, protect(function->item(1)));
+    auto tz = toStyleFromCSSValue<TranslateTransformFunction::Length>(state, protect(function->item(2)));
 
     return TranslateTransformFunction::create(WTF::move(tx), WTF::move(ty), WTF::move(tz), TransformFunctionType::Translate3D);
 }
@@ -373,7 +373,7 @@ static RefPtr<const TransformFunctionBase> createTranslateXTransformFunction(con
     if (!function)
         return { };
 
-    auto tx = toStyleFromCSSValue<TranslateTransformFunction::LengthPercentage>(state, function->item(0));
+    auto tx = toStyleFromCSSValue<TranslateTransformFunction::LengthPercentage>(state, protect(function->item(0)));
     auto ty = 0_css_px;
     auto tz = 0_css_px;
 
@@ -390,7 +390,7 @@ static RefPtr<const TransformFunctionBase> createTranslateYTransformFunction(con
         return { };
 
     auto tx = 0_css_px;
-    auto ty = toStyleFromCSSValue<TranslateTransformFunction::LengthPercentage>(state, function->item(0));
+    auto ty = toStyleFromCSSValue<TranslateTransformFunction::LengthPercentage>(state, protect(function->item(0)));
     auto tz = 0_css_px;
 
     return TranslateTransformFunction::create(WTF::move(tx), WTF::move(ty), WTF::move(tz), TransformFunctionType::TranslateY);
@@ -407,7 +407,7 @@ static RefPtr<const TransformFunctionBase> createTranslateZTransformFunction(con
 
     auto tx = 0_css_px;
     auto ty = 0_css_px;
-    auto tz = toStyleFromCSSValue<TranslateTransformFunction::Length>(state, function->item(0));
+    auto tz = toStyleFromCSSValue<TranslateTransformFunction::Length>(state, protect(function->item(0)));
 
     return TranslateTransformFunction::create(WTF::move(tx), WTF::move(ty), WTF::move(tz), TransformFunctionType::TranslateZ);
 }
@@ -852,21 +852,21 @@ void Serialize<TransformationMatrix>::operator()(StringBuilder& builder, const C
 
 auto Blending<TransformFunction>::blend(const TransformFunction& from, const TransformFunction& to, const Interpolation::Context& context) -> TransformFunction
 {
-    return TransformFunction { to.function().blend(&from.function(), context) };
+    return TransformFunction { protect(to.function())->blend(protect(&from.function()), context) };
 }
 
 // MARK: - Platform
 
 auto ToPlatform<TransformFunction>::operator()(const TransformFunction& value, const FloatSize& size) -> Ref<TransformOperation>
 {
-    return value.value->toPlatform(size);
+    return protect(value.value)->toPlatform(size);
 }
 
 // MARK: - Logging
 
 TextStream& operator<<(TextStream& ts, const TransformFunction& value)
 {
-    return ts << value.function();
+    return ts << protect(value.function());
 }
 
 } // namespace Style

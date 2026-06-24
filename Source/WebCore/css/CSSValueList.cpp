@@ -245,7 +245,7 @@ bool CSSValueContainingVector::itemsEqual(const CSSValueContainingVector& other)
     if (size != other.size())
         return false;
     for (unsigned i = 0; i < size; ++i) {
-        if (!(*this)[i].equals(other[i]))
+        if (!protect((*this)[i])->equals(protect(other[i])))
             return false;
     }
     return true;
@@ -258,7 +258,7 @@ bool CSSValueList::equals(const CSSValueList& other) const
 
 bool CSSValueContainingVector::containsSingleEqualItem(const CSSValue& other) const
 {
-    return size() == 1 && (*this)[0].equals(other);
+    return size() == 1 && protect((*this)[0])->equals(other);
 }
 
 bool CSSValueContainingVector::addDerivedHash(Hasher& hasher) const

@@ -289,7 +289,7 @@ RenderMathMLScripts::VerticalMetrics RenderMathMLScripts::verticalMetrics(const 
         if (!isRenderMathMLUnderOver() && !document().settings().coreMathMLEnabled()) {
             // It is not clear how to interpret the default shift and it is not available yet anyway.
             // Hence we just pass 0 as the default value used by toUserUnits.
-            LayoutUnit specifiedMinSubShift = toUserUnits(element().subscriptShift(), style(), 0);
+            LayoutUnit specifiedMinSubShift = toUserUnits(protect(element())->subscriptShift(), style(), 0);
             metrics.subShift = std::max(metrics.subShift, specifiedMinSubShift);
         }
     }
@@ -298,7 +298,7 @@ RenderMathMLScripts::VerticalMetrics RenderMathMLScripts::verticalMetrics(const 
         if (!isRenderMathMLUnderOver() && !document().settings().coreMathMLEnabled()) {
             // It is not clear how to interpret the default shift and it is not available yet anyway.
             // Hence we just pass 0 as the default value used by toUserUnits.
-            LayoutUnit specifiedMinSupShift = toUserUnits(element().superscriptShift(), style(), 0);
+            LayoutUnit specifiedMinSupShift = toUserUnits(protect(element())->superscriptShift(), style(), 0);
             metrics.supShift = std::max(metrics.supShift, specifiedMinSupShift);
         }
     }

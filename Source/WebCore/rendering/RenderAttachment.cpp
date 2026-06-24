@@ -119,7 +119,7 @@ void RenderAttachment::setSelectionState(HighlightState state)
     static_assert(uint8_t(HTMLAttachmentElement::HighlightState::Inside) == uint8_t(RenderObject::HighlightState::Inside));
     static_assert(uint8_t(HTMLAttachmentElement::HighlightState::End) == uint8_t(RenderObject::HighlightState::End));
     static_assert(uint8_t(HTMLAttachmentElement::HighlightState::Both) == uint8_t(RenderObject::HighlightState::Both));
-    attachmentElement().addSelectionClasses(HTMLAttachmentElement::HighlightState(uint8_t(state)));
+    protect(attachmentElement())->addSelectionClasses(HTMLAttachmentElement::HighlightState(uint8_t(state)));
 }
 
 void RenderAttachment::paintReplaced(PaintInfo& paintInfo, const LayoutPoint& offset)
@@ -159,7 +159,7 @@ bool RenderAttachment::paintWideLayoutAttachmentOnly(const PaintInfo& paintInfo,
             }
         }
 
-        attachmentElement().requestWideLayoutIconIfNeeded();
+        protect(attachmentElement())->requestWideLayoutIconIfNeeded();
         return true;
     }
     return false;

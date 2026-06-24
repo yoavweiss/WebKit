@@ -206,7 +206,7 @@ void JSTestEmbedderArrayLikeOwner::finalize(JSC::Handle<JSC::Unknown> handle, vo
 {
     SUPPRESS_MEMORY_UNSAFE_CAST auto* jsTestEmbedderArrayLike = static_cast<JSTestEmbedderArrayLike*>(handle.slot()->asCell());
     auto& world = *static_cast<DOMWrapperWorld*>(context);
-    uncacheWrapper(world, protect(jsTestEmbedderArrayLike->wrapped()).ptr(), jsTestEmbedderArrayLike);
+    SUPPRESS_UNCOUNTED_ARG uncacheWrapper(world, &jsTestEmbedderArrayLike->wrapped(), jsTestEmbedderArrayLike);
 }
 
 WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN

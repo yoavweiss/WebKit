@@ -414,7 +414,7 @@ void updateSnapOffsetsForScrollableArea(ScrollableArea& scrollableArea, const Re
         snapAreas.append(scrollSnapAreaAsOffsets);
         
         auto isFocused = child->element() ? focusedElement == child->element() : false;
-        auto identifier = child->element()->nodeIdentifier();
+        auto identifier = protect(child->element())->nodeIdentifier();
         snapAreasIDs.append(identifier);
 
         if (snapsHorizontally) {

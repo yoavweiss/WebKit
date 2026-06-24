@@ -214,7 +214,7 @@ void MathMLSelectElement::updateSelectedChild()
         return;
 
     if (m_selectedChild && m_selectedChild->renderer())
-        RenderTreeUpdater::tearDownRenderers(*m_selectedChild);
+        RenderTreeUpdater::tearDownRenderers(protect(*m_selectedChild));
 
     m_selectedChild = newSelectedChild;
     invalidateStyleForSubtree();

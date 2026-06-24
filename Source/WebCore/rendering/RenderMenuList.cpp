@@ -79,8 +79,9 @@ void RenderMenuList::styleDidChange(Style::Difference diff, const Style::Compute
 void RenderMenuList::updateOptionsWidth()
 {
     float maxOptionWidth = 0;
-    const auto& listItems = selectElement().listItems();
-    int size = listItems.size();    
+    Ref protectedSelect = selectElement();
+    const auto& listItems = protectedSelect->listItems();
+    int size = listItems.size();
 
     for (int i = 0; i < size; ++i) {
         RefPtr option = dynamicDowncast<HTMLOptionElement>(listItems[i].get());
@@ -195,7 +196,8 @@ void RenderMenuList::computeIntrinsicLogicalWidthContributions()
 
 void RenderMenuList::getItemBackgroundColor(unsigned listIndex, Color& itemBackgroundColor, bool& itemHasCustomBackgroundColor) const
 {
-    const auto& listItems = selectElement().listItems();
+    Ref protectedSelect = selectElement();
+    const auto& listItems = protectedSelect->listItems();
     if (listIndex >= listItems.size()) {
         itemBackgroundColor = style().visitedDependentBackgroundColorApplyingColorFilter();
         itemHasCustomBackgroundColor = false;

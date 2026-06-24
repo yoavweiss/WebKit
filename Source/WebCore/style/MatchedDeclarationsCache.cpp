@@ -93,7 +93,7 @@ bool MatchedDeclarationsCache::isCacheable(const Element& element, const Style::
 
     // Getting computed style after a font environment change but before full style resolution may involve styles with non-current fonts.
     // Avoid caching them.
-    Ref fontSelector = element.document().fontSelector();
+    SUPPRESS_UNCOUNTED_ARG Ref fontSelector = element.document().fontSelector();
     if (!style.fontCascade().isCurrent(fontSelector.get()))
         return false;
     if (!parentStyle.fontCascade().isCurrent(fontSelector.get()))
@@ -147,7 +147,7 @@ std::optional<MatchedDeclarationsCache::Result> MatchedDeclarationsCache::find(u
 
     const Entry* partiallyMatchingEntry = nullptr;
     for (auto& entry : it->value) {
-        if (!matchResult.cacheablePropertiesEqual(*entry.matchResult))
+        SUPPRESS_UNCOUNTED_ARG if (!matchResult.cacheablePropertiesEqual(*entry.matchResult))
             continue;
 
         if (&entry.parentRenderStyle->inheritedCustomProperties() != &inheritedCustomProperties)

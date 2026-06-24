@@ -49,7 +49,7 @@ CanvasImage::CanvasImage(CustomIdent&& name)
 CanvasImage::~CanvasImage()
 {
     if (m_element)
-        m_element->removeObserver(*this);
+        protect(m_element.get())->removeObserver(*this);
 }
 
 bool CanvasImage::operator==(const Image& other) const
@@ -88,7 +88,7 @@ RefPtr<WebCore::Image> CanvasImage::image(const RenderElement* renderer, const F
         return &WebCore::Image::nullImage();
 
     ASSERT(clients().contains(const_cast<RenderElement&>(*renderer)));
-    RefPtr element = this->element(renderer->document());
+    RefPtr element = this->element(protect(renderer->document()));
     if (!element)
         return nullptr;
     return element->copiedImage();
@@ -102,20 +102,20 @@ bool CanvasImage::knownToBeOpaque(const RenderElement&) const
 
 FloatSize CanvasImage::fixedSize(const RenderElement& renderer) const
 {
-    if (auto* element = this->element(renderer.document()))
+    if (auto* element = this->element(protect(renderer.document())))
         return FloatSize { element->size() };
     return { };
 }
 
 void CanvasImage::didAddClient(RenderElement& renderer)
 {
-    if (RefPtr element = this->element(renderer.document()))
+    if (RefPtr element = this->element(protect(renderer.document())))
         InspectorInstrumentation::didChangeCSSCanvasClientNodes(*element);
 }
 
 void CanvasImage::didRemoveClient(RenderElement& renderer)
 {
-    if (RefPtr element = this->element(renderer.document()))
+    if (RefPtr element = this->element(protect(renderer.document())))
         InspectorInstrumentation::didChangeCSSCanvasClientNodes(*element);
 }
 
@@ -153,7 +153,7 @@ HTMLCanvasElement* CanvasImage::element(Document& document) const
 {
     if (!m_element) {
         m_element = document.getCSSCanvasElement(m_name.value);
-        m_element->addObserver(const_cast<CanvasImage&>(*this));
+        protect(m_element.get())->addObserver(const_cast<CanvasImage&>(*this));
     }
     return m_element.get();
 }

@@ -81,7 +81,7 @@ void RenderHTMLCanvas::paintReplaced(PaintInfo& paintInfo, const LayoutPoint& pa
     LayoutRect contentBoxRect = this->contentBoxRect();
 
     if (context.detectingContentfulPaint()) {
-        if (!context.contentfulPaintDetected() && canvasElement().renderingContext())
+        if (!context.contentfulPaintDetected() && protect(canvasElement())->renderingContext())
             context.setContentfulPaintDetected();
         return;
     }
@@ -97,13 +97,14 @@ void RenderHTMLCanvas::paintReplaced(PaintInfo& paintInfo, const LayoutPoint& pa
         paintInfo.context().clip(snappedIntRect(contentBoxRect));
 
     if (paintInfo.phase == PaintPhase::Foreground)
-        page().addRelevantRepaintedObject(*this, intersection(replacedContentRect, contentBoxRect));
+        protect(page())->addRelevantRepaintedObject(*this, intersection(replacedContentRect, contentBoxRect));
 
     InterpolationQualityMaintainer interpolationMaintainer(context, ImageQualityController::interpolationQualityFromStyle(style()));
 
-    canvasElement().setIsSnapshotting(paintInfo.paintBehavior.contains(PaintBehavior::Snapshotting));
-    canvasElement().paint(context, replacedContentRect);
-    canvasElement().setIsSnapshotting(false);
+    Ref canvasEl = canvasElement();
+    canvasEl->setIsSnapshotting(paintInfo.paintBehavior.contains(PaintBehavior::Snapshotting));
+    canvasEl->paint(context, replacedContentRect);
+    canvasEl->setIsSnapshotting(false);
 }
 
 void RenderHTMLCanvas::canvasSizeChanged()
@@ -126,7 +127,7 @@ void RenderHTMLCanvas::styleDidChange(Style::Difference difference, const Style:
     RenderReplaced::styleDidChange(difference, oldStyle);
 
     if (!oldStyle || style().dynamicRangeLimit() != oldStyle->dynamicRangeLimit())
-        canvasElement().dynamicRangeLimitDidChange(style().dynamicRangeLimit().toPlatformDynamicRangeLimit());
+        protect(canvasElement())->dynamicRangeLimitDidChange(style().dynamicRangeLimit().toPlatformDynamicRangeLimit());
 }
 
 } // namespace WebCore

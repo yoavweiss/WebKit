@@ -345,7 +345,7 @@ void AnchorPositionEvaluator::captureScrollSnapshots(RenderBox& anchored, bool i
         if (CheckedPtr element = anchored.element())
             element->invalidateForAnchorRectChange();
     }
-    anchored.layer()->setAnchorScrollAdjustment({ });
+    protect(anchored)->layer()->setAnchorScrollAdjustment({ });
 }
 
 void AnchorPositionEvaluator::updateScrollAdjustments(RenderView& renderView)
@@ -814,7 +814,7 @@ CheckedPtr<RenderBoxModelObject> AnchorPositionEvaluator::findAnchorForAnchorFun
         return defaultAnchorName(style);
     };
 
-    auto resolvedAnchorName = ResolvedScopedName::createFromScopedName(styleable.element, scopedAnchorName());
+    auto resolvedAnchorName = ResolvedScopedName::createFromScopedName(protect(styleable.element), scopedAnchorName());
 
     // Collect anchor names that this element refers to in anchor() or anchor-size()
     bool isNewAnchorName = anchorPositionedState.anchorNames.add(resolvedAnchorName).isNewEntry;
@@ -1776,7 +1776,7 @@ CheckedPtr<RenderBoxModelObject> AnchorPositionEvaluator::defaultAnchorForBox(co
     if (!anchors.allAnchorsPositioned)
         return nullptr;
 
-    auto anchorName = ResolvedScopedName::createFromScopedName(styleable->element, defaultAnchorName(box.style()));
+    auto anchorName = ResolvedScopedName::createFromScopedName(protect(styleable->element), defaultAnchorName(box.style()));
 
     for (auto& anchor : anchors.anchors) {
         if (anchorName == anchor.name)

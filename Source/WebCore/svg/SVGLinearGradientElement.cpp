@@ -154,7 +154,7 @@ bool SVGLinearGradientElement::collectGradientAttributes(LinearGradientAttribute
 
     while (true) {
         // Respect xlink:href, take attributes from referenced element
-        auto target = SVGURIReference::targetElementFromIRIString(current->href(), treeScopeForSVGReferences());
+        auto target = SVGURIReference::targetElementFromIRIString(current->href(), protect(treeScopeForSVGReferences()));
         if (RefPtr gradientElement = dynamicDowncast<SVGGradientElement>(target.element.get())) {
             current = *gradientElement;
 

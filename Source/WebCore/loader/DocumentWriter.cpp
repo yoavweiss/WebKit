@@ -84,7 +84,7 @@ void DocumentWriter::replaceDocumentWithResultOfExecutingJavascriptURL(const Str
     if (frame->documentIsBeingReplaced())
         return;
 
-    begin(frame->document()->url(), true, ownerDocument);
+    begin(protect(frame->document())->url(), true, ownerDocument);
 
     setEncoding("UTF-8"_s, IsEncodingUserChosen::No);
 
@@ -288,7 +288,7 @@ TextResourceDecoder& DocumentWriter::decoder()
             decoder->setHintEncoding(parentFrame->document()->decoder());
         if (m_encoding.isEmpty()) {
             if (canReferToParentFrameEncoding(frame.ptr(), parentFrame))
-                decoder->setEncoding(parentFrame->document()->textEncoding(), TextResourceDecoder::EncodingFromParentFrame);
+                decoder->setEncoding(protect(parentFrame->document())->textEncoding(), TextResourceDecoder::EncodingFromParentFrame);
         } else {
             decoder->setEncoding(m_encoding,
                 m_encodingWasChosenByUser ? TextResourceDecoder::UserChosenEncoding : TextResourceDecoder::EncodingFromHTTPHeader);

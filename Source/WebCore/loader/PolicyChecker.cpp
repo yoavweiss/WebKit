@@ -241,7 +241,7 @@ void PolicyChecker::checkNavigationPolicy(ResourceRequest&& request, const Resou
         RefPtr document = frame->document();
         if (document && document->settings().navigationAPIEnabled()) {
             if (RefPtr window = document->window()) {
-                if (!protect(window->navigation())->dispatchDownloadNavigateEvent(request.url(), action.downloadAttribute(), action.sourceElement()))
+                if (!protect(window->navigation())->dispatchDownloadNavigateEvent(request.url(), action.downloadAttribute(), protect(action.sourceElement())))
                     return function({ }, nullptr, NavigationPolicyDecision::IgnoreLoad);
             }
         }
@@ -365,10 +365,10 @@ void PolicyChecker::checkNewWindowPolicy(NavigationAction&& navigationAction, Re
     if (m_frame->document() && m_frame->document()->isSandboxed(SandboxFlag::Popups))
         return function({ }, nullptr, { }, { }, ShouldContinuePolicyCheck::No);
 
-    if (!LocalDOMWindow::allowPopUp(m_frame))
+    if (!LocalDOMWindow::allowPopUp(protect(m_frame)))
         return function({ }, nullptr, { }, { }, ShouldContinuePolicyCheck::No);
 
-    auto blobURLLifetimeExtension = extendBlobURLLifetimeIfNecessary(request, *m_frame->document());
+    auto blobURLLifetimeExtension = extendBlobURLLifetimeIfNecessary(request, protect(*m_frame->document()));
 
     Ref frame = m_frame.get();
     RefPtr formState = formSubmission ? protect(formSubmission->state()): nullptr;

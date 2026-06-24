@@ -161,7 +161,7 @@ LegacyRootInlineBox* LegacyLineLayout::createAndAppendRootInlineBox()
 {
     m_legacyRootInlineBox = createRootInlineBox();
     if (AXObjectCache::accessibilityEnabled()) [[unlikely]] {
-        if (AXObjectCache* cache = m_flow.document().existingAXObjectCache())
+        if (AXObjectCache* cache = protect(m_flow)->document().existingAXObjectCache())
             cache->deferRecomputeIsIgnored(m_flow.element());
     }
 

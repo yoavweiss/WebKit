@@ -143,7 +143,7 @@ void SVGAElement::defaultEventHandler(Event& event)
             auto url = href().trim(isASCIIWhitespace);
 
             if (url[0] == '#') {
-                if (RefPtr targetElement = dynamicDowncast<SVGSMILElement>(treeScope().getElementById(url.substringSharingImpl(1)))) {
+                if (RefPtr targetElement = dynamicDowncast<SVGSMILElement>(protect(treeScope())->getElementById(url.substringSharingImpl(1)))) {
                     targetElement->beginByLinkActivation();
                     event.setDefaultHandled();
                     return;
@@ -231,7 +231,7 @@ bool SVGAElement::childShouldCreateRenderer(const Node& child) const
         return false;
 
     if (parentElement() && parentElement()->isSVGElement())
-        return parentElement()->childShouldCreateRenderer(child);
+        return protect(parentElement())->childShouldCreateRenderer(child);
 
     return SVGElement::childShouldCreateRenderer(child);
 }

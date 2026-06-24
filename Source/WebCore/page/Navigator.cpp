@@ -102,7 +102,7 @@ const String& Navigator::userAgent() const
 #endif
 
     if (m_userAgent.isNull())
-        m_userAgent = frame->loader().userAgent(frame->document()->url());
+        m_userAgent = frame->loader().userAgent(protect(frame->document())->url());
     return m_userAgent;
 }
 

@@ -504,7 +504,7 @@ void JSTestConditionallyReadWriteOwner::finalize(JSC::Handle<JSC::Unknown> handl
 {
     SUPPRESS_MEMORY_UNSAFE_CAST auto* jsTestConditionallyReadWrite = static_cast<JSTestConditionallyReadWrite*>(handle.slot()->asCell());
     auto& world = *static_cast<DOMWrapperWorld*>(context);
-    uncacheWrapper(world, protect(jsTestConditionallyReadWrite->wrapped()).ptr(), jsTestConditionallyReadWrite);
+    SUPPRESS_UNCOUNTED_ARG uncacheWrapper(world, &jsTestConditionallyReadWrite->wrapped(), jsTestConditionallyReadWrite);
 }
 
 WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN

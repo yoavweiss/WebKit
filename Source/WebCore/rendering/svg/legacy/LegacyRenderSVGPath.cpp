@@ -226,7 +226,7 @@ bool LegacyRenderSVGPath::shouldGenerateMarkerPositions() const
     if (!style().hasMarkers())
         return false;
 
-    if (!graphicsElement().supportsMarkers())
+    if (!protect(graphicsElement())->supportsMarkers())
         return false;
 
     auto* resources = SVGResourcesCache::cachedResourcesForRenderer(*this);

@@ -154,8 +154,8 @@ public:
         if (m_adjustmentToRestore.isEmpty())
             return;
 
-        m_element->setVisibilityAdjustment(m_adjustmentToRestore);
-        m_element->invalidateStyleAndRenderersForSubtree();
+        protect(m_element)->setVisibilityAdjustment(m_adjustmentToRestore);
+        protect(m_element)->invalidateStyleAndRenderersForSubtree();
     }
 
 private:
@@ -207,7 +207,7 @@ static inline bool querySelectorMatchesOneElement(const Element& element, const 
     auto result = container->querySelectorAll(selector);
     if (result.hasException())
         return false;
-    return result.returnValue()->length() == 1 && result.returnValue()->item(0) == &element;
+    return protect(result.returnValue())->length() == 1 && protect(result.returnValue())->item(0) == &element;
 }
 
 struct ChildElementPosition {
@@ -1085,7 +1085,7 @@ std::pair<Vector<Ref<Node>>, RefPtr<Element>> ElementTargetingController::findNo
     if (!foundElement)
         return { };
 
-    while (!foundElement->document().isTopDocument())
+    while (!protect(foundElement->document())->isTopDocument())
         foundElement = foundElement->document().ownerElement();
 
     if (!foundElement) {
@@ -1525,11 +1525,11 @@ bool ElementTargetingController::adjustVisibility(Vector<TargetedElementAdjustme
         changed = true;
 
         if (invalidateSubtree)
-            adjustedElement->invalidateStyleAndRenderersForSubtree();
+            protect(adjustedElement)->invalidateStyleAndRenderersForSubtree();
         else
-            adjustedElement->invalidateStyle();
+            protect(adjustedElement)->invalidateStyle();
         m_adjustedElements.add(element);
-        m_documentsAffectedByVisibilityAdjustment.add(element->document());
+        m_documentsAffectedByVisibilityAdjustment.add(protect(element->document()));
     }
 
     if (changed)
@@ -1658,11 +1658,11 @@ void ElementTargetingController::adjustVisibilityInRepeatedlyTargetedRegions(Doc
             continue;
 
         if (invalidateSubtree)
-            adjustedElement->invalidateStyleAndRenderersForSubtree();
+            protect(adjustedElement)->invalidateStyleAndRenderersForSubtree();
         else
-            adjustedElement->invalidateStyle();
+            protect(adjustedElement)->invalidateStyle();
         m_adjustedElements.add(element);
-        m_documentsAffectedByVisibilityAdjustment.add(element->document());
+        m_documentsAffectedByVisibilityAdjustment.add(protect(element->document()));
     }
 
     dispatchVisibilityAdjustmentStateDidChange();
@@ -1714,17 +1714,17 @@ void ElementTargetingController::applyVisibilityAdjustmentFromSelectors()
         if (currentAdjustment.contains(adjustment))
             continue;
 
-        element->setVisibilityAdjustment(currentAdjustment | adjustment);
+        protect(element)->setVisibilityAdjustment(currentAdjustment | adjustment);
 
         if (adjustment == VisibilityAdjustment::Subtree)
-            element->invalidateStyleAndRenderersForSubtree();
+            protect(element)->invalidateStyleAndRenderersForSubtree();
         else
-            element->invalidateStyle();
+            protect(element)->invalidateStyle();
 
-        m_adjustedElements.add(*element);
-        m_documentsAffectedByVisibilityAdjustment.add(element->document());
+        m_adjustedElements.add(protect(*element));
+        m_documentsAffectedByVisibilityAdjustment.add(protect(element->document()));
 
-        if (auto clientRect = inflatedClientRectForAdjustmentRegionTracking(*element, viewportArea))
+        if (auto clientRect = inflatedClientRectForAdjustmentRegionTracking(protect(*element), viewportArea))
             adjustmentRegion.unite(*clientRect);
 
         matchingSelectors.append(WTF::move(selectorIncludingPseudo));

@@ -132,7 +132,7 @@ void Scope::createOrFindSharedShadowTreeResolver()
         m_resolver = Resolver::create(m_document, Resolver::ScopeType::ShadowTree);
 
         m_resolver->ruleSets().setUsesSharedUserStyle(!isForUserAgentShadowTree());
-        m_resolver->appendAuthorStyleSheets(m_activeStyleSheets);
+        protect(m_resolver)->appendAuthorStyleSheets(m_activeStyleSheets);
 
         return protect(*m_resolver);
     });
@@ -179,7 +179,7 @@ void Scope::releaseMemory()
 {
 #if ENABLE(CSS_SELECTOR_JIT)
     for (auto& sheet : m_activeStyleSheets) {
-        sheet->contents().traverseRules([] (const StyleRuleBase& rule) {
+        protect(sheet->contents())->traverseRules([] (const StyleRuleBase& rule) {
             if (auto* styleRule = dynamicDowncast<StyleRule>(rule))
                 styleRule->releaseCompiledSelectors();
             return false;
@@ -206,7 +206,7 @@ const Scope& Scope::forNode(const Node& node)
 Scope* Scope::forOrdinal(Element& element, ScopeOrdinal ordinal)
 {
     if (auto* pseudoElement = dynamicDowncast<PseudoElement>(element))
-        return forOrdinal(*pseudoElement->hostElement(), ordinal);
+        return forOrdinal(*protect(pseudoElement->hostElement()), ordinal);
 
     if (ordinal == ScopeOrdinal::Element)
         return &forNode(element);
@@ -433,9 +433,9 @@ auto Scope::collectActiveStyleSheets() -> ActiveStyleSheetCollection
             }
             // Get the current preferred styleset. This is the
             // set of sheets that will be enabled.
-            if (auto* svgStyleElement = dynamicDowncast<SVGStyleElement>(element.get()))
+            if (RefPtr svgStyleElement = dynamicDowncast<SVGStyleElement>(element.get()))
                 sheet = svgStyleElement->sheet();
-            else if (auto* htmlLinkElement = dynamicDowncast<HTMLLinkElement>(element.get()))
+            else if (RefPtr htmlLinkElement = dynamicDowncast<HTMLLinkElement>(element.get()))
                 sheet = htmlLinkElement->sheet();
             else
                 sheet = downcast<HTMLStyleElement>(element.get()).sheet();
@@ -509,7 +509,7 @@ Scope::StyleSheetChange Scope::analyzeStyleSheetChange(const Vector<Ref<CSSStyle
             return { ResolverUpdateType::Reconstruct };
 
         while (m_activeStyleSheets[oldIndex] != newStylesheets[newIndex]) {
-            addedSheets.append(newStylesheets[newIndex]->contents());
+            addedSheets.append(protect(newStylesheets[newIndex]->contents()));
             ++newIndex;
             if (newIndex == newStylesheetCount)
                 return { ResolverUpdateType::Reconstruct };
@@ -518,7 +518,7 @@ Scope::StyleSheetChange Scope::analyzeStyleSheetChange(const Vector<Ref<CSSStyle
     }
     bool hasInsertions = !addedSheets.isEmpty();
     while (newIndex < newStylesheetCount) {
-        addedSheets.append(newStylesheets[newIndex]->contents());
+        addedSheets.append(protect(newStylesheets[newIndex]->contents()));
         ++newIndex;
     }
 
@@ -629,7 +629,7 @@ void Scope::updateResolver(std::span<const Ref<CSSStyleSheet>> activeStyleSheets
         customPropertyRegistry().clearRegisteredFromStylesheets();
         counterStyleRegistry().clearAuthorCounterStyles();
         m_resolver->ruleSets().resetAuthorStyle();
-        m_resolver->appendAuthorStyleSheets(activeStyleSheets);
+        protect(m_resolver)->appendAuthorStyleSheets(activeStyleSheets);
         return;
     }
 
@@ -637,7 +637,7 @@ void Scope::updateResolver(std::span<const Ref<CSSStyleSheet>> activeStyleSheets
     ASSERT(activeStyleSheets.size() >= m_activeStyleSheets.size());
 
     auto firstNewIndex = m_activeStyleSheets.size();
-    m_resolver->appendAuthorStyleSheets(activeStyleSheets.subspan(firstNewIndex));
+    protect(m_resolver)->appendAuthorStyleSheets(activeStyleSheets.subspan(firstNewIndex));
 }
 
 const Vector<Ref<CSSStyleSheet>> Scope::activeStyleSheetsForInspector()
@@ -717,7 +717,7 @@ void Scope::scheduleUpdate(UpdateType update)
     if (update == UpdateType::ContentsOrInterpretation) {
         // :host and ::slotted rules might go away.
         if (m_shadowRoot) {
-            Invalidator::invalidateHostAndSlottedStyleIfNeeded(*m_shadowRoot);
+            Invalidator::invalidateHostAndSlottedStyleIfNeeded(protect(*m_shadowRoot));
             unshareShadowTreeResolverBeforeMutation();
         }
 
@@ -757,10 +757,10 @@ void Scope::didChangeViewportSize()
         if (!m_document->hasStyleWithViewportUnits())
             return;
 
-        for (auto& descendantShadowRoot : m_document->inDocumentShadowRoots()) {
-            if (descendantShadowRoot.mode() == ShadowRootMode::UserAgent)
+        for (Ref descendantShadowRoot : m_document->inDocumentShadowRoots()) {
+            if (descendantShadowRoot->mode() == ShadowRootMode::UserAgent)
                 continue;
-            const_cast<ShadowRoot&>(descendantShadowRoot).styleScope().didChangeViewportSize();
+            const_cast<ShadowRoot&>(descendantShadowRoot.get()).styleScope().didChangeViewportSize();
         }
     }
 

@@ -235,7 +235,7 @@ void BlendingKeyframes::fillImplicitKeyframes(const KeyframeEffect& effect, cons
 
     auto zeroKeyframeImplicitProperties = expectedExplicitProperties.differenceWith(zeroKeyframeExplicitProperties);
     if (!zeroKeyframeImplicitProperties.isEmpty())
-        addImplicitKeyframe(0, zeroKeyframeImplicitProperties, zeroPercentKeyframe(), implicitZeroKeyframe);
+        addImplicitKeyframe(0, zeroKeyframeImplicitProperties, protect(zeroPercentKeyframe()), implicitZeroKeyframe);
 
     HashSet<AnimatableCSSProperty> oneKeyframeExplicitProperties;
     BlendingKeyframe* implicitOneKeyframe = nullptr;
@@ -251,7 +251,7 @@ void BlendingKeyframes::fillImplicitKeyframes(const KeyframeEffect& effect, cons
 
     auto oneKeyframeImplicitProperties = expectedExplicitProperties.differenceWith(oneKeyframeExplicitProperties);
     if (!oneKeyframeImplicitProperties.isEmpty())
-        addImplicitKeyframe(1, oneKeyframeImplicitProperties, hundredPercentKeyframe(), implicitOneKeyframe);
+        addImplicitKeyframe(1, oneKeyframeImplicitProperties, protect(hundredPercentKeyframe()), implicitOneKeyframe);
 }
 
 bool BlendingKeyframes::containsAnimatableCSSProperty() const

@@ -52,18 +52,19 @@ MathMLPaddedElement& RenderMathMLPadded::element() const
 
 LayoutUnit RenderMathMLPadded::voffset() const
 {
-    return toUserUnits(element().voffset(), style(), 0);
+    return toUserUnits(protect(element())->voffset(), style(), 0);
 }
 
 LayoutUnit RenderMathMLPadded::lspace() const
 {
     // FIXME: Negative lspace values are not supported yet (https://bugs.webkit.org/show_bug.cgi?id=85730).
-    return std::max(0_lu, toUserUnits(element().lspace(), style(), 0));
+    return std::max(0_lu, toUserUnits(protect(element())->lspace(), style(), 0));
 }
 
 LayoutUnit RenderMathMLPadded::mpaddedWidth(LayoutUnit contentWidth) const
 {
-    auto& widthAttr = element().width();
+    Ref protectedElement = element();
+    auto& widthAttr = protectedElement->width();
     // If parsing failed (attribute not set) or it's a percentage, use the content width as default.
     if (widthAttr.type == MathMLElement::LengthType::ParsingFailed ||  widthAttr.type == MathMLElement::LengthType::Percentage)
         return contentWidth;
@@ -72,7 +73,8 @@ LayoutUnit RenderMathMLPadded::mpaddedWidth(LayoutUnit contentWidth) const
 
 LayoutUnit RenderMathMLPadded::mpaddedHeight(LayoutUnit contentHeight) const
 {
-    auto& heightAttr = element().height();
+    Ref protectedElement = element();
+    auto& heightAttr = protectedElement->height();
     // If parsing failed (attribute not set) or it's a percentage, use the content height as default.
     if (heightAttr.type == MathMLElement::LengthType::ParsingFailed ||  heightAttr.type == MathMLElement::LengthType::Percentage)
         return contentHeight;
@@ -81,7 +83,8 @@ LayoutUnit RenderMathMLPadded::mpaddedHeight(LayoutUnit contentHeight) const
 
 LayoutUnit RenderMathMLPadded::mpaddedDepth(LayoutUnit contentDepth) const
 {
-    auto& depthAttr = element().depth();
+    Ref protectedElement = element();
+    auto& depthAttr = protectedElement->depth();
     // If parsing failed (attribute not set) or it's a percentage, use the content depth as default.
     if (depthAttr.type == MathMLElement::LengthType::ParsingFailed ||  depthAttr.type == MathMLElement::LengthType::Percentage)
         return contentDepth;

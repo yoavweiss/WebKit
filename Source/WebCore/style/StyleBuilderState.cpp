@@ -326,7 +326,7 @@ void BuilderState::setUsesContainerUnits()
 double BuilderState::lookupCSSRandomBaseValue(const CSSCalc::RandomCachingKey& key, std::optional<CSS::Keyword::ElementScoped> elementScoped) const
 {
     if (elementScoped)
-        return element()->lookupCSSRandomBaseValue(style().pseudoElementIdentifier(), key);
+        return protect(element())->lookupCSSRandomBaseValue(style().pseudoElementIdentifier(), key);
 
     return document().lookupCSSRandomBaseValue(key);
 }
@@ -394,7 +394,7 @@ void BuilderState::disableNativeAppearanceIfNeeded(CSSPropertyID propertyID, Pro
             return false;
         if (!applyPropertyToRegularStyle())
             return false;
-        return element()->isDevolvableWidget() || RenderTheme::hasAppearanceForElementTypeFromUAStyle(*element());
+        SUPPRESS_UNCOUNTED_ARG return element()->isDevolvableWidget() || RenderTheme::hasAppearanceForElementTypeFromUAStyle(*element());
     };
 
     if (shouldDisable())

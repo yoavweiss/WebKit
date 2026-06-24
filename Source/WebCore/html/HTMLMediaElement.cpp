@@ -832,7 +832,7 @@ HTMLMediaElement::~HTMLMediaElement()
 
 #if ENABLE(MEDIA_SOURCE)
     if (auto mediaProvider = std::exchange(m_mediaProvider, { }); mediaProvider && std::holds_alternative<Ref<MediaSource>>(*mediaProvider))
-        std::get<Ref<MediaSource>>(*mediaProvider)->elementIsShuttingDown();
+        protect(std::get<Ref<MediaSource>>(*mediaProvider))->elementIsShuttingDown();
     if (RefPtr mediaSource = std::exchange(m_mediaSource, { }))
         mediaSource->elementIsShuttingDown();
 #endif
@@ -892,7 +892,7 @@ WeakPtr<PlatformMediaSessionInterface> HTMLMediaElement::selectBestMediaSession(
     Vector<MediaElementSessionInfo> candidateSessions;
     bool atLeastOneNonCandidateMayBeConfusedForMainContent = false;
     for (auto& session : sessions) {
-        auto mediaElementSessionInfo = mediaElementSessionInfoForSession(*downcast<MediaElementSession>(session.get()), purpose);
+        auto mediaElementSessionInfo = mediaElementSessionInfoForSession(protect(*downcast<MediaElementSession>(session.get())), purpose);
         if (mediaElementSessionInfo.canShowControlsManager)
             candidateSessions.append(mediaElementSessionInfo);
         else if (mediaSessionMayBeConfusedWithMainContent(mediaElementSessionInfo, purpose))
@@ -2158,7 +2158,7 @@ static bool eventTimeCueCompare(const std::pair<MediaTime, RefPtr<TextTrackCue>>
     // 12 - Further sort tasks in events that have the same time by the
     // relative text track cue order of the text track cues associated
     // with these tasks.
-    return a.second->isOrderedBefore(b.second.get());
+    return protect(a.second)->isOrderedBefore(b.second.get());
 }
 
 static bool compareCueInterval(const CueInterval& one, const CueInterval& two)
@@ -2402,11 +2402,11 @@ void HTMLMediaElement::updateActiveTextTrackCues(const MediaTime& movieTime)
     // cues, and unset the text track cue active flag of all the cues in the
     // other cues.
     for (size_t i = 0; i < currentCuesSize; ++i)
-        currentCues[i].data()->setIsActive(true);
+        protect(currentCues[i].data())->setIsActive(true);
 
     for (size_t i = 0; i < previousCuesSize; ++i)
         if (!currentCues.contains(previousCues[i]))
-            previousCues[i].data()->setIsActive(false);
+            protect(previousCues[i].data())->setIsActive(false);
 
     // Update the current active cues.
     m_cueData->currentlyActiveCues = currentCues;
@@ -3419,7 +3419,7 @@ void HTMLMediaElement::setReadyState(MediaPlayer::ReadyState state)
 
     // If we transition to the Future Data state and we're about to begin playing, ensure playback is actually permitted first,
     // honoring any playback denial reasons such as the requirement of a user gesture.
-    if (m_readyState == HAVE_FUTURE_DATA && oldState < HAVE_FUTURE_DATA && potentiallyPlaying() && !mediaSession().playbackStateChangePermitted(MediaPlaybackState::Playing)) {
+    if (m_readyState == HAVE_FUTURE_DATA && oldState < HAVE_FUTURE_DATA && potentiallyPlaying() && !protect(mediaSession())->playbackStateChangePermitted(MediaPlaybackState::Playing)) {
         auto canTransition = canTransitionFromAutoplayToPlay();
         if (!canTransition && canTransition.error().reason == MediaPlaybackDenialReason::UserGestureRequired)
             ALWAYS_LOG(LOGIDENTIFIER, "Autoplay blocked with reason: ", canTransition.error());
@@ -5452,8 +5452,8 @@ void HTMLMediaElement::configureTextTrackGroup(const TrackGroup& group)
     // track if it is less suitable, and we do want to disable it if another track is more suitable.
     int alreadyVisibleTrackScore = 0;
     if (group.visibleTrack && captionPreferences) {
-        alreadyVisibleTrackScore = captionPreferences->textTrackSelectionScore(*group.visibleTrack, *this);
-        currentlyEnabledTracks.append(*group.visibleTrack);
+        alreadyVisibleTrackScore = captionPreferences->textTrackSelectionScore(*group.visibleTrack, protect(*this));
+        currentlyEnabledTracks.append(protect(*group.visibleTrack));
     }
 
     for (size_t i = 0; i < group.tracks.size(); ++i) {
@@ -5850,7 +5850,7 @@ void HTMLMediaElement::sourceWasAdded(HTMLSourceElement& source)
     if (m_networkState == NETWORK_EMPTY) {
         m_nextChildNodeToConsider = source;
 #if PLATFORM(IOS_FAMILY)
-        if (mediaSession().dataLoadingPermitted())
+        if (protect(mediaSession())->dataLoadingPermitted())
 #endif
             selectMediaResource();
         return;
@@ -6253,7 +6253,7 @@ void HTMLMediaElement::mediaEngineWasUpdated()
 
 void HTMLMediaElement::mediaPlayerEngineUpdated()
 {
-    HTMLMEDIAELEMENT_RELEASE_LOG(MediaPlayerEngineUpdated, m_player->engineDescription().utf8());
+    HTMLMEDIAELEMENT_RELEASE_LOG(MediaPlayerEngineUpdated, protect(m_player)->engineDescription().utf8());
 
 #if ENABLE(MEDIA_SOURCE)
     m_droppedVideoFrames = 0;
@@ -6475,7 +6475,7 @@ bool HTMLMediaElement::stoppedDueToErrors() const
 
 bool HTMLMediaElement::pausedForUserInteraction() const
 {
-    if (mediaSession().state() == PlatformMediaSession::State::Interrupted)
+    if (protect(mediaSession())->state() == PlatformMediaSession::State::Interrupted)
         return true;
 
     return false;
@@ -8732,7 +8732,7 @@ void HTMLMediaElement::mediaPlayerGetRawCookies(const URL& url, MediaPlayerClien
     }
 
     Vector<Cookie> cookies;
-    page->cookieJar().getRawCookies(document(), url, cookies);
+    page->cookieJar().getRawCookies(protect(document()), url, cookies);
     completionHandler(WTF::move(cookies));
 }
 
@@ -9585,9 +9585,9 @@ void HTMLMediaElement::pageMutedStateDidChange()
 
 double HTMLMediaElement::effectiveVolume() const
 {
-    auto* page = document().page();
+    RefPtr page = document().page();
     double pageMultiplier = page ? page->mediaVolume() : 1;
-    double mediaControllerMultiplier = m_mediaController ? m_mediaController->volume() : 1;
+    double mediaControllerMultiplier = m_mediaController ? protect(m_mediaController)->volume() : 1;
 
 #if ENABLE(WEB_AUDIO)
     // Don't apply the page volume multiplier when attached to a MediaElementSourceNode
@@ -9604,7 +9604,7 @@ bool HTMLMediaElement::effectiveMuted() const
     if (muted())
         return true;
 
-    if (m_mediaController && m_mediaController->muted())
+    if (m_mediaController && protect(m_mediaController)->muted())
         return true;
 
     if (auto* page = document().page(); page && page->isAudioMuted())
@@ -10146,7 +10146,7 @@ String HTMLMediaElement::localizedSourceType() const
 
 bool HTMLMediaElement::isActiveNowPlayingSession() const
 {
-    return m_mediaSession && m_mediaSession->isActiveNowPlayingSession();
+    return m_mediaSession && protect(m_mediaSession)->isActiveNowPlayingSession();
 }
 
 #if HAVE(SPATIAL_TRACKING_LABEL)
