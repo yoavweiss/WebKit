@@ -385,7 +385,11 @@ TEST(ObscuredContentInsets, PreferSolidColorHardPocket)
 
     RetainPtr topScrollPocket = [webView _topScrollPocket];
     EXPECT_NOT_NULL(topScrollPocket);
+#if HAVE(LIQUID_GLASS_ADJUSTMENTS)
+    EXPECT_FALSE([topScrollPocket prefersSolidColorHardPocket]);
+#else
     EXPECT_TRUE([topScrollPocket prefersSolidColorHardPocket]); // Solid color is preferred when the page is not scrolled.
+#endif
 
     [webView objectByEvaluatingJavaScript:@"scrollTo(0, 100)"];
     Util::waitForConditionWithLogging([topScrollPocket] {

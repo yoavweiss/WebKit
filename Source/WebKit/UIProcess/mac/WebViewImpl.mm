@@ -7844,11 +7844,19 @@ void WebViewImpl::updatePrefersSolidColorHardPocket()
     if (!view)
         return;
 
+    auto prefersSolidColorHardPocketDueToScrollLocation = [&] {
+#if HAVE(LIQUID_GLASS_ADJUSTMENTS)
+        if (linkedOnOrAfterSDKWithBehavior(SDKAlignedBehavior::IgnorePageLocationDuringHardPocketEligibilityCheck))
+            return false;
+#endif
+        return pageIsScrolledToTop();
+    };
+
     [m_topScrollPocket setPrefersSolidColorHardPocket:^{
         if ([view _hasVisibleColorExtensionView:BoxSide::Top])
             return YES;
 
-        if (pageIsScrolledToTop())
+        if (prefersSolidColorHardPocketDueToScrollLocation())
             return YES;
 
         if (view->_preferSolidColorHardPocketReasons)
