@@ -627,6 +627,7 @@ set(JavaScriptCore_PRIVATE_FRAMEWORK_HEADERS
     assembler/LinkBuffer.h
     assembler/MacroAssembler.h
     assembler/MacroAssemblerARM64.h
+    assembler/MacroAssemblerARM64E.h
     assembler/MacroAssemblerARMv7.h
     assembler/MacroAssemblerCodeRef.h
     assembler/MacroAssemblerHelpers.h
