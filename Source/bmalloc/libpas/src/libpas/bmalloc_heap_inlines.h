@@ -372,9 +372,13 @@ bmalloc_reallocate_inline(void* old_ptr, size_t new_size,
         free_mode).begin;
 }
 
+PAS_API void bmalloc_deallocate_casual(void* ptr);
+
 static PAS_ALWAYS_INLINE void bmalloc_deallocate_inline(void* ptr)
 {
-    pas_deallocate(ptr, BMALLOC_HEAP_CONFIG);
+    if (PAS_LIKELY(pas_try_deallocate_inline_only(ptr, BMALLOC_HEAP_CONFIG, pas_deallocate_mode)))
+        return;
+    bmalloc_deallocate_casual(ptr);
 }
 
 PAS_END_EXTERN_C;
