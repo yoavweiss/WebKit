@@ -147,7 +147,7 @@ public:
 
     bool allowJavaScriptURLs(const String& contextURL, const OrdinalNumber& contextLine, const String& code, Element*) const;
     bool allowInlineEventHandlers(const String& contextURL, const OrdinalNumber& contextLine, const String& code, Element*, bool overrideContentSecurityPolicy = false) const;
-    bool allowInlineScript(const String& contextURL, const OrdinalNumber& contextLine, StringView scriptContent, Element&, const String& nonce, bool overrideContentSecurityPolicy = false) const;
+    bool allowInlineScript(const String& contextURL, const TextPosition& contextPosition, StringView scriptContent, Element&, const String& nonce, bool overrideContentSecurityPolicy = false) const;
     bool allowScriptForStrictDynamic(const URL& sourceURL, const URL& contextURL, const OrdinalNumber&, const String& nonce, const String& subResourceIntegrity, const StringView&, ParserInserted) const;
     bool allowInlineStyle(const String& contextURL, const OrdinalNumber& contextLine, StringView styleContent, CheckUnsafeHashes, Element&, const String&, bool overrideContentSecurityPolicy = false) const;
 

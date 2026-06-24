@@ -518,14 +518,14 @@ bool ContentSecurityPolicy::allowScriptForStrictDynamic(const URL& sourceURL, co
     return allPoliciesAllow(handleViolatedDirective, &ContentSecurityPolicyDirectiveList::violatedDirectiveForNonParserInsertedScripts, trimmedNonce, contentHashes, subResourceIntegrityDigests, sourceURL, parserInserted);
 }
 
-bool ContentSecurityPolicy::allowInlineScript(const String& contextURL, const OrdinalNumber& contextLine, StringView scriptContent, Element& element, const String& nonce, bool overrideContentSecurityPolicy) const
+bool ContentSecurityPolicy::allowInlineScript(const String& contextURL, const TextPosition& contextPosition, StringView scriptContent, Element& element, const String& nonce, bool overrideContentSecurityPolicy) const
 {
     if (overrideContentSecurityPolicy || shouldPerformEarlyCSPCheck() || m_policies.isEmpty())
         return true;
     bool didNotifyInspector = false;
-    auto handleViolatedDirective = [checkedThis = CheckedRef { *this }, &didNotifyInspector, &contextURL, &contextLine, &scriptContent, element = Ref { element }] (const ContentSecurityPolicyDirective& violatedDirective) {
+    auto handleViolatedDirective = [checkedThis = CheckedRef { *this }, &didNotifyInspector, &contextURL, &contextPosition, &scriptContent, element = Ref { element }] (const ContentSecurityPolicyDirective& violatedDirective) {
         String consoleMessage = consoleMessageForViolation(violatedDirective, URL(), "Refused to execute a script"_s, "its hash, its nonce, or 'unsafe-inline'"_s);
-        checkedThis->reportViolation(violatedDirective, "inline"_s, consoleMessage, contextURL, scriptContent, TextPosition(contextLine, OrdinalNumber()), URL(), nullptr, element.ptr());
+        checkedThis->reportViolation(violatedDirective, "inline"_s, consoleMessage, contextURL, scriptContent, contextPosition, URL(), nullptr, element.ptr());
         if (!didNotifyInspector && !violatedDirective.directiveList().isReportOnly()) {
             checkedThis->reportBlockedScriptExecutionToInspector(violatedDirective.text());
             didNotifyInspector = true;

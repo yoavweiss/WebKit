@@ -141,7 +141,7 @@ private:
     virtual bool isScriptPreventedByAttributes() const { return false; }
 
     WeakRef<Element, WeakPtrImplWithEventTargetData> m_element;
-    OrdinalNumber m_startLineNumber { OrdinalNumber::beforeFirst() };
+    TextPosition m_startPosition { TextPosition::belowRangePosition() };
     JSC::SourceTaintedOrigin m_taintedOrigin;
     ParserInserted m_parserInserted : bitWidthOfParserInserted;
     bool m_isExternalScript : 1 { false };
