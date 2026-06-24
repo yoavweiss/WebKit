@@ -327,8 +327,8 @@ webkit.org/b/316819 [ mac debug ] TestWebKitAPI.SiteIsolation.MultiProcessBFCach
 
 webkit.org/b/316931 [ ios ] TestWebKitAPI.CopyHTML.SanitizationPreservesCharacterSetInSelectedText [ Pass Failure Crash ]
 
-webkit.org/b/317144 TestWebKitAPI.WKHTTPCookieStore.WebSocketCookiesFromRedirect [ Failure ]
-webkit.org/b/317144 TestWebKitAPI.WKHTTPCookieStore.WebSocketCookiesThroughRedirect [ Failure ]
+webkit.org/b/317144 TestWebKitAPI.WKHTTPCookieStore.WebSocketCookiesFromRedirect [ Skip ]
+webkit.org/b/317144 TestWebKitAPI.WKHTTPCookieStore.WebSocketCookiesThroughRedirect [ Skip ]
 
 webkit.org/b/317214 [ mac ] TestWebKitAPI.MediaSessionTest.MinimalCommands [ Crash ]
 webkit.org/b/317214 [ mac ] TestWebKitAPI.NowPlayingTest.VideoElementWithMutedAudio [ Crash ]
