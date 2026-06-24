@@ -185,6 +185,19 @@ def main(args):
     if len(xcodebuild_args):
         make_command.extend(['ARGS={}'.format(' '.join(["{}=\"{}\"".format(key, xcodebuild_args[key]) for key in xcodebuild_args]))])
 
+    # FIXME (rdar://168692628): With Xcode compilation caching (CAS) disabled,
+    # clang's `-fbounds-safety` silently turns on
+    # `-fexperimental-late-parse-attributes` without it appearing on the command
+    # line, so it is absent from the explicit-module context hash.  The `SwiftShims`
+    # PCM built for a bounds-safety C++-interop target (late-parse on) then collides
+    # in the module cache with the toolchain's own Swift interface compiles
+    # (`Cxx`, `_StringProcessing`; late-parse off), aborting swift-frontend with
+    # "experimental late parsing of attributes was enabled in ... but is currently
+    # disabled".
+    if not args.enable_compile_cache:
+        make_command.append('OTHER_CFLAGS=-fexperimental-late-parse-attributes')
+        make_command.append('OTHER_SWIFT_FLAGS="-Xcc -fexperimental-late-parse-attributes"')
+
     commands = [
         [set_webkit_config_path, '--{}'.format(args.configuration)],
         make_command,
