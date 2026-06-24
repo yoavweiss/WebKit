@@ -232,7 +232,7 @@ WI.DOMNode = class DOMNode extends WI.Object
     // Public
 
     get destroyed() { return this._destroyed; }
-    get frame() { return this._frame; }
+    get frame() { return this._frame || this.parentNode?.frame || null; }
     get owningTarget() { return this._owningTarget || this.parentNode?.owningTarget || null; }
     get backendNodeId() { return this._rawNodeId ?? this.id; }
     get nextSibling() { return this._nextSibling; }
@@ -1313,18 +1313,14 @@ WI.DOMNode = class DOMNode extends WI.Object
             pseudoClasses.remove(pseudoClass);
         }
 
-        // FIXME: <https://webkit.org/b/298980> Forcing pseudo classes on cross-origin frame nodes is not yet supported.
-        if (this.owningTarget)
-            return;
-
         function changed(error)
         {
             if (!error)
                 this.dispatchEventToListeners(WI.DOMNode.Event.EnabledPseudoClassesChanged);
         }
 
-        let target = WI.assumingMainTarget();
-        target.CSSAgent.forcePseudoState(this.id, pseudoClasses, changed.bind(this));
+        let target = this.owningTarget || WI.assumingMainTarget();
+        target.CSSAgent.forcePseudoState(this.backendNodeId, pseudoClasses, changed.bind(this));
     }
 
     _markUndoableState()
