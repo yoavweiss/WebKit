@@ -8477,3 +8477,5 @@ webkit.org/b/317667 imported/w3c/web-platform-tests/css/css-view-transitions/nav
 webkit.org/b/317753 imported/w3c/web-platform-tests/content-security-policy/sandbox/meta-element.sub.html [ Skip ]
 
 webkit.org/b/317756 imported/w3c/web-platform-tests/css/selectors/user-valid.html [ Skip ]
+
+webkit.org/b/295419 loader/navigation-policy/should-open-external-urls/subframe-navigated-programatically-by-main-frame.html [ Pass Failure ]
