@@ -448,6 +448,11 @@ set(WebKitLegacy_LEGACY_FORWARDING_HEADERS_FILES
     mac/WebView/WebWindowAnimation.h
 )
 
+# Add these to the project header map.
+# FIXME: The "forwarding" step can probably be replaced with this headermap,
+# since it makes the headers available via a framework-style import.
+set(WebKitLegacy_PROJECT_HEADERS ${WebKitLegacy_LEGACY_FORWARDING_HEADERS_FILES})
+
 foreach (_file ${WebKitLegacy_LEGACY_FORWARDING_HEADERS_FILES})
     get_filename_component(_name "${_file}" NAME)
     set(_target_filename "${WebKitLegacy_FRAMEWORK_HEADERS_DIR}/WebKitLegacy/${_name}")

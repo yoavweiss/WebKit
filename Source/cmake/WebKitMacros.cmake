@@ -340,8 +340,26 @@ endmacro()
 
 # Private macro for setting the properties of a target.
 macro(_WEBKIT_TARGET_SETUP _target _logical_name)
-    if (USE_HEADER_MAPS AND ${_logical_name}_PRIVATE_INCLUDE_DIRECTORIES)
-        WEBKIT_MAKE_HEADER_MAP(${_target} "${CMAKE_CURRENT_SOURCE_DIR}" ${_logical_name}_PRIVATE_INCLUDE_DIRECTORIES)
+    if (USE_HEADER_MAPS)
+        WEBKIT_WRITE_HEADER_MAP(${_target}
+            DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${_target}-project-headers.hmap
+            FILES ${${_target}_PROJECT_HEADERS}
+            QUOTED BRACKETED
+        )
+        WEBKIT_WRITE_HEADER_MAP(${_target}
+            DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${_target}-framework-headers.hmap
+            FILES
+                ${${_target}_PUBLIC_FRAMEWORK_HEADERS} ${${_target}_PUBLIC_HEADERS}
+                ${${_target}_PRIVATE_FRAMEWORK_HEADERS} ${${_target}_PRIVATE_HEADERS}
+            QUOTED BRACKETED
+        )
+        include_directories(BEFORE
+            ${CMAKE_CURRENT_BINARY_DIR}/${_target}-project-headers.hmap
+            ${CMAKE_CURRENT_BINARY_DIR}/${_target}-framework-headers.hmap
+        )
+        target_include_directories(${_target} BEFORE PUBLIC
+            ${CMAKE_CURRENT_BINARY_DIR}/${_target}-framework-headers.hmap
+        )
     endif ()
     target_include_directories(${_target} PUBLIC "$<BUILD_INTERFACE:${${_logical_name}_INCLUDE_DIRECTORIES}>")
     target_include_directories(${_target} SYSTEM PRIVATE "$<BUILD_INTERFACE:${${_logical_name}_SYSTEM_INCLUDE_DIRECTORIES}>")

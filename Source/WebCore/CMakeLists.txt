@@ -3235,9 +3235,11 @@ WEBKIT_SYMLINK_FILES(WebCore_CopyPrivateHeaders
     FILES ${WebCore_PRIVATE_FRAMEWORK_HEADERS}
     FLATTENED
 )
-list(APPEND WebCore_INTERFACE_DEPENDENCIES WebCore_CopyPrivateHeaders)
-if (ENABLE_WEBCORE_TEST_SUPPORT)
-    list(APPEND WebCoreTestSupport_INTERFACE_DEPENDENCIES WebCore_CopyPrivateHeaders)
+if (NOT USE_HEADER_MAPS)
+    list(APPEND WebCore_INTERFACE_DEPENDENCIES WebCore_CopyPrivateHeaders)
+    if (ENABLE_WEBCORE_TEST_SUPPORT)
+        list(APPEND WebCoreTestSupport_INTERFACE_DEPENDENCIES WebCore_CopyPrivateHeaders)
+    endif ()
 endif ()
 
 WEBKIT_FRAMEWORK(WebCore)
@@ -3310,7 +3312,9 @@ if (ENABLE_WEBCORE_TEST_SUPPORT)
         FILES ${WebCoreTestSupport_PRIVATE_HEADERS}
         FLATTENED
     )
-    list(APPEND WebCoreTestSupport_INTERFACE_DEPENDENCIES Copy_WebCoreTestSupportPrivateHeaders)
+    if (NOT USE_HEADER_MAPS)
+        list(APPEND WebCoreTestSupport_INTERFACE_DEPENDENCIES Copy_WebCoreTestSupportPrivateHeaders)
+    endif ()
 
     list(APPEND WebCoreTestSupport_INCLUDE_DIRECTORIES ${WebCore_INCLUDE_DIRECTORIES})
     list(APPEND WebCoreTestSupport_PRIVATE_INCLUDE_DIRECTORIES ${WebCore_PRIVATE_INCLUDE_DIRECTORIES})

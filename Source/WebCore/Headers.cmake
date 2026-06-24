@@ -3744,3 +3744,11 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     ${WebCore_DERIVED_SOURCES_DIR}/WebKitFontFamilyNames.h
     ${WebCore_DERIVED_SOURCES_DIR}/XMLNSNames.h
 )
+
+# FIXME: Eventually add all non-installed headers to this list, so that the
+# per-directory -I paths can be removed.
+set(WebCore_PROJECT_HEADERS
+    loader/cache/CachedCSSStyleSheet.h
+
+    platform/graphics/FloatPolygon.h
+)

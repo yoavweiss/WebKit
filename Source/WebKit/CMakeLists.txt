@@ -823,11 +823,13 @@ endif ()
 set(WebKit_AUTOMATION_PROTOCOL_GENERATOR_EXTRA_FLAGS)
 
 set(WebKit_INTERFACE_LIBRARIES WebKit)
-set(WebKit_INTERFACE_INCLUDE_DIRECTORIES
-    ${WebKit_FRAMEWORK_HEADERS_DIR}
-    ${WebKit_PRIVATE_FRAMEWORK_HEADERS_DIR}
-)
-set(WebKit_INTERFACE_DEPENDENCIES "")
+if (NOT USE_HEADER_MAPS)
+    set(WebKit_INTERFACE_INCLUDE_DIRECTORIES
+        ${WebKit_FRAMEWORK_HEADERS_DIR}
+        ${WebKit_PRIVATE_FRAMEWORK_HEADERS_DIR}
+    )
+    set(WebKit_INTERFACE_DEPENDENCIES "")
+endif ()
 set(WebKit_INTERFACE_LINK_DEPENDS
     $<TARGET_FILE:NetworkProcess>
     $<TARGET_FILE:WebProcess>
@@ -990,7 +992,9 @@ if (WebKit_PRIVATE_FRAMEWORK_HEADERS)
         FILES ${WebKit_PRIVATE_FRAMEWORK_HEADERS}
         FLATTENED
     )
-    list(APPEND WebKit_INTERFACE_DEPENDENCIES WebKit_CopyPrivateHeaders)
+    if (NOT USE_HEADER_MAPS)
+        list(APPEND WebKit_INTERFACE_DEPENDENCIES WebKit_CopyPrivateHeaders)
+    endif ()
 endif ()
 
 # Helper macro which wraps the generate-message-receiver.py script

@@ -613,6 +613,11 @@ set(WebKitLegacy_LEGACY_FORWARDING_HEADERS_FILES
     mac/WebView/WebWindowAnimation.h
 )
 
+# Add these to the project header map.
+# FIXME: The "forwarding" step can probably be replaced with this headermap,
+# since it makes the headers available via a framework-style import.
+set(WebKitLegacy_PROJECT_HEADERS ${WebKitLegacy_LEGACY_FORWARDING_HEADERS_FILES})
+
 list(APPEND WebKitLegacy_PUBLIC_FRAMEWORK_HEADERS
     ${WEBCORE_DIR}/bridge/objc/WebScriptObject.h
     ${WEBCORE_DIR}/platform/cocoa/WebKitAvailability.h
