@@ -152,8 +152,9 @@ WI.ObjectTreePropertyTreeElement = class ObjectTreePropertyTreeElement extends W
         // Property name.
         var nameElement = document.createElement("span");
         nameElement.className = "property-name";
-        nameElement.textContent = this.property.name + ": ";
         nameElement.title = this.propertyPathString(this.thisPropertyPath());
+
+        let shouldAddColon = true;
 
         // Property attributes.
         if (this._mode === WI.ObjectTreeView.Mode.Properties) {
@@ -195,8 +196,10 @@ WI.ObjectTreePropertyTreeElement = class ObjectTreePropertyTreeElement extends W
                 valueOrGetterElement = WI.FormattedValue.createElementForRemoteObject(resolvedValue, this.hadError());
 
                 // Special case a function property string.
-                if (resolvedValue.type === "function")
-                    valueOrGetterElement.textContent = this._functionPropertyString();
+                if (resolvedValue.type === "function") {
+                    shouldAddColon = false;
+                    valueOrGetterElement.textContent = this._functionParameterString();
+                }
             }
         } else {
             valueOrGetterElement = document.createElement("span");
@@ -205,6 +208,8 @@ WI.ObjectTreePropertyTreeElement = class ObjectTreePropertyTreeElement extends W
             if (this.property.hasSetter())
                 valueOrGetterElement.appendChild(this.createSetterElement());
         }
+
+        nameElement.textContent = this.property.name + (shouldAddColon ? ": " : "");
 
         valueOrGetterElement.classList.add("value");
         if (this.hadError())
@@ -283,11 +288,6 @@ WI.ObjectTreePropertyTreeElement = class ObjectTreePropertyTreeElement extends W
             return true;
 
         return false;
-    }
-
-    _functionPropertyString()
-    {
-        return "function" + this._functionParameterString();
     }
 
     _functionParameterString()
