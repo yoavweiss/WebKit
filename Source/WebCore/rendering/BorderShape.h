@@ -133,11 +133,11 @@ private:
     // True if any corner uses a non-`round` shape (curvature != 1), so the shape
     bool hasNonRoundCornerShape() const;
 
-    Path pathForOuterRoundedRect(float deviceScaleFactor) const;
-    Path pathForInnerRoundedRect(float deviceScaleFactor) const;
+    Path pathForOuterRoundedRect(const FloatRoundedRect& outerSnapped) const;
+    Path pathForInnerRoundedRect(const FloatRoundedRect& innerSnapped) const;
 
-    Path pathForOuterCornerShape(float deviceScaleFactor) const;
-    Path pathForInnerCornerShape(float deviceScaleFactor) const;
+    Path pathForOuterCornerShape(const FloatRoundedRect& outerSnapped) const;
+    Path pathForInnerCornerShape(const FloatRoundedRect& outerSnapped, const FloatRoundedRect& innerSnapped) const;
 
     LayoutRoundedRect m_borderRect;
     LayoutRoundedRect m_innerEdgeRect;

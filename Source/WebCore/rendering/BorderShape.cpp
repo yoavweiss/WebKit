@@ -71,10 +71,15 @@ static RectEdges<LayoutUnit> applyClosedEdges(const RectEdges<LayoutUnit>& width
     };
 }
 
-static RectCorners<float> cornerCurvaturesFromStyle(const Style::ComputedStyle&)
+static RectCorners<float> cornerCurvaturesFromStyle(const Style::ComputedStyle& style)
 {
-    // TODO: read corner-shape from style.
-    return { 1.0f, 1.0f, 1.0f, 1.0f };
+    auto& border = style.border();
+    return {
+        static_cast<float>(border.topLeftCornerShape().superellipse->value),
+        static_cast<float>(border.topRightCornerShape().superellipse->value),
+        static_cast<float>(border.bottomRightCornerShape().superellipse->value),
+        static_cast<float>(border.bottomLeftCornerShape().superellipse->value),
+    };
 }
 
 BorderShape BorderShape::shapeForBorderRect(const Style::ComputedStyle& style, const LayoutRect& borderRect, RectEdges<bool> closedEdges)
@@ -264,198 +269,193 @@ static void addRoundedRectToPath(const FloatRoundedRect& roundedRect, Path& path
 
 bool BorderShape::hasNonRoundCornerShape() const
 {
-    // TODO: return true when corner-shape rendering is implemented.
-    // Must also check hasNonZeroRadii() since zero radii have no corner to shape.
-    return false;
+    const auto& radii = m_borderRect.radii();
+    return (m_cornerCurvatures.topLeft() != 1.0f && !radii.topLeft().isEmpty())
+        || (m_cornerCurvatures.topRight() != 1.0f && !radii.topRight().isEmpty())
+        || (m_cornerCurvatures.bottomRight() != 1.0f && !radii.bottomRight().isEmpty())
+        || (m_cornerCurvatures.bottomLeft() != 1.0f && !radii.bottomLeft().isEmpty());
 }
 
-Path BorderShape::pathForOuterRoundedRect(float deviceScaleFactor) const
+Path BorderShape::pathForOuterRoundedRect(const FloatRoundedRect& outerSnapped) const
 {
-    auto pixelSnappedRect = m_borderRect.pixelSnappedRoundedRectForPainting(deviceScaleFactor);
     Path path;
-    addRoundedRectToPath(pixelSnappedRect, path);
+    addRoundedRectToPath(outerSnapped, path);
     return path;
 }
 
-Path BorderShape::pathForInnerRoundedRect(float deviceScaleFactor) const
+Path BorderShape::pathForInnerRoundedRect(const FloatRoundedRect& innerSnapped) const
 {
-    auto pixelSnappedRect = m_innerEdgeRect.pixelSnappedRoundedRectForPainting(deviceScaleFactor);
-    ASSERT(pixelSnappedRect.isRenderable());
+    ASSERT(innerSnapped.isRenderable());
     Path path;
-    addRoundedRectToPath(pixelSnappedRect, path);
+    addRoundedRectToPath(innerSnapped, path);
     return path;
 }
 
-Path BorderShape::pathForOuterCornerShape(float deviceScaleFactor) const
+Path BorderShape::pathForOuterCornerShape(const FloatRoundedRect& outerSnapped) const
 {
-    auto outerSnapped = m_borderRect.pixelSnappedRoundedRectForPainting(deviceScaleFactor);
     // TODO: implement corner-shape path generation using outerSnapped.
-    UNUSED_PARAM(outerSnapped);
-    return pathForOuterRoundedRect(deviceScaleFactor);
+    return pathForOuterRoundedRect(outerSnapped);
 }
 
-Path BorderShape::pathForInnerCornerShape(float deviceScaleFactor) const
+Path BorderShape::pathForInnerCornerShape(const FloatRoundedRect& outerSnapped, const FloatRoundedRect& innerSnapped) const
 {
-    auto outerSnapped = m_borderRect.pixelSnappedRoundedRectForPainting(deviceScaleFactor);
-    auto innerSnapped = m_innerEdgeRect.pixelSnappedRoundedRectForPainting(deviceScaleFactor);
     // TODO: implement corner-shape path generation using outerSnapped and innerSnapped.
     UNUSED_PARAM(outerSnapped);
-    UNUSED_PARAM(innerSnapped);
-    return pathForInnerRoundedRect(deviceScaleFactor);
+    return pathForInnerRoundedRect(innerSnapped);
 }
 
 Path BorderShape::pathForOuterShape(float deviceScaleFactor) const
 {
+    auto outerSnapped = m_borderRect.pixelSnappedRoundedRectForPainting(deviceScaleFactor);
     if (hasNonRoundCornerShape())
-        return pathForOuterCornerShape(deviceScaleFactor);
-    return pathForOuterRoundedRect(deviceScaleFactor);
+        return pathForOuterCornerShape(outerSnapped);
+    return pathForOuterRoundedRect(outerSnapped);
 }
 
 Path BorderShape::pathForInnerShape(float deviceScaleFactor) const
 {
+    auto outerSnapped = m_borderRect.pixelSnappedRoundedRectForPainting(deviceScaleFactor);
+    auto innerSnapped = m_innerEdgeRect.pixelSnappedRoundedRectForPainting(deviceScaleFactor);
     if (hasNonRoundCornerShape())
-        return pathForInnerCornerShape(deviceScaleFactor);
-    return pathForInnerRoundedRect(deviceScaleFactor);
+        return pathForInnerCornerShape(outerSnapped, innerSnapped);
+    return pathForInnerRoundedRect(innerSnapped);
 }
 
 void BorderShape::addOuterShapeToPath(Path& path, float deviceScaleFactor) const
 {
     if (hasNonRoundCornerShape()) {
         // TODO: addOuterCornerShapeToPath(path, deviceScaleFactor);
-        return;
     }
-    auto pixelSnappedRect = m_borderRect.pixelSnappedRoundedRectForPainting(deviceScaleFactor);
-    addRoundedRectToPath(pixelSnappedRect, path);
+    auto outerSnapped = m_borderRect.pixelSnappedRoundedRectForPainting(deviceScaleFactor);
+    addRoundedRectToPath(outerSnapped, path);
 }
 
 void BorderShape::addInnerShapeToPath(Path& path, float deviceScaleFactor) const
 {
     if (hasNonRoundCornerShape()) {
         // TODO: addInnerCornerShapeToPath(path, deviceScaleFactor);
-        return;
     }
-    auto pixelSnappedRect = m_innerEdgeRect.pixelSnappedRoundedRectForPainting(deviceScaleFactor);
-    ASSERT(pixelSnappedRect.isRenderable());
-    addRoundedRectToPath(pixelSnappedRect, path);
+    auto innerSnapped = m_innerEdgeRect.pixelSnappedRoundedRectForPainting(deviceScaleFactor);
+    ASSERT(innerSnapped.isRenderable());
+    addRoundedRectToPath(innerSnapped, path);
 }
 
 Path BorderShape::pathForBorderArea(float deviceScaleFactor) const
 {
-    auto pixelSnappedOuterRect = m_borderRect.pixelSnappedRoundedRectForPainting(deviceScaleFactor);
-    auto pixelSnappedInnerRect = m_innerEdgeRect.pixelSnappedRoundedRectForPainting(deviceScaleFactor);
+    auto outerSnapped = m_borderRect.pixelSnappedRoundedRectForPainting(deviceScaleFactor);
+    auto innerSnapped = m_innerEdgeRect.pixelSnappedRoundedRectForPainting(deviceScaleFactor);
 
-    ASSERT(pixelSnappedInnerRect.isRenderable());
+    ASSERT(innerSnapped.isRenderable());
 
     Path path;
-    addRoundedRectToPath(pixelSnappedOuterRect, path);
-    addRoundedRectToPath(pixelSnappedInnerRect, path);
+    addRoundedRectToPath(outerSnapped, path);
+    addRoundedRectToPath(innerSnapped, path);
     return path;
 }
 
 void BorderShape::clipToOuterShape(GraphicsContext& context, float deviceScaleFactor) const
 {
-    auto pixelSnappedRect = m_borderRect.pixelSnappedRoundedRectForPainting(deviceScaleFactor);
+    auto outerSnapped = m_borderRect.pixelSnappedRoundedRectForPainting(deviceScaleFactor);
     if (hasNonRoundCornerShape()) {
-        context.clipPath(pathForOuterCornerShape(deviceScaleFactor));
+        context.clipPath(pathForOuterCornerShape(outerSnapped));
         return;
     }
 
-    if (pixelSnappedRect.hasNonZeroRadii())
-        context.clipRoundedRect(pixelSnappedRect);
+    if (outerSnapped.hasNonZeroRadii())
+        context.clipRoundedRect(outerSnapped);
     else
-        context.clip(pixelSnappedRect.rect());
+        context.clip(outerSnapped.rect());
 }
 
 void BorderShape::clipToInnerShape(GraphicsContext& context, float deviceScaleFactor) const
 {
+    auto outerSnapped = m_borderRect.pixelSnappedRoundedRectForPainting(deviceScaleFactor);
+    auto innerSnapped = m_innerEdgeRect.pixelSnappedRoundedRectForPainting(deviceScaleFactor);
     if (hasNonRoundCornerShape()) {
-        context.clipPath(pathForInnerCornerShape(deviceScaleFactor));
+        context.clipPath(pathForInnerCornerShape(outerSnapped, innerSnapped));
         return;
     }
 
-    auto pixelSnappedRect = m_innerEdgeRect.pixelSnappedRoundedRectForPainting(deviceScaleFactor);
-    ASSERT(pixelSnappedRect.isRenderable());
-    if (pixelSnappedRect.hasNonZeroRadii())
-        context.clipRoundedRect(pixelSnappedRect);
+    ASSERT(innerSnapped.isRenderable());
+    if (innerSnapped.hasNonZeroRadii())
+        context.clipRoundedRect(innerSnapped);
     else
-        context.clip(pixelSnappedRect.rect());
+        context.clip(innerSnapped.rect());
 }
 
 void BorderShape::clipOutOuterShape(GraphicsContext& context, float deviceScaleFactor) const
 {
-    auto pixelSnappedRect = m_borderRect.pixelSnappedRoundedRectForPainting(deviceScaleFactor);
-    if (pixelSnappedRect.isEmpty())
+    auto outerSnapped = m_borderRect.pixelSnappedRoundedRectForPainting(deviceScaleFactor);
+    if (outerSnapped.isEmpty())
         return;
 
     if (hasNonRoundCornerShape()) {
-        context.clipOut(pathForOuterCornerShape(deviceScaleFactor));
+        context.clipOut(pathForOuterCornerShape(outerSnapped));
         return;
     }
 
-    if (pixelSnappedRect.hasNonZeroRadii())
-        context.clipOutRoundedRect(pixelSnappedRect);
+    if (outerSnapped.hasNonZeroRadii())
+        context.clipOutRoundedRect(outerSnapped);
     else
-        context.clipOut(pixelSnappedRect.rect());
+        context.clipOut(outerSnapped.rect());
 }
 
 void BorderShape::clipOutInnerShape(GraphicsContext& context, float deviceScaleFactor) const
 {
-    auto pixelSnappedRect = m_innerEdgeRect.pixelSnappedRoundedRectForPainting(deviceScaleFactor);
-    if (pixelSnappedRect.isEmpty())
+    auto outerSnapped = m_borderRect.pixelSnappedRoundedRectForPainting(deviceScaleFactor);
+    auto innerSnapped = m_innerEdgeRect.pixelSnappedRoundedRectForPainting(deviceScaleFactor);
+    if (innerSnapped.isEmpty())
         return;
 
     if (hasNonRoundCornerShape()) {
-        context.clipOut(pathForInnerCornerShape(deviceScaleFactor));
+        context.clipOut(pathForInnerCornerShape(outerSnapped, innerSnapped));
         return;
     }
 
-    if (pixelSnappedRect.hasNonZeroRadii())
-        context.clipOutRoundedRect(pixelSnappedRect);
+    if (innerSnapped.hasNonZeroRadii())
+        context.clipOutRoundedRect(innerSnapped);
     else
-        context.clipOut(pixelSnappedRect.rect());
+        context.clipOut(innerSnapped.rect());
 }
 
 void BorderShape::fillOuterShape(GraphicsContext& context, const Color& color, float deviceScaleFactor) const
 {
     if (hasNonRoundCornerShape()) {
         // TODO: implement corner-shape fill.
-        return;
     }
 
-    auto pixelSnappedRect = m_borderRect.pixelSnappedRoundedRectForPainting(deviceScaleFactor);
-    if (pixelSnappedRect.hasNonZeroRadii())
-        context.fillRoundedRect(pixelSnappedRect, color);
+    auto outerSnapped = m_borderRect.pixelSnappedRoundedRectForPainting(deviceScaleFactor);
+    if (outerSnapped.hasNonZeroRadii())
+        context.fillRoundedRect(outerSnapped, color);
     else
-        context.fillRect(pixelSnappedRect.rect(), color);
+        context.fillRect(outerSnapped.rect(), color);
 }
 
 void BorderShape::fillInnerShape(GraphicsContext& context, const Color& color, float deviceScaleFactor) const
 {
     if (hasNonRoundCornerShape()) {
         // TODO: implement corner-shape fill.
-        return;
     }
 
-    auto pixelSnappedRect = m_innerEdgeRect.pixelSnappedRoundedRectForPainting(deviceScaleFactor);
-    ASSERT(pixelSnappedRect.isRenderable());
-    if (pixelSnappedRect.hasNonZeroRadii())
-        context.fillRoundedRect(pixelSnappedRect, color);
+    auto innerSnapped = m_innerEdgeRect.pixelSnappedRoundedRectForPainting(deviceScaleFactor);
+    ASSERT(innerSnapped.isRenderable());
+    if (innerSnapped.hasNonZeroRadii())
+        context.fillRoundedRect(innerSnapped, color);
     else
-        context.fillRect(pixelSnappedRect.rect(), color);
+        context.fillRect(innerSnapped.rect(), color);
 }
 
 void BorderShape::fillRectWithInnerHoleShape(GraphicsContext& context, const LayoutRect& outerRect, const Color& color, float deviceScaleFactor) const
 {
-    auto pixelSnappedOuterRect = snapRectToDevicePixels(outerRect, deviceScaleFactor);
+    auto outerSnapped = snapRectToDevicePixels(outerRect, deviceScaleFactor);
 
     if (hasNonRoundCornerShape()) {
         // TODO: implement corner-shape fill.
-        return;
     }
 
-    auto innerSnappedRoundedRect = m_innerEdgeRect.pixelSnappedRoundedRectForPainting(deviceScaleFactor);
-    ASSERT(innerSnappedRoundedRect.isRenderable());
-    context.fillRectWithRoundedHole(pixelSnappedOuterRect, innerSnappedRoundedRect, color);
+    auto innerSnapped = m_innerEdgeRect.pixelSnappedRoundedRectForPainting(deviceScaleFactor);
+    ASSERT(innerSnapped.isRenderable());
+    context.fillRectWithRoundedHole(outerSnapped, innerSnapped, color);
 }
 
 LayoutRoundedRect BorderShape::computeInnerEdgeRoundedRect(const LayoutRoundedRect& borderRoundedRect, const RectEdges<LayoutUnit>& borderWidths)
