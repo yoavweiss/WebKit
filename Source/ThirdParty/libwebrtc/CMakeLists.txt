@@ -12,6 +12,13 @@ add_definitions(-DWEBRTC_WEBKIT_BUILD=1)
 # Suppress all warnings for third-party libwebrtc code.
 add_compile_options(-w)
 
+# Match the Xcode build (Configurations/Base.xcconfig: CLANG_ENABLE_OBJC_ARC = YES).
+# The webkit_sdk Objective-C(++) sources rely on ARC for block/object ownership —
+# e.g. RTCVideoEncoderH264 stores its callback blocks via plain ivar assignment,
+# which only retains/copies under ARC. Compiling them MRR produces immediate
+# use-after-free of the GPU-process encoder callback blocks.
+add_compile_options("$<$<COMPILE_LANGUAGE:OBJC,OBJCXX>:-fobjc-arc>")
+
 if (NOT APPLE)
     find_package(LibEvent)
     if (NOT LIBEVENT_FOUND)
@@ -2087,7 +2094,6 @@ if (APPLE)
         Source/webrtc/webkit_sdk/WebKit/WebKitEncoder.mm
         Source/webrtc/webkit_sdk/WebKit/WebKitDecoderReceiver.cpp
 
-        Source/webrtc/webkit_sdk/objc/api/peerconnection/RTCVideoEncoderSettings+Private.mm
         Source/webrtc/webkit_sdk/objc/api/video_codec/RTCVideoCodecConstants.mm
         Source/webrtc/webkit_sdk/objc/api/video_codec/RTCVideoDecoderVP8.mm
         Source/webrtc/webkit_sdk/objc/api/video_codec/RTCVideoDecoderVP9.mm
@@ -2444,6 +2450,31 @@ endif ()
 target_include_directories(webrtc ${webrtc_INCLUDE_DIRECTORIES})
 WEBKIT_ADD_PREFIX_HEADER(webrtc WebRTCPrefix.h PREFIX_LANGUAGES CXX)
 WEBKIT_ADD_PREFIX_HEADER(webrtc WebRTCObjCPrefix.h PREFIX_LANGUAGES OBJCXX)
+
+if (APPLE)
+    # ObjC categories whose object files export no external symbols. If these
+    # lived inside the static archive, ld would never load them (nothing
+    # references a symbol they define) and category methods such as
+    # -[RTCVideoCodecInfo initWithNativeSdpVideoFormat:] would be missing at
+    # runtime, breaking webrtc::createLocalEncoder. Build them as an OBJECT
+    # library so consumers (WebCore) link the objects directly.
+    add_library(webrtc_objc_categories OBJECT
+        Source/webrtc/webkit_sdk/objc/api/peerconnection/RTCEncodedImage+Private.mm
+        Source/webrtc/webkit_sdk/objc/api/peerconnection/RTCVideoCodecInfo+Private.mm
+        Source/webrtc/webkit_sdk/objc/api/peerconnection/RTCVideoEncoderSettings+Private.mm
+        Source/webrtc/webkit_sdk/objc/helpers/NSString+StdString.mm
+    )
+    target_compile_options(webrtc_objc_categories PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:-std=c++2b>")
+    target_compile_definitions(webrtc_objc_categories PRIVATE
+        WEBRTC_POSIX
+        WEBRTC_ARCH_LITTLE_ENDIAN
+        WEBRTC_USE_H265=1
+        RTC_ENABLE_H265
+        RTC_ENABLE_VP9
+    )
+    target_include_directories(webrtc_objc_categories ${webrtc_INCLUDE_DIRECTORIES})
+endif ()
+
 set_source_files_properties(Source/third_party/libyuv/util/color.cc PROPERTIES SKIP_PRECOMPILE_HEADERS ON)
 set_source_files_properties(Source/webrtc/rtc_base/logging.cc PROPERTIES SKIP_PRECOMPILE_HEADERS ON)
 if (LIBPULSE_FOUND)
