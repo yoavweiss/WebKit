@@ -948,6 +948,7 @@ void WebPage::handleDoubleTapForDoubleClickAtPoint(const IntPoint& point, Option
 
 void WebPage::requestFocusedElementInformation(CompletionHandler<void(const std::optional<FocusedElementInformation>&)>&& completionHandler)
 {
+    flushPendingFocusedElementUpdateIfNeeded();
     std::optional<FocusedElementInformation> information;
     if (m_focusedElement)
         information = focusedElementInformation();
@@ -2629,7 +2630,7 @@ std::optional<FocusedElementInformation> WebPage::focusedElementInformation()
     RefPtr focusedOrMainFrame = page->focusController().focusedOrMainFrame();
     if (!focusedOrMainFrame)
         return std::nullopt;
-    RefPtr<Document> document = focusedOrMainFrame->document();
+    RefPtr document = focusedOrMainFrame->document();
     if (!document || !document->view())
         return std::nullopt;
 
@@ -2637,10 +2638,26 @@ std::optional<FocusedElementInformation> WebPage::focusedElementInformation()
     layoutIfNeeded();
 
     // Layout may have detached the document or caused a change of focus.
-    if (!document->view() || focusedElement != m_focusedElement)
+    if (!document->view() || focusedElement != m_focusedElement || !focusedElement)
         return std::nullopt;
 
-    scheduleFullEditorStateUpdate();
+    auto information = focusedElementInformationWithoutLayout(*focusedElement);
+    if (information)
+        scheduleFullEditorStateUpdate();
+    return information;
+}
+
+std::optional<FocusedElementInformation> WebPage::focusedElementInformationWithoutLayout(WebCore::Element& element)
+{
+    ASSERT(m_focusedElement == &element);
+    RefPtr focusedElement = &element;
+    Ref page = *m_page;
+    RefPtr focusedOrMainFrame = page->focusController().focusedOrMainFrame();
+    if (!focusedOrMainFrame)
+        return std::nullopt;
+    RefPtr document = focusedOrMainFrame->document();
+    if (!document || !document->view())
+        return std::nullopt;
 
     FocusedElementInformation information;
 
@@ -2812,6 +2829,35 @@ std::optional<FocusedElementInformation> WebPage::focusedElementInformation()
     information.shouldHideSoftTopScrollEdgeEffect = quirks.shouldHideSoftTopScrollEdgeEffectDuringFocus(*focusedElement);
 
     return information;
+}
+
+void WebPage::emitDeferredFocusedElementUpdate(PendingFocusedElementUpdate&& pending)
+{
+    RefPtr element = pending.element.get();
+    if (!element || element != m_focusedElement)
+        return;
+
+    Ref document = element->document();
+    if (!document->view())
+        return;
+
+    auto information = focusedElementInformationWithoutLayout(*element);
+    if (!information)
+        return;
+
+    information->preventScroll = pending.options.preventScroll;
+    information->isFocusingWithValidationMessage = pending.isFocusingWithValidationMessage;
+    send(Messages::WebPageProxy::ElementDidFocus(information.value(), pending.userIsInteracting, pending.recentlyBlurredElementSnapshot, pending.activityStateChanges, UserData(WebProcess::singleton().transformObjectsToHandles(pending.userData.get()).get())));
+}
+
+void WebPage::flushPendingFocusedElementUpdateIfNeeded()
+{
+    if (!m_pendingFocusedElementUpdate)
+        return;
+
+    auto pendingUpdate = std::exchange(m_pendingFocusedElementUpdate, { });
+    layoutIfNeeded();
+    emitDeferredFocusedElementUpdate(WTF::move(*pendingUpdate));
 }
 
 void WebPage::autofillLoginCredentials(const String& username, const String& password)
@@ -4705,6 +4751,7 @@ void WebPage::focusTextInputContextAndPlaceCaret(const ElementContext& elementCo
         return;
     }
     protect(targetFrame->selection())->setSelectedRange(makeSimpleRange(position), position.affinity(), WebCore::FrameSelection::ShouldCloseTyping::Yes, UserTriggered::Yes);
+    flushPendingFocusedElementUpdateIfNeeded();
     completionHandler(true);
 }
 

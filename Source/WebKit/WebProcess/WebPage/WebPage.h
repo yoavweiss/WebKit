@@ -1083,6 +1083,9 @@ public:
     void elementDidRefocus(WebCore::Element&, const WebCore::FocusOptions&);
     void elementDidBlur(WebCore::Element&);
     static InputType inputTypeForElement(const WebCore::Element&);
+#if PLATFORM(IOS_FAMILY)
+    void flushPendingFocusedElementUpdateIfNeeded();
+#endif
     void focusedElementDidChangeInputMode(WebCore::Element&, WebCore::InputMode);
     void focusedSelectElementDidChangeOptions(const WebCore::HTMLSelectElement&);
     void resetFocusedElementForFrame(WebFrame*);
@@ -2237,6 +2240,7 @@ private:
 
 #if PLATFORM(IOS_FAMILY)
     std::optional<FocusedElementInformation> focusedElementInformation();
+    std::optional<FocusedElementInformation> focusedElementInformationWithoutLayout(WebCore::Element&);
     void generateSyntheticEditingCommand(SyntheticEditingCommandType);
     void setSelectedRangeDispatchingSyntheticMouseEventsIfNeeded(const WebCore::SimpleRange&, WebCore::Affinity);
     void dispatchSyntheticMouseEventsForSelectionGesture(SelectionTouch, const WebCore::IntPoint&);
@@ -3176,6 +3180,19 @@ private:
     CompletionHandler<void(InteractionInformationAtPosition&&)> m_pendingSynchronousPositionInformationReply;
     bool m_sendAutocorrectionContextAfterFocusingElement { false };
     std::unique_ptr<WebCore::IgnoreSelectionChangeForScope> m_ignoreSelectionChangeScopeForDictation;
+
+    struct PendingFocusedElementUpdate {
+        WeakPtr<WebCore::Element, WebCore::WeakPtrImplWithEventTargetData> element;
+        WebCore::FocusOptions options;
+        bool userIsInteracting { false };
+        bool isFocusingWithValidationMessage { false };
+        RefPtr<WebCore::Element> recentlyBlurredElementSnapshot;
+        OptionSet<WebCore::ActivityState> activityStateChanges;
+        RefPtr<API::Object> userData;
+    };
+    std::optional<PendingFocusedElementUpdate> m_pendingFocusedElementUpdate;
+
+    void emitDeferredFocusedElementUpdate(PendingFocusedElementUpdate&&);
 
     bool m_isMobileDoctype { false };
     bool m_hasAnyActiveTouchPoints { false };

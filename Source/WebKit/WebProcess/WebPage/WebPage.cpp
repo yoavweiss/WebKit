@@ -1848,6 +1848,9 @@ void WebPage::changeFont(WebCore::FontChanges&& changes)
 void WebPage::executeEditCommandWithCallback(const String& commandName, const String& argument, CompletionHandler<void()>&& completionHandler)
 {
     executeEditCommand(commandName, argument);
+#if PLATFORM(IOS_FAMILY)
+    flushPendingFocusedElementUpdateIfNeeded();
+#endif
     completionHandler();
 }
 
@@ -4925,6 +4928,9 @@ void WebPage::runJavaScriptInFrameInScriptWorld(RunJavaScriptParameters&& parame
             WEBPAGE_RELEASE_LOG_ERROR(Process, "runJavaScriptInFrameInScriptWorld: Request to run JavaScript failed with error %" PRIVATE_LOG_STRING, result.error()->message.utf8().data());
         else
             WEBPAGE_RELEASE_LOG(Process, "runJavaScriptInFrameInScriptWorld: Request to run JavaScript succeeded");
+#if PLATFORM(IOS_FAMILY)
+        flushPendingFocusedElementUpdateIfNeeded();
+#endif
         completionHandler(WTF::move(result));
     });
 }
@@ -5397,6 +5403,9 @@ void WebPage::updateRendering()
     protect(corePage())->updateRendering();
 
 #if PLATFORM(IOS_FAMILY)
+    if (auto pendingUpdate = std::exchange(m_pendingFocusedElementUpdate, { }))
+        emitDeferredFocusedElementUpdate(WTF::move(*pendingUpdate));
+
     findController().redraw();
     foundTextRangeController().redraw();
 #endif
@@ -7599,6 +7608,7 @@ void WebPage::resetFocusedElementForFrame(WebFrame* frame)
 
     if (frame->isMainFrame() || m_focusedElement->document().frame() == frame->coreLocalFrame()) {
 #if PLATFORM(IOS_FAMILY)
+        m_pendingFocusedElementUpdate = std::nullopt;
         m_sendAutocorrectionContextAfterFocusingElement = false;
         send(Messages::WebPageProxy::ElementDidBlur());
 #elif PLATFORM(MAC)
@@ -7612,8 +7622,15 @@ void WebPage::elementDidRefocus(Element& element, const FocusOptions& options)
 {
     elementDidFocus(element, options);
 
-    if (m_userIsInteracting)
-        scheduleFullEditorStateUpdate();
+    if (!m_userIsInteracting)
+        return;
+
+#if PLATFORM(IOS_FAMILY)
+    if (m_pendingFocusedElementUpdate)
+        return;
+#endif
+
+    scheduleFullEditorStateUpdate();
 }
 
 bool WebPage::shouldDispatchUpdateAfterFocusingElement(const Element& element) const
@@ -7743,12 +7760,7 @@ void WebPage::elementDidFocus(Element& element, const FocusOptions& options)
         if (isChangingFocusedElement && (m_userIsInteracting || m_keyboardIsAttached))
             m_sendAutocorrectionContextAfterFocusingElement = true;
 
-        auto information = focusedElementInformation();
-        if (!information)
-            return;
-
         RefPtr<API::Object> userData;
-
         m_formClient->willBeginInputSession(this, &element, protect(WebFrame::fromCoreFrame(*protect(element.document().frame()))).get(), m_userIsInteracting, userData);
 
         if (!userData) {
@@ -7758,9 +7770,17 @@ void WebPage::elementDidFocus(Element& element, const FocusOptions& options)
                     userData = userDataFromJSONData(*data);
             }
         }
-
-        information->preventScroll = options.preventScroll;
-        send(Messages::WebPageProxy::ElementDidFocus(information.value(), m_userIsInteracting, m_recentlyBlurredElement, m_lastActivityStateChanges, UserData(WebProcess::singleton().transformObjectsToHandles(userData.get()).get())));
+        m_pendingFocusedElementUpdate = PendingFocusedElementUpdate {
+            .element = element,
+            .options = options,
+            .userIsInteracting = m_userIsInteracting,
+            .recentlyBlurredElementSnapshot = m_recentlyBlurredElement,
+            .activityStateChanges = m_lastActivityStateChanges,
+            .userData = WTF::move(userData),
+        };
+        if (RefPtr formControlElement = dynamicDowncast<HTMLFormControlElement>(element))
+            m_pendingFocusedElementUpdate->isFocusingWithValidationMessage = formControlElement->isFocusingWithValidationMessage();
+        scheduleFullEditorStateUpdate();
 #elif PLATFORM(MAC)
         // FIXME: This can be unified with the iOS code above by bringing ElementDidFocus to macOS.
         // This also doesn't take other noneditable controls into account, such as input type color.
@@ -7773,6 +7793,9 @@ void WebPage::elementDidFocus(Element& element, const FocusOptions& options)
 void WebPage::elementDidBlur(WebCore::Element& element)
 {
     if (m_focusedElement == &element) {
+#if PLATFORM(IOS_FAMILY)
+        m_pendingFocusedElementUpdate = std::nullopt;
+#endif
         m_recentlyBlurredElement = WTF::move(m_focusedElement);
         callOnMainRunLoop([protectedThis = Ref { *this }] {
             if (protectedThis->m_recentlyBlurredElement) {

@@ -3408,6 +3408,9 @@ void WebPage::completeSyntheticClick(std::optional<WebCore::FrameIdentifier> fra
     if ((!handledPress && !handledRelease) || !nodeRespondingToClick.isElementNode())
         send(Messages::WebPageProxy::DidNotHandleTapAsClick(roundedIntPoint(location)));
 
+#if PLATFORM(IOS_FAMILY)
+    flushPendingFocusedElementUpdateIfNeeded();
+#endif
     send(Messages::WebPageProxy::DidCompleteSyntheticClick());
 
 #if PLATFORM(IOS_FAMILY)
