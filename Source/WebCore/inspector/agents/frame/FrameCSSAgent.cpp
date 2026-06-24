@@ -61,6 +61,7 @@
 #include "RenderStyleConstants.h"
 #include "SelectorChecker.h"
 #include "StyleDisplay.h"
+#include "StyleComputedStyleBase+GettersInlines.h"
 #include "StyleDocumentScope.h"
 #include "StyleProperties.h"
 #include "StylePropertyShorthand.h"
