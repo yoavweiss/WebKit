@@ -2603,7 +2603,10 @@ void WebProcessProxy::waitForSharedPreferencesForWebProcessToSync(uint64_t share
     ASSERT(!m_awaitedSharedPreferencesVersion);
     if (m_sharedPreferencesVersionInNetworkProcess >= sharedPreferencesVersion
 #if ENABLE(GPU_PROCESS)
-        || m_sharedPreferencesVersionInGPUProcess >= m_awaitedSharedPreferencesVersion
+        && m_sharedPreferencesVersionInGPUProcess >= sharedPreferencesVersion
+#endif
+#if ENABLE(MODEL_PROCESS)
+        && m_sharedPreferencesVersionInModelProcess >= sharedPreferencesVersion
 #endif
         )
         return completionHandler(true);
