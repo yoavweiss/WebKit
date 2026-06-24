@@ -187,6 +187,7 @@ AllowedSPI*.toml @emw-apple
 # ================================================================================
 # CMake
 
+/Source/cmake/OptionsCommon.cmake @mcatanzaro
 /Source/cmake/WebKitCompilerFlags.cmake @mcatanzaro
 
 # ================================================================================
@@ -226,7 +227,7 @@ gstreamer/ @philn
 # WPE WebKit and WebKitGTK
 
 /Source/ThirdParty/xdgmime/ @WebKit/glib-reviewers
-/Source/cmake/OptionsGTK.cmake @WebKit/glib-reviewers
+/Source/cmake/OptionsGTK.cmake @WebKit/glib-reviewers @mcatanzaro
 /Source/cmake/OptionsWPE.cmake @WebKit/glib-reviewers
 
 adwaita/ @WebKit/glib-reviewers
