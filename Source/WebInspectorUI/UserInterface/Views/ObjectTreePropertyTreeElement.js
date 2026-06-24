@@ -330,8 +330,7 @@ WI.ObjectTreePropertyTreeElement = class ObjectTreePropertyTreeElement extends W
             }
         }
 
-        var match = resolvedValue.functionDescription.match(/^function.*?(\([^)]*?\))/);
-        return match ? match[1] : "()";
+        return resolvedValue.functionDescription.match(/^(?:function)?.*?(\([^)]*?\))\s*(?:\{|=>)?/)?.[1] || "()";
     }
 
     _sanitizedPrototypeString(value)
