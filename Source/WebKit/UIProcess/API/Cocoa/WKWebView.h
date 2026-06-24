@@ -742,7 +742,7 @@ typedef NS_OPTIONS(NSUInteger, WKWebViewDataType) {
 - (void)dismissImmersiveEnvironmentWithCompletionHandler:(NS_SWIFT_UI_ACTOR void (^)(void))completionHandler NS_SWIFT_ASYNC_NAME(dismissImmersiveEnvironment()) WK_API_AVAILABLE(visionos(WK_XROS_TBA));
 #endif
 
-#if TARGET_OS_OSX
+#if TARGET_OS_OSX && __MAC_OS_X_VERSION_MIN_REQUIRED >= 270000
 /* @abstract The refresh controller associated with the web view.
  @discussion Setting this property adds the refresh controller above the web
  content when scrolling past the top of the page.
