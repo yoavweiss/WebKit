@@ -104,15 +104,21 @@ void SkiaBackingStore::paintToCanvas(SkCanvas& canvas, const SkPaint& paint)
     }
 }
 
-Vector<SkCanvas::ImageSetEntry> SkiaBackingStore::buildImageSet(size_t matrixIndex, float opacity, bool enableAntialias) const
+Vector<SkCanvas::ImageSetEntry> SkiaBackingStore::buildImageSet(SkCanvas& canvas, const SkMatrix& ctm, size_t matrixIndex, float opacity, bool enableAntialias) const
 {
     if (m_tiles.isEmpty())
         return { };
 
     FloatRect layerRect = { { }, m_size };
 
+    SkAutoCanvasRestore autoRestore(&canvas, true);
+    canvas.concat(ctm);
+
     Vector<SkCanvas::ImageSetEntry> images;
     for (auto& tile : m_tiles.values()) {
+        if (canvas.quickReject(tile.rect()))
+            continue;
+
         const auto& image = tile.image();
         if (!image)
             continue;

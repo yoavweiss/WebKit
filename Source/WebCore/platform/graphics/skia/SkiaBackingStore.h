@@ -52,7 +52,7 @@ public:
     void processPendingTileUpdates();
 
     void paintToCanvas(SkCanvas&, const SkPaint&);
-    Vector<SkCanvas::ImageSetEntry> buildImageSet(size_t matrixIndex, float opacity, bool enableAntialias) const;
+    Vector<SkCanvas::ImageSetEntry> buildImageSet(SkCanvas&, const SkMatrix&, size_t matrixIndex, float opacity, bool enableAntialias) const;
     void drawDebugBorders(SkCanvas&, const SkPaint&);
 
 private:

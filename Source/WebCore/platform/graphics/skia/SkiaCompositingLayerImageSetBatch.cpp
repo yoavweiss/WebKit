@@ -58,7 +58,7 @@ void SkiaCompositingLayerImageSetBatch::addImageSet(SkCanvas& canvas, SkiaBackin
     if (m_preViewMatrices.isEmpty() || m_preViewMatrices.last() != ctm)
         m_preViewMatrices.append(ctm);
 
-    auto imageSet = backingStore.buildImageSet(m_preViewMatrices.size() - 1, opacity, enableAntialias);
+    auto imageSet = backingStore.buildImageSet(canvas, ctm, m_preViewMatrices.size() - 1, opacity, enableAntialias);
     if (m_imageSet.isEmpty())
         m_imageSet = WTF::move(imageSet);
     else
