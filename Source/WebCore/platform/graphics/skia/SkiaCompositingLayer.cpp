@@ -564,7 +564,7 @@ void SkiaCompositingLayer::paintContents(SkCanvas& canvas, PaintContext& context
                 sk_sp<SkImage> tileImage = std::exchange(image, nullptr);
                 SkMatrix matrix;
                 matrix.setScale(m_contentsTiling.size.width() / tileImage->width(), m_contentsTiling.size.height() / tileImage->height());
-                matrix.postTranslate(-m_contentsTiling.phase.width(), -m_contentsTiling.phase.height());
+                matrix.postTranslate(m_contentsRect.x() - m_contentsTiling.phase.width(), m_contentsRect.y() - m_contentsTiling.phase.height());
                 SkPaint paint = setupPaint();
                 paint.setShader(tileImage->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kNone), matrix));
                 canvas.drawRect(m_contentsRect, paint);
