@@ -1043,6 +1043,21 @@
 			runOncePerArchitecture = 0;
 			script = "cp -f \"${INPUT_FILE_PATH}\" \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 		};
+		DDE748582F77554F008013AB /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.proxy.script;
+			filePatterns = "*/module.modulemap";
+			fileType = pattern.proxy;
+			inputFiles = (
+				"$(WK_HEADERS_VFS_FILE)",
+			);
+			isEditable = 1;
+			name = "Workaround for rdar://173516139";
+			outputFiles = (
+				"$(HEADER_OUTPUT_DIR)/$(INPUT_FILE_NAME)",
+			);
+			script = "cp \"${INPUT_FILE_PATH}\" \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+		};
 		DDE7488A2F7B4577008013AB /* PBXBuildRule */ = {
 			isa = PBXBuildRule;
 			compilerSpec = com.apple.compilers.proxy.script;
@@ -4322,6 +4337,7 @@
 			);
 			buildRules = (
 				147572882CCD82170027BA8F /* PBXBuildRule */,
+				DDE748582F77554F008013AB /* PBXBuildRule */,
 				DDF307FB27C08869006A526F /* PBXBuildRule */,
 				DDF3080F27C091A9006A526F /* PBXBuildRule */,
 				DD3C8E7627C84C9400322F62 /* PBXBuildRule */,
