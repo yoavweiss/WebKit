@@ -85,6 +85,9 @@ struct QuirksData {
         NeedsBodyScrollbarWidthNoneDisabledQuirk,
         NeedsCanPlayAfterSeekedQuirk,
         NeedsChromeMediaControlsPseudoElementQuirk,
+#if PLATFORM(COCOA)
+        NeedsCNNCaptionQuirk,
+#endif
         NeedsLogoutCookieCleanupQuirk,
 #if PLATFORM(IOS_FAMILY)
         NeedsAmazonDesignMenuViewportUnitQuirk,

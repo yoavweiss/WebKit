@@ -130,6 +130,7 @@ public:
     virtual String mediaControlsBase64StringForIconNameAndType(const String&, const String&) { return String(); }
     virtual String mediaControlsFormattedStringForDuration(double) { return String(); }
     virtual String youTubeQuirkScript() { return { }; }
+    virtual String cnnQuirkScript() { return { }; }
 #endif // ENABLE(VIDEO)
 #if ENABLE(ATTACHMENT_ELEMENT)
     virtual String attachmentStyleSheet() const;

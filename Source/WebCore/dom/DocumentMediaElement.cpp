@@ -89,6 +89,15 @@ bool DocumentMediaElement::setupAndCallYouTubeQuirkJS(NOESCAPE const JSSetupFunc
     return setupAndCallJS(task, world);
 }
 
+bool DocumentMediaElement::setupAndCallCNNQuirkJS(NOESCAPE const JSSetupFunction& task)
+{
+    if (!ensureCNNQuirkScript())
+        return false;
+
+    Ref world = mainThreadNormalWorldSingleton();
+    return setupAndCallJS(task, world);
+}
+
 DOMWrapperWorld& DocumentMediaElement::ensureIsolatedWorld()
 {
     if (!m_isolatedWorld) {
@@ -146,6 +155,29 @@ bool DocumentMediaElement::ensureYouTubeQuirkScript()
         return true;
     }, world);
     return m_haveParsedYouTubeQuirkScript;
+}
+
+bool DocumentMediaElement::ensureCNNQuirkScript()
+{
+    if (m_haveParsedCNNQuirkScript)
+        return true;
+
+    Ref document = this->document();
+    auto cnnQuirkScript = RenderTheme::singleton().cnnQuirkScript();
+    if (cnnQuirkScript.isEmpty() || document->activeDOMObjectsAreSuspended() || document->activeDOMObjectsAreStopped())
+        return false;
+
+    Ref world = mainThreadNormalWorldSingleton();
+    m_haveParsedCNNQuirkScript = setupAndCallJS([cnnQuirkScript = WTF::move(cnnQuirkScript)](JSDOMGlobalObject& globalObject, JSC::JSGlobalObject&, ScriptController& scriptController, DOMWrapperWorld& world) {
+        auto& vm = globalObject.vm();
+        auto scope = DECLARE_THROW_SCOPE(vm);
+
+        scriptController.evaluateInWorldIgnoringException(ScriptSourceCode(cnnQuirkScript, JSC::SourceTaintedOrigin::Untainted), world);
+        RETURN_IF_EXCEPTION(scope, false);
+
+        return true;
+    }, world);
+    return m_haveParsedCNNQuirkScript;
 }
 
 bool DocumentMediaElement::setupAndCallJS(NOESCAPE const JSSetupFunction& task, DOMWrapperWorld& world)

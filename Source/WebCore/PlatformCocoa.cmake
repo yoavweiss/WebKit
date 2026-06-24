@@ -1411,6 +1411,7 @@ set(ADDITIONAL_BINDINGS_DEPENDENCIES
 set(WebCore_USER_AGENT_SCRIPTS
     ${WebCore_DERIVED_SOURCES_DIR}/ModernMediaControls.js
     ${WEBCORE_DIR}/Modules/modern-media-controls/media/YouTubeCaptionQuirk.js
+    ${WEBCORE_DIR}/Modules/modern-media-controls/media/CNNCaptionQuirk.js
 )
 
 list(APPEND WebCoreTestSupport_LIBRARIES PRIVATE WebCore)

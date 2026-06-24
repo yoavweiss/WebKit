@@ -414,6 +414,17 @@ bool Quirks::needsYouTubeCaptionsQuirk() const
 #endif
 }
 
+bool Quirks::needsCNNCaptionQuirk() const
+{
+#if PLATFORM(COCOA)
+    QUIRKS_EARLY_RETURN_IF_DISABLED_WITH_VALUE(false);
+
+    return m_quirksData.quirkIsEnabled(QuirksData::SiteSpecificQuirk::NeedsCNNCaptionQuirk);
+#else
+    return false;
+#endif
+}
+
 // theguardian.com rdar://166727225
 bool Quirks::needsYouTubeEmbedAutoplayQuirk() const
 {
@@ -2939,6 +2950,9 @@ static void handleCNNQuirks(QuirksData& quirksData, const URL& /* quirksURL */, 
     // cnn.com rdar://176539646
 #if ENABLE(THREADED_ANIMATIONS)
     quirksData.enableQuirk(QuirksData::SiteSpecificQuirk::ShouldDisableThreadedAnimationsQuirk);
+#endif
+#if PLATFORM(COCOA)
+    quirksData.enableQuirk(QuirksData::SiteSpecificQuirk::NeedsCNNCaptionQuirk);
 #endif
 }
 

@@ -1348,6 +1348,14 @@ String RenderThemeCocoa::youTubeQuirkScript()
     return m_youTubeCaptionQuirkScript;
 }
 
+String RenderThemeCocoa::cnnQuirkScript()
+{
+    if (!m_cnnCaptionQuirkScript)
+        m_cnnCaptionQuirkScript = StringImpl::createWithoutCopying(CNNCaptionQuirkJavaScript);
+
+    return m_cnnCaptionQuirkScript;
+}
+
 #endif // ENABLE(VIDEO)
 
 #if ENABLE(ATTACHMENT_ELEMENT)
