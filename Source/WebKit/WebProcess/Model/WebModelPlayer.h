@@ -153,7 +153,7 @@ private:
     Vector<MachSendRight> m_displayBuffers;
     RefPtr<WebKit::Mesh> m_currentModel;
     RetainPtr<NSData> m_retainedData;
-    WeakRef<WebCore::Page> m_page;
+    WeakPtr<WebCore::Page> m_page;
     mutable RefPtr<ModelDisplayBufferDisplayDelegate> m_contentsDisplayDelegate;
     WeakPtr<WebCore::GraphicsLayer> m_graphicsLayer;
     uint32_t m_renderTextureIndex { 0 };
