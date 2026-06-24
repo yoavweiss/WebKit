@@ -859,6 +859,15 @@ void WebBackForwardList::updateFrameIdentifier(FrameIdentifier oldFrameID, Frame
         entry->updateFrameID(oldFrameID, newFrameID);
 }
 
+void WebBackForwardList::replaceFrameStateForChild(WebBackForwardListItem& item, WebCore::FrameIdentifier frameID, Ref<FrameState>&& newFrameState)
+{
+    RefPtr targetFrameItem = item.mainFrameItem().childItemForFrameID(frameID);
+    if (!targetFrameItem)
+        return;
+
+    targetFrameItem->setFrameState(WTF::move(newFrameState));
+}
+
 void WebBackForwardList::backForwardGoToItem(BackForwardItemIdentifier itemID, CompletionHandler<void(const WebBackForwardListCounts&)>&& completionHandler)
 {
     // On process swap, we tell the previous process to ignore the load, which causes it to restore its current back forward item to its previous

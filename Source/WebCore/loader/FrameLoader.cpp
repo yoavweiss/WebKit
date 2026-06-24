@@ -3921,6 +3921,15 @@ void FrameLoader::scrollToFragmentWithParentBoundary(const URL& url, bool isNewN
     }
 }
 
+bool FrameLoader::shouldReplaceHistoryItemInChildFrame() const
+{
+    if (m_frame->isMainFrame())
+        return false;
+    if (m_loadType != FrameLoadType::RedirectWithLockedBackForwardList)
+        return false;
+    return m_documentLoader && m_documentLoader->isClientRedirect();
+}
+
 bool FrameLoader::shouldClose()
 {
     Ref frame = m_frame.get();

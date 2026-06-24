@@ -624,7 +624,10 @@ void HistoryController::updateForRedirectWithLockedBackForwardList()
             }
         }
         // The client redirect replaces the current history item.
-        updateCurrentItem();
+        if (RefPtr page = m_frame->page()) {
+            auto scope = protect(page->historyItemClient())->ignoreChangesForScopeDuringRedirect(m_frame);
+            updateCurrentItem();
+        }
     } else {
         RefPtr page = m_frame->page();
         RefPtr parentFrame = dynamicDowncast<LocalFrame>(m_frame->tree().parent());

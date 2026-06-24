@@ -301,6 +301,8 @@ public:
 
     bool quickRedirectComing() const { return m_quickRedirectComing; }
 
+    WEBCORE_EXPORT bool shouldReplaceHistoryItemInChildFrame() const;
+
     WEBCORE_EXPORT bool shouldClose();
 
     enum class PageDismissalType { None, BeforeUnload, PageHide, Unload };
