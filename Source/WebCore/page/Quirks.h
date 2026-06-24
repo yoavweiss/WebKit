@@ -319,6 +319,9 @@ public:
     bool NODELETE needsFacebookStoriesCreationFormQuirk(const Element&, const Style::ComputedStyle&) const;
 
     bool needsLimitedMatroskaSupport() const;
+#if ENABLE(MEDIA_SOURCE)
+    bool needsSupportsProgressMonitoring() const;
+#endif
 
     bool needsCustomUserAgentData() const;
     bool needsNavigatorUserAgentDataQuirk() const;

@@ -2621,6 +2621,13 @@ bool Quirks::needsLimitedMatroskaSupport() const
 #endif
 }
 
+#if ENABLE(MEDIA_SOURCE)
+bool Quirks::needsSupportsProgressMonitoring() const
+{
+    return isDomain("ui.com"_s);
+}
+#endif
+
 // rdar://174779259.
 // Anthropic's claude.ai SPA, after a logout, leaves some identification cookies behind.
 // On the next /chat boot those non-auth cookies are enough to push the SPA into an

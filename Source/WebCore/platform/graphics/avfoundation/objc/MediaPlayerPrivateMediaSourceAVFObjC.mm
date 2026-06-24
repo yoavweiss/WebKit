@@ -1566,6 +1566,13 @@ void MediaPlayerPrivateMediaSourceAVFObjC::screenReservedChanged(bool reserved)
 }
 #endif
 
+bool MediaPlayerPrivateMediaSourceAVFObjC::supportsProgressMonitoring() const
+{
+    assertIsMainThread();
+    return m_loadOptions.supportsProgressMonitoringOverride.value_or(false);
+}
+
+
 } // namespace WebCore
 
 #endif

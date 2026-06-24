@@ -309,7 +309,7 @@ private:
     void updateStateFromReadyState();
     void mediaSourceHasRetrievedAllData() final;
 
-    bool supportsProgressMonitoring() const final { return false; }
+    bool supportsProgressMonitoring() const final;
 
 #if ENABLE(LINEAR_MEDIA_PLAYER)
     bool supportsLinearMediaPlayer() const final { return true; }
