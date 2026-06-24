@@ -461,49 +461,13 @@ class MediaController
 
     _updateControlsSize()
     {
-        // To compute the bounds of the controls, we need to account for the computed transform applied
-        // to the media element, and apply the inverted transform to the bounds computed on the container
-        // element in the shadow root, which is naturally sized to match the metrics of its host,
-        // excluding borders.
-
-        // First, we traverse the node hierarchy up from the media element to compute the effective
-        // transform matrix applied to the media element.
-        let node = this.media;
-        let transform = new DOMMatrix;
-        while (node && node instanceof HTMLElement) {
-            transform = transform.multiply(new DOMMatrix(getComputedStyle(node).transform));
-            node = node.parentNode;
-        }
-
-        // Then, we take each corner of the container element in the shadow root and transform
-        // each with the inverted matrix we just computed so that we can compute the untransformed
-        // bounds of the media element.
-        const bounds = this.container.getBoundingClientRect();
-        const invertedTransform = transform.inverse();
-        let minX = Infinity;
-        let minY = Infinity;
-        let maxX = -Infinity;
-        let maxY = -Infinity;
-        [
-            new DOMPoint(bounds.left, bounds.top),
-            new DOMPoint(bounds.right, bounds.top),
-            new DOMPoint(bounds.right, bounds.bottom),
-            new DOMPoint(bounds.left, bounds.bottom)
-        ].forEach(corner => {
-            const point = corner.matrixTransform(invertedTransform);
-            if (point.x < minX)
-                minX = point.x;
-            if (point.x > maxX)
-                maxX = point.x;
-            if (point.y < minY)
-                minY = point.y;
-            if (point.y > maxY)
-                maxY = point.y;
-        });
-
-        // Finally, we factor in the scale factor of the controls themselves, which reflects the page's scale factor.
-        this.controls.width = Math.round((maxX - minX) * this.controls.scaleFactor);
-        this.controls.height = Math.round((maxY - minY) * this.controls.scaleFactor);
+        // Use offsetWidth/offsetHeight to get the untransformed layout dimensions of the
+        // container element in the shadow root, which is naturally sized to match the
+        // content box of its host (excluding borders). These properties are not affected
+        // by CSS transforms, so they give the correct dimensions regardless of any
+        // transform applied to the media element or its ancestors.
+        this.controls.width = Math.round(this.container.offsetWidth * this.controls.scaleFactor);
+        this.controls.height = Math.round(this.container.offsetHeight * this.controls.scaleFactor);
     }
 
     _updateTextTracksClassList()

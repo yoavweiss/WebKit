@@ -68,6 +68,9 @@ void RenderMedia::styleDidChange(Style::Difference difference, const Style::Comp
 
     if (!oldStyle || style().dynamicRangeLimit() != oldStyle->dynamicRangeLimit())
         protect(mediaElement())->dynamicRangeLimitDidChange(style().dynamicRangeLimit().toPlatformDynamicRangeLimit());
+
+    if (oldStyle && style().transform() != oldStyle->transform())
+        protect(mediaElement())->layoutSizeChanged();
 }
 
 } // namespace WebCore
