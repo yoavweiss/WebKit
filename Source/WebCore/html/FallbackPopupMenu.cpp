@@ -123,8 +123,10 @@ static void applyMenuStyle(HTMLElement& container, const PopupMenuStyle& style)
     if (auto& foreground = style.foregroundColor(); foreground.isValid())
         container.setInlineStyleProperty(CSSPropertyColor, serializationForCSS(foreground));
 
-    if (auto& background = style.backgroundColor(); background.isValid())
-        container.setInlineStyleProperty(CSSPropertyBackgroundColor, serializationForCSS(background));
+    if (style.backgroundColorType() == PopupMenuStyle::CustomBackgroundColor) {
+        if (auto& background = style.backgroundColor(); background.isValid())
+            container.setInlineStyleProperty(CSSPropertyBackgroundColor, serializationForCSS(background));
+    }
 
     if (CheckedRef font = style.font())
         applyFontCascade(container, font);
