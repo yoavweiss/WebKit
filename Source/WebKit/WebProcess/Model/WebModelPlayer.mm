@@ -192,7 +192,7 @@ static WebCore::ContentsFormat contentsFormatForDynamicRange(bool isStandard)
 
 void WebModelPlayer::load(WebCore::Model& modelSource, WebCore::LayoutSize size, bool)
 {
-    RefPtr corePage = m_page.ptr();
+    RefPtr corePage = m_page.get();
     if (!corePage)
         return;
     m_modelLoader = nil;
@@ -333,7 +333,7 @@ void WebModelPlayer::sizeDidChange(WebCore::LayoutSize size)
     if (!currentModel)
         return;
 
-    RefPtr corePage = m_page.ptr();
+    RefPtr corePage = m_page.get();
     if (!corePage)
         return;
     RefPtr document = corePage->localTopDocument();
@@ -580,7 +580,7 @@ void WebModelPlayer::scheduleUpdateIfNeeded()
     if (!m_isUpdateLoopRunning || m_isUpdateScheduled)
         return;
 
-    RefPtr corePage = m_page.ptr();
+    RefPtr corePage = m_page.get();
     if (!corePage)
         return;
 
@@ -966,7 +966,7 @@ void WebModelPlayer::updateContentsHeadroom()
 
 void WebModelPlayer::updateScreenHeadroomFromPage()
 {
-    RefPtr page = m_page.ptr();
+    RefPtr page = m_page.get();
     if (!page)
         return;
 
