@@ -28,25 +28,25 @@ PASS 'text-orientation: mixed' - horizontal-tb
 PASS 'text-orientation: upright' - horizontal-tb
 PASS 'text-orientation: sideways' - horizontal-tb
 PASS Rotation attribute - horizontal-tb
-FAIL <textPath> - horizontal-tb assert_equals: r expected 70 but got 45
+PASS <textPath> - horizontal-tb
 PASS 'text-orientation: mixed' - vertical-rl
 PASS 'text-orientation: upright' - vertical-rl
 PASS 'text-orientation: sideways' - vertical-rl
 PASS Rotation attribute - vertical-rl
-FAIL <textPath> - vertical-rl assert_equals: r expected 70 but got 45
+PASS <textPath> - vertical-rl
 PASS 'text-orientation: mixed' - vertical-lr
 PASS 'text-orientation: upright' - vertical-lr
 PASS 'text-orientation: sideways' - vertical-lr
 PASS Rotation attribute - vertical-lr
-FAIL <textPath> - vertical-lr assert_equals: r expected 70 but got 45
+PASS <textPath> - vertical-lr
 PASS 'text-orientation: mixed' - sideways-rl
 PASS 'text-orientation: upright' - sideways-rl
 PASS 'text-orientation: sideways' - sideways-rl
 PASS Rotation attribute - sideways-rl
-FAIL <textPath> - sideways-rl assert_equals: r expected 70 but got 45
+PASS <textPath> - sideways-rl
 PASS 'text-orientation: mixed' - sideways-lr
 PASS 'text-orientation: upright' - sideways-lr
 PASS 'text-orientation: sideways' - sideways-lr
 PASS Rotation attribute - sideways-lr
-FAIL <textPath> - sideways-lr assert_equals: r expected 250 but got 225
+PASS <textPath> - sideways-lr
 

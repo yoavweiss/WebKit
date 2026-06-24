@@ -605,7 +605,8 @@ void SVGTextLayoutEngine::layoutTextOnLineOrPath(InlineIterator::SVGTextBoxItera
             x = point.x();
             y = point.y();
 
-            angle = traversalState.normalAngle();
+            // Compose with rotate attribute per SVG 2 §11.2.1.
+            angle += traversalState.normalAngle();
 
             // For vertical text on path, the actual angle has to be rotated 90 degrees anti-clockwise, not the orientation angle!
             if (m_isVerticalText)
