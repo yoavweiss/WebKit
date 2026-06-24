@@ -339,3 +339,5 @@ webkit.org/b/317676 TestWebKitAPI.SiteIsolation.NavigateFrameWithSiblingsBackFor
 webkit.org/b/317676 TestWebKitAPI.SiteIsolation.NavigateIframeCrossOriginBackForwardAfterSessionRestoreToNewWebView [ Skip ]
 webkit.org/b/317676 TestWebKitAPI.SiteIsolation.NavigateIframeSameOriginBackForwardAfterSessionRestoreToNewWebView [ Skip ]
 webkit.org/b/317676 TestWebKitAPI.SiteIsolation.RestoreSessionFromAnotherWebView [ Skip ]
+
+webkit.org/b/317783 [ ios ] TestWebKitAPI.SiteIsolation.FindStringSelectionSameOriginFrameBeforeWrap [ Skip ]
