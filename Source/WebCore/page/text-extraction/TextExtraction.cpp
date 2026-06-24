@@ -2568,6 +2568,13 @@ static void scrollToReveal(LocalFrame& frame, std::optional<NodeIdentifier>&& id
         return completion(false, invalidNodeIdentifierDescription(WTF::move(identifier)));
 
     auto foundRange = searchForText(*searchScope, searchText);
+    if (!foundRange && identifier) {
+        if (RefPtr fallbackScope = bodyOrDocumentElement(frame); fallbackScope && fallbackScope != searchScope) {
+            // Fall back to searching the rest of the document (after the start of the target node).
+            if (auto expandedRange = makeSimpleRange(positionBeforeNode(*searchScope), positionAfterNode(*fallbackScope)))
+                foundRange = searchForText(WTF::move(*expandedRange), searchText);
+        }
+    }
     if (!foundRange)
         return completion(false, searchTextNotFoundDescription(searchText));
 

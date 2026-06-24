@@ -1377,6 +1377,53 @@ TEST(TextExtractionTests, ClickInteractionWithTextOnly)
     EXPECT_WK_STREQ("1", [webView stringByEvaluatingJavaScript:@"clickCount.textContent"]);
 }
 
+TEST(TextExtractionTests, ScrollToRevealFallsBackToFullDocumentWhenNodeMisses)
+{
+    RetainPtr configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
+    [[configuration preferences] _setTextExtractionEnabled:YES];
+
+    RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 800, 600) configuration:configuration]);
+    [webView synchronouslyLoadHTMLString:@R"HTML(
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta name='viewport' content='width=device-width, initial-scale=1'>
+        </head>
+        <body>
+            <button id='anchor'>Anchor Section</button>
+            <div style='height: 5000px'></div>
+            <div id='target'>Reveal Me Down Here</div>
+        </body>
+        </html>
+    )HTML"];
+
+    EXPECT_EQ(0, [[webView objectByEvaluatingJavaScript:@"window.scrollY"] intValue]);
+
+    RetainPtr debugText = [webView synchronouslyGetDebugText:^{
+        RetainPtr configuration = adoptNS([_WKTextExtractionConfiguration new]);
+        [configuration setIncludeRects:NO];
+        [configuration setNodeIdentifierInclusion:_WKTextExtractionNodeIdentifierInclusionAllContainers];
+        return configuration.autorelease();
+    }()];
+    RetainPtr anchorID = extractNodeIdentifier(debugText, @"Anchor Section");
+    EXPECT_NOT_NULL(anchorID);
+
+    RetainPtr scroll = adoptNS([[_WKTextExtractionInteraction alloc] initWithAction:_WKTextExtractionActionScroll]);
+    [scroll setNodeIdentifier:anchorID];
+    [scroll setText:@"Reveal Me Down Here"];
+
+    RetainPtr result = [webView synchronouslyPerformInteraction:scroll];
+    EXPECT_NULL([result error]);
+    EXPECT_GT([[webView objectByEvaluatingJavaScript:@"window.scrollY"] intValue], 0);
+
+    RetainPtr missingScroll = adoptNS([[_WKTextExtractionInteraction alloc] initWithAction:_WKTextExtractionActionScroll]);
+    [missingScroll setNodeIdentifier:anchorID];
+    [missingScroll setText:@"This text does not exist anywhere"];
+
+    RetainPtr missingResult = [webView synchronouslyPerformInteraction:missingScroll];
+    EXPECT_NOT_NULL([missingResult error]);
+}
+
 TEST(TextExtractionTests, ClickInteractionWhileInBackground)
 {
     RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 400, 400) configuration:^{
