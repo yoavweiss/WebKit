@@ -63,6 +63,7 @@ RuleSet::RuleSet() = default;
 RuleSet::~RuleSet()
 {
     RELEASE_ASSERT(isMainThread());
+    RELEASE_ASSERT(!m_isBuilding);
 }
 
 void RuleSet::addToRuleSet(const AtomString& key, AtomRuleMap& map, const RuleData& ruleData)

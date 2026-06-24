@@ -260,6 +260,9 @@ private:
     bool m_hasHostPseudoClassRulesMatchingInShadowTree { false };
     bool m_hasViewportDependentMediaQueries { false };
     bool m_hasHostOrScopePseudoClassRulesInUniversalBucket { false };
+
+    // For checking against re-entrancy.
+    bool m_isBuilding { false };
 };
 
 inline const RuleSet::RuleDataVector* RuleSet::attributeRules(const AtomString& key, bool isHTMLName) const

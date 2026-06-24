@@ -60,6 +60,8 @@ RuleSetBuilder::RuleSetBuilder(RuleSet& ruleSet, const MQ::MediaQueryEvaluator& 
     , m_resolver(resolver)
     , m_shrinkToFit(shrinkToFit)
 {
+    RELEASE_ASSERT(!m_ruleSet->m_isBuilding);
+    m_ruleSet->m_isBuilding = true;
 }
 
 RuleSetBuilder::RuleSetBuilder(const MQ::MediaQueryEvaluator& evaluator)
@@ -78,6 +80,8 @@ RuleSetBuilder::~RuleSetBuilder()
 
     if (m_shrinkToFit == ShrinkToFit::Enable)
         m_ruleSet->shrinkToFit();
+
+    m_ruleSet->m_isBuilding = false;
 }
 
 void RuleSetBuilder::addRulesFromSheet(const StyleSheetContents& sheet, const MQ::MediaQueryList& sheetQuery)

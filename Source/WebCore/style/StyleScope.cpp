@@ -545,6 +545,7 @@ static void filterEnabledNonemptyCSSStyleSheets(Vector<Ref<CSSStyleSheet>>& resu
 
 void Scope::updateActiveStyleSheets(UpdateType updateType)
 {
+    RELEASE_ASSERT(!m_isUpdatingStyleResolver);
     ASSERT(!m_pendingUpdate);
 
     if (!m_document->hasLivingRenderTree())
