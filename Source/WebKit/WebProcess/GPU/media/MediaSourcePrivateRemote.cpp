@@ -217,6 +217,15 @@ void MediaSourcePrivateRemote::cancelPendingWaitForTarget()
     });
 }
 
+void MediaSourcePrivateRemote::setReadyState(MediaSourceReadyState readyState)
+{
+    MediaSourcePrivate::setReadyState(readyState);
+    auto gpuProcessConnection = m_gpuProcessConnection.get();
+    if (!isGPURunning() || !gpuProcessConnection)
+        return;
+    gpuProcessConnection->connection().send(Messages::RemoteMediaSourceProxy::SetReadyState(readyState), m_identifier);
+}
+
 void MediaSourcePrivateRemote::setMediaPlayerReadyState(MediaPlayer::ReadyState readyState)
 {
     // Call from MediaSource's dispatcher.

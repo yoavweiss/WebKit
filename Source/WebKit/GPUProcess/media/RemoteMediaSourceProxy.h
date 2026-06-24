@@ -93,6 +93,7 @@ private:
     void markEndOfStream(WebCore::MediaSourcePrivate::EndOfStreamStatus);
     void unmarkEndOfStream();
     void cancelPendingWaitForTarget();
+    void setReadyState(WebCore::MediaSourceReadyState);
     void setMediaPlayerReadyState(WebCore::MediaPlayerEnums::ReadyState);
     void setTimeFudgeFactor(const MediaTime&);
     void NODELETE attached();

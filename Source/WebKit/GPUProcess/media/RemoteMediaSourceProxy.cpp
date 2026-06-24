@@ -158,6 +158,11 @@ void RemoteMediaSourceProxy::cancelPendingWaitForTarget()
         protectedPrivate->cancelPendingWaitForTarget();
 }
 
+void RemoteMediaSourceProxy::setReadyState(WebCore::MediaSourceReadyState readyState)
+{
+    if (RefPtr protectedPrivate = m_private)
+        protectedPrivate->setReadyState(readyState);
+}
 
 void RemoteMediaSourceProxy::setMediaPlayerReadyState(WebCore::MediaPlayerEnums::ReadyState readyState)
 {

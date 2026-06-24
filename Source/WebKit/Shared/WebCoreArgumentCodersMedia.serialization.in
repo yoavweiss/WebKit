@@ -968,6 +968,13 @@ enum class WebCore::MediaSourcePrivateEndOfStreamStatus : uint8_t {
     DecodeError
 };
 
+header: <WebCore/MediaSourcePrivate.h>
+enum class WebCore::MediaSourceReadyState : uint8_t {
+    Closed,
+    Open,
+    Ended
+};
+
 header: <WebCore/SourceBufferPrivate.h>
 enum class WebCore::SourceBufferAppendMode : uint8_t {
     Segments,

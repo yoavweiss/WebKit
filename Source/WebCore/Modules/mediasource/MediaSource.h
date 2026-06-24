@@ -38,6 +38,7 @@
 #include "MediaPlayer.h"
 #include "MediaPromiseTypes.h"
 #include "MediaSourceInit.h"
+#include "MediaSourcePrivate.h"
 #include "MediaSourcePrivateClient.h"
 #include "URLRegistry.h"
 #include <optional>
@@ -64,8 +65,6 @@ class TimeRanges;
 class VideoTrack;
 class VideoTrackPrivate;
 template<typename> class ExceptionOr;
-
-enum class MediaSourceReadyState { Closed, Open, Ended };
 
 class MediaSource
     : public RefCounted<MediaSource>

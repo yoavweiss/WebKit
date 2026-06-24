@@ -66,6 +66,7 @@ public:
     void markEndOfStream(EndOfStreamStatus) final;
     void unmarkEndOfStream() final;
     void cancelPendingWaitForTarget() final;
+    void setReadyState(WebCore::MediaSourceReadyState) final;
     void setMediaPlayerReadyState(WebCore::MediaPlayer::ReadyState) final;
     void setPlayer(WebCore::MediaPlayerPrivateInterface*) final;
     void shutdown() final;

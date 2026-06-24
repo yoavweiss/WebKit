@@ -49,8 +49,14 @@ class SourceBufferPrivate;
 #if ENABLE(LEGACY_ENCRYPTED_MEDIA)
 class LegacyCDMSession;
 #endif
-enum class MediaSourceReadyState;
+
 struct MediaSourceConfiguration;
+
+enum class MediaSourceReadyState : uint8_t {
+    Closed,
+    Open,
+    Ended
+};
 
 enum class MediaSourcePrivateAddStatus : uint8_t {
     Ok,
