@@ -27,12 +27,9 @@ import WebKit
 import simd
 
 #if ENABLE_GPU_PROCESS_MODEL && canImport(RealityCoreDeformation, _version: 23.0.2) && canImport(USDKit, _version: 106.0.2) && arch(arm64)
-import RealityCoreTextureProcessing
 import USDKit
 import DirectResource
 import RealityKit
-import ShaderGraph
-import RealityCoreDeformation
 
 // Safe wrapper of unsafe functions
 extension MTLBuffer {

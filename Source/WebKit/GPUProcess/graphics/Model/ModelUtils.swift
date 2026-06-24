@@ -286,7 +286,7 @@ internal func debugPrintShaderGraph(_ graph: ShaderGraph?, prefix: String = "", 
     // Print edges
     logInfo("\(nextIndent)Edges (\(graph.edges.count)):")
     for (index, edge) in graph.edges.enumerated() {
-        logInfo("\(nextIndent)  [\(index)] \(edge.outputNode):\(edge.outputPort ?? "") -> \(edge.inputNode):\(edge.inputPort ?? "")")
+        logInfo("\(nextIndent)  [\(index)] \(edge.outputNode):\(edge.outputPort ?? "") -> \(edge.inputNode):\(edge.inputPort)")
     }
 }
 
@@ -490,8 +490,8 @@ internal func compareShaderGraphs(
         differences.append("Edge count differs: \(graph1.edges.count) vs \(graph2.edges.count)")
     } else {
         // Create comparable edge descriptions
-        let edges1Set = Set(graph1.edges.map { "\($0.outputNode):\($0.outputPort ?? "") -> \($0.inputNode):\($0.inputPort ?? "")" })
-        let edges2Set = Set(graph2.edges.map { "\($0.outputNode):\($0.outputPort ?? "") -> \($0.inputNode):\($0.inputPort ?? "")" })
+        let edges1Set = Set(graph1.edges.map { "\($0.outputNode):\($0.outputPort ?? "") -> \($0.inputNode):\($0.inputPort)" })
+        let edges2Set = Set(graph2.edges.map { "\($0.outputNode):\($0.outputPort ?? "") -> \($0.inputNode):\($0.inputPort)" })
 
         let onlyIn1 = edges1Set.subtracting(edges2Set)
         let onlyIn2 = edges2Set.subtracting(edges1Set)

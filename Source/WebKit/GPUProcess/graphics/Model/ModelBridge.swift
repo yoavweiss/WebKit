@@ -28,7 +28,6 @@ import WebKit
 import RealityKit
 import USDKit
 import DirectResource
-import ShaderGraph
 #endif
 
 @objc

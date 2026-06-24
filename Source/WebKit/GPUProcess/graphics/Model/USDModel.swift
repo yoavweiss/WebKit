@@ -30,8 +30,6 @@ import simd
 import USDKit
 import DirectResource
 import RealityKit
-import ShaderGraph
-import RealityCoreDeformation
 import UniformTypeIdentifiers
 
 extension MTLCaptureDescriptor {
