@@ -11371,7 +11371,7 @@ static Vector<WebCore::IntSize> sizesOfPlaceholderElementsToInsertWhenDroppingIt
         if (overriddenPreview)
             return overriddenPreview;
     }
-    return _dragDropInteractionState.previewForLifting(item, self, self.containerForDragPreviews, std::exchange(_positionInformationLinkIndicator, nullptr));
+    return _dragDropInteractionState.previewForLifting(item, self, self.containerForDragPreviews, self._scroller, std::exchange(_positionInformationLinkIndicator, nullptr));
 }
 
 - (void)dragInteraction:(UIDragInteraction *)interaction willAnimateLiftWithAnimator:(id<UIDragAnimating>)animator session:(id<UIDragSession>)session
@@ -11441,7 +11441,7 @@ static Vector<WebCore::IntSize> sizesOfPlaceholderElementsToInsertWhenDroppingIt
         if (overriddenPreview)
             return overriddenPreview;
     }
-    return _dragDropInteractionState.previewForCancelling(item, self, self.unscaledView);
+    return _dragDropInteractionState.previewForCancelling(item, self, self.unscaledView, self._scroller);
 }
 
 - (void)dragInteraction:(UIDragInteraction *)interaction item:(UIDragItem *)item willAnimateCancelWithAnimator:(id<UIDragAnimating>)animator
@@ -11798,7 +11798,7 @@ static RetainPtr<UIImage> uiImageForImage(WebCore::Image* image)
 }
 
 // FIXME: This should be merged with createTargetedDragPreview in DragDropInteractionState.
-static RetainPtr<UITargetedPreview> createTargetedPreview(UIImage *image, UIView *rootView, UIView *previewContainer, const WebCore::FloatRect& frameInRootViewCoordinates, const Vector<WebCore::FloatRect>& clippingRectsInFrameCoordinates, UIColor *backgroundColor)
+static RetainPtr<UITargetedPreview> createTargetedPreview(UIImage *image, UIView *rootView, UIView *previewContainer, UIScrollView *scrollView, const WebCore::FloatRect& frameInRootViewCoordinates, const Vector<WebCore::FloatRect>& clippingRectsInFrameCoordinates, UIColor *backgroundColor)
 {
     if (frameInRootViewCoordinates.isEmpty() || !image || !previewContainer.window)
         return nil;
@@ -11822,6 +11822,15 @@ static RetainPtr<UITargetedPreview> createTargetedPreview(UIImage *image, UIView
     [parameters setBackgroundColor:protect(backgroundColor ?: [UIColor clearColor])];
 
     CGPoint centerInContainerCoordinates = { CGRectGetMidX(frameInContainerCoordinates), CGRectGetMidY(frameInContainerCoordinates) };
+#if PLATFORM(VISION)
+    if (scrollView) {
+        WebCore::FloatRect viewportInContainer = [scrollView convertRect:scrollView.bounds toView:previewContainer];
+        centerInContainerCoordinates = {
+            WebKit::clampedDragPreviewCenterAxis(centerInContainerCoordinates.x, viewportInContainer.x(), viewportInContainer.maxX(), frameInContainerCoordinates.width() / 2),
+            WebKit::clampedDragPreviewCenterAxis(centerInContainerCoordinates.y, viewportInContainer.y(), viewportInContainer.maxY(), frameInContainerCoordinates.height() / 2)
+        };
+    }
+#endif
     auto target = adoptNS([[UIPreviewTarget alloc] initWithContainer:previewContainer center:centerInContainerCoordinates]);
 
     auto imageView = adoptNS([[UIImageView alloc] initWithImage:image]);
@@ -11835,7 +11844,7 @@ static RetainPtr<UITargetedPreview> createTargetedPreview(UIImage *image, UIView
         return nil;
 
     RetainPtr textIndicatorImage = uiImageForImage(protect(textIndicator->contentImage()));
-    RetainPtr preview = createTargetedPreview(textIndicatorImage.get(), self, previewContainer, textIndicator->textBoundingRectInRootViewCoordinates(), textIndicator->textRectsInBoundingRectCoordinates(), protect(^{
+    RetainPtr preview = createTargetedPreview(textIndicatorImage.get(), self, previewContainer, self.webView.scrollView, textIndicator->textBoundingRectInRootViewCoordinates(), textIndicator->textRectsInBoundingRectCoordinates(), protect(^{
         if (textIndicator->estimatedBackgroundColor() != WebCore::Color::transparentBlack)
             return cocoaColor(textIndicator->estimatedBackgroundColor()).autorelease();
 
@@ -11959,7 +11968,7 @@ static RetainPtr<UITargetedPreview> createFallbackTargetedPreview(UIView *rootVi
     } else if ((_positionInformation.isAttachment || _positionInformation.isImage) && _positionInformation.image) {
         RetainPtr cgImage = protect(_positionInformation.image)->createPlatformImage();
         auto image = adoptNS([[UIImage alloc] initWithCGImage:cgImage.get()]);
-        targetedPreview = createTargetedPreview(image.get(), self, containerForContextMenuHintPreviews.get(), _positionInformation.bounds, { }, nil);
+        targetedPreview = createTargetedPreview(image.get(), self, containerForContextMenuHintPreviews.get(), self.webView.scrollView, _positionInformation.bounds, { }, nil);
     }
 
     if (!targetedPreview) {
