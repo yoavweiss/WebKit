@@ -2046,6 +2046,21 @@ TEST(IPCSerialization, NSURLCredentialKerberosFlags)
     EXPECT_FALSE(decoded->flags->isEmpty());
 }
 
+TEST(IPCSerialization, NSURLCredentialAttributes)
+{
+    RetainPtr credential = adoptNS([[NSURLCredential alloc] _initWithWebKitPropertyListData:@{
+        @"type": @(kURLCredentialInternetPassword),
+        @"persistence": @(kCFURLCredentialPersistenceForSession),
+        @"attributes": @{ @"name": @"value" },
+    }]);
+
+    IPC::Encoder encoder(IPC::MessageName::IPCTester_AsyncPing, 0);
+    encoder << WebKit::CoreIPCNSURLCredential { credential.get() };
+    auto decoder = IPC::Decoder::create(encoder.span(), encoder.releaseAttachments());
+    auto decoded = decoder->decode<WebKit::CoreIPCNSURLCredentialData>();
+    EXPECT_EQ(decoded->attributes->size(), 1u);
+}
+
 #endif // HAVE(WK_SECURE_CODING_NSURLCREDENTIAL)
 
 @interface PKPaymentMerchantSession ()

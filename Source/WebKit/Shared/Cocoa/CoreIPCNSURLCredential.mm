@@ -81,7 +81,7 @@ CoreIPCNSURLCredential::CoreIPCNSURLCredential(NSURLCredential *credential)
                 break;
             }
             id value = [attributes objectForKey:key];
-            if (![value isKindOfClass:NSString.class] || ![value isKindOfClass:NSNumber.class] || ![value isKindOfClass:NSDate.class]) {
+            if (![value isKindOfClass:NSString.class] && ![value isKindOfClass:NSNumber.class] && ![value isKindOfClass:NSDate.class]) {
                 ASSERT_NOT_REACHED();
                 break;
             }
