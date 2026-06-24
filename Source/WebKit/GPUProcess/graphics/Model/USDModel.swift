@@ -26,7 +26,7 @@ import OSLog
 import WebKit
 import simd
 
-#if ENABLE_GPU_PROCESS_MODEL && canImport(RealityCoreDeformation, _version: 23.0.2) && canImport(USDKit, _version: 106.0.2) && arch(arm64)
+#if ENABLE_GPU_PROCESS_MODEL && canImport(RealityCoreDeformation, _version: 23.0.2) && canImport(ShaderGraph, _version: 159.0.3) && arch(arm64)
 import USDKit
 import DirectResource
 import RealityKit
@@ -1729,6 +1729,7 @@ extension ShaderGraph {
         guard let descriptor else { return nil }
 
         do {
+            let library = ShaderGraph.NodeLibrary(version: .materialX138)
             let graph = try ShaderGraph(
                 named: descriptor.graphName.isEmpty ? "MaterialGraph" : descriptor.graphName,
                 inputs: descriptor.inputs.map {
@@ -1744,10 +1745,9 @@ extension ShaderGraph {
                         type: fromWKBridgeDataType($0.type),
                         semanticType: $0.semanticTypeName.map { .init(name: $0) }
                     )
-                }
+                },
+                nodeLibrary: library
             )
-
-            let library = ShaderGraph.NodeLibrary(version: .materialX138)
 
             for bridgeNode in descriptor.nodes {
                 switch bridgeNode.bridgeNodeType {

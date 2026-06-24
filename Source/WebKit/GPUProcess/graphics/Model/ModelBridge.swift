@@ -24,7 +24,7 @@
 import Metal
 import WebKit
 
-#if ENABLE_GPU_PROCESS_MODEL && canImport(RealityCoreDeformation, _version: 23.0.2) && canImport(USDKit, _version: 106.0.2) && arch(arm64)
+#if ENABLE_GPU_PROCESS_MODEL && canImport(RealityCoreDeformation, _version: 23.0.2) && canImport(ShaderGraph, _version: 159.0.3) && arch(arm64)
 import RealityKit
 import USDKit
 import DirectResource
@@ -301,7 +301,7 @@ extension WKBridgeUpdateMesh {
     }
 }
 
-#if ENABLE_GPU_PROCESS_MODEL && canImport(RealityCoreDeformation, _version: 23.0.2) && canImport(USDKit, _version: 106.0.2) && arch(arm64)
+#if ENABLE_GPU_PROCESS_MODEL && canImport(RealityCoreDeformation, _version: 23.0.2) && canImport(ShaderGraph, _version: 159.0.3) && arch(arm64)
 func decodeValues<T>(from data: Data) -> [T] where T: BitwiseCopyable {
     let stride = MemoryLayout<T>.stride
     guard !data.isEmpty, data.count % stride == 0 else { return [] }
@@ -620,7 +620,7 @@ extension WKBridgeMaterialGraph {
     }
 }
 
-#if ENABLE_GPU_PROCESS_MODEL && canImport(RealityCoreDeformation, _version: 23.0.2) && canImport(USDKit, _version: 106.0.2) && arch(arm64)
+#if ENABLE_GPU_PROCESS_MODEL && canImport(RealityCoreDeformation, _version: 23.0.2) && canImport(ShaderGraph, _version: 159.0.3) && arch(arm64)
 
 func toData<T>(_ input: [T]) -> Data {
     // rdar://164559261 - this is needed because there is no way to represnt an NSArray of
