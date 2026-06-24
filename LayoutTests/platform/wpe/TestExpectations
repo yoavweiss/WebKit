@@ -1348,3 +1348,8 @@ webkit.org/b/316547 imported/w3c/web-platform-tests/html/browsers/browsing-the-w
 webkit.org/b/316547 imported/w3c/web-platform-tests/html/browsers/browsing-the-web/back-forward-cache/service-worker-clients-matchall.https.html [ Failure ]
 webkit.org/b/316547 imported/w3c/web-platform-tests/html/browsers/browsing-the-web/back-forward-cache/service-worker-controlled-after-restore.https.html [ Failure ]
 webkit.org/b/316547 imported/w3c/web-platform-tests/html/browsers/browsing-the-web/back-forward-cache/storage-events.html [ Failure ]
+
+webkit.org/b/315455 fast/dom/Range/detach-range-during-deletecontents.html [ Timeout ]
+webkit.org/b/315455 http/tests/IndexedDB/transaction-commit-pending-requests-stop.html [ Pass Failure ]
+webkit.org/b/315455 http/tests/IndexedDB/transaction-stop-during-request-dispatch.html [ Pass Failure ]
+webkit.org/b/315455 webgl/1.0.x/conformance/extensions/ext-sRGB.html [ Failure ]

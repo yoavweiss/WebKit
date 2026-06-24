@@ -146,7 +146,7 @@ endif ()
 # will use a DT_RPATH entry in the ELF headers, to ensure that the build
 # directory lib/ subdir is always used and developers do not accidentally run
 # test programs from the build directory against system libraries. Without
-# passing the option DT_RUNPATH is used, which can be overriden by the value
+# passing the option DT_RUNPATH is used, which can be overridden by the value
 # of LD_LIBRARY_PATH set in the environment, resulting in unexpected behaviour
 # for developers.
 if (LD_SUPPORTS_DISABLE_NEW_DTAGS)

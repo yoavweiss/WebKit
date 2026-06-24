@@ -4,7 +4,7 @@ Testrunner by John Resig, tests by John Resig, Disruptive Innovations, W3C CSS W
 
  Show only failing tests.
 
-98.6%: 2133 passed, 31 failed
+99.2%: 2147 passed, 17 failed
 PASS Element supports querySelector
 PASS Element supports querySelectorAll
 PASS Element.querySelectorAll Empty String
@@ -24,9 +24,9 @@ PASS Element.querySelector: html > body
 PASS Element.querySelectorAll: .test > .blox1
 PASS Element.querySelectorAll Whitespace Trim: .test > .blox1
 PASS Element.querySelector: .test > .blox1
-FAIL Element.querySelectorAll: .blox2[]]><![CDATA[align]
-FAIL Element.querySelectorAll Whitespace Trim: .blox2[]]><![CDATA[align]
-FAIL Element.querySelector: .blox2[]]><![CDATA[align]
+PASS Element.querySelectorAll: .blox2[align]
+PASS Element.querySelectorAll Whitespace Trim: .blox2[align]
+PASS Element.querySelector: .blox2[align]
 PASS Element.querySelectorAll: .blox3[align]
 PASS Element.querySelectorAll Whitespace Trim: .blox3[align]
 PASS Element.querySelector: .blox3[align]
@@ -314,7 +314,7 @@ PASS Element.querySelectorAll Whitespace Trim: .plus .t1:hover + .unitTest + .un
 PASS Element.querySelector: .plus .t1:hover + .unitTest + .unitTest
 FAIL Inside Element: :target selector
 PASS Inside Element: childhood selector
-FAIL Inside Element: attribute existence selector
+PASS Inside Element: attribute existence selector
 PASS Inside Element: attribute existence selector with empty string value
 PASS Inside Element: attribute existence selector with almost identical attribute
 PASS Inside Element: attribute existence selector with almost identical attribute
@@ -740,9 +740,9 @@ PASS Disconnected Element.querySelector: html > body
 PASS Disconnected Element.querySelectorAll: .test > .blox1
 PASS Disconnected Element.querySelectorAll Whitespace Trim: .test > .blox1
 PASS Disconnected Element.querySelector: .test > .blox1
-FAIL Disconnected Element.querySelectorAll: .blox2[]]><![CDATA[align]
-FAIL Disconnected Element.querySelectorAll Whitespace Trim: .blox2[]]><![CDATA[align]
-FAIL Disconnected Element.querySelector: .blox2[]]><![CDATA[align]
+PASS Disconnected Element.querySelectorAll: .blox2[align]
+PASS Disconnected Element.querySelectorAll Whitespace Trim: .blox2[align]
+PASS Disconnected Element.querySelector: .blox2[align]
 PASS Disconnected Element.querySelectorAll: .blox3[align]
 PASS Disconnected Element.querySelectorAll Whitespace Trim: .blox3[align]
 PASS Disconnected Element.querySelector: .blox3[align]
@@ -1029,7 +1029,7 @@ PASS Disconnected Element.querySelectorAll: .plus .t1:hover + .unitTest + .unitT
 PASS Disconnected Element.querySelectorAll Whitespace Trim: .plus .t1:hover + .unitTest + .unitTest
 PASS Disconnected Element.querySelector: .plus .t1:hover + .unitTest + .unitTest
 PASS Disconnected Element: childhood selector
-FAIL Disconnected Element: attribute existence selector
+PASS Disconnected Element: attribute existence selector
 PASS Disconnected Element: attribute existence selector with empty string value
 PASS Disconnected Element: attribute existence selector with almost identical attribute
 PASS Disconnected Element: attribute existence selector with almost identical attribute
@@ -1338,9 +1338,9 @@ PASS Fragment.querySelector: html > body
 PASS Fragment.querySelectorAll: .test > .blox1
 PASS Fragment.querySelectorAll Whitespace Trim: .test > .blox1
 PASS Fragment.querySelector: .test > .blox1
-FAIL Fragment.querySelectorAll: .blox2[]]><![CDATA[align]
-FAIL Fragment.querySelectorAll Whitespace Trim: .blox2[]]><![CDATA[align]
-FAIL Fragment.querySelector: .blox2[]]><![CDATA[align]
+PASS Fragment.querySelectorAll: .blox2[align]
+PASS Fragment.querySelectorAll Whitespace Trim: .blox2[align]
+PASS Fragment.querySelector: .blox2[align]
 PASS Fragment.querySelectorAll: .blox3[align]
 PASS Fragment.querySelectorAll Whitespace Trim: .blox3[align]
 PASS Fragment.querySelector: .blox3[align]
@@ -1701,9 +1701,9 @@ PASS Document.querySelector: html > body
 PASS Document.querySelectorAll: .test > .blox1
 PASS Document.querySelectorAll Whitespace Trim: .test > .blox1
 PASS Document.querySelector: .test > .blox1
-FAIL Document.querySelectorAll: .blox2[]]><![CDATA[align]
-FAIL Document.querySelectorAll Whitespace Trim: .blox2[]]><![CDATA[align]
-FAIL Document.querySelector: .blox2[]]><![CDATA[align]
+PASS Document.querySelectorAll: .blox2[align]
+PASS Document.querySelectorAll Whitespace Trim: .blox2[align]
+PASS Document.querySelector: .blox2[align]
 PASS Document.querySelectorAll: .blox3[align]
 PASS Document.querySelectorAll Whitespace Trim: .blox3[align]
 PASS Document.querySelector: .blox3[align]

@@ -187,7 +187,7 @@ class GLibPort(Port):
                 "--suppressions=%s" % (xmlfile, suppressionsfile)
 
         # WTF_DateMath.calculateLocalTimeOffset test only pass in Pacific Time Zone
-        environment['TZ'] = 'PST8PDT'
+        environment['TZ'] = 'America/Los_Angeles'
 
         return environment
 
