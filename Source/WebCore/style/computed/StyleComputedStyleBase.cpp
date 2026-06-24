@@ -389,7 +389,7 @@ void ComputedStyleBase::updateUsedCounterIncrementDirectives()
 
     for (auto& counterIncrementValue : m_nonInheritedData->rareData->counterIncrement) {
         auto& directives = map.add(counterIncrementValue.name.value, CounterDirectives { }).iterator->value;
-        directives.incrementValue = saturatedSum(directives.incrementValue.value_or(0), counterIncrementValue.value.value);
+        directives.incrementValue = saturatingSum(directives.incrementValue.value_or(0), counterIncrementValue.value.value);
     }
 }
 

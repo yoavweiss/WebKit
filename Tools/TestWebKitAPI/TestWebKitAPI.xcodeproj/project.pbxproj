@@ -1214,7 +1214,7 @@
 				WTF/RobinHoodHashSet.cpp,
 				WTF/RunLoop.cpp,
 				WTF/SafeStrerror.cpp,
-				WTF/SaturatedArithmeticOperations.cpp,
+				WTF/SaturatingArithmeticOperations.cpp,
 				WTF/Scope.cpp,
 				WTF/ScopedLambda.cpp,
 				WTF/SegmentedVector.cpp,

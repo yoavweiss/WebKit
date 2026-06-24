@@ -42,13 +42,13 @@ namespace WTF {
 // FIXME: Enhance this so it fails to compile calls where either of the arguments can be outside the range of the integral type instead of quietly converting.
 
 template<std::signed_integral SignedIntegralType>
-SignedIntegralType saturatedSum(SignedIntegralType, SignedIntegralType);
+SignedIntegralType saturatingSum(SignedIntegralType, SignedIntegralType);
 
 template<std::unsigned_integral UnsignedIntegralType>
-constexpr UnsignedIntegralType saturatedSum(UnsignedIntegralType, UnsignedIntegralType);
+constexpr UnsignedIntegralType saturatingSum(UnsignedIntegralType, UnsignedIntegralType);
 
 template<typename IntegralType>
-IntegralType saturatedDifference(IntegralType, IntegralType);
+IntegralType saturatingDifference(IntegralType, IntegralType);
 
 inline bool signedAddInt32Overflows(int32_t a, int32_t b, int32_t& result)
 {
@@ -66,7 +66,7 @@ inline bool signedAddInt32Overflows(int32_t a, int32_t b, int32_t& result)
 #endif
 }
 
-template<> inline int32_t saturatedSum<int32_t>(int32_t a, int32_t b)
+template<> inline int32_t saturatingSum<int32_t>(int32_t a, int32_t b)
 {
     int32_t result;
 #if CPU(ARM_THUMB2)
@@ -99,7 +99,7 @@ inline bool signedSubtractInt32Overflows(int32_t a, int32_t b, int32_t& result)
 }
 
 // FIXME: Enhance this so it fails to compile calls where either of the arguments can be outside the range of int32_t instead of quietly converting.
-template<> inline int32_t saturatedDifference<int32_t>(int32_t a, int32_t b)
+template<> inline int32_t saturatingDifference<int32_t>(int32_t a, int32_t b)
 {
     int32_t result;
 #if CPU(ARM_THUMB2)
@@ -116,19 +116,19 @@ template<> inline int32_t saturatedDifference<int32_t>(int32_t a, int32_t b)
 }
 
 template<std::unsigned_integral UnsignedIntegralType>
-constexpr UnsignedIntegralType saturatedSum(UnsignedIntegralType a, UnsignedIntegralType b)
+constexpr UnsignedIntegralType saturatingSum(UnsignedIntegralType a, UnsignedIntegralType b)
 {
     auto sum = a + b;
     return sum < a ? std::numeric_limits<UnsignedIntegralType>::max() : sum;
 }
 
 template<typename IntegralType, typename... ArgumentTypes>
-constexpr uint32_t saturatedSum(IntegralType value, ArgumentTypes... arguments)
+constexpr uint32_t saturatingSum(IntegralType value, ArgumentTypes... arguments)
 {
-    return saturatedSum<IntegralType>(value, saturatedSum<IntegralType>(arguments...));
+    return saturatingSum<IntegralType>(value, saturatingSum<IntegralType>(arguments...));
 }
 
 }
 
-using WTF::saturatedSum;
-using WTF::saturatedDifference;
+using WTF::saturatingSum;
+using WTF::saturatingDifference;

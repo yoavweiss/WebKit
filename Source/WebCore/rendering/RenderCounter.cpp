@@ -221,7 +221,7 @@ static std::optional<CounterPlan> planCounter(RenderElement& renderer, const Ato
     if (directives.setValue)
         return CounterPlan { type, *directives.setValue };
     if (directives.resetValue)
-        return CounterPlan { type, saturatedSum<int>(*directives.resetValue, directives.incrementValue.value_or(0)) };
+        return CounterPlan { type, saturatingSum<int>(*directives.resetValue, directives.incrementValue.value_or(0)) };
     if (directives.incrementValue)
         return CounterPlan { type, *directives.incrementValue };
     return std::nullopt;

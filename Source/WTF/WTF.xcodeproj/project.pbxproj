@@ -497,7 +497,7 @@
 		DD3DC92527A4BF8E007E5B61 /* ApproximateTime.h in Headers */ = {isa = PBXBuildFile; fileRef = E37E96532702AD0700E1C36A /* ApproximateTime.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		DD3DC92627A4BF8E007E5B61 /* CPUTime.h in Headers */ = {isa = PBXBuildFile; fileRef = E38C41271EB4E0680042957D /* CPUTime.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		DD3DC92727A4BF8E007E5B61 /* StdMap.h in Headers */ = {isa = PBXBuildFile; fileRef = 391BD6BA4D164FD294F9A93D /* StdMap.h */; settings = {ATTRIBUTES = (Private, ); }; };
-		DD3DC92827A4BF8E007E5B61 /* SaturatedArithmetic.h in Headers */ = {isa = PBXBuildFile; fileRef = 14F3B0F615E45E4600210069 /* SaturatedArithmetic.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		DD3DC92827A4BF8E007E5B61 /* SaturatingArithmetic.h in Headers */ = {isa = PBXBuildFile; fileRef = 14F3B0F615E45E4600210069 /* SaturatingArithmetic.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		DD3DC92927A4BF8E007E5B61 /* BoxPtr.h in Headers */ = {isa = PBXBuildFile; fileRef = 0F93274A1C17F4B700CF6566 /* BoxPtr.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		DD3DC92A27A4BF8E007E5B61 /* dtoa.h in Headers */ = {isa = PBXBuildFile; fileRef = A8A47298151A825A004123FF /* dtoa.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		DD3DC92B27A4BF8E007E5B61 /* PlatformUse.h in Headers */ = {isa = PBXBuildFile; fileRef = 7CFAF3C923D0AF1500D21BDD /* PlatformUse.h */; settings = {ATTRIBUTES = (Private, ); }; };
@@ -1284,7 +1284,7 @@
 		14DFC2882ED23C5A0072E4A6 /* RefCountDebugger.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RefCountDebugger.cpp; sourceTree = "<group>"; };
 		14E785E71DFB330100209BD1 /* OrdinalNumber.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OrdinalNumber.h; sourceTree = "<group>"; };
 		14F1EB412DDF9BFF009BBD4B /* OptionalOrReference.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OptionalOrReference.h; sourceTree = "<group>"; };
-		14F3B0F615E45E4600210069 /* SaturatedArithmetic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SaturatedArithmetic.h; sourceTree = "<group>"; };
+		14F3B0F615E45E4600210069 /* SaturatingArithmetic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SaturatingArithmetic.h; sourceTree = "<group>"; };
 		1A1D8B9B173186CE00141DA4 /* FunctionDispatcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FunctionDispatcher.h; sourceTree = "<group>"; };
 		1A1D8B9D1731879800141DA4 /* FunctionDispatcher.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FunctionDispatcher.cpp; sourceTree = "<group>"; };
 		1A233C7C17DAA6E300A93ACF /* MallocPtr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MallocPtr.h; sourceTree = "<group>"; };
@@ -2743,7 +2743,7 @@
 				A1657D3D2CB46E25003579FC /* RuntimeApplicationChecks.h */,
 				46E43647271F10AA00C88C90 /* SafeStrerror.cpp */,
 				46E43646271F10AA00C88C90 /* SafeStrerror.h */,
-				14F3B0F615E45E4600210069 /* SaturatedArithmetic.h */,
+				14F3B0F615E45E4600210069 /* SaturatingArithmetic.h */,
 				1469419416EAAFF80024E146 /* SchedulePair.h */,
 				1A3524AA1D63A2FF0031729B /* Scope.h */,
 				0FEC84B01BDACD390080FF74 /* ScopedLambda.h */,
@@ -3915,7 +3915,7 @@
 				DDF3072227C086CC006A526F /* RuntimeApplicationChecksCocoa.h in Headers */,
 				DD3DC86327A4BF8E007E5B61 /* SafeStrerror.h in Headers */,
 				DDF306E527C08654006A526F /* SandboxSPI.h in Headers */,
-				DD3DC92827A4BF8E007E5B61 /* SaturatedArithmetic.h in Headers */,
+				DD3DC92827A4BF8E007E5B61 /* SaturatingArithmetic.h in Headers */,
 				DD3DC91527A4BF8E007E5B61 /* SchedulePair.h in Headers */,
 				DD3DC87527A4BF8E007E5B61 /* Scope.h in Headers */,
 				DD3DC8CB27A4BF8E007E5B61 /* ScopedLambda.h in Headers */,

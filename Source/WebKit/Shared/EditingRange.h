@@ -30,7 +30,7 @@
 #include <optional>
 #include <wtf/NotFound.h>
 #include <wtf/RefPtr.h>
-#include <wtf/SaturatedArithmetic.h>
+#include <wtf/SaturatingArithmetic.h>
 
 namespace WebCore {
 class LocalFrame;
@@ -77,9 +77,9 @@ struct EditingRange {
     // of the inputs. This is sent back to the UIProcess as the "actual range".
     static EditingRange clampedFirstLineRange(EditingRange firstLineRange, const EditingRange& requestedRange)
     {
-        auto requestedEnd = saturatedSum<uint64_t>(requestedRange.location, requestedRange.length);
+        auto requestedEnd = saturatingSum<uint64_t>(requestedRange.location, requestedRange.length);
         auto location = std::clamp(firstLineRange.location, requestedRange.location, requestedEnd);
-        auto firstLineEnd = saturatedSum<uint64_t>(location, firstLineRange.length);
+        auto firstLineEnd = saturatingSum<uint64_t>(location, firstLineRange.length);
         return EditingRange(location, std::min(firstLineEnd, requestedEnd) - location);
     }
 
