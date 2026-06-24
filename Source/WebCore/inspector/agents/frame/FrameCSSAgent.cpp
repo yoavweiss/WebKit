@@ -50,6 +50,7 @@
 #include "HTMLHeadElement.h"
 #include "HTMLStyleElement.h"
 #include "InspectorDOMAgent.h"
+#include "InspectorHistory.h"
 #include "InspectorIdentifierRegistry.h"
 #include "InstrumentingAgents.h"
 #include "LocalFrame.h"
@@ -390,22 +391,81 @@ Inspector::CommandResult<void> FrameCSSAgent::setStyleSheetText(const Inspector:
     return { };
 }
 
-Inspector::CommandResult<Ref<Inspector::Protocol::CSS::CSSStyle>> FrameCSSAgent::setStyleText(Ref<JSON::Object>&&, const String&)
+Inspector::CommandResult<Ref<Inspector::Protocol::CSS::CSSStyle>> FrameCSSAgent::setStyleText(Ref<JSON::Object>&& styleId, const String& text)
 {
-    // FIXME: <https://webkit.org/b/316843>: Implement style/rule editing CSS commands for frame targets.
-    return makeUnexpected("Not supported on frame targets"_s);
+    Inspector::Protocol::ErrorString errorString;
+
+    InspectorCSSId compoundId { styleId };
+    ASSERT(!compoundId.isEmpty());
+
+    RefPtr inspectorStyleSheet = assertStyleSheetForId(errorString, compoundId.styleSheetId());
+    if (!inspectorStyleSheet)
+        return makeUnexpected(errorString);
+
+    Ref agents = m_instrumentingAgents.get();
+    CheckedPtr domAgent = agents->persistentFrameDOMAgent();
+    if (!domAgent)
+        return makeUnexpected("DOM domain must be enabled"_s);
+
+    auto performResult = domAgent->history()->perform(makeUnique<SetStyleTextAction>(inspectorStyleSheet.get(), compoundId, text));
+    if (performResult.hasException())
+        return makeUnexpected(InspectorDOMAgent::toErrorString(performResult.releaseException()));
+
+    return inspectorStyleSheet->buildObjectForStyle(protect(inspectorStyleSheet->styleForId(compoundId)));
 }
 
-Inspector::CommandResult<Ref<Inspector::Protocol::CSS::CSSRule>> FrameCSSAgent::setRuleSelector(Ref<JSON::Object>&&, const String&)
+Inspector::CommandResult<Ref<Inspector::Protocol::CSS::CSSRule>> FrameCSSAgent::setRuleSelector(Ref<JSON::Object>&& ruleId, const String& selector)
 {
-    // FIXME: <https://webkit.org/b/316843>: Implement style/rule editing CSS commands for frame targets.
-    return makeUnexpected("Not supported on frame targets"_s);
+    Inspector::Protocol::ErrorString errorString;
+
+    InspectorCSSId compoundId { ruleId };
+    ASSERT(!compoundId.isEmpty());
+
+    RefPtr inspectorStyleSheet = assertStyleSheetForId(errorString, compoundId.styleSheetId());
+    if (!inspectorStyleSheet)
+        return makeUnexpected(errorString);
+
+    Ref agents = m_instrumentingAgents.get();
+    CheckedPtr domAgent = agents->persistentFrameDOMAgent();
+    if (!domAgent)
+        return makeUnexpected("DOM domain must be enabled"_s);
+
+    auto performResult = domAgent->history()->perform(makeUnique<SetRuleHeaderTextAction>(inspectorStyleSheet.get(), compoundId, selector));
+    if (performResult.hasException())
+        return makeUnexpected(InspectorDOMAgent::toErrorString(performResult.releaseException()));
+
+    auto rule = inspectorStyleSheet->buildObjectForRule(protect(dynamicDowncast<CSSStyleRule>(inspectorStyleSheet->ruleForId(compoundId))));
+    if (!rule)
+        return makeUnexpected("Internal error: missing style sheet"_s);
+
+    return rule.releaseNonNull();
 }
 
-Inspector::CommandResult<Ref<Inspector::Protocol::CSS::Grouping>> FrameCSSAgent::setGroupingHeaderText(Ref<JSON::Object>&&, const String&)
+Inspector::CommandResult<Ref<Inspector::Protocol::CSS::Grouping>> FrameCSSAgent::setGroupingHeaderText(Ref<JSON::Object>&& ruleId, const String& headerText)
 {
-    // FIXME: <https://webkit.org/b/316843>: Implement style/rule editing CSS commands for frame targets.
-    return makeUnexpected("Not supported on frame targets"_s);
+    Inspector::Protocol::ErrorString errorString;
+
+    InspectorCSSId compoundId { WTF::move(ruleId) };
+    ASSERT(!compoundId.isEmpty());
+
+    RefPtr inspectorStyleSheet = assertStyleSheetForId(errorString, compoundId.styleSheetId());
+    if (!inspectorStyleSheet)
+        return makeUnexpected(errorString);
+
+    Ref agents = m_instrumentingAgents.get();
+    CheckedPtr domAgent = agents->persistentFrameDOMAgent();
+    if (!domAgent)
+        return makeUnexpected("DOM domain must be enabled"_s);
+
+    auto performResult = domAgent->history()->perform(makeUnique<SetRuleHeaderTextAction>(inspectorStyleSheet.get(), compoundId, headerText));
+    if (performResult.hasException())
+        return makeUnexpected(InspectorDOMAgent::toErrorString(performResult.releaseException()));
+
+    if (auto rule = inspectorStyleSheet->buildObjectForGrouping(protect(inspectorStyleSheet->ruleForId(compoundId))))
+        return rule.releaseNonNull();
+
+    ASSERT_NOT_REACHED();
+    return makeUnexpected("Internal error: missing grouping payload"_s);
 }
 
 Inspector::CommandResult<Inspector::Protocol::CSS::StyleSheetId> FrameCSSAgent::createStyleSheet(const Inspector::Protocol::Network::FrameId&)
@@ -421,10 +481,32 @@ Inspector::CommandResult<Inspector::Protocol::CSS::StyleSheetId> FrameCSSAgent::
     return inspectorStyleSheet->id();
 }
 
-Inspector::CommandResult<Ref<Inspector::Protocol::CSS::CSSRule>> FrameCSSAgent::addRule(const Inspector::Protocol::CSS::StyleSheetId&, const String&)
+Inspector::CommandResult<Ref<Inspector::Protocol::CSS::CSSRule>> FrameCSSAgent::addRule(const Inspector::Protocol::CSS::StyleSheetId& styleSheetId, const String& selector)
 {
-    // FIXME: <https://webkit.org/b/316843>: Implement style/rule editing CSS commands for frame targets.
-    return makeUnexpected("Not supported on frame targets"_s);
+    Inspector::Protocol::ErrorString errorString;
+
+    RefPtr inspectorStyleSheet = assertStyleSheetForId(errorString, styleSheetId);
+    if (!inspectorStyleSheet)
+        return makeUnexpected(errorString);
+
+    Ref agents = m_instrumentingAgents.get();
+    CheckedPtr domAgent = agents->persistentFrameDOMAgent();
+    if (!domAgent)
+        return makeUnexpected("DOM domain must be enabled"_s);
+
+    auto action = makeUnique<AddRuleAction>(inspectorStyleSheet.get(), selector);
+    auto& rawAction = *action;
+    auto performResult = domAgent->history()->perform(WTF::move(action));
+    if (performResult.hasException())
+        return makeUnexpected(InspectorDOMAgent::toErrorString(performResult.releaseException()));
+
+    // FIXME <https://webkit.org/b/317684>: Reconsider whether accessing rawAction.newRuleId here is safe.
+    RefPtr styleRule = dynamicDowncast<CSSStyleRule>(inspectorStyleSheet->ruleForId(rawAction.newRuleId()));
+    auto rule = inspectorStyleSheet->buildObjectForRule(styleRule);
+    if (!rule)
+        return makeUnexpected("Internal error: missing style sheet"_s);
+
+    return rule.releaseNonNull();
 }
 
 Inspector::CommandResult<Ref<JSON::ArrayOf<Inspector::Protocol::CSS::CSSPropertyInfo>>> FrameCSSAgent::getSupportedCSSProperties()

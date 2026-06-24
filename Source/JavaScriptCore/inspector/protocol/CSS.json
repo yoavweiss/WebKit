@@ -413,7 +413,7 @@
         {
             "name": "setRuleSelector",
             "description": "Modifies the rule selector.",
-            "targetTypes": ["page"],
+            "targetTypes": ["frame", "page"],
             "parameters": [
                 { "name": "ruleId", "$ref": "CSSRuleId" },
                 { "name": "selector", "type": "string" }
@@ -425,7 +425,7 @@
         {
             "name": "setGroupingHeaderText",
             "description": "Modifies an @rule grouping's header text.",
-            "targetTypes": ["page"],
+            "targetTypes": ["frame", "page"],
             "parameters": [
                 { "name": "ruleId", "$ref": "CSSRuleId" },
                 { "name": "headerText", "type": "string" }
@@ -448,7 +448,7 @@
         {
             "name": "addRule",
             "description": "Creates a new empty rule with the given <code>selector</code> in a stylesheet with given <code>styleSheetId</code>.",
-            "targetTypes": ["page"],
+            "targetTypes": ["frame", "page"],
             "parameters": [
                 { "name": "styleSheetId", "$ref": "StyleSheetId" },
                 { "name": "selector", "type": "string" }
