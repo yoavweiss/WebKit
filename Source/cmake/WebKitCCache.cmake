@@ -23,6 +23,11 @@ export CCACHE_BASEDIR='${CMAKE_SOURCE_DIR}'
 export CCACHE_NOHASHDIR=true
 export CCACHE_PCH_EXTSUM=true
 export CCACHE_SLOPPINESS='pch_defines,time_macros,include_file_mtime,include_file_ctime'
+for arg; do
+    if [ \"$arg\" = \"-emit-pch\" ]; then
+        exec \"$@\"
+    fi
+done
 exec '${CCACHE_FOUND}' \"$@\"
 ")
             file(CHMOD "${_ccache_launcher}" PERMISSIONS
