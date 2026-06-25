@@ -54,9 +54,13 @@ struct BrowserView: View {
 }
 
 #Preview {
-    @Previewable @State var viewModel = BrowserViewModel()
+    @Previewable
+    @State
+    var viewModel = BrowserViewModel()
 
-    @Previewable @State var url: URL? = nil
+    @Previewable
+    @State
+    var url: URL? = nil
 
     let request = {
         let url = URL(string: "https://www.apple.com")!
