@@ -163,6 +163,7 @@ protected:
     static void openDirectoryCacheInvalidated(SandboxExtension::Handle&&);
 #endif
 
+    void grantAccessToContainerTempDirectory(const SandboxExtension::Handle&);
     void populateMobileGestaltCache(std::optional<SandboxExtension::Handle>&& mobileGestaltExtensionHandle);
 
 #if HAVE(AUDIO_COMPONENT_SERVER_REGISTRATIONS)
