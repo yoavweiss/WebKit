@@ -3789,12 +3789,11 @@
    },
    {
       "emails" : [
-         "ian.grunert@gmail.com",
-         "ian@andromeda.net"
+         "ian.grunert@gmail.com"
       ],
       "github" : "iangrunert",
       "name" : "Ian Grunert",
-      "status" : "committer"
+      "status" : "reviewer"
    },
    {
       "emails" : [
