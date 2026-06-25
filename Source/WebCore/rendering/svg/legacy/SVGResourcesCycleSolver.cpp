@@ -57,8 +57,8 @@ bool SVGResourcesCycleSolver::resourceContainsCycles(LegacyRenderSVGResourceCont
                 SingleThreadWeakHashSet<LegacyRenderSVGResourceContainer> resourceSet;
                 resources->buildSetOfResources(resourceSet);
 
-                for (auto& resource : resourceSet) {
-                    if (activeResources.contains(resource) || resourceContainsCycles(resource, activeResources, acyclicResources))
+                for (auto& childResource : resourceSet) {
+                    if (activeResources.contains(childResource) || resourceContainsCycles(childResource, activeResources, acyclicResources))
                         return true;
                 }
             }
