@@ -31,6 +31,7 @@
 #include "Logging.h"
 #include "MediaDeviceRoute.h"
 #include "MediaPlaybackTargetWirelessPlayback.h"
+#include "MediaSelectionOption.h"
 #include <pal/avfoundation/MediaTimeAVFoundation.h>
 #include <wtf/BlockPtr.h>
 #include <wtf/TZoneMallocInlines.h>

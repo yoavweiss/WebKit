@@ -28,6 +28,7 @@
 
 #if ENABLE(WIRELESS_PLAYBACK_MEDIA_PLAYER)
 
+#import "MediaSelectionOption.h"
 #import <AVKit/AVKit.h>
 #import <pal/avfoundation/MediaTimeAVFoundation.h>
 #import <wtf/darwin/DispatchExtras.h>
@@ -282,9 +283,9 @@ static Vector<MediaSelectionOption> convert(NSArray * _Nullable options)
     return Vector<MediaSelectionOption>(options.count, [&](size_t i) {
         id option = options[i];
         return MediaSelectionOption {
+            MediaSelectionOption::MediaType::Audio,
             [option displayName],
-            [option identifier],
-            MediaSelectionOption::Type::Audio,
+            MediaSelectionOption::LegibleType::Regular,
             [option extendedLanguageTag],
         };
     });

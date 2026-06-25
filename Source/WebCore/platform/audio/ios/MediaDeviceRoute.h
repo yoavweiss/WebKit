@@ -81,19 +81,8 @@ struct MediaPlaybackSourceError {
     const String localizedDescription;
 };
 
-struct MediaSelectionOption {
-    enum class Type : uint8_t {
-        Audio,
-        Legible,
-    };
-
-    const String displayName;
-    const String identifier;
-    const Type type;
-    const String extendedLanguageTag;
-};
-
 class MediaDeviceRoute;
+struct MediaSelectionOption;
 
 class MediaDeviceRouteClient : public AbstractRefCountedAndCanMakeWeakPtr<MediaDeviceRouteClient> {
 public:
