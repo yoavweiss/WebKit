@@ -2029,6 +2029,7 @@ TEST(IPCSerialization, DDScannerResultPlist)
 
 @interface NSURLCredential (WKSecureCodingForTesting)
 - (instancetype)_initWithWebKitPropertyListData:(NSDictionary *)plist;
+- (NSDictionary *)_webKitPropertyListData;
 @end
 
 TEST(IPCSerialization, NSURLCredentialKerberosFlags)
@@ -2059,6 +2060,20 @@ TEST(IPCSerialization, NSURLCredentialAttributes)
     auto decoder = IPC::Decoder::create(encoder.span(), encoder.releaseAttachments());
     auto decoded = decoder->decode<WebKit::CoreIPCNSURLCredentialData>();
     EXPECT_EQ(decoded->attributes->size(), 1u);
+}
+
+TEST(IPCSerialization, NSURLCredentialAttributesToID)
+{
+    using Attributes = WebKit::CoreIPCNSURLCredentialData::Attributes;
+
+    WebKit::CoreIPCNSURLCredentialData credentialData;
+    credentialData.type = WebKit::CoreIPCNSURLCredentialType::Password;
+    credentialData.attributes = Vector<Attributes> { { WebKit::CoreIPCString(@"key"), WebKit::CoreIPCString(@"value") } };
+
+    WebKit::CoreIPCNSURLCredential wrapper(WTF::move(credentialData));
+    RetainPtr reconstructed = dynamic_objc_cast<NSURLCredential>(wrapper.toID().get());
+    RetainPtr attributes = dynamic_objc_cast<NSDictionary>([[reconstructed _webKitPropertyListData] objectForKey:@"attributes"]);
+    EXPECT_TRUE([[attributes objectForKey:@"key"] isEqual:@"value"]);
 }
 
 #endif // HAVE(WK_SECURE_CODING_NSURLCREDENTIAL)

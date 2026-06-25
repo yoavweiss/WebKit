@@ -217,7 +217,7 @@ RetainPtr<id> CoreIPCNSURLCredential::toID() const
                         value = d.toID();
                     }
                 );
-                [attributes setObject:attributes.get() forKey:attributePair.first.toID().get()];
+                [attributes setObject:value.get() forKey:attributePair.first.toID().get()];
             }
             [dict setObject:attributes.get() forKey:@"attributes"];
         }
