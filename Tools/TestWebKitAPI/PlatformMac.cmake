@@ -193,6 +193,7 @@ list(APPEND TestIPC_SOURCES
     Tests/IPC/TransferStringObjCTests.mm
 
     ${_ipc_core_sources}
+    ${WEBKIT_DIR}/Platform/EditingRangeClamping.cpp
     ${WEBKIT_DIR}/Platform/Logging.cpp
     ${WEBKIT_DIR}/Platform/mac/MachUtilities.cpp
     ${WebKit_DERIVED_SOURCES_DIR}/MessageNames.cpp

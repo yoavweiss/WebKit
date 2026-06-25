@@ -45,8 +45,10 @@ WEBKIT_INCLUDE_CONFIG_FILES_IF_EXISTS()
 WEBKIT_FRAMEWORK(WebKitLegacy)
 set_target_properties(WebKitLegacy PROPERTIES LINKER_LANGUAGE CXX)
 
+# No PRUNE_STALE: on Mac this destination is co-owned by PlatformMac.cmake's
+# file(WRITE) forwarding-header loop, and WebKitLegacy_PUBLIC_FRAMEWORK_HEADERS
+# is empty there, so pruning wipes the entire staged header set.
 WEBKIT_COPY_FILES(WebKitLegacy_CopyHeaders
-    PRUNE_STALE
     DESTINATION ${WebKitLegacy_FRAMEWORK_HEADERS_DIR}/WebKitLegacy
     FILES ${WebKitLegacy_PUBLIC_FRAMEWORK_HEADERS}
     FLATTENED
