@@ -42,7 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
 NSErrorDomain const WebMockMediaDeviceRouteErrorDomain = @"WebMockMediaDeviceRouteErrorDomain";
 
 @interface WebMockMediaDeviceRoute ()
-@property (nonatomic, strong, nullable) AVPlaybackUserInterfacePlaybackPosition *playbackPosition;
+@property (nonatomic, copy) AVPlaybackUserInterfacePlaybackPosition *playbackPosition;
 @end
 
 @implementation WebMockMediaDeviceRoute {
