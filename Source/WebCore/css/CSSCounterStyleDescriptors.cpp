@@ -418,8 +418,16 @@ String CSSCounterStyleDescriptors::systemCSSText() const
 {
     if (!m_explicitlySetDescriptors.contains(ExplicitlySetDescriptors::System))
         return emptyString();
+
+    auto serializeExtendsName = [](const auto& extendsName) {
+        StringBuilder builder;
+        builder.append("extends "_s);
+        serializeIdentifier(builder, extendsName);
+        return builder.toString();
+    };
+
     if (m_isExtendedResolved)
-        return makeString("extends "_s, m_extendsName);
+        return serializeExtendsName(m_extendsName);
 
     switch (m_system) {
     case System::Cyclic:
@@ -435,7 +443,7 @@ String CSSCounterStyleDescriptors::systemCSSText() const
     case System::Fixed:
         return makeString("fixed "_s, m_fixedSystemFirstSymbolValue);
     case System::Extends:
-        return makeString("extends "_s, m_extendsName);
+        return serializeExtendsName(m_extendsName);
     // Internal values should not be exposed.
     case System::SimplifiedChineseInformal:
     case System::SimplifiedChineseFormal:
@@ -511,7 +519,10 @@ String CSSCounterStyleDescriptors::fallbackCSSText() const
 {
     if (!m_explicitlySetDescriptors.contains(ExplicitlySetDescriptors::Fallback))
         return emptyString();
-    return makeString(m_fallbackName);
+
+    StringBuilder builder;
+    serializeIdentifier(builder, m_fallbackName);
+    return builder.toString();
 }
 
 String CSSCounterStyleDescriptors::symbolsCSSText() const

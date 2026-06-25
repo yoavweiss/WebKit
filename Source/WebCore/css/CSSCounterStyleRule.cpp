@@ -28,6 +28,7 @@
 
 #include "CSSCounterStyleDescriptors.h"
 #include "CSSKeywordValue.h"
+#include "CSSMarkup.h"
 #include "CSSPropertyParser.h"
 #include "CSSPropertyParserConsumer+CounterStyles.h"
 #include "CSSStyleSheet.h"
@@ -160,7 +161,12 @@ String CSSCounterStyleRule::cssText() const
     const auto speakAsPrefix = speakAsText.isEmpty() ? ""_s : " speak-as: "_s;
     const auto speakAsSuffix = speakAsText.isEmpty() ? ""_s : ";"_s;
 
-    return makeString("@counter-style "_s, name(), " {"_s,
+    StringBuilder builder;
+
+    builder.append("@counter-style "_s);
+    serializeIdentifier(builder, name());
+
+    builder.append(" {"_s,
         systemPrefix, systemText, systemSuffix,
         symbolsPrefix, symbolsText, symbolsSuffix,
         additiveSymbolsPrefix, additiveSymbolsText, additiveSymbolsSuffix,
@@ -172,6 +178,8 @@ String CSSCounterStyleRule::cssText() const
         fallbackPrefix, fallbackText, fallbackSuffix,
         speakAsPrefix, speakAsText, speakAsSuffix,
     " }"_s);
+
+    return builder.toString();
 }
 
 void CSSCounterStyleRule::reattach(StyleRuleBase& rule)
