@@ -36,9 +36,11 @@
 #import "CoreIPCString.h"
 #import "CoreIPCURL.h"
 
+#import <wtf/HashMap.h>
 #import <wtf/RetainPtr.h>
 #import <wtf/TZoneMalloc.h>
 #import <wtf/Vector.h>
+#import <wtf/text/WTFString.h>
 
 OBJC_CLASS NSURLRequest;
 
@@ -116,6 +118,9 @@ struct ProtocolProperties {
     std::optional<CoreIPCNumber> maximumRequestCount;
     std::optional<bool> apProxyIsRecursive;
     std::optional<APProxyRequestType> requestType;
+
+    using AppPropertyValue = Variant<bool, CoreIPCNumber, CoreIPCString, CoreIPCData>;
+    HashMap<String, AppPropertyValue> appProperties;
 };
 
 struct CoreIPCNSURLRequestData {

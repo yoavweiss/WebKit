@@ -95,6 +95,7 @@ header: "CoreIPCNSURLRequest.h"
 
 using WebKit::CoreIPCNSURLRequestData::BodyParts = Variant<WebKit::CoreIPCString, WebKit::CoreIPCData>;
 using WebKit::CoreIPCNSURLRequestData::HeaderField = std::pair<String, Variant<String, Vector<String>>>;
+using WebKit::ProtocolProperties::AppPropertyValue = Variant<bool, WebKit::CoreIPCNumber, WebKit::CoreIPCString, WebKit::CoreIPCData>;
 
 header: "CoreIPCNSURLRequest.h"
 [CustomHeader, WebKitPlatform] enum class WebKit::APProxyRequestType : uint8_t {
@@ -116,6 +117,7 @@ header: "CoreIPCNSURLRequest.h"
     std::optional<WebKit::CoreIPCNumber> maximumRequestCount;
     std::optional<bool> apProxyIsRecursive;
     std::optional<WebKit::APProxyRequestType> requestType;
+    HashMap<String, WebKit::ProtocolProperties::AppPropertyValue> appProperties;
 }
 
 header: "CoreIPCNSURLRequest.h"

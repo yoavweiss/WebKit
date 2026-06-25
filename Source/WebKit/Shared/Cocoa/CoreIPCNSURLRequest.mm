@@ -27,6 +27,7 @@
 #import "CoreIPCNSURLRequest.h"
 
 #import "GeneratedSerializers.h"
+#import "Logging.h"
 #import <WebCore/ResourceLoadPriority.h>
 #import <wtf/TZoneMallocInlines.h>
 #import <wtf/cocoa/VectorCocoa.h>
@@ -85,6 +86,99 @@ namespace WebKit {
 
 WTF_MAKE_TZONE_ALLOCATED_IMPL(CoreIPCNSURLRequest);
 
+
+// [NSURLProtocol setProperty:forKey:inRequest] allows tagging a request with app-provided
+// data that can be used to track specific requests across time
+//
+// The mechanism is meant for stashing small bits of metadata, not large or complicated blobs.
+// So we restrict the size of keys and properties that can be stashed, as well as not allowing
+// collections like dictionaries or arrays.
+//
+// We also don't allow keys with prefixes that are likely (or even guaranteed) to collide
+// with Apple internal keys.
+
+static constexpr size_t maxAppPropertyKeyLength = 256;
+static constexpr size_t maxAppPropertyStringLength = 64 * 1024;
+static constexpr size_t maxAppPropertyDataLength = 64 * 1024;
+
+static bool isReservedProtocolPropertyKeyPrefix(NSString *key)
+{
+    static NSArray<NSString *> *prefixes = @[
+        @"_kCF",
+        @"kCF",
+        @"WK",
+        @"NS",
+        @"com.apple.",
+    ];
+    for (NSString *prefix in prefixes) {
+        if ([key hasPrefix:prefix])
+            return true;
+    }
+    return false;
+}
+
+static bool isTypedAllowlistKey(NSString *key)
+{
+    static NSSet<NSString *> *allowlist = [[NSSet alloc] initWithArray:@[
+        @"_kCFHTTPCookiePolicyPropertyIsTopLevelNavigation",
+        @"kCFURLRequestAllowAllPOSTCaching",
+        @"_kCFHTTPCookiePolicyPropertySiteForCookies",
+        @"_kCFURLCachePartitionKey",
+        @"WKVeryLowLoadPriority",
+        @"NSURLRequestFileProtocolExpectedDevice",
+        @"_kCFURLConnectionPropertyShouldSniff",
+        @"kCFURLRequestContentDecoderSkipURLCheck",
+        @"adIdentifier",
+        @"maximumRequestCount",
+        @"com.apple.ap.pc.proxy-is-recursive",
+        @"requestType",
+    ]];
+    return [allowlist containsObject:key];
+}
+
+static void populateAppProperties(NSDictionary *protocolPropertiesDict, ProtocolProperties& props)
+{
+    for (id rawKey in protocolPropertiesDict) {
+        RetainPtr key = dynamic_objc_cast<NSString>(rawKey);
+        if (!key)
+            continue;
+
+        if (isReservedProtocolPropertyKeyPrefix(key.get()) || isTypedAllowlistKey(key.get())) {
+            RELEASE_LOG_ERROR(API, "NSURLRequest property key '%@' not allowed. Skipping this property.", key.get());
+            continue;
+        }
+
+        if ([key length] > maxAppPropertyKeyLength) {
+            RELEASE_LOG_ERROR(API, "NSURLRequest property key '%@' is longer than the allowable %zu characters. Skipping this property.", key.get(), maxAppPropertyKeyLength);
+            continue;
+        }
+
+        RetainPtr<id> value = [protocolPropertiesDict objectForKey:key.get()];
+        if (RetainPtr number = dynamic_objc_cast<NSNumber>(value.get())) {
+            if (CFGetTypeID((__bridge CFTypeRef)number.get()) == CFBooleanGetTypeID()) {
+                props.appProperties.set(String(key.get()), ProtocolProperties::AppPropertyValue { static_cast<bool>([number boolValue]) });
+                continue;
+            }
+            props.appProperties.set(String(key.get()), ProtocolProperties::AppPropertyValue { CoreIPCNumber(number.get()) });
+            continue;
+        }
+        if (RetainPtr string = dynamic_objc_cast<NSString>(value.get())) {
+            if ([string length] > maxAppPropertyStringLength)
+                continue;
+            props.appProperties.set(String(key.get()), ProtocolProperties::AppPropertyValue { CoreIPCString(string.get()) });
+            continue;
+        }
+        if (RetainPtr data = dynamic_objc_cast<NSData>(value.get())) {
+            if ([data length] > maxAppPropertyDataLength)
+                continue;
+            props.appProperties.set(String(key.get()), ProtocolProperties::AppPropertyValue { CoreIPCData(data.get()) });
+            continue;
+        }
+
+        RELEASE_LOG_ERROR(API, "NSURLRequest property value of type '%@' is not allowed. Skipping this property.", NSStringFromClass([value class]));
+    }
+}
+
 CoreIPCNSURLRequest::CoreIPCNSURLRequest(NSURLRequest *request)
 {
     RetainPtr dict = [request _webKitPropertyListData];
@@ -106,6 +200,8 @@ CoreIPCNSURLRequest::CoreIPCNSURLRequest(NSURLRequest *request)
             if (auto integerValue = [value integerValue]; isValidEnum<APProxyRequestType>(integerValue))
                 props.requestType = static_cast<APProxyRequestType>(integerValue);
         }
+
+        populateAppProperties(protocolPropertiesDict.get(), props);
 
         m_data.protocolProperties = WTF::move(props);
     }
@@ -276,6 +372,25 @@ RetainPtr<id> CoreIPCNSURLRequest::toID() const
         SET_PROTOCOL_DICT_BOOL(protocolPropertiesDict, @"com.apple.ap.pc.proxy-is-recursive", m_data.protocolProperties->apProxyIsRecursive);
         if (m_data.protocolProperties->requestType)
             [protocolPropertiesDict setObject:[NSNumber numberWithInteger:static_cast<NSInteger>(*m_data.protocolProperties->requestType)] forKey:@"requestType"];
+
+        for (auto& entry : m_data.protocolProperties->appProperties) {
+            RetainPtr key = entry.key.createNSString();
+            if (!key)
+                continue;
+
+            // Prevent re-materialzing any key that might conflict with an Apple internal key.
+            if (isTypedAllowlistKey(key.get()) || isReservedProtocolPropertyKeyPrefix(key.get()))
+                continue;
+
+            RetainPtr<id> value = WTF::switchOn(entry.value,
+                [] (bool b) -> RetainPtr<id> { return [NSNumber numberWithBool:b]; },
+                [] (const CoreIPCNumber& n) -> RetainPtr<id> { return n.toID(); },
+                [] (const CoreIPCString& s) -> RetainPtr<id> { return s.toID(); },
+                [] (const CoreIPCData& d) -> RetainPtr<id> { return d.toID(); }
+            );
+            if (value)
+                [protocolPropertiesDict setObject:value.get() forKey:key.get()];
+        }
 
         [dict setObject:protocolPropertiesDict.get() forKey:@"protocolProperties"];
     }

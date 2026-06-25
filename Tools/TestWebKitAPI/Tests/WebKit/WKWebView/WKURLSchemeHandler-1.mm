@@ -242,6 +242,40 @@ TEST(URLSchemeHandler, BasicWithAsyncPolicyDelegate)
     EXPECT_EQ([handler.get().stoppedURLs count], 0u);
 }
 
+TEST(URLSchemeHandler, RequestProtocolPropertyPreserved)
+{
+    RetainPtr<WKWebViewConfiguration> configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
+    RetainPtr<TestURLSchemeHandler> handler = adoptNS([[TestURLSchemeHandler alloc] init]);
+    [configuration setURLSchemeHandler:handler.get() forURLScheme:@"testing"];
+
+    // Well past the 256-byte key cap enforced in CoreIPCNSURLRequest's app-property bucket;
+    // this entry must be dropped on the wire even though the short-key entry survives.
+    NSString *overlongKey = [@"com.example.padded." stringByPaddingToLength:300 withString:@"x" startingAtIndex:0];
+
+    __block bool received = false;
+    __block RetainPtr<id> shortKeyValue;
+    __block RetainPtr<id> overlongKeyValue;
+    handler.get().startURLSchemeTaskHandler = ^(WKWebView *, id<WKURLSchemeTask> task) {
+        shortKeyValue = [NSURLProtocol propertyForKey:@"com.example.appName" inRequest:task.request];
+        overlongKeyValue = [NSURLProtocol propertyForKey:overlongKey inRequest:task.request];
+        respond(task, "<html></html>");
+        received = true;
+    };
+
+    RetainPtr<WKWebView> webView = adoptNS([[WKWebView alloc] initWithFrame:NSMakeRect(0, 0, 800, 600) configuration:configuration.get()]);
+
+    RetainPtr<NSMutableURLRequest> request = adoptNS([[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:@"testing:main"]]);
+    [NSURLProtocol setProperty:@"hello-roundtrip" forKey:@"com.example.appName" inRequest:request.get()];
+    [NSURLProtocol setProperty:@"should-be-dropped" forKey:overlongKey inRequest:request.get()];
+
+    [webView loadRequest:request.get()];
+    TestWebKitAPI::Util::run(&received);
+
+    EXPECT_TRUE([shortKeyValue.get() isKindOfClass:[NSString class]]);
+    EXPECT_TRUE([(NSString *)shortKeyValue.get() isEqualToString:@"hello-roundtrip"]);
+    EXPECT_NULL(overlongKeyValue.get());
+}
+
 TEST(URLSchemeHandler, NoMIMEType)
 {
     // Since there's no MIMEType, and no NavigationDelegate to tell WebKit to do the load anyways, WebKit will ignore (silently fail) the load.

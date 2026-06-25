@@ -97,6 +97,8 @@
 [Legacy] AliasParam FileSystem::Salt std::array<uint8_t, 8>
 [Legacy] AliasParam WebCore::GraphicsContextGL::ExternalSyncSource std::tuple<MachSendRight, uint64_t>
 [Legacy] AliasParam WebKit::CoreIPCNSURLRequestData::BodyParts Variant<WebKit::CoreIPCString, WebKit::CoreIPCData>
+[NeedsReview] AliasParam WebKit::ProtocolProperties::AppPropertyValue Variant<bool, WebKit::CoreIPCNumber, WebKit::CoreIPCString, WebKit::CoreIPCData>
+[NeedsReview] StructureParam WebKit::ProtocolProperties.appProperties HashMap<String, WebKit::ProtocolProperties::AppPropertyValue>
 [Legacy] AliasParam WebKit::CoreIPCSecTrustData::ExceptionType Vector<std::pair<WebKit::CoreIPCString, Variant<WebKit::CoreIPCNumber, WebKit::CoreIPCData, bool>>>
 [NeedsReview] AliasParam WebKit::CoreIPCSecTrustData::RevocationInfoSubDictValue Variant<WebKit::CoreIPCNumber, WebKit::CoreIPCData, WebKit::CoreIPCDate, bool>
 [NeedsReview] AliasParam WebKit::CoreIPCSecTrustData::RevocationInfoSubDict Vector<std::pair<WebKit::CoreIPCString, WebKit::CoreIPCSecTrustData::RevocationInfoSubDictValue>>

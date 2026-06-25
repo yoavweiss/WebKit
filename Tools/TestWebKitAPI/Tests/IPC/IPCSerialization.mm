@@ -1850,6 +1850,58 @@ TEST(IPCSerialization, NSURLRequestNSURLProtocolProperties)
     runTestNS({ request.get() });
 }
 
+TEST(IPCSerialization, NSURLRequestArbitraryAppProperties)
+{
+    // App-supplied properties via NSURLProtocol +setProperty:forKey:inRequest: that are
+    // not in the typed allowlist must still round-trip through IPC, but only when they
+    // are plist-primitive values (NSNumber/NSString/NSData) and the key is not in a
+    // reserved CFNetwork/Foundation/WebKit/Apple namespace.
+
+    RetainPtr request = adoptNS([[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:@"https://webkit.org/"]]);
+
+    // Allowed app-supplied entries: number, string, bool (NSNumber), data.
+    [NSURLProtocol setProperty:@"hello" forKey:@"com.example.appName" inRequest:request.get()];
+    [NSURLProtocol setProperty:@42 forKey:@"com.example.requestCount" inRequest:request.get()];
+    [NSURLProtocol setProperty:@YES forKey:@"com.example.featureFlag" inRequest:request.get()];
+    RetainPtr<NSData> blob = [NSData dataWithBytes:"\x01\x02\x03\x04" length:4];
+    [NSURLProtocol setProperty:blob.get() forKey:@"com.example.blob" inRequest:request.get()];
+
+    // Disallowed values: complex container types must be dropped on the wire.
+    [NSURLProtocol setProperty:@{ @"nested": @1 } forKey:@"com.example.dictValue" inRequest:request.get()];
+    [NSURLProtocol setProperty:@[ @"a", @"b" ] forKey:@"com.example.arrayValue" inRequest:request.get()];
+
+    // Disallowed key: reserved-prefix keys an app should not be able to spoof over IPC.
+    [NSURLProtocol setProperty:@"injected" forKey:@"_kCFFutureInternalProperty" inRequest:request.get()];
+    [NSURLProtocol setProperty:@"injected" forKey:@"NSURLRequestFutureInternalProperty" inRequest:request.get()];
+    [NSURLProtocol setProperty:@"injected" forKey:@"com.apple.something-private" inRequest:request.get()];
+
+    WebKit::CoreIPCNSURLRequest wrapper(request.get());
+    RetainPtr reconstructed = dynamic_objc_cast<NSURLRequest>(wrapper.toID().get());
+    EXPECT_TRUE(reconstructed);
+
+    EXPECT_TRUE([[NSURLProtocol propertyForKey:@"com.example.appName" inRequest:reconstructed.get()] isEqualToString:@"hello"]);
+    EXPECT_EQ([[NSURLProtocol propertyForKey:@"com.example.requestCount" inRequest:reconstructed.get()] intValue], 42);
+    EXPECT_TRUE([[NSURLProtocol propertyForKey:@"com.example.featureFlag" inRequest:reconstructed.get()] boolValue]);
+    EXPECT_TRUE([[NSURLProtocol propertyForKey:@"com.example.blob" inRequest:reconstructed.get()] isEqualToData:blob.get()]);
+
+    EXPECT_NULL([NSURLProtocol propertyForKey:@"com.example.dictValue" inRequest:reconstructed.get()]);
+    EXPECT_NULL([NSURLProtocol propertyForKey:@"com.example.arrayValue" inRequest:reconstructed.get()]);
+
+    EXPECT_NULL([NSURLProtocol propertyForKey:@"_kCFFutureInternalProperty" inRequest:reconstructed.get()]);
+    EXPECT_NULL([NSURLProtocol propertyForKey:@"NSURLRequestFutureInternalProperty" inRequest:reconstructed.get()]);
+    EXPECT_NULL([NSURLProtocol propertyForKey:@"com.apple.something-private" inRequest:reconstructed.get()]);
+
+    // Full wire-format round-trip on a request containing only the allowed entries —
+    // runTestNS asserts that the original and the round-tripped request compare equal,
+    // so we cannot include the keys we expect to be stripped above.
+    RetainPtr cleanRequest = adoptNS([[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:@"https://webkit.org/"]]);
+    [NSURLProtocol setProperty:@"hello" forKey:@"com.example.appName" inRequest:cleanRequest.get()];
+    [NSURLProtocol setProperty:@42 forKey:@"com.example.requestCount" inRequest:cleanRequest.get()];
+    [NSURLProtocol setProperty:@YES forKey:@"com.example.featureFlag" inRequest:cleanRequest.get()];
+    [NSURLProtocol setProperty:blob.get() forKey:@"com.example.blob" inRequest:cleanRequest.get()];
+    runTestNS({ cleanRequest.get() });
+}
+
 TEST(IPCSerialization, NSURLRequestAttribution)
 {
     WebKit::CoreIPCNSURLRequestData requestData;
