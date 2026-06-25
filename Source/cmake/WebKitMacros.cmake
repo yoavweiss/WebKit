@@ -1131,12 +1131,13 @@ macro(WEBKIT_SETUP_SWIFT_AND_GENERATE_SWIFT_CPP_INTEROP_HEADER _target _module_n
         # found". -disable-sandbox skips the inner sandbox; the macros are
         # WebKit's own, so the isolation it provides isn't load-bearing here.
         list(APPEND _swift_options "-disable-sandbox")
-        # Implicit module builds share work via -module-cache-path; explicit
-        # builds were tried but strip project -Xcc -include/-I from per-module
-        # PCM compiles, which breaks the C++ interop modules' prefix header.
-        # Targets that need explicit modules (e.g. iOS Swift targets that
-        # transitively load UIKit→UIKitCore→WebKit_Private) can opt in via
+        # Explicit module builds (EMB) pre-build all Clang PCMs once via
+        # libSwiftScan, so each swift-frontend process reuses them rather than
+        # rebuilding from scratch. This is faster when many Swift source files
+        # import the same C++ interop modules. Targets opt in by setting
         # ${_target}_SWIFT_EXPLICIT_MODULE_BUILD before the macro call.
+        # All Apple targets (PAL/WebGPU/WebKit on iOS and Mac) use EMB;
+        # non-Apple builds rely on -module-cache-path for implicit sharing.
         if (${_target}_SWIFT_EXPLICIT_MODULE_BUILD)
             list(APPEND _swift_options "-explicit-module-build")
             # Force experimental clang attributes ON to match cached SwiftShims

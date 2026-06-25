@@ -75,6 +75,11 @@ set(NetworkProcess_INCLUDE_DIRECTORIES ${CMAKE_BINARY_DIR})
 # once ENABLE_BACK_FORWARD_LIST_SWIFT pulls in C++ interop.
 set(WebKit_SWIFT_INTEROP_MODULE_PATH "${WEBKIT_DIR}/Modules/Internal")
 
+# Mac Swift compilation uses explicit module builds so libSwiftScan pre-builds
+# all PCMs (including WebKit_Internal C++ interop) with the project -Xcc flags,
+# avoiding duplicated per-process module compilation. Same rationale as iOS.
+set(WebKit_SWIFT_EXPLICIT_MODULE_BUILD TRUE)
+
 # Xcode does not set SWIFT_TREAT_WARNINGS_AS_ERRORS; override CMake's -warnings-as-errors.
 # Must go in WebKit_COMPILE_OPTIONS (applied after -warnings-as-errors in _WEBKIT_TARGET_SETUP).
 list(APPEND WebKit_COMPILE_OPTIONS "$<$<COMPILE_LANGUAGE:Swift>:-no-warnings-as-errors>")

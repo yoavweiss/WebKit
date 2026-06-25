@@ -251,10 +251,10 @@ if (SWIFT_REQUIRED)
         "$<$<COMPILE_LANGUAGE:Swift>:SHELL:-Xfrontend -disable-access-control>"
     )
 
-    if (CMAKE_SYSTEM_NAME STREQUAL "iOS")
-        # iOS Swift compiles transitively load UIKit→UIKitCore→WebKit_Private,
-        # whose PCM build needs our project -Xcc flags. Explicit modules let
-        # libSwiftScan pre-build PCMs with the right context.
+    if (APPLE)
+        # Swift compiles transitively load system frameworks whose PCM builds
+        # need our project -Xcc flags. Explicit modules let libSwiftScan
+        # pre-build PCMs with the right context.
         set(WebGPU_SWIFT_EXPLICIT_MODULE_BUILD TRUE)
     endif ()
 
