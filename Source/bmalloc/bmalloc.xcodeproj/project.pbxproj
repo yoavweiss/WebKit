@@ -45,6 +45,7 @@
 		143CB81D19022BC900B16A45 /* Mutex.h in Headers */ = {isa = PBXBuildFile; fileRef = 143CB81B19022BC900B16A45 /* Mutex.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		1448C30018F3754600502839 /* mbmalloc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1448C2FF18F3754300502839 /* mbmalloc.cpp */; };
 		1448C30118F3754C00502839 /* bmalloc.h in Headers */ = {isa = PBXBuildFile; fileRef = 1448C2FE18F3754300502839 /* bmalloc.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		F4D2D6A12EFE7B0200A0BB8E /* copy-profiling-data.py in Headers */ = {isa = PBXBuildFile; fileRef = F4D2D6A02EFE7B0100A0BB8E /* copy-profiling-data.py */; settings = {ATTRIBUTES = (Private, ); }; };
 		14895D911A3A319C0006235D /* Environment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 14895D8F1A3A319C0006235D /* Environment.cpp */; };
 		14895D921A3A319C0006235D /* Environment.h in Headers */ = {isa = PBXBuildFile; fileRef = 14895D901A3A319C0006235D /* Environment.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		148EFAE81D6B953B008E721E /* ScopeExit.h in Headers */ = {isa = PBXBuildFile; fileRef = 148EFAE61D6B953B008E721E /* ScopeExit.h */; };
@@ -623,6 +624,20 @@
 			);
 			script = "cp \"${INPUT_FILE_PATH}\" \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 		};
+		F4D2D6A32EFE7B0400A0BB8E /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.proxy.script;
+			filePatterns = "*/Scripts/*";
+			fileType = pattern.proxy;
+			inputFiles = (
+			);
+			isEditable = 1;
+			outputFiles = (
+				"$(HEADER_OUTPUT_DIR)/Scripts/$(INPUT_FILE_NAME)",
+			);
+			runOncePerArchitecture = 0;
+			script = "cp -f \"${INPUT_FILE_PATH}\" \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+		};
 /* End PBXBuildRule section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1148,6 +1163,7 @@
 		143CB81A19022BC900B16A45 /* Mutex.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Mutex.cpp; path = bmalloc/Mutex.cpp; sourceTree = "<group>"; };
 		143CB81B19022BC900B16A45 /* Mutex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Mutex.h; path = bmalloc/Mutex.h; sourceTree = "<group>"; };
 		1448C2FE18F3754300502839 /* bmalloc.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = bmalloc.h; path = bmalloc/bmalloc.h; sourceTree = "<group>"; };
+		F4D2D6A02EFE7B0100A0BB8E /* copy-profiling-data.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = "copy-profiling-data.py"; sourceTree = "<group>"; };
 		1448C2FF18F3754300502839 /* mbmalloc.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = mbmalloc.cpp; path = bmalloc/mbmalloc.cpp; sourceTree = "<group>"; };
 		145F6874179DF84100D65598 /* Sizes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Sizes.h; path = bmalloc/Sizes.h; sourceTree = "<group>"; };
 		1479E21217A1A255006D4E9D /* Vector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = Vector.h; path = bmalloc/Vector.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -1308,14 +1324,6 @@
 				0F8A812325F83E2400790B4A /* bmalloc_heap_ref.h */,
 				BB00000004000000000000BB /* bmalloc_heap_utils.c */,
 				BB00000008000000000000BB /* bmalloc_heap_utils.h */,
-				EF8A812725F83E2500790B4A /* tagged_bmalloc_heap.c */,
-				EF8A812525F83E2400790B4A /* tagged_bmalloc_heap.h */,
-				EF8A811D25F83E2400790B4A /* tagged_bmalloc_heap_config.c */,
-				EF8A812925F83E2500790B4A /* tagged_bmalloc_heap_config.h */,
-				EF8A811B25F83E2300790B4A /* tagged_bmalloc_heap_inlines.h */,
-				EF8A811F25F83E2400790B4A /* tagged_bmalloc_heap_innards.h */,
-				EB00000004000000000000BB /* tagged_bmalloc_heap_utils.c */,
-				EB00000008000000000000BB /* tagged_bmalloc_heap_utils.h */,
 				2C11E8932728DE27002162D0 /* bmalloc_type.c */,
 				2C11E8922728DE27002162D0 /* bmalloc_type.h */,
 				0F8A812025F83E2400790B4A /* hotbit_heap.c */,
@@ -1823,6 +1831,14 @@
 				0FC40AE02451499200876DA0 /* pas_virtual_range_min_heap.h */,
 				0100000B37BABA0A0A991999 /* pas_zero_memory.h */,
 				0FC40AEA2451499300876DA0 /* pas_zero_mode.h */,
+				EF8A812725F83E2500790B4A /* tagged_bmalloc_heap.c */,
+				EF8A812525F83E2400790B4A /* tagged_bmalloc_heap.h */,
+				EF8A811D25F83E2400790B4A /* tagged_bmalloc_heap_config.c */,
+				EF8A812925F83E2500790B4A /* tagged_bmalloc_heap_config.h */,
+				EF8A811B25F83E2300790B4A /* tagged_bmalloc_heap_inlines.h */,
+				EF8A811F25F83E2400790B4A /* tagged_bmalloc_heap_innards.h */,
+				EB00000004000000000000BB /* tagged_bmalloc_heap_utils.c */,
+				EB00000008000000000000BB /* tagged_bmalloc_heap_utils.h */,
 				0F8700CE25B0CB03000E1ABF /* thingy_heap.c */,
 				0F8700CA25B0CB02000E1ABF /* thingy_heap.h */,
 				0F8700CD25B0CB02000E1ABF /* thingy_heap_config.c */,
@@ -1853,8 +1869,17 @@
 				0F7EB7FB1F95416900F1ABCB /* iso */,
 				F3D6990D2E1EFCD0006B54BD /* mar */,
 				145F6840179DC45F00D65598 /* Products */,
+				F4D2D6A22EFE7B0300A0BB8E /* Scripts */,
 				14D9DB4F17F2868900EAAB79 /* stdlib */,
 			);
+			sourceTree = "<group>";
+		};
+		F4D2D6A22EFE7B0300A0BB8E /* Scripts */ = {
+			isa = PBXGroup;
+			children = (
+				F4D2D6A02EFE7B0100A0BB8E /* copy-profiling-data.py */,
+			);
+			path = Scripts;
 			sourceTree = "<group>";
 		};
 		145F6840179DC45F00D65598 /* Products */ = {
@@ -1967,16 +1992,12 @@
 				DD4BED7329CBA49700398E35 /* bmalloc_heap_ref.h in Headers */,
 				BB00000007000000000000BB /* bmalloc_heap_utils.h in Headers */,
 				DD4BEC8C29CBA49700398E35 /* bmalloc_type.h in Headers */,
-				ED4BEC4929CBA49700398E35 /* tagged_bmalloc_heap.h in Headers */,
-				ED4BEDC129CBA49700398E35 /* tagged_bmalloc_heap_config.h in Headers */,
-				ED4BEDAE29CBA49700398E35 /* tagged_bmalloc_heap_inlines.h in Headers */,
-				ED4BEC5A29CBA49700398E35 /* tagged_bmalloc_heap_innards.h in Headers */,
-				EB00000007000000000000BB /* tagged_bmalloc_heap_utils.h in Headers */,
 				0F7EB84D1F9541C700F1ABCB /* BMalloced.h in Headers */,
 				14C919C918FCC59F0028DB43 /* BPlatform.h in Headers */,
 				14DD78CE18F48D7500950702 /* BSyscall.h in Headers */,
 				DE8B13B321CC5D9F00A63FCD /* BVMTags.h in Headers */,
 				3044790B2B992F5500043E8E /* CompactAllocationMode.h in Headers */,
+				F4D2D6A12EFE7B0200A0BB8E /* copy-profiling-data.py in Headers */,
 				0F74B93E1F89713E00B935D3 /* CryptoRandom.h in Headers */,
 				14895D921A3A319C0006235D /* Environment.h in Headers */,
 				FE48BD3B2321E8D700F136D0 /* FailureAction.h in Headers */,
@@ -2353,6 +2374,11 @@
 				14DD789018F48CEB00950702 /* Sizes.h in Headers */,
 				E31E74802238CA5C005D084A /* StaticPerProcess.h in Headers */,
 				142B44371E2839E7001DA6E9 /* SystemHeap.h in Headers */,
+				ED4BEC4929CBA49700398E35 /* tagged_bmalloc_heap.h in Headers */,
+				ED4BEDC129CBA49700398E35 /* tagged_bmalloc_heap_config.h in Headers */,
+				ED4BEDAE29CBA49700398E35 /* tagged_bmalloc_heap_inlines.h in Headers */,
+				ED4BEC5A29CBA49700398E35 /* tagged_bmalloc_heap_innards.h in Headers */,
+				EB00000007000000000000BB /* tagged_bmalloc_heap_utils.h in Headers */,
 				DD4BEDD629CBA49700398E35 /* thingy_heap.h in Headers */,
 				DD4BEDC329CBA49700398E35 /* thingy_heap_config.h in Headers */,
 				DD4BECC529CBA49700398E35 /* thingy_heap_prefix.h in Headers */,
@@ -2394,12 +2420,14 @@
 				304B03472B181ED00063B1B5 /* Product Dependencies */,
 				14F271BC18EA3963008C152F /* Headers */,
 				DDA35E4829CA6FEB006C1018 /* Generate TAPI filelist */,
+				F4D2D69E2EFE7B0000A0BB8E /* Copy Profiling Data */,
 				14F271BA18EA3963008C152F /* Sources */,
 				14F271BB18EA3963008C152F /* Frameworks */,
 				0705994C2EE64A5600BF2459 /* Verify Module */,
 			);
 			buildRules = (
 				DDE748702F7B2876008013AB /* PBXBuildRule */,
+				F4D2D6A32EFE7B0400A0BB8E /* PBXBuildRule */,
 			);
 			dependencies = (
 			);
@@ -2488,6 +2516,32 @@
 			shellPath = /bin/sh;
 			shellScript = "if [ ${DEPLOYMENT_LOCATION} != YES ]; then\n    \"${SCRIPT_INPUT_FILE_0}\" --from=\"${WK_HEADERS_VFS_FILE}\" --install-dir=\"${BUILT_PRODUCTS_DIR}${PRIVATE_HEADERS_FOLDER_PATH}\" > \"${SCRIPT_OUTPUT_FILE_0}\"\nelse\n    \"${SCRIPT_INPUT_FILE_0}\" --from=\"${DSTROOT}${PRIVATE_HEADERS_FOLDER_PATH}\" --install-dir=\"<SDKROOT>${PRIVATE_HEADERS_FOLDER_PATH}\" > \"${SCRIPT_OUTPUT_FILE_1}\" \nfi\n";
 		};
+		F4D2D69E2EFE7B0000A0BB8E /* Copy Profiling Data */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			dependencyFile = "$(DERIVED_FILES_DIR)/copy-profiling-data.d";
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(WK_COMPRESSED_OPTIMIZATION_PROFILE_FOLDER)",
+				"$(SRCROOT)/../../Tools/Profiling/Empty.profdata",
+				"$(SRCROOT)/Scripts/copy-profiling-data.py",
+				"$(WK_COMPRESSED_OPTIMIZATION_PROFILE_FOLDER)/arm64e/JavaScriptCore.profdata.compressed",
+				"$(WK_COMPRESSED_OPTIMIZATION_PROFILE_FOLDER)/x86_64/JavaScriptCore.profdata.compressed",
+			);
+			name = "Copy Profiling Data";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(BUILT_PRODUCTS_DIR)/DerivedSources/bmalloc/Profiling/arm64e.profdata",
+				"$(BUILT_PRODUCTS_DIR)/DerivedSources/bmalloc/Profiling/x86_64.profdata",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [ \"${ACTION}\" = \"installhdrs\" -o \"${ACTION}\" = \"installapi\" ]; then\n    echo \"dependencies: \" > \"${DERIVED_FILES_DIR}/copy-profiling-data.d\"\n    exit 0;\nfi\n\"${SCRIPT_INPUT_FILE_2}\"\n";
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -2510,9 +2564,6 @@
 				AA00000015000000000000AA /* bmalloc_heap_iso.c in Sources */,
 				BB00000003000000000000BB /* bmalloc_heap_utils.c in Sources */,
 				DD4BEC5429CBA49700398E35 /* bmalloc_type.c in Sources */,
-				ED4BECF029CBA49700398E35 /* tagged_bmalloc_heap.c in Sources */,
-				ED4BEC2D29CBA49700398E35 /* tagged_bmalloc_heap_config.c in Sources */,
-				EB00000003000000000000BB /* tagged_bmalloc_heap_utils.c in Sources */,
 				0F74B93F1F89713E00B935D3 /* CryptoRandom.cpp in Sources */,
 				14895D911A3A319C0006235D /* Environment.cpp in Sources */,
 				0F5BF14F1F22DEAF0029D91D /* Gigacage.cpp in Sources */,
@@ -2665,6 +2716,9 @@
 				DD4BEC6729CBA49700398E35 /* pas_virtual_range.c in Sources */,
 				AD14AD2A202529C700890E3B /* ProcessCheck.mm in Sources */,
 				142B44361E2839E7001DA6E9 /* SystemHeap.cpp in Sources */,
+				ED4BECF029CBA49700398E35 /* tagged_bmalloc_heap.c in Sources */,
+				ED4BEC2D29CBA49700398E35 /* tagged_bmalloc_heap_config.c in Sources */,
+				EB00000003000000000000BB /* tagged_bmalloc_heap_utils.c in Sources */,
 				DD4BECB729CBA49700398E35 /* thingy_heap.c in Sources */,
 				DD4BEC5929CBA49700398E35 /* thingy_heap_config.c in Sources */,
 				FE0383212ABC0E9F00A576A2 /* TZoneHeap.cpp in Sources */,

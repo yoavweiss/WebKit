@@ -98,7 +98,6 @@ list(APPEND JavaScriptCore_PRIVATE_FRAMEWORK_HEADERS
 
 list(APPEND JavaScriptCore_PRIVATE_FRAMEWORK_HEADERS
     Scripts/UpdateContents.py
-    Scripts/copy-profiling-data.py
     Scripts/cssmin.py
     Scripts/generate-combined-inspector-json.py
     Scripts/generate-js-builtins.py
