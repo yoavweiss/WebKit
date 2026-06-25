@@ -2393,6 +2393,8 @@ static uint64_t calculateFlattenedLength(JSGlobalObject* globalObject, JSArray* 
                 continue;
             if (depth > 0 && isJSArray(element)) {
                 JSArray* elementArray = uncheckedDowncast<JSArray>(element);
+                if (elementArray->holesMustForwardToPrototype()) [[unlikely]]
+                    return std::numeric_limits<uint64_t>::max();
                 uint64_t newDepth = (depth == std::numeric_limits<uint64_t>::max()) ? depth : depth - 1;
                 uint64_t flatLength = calculateFlattenedLength(globalObject, elementArray, elementArray->length(), newDepth);
                 RETURN_IF_EXCEPTION(scope, flatLength);
@@ -2479,6 +2481,8 @@ static uint64_t fastFlatIntoBuffer(JSGlobalObject* globalObject, T* resultBuffer
                 continue;
             if (depth > 0 && isJSArray(element)) {
                 JSArray* elementArray = uncheckedDowncast<JSArray>(element);
+                if (elementArray->holesMustForwardToPrototype()) [[unlikely]]
+                    return std::numeric_limits<uint64_t>::max();
                 uint64_t newDepth = (depth == std::numeric_limits<uint64_t>::max()) ? depth : depth - 1;
                 resultIndex = fastFlatIntoBuffer(globalObject, resultBuffer, resultIndex, elementArray, elementArray->length(), newDepth, vectorLength);
                 RETURN_IF_EXCEPTION(scope, resultIndex);
