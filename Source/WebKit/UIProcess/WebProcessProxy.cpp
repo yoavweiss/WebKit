@@ -318,7 +318,7 @@ Ref<WebProcessProxy> WebProcessProxy::createForRemoteWorkers(RemoteWorkerType wo
 }
 
 WebProcessProxy::WebProcessProxy(WebProcessPool& processPool, WebsiteDataStore* websiteDataStore, IsPrewarmed isPrewarmed, CrossOriginMode crossOriginMode, LockdownMode lockdownMode, EnhancedSecurity enhancedSecurity)
-    : AuxiliaryProcessProxy(processPool.shouldTakeUIBackgroundAssertion() ? ShouldTakeUIBackgroundAssertion::Yes : ShouldTakeUIBackgroundAssertion::No
+    : AuxiliaryProcessProxy("WebProcess"_s, processPool.shouldTakeUIBackgroundAssertion() ? ShouldTakeUIBackgroundAssertion::Yes : ShouldTakeUIBackgroundAssertion::No
     , processPool.alwaysRunsAtBackgroundPriority() ? AlwaysRunsAtBackgroundPriority::Yes : AlwaysRunsAtBackgroundPriority::No)
     , m_backgroundResponsivenessTimer(makeUniqueRef<BackgroundProcessResponsivenessTimer>(*this))
     , m_processPool(processPool, isPrewarmed == IsPrewarmed::Yes ? IsWeak::Yes : IsWeak::No)

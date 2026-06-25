@@ -74,7 +74,7 @@ class AuxiliaryProcessProxy
     WTF_MAKE_TZONE_ALLOCATED(AuxiliaryProcessProxy);
     WTF_OVERRIDE_DELETE_FOR_CHECKED_PTR(AuxiliaryProcessProxy);
 protected:
-    AuxiliaryProcessProxy(ShouldTakeUIBackgroundAssertion, AlwaysRunsAtBackgroundPriority = AlwaysRunsAtBackgroundPriority::No, Seconds responsivenessTimeout = ResponsivenessTimer::defaultResponsivenessTimeout);
+    AuxiliaryProcessProxy(ASCIILiteral clientName, ShouldTakeUIBackgroundAssertion, AlwaysRunsAtBackgroundPriority = AlwaysRunsAtBackgroundPriority::No, Seconds responsivenessTimeout = ResponsivenessTimer::defaultResponsivenessTimeout);
 
 public:
     USING_CAN_MAKE_WEAKPTR(ResponsivenessTimer::Client);
@@ -255,8 +255,8 @@ public:
     virtual void sendPrepareToSuspend(IsSuspensionImminent, double remainingRunTime, CompletionHandler<void()>&&) = 0;
     virtual void sendProcessDidResume(ResumeReason) = 0;
     virtual void didChangeThrottleState(ProcessThrottleState);
-    virtual ASCIILiteral clientName() const = 0;
-    virtual String environmentIdentifier();
+    ASCIILiteral clientName() const { return m_clientName; }
+    String environmentIdentifier();
     virtual void prepareToDropLastAssertion(CompletionHandler<void()>&& completionHandler) { completionHandler(); }
     virtual void didDropLastAssertion() { }
 
@@ -343,6 +343,7 @@ private:
     ExtensionCapabilityGrantMap m_extensionCapabilityGrants;
 #endif
     String m_environmentIdentifier;
+    const ASCIILiteral m_clientName;
     HashMap<Vector<uint8_t>, std::pair<unsigned, std::unique_ptr<IPC::Encoder>>> m_messagesToSendOnResume;
     unsigned m_messagesToSendOnResumeIndex { 0 };
 } SWIFT_SHARED_REFERENCE(refAuxiliaryProcessProxy, derefAuxiliaryProcessProxy);

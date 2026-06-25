@@ -439,7 +439,6 @@ public:
     void didChangeThrottleState(ProcessThrottleState) final;
     void prepareToDropLastAssertion(CompletionHandler<void()>&&) final;
     void didDropLastAssertion() final;
-    ASCIILiteral clientName() const final { return "WebProcess"_s; }
 
 #if PLATFORM(COCOA)
     enum SandboxExtensionType : uint32_t {

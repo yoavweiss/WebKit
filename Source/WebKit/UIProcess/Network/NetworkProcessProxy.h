@@ -256,8 +256,7 @@ public:
 
     // ProcessThrottlerClient
     void sendProcessDidResume(ResumeReason) final;
-    ASCIILiteral clientName() const final { return "NetworkProcess"_s; }
-    
+
     static void NODELETE setSuspensionAllowedForTesting(bool);
     void sendProcessWillSuspendImminentlyForTesting();
 
