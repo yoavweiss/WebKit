@@ -139,10 +139,9 @@ void WebBackForwardListFrameItem::setWasRestoredFromSession()
         child->setWasRestoredFromSession();
 }
 
-void WebBackForwardListFrameItem::setFrameState(Ref<FrameState>&& frameState)
+void WebBackForwardListFrameItem::updateFrameStatePayload(Ref<FrameState>&& frameState)
 {
-    m_frameState = WTF::move(frameState);
-    m_frameState->children.clear();
+    m_frameState->replacePayloadFrom(WTF::move(frameState));
 }
 
 void WebBackForwardListFrameItem::updateFrameID(FrameIdentifier newFrameID)

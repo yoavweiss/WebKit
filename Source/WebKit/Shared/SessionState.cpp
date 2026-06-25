@@ -160,6 +160,42 @@ Ref<FrameState> FrameState::copy()
     ));
 }
 
+void FrameState::replacePayloadFrom(Ref<FrameState>&& other)
+{
+    // frameItemID and itemID are the position of this FrameState in the BF list tree
+    // owned by the surrounding WebBackForwardListFrameItem and are fixed at construction.
+    // children is the parallel data path of WebBackForwardListFrameItem::m_children and
+    // is maintained there. Neither is affected by a payload replacement.
+    urlString = WTF::move(other->urlString);
+    originalURLString = WTF::move(other->originalURLString);
+    referrer = WTF::move(other->referrer);
+    target = WTF::move(other->target);
+    frameID = other->frameID;
+    stateObjectData = WTF::move(other->stateObjectData);
+    documentSequenceNumber = other->documentSequenceNumber;
+    itemSequenceNumber = other->itemSequenceNumber;
+    navigationAPIKey = other->navigationAPIKey;
+    scrollPosition = other->scrollPosition;
+    shouldRestoreScrollPosition = other->shouldRestoreScrollPosition;
+    pageScaleFactor = other->pageScaleFactor;
+    httpBody = WTF::move(other->httpBody);
+    title = WTF::move(other->title);
+    shouldOpenExternalURLsPolicy = other->shouldOpenExternalURLsPolicy;
+    sessionStateObject = WTF::move(other->sessionStateObject);
+    wasCreatedByJSWithoutUserInteraction = other->wasCreatedByJSWithoutUserInteraction;
+    wasRestoredFromSession = other->wasRestoredFromSession;
+    policyContainer = WTF::move(other->policyContainer);
+#if PLATFORM(IOS_FAMILY)
+    exposedContentRect = other->exposedContentRect;
+    unobscuredContentRect = other->unobscuredContentRect;
+    minimumLayoutSizeInScrollViewCoordinates = other->minimumLayoutSizeInScrollViewCoordinates;
+    contentSize = other->contentSize;
+    scaleIsInitial = other->scaleIsInitial;
+    obscuredInsets = other->obscuredInsets;
+#endif
+    m_documentState = WTF::move(other->m_documentState);
+}
+
 bool FrameState::validateDocumentState(const Vector<AtomString>& documentState)
 {
     for (auto& stateString : documentState) {

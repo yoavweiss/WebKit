@@ -83,6 +83,8 @@ public:
 
     Ref<FrameState> copy();
 
+    void replacePayloadFrom(Ref<FrameState>&& other);
+
     const Vector<AtomString>& documentState() const LIFETIME_BOUND { return m_documentState; }
     enum class ShouldValidate : bool { No, Yes };
     void setDocumentState(const Vector<AtomString>&, ShouldValidate = ShouldValidate::No);

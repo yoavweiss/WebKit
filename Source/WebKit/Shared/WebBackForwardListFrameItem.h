@@ -44,7 +44,7 @@ public:
     static WebBackForwardListFrameItem* NODELETE itemForID(WebCore::BackForwardItemIdentifier, WebCore::BackForwardFrameItemIdentifier);
 
     FrameState& frameState() const { return m_frameState; }
-    void setFrameState(Ref<FrameState>&&);
+    void updateFrameStatePayload(Ref<FrameState>&&);
 
     Ref<FrameState> copyFrameState();
     Ref<FrameState> copyFrameStateWithChildren();
