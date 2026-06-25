@@ -301,7 +301,7 @@ JSC_DEFINE_HOST_FUNCTION(temporalZonedDateTimePrototypeFuncAdd, (JSGlobalObject*
         return throwVMTypeError(globalObject, scope, "Temporal.ZonedDateTime.prototype.add called on value that's not a ZonedDateTime"_s);
 
     // Step 3: Return ? AddDurationToZonedDateTime(~add~, zonedDateTime, temporalDurationLike, options).
-    auto duration = TemporalDuration::toISO8601Duration(globalObject, callFrame->argument(0));
+    auto duration = TemporalDuration::toTemporalDurationRecord(globalObject, callFrame->argument(0));
     RETURN_IF_EXCEPTION(scope, { });
     RELEASE_AND_RETURN(scope, addDurationToZonedDateTime(globalObject, scope, zdt, WTF::move(duration), callFrame->argument(1)));
 }
@@ -320,7 +320,7 @@ JSC_DEFINE_HOST_FUNCTION(temporalZonedDateTimePrototypeFuncSubtract, (JSGlobalOb
         return throwVMTypeError(globalObject, scope, "Temporal.ZonedDateTime.prototype.subtract called on value that's not a ZonedDateTime"_s);
 
     // Step 3: Return ? AddDurationToZonedDateTime(~subtract~, ...). Step 2 of that AO negates.
-    auto duration = TemporalDuration::toISO8601Duration(globalObject, callFrame->argument(0));
+    auto duration = TemporalDuration::toTemporalDurationRecord(globalObject, callFrame->argument(0));
     RETURN_IF_EXCEPTION(scope, { });
     RELEASE_AND_RETURN(scope, addDurationToZonedDateTime(globalObject, scope, zdt, -WTF::move(duration), callFrame->argument(1)));
 }

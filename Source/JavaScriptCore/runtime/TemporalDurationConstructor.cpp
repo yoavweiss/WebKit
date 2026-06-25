@@ -86,12 +86,13 @@ JSC_DEFINE_HOST_FUNCTION(constructTemporalDuration, (JSGlobalObject* globalObjec
     VM& vm = globalObject->vm();
     auto scope = DECLARE_THROW_SCOPE(vm);
 
-    // Step 1: NewTarget check done by JSC engine.
+    // Step 1: NewTarget undefined check — handled by JSC's call/construct split (see callTemporalDuration).
     JSObject* newTarget = asObject(callFrame->newTarget());
     Structure* structure = JSC_GET_DERIVED_STRUCTURE(vm, durationStructure, newTarget, callFrame->jsCallee());
     RETURN_IF_EXCEPTION(scope, { });
 
-    // Steps 2-10: If arg is undefined use 0; else ToIntegerIfIntegral(arg).
+    // Steps 2-11: For each unit X (years..nanoseconds), if X is undefined let it be 0;
+    //   else ? ToIntegerIfIntegral(X). `+ 0.0` normalizes -0 → +0 (ToIntegerIfIntegral step 4).
     ISO8601::Duration result;
     auto count = std::min<size_t>(callFrame->argumentCount(), numberOfTemporalUnits);
     for (size_t i = 0; i < count; i++) {
@@ -107,7 +108,7 @@ JSC_DEFINE_HOST_FUNCTION(constructTemporalDuration, (JSGlobalObject* globalObjec
         result.setField(i, v);
     }
 
-    // Steps 11-12: IsValidDuration + CreateTemporalDuration.
+    // Step 12: Return ? CreateTemporalDuration(...). tryCreateIfValid runs IsValidDuration.
     RELEASE_AND_RETURN(scope, JSValue::encode(TemporalDuration::tryCreateIfValid(globalObject, WTF::move(result), structure)));
 }
 

@@ -270,7 +270,8 @@ Variant<TemporalAuto, std::optional<TemporalUnit>> temporalUnitValued(JSGlobalOb
     // Step 4: If value is undefined:
     if (!unit) {
         if (defaultValue == TemporalUnitDefault::Required) [[unlikely]] {
-            throwRangeError(globalObject, scope, makeString('\'', key.publicName(), "' option is required"_s));
+            StringView keyName { key.publicName() };
+            throwRangeError(globalObject, scope, makeString('\'', keyName, "' option is required"_s));
             return std::nullopt;
         }
         return std::nullopt;
@@ -552,7 +553,8 @@ static double doubleNumberOption(JSGlobalObject* globalObject, JSObject* options
     RETURN_IF_EXCEPTION(scope, 0);
 
     if (std::isnan(doubleValue)) [[unlikely]] {
-        throwRangeError(globalObject, scope, makeString(property.publicName(), " is NaN"_s));
+        StringView propertyName { property.publicName() };
+        throwRangeError(globalObject, scope, makeString(propertyName, " is NaN"_s));
         return 0;
     }
 

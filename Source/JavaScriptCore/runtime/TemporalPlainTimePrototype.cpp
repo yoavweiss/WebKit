@@ -118,7 +118,7 @@ JSC_DEFINE_HOST_FUNCTION(temporalPlainTimePrototypeFuncAdd, (JSGlobalObject* glo
     if (!plainTime) [[unlikely]]
         return throwVMTypeError(globalObject, scope, "Temporal.PlainTime.prototype.add called on value that's not a PlainTime"_s);
 
-    auto duration = TemporalDuration::toISO8601Duration(globalObject, callFrame->argument(0));
+    auto duration = TemporalDuration::toTemporalDurationRecord(globalObject, callFrame->argument(0));
     RETURN_IF_EXCEPTION(scope, { });
 
     auto result = TemporalPlainTime::toPlainTime(globalObject, TemporalPlainTime::addTime(plainTime->plainTime(), duration));
@@ -137,7 +137,7 @@ JSC_DEFINE_HOST_FUNCTION(temporalPlainTimePrototypeFuncSubtract, (JSGlobalObject
     if (!plainTime) [[unlikely]]
         return throwVMTypeError(globalObject, scope, "Temporal.PlainTime.prototype.subtract called on value that's not a PlainTime"_s);
 
-    auto duration = TemporalDuration::toISO8601Duration(globalObject, callFrame->argument(0));
+    auto duration = TemporalDuration::toTemporalDurationRecord(globalObject, callFrame->argument(0));
     RETURN_IF_EXCEPTION(scope, { });
 
     auto result = TemporalPlainTime::toPlainTime(globalObject, TemporalPlainTime::addTime(plainTime->plainTime(), -duration));

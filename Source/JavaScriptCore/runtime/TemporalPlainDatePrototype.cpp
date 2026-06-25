@@ -233,7 +233,7 @@ JSC_DEFINE_HOST_FUNCTION(temporalPlainDatePrototypeFuncAdd, (JSGlobalObject* glo
     if (!plainDate) [[unlikely]]
         return throwVMTypeError(globalObject, scope, "Temporal.PlainDate.prototype.add called on value that's not a PlainDate"_s);
 
-    auto duration = TemporalDuration::toISO8601Duration(globalObject, callFrame->argument(0));
+    auto duration = TemporalDuration::toTemporalDurationRecord(globalObject, callFrame->argument(0));
     RETURN_IF_EXCEPTION(scope, { });
     return addDurationToPlainDate(globalObject, scope, plainDate, duration, callFrame->argument(1));
 }
@@ -248,7 +248,7 @@ JSC_DEFINE_HOST_FUNCTION(temporalPlainDatePrototypeFuncSubtract, (JSGlobalObject
     if (!plainDate) [[unlikely]]
         return throwVMTypeError(globalObject, scope, "Temporal.PlainDate.prototype.subtract called on value that's not a PlainDate"_s);
 
-    auto duration = TemporalDuration::toISO8601Duration(globalObject, callFrame->argument(0));
+    auto duration = TemporalDuration::toTemporalDurationRecord(globalObject, callFrame->argument(0));
     RETURN_IF_EXCEPTION(scope, { });
     return addDurationToPlainDate(globalObject, scope, plainDate, -duration, callFrame->argument(1));
 }

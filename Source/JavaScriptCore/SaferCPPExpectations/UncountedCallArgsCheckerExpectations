@@ -138,7 +138,6 @@ runtime/ScriptExecutable.h
 runtime/Structure.cpp
 runtime/StructureInlines.h
 runtime/SymbolTable.cpp
-runtime/TemporalDuration.cpp
 runtime/TemporalObject.cpp
 runtime/TypeProfiler.cpp
 runtime/TypeProfilerLog.cpp

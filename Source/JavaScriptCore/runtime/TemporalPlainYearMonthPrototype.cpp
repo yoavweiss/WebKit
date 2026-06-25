@@ -133,7 +133,7 @@ static JSC::EncodedJSValue temporalPlainYearMonthPrototypeAddOrSubtract(JSGlobal
             return throwVMTypeError(globalObject, scope, "Temporal.PlainYearMonth.prototype.subtract called on value that's not a PlainYearMonth"_s);
     }
 
-    auto duration = TemporalDuration::toISO8601Duration(globalObject, callFrame->argument(0));
+    auto duration = TemporalDuration::toTemporalDurationRecord(globalObject, callFrame->argument(0));
     RETURN_IF_EXCEPTION(scope, { });
 
     TemporalOverflow overflow = toTemporalOverflow(globalObject, callFrame->argument(1));

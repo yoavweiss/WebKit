@@ -50,8 +50,7 @@ public:
 
     DECLARE_INFO;
 
-    static TemporalDuration* toTemporalDuration(JSGlobalObject*, JSValue);
-    static ISO8601::Duration toLimitedDuration(JSGlobalObject*, JSValue, std::initializer_list<TemporalUnit> disallowedUnits);
+    static ISO8601::Duration toTemporalDurationRecord(JSGlobalObject*, JSValue);
     static TemporalDuration* from(JSGlobalObject*, JSValue);
     static JSValue compare(JSGlobalObject*, JSValue, JSValue, JSValue options);
 
@@ -65,18 +64,14 @@ public:
     const ISO8601::Duration& duration() const { return m_duration; }
 
     ISO8601::Duration with(JSGlobalObject*, JSObject* durationLike) const;
-    ISO8601::Duration add(JSGlobalObject*, JSValue other) const;
-    ISO8601::Duration subtract(JSGlobalObject*, JSValue other) const;
+    template<AddOrSubtract op>
+    ISO8601::Duration addDurations(JSGlobalObject*, JSValue other) const;
     ISO8601::Duration round(JSGlobalObject*, JSValue options) const;
     double total(JSGlobalObject*, JSValue options) const;
     String toString(JSGlobalObject*, JSValue options) const;
     String toString(JSGlobalObject* globalObject, std::tuple<Precision, unsigned> precision = { Precision::Auto, 0 }) const { return toString(globalObject, m_duration, precision); }
 
     static ISO8601::InternalDuration toInternalDurationRecordWith24HourDays(JSGlobalObject*, ISO8601::Duration);
-    ISO8601::Duration addDurations(JSGlobalObject*, AddOrSubtract, ISO8601::Duration, TemporalUnit) const;
-
-    static ISO8601::Duration fromDurationLike(JSGlobalObject*, JSObject*);
-    static ISO8601::Duration toISO8601Duration(JSGlobalObject*, JSValue);
 
     static ISO8601::InternalDuration round(JSGlobalObject*, ISO8601::InternalDuration, double increment, TemporalUnit, RoundingMode);
     static std::optional<ISO8601::PlainDate> regulateISODate(int32_t year, int32_t month, int64_t day, TemporalOverflow);

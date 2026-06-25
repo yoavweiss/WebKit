@@ -121,13 +121,23 @@ static TemporalInstant* addDurationToInstant(JSGlobalObject* globalObject, Tempo
     VM& vm = globalObject->vm();
     auto scope = DECLARE_THROW_SCOPE(vm);
 
-    // Steps 1, 3-4: ToTemporalDuration + reject date-category units (fused into toLimitedDuration).
-    ISO8601::Duration duration = TemporalDuration::toLimitedDuration(globalObject, durationLike, disallowedAdditionUnits);
+    // Step 1: duration = ? ToTemporalDuration(temporalDurationLike).
+    ISO8601::Duration duration = TemporalDuration::toTemporalDurationRecord(globalObject, durationLike);
     RETURN_IF_EXCEPTION(scope, nullptr);
 
-    // Step 2: If operation is SUBTRACT, set duration to CreateNegatedTemporalDuration(duration).
+    // Step 2: If operation is subtract, set duration to CreateNegatedTemporalDuration(duration).
     if constexpr (operation == AddInstantOperation::Subtract)
         duration = -duration;
+
+    // Steps 3-4: reject when DefaultTemporalLargestUnit(duration) is in the date category
+    //   (Y/Mo/W/D). ZonedDateTime handles those calendrical units.
+    for (TemporalUnit unit : disallowedAdditionUnits) {
+        if (duration[unit]) [[unlikely]] {
+            StringView unitName { temporalUnitPluralPropertyName(vm, unit).publicName() };
+            throwRangeError(globalObject, scope, makeString("Adding "_s, unitName, " not supported by Temporal.Instant. Try Temporal.ZonedDateTime instead"_s));
+            return nullptr;
+        }
+    }
 
     // Steps 5-6: ToInternalDurationRecordWith24HourDays + AddInstant (both done by ExactTime::add).
     std::optional<ISO8601::ExactTime> newExactTime = instant->exactTime().add(duration);
