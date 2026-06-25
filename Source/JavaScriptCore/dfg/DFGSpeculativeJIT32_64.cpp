@@ -2145,6 +2145,30 @@ void SpeculativeJIT::compileGetByVal(Node* node, const ScopedLambda<std::tuple<J
     } }
 }
 
+void SpeculativeJIT::compileInt32ToStringRadix10(Node* node)
+{
+    SpeculateStrictInt32Operand value(this, node->child1());
+    GPRTemporary result(this);
+
+    GPRReg valueGPR = value.gpr();
+    GPRReg resultGPR = result.gpr();
+
+    JumpList slowCases;
+
+    slowCases.append(branch32(AboveOrEqual, valueGPR, TrustedImm32(NumericStrings::cacheSize)));
+
+    move(valueGPR, resultGPR);
+    static_assert(hasOneBitSet(sizeof(NumericStrings::StringWithJSString)), "size should be a power of two.");
+    lshiftPtr(TrustedImm32(WTF::fastLog2(static_cast<unsigned>(sizeof(NumericStrings::StringWithJSString)))), resultGPR);
+    addPtr(TrustedImmPtr(vm().numericStrings.smallIntCache()), resultGPR);
+    loadPtr(Address(resultGPR, NumericStrings::StringWithJSString::offsetOfJSString()), resultGPR);
+    slowCases.append(branchTestPtr(Zero, resultGPR));
+
+    addSlowPathGenerator(slowPathCall(slowCases, this, operationInt32ToStringWithValidRadix, resultGPR, LinkableConstant::globalObject(*this, node), valueGPR, TrustedImm32(10)));
+
+    cellResult(resultGPR, node);
+}
+
 void SpeculativeJIT::compile(Node* node)
 {
     NodeType op = node->op();

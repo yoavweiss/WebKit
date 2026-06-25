@@ -11843,32 +11843,7 @@ void SpeculativeJIT::compileNumberToStringWithValidRadixConstant(Node* node, int
     switch (node->child1().useKind()) {
     case Int32Use: {
         if (radix == 10) {
-            SpeculateStrictInt32Operand value(this, node->child1());
-            GPRTemporary result(this);
-
-            GPRReg valueGPR = value.gpr();
-            GPRReg resultGPR = result.gpr();
-
-            flushRegisters();
-
-            JumpList slowCases;
-            JumpList doneCases;
-
-            slowCases.append(branch32(AboveOrEqual, valueGPR, TrustedImm32(NumericStrings::cacheSize)));
-
-            move(valueGPR, resultGPR);
-            static_assert(hasOneBitSet(sizeof(NumericStrings::StringWithJSString)), "size should be a power of two.");
-            lshiftPtr(TrustedImm32(WTF::fastLog2(static_cast<unsigned>(sizeof(NumericStrings::StringWithJSString)))), resultGPR);
-            addPtr(TrustedImmPtr(vm().numericStrings.smallIntCache()), resultGPR);
-            loadPtr(Address(resultGPR, NumericStrings::StringWithJSString::offsetOfJSString()), resultGPR);
-            doneCases.append(branchTestPtr(NonZero, resultGPR));
-            // Fall-through.
-
-            slowCases.link(this);
-            callOperation(operationInt32ToStringWithValidRadix, resultGPR, LinkableConstant::globalObject(*this, node), valueGPR, TrustedImm32(10));
-
-            doneCases.link(this);
-            cellResult(resultGPR, node);
+            compileInt32ToStringRadix10(node);
             break;
         }
 
