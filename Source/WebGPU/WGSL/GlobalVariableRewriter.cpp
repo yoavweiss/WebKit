@@ -2553,29 +2553,23 @@ AST::Statement::List RewriteGlobalVariables::storeInitialValue(const UsedPrivate
 void RewriteGlobalVariables::storeInitialValue(AST::Expression& target, AST::Statement::List& statements, unsigned arrayDepth)
 {
     const auto& zeroInitialize = [&]() {
-        // This piece of code generation relies on 2 implementation details from the metal serializer:
-        // - The callee's name won't be used if the call is set to constructor
-        // - There's a special case to handle the case where the left-hand side
-        //   of the assignment doesn't have a type, so we can erase it
-        auto& callee = m_shaderModule.astBuilder().construct<AST::IdentifierExpression>(SourceSpan::empty(), AST::Identifier::make("__initialize"_s));
-        callee.m_inferredType = target.inferredType();
+        m_shaderModule.setUsesZeroWorkgroupVar();
+
+        auto& callee = m_shaderModule.astBuilder().construct<AST::IdentifierExpression>(SourceSpan::empty(), AST::Identifier::make("__wgslZeroWorkgroupVar"_s));
+        callee.m_inferredType = m_shaderModule.types().voidType();
 
         auto& call = m_shaderModule.astBuilder().construct<AST::CallExpression>(
             SourceSpan::empty(),
             callee,
-            AST::Expression::List { }
+            AST::Expression::List { target }
         );
-        call.m_inferredType = target.inferredType();
-        call.m_isConstructor = true;
+        call.m_inferredType = m_shaderModule.types().voidType();
 
-        target.m_inferredType = nullptr;
-
-        auto& assignmentStatement = m_shaderModule.astBuilder().construct<AST::AssignmentStatement>(
+        auto& callStatement = m_shaderModule.astBuilder().construct<AST::CallStatement>(
             SourceSpan::empty(),
-            target,
             call
         );
-        statements.append(AST::Statement::Ref(assignmentStatement));
+        statements.append(AST::Statement::Ref(callStatement));
     };
 
     auto* type = target.inferredType();

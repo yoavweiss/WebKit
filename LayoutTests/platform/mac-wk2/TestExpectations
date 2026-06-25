@@ -1411,8 +1411,6 @@ http/tests/webgpu/webgpu/api/validation/resource_usages/texture/in_render_common
 http/tests/webgpu/webgpu/api/validation/capability_checks/limits/maxSampledTexturesPerShaderStage.html [ Skip ]
 http/tests/webgpu/webgpu/api/validation/capability_checks/limits/maxSamplersPerShaderStage.html [ Skip ]
 
-[ arm64 ] http/tests/webgpu/webgpu/shader/execution/memory_layout.html [ Pass Failure ]
-
 # shader tests that timeout
 http/tests/webgpu/webgpu/shader/execution/expression/binary/bitwise.html [ Pass Timeout ]
 http/tests/webgpu/webgpu/shader/execution/expression/binary/f32_matrix_matrix_multiplication.html [ Pass Timeout ]
