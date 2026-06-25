@@ -22,20 +22,19 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 
 private import CxxStdlib
-public import Metal
+import Metal
 import WebGPU_Internal.Buffer
 import WebGPU_Internal.CommandEncoder
 import WebGPU_Internal.CxxBridging
 import WebGPU_Internal.QuerySet
 import WebGPU_Internal.TextureOrTextureView
-public import WebGPU_Private.WebGPU
+import WebGPU_Private.WebGPU
 
 typealias String = Swift.String
 
-// FIXME: Eventually all these "thunks" should be removed.
-// swift-format-ignore: AllPublicDeclarationsHaveDocumentation
-public func clearBuffer(
-    commandEncoder: WebGPU.CommandEncoder,
+@_expose(Cxx)
+func commandEncoderClearBuffer(
+    _ commandEncoder: WebGPU.CommandEncoder,
     buffer: WebGPU.Buffer,
     offset: UInt64,
     size: inout UInt64
@@ -43,10 +42,9 @@ public func clearBuffer(
     commandEncoder.clearBuffer(buffer: buffer, offset: offset, size: &size)
 }
 
-// FIXME: Eventually all these "thunks" should be removed.
-// swift-format-ignore: AllPublicDeclarationsHaveDocumentation
-public func resolveQuerySet(
-    commandEncoder: WebGPU.CommandEncoder,
+@_expose(Cxx)
+func commandEncoderResolveQuerySet(
+    _ commandEncoder: WebGPU.CommandEncoder,
     querySet: WebGPU.QuerySet,
     firstQuery: UInt32,
     queryCount: UInt32,
@@ -62,12 +60,9 @@ public func resolveQuerySet(
     )
 }
 
-// FIXME: Eventually all these "thunks" should be removed.
-// swift-format-ignore: AlwaysUseLowerCamelCase
-// swift-format-ignore: AllPublicDeclarationsHaveDocumentation
 @_expose(Cxx)
-public func CommandEncoder_copyBufferToTexture_thunk(
-    commandEncoder: WebGPU.CommandEncoder,
+func commandEncoderCopyBufferToTexture(
+    _ commandEncoder: WebGPU.CommandEncoder,
     source: WGPUImageCopyBuffer,
     destination: WGPUImageCopyTexture,
     copySize: WGPUExtent3D
@@ -75,11 +70,8 @@ public func CommandEncoder_copyBufferToTexture_thunk(
     commandEncoder.copyBufferToTexture(source: source, destination: destination, copySize: copySize)
 }
 
-// FIXME: Eventually all these "thunks" should be removed.
-// swift-format-ignore: AlwaysUseLowerCamelCase
-// swift-format-ignore: AllPublicDeclarationsHaveDocumentation
 @_expose(Cxx)
-public func CommandEncoder_copyTextureToBuffer_thunk(
+func commandEncoderCopyTextureToBuffer(
     commandEncoder: WebGPU.CommandEncoder,
     source: WGPUImageCopyTexture,
     destination: WGPUImageCopyBuffer,
@@ -88,12 +80,9 @@ public func CommandEncoder_copyTextureToBuffer_thunk(
     commandEncoder.copyTextureToBuffer(source: source, destination: destination, copySize: copySize)
 }
 
-// FIXME: Eventually all these "thunks" should be removed.
-// swift-format-ignore: AlwaysUseLowerCamelCase
-// swift-format-ignore: AllPublicDeclarationsHaveDocumentation
 @_expose(Cxx)
-public func CommandEncoder_copyTextureToTexture_thunk(
-    commandEncoder: WebGPU.CommandEncoder,
+func commandEncoderCopyTextureToTexture(
+    _ commandEncoder: WebGPU.CommandEncoder,
     source: WGPUImageCopyTexture,
     destination: WGPUImageCopyTexture,
     copySize: WGPUExtent3D
@@ -101,12 +90,9 @@ public func CommandEncoder_copyTextureToTexture_thunk(
     commandEncoder.copyTextureToTexture(source: source, destination: destination, copySize: copySize)
 }
 
-// FIXME: Eventually all these "thunks" should be removed.
-// swift-format-ignore: AlwaysUseLowerCamelCase
-// swift-format-ignore: AllPublicDeclarationsHaveDocumentation
 @_expose(Cxx)
-public func CommandEncoder_copyBufferToBuffer_thunk(
-    commandEncoder: WebGPU.CommandEncoder,
+func commandEncoderCopyBufferToBuffer(
+    _ commandEncoder: WebGPU.CommandEncoder,
     source: WebGPU.Buffer,
     sourceOffset: UInt64,
     destination: WebGPU.Buffer,
@@ -122,34 +108,25 @@ public func CommandEncoder_copyBufferToBuffer_thunk(
     )
 }
 
-// FIXME: Eventually all these "thunks" should be removed.
-// swift-format-ignore: AlwaysUseLowerCamelCase
-// swift-format-ignore: AllPublicDeclarationsHaveDocumentation
 @_expose(Cxx)
-public func CommandEncoder_beginRenderPass_thunk(
-    commandEncoder: WebGPU.CommandEncoder,
+func commandEncoderBeginRenderPass(
+    _ commandEncoder: WebGPU.CommandEncoder,
     descriptor: WGPURenderPassDescriptor,
 ) -> CxxBridging.RefRenderPassEncoder {
     commandEncoder.beginRenderPass(descriptor: descriptor)
 }
 
-// FIXME: Eventually all these "thunks" should be removed.
-// swift-format-ignore: AlwaysUseLowerCamelCase
-// swift-format-ignore: AllPublicDeclarationsHaveDocumentation
 @_expose(Cxx)
-public func CommandEncoder_beginComputePass_thunk(
-    commandEncoder: WebGPU.CommandEncoder,
+func commandEncoderBeginComputePass(
+    _ commandEncoder: WebGPU.CommandEncoder,
     descriptor: WGPUComputePassDescriptor,
 ) -> CxxBridging.RefComputePassEncoder {
     commandEncoder.beginComputePass(descriptor: descriptor)
 }
 
-// FIXME: Eventually all these "thunks" should be removed.
-// swift-format-ignore: AlwaysUseLowerCamelCase
-// swift-format-ignore: AllPublicDeclarationsHaveDocumentation
 @_expose(Cxx)
-public func CommandEncoder_runClearEncoder_thunk(
-    commandEncoder: WebGPU.CommandEncoder,
+func commandEncoderRunClearEncoder(
+    _ commandEncoder: WebGPU.CommandEncoder,
     attachmentsToClear: NSMutableDictionary,
     depthStencilAttachmentToClear: inout (any MTLTexture)?,
     depthAttachmentToClear: Bool,
@@ -173,21 +150,14 @@ public func CommandEncoder_runClearEncoder_thunk(
     )
 }
 
-// FIXME: Eventually all these "thunks" should be removed.
-// swift-format-ignore: AlwaysUseLowerCamelCase
-// swift-format-ignore: AllPublicDeclarationsHaveDocumentation
 @_expose(Cxx)
-public func CommandEncoder_clearTextureIfNeeded_thunk(commandEncoder: WebGPU.CommandEncoder, destination: WGPUImageCopyTexture, slice: UInt)
-{
+func commandEncoderClearTextureIfNeeded(_ commandEncoder: WebGPU.CommandEncoder, destination: WGPUImageCopyTexture, slice: UInt) {
     commandEncoder.clearTextureIfNeeded(destination: destination, slice: slice)
 }
 
-// FIXME: Eventually all these "thunks" should be removed.
-// swift-format-ignore: AlwaysUseLowerCamelCase
-// swift-format-ignore: AllPublicDeclarationsHaveDocumentation
 @_expose(Cxx)
-public func CommandEncoder_finish_thunk(
-    commandEncoder: WebGPU.CommandEncoder,
+func commandEncoderFinish(
+    _ commandEncoder: WebGPU.CommandEncoder,
     descriptor: WGPUCommandBufferDescriptor
 ) -> CxxBridging.RefCommandBuffer {
     commandEncoder.finish(descriptor: descriptor)

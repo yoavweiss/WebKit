@@ -41,8 +41,6 @@
 #import <WebGPU/WGPUTextureImpl.h>
 #import <WebGPU/WebGPU.h>
 #import "WebGPUSwift-Generated.h"
-
-DEFINE_SWIFTCXX_THUNK(WebGPU::Buffer, copyFrom, void, const std::span<const uint8_t>, const size_t);
 #endif
 
 namespace WebGPU {
@@ -299,7 +297,7 @@ std::span<uint8_t> Buffer::getMappedRange(size_t offset, size_t size)
 {
 #if ENABLE(WEBGPU_SWIFT)
     if (isWebGPUSwiftEnabled())
-        return Buffer_getMappedRange_thunk(this, offset, size);
+        return bufferGetMappedRange(this, offset, size);
 #endif
 
     // https://gpuweb.github.io/gpuweb/#dom-gpubuffer-getmappedrange
@@ -324,6 +322,16 @@ std::span<uint8_t> Buffer::getMappedRange(size_t offset, size_t size)
 std::span<uint8_t> Buffer::getBufferContents()
 {
     return span<uint8_t>(m_buffer);
+}
+
+void Buffer::bufferCopy(std::span<const uint8_t> data, size_t offset)
+{
+#if ENABLE(WEBGPU_SWIFT)
+    bufferCopyFrom(this, data, offset);
+#else
+    UNUSED_PARAM(data);
+    UNUSED_PARAM(offset);
+#endif
 }
 
 NSString *Buffer::errorValidatingMapAsync(WGPUMapModeFlags mode, size_t offset, size_t rangeSize) const
@@ -873,7 +881,7 @@ WGPUBufferUsageFlags wgpuBufferGetUsage(WGPUBuffer buffer)
 void NODELETE wgpuBufferCopy(WGPUBuffer buffer, std::span<const uint8_t> data, size_t offset)
 {
 #if ENABLE(WEBGPU_SWIFT)
-    protect(WebGPU::fromAPI(buffer))->copyFrom(data, offset);
+    protect(WebGPU::fromAPI(buffer))->bufferCopy(data, offset);
 #else
     UNUSED_PARAM(buffer);
     UNUSED_PARAM(data);

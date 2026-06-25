@@ -264,7 +264,7 @@ Ref<ComputePassEncoder> CommandEncoder::beginComputePass(const WGPUComputePassDe
 {
 #if ENABLE(WEBGPU_SWIFT)
     if (isWebGPUSwiftEnabled())
-        return CommandEncoder_beginComputePass_thunk(this, descriptor);
+        return commandEncoderBeginComputePass(this, descriptor);
 #endif
 
     if (!prepareTheEncoderState()) {
@@ -441,7 +441,7 @@ void CommandEncoder::runClearEncoder(NSMutableDictionary<NSNumber*, TextureAndCl
 {
 #if ENABLE(WEBGPU_SWIFT)
     if (isWebGPUSwiftEnabled()) {
-        CommandEncoder_runClearEncoder_thunk(this, attachmentsToClear, depthStencilAttachmentToClear, depthAttachmentToClear, stencilAttachmentToClear, depthClearValue, stencilClearValue, existingEncoder);
+        commandEncoderRunClearEncoder(this, attachmentsToClear, depthStencilAttachmentToClear, depthAttachmentToClear, stencilAttachmentToClear, depthClearValue, stencilClearValue, existingEncoder);
         return;
     }
 #endif
@@ -532,7 +532,7 @@ Ref<RenderPassEncoder> CommandEncoder::beginRenderPass(const WGPURenderPassDescr
 {
 #if ENABLE(WEBGPU_SWIFT)
     if (isWebGPUSwiftEnabled())
-        return CommandEncoder_beginRenderPass_thunk(this, descriptor);
+        return commandEncoderBeginRenderPass(this, descriptor);
 #endif
 
     auto maxDrawCount = descriptor.maxDrawCount;
@@ -910,7 +910,7 @@ void CommandEncoder::copyBufferToBuffer(const Buffer& source, uint64_t sourceOff
 #if ENABLE(WEBGPU_SWIFT)
     if (isWebGPUSwiftEnabled()) {
         // FIXME: rdar://138047285
-        CommandEncoder_copyBufferToBuffer_thunk(this, &const_cast<Buffer&>(source), sourceOffset, &destination, destinationOffset, size);
+        commandEncoderCopyBufferToBuffer(this, &const_cast<Buffer&>(source), sourceOffset, &destination, destinationOffset, size);
         return;
     }
 #endif
@@ -1025,7 +1025,7 @@ void CommandEncoder::copyBufferToTexture(const WGPUImageCopyBuffer& source, cons
 {
 #if ENABLE(WEBGPU_SWIFT)
     if (isWebGPUSwiftEnabled()) {
-        CommandEncoder_copyBufferToTexture_thunk(this, source, destination, copySize);
+        commandEncoderCopyBufferToTexture(this, source, destination, copySize);
         return;
     }
 #endif
@@ -1336,7 +1336,7 @@ void CommandEncoder::clearTextureIfNeeded(const WGPUImageCopyTexture& destinatio
 {
 #if ENABLE(WEBGPU_SWIFT)
     if (isWebGPUSwiftEnabled()) {
-        CommandEncoder_clearTextureIfNeeded_thunk(this, destination, slice);
+        commandEncoderClearTextureIfNeeded(this, destination, slice);
         return;
     }
 #endif
@@ -1555,7 +1555,7 @@ void CommandEncoder::copyTextureToBuffer(const WGPUImageCopyTexture& source, con
 {
 #if ENABLE(WEBGPU_SWIFT)
     if (isWebGPUSwiftEnabled()) {
-        CommandEncoder_copyTextureToBuffer_thunk(this, source, destination, copySize);
+        commandEncoderCopyTextureToBuffer(this, source, destination, copySize);
         return;
     }
 #endif
@@ -1878,7 +1878,7 @@ void CommandEncoder::copyTextureToTexture(const WGPUImageCopyTexture& source, co
 {
 #if ENABLE(WEBGPU_SWIFT)
     if (isWebGPUSwiftEnabled()) {
-        CommandEncoder_copyTextureToTexture_thunk(this, source, destination, copySize);
+        commandEncoderCopyTextureToTexture(this, source, destination, copySize);
         return;
     }
 #endif
@@ -2059,7 +2059,7 @@ void CommandEncoder::clearBuffer(Buffer& buffer, uint64_t offset, uint64_t size)
     // https://gpuweb.github.io/gpuweb/#dom-gpucommandencoder-clearbuffer
 #if ENABLE(WEBGPU_SWIFT)
     if (isWebGPUSwiftEnabled()) {
-        WebGPU::clearBuffer(this, &buffer, offset, size);
+        commandEncoderClearBuffer(this, &buffer, offset, size);
         return;
     }
 #endif
@@ -2119,7 +2119,7 @@ Ref<CommandBuffer> CommandEncoder::finish(const WGPUCommandBufferDescriptor& des
 {
 #if ENABLE(WEBGPU_SWIFT)
     if (isWebGPUSwiftEnabled())
-        return CommandEncoder_finish_thunk(this, descriptor);
+        return commandEncoderFinish(this, descriptor);
 #endif
 
     if (!isValid() || (m_existingCommandEncoder && m_existingCommandEncoder != m_blitCommandEncoder)) {
@@ -2266,7 +2266,7 @@ void CommandEncoder::resolveQuerySet(const QuerySet& querySet, uint32_t firstQue
 #if ENABLE(WEBGPU_SWIFT)
     // FIXME: rdar://138047285 const_cast is needed as a workaround.
     if (isWebGPUSwiftEnabled()) {
-        WebGPU::resolveQuerySet(this, const_cast<QuerySet*>(&querySet), firstQuery, queryCount, &destination, destinationOffset);
+        commandEncoderResolveQuerySet(this, const_cast<QuerySet*>(&querySet), firstQuery, queryCount, &destination, destinationOffset);
         return;
     }
 #endif

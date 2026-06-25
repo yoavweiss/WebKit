@@ -78,6 +78,7 @@ public:
 
     void destroy();
     std::span<uint8_t> getMappedRange(size_t offset, size_t) HAS_SWIFTCXX_THUNK;
+    void bufferCopy(std::span<const uint8_t>, size_t offset);
     void mapAsync(WGPUMapModeFlags, size_t offset, size_t, CompletionHandler<void(WGPUBufferMapAsyncStatus)>&& callback);
     void unmap();
     void setLabel(String&&);
@@ -126,9 +127,6 @@ public:
 
     void indirectBufferInvalidated(CommandEncoder* = nullptr);
     void indirectBufferInvalidated(CommandEncoder&);
-#if ENABLE(WEBGPU_SWIFT)
-    void copyFrom(const std::span<const uint8_t>, const size_t offset) HAS_SWIFTCXX_THUNK;
-#endif
     void removeSkippedValidationCommandEncoder(uint64_t);
     bool mustTakeSlowIndexValidationPath() const { return m_mustTakeSlowIndexValidationPath; }
     void clearMustTakeSlowIndexValidationPath() { m_mustTakeSlowIndexValidationPath = false; }
