@@ -280,7 +280,7 @@ Inspector::CommandResultOf<RefPtr<JSON::ArrayOf<Inspector::Protocol::CSS::RuleMa
         if (!includePseudo || *includePseudo) {
             pseudoElements = JSON::ArrayOf<Inspector::Protocol::CSS::PseudoIdMatches>::create();
             for (auto pseudoElementType : allPseudoElementTypes) {
-                if (pseudoElementType == PseudoElementType::Marker && element->computedStyle()->display() != Style::DisplayType::BlockFlowListItem)
+                if (pseudoElementType == PseudoElementType::Marker && !element->computedStyle()->isListItemType())
                     continue;
                 if (pseudoElementType == PseudoElementType::Backdrop && !element->isInTopLayer())
                     continue;

@@ -28,6 +28,8 @@
 #include "CSSStyleSheet.h"
 #include "CommonAtomStrings.h"
 #include "Document.h"
+#include "MutableStyleProperties.h"
+#include "NodeDocument.h"
 #include "StyleProperties.h"
 #include "StyleRule.h"
 #include "StyleSheetContents.h"

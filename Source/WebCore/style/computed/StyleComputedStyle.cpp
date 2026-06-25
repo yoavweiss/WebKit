@@ -187,6 +187,11 @@ void ComputedStyle::inheritFrom(const ComputedStyle& inheritParent)
         m_svgData.access().inheritFrom(inheritParent.m_svgData.get());
 }
 
+bool ComputedStyle::isListItemType() const
+{
+    return display().isListItemType();
+}
+
 void ComputedStyle::inheritIgnoringCustomPropertiesFrom(const ComputedStyle& inheritParent)
 {
     auto oldCustomProperties = m_inheritedRareData->customProperties;

@@ -35,6 +35,7 @@
 #include "Microtasks.h"
 #include "MutationCallback.h"
 #include "MutationObserver.h"
+#include "NodeDocument.h"
 #include "OpportunisticTaskScheduler.h"
 #include "SecurityOrigin.h"
 #include "ThreadGlobalData.h"

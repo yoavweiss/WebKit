@@ -29,6 +29,8 @@
 
 #if ENABLE(WEBXR_LAYERS)
 
+#include "WebXRRigidTransform.h"
+
 #include <wtf/TZoneMallocInlines.h>
 
 namespace WebCore {

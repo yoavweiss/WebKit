@@ -32,6 +32,7 @@
 #include "WebBackForwardListMessages.h"
 #include "WebPage.h"
 #include "WebPageProxyMessages.h"
+#include <WebCore/DocumentPage.h>
 #include <WebCore/HistoryItem.h>
 #include <WebCore/LocalFrame.h>
 #include <WebCore/Page.h>

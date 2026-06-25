@@ -33,7 +33,7 @@
 #include "DocumentWriter.h"
 #include "EmptyClients.h"
 #include "FrameLoader.h"
-#include "LocalFrame.h"
+#include "LocalFrameInlines.h"
 #include "LocalFrameView.h"
 #include "Page.h"
 #include "PageConfiguration.h"

@@ -221,6 +221,8 @@ public:
     inline bool isRowFlexDirection() const;
     inline bool isSkippedRootOrSkippedContent() const;
 
+    bool isListItemType() const;
+
     inline bool specifiesColumns() const;
 
     inline bool usesStandardScrollbarStyle() const;
