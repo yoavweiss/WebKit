@@ -254,8 +254,6 @@
                   { "name": "wpe-linux-bot-11", "platform": "wpe" },
                   { "name": "wpe-linux-bot-12", "platform": "wpe" },
                   { "name": "wpe-linux-bot-13", "platform": "wpe" },
-                  { "name": "wpe-linux-bot-15", "platform": "wpe" },
-                  { "name": "wpe-linux-bot-16", "platform": "wpe" },
                   { "name": "wpe-linux-bot-17", "platform": "wpe-rpi4-32bits-mesa" },
                   { "name": "wpe-linux-bot-18", "platform": "wpe-rpi4-64bits-mesa" },
                   { "name": "wpe-linux-bot-19", "platform": "wpe-rpi4-32bits-mesa" },
@@ -692,18 +690,6 @@
                     "workernames": ["wpe-linux-bot-13"]
                   },
                   {
-                    "name": "WPE-Linux-ARM64-bit-Release-Debian-Stable-Build", "factory": "NoInstallDependenciesBuildFactory",
-                    "platform": "wpe", "configuration": "release", "architectures": ["arm64"],
-                    "additionalArguments": ["--no-experimental-features"],
-                    "workernames": ["wpe-linux-bot-15"]
-                  },
-                  {
-                    "name": "WPE-Linux-ARM32-bit-Release-Debian-Stable-Build", "factory": "NoInstallDependenciesBuildFactory",
-                    "platform": "wpe", "configuration": "release", "architectures": ["armv7"],
-                    "additionalArguments": ["--no-experimental-features"],
-                    "workernames": ["wpe-linux-bot-16"]
-                  },
-                  {
                     "name": "WPE-Linux-RPi4-32bits-Mesa-Release-Perf-Build", "factory": "CrossTargetBuildFactory",
                     "platform": "wpe-rpi4-32bits-mesa", "configuration": "release", "architectures": ["armv7"],
                     "additionalArguments": ["--cross-target=rpi4-32bits-mesa"],
@@ -787,8 +773,6 @@
                                      "WPE-Linux-64-bit-Release-Build",
                                      "WPE-Linux-64-bit-Release-Clang-Build",
                                      "WPE-Linux-64-bit-Release-LibWebRTC-Build",
-                                     "WPE-Linux-ARM64-bit-Release-Debian-Stable-Build",
-                                     "WPE-Linux-ARM32-bit-Release-Debian-Stable-Build",
                                      "WPE-Linux-64-bit-Release-Non-Unified-Build",
                                      "WPE-Linux-ARM64-bit-Release-Build"]
                   },
