@@ -572,7 +572,6 @@ class TestImporter(object):
         total_imported_jstests = 0
         total_imported_crashtests = 0
         total_prefixed_properties = {}
-        total_prefixed_property_values = {}
 
         failed_conversion_files = []
 
@@ -587,7 +586,6 @@ class TestImporter(object):
             total_imported_crashtests += dir_to_copy['crashtests']
 
             prefixed_properties = []
-            prefixed_property_values = []
 
             if not dir_to_copy['copy_list']:
                 continue
@@ -678,13 +676,7 @@ class TestImporter(object):
 
                         prefixed_properties.extend(set(converted_file[0]) - set(prefixed_properties))
 
-                        for prefixed_value in converted_file[1]:
-                            total_prefixed_property_values.setdefault(prefixed_value, 0)
-                            total_prefixed_property_values[prefixed_value] += 1
-
-                        prefixed_property_values.extend(set(converted_file[1]) - set(prefixed_property_values))
-
-                        self.filesystem.write_binary_file(new_filepath, converted_file[2])
+                        self.filesystem.write_binary_file(new_filepath, converted_file[1])
                 elif orig_filepath.endswith('__init__.py') and not self.filesystem.getsize(orig_filepath):
                     # Some bots dislike empty __init__.py.
                     self.write_init_py(new_filepath)
@@ -698,7 +690,7 @@ class TestImporter(object):
                 copied_files.append(new_filepath.replace(self._webkit_root, ''))
 
             self.remove_deleted_files(new_path, copied_files)
-            self.write_import_log(new_path, copied_files, prefixed_properties, prefixed_property_values)
+            self.write_import_log(new_path, copied_files, prefixed_properties)
 
         _log.info('Import complete')
         _log.info('IMPORTED %d TOTAL TESTS', total_imported_tests)
@@ -713,11 +705,6 @@ class TestImporter(object):
 
         for prefixed_property in sorted(total_prefixed_properties, key=lambda p: total_prefixed_properties[p]):
             _log.info('  %s: %s', prefixed_property, total_prefixed_properties[prefixed_property])
-        _log.info('')
-        _log.info('Property values needing prefixes (by count):')
-
-        for prefixed_value in sorted(total_prefixed_property_values, key=lambda p: total_prefixed_property_values[p]):
-            _log.info('  %s: %s', prefixed_value, total_prefixed_property_values[prefixed_value])
 
         if self.upstream_revision:
             _log.info('\n--------- Please include the following in your commit message: ---------\n')
@@ -813,7 +800,7 @@ class TestImporter(object):
                 continue
             self.filesystem.remove(deleted_file)
 
-    def write_import_log(self, import_directory, file_list, prop_list, property_values_list):
+    def write_import_log(self, import_directory, file_list, prop_list):
         """ Writes a w3c-import.log file in each directory with imported files. """
 
         import_log = []
@@ -828,12 +815,6 @@ class TestImporter(object):
         if prop_list:
             for prop in prop_list:
                 import_log.append(prop + '\n')
-        else:
-            import_log.append('None\n')
-        import_log.append('Property values requiring vendor prefixes:\n')
-        if property_values_list:
-            for value in property_values_list:
-                import_log.append(value + '\n')
         else:
             import_log.append('None\n')
         import_log.append('------------------------------------------------------------------------\n')

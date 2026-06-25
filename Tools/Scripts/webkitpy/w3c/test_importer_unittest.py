@@ -159,7 +159,6 @@ class TestImporterTest(unittest.TestCase):
             f'{FAKE_WPT_DIR}/css/t/test.html': MINIMAL_TESTHARNESS,
             f'{FAKE_WPT_DIR}/t/test.html': MINIMAL_TESTHARNESS,
             '/mock-checkout/Source/WebCore/css/CSSProperties.json': '',
-            '/mock-checkout/Source/WebCore/css/CSSValueKeywords.in': '',
         }
         FAKE_FILES.update(FAKE_RESOURCES)
 
@@ -579,7 +578,6 @@ class TestImporterTest(unittest.TestCase):
             f'{FAKE_WPT_DIR}/t/test.any.js': 'test(() => {}, "empty")',
             '/mock-checkout/LayoutTests/w3c/web-platform-tests/t/test.any.html': '<!-- This file is required for WebKit test infrastructure to run the templated test --><!-- webkit-test-runner [ dummy ] -->',
             '/mock-checkout/Source/WebCore/css/CSSProperties.json': '',
-            '/mock-checkout/Source/WebCore/css/CSSValueKeywords.in': '',
         }
         FAKE_FILES.update(FAKE_RESOURCES)
 
@@ -760,7 +758,6 @@ class TestImporterTest(unittest.TestCase):
         FAKE_FILES = {
             f'{FAKE_WPT_DIR}/t/test.html': TEST_HTML,
             '/mock-checkout/Source/WebCore/css/CSSProperties.json': '{"properties":{}}',
-            '/mock-checkout/Source/WebCore/css/CSSValueKeywords.in': '',
         }
         FAKE_FILES.update(FAKE_RESOURCES)
 
@@ -776,7 +773,6 @@ class TestImporterTest(unittest.TestCase):
             f'{FAKE_WPT_DIR}/t/test.html': MINIMAL_TESTHARNESS,
             f'{FAKE_WPT_DIR}/t/resource.html': RESOURCE_HTML,
             '/mock-checkout/Source/WebCore/css/CSSProperties.json': '{"properties":{}}',
-            '/mock-checkout/Source/WebCore/css/CSSValueKeywords.in': '',
         }
         FAKE_FILES.update(FAKE_RESOURCES)
 
@@ -795,7 +791,6 @@ class TestImporterTest(unittest.TestCase):
 }''',
             f'{FAKE_WPT_DIR}/encoding/raw-test.html': TEST_HTML,
             '/mock-checkout/Source/WebCore/css/CSSProperties.json': '{"properties":{}}',
-            '/mock-checkout/Source/WebCore/css/CSSValueKeywords.in': '',
             '/mock-checkout/LayoutTests/imported/w3c/resources/resource-files.json': '{"directories": [], "files": []}',
             f'{FAKE_WPT_DIR}/wpt': '',
             f'{FAKE_WPT_DIR}/resources/testharness.js': '',
