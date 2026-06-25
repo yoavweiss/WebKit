@@ -53,9 +53,9 @@
 
 namespace WebCore {
 
-RefPtr<ThreadableWebSocketChannel> ThreadableWebSocketChannel::create(Document& document, WebSocketChannelClient& client, SocketProvider& provider)
+RefPtr<ThreadableWebSocketChannel> ThreadableWebSocketChannel::create(Document& document, WebSocketChannelClient& client, SocketProvider& provider, IsInitiatedByDedicatedWorker isInitiatedByDedicatedWorker)
 {
-    return provider.createWebSocketChannel(document, client);
+    return provider.createWebSocketChannel(document, client, isInitiatedByDedicatedWorker);
 }
 
 RefPtr<ThreadableWebSocketChannel> ThreadableWebSocketChannel::create(ScriptExecutionContext& context, WebSocketChannelClient& client, SocketProvider& provider)

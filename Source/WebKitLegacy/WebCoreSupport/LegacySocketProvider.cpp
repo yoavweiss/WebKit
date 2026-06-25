@@ -31,7 +31,7 @@
 #import <WebCore/WebTransportSession.h>
 #import <wtf/CompletionHandler.h>
 
-RefPtr<WebCore::ThreadableWebSocketChannel> LegacySocketProvider::createWebSocketChannel(WebCore::Document&, WebCore::WebSocketChannelClient&)
+RefPtr<WebCore::ThreadableWebSocketChannel> LegacySocketProvider::createWebSocketChannel(WebCore::Document&, WebCore::WebSocketChannelClient&, WebCore::IsInitiatedByDedicatedWorker)
 {
     return nullptr;
 }
@@ -40,7 +40,7 @@ RefPtr<WebCore::ThreadableWebSocketChannel> LegacySocketProvider::createWebSocke
 #import <WebCore/WebTransportSession.h>
 #import <wtf/CompletionHandler.h>
 
-RefPtr<WebCore::ThreadableWebSocketChannel> LegacySocketProvider::createWebSocketChannel(WebCore::Document& document, WebCore::WebSocketChannelClient& client)
+RefPtr<WebCore::ThreadableWebSocketChannel> LegacySocketProvider::createWebSocketChannel(WebCore::Document& document, WebCore::WebSocketChannelClient& client, WebCore::IsInitiatedByDedicatedWorker)
 {
     return WebCore::WebSocketChannel::create(document, client, *this);
 }
