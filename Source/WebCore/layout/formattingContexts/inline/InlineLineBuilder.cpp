@@ -472,7 +472,7 @@ void LineBuilder::initialize(const InlineRect& initialLineLogicalRect, const Inl
     // This is by how much intrusive floats (coming from parent/sibling FCs) initially offset the line.
     m_initialIntrusiveFloatsWidth = m_lineLogicalRect.left() - initialLineLogicalRect.left();
     m_lineLogicalRect.moveHorizontally(m_lineMarginStart);
-    // While negative margins normally don't expand the available space, preferred width computation gets confused by negative text-indent
+    // While negative margins normally don't expand the available space, intrinsic width contribution computation gets confused by negative text-indent
     // (shrink the space needed for the content) which we have to balance it here.
     m_lineLogicalRect.expandHorizontally(-m_lineMarginStart);
     m_lineContentEdgeOffset = m_lineLogicalRect.left() - initialLineLogicalRect.left();
@@ -1172,7 +1172,7 @@ void LineBuilder::candidateContentForLine(LineCandidate& lineCandidate, std::pai
 static inline InlineLayoutUnit NODELETE availableWidth(const Line& line, InlineLayoutUnit lineWidth, std::optional<IntrinsicWidthMode> intrinsicWidthMode)
 {
 #if USE_FLOAT_AS_INLINE_LAYOUT_UNIT
-    // 1. Preferred width computation sums up floats while line breaker subtracts them.
+    // 1. Intrinsic width contribution computation sums up floats while line breaker subtracts them.
     // 2. Available space is inherently a LayoutUnit based value (coming from block/flex etc layout) and it is the result of a floored float.
     // These can all lead to epsilon-scale differences.
     if (!intrinsicWidthMode || *intrinsicWidthMode == IntrinsicWidthMode::Maximum)

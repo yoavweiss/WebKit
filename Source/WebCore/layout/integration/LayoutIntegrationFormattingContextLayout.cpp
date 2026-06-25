@@ -218,9 +218,9 @@ LayoutUnit formattingContextRootLogicalWidthForType(const Layout::ElementBox& bo
 
     CheckedRef renderer = downcast<RenderBox>(*box.rendererForIntegration());
     switch (logicalWidthType) {
-    case LogicalWidthType::PreferredMaximum:
+    case LogicalWidthType::MaxContentContribution:
         return renderer->maxContentLogicalWidthContribution();
-    case LogicalWidthType::PreferredMinimum:
+    case LogicalWidthType::MinContentContribution:
         return renderer->minContentLogicalWidthContribution();
     case LogicalWidthType::MaxContent:
     case LogicalWidthType::MinContent: {

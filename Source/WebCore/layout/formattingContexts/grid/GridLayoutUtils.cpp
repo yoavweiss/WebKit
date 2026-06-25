@@ -412,13 +412,13 @@ LayoutUnit gridAreaDimensionSize(size_t startLine, size_t endLine, const TrackSi
 LayoutUnit inlineAxisMinContentContribution(const PlacedGridItem& gridItem, LayoutUnit blockAxisConstraint, const IntegrationUtils& integrationUtils)
 {
     UNUSED_PARAM(blockAxisConstraint);
-    return integrationUtils.preferredMinWidth(gridItem.layoutBox());
+    return integrationUtils.minContentLogicalWidthContribution(gridItem.layoutBox());
 }
 
 LayoutUnit inlineAxisMaxContentContribution(const PlacedGridItem& gridItem, LayoutUnit blockAxisConstraint, const IntegrationUtils& integrationUtils)
 {
     UNUSED_PARAM(blockAxisConstraint);
-    return integrationUtils.preferredMaxWidth(gridItem.layoutBox());
+    return integrationUtils.maxContentLogicalWidthContribution(gridItem.layoutBox());
 }
 
 GridItemSizingFunctions inlineAxisGridItemSizingFunctions(const IntegrationUtils& integrationUtils)

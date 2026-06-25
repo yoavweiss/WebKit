@@ -43,8 +43,8 @@ namespace LayoutIntegration {
 void layoutWithFormattingContextForBox(const Layout::ElementBox&, std::optional<LayoutUnit> widthConstraint, std::optional<LayoutUnit> heightConstraint, Layout::LayoutState&);
 
 enum class LogicalWidthType : uint8_t  {
-    PreferredMaximum,
-    PreferredMinimum,
+    MaxContentContribution,
+    MinContentContribution,
     MaxContent,
     MinContent
 };

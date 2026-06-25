@@ -69,17 +69,17 @@ LayoutUnit IntegrationUtils::minContentHeight(const ElementBox& box, LayoutUnit 
     return m_globalLayoutState->geometryForBox(box).borderBoxHeight();
 }
 
-LayoutUnit IntegrationUtils::preferredMinWidth(const ElementBox& box) const
+LayoutUnit IntegrationUtils::minContentLogicalWidthContribution(const ElementBox& box) const
 {
     ASSERT(box.isGridItem());
-    return m_globalLayoutState->logicalWidthWithFormattingContextForBox(box, LayoutIntegration::LogicalWidthType::PreferredMinimum);
+    return m_globalLayoutState->logicalWidthWithFormattingContextForBox(box, LayoutIntegration::LogicalWidthType::MinContentContribution);
 }
 
 
-LayoutUnit IntegrationUtils::preferredMaxWidth(const ElementBox& box) const
+LayoutUnit IntegrationUtils::maxContentLogicalWidthContribution(const ElementBox& box) const
 {
     ASSERT(box.isGridItem());
-    return m_globalLayoutState->logicalWidthWithFormattingContextForBox(box, LayoutIntegration::LogicalWidthType::PreferredMaximum);
+    return m_globalLayoutState->logicalWidthWithFormattingContextForBox(box, LayoutIntegration::LogicalWidthType::MaxContentContribution);
 }
 
 void IntegrationUtils::layoutWithFormattingContextForBlockInInline(const ElementBox& block, LayoutPoint blockLineLogicalTopLeft, const InlineLayoutState& inlineLayoutState) const
