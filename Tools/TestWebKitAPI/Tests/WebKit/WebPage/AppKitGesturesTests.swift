@@ -161,6 +161,285 @@ struct AppKitGesturesTests {
     }
 
     @Test(
+        arguments: [true, false]
+    )
+    func draggingSelectionToWindowEdgeAutoscrolls(dragPastEdge: Bool) async throws {
+        let lines = (0..<100)
+            .reversed()
+            .map { "<p id='line\($0)'>\($0) bottles of beer on the wall</p>" }
+            .joined(separator: "\n")
+
+        let html = """
+            <div id="text" style="font-size: 60px; margin: 0;">\(lines)</div>
+            """
+        try await page.load(html: html).wait()
+
+        await page.waitForNextPresentationUpdate()
+
+        let startViewportCoordinates = try await page.callJavaScript(JavaScriptMessages.BoundingClientRect(elementID: "line97"))
+        let startBounds = convertToCoreGraphicsScreenCoordinates(rectInViewportCoordinates: startViewportCoordinates, window: window)
+
+        // Recap requires this test to be ran within an app host.
+        guard NSApp.isActive else {
+            return
+        }
+
+        let initialScrollPosition = try await page.callJavaScript(JavaScriptMessages.ScrollPosition())
+        #expect(CGPoint(initialScrollPosition) == .zero)
+
+        // Arbitrarily chosen to be close to the edge of the window.
+        let dragEndYInWindow: CGFloat = dragPastEdge ? -20 : 20
+        let dragEnd = convertToCoreGraphicsScreenCoordinates(
+            pointInWindowCoordinates: CGPoint(x: window.frame.width / 2, y: dragEndYInWindow),
+            window: window
+        )
+
+        await recap.play { composer in
+            // Click-and-hold to begin a range selection, then drag to the bottom edge and hold.
+            composer._wk_click(at: startBounds.center, for: .seconds(0.5))
+            composer.advanceTime(0.1)
+            composer._wk_drag(withStart: startBounds.center, end: dragEnd, duration: .seconds(1), release: false)
+
+            // Hold at the edge so the autoscroll timer fires repeatedly.
+            // The longer the duration the further down the scroll goes.
+            composer.advanceTime(0.5)
+            composer._wk_mouseUp()
+        }
+
+        await page.waitForNextPresentationUpdate()
+
+        let finalScrollPosition = try await page.callJavaScript(JavaScriptMessages.ScrollPosition())
+        #expect(finalScrollPosition.x == 0)
+        #expect(finalScrollPosition.y > 0)
+
+        let expectedEndPosition: JavaScriptSelection.Position = dragPastEdge ? .init(in: "line90", at: 18) : .init(in: "line91", at: 2)
+
+        let selection = try await page.callJavaScript(JavaScriptMessages.GetSelection())
+        #expect(selection == .range(base: .init(in: "line97", at: 14), extent: expectedEndPosition))
+    }
+
+    @Test
+    func holdingSelectionDragNearEdgeKeepsScrolling() async throws {
+        try await loadScrollableText()
+        await page.waitForNextPresentationUpdate()
+
+        let startBounds = try await screenBounds(ofElementWithID: "line297")
+
+        // Recap requires this test to be ran within an app host.
+        guard NSApp.isActive else {
+            return
+        }
+
+        // Record (timestamp, scrollY) on every scroll event so we can observe that scrolling continues
+        // throughout the hold, rather than scrolling in one burst and stopping early (the pre-fix bug).
+        try await page.callJavaScript {
+            """
+            window.__wkScrollLog = [];
+            window.addEventListener("scroll", () => window.__wkScrollLog.push(performance.now(), window.scrollY));
+            """
+        }
+
+        // Just inside the bottom edge of the window (window coordinates have a bottom-left origin).
+        let dragEnd = windowEdgePointInScreenCoordinates(x: window.frame.width / 2, y: 20)
+
+        await recap.play { composer in
+            composer._wk_click(at: startBounds.center, for: .seconds(0.5))
+            composer.advanceTime(0.1)
+            composer._wk_drag(withStart: startBounds.center, end: dragEnd, duration: .seconds(1), release: false)
+
+            // Hold near the edge for a couple of seconds so the autoscroll timer fires many times.
+            composer.advanceTime(2.0)
+            composer._wk_mouseUp()
+        }
+
+        await page.waitForNextPresentationUpdate()
+
+        let log = try await page.callJavaScript(returning: [Double].self) { "return window.__wkScrollLog;" }
+        let timestamps = stride(from: 0, to: log.count, by: 2).map { log[$0] }
+        let offsets = stride(from: 1, to: log.count, by: 2).map { log[$0] }
+
+        let firstTimestamp = try #require(timestamps.first)
+        let lastTimestamp = try #require(timestamps.last)
+        let lastOffset = try #require(offsets.last)
+
+        // The page actually scrolled...
+        #expect(lastOffset > 0)
+        // ...and kept scrolling across most of the ~2s hold instead of bursting then stopping early.
+        // `performance.now()` is in milliseconds.
+        #expect(lastTimestamp - firstTimestamp > 1000)
+    }
+
+    @Test
+    func holdingSelectionDragMidContentDoesNotAutoscroll() async throws {
+        try await loadScrollableText()
+        await page.waitForNextPresentationUpdate()
+
+        let startBounds = try await screenBounds(ofElementWithID: "line297")
+
+        // Recap requires this test to be ran within an app host.
+        guard NSApp.isActive else {
+            return
+        }
+
+        let initialScrollPosition = try await page.callJavaScript(JavaScriptMessages.ScrollPosition())
+        #expect(CGPoint(initialScrollPosition) == .zero)
+
+        let contentHeight = try #require(window.contentViewController?.view.frame.height)
+        let midContent = windowEdgePointInScreenCoordinates(x: window.frame.width / 2, y: contentHeight / 2)
+
+        await recap.play { composer in
+            composer._wk_click(at: startBounds.center, for: .seconds(0.5))
+            composer.advanceTime(0.1)
+            composer._wk_drag(withStart: startBounds.center, end: midContent, duration: .seconds(1), release: false)
+            composer.advanceTime(1.0)
+            composer._wk_mouseUp()
+        }
+
+        await page.waitForNextPresentationUpdate()
+
+        let finalScrollPosition = try await page.callJavaScript(JavaScriptMessages.ScrollPosition())
+        #expect(CGPoint(finalScrollPosition) == .zero)
+    }
+
+    @Test
+    func selectionAutoscrollStopsAfterGestureEnds() async throws {
+        try await loadScrollableText()
+        await page.waitForNextPresentationUpdate()
+
+        let startBounds = try await screenBounds(ofElementWithID: "line297")
+
+        // Recap requires this test to be ran within an app host.
+        guard NSApp.isActive else {
+            return
+        }
+
+        let dragEnd = windowEdgePointInScreenCoordinates(x: window.frame.width / 2, y: 20)
+
+        await recap.play { composer in
+            composer._wk_click(at: startBounds.center, for: .seconds(0.5))
+            composer.advanceTime(0.1)
+            composer._wk_drag(withStart: startBounds.center, end: dragEnd, duration: .seconds(1), release: false)
+            composer.advanceTime(0.5)
+            composer._wk_mouseUp()
+        }
+
+        await page.waitForNextPresentationUpdate()
+
+        let scrollAfterLift = try await page.callJavaScript(JavaScriptMessages.ScrollPosition())
+        #expect(scrollAfterLift.y > 0)
+
+        // Ending the gesture cancels autoscroll, so the page must not keep scrolling afterwards.
+        try await Task.sleep(for: .seconds(0.5))
+
+        let scrollLater = try await page.callJavaScript(JavaScriptMessages.ScrollPosition())
+        #expect(scrollLater.y == scrollAfterLift.y)
+    }
+
+    @Test()
+    func draggingSelectionToTopEdgeScrollsUp() async throws {
+        try await loadScrollableText()
+        await page.waitForNextPresentationUpdate()
+
+        // Recap requires this test to be ran within an app host.
+        guard NSApp.isActive else {
+            return
+        }
+
+        // Start partway down the page so there is room to scroll back up.
+        try await page.callJavaScript { "window.scrollTo(0, 3000);" }
+        await page.waitForNextPresentationUpdate()
+
+        let initialScrollPosition = try await page.callJavaScript(JavaScriptMessages.ScrollPosition())
+        #expect(initialScrollPosition.y > 0)
+
+        // Begin a selection on the visible text at the window's center, then drag up to the top edge.
+        let contentHeight = try #require(window.contentViewController?.view.frame.height)
+        let start = windowEdgePointInScreenCoordinates(x: window.frame.width / 2, y: contentHeight / 2)
+        let dragEnd = windowEdgePointInScreenCoordinates(x: window.frame.width / 2, y: contentHeight - 20)
+
+        await recap.play { composer in
+            composer._wk_click(at: start, for: .seconds(0.5))
+            composer.advanceTime(0.1)
+            composer._wk_drag(withStart: start, end: dragEnd, duration: .seconds(1), release: false)
+            composer.advanceTime(0.5)
+            composer._wk_mouseUp()
+        }
+
+        await page.waitForNextPresentationUpdate()
+
+        let finalScrollPosition = try await page.callJavaScript(JavaScriptMessages.ScrollPosition())
+        #expect(finalScrollPosition.y < initialScrollPosition.y)
+    }
+
+    @Test
+    func selectionOriginatingNearEdgeWithShortDragDoesNotAutoscroll() async throws {
+        try await loadScrollableText()
+        await page.waitForNextPresentationUpdate()
+
+        // Recap requires this test to be ran within an app host.
+        guard NSApp.isActive else {
+            return
+        }
+
+        let initialScrollPosition = try await page.callJavaScript(JavaScriptMessages.ScrollPosition())
+        #expect(CGPoint(initialScrollPosition) == .zero)
+
+        // Begin the selection inside the bottom edge band (~70pt from the bottom; the band is 100pt) and
+        // drag only a short distance toward the edge - less than the ~50pt threshold. The selection
+        // originates near the edge but the drag is too small to be a deliberate "scroll past the edge"
+        // gesture, so the page must not autoscroll. (Pre-fix, being in the band alone started autoscroll.)
+        let start = windowEdgePointInScreenCoordinates(x: window.frame.width / 2, y: 70)
+        let dragEnd = windowEdgePointInScreenCoordinates(x: window.frame.width / 2, y: 45)
+
+        await recap.play { composer in
+            composer._wk_click(at: start, for: .seconds(0.5))
+            composer.advanceTime(0.1)
+            composer._wk_drag(withStart: start, end: dragEnd, duration: .seconds(1), release: false)
+
+            // Hold so the autoscroll timer would fire repeatedly if it were going to.
+            composer.advanceTime(1.0)
+            composer._wk_mouseUp()
+        }
+
+        await page.waitForNextPresentationUpdate()
+
+        let finalScrollPosition = try await page.callJavaScript(JavaScriptMessages.ScrollPosition())
+        #expect(CGPoint(finalScrollPosition) == .zero)
+    }
+
+    @Test
+    func selectionOriginatingNearEdgeAutoscrollsAfterDraggingPastThreshold() async throws {
+        try await loadScrollableText()
+        await page.waitForNextPresentationUpdate()
+
+        // Recap requires this test to be ran within an app host.
+        guard NSApp.isActive else {
+            return
+        }
+
+        let initialScrollPosition = try await page.callJavaScript(JavaScriptMessages.ScrollPosition())
+        #expect(CGPoint(initialScrollPosition) == .zero)
+
+        // Same near-edge origin as the short-drag test, but now drag well past the threshold (and past the
+        // window edge) and hold, so the deliberate gesture engages autoscroll.
+        let start = windowEdgePointInScreenCoordinates(x: window.frame.width / 2, y: 70)
+        let dragEnd = windowEdgePointInScreenCoordinates(x: window.frame.width / 2, y: -40)
+
+        await recap.play { composer in
+            composer._wk_click(at: start, for: .seconds(0.5))
+            composer.advanceTime(0.1)
+            composer._wk_drag(withStart: start, end: dragEnd, duration: .seconds(1), release: false)
+            composer.advanceTime(0.5)
+            composer._wk_mouseUp()
+        }
+
+        await page.waitForNextPresentationUpdate()
+
+        let finalScrollPosition = try await page.callJavaScript(JavaScriptMessages.ScrollPosition())
+        #expect(finalScrollPosition.y > 0)
+    }
+
+    @Test(
         .bug("rdar://176117750"),
         arguments: [true, false]
     )
@@ -889,6 +1168,29 @@ extension AppKitGesturesTests {
         )
 
         return screenCoordinates
+    }
+
+    // Loads a tall column of identified lines (`line0` at the bottom, `line<count - 1>` at the top) so a
+    // selection drag has somewhere to autoscroll.
+    private func loadScrollableText(lineCount: Int = 300) async throws {
+        let lines = (0..<lineCount)
+            .reversed()
+            .map { "<p id='line\($0)'>\($0) bottles of beer on the wall</p>" }
+            .joined(separator: "\n")
+
+        let html = """
+            <div id="text" style="font-size: 60px; margin: 0;">\(lines)</div>
+            """
+        try await page.load(html: html).wait()
+    }
+
+    private func screenBounds(ofElementWithID id: String) async throws -> CGRect {
+        let viewportCoordinates = try await page.callJavaScript(JavaScriptMessages.BoundingClientRect(elementID: id))
+        return convertToCoreGraphicsScreenCoordinates(rectInViewportCoordinates: viewportCoordinates, window: window)
+    }
+
+    private func windowEdgePointInScreenCoordinates(x: CGFloat, y: CGFloat) -> CGPoint {
+        convertToCoreGraphicsScreenCoordinates(pointInWindowCoordinates: CGPoint(x: x, y: y), window: window)
     }
 }
 

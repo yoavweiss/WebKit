@@ -37,6 +37,11 @@ extension WKTextSelectionController {
     @nonobjc
     private var currentRangeSelectionGranularity: NSTextSelection.Granularity? = nil
 
+    // The most recent extent point of an ongoing range-selection drag, in view coordinates. Used to
+    // re-extend the selection as the page autoscrolls while the gesture holds near the window edge.
+    @nonobjc
+    private var lastRangeSelectionExtentPoint: NSPoint? = nil
+
     init(view: WKWebView) {
         self.view = view
         super.init()
@@ -70,6 +75,30 @@ extension WKTextSelectionController {
         let editorState = page.editorState
         view.textSelectionManager?.textSelectionMode =
             editorState.isContentEditable || editorState.isContentRichlyEditable ? .editable : .selectable
+    }
+
+    // Re-extends the selection toward the last drag point as the page autoscrolls. Invoked when the
+    // page scrolls so the selection keeps growing into the newly revealed content, mirroring the iOS
+    // `-updateSelection` re-extension. The web process decides when to start/stop autoscrolling (see
+    // `updateSelectionWithExtentPointAndBoundary` in WebPageCocoa.mm); here we only need to know a
+    // range-selection drag is in flight, which `lastRangeSelectionExtentPoint` tracks.
+    func reextendSelectionForAutoscrollIfNeeded() {
+        guard let page = view?._protectedPage().get() else {
+            return
+        }
+
+        guard let currentRangeSelectionGranularity, let point = lastRangeSelectionExtentPoint else {
+            return
+        }
+
+        Task.immediate {
+            await page.updateSelection(
+                withExtentPoint: WebCore.IntPoint(point),
+                by: .init(currentRangeSelectionGranularity),
+                isInteractingWithFocusedElement: true, // FIXME: Properly handle the case where this isn't actually true.
+                source: .Mouse
+            )
+        }
     }
 }
 
@@ -306,6 +335,11 @@ extension WKTextSelectionController {
 
         currentRangeSelectionGranularity = granularity
 
+        // Start each gesture from a clean slate: if a previous gesture ended abnormally (no
+        // endRangeSelection), a stale extent point or live autoscroll could otherwise leak into this one.
+        lastRangeSelectionExtentPoint = nil
+        page.cancelAutoscroll()
+
         impl.beginSuppressingSingleClickGestureForTextSelection()
 
         Task.immediate {
@@ -319,7 +353,7 @@ extension WKTextSelectionController {
 
     @objc(continueRangeSelectionAtPoint:)
     func continueRangeSelection(at point: NSPoint) {
-        guard let view, let page = view._protectedPage().get() else {
+        guard let page = view?._protectedPage().get() else {
             return
         }
 
@@ -329,6 +363,8 @@ extension WKTextSelectionController {
             assertionFailure("continueRangeSelection was called with a nil currentRangeSelectionGranularity")
             return
         }
+
+        lastRangeSelectionExtentPoint = point
 
         Task.immediate {
             await page.updateSelection(
@@ -349,6 +385,9 @@ extension WKTextSelectionController {
         Logger.viewGestures.log("[pageProxyID=\(page.logIdentifier())] \(#function) point: \(String(reflecting: point))")
 
         impl.endSuppressingSingleClickGestureForTextSelection()
+
+        page.cancelAutoscroll()
+        lastRangeSelectionExtentPoint = nil
 
         guard currentRangeSelectionGranularity != nil else {
             assertionFailure("endRangeSelection was called with a nil currentRangeSelectionGranularity")

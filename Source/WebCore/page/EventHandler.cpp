@@ -1112,6 +1112,14 @@ void EventHandler::updateSelectionForMouseDrag()
     if (!supportsSelectionUpdatesOnMouseDrag())
         return;
 
+#if PLATFORM(COCOA)
+    // During a selection-drag, the UI process re-extends the selection as the page
+    // autoscrolls (preserving the selection granularity), so don't also re-extend here using the
+    // stale last-known mouse position.
+    if (m_isAutoscrolling)
+        return;
+#endif
+
     RefPtr view = m_frame->view();
     if (!view)
         return;
@@ -3483,7 +3491,7 @@ bool EventHandler::shouldUpdateAutoscroll()
     return mousePressed();
 }
     
-#endif // !PLATFORM(IOS_FAMILY)
+#endif // !PLATFORM(COCOA)
 
 Widget* EventHandler::widgetForEventTarget(Element* eventTarget)
 {

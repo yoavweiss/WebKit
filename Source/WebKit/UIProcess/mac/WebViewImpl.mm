@@ -2523,6 +2523,12 @@ void WebViewImpl::pageDidScroll(const IntPoint& scrollOffset)
     m_lastPageScrollOffset = scrollOffset;
     m_pageScrollingHysteresis->impulse();
 
+#if HAVE(APPKIT_GESTURES_SUPPORT)
+    // While a selection-drag is autoscrolling, keep extending the selection toward the
+    // last drag point as the content scrolls underneath it.
+    [m_textSelectionController reextendSelectionForAutoscrollIfNeeded];
+#endif
+
 #if ENABLE(HORIZONTAL_BANNER_VIEW_OVERLAYS)
     updateWebContentDistancesFromEdges();
 #endif

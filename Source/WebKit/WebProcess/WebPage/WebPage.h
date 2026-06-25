@@ -219,6 +219,7 @@ class Range;
 class RegistrableDomain;
 class RemoteFrameGeometryTransformer;
 class RenderImage;
+class RenderObject;
 class Report;
 class ResourceRequest;
 class ResourceResponse;
@@ -1239,6 +1240,7 @@ public:
 #endif // PLATFORM(IOS_FAMILY)
 
 #if PLATFORM(COCOA)
+    WebCore::RenderObject* rendererForSelectionAutoscroll(WebCore::LocalFrame&) const;
     void startAutoscrollAtPosition(const WebCore::FloatPoint&);
     void cancelAutoscroll();
 #endif
@@ -3088,6 +3090,12 @@ private:
 
 #if PLATFORM(MAC)
     double m_overflowHeightForTopScrollEdgeEffect { 0 };
+
+    // Root-view origin of the in-flight selection-extend drag: captured on the first extent update and
+    // cleared by `cancelAutoscroll` (which the UI process calls at gesture begin/end). Lets the edge check
+    // require a minimum drag toward an edge before selection autoscroll engages, so a selection that merely
+    // originates near an edge doesn't scroll. Persists across hot-zone enter/exit within a single drag.
+    std::optional<WebCore::IntPoint> m_selectionAutoscrollDragOrigin;
 #endif
 
     bool m_needsScrollGeometryUpdates { false };
