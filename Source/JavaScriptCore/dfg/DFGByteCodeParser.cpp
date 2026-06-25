@@ -1485,8 +1485,23 @@ ByteCodeParser::Terminality ByteCodeParser::handleCall(const JSInstruction* pc, 
 
 void ByteCodeParser::refineStatically(CallLinkStatus& callLinkStatus, Node* callTarget)
 {
-    if (callTarget->isCellConstant())
-        callLinkStatus.setProvenConstantCallee(CallVariant(callTarget->asCell()));
+    if (m_graph.m_plan.isUnlinked())
+        return;
+
+    if (callLinkStatus.canOptimize()) {
+        if (callTarget->isCellConstant()) {
+            callLinkStatus.setProvenConstantCallee(CallVariant(callTarget->asCell()));
+            return;
+        }
+
+        // We know statically that callTarget came from NewFunction / NewGeneratorFunction /
+        // NewAsyncFunction / NewAsyncGeneratorFunction — so its executable is a constant. But
+        // we must still wait for the CallIC to actually populate, with exactly one observed
+        // variant, before promoting to a closure-call inline. Speculating ahead of the IC
+        // costs more than it saves.
+        if (callTarget->isFunctionAllocation() && callLinkStatus.size() == 1)
+            callLinkStatus.makeClosureCall();
+    }
 }
 
 ByteCodeParser::Terminality ByteCodeParser::handleCall(
