@@ -568,12 +568,12 @@ void RenderReplaced::computeIntrinsicSizesConstrainedByTransferredMinMaxSizes(Fl
 
         // Only apply min-constraints upward when the dimension is actually intrinsic (non-zero).
         // Max-constraints can always be applied since they only shrink values.
-        LayoutUnit width { intrinsicSize.width() };
+        LayoutUnit width = LayoutUnit::fromFloatRound(intrinsicSize.width());
         if (width > 0)
             width = std::max(width, minLogicalWidth);
         intrinsicSize.setWidth(std::min(width, maxLogicalWidth));
 
-        LayoutUnit height { intrinsicSize.height() };
+        LayoutUnit height = LayoutUnit::fromFloatRound(intrinsicSize.height());
         if (height > 0)
             height = std::max(height, minLogicalHeight);
         intrinsicSize.setHeight(std::min(height, maxLogicalHeight));
