@@ -133,6 +133,11 @@ void MediaSessionManagerInterface::resetRestrictions()
     m_restrictions[indexFromMediaType(PlatformMediaSession::MediaType::DOMMediaSession)] = MediaSessionRestriction::NoRestrictions;
 }
 
+bool MediaSessionManagerInterface::isMediaSessionManagerGLib() const
+{
+    return false;
+}
+
 bool MediaSessionManagerInterface::has(PlatformMediaSession::MediaType type) const
 {
     return anyOfSessions([type] (auto& session) {

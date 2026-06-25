@@ -5574,9 +5574,6 @@ webkit.org/b/316712 fast/forms/validation-message-clone.html [ Failure ]
 webkit.org/b/292843 fast/dom/Window/open-window-min-size.html [ Failure ]
 
 webkit.org/b/316718 imported/w3c/web-platform-tests/encrypted-media/clearkey-keystatuses-multiple-sessions.https.html [ Pass Failure ]
-webkit.org/b/316719 fast/images/alt-text-with-right-to-left-inline-direction-reordering.html [ Pass Crash ]
-webkit.org/b/316719 fast/html/HTMLCollection-set-property.html [ Pass Crash ]
-webkit.org/b/316719 fast/inline/001.html [ Pass Crash ]
 
 webkit.org/b/316573 fast/parser/empty-text-resource.html [ Pass Timeout ]
 webkit.org/b/316575 [ x86_64 ] http/tests/IndexedDB/collect-IDB-objects.https.html [ Pass Crash ]

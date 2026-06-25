@@ -156,6 +156,8 @@ public:
     virtual void scheduleSessionStatusUpdate() { }
     virtual void resetSessionState() { };
 
+    virtual bool isMediaSessionManagerGLib() const;
+
 #if !RELEASE_LOG_DISABLED
     const Logger& logger() const final;
 #endif

@@ -757,8 +757,8 @@ void Internals::resetToConsistentState(Page& page)
 #endif
 
 #if ENABLE(MEDIA_SESSION) && USE(GLIB)
-    MediaSessionManagerGLib* glibSessionManager = static_cast<MediaSessionManagerGLib*>(sessionManager.get());
-    glibSessionManager->setDBusNotificationsEnabled(false);
+    if (auto* glibSessionManager = dynamicDowncast<MediaSessionManagerGLib>(sessionManager.get()))
+        glibSessionManager->setDBusNotificationsEnabled(false);
 #endif
 
 #if PLATFORM(COCOA)
