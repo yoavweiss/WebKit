@@ -30,6 +30,7 @@
 
 #import "ApplicationServicesSPI.h"
 #import "CodeSigning.h"
+#import "Logging.h"
 #import "SandboxInitializationParameters.h"
 #import "SandboxUtilities.h"
 #import "WKFoundation.h"
@@ -665,7 +666,8 @@ static void populateSandboxInitializationParameters(SandboxInitializationParamet
 
     // Use private temporary and cache directories.
     CString userDirectorySuffixString = FileSystem::fileSystemRepresentation(sandboxParameters.userDirectorySuffix());
-    RELEASE_ASSERT(_set_user_dir_suffix(userDirectorySuffixString.data()));
+    if (!_set_user_dir_suffix(userDirectorySuffixString.data()))
+        RELEASE_LOG_ERROR(Process, "Unable to set user dir suffix");
 
     char temporaryDirectory[PATH_MAX];
     if (!confstr(_CS_DARWIN_USER_TEMP_DIR, temporaryDirectory, sizeof(temporaryDirectory))) {
