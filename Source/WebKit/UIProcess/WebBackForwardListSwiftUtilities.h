@@ -73,8 +73,12 @@ inline WebKit::FrameState* getFrameState(WebKit::WebBackForwardListFrameItem& it
     return &item.frameState();
 }
 
+void setFrameStateBackForwardItemIdentifier(WebKit::FrameState&, const WebCore::BackForwardItemIdentifier&);
+
 // Workarounds for rdar://171011011
 void appendToBackForwardStateItems(Vector<WebKit::BackForwardListItemState>& items, const WebKit::WebBackForwardListItem& entry);
 Ref<WebKit::WebBackForwardListItem> createItemFromState(const WebKit::BackForwardListItemState&, WebKit::WebPageProxyIdentifier pageIdentifier);
+Vector<Ref<WebKit::WebBackForwardListItem>> createItemsFromState(const WebKit::BackForwardListState&, WebKit::WebPageProxyIdentifier pageIdentifier);
+WebKit::WebBackForwardListItem* itemAtIndexInBackForwardListItemVector(const Vector<Ref<WebKit::WebBackForwardListItem>>& items, size_t index);
 
 #endif // ENABLE(BACK_FORWARD_LIST_SWIFT)

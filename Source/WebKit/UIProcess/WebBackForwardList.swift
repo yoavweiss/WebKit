@@ -709,9 +709,12 @@ final class WebBackForwardList {
 
         // FIXME: Enable restoring resourceDirectoryURL.
         entries.removeAll()
-        entries.reserveCapacity(backForwardListState.items.size())
-        for itemState in CxxVectorIterator(vec: backForwardListState.items) {
-            entries.append(createItemFromState(itemState, page.identifier()).ptr())
+        let restoredItems = createItemsFromState(backForwardListState, page.identifier())
+        let count = restoredItems.size()
+        entries.reserveCapacity(count)
+        for i in 0..<count {
+            // swift-format-ignore: NeverForceUnwrap
+            entries.append(itemAtIndexInBackForwardListItemVector(restoredItems, i)!)
         }
 
         currentIndex = Optional(fromCxx: backForwardListState.currentIndex).map({ val in Int(val) })
@@ -933,10 +936,7 @@ final class WebBackForwardList {
     }
 
     func setBackForwardItemIdentifier(frameState: WebKit.FrameState, itemID: WebCore.BackForwardItemIdentifier) {
-        frameState.itemID = WebCore.MarkableBackForwardItemIdentifier(itemID)
-        for child in CxxVectorIterator(vec: frameState.children) {
-            setBackForwardItemIdentifier(frameState: child.ptr(), itemID: itemID)
-        }
+        setFrameStateBackForwardItemIdentifier(frameState, itemID)
     }
 
     func completeFrameStateForNavigation(navigatedFrameState: WebKit.FrameState) -> WebKit.FrameState {
@@ -956,7 +956,8 @@ final class WebBackForwardList {
         if mainFrameItem.childItemForFrameID(navigatedFrameID) == nil {
             return navigatedFrameState
         }
-        let frameState = currentItem.copyMainFrameStateWithChildren().ptr()
+        let frameStateRef = currentItem.copyMainFrameStateWithChildren()
+        let frameState = frameStateRef.ptr()
         setBackForwardItemIdentifier(frameState: frameState, itemID: navigatedFrameState.itemID.pointee)
         frameState.replaceChildFrameState(consuming: WebKit.RefFrameState(navigatedFrameState))
         return frameState

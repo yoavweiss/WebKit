@@ -335,11 +335,6 @@ webkit.org/b/317214 [ mac ] TestWebKitAPI.NowPlayingTest.VideoElementWithMutedAu
 webkit.org/b/317214 [ mac ] TestWebKitAPI.NowPlayingTest.VideoElementWithoutAudio [ Crash ]
 webkit.org/b/317214 [ mac ] TestWebKitAPI.NowPlayingTest.VideoElementWithoutAudioPlayWithUserGesture [ Crash ]
 
-webkit.org/b/317676 TestWebKitAPI.SiteIsolation.NavigateFrameWithSiblingsBackForward [ Skip ]
-webkit.org/b/317676 TestWebKitAPI.SiteIsolation.NavigateIframeCrossOriginBackForwardAfterSessionRestoreToNewWebView [ Skip ]
-webkit.org/b/317676 TestWebKitAPI.SiteIsolation.NavigateIframeSameOriginBackForwardAfterSessionRestoreToNewWebView [ Skip ]
-webkit.org/b/317676 TestWebKitAPI.SiteIsolation.RestoreSessionFromAnotherWebView [ Skip ]
-
 webkit.org/b/317783 [ ios ] TestWebKitAPI.SiteIsolation.FindStringSelectionSameOriginFrameBeforeWrap [ Skip ]
 
 webkit.org/b/317800 [ ios ] TestWebKitAPI.WKNavigation.PreferredHTTPSPolicyAutomaticHTTPFallbackAfterTerminateProcess [ Skip ]
