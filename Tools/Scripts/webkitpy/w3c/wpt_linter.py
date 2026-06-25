@@ -58,21 +58,11 @@ class WPTLinter(object):
 
     def _run_lint(self, cmd):
         _log.debug('Running WPT linter: %s (cwd=%s)', ' '.join(cmd), self.wpt_path)
-        try:
-            result = subprocess.run(
-                cmd,
-                cwd=self.wpt_path,
-                capture_output=True,
-                check=True,
-            )
-        except subprocess.CalledProcessError as e:
-            # lint exits with 1 when there's lint errors; any other exit code is an
-            # actual failure.
-            if e.returncode != 1:
-                raise RuntimeError(
-                    'WPT linter failed:\n' + e.stderr.decode('utf-8', 'replace')
-                ) from e
-            result = e
+        result = subprocess.run(
+            cmd,
+            cwd=self.wpt_path,
+            capture_output=True,
+        )
         for line in result.stdout.splitlines():
             if not line.strip():
                 continue
