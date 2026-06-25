@@ -5932,6 +5932,132 @@ Ran 1296 tests of 1298 with 1293 successful
         return self.run_step()
 
 
+class TestRunAPITestsParallelSafety(BuildStepMixinAdditions, unittest.TestCase):
+    def setUp(self):
+        self.longMessage = True
+        self.jsonFileName = 'api_test_results.json'
+        return self.setup_test_build_step()
+
+    def tearDown(self):
+        return self.tear_down_test_build_step()
+
+    def test_skipped_no_modified_tests(self):
+        self.setup_step(RunAPITestsParallelSafety())
+        self.setProperty('fullPlatform', 'mac-sonoma')
+        self.setProperty('platform', 'mac')
+        self.setProperty('configuration', 'debug')
+        self.expect_outcome(result=SKIPPED, state_string='No API tests to check for parallel safety')
+        return self.run_step()
+
+    def test_success_mac(self):
+        self.setup_step(RunAPITestsParallelSafety())
+        self.setProperty('fullPlatform', 'mac-sonoma')
+        self.setProperty('platform', 'mac')
+        self.setProperty('configuration', 'debug')
+        self.setProperty('modified_api_tests', ['TestWebKitAPI.TestName'])
+
+        self.expectRemoteCommands(
+            ExpectShell(workdir='wkdir',
+                        log_environ=False,
+                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', f'python3 Tools/Scripts/run-api-tests --timestamps --no-build --debug --verbose --json-output={self.jsonFileName} --test-parallel-safety TestWebKitAPI.TestName 2>&1 | Tools/Scripts/filter-test-logs api'],
+                        logfiles={'json': self.jsonFileName},
+                        timeout=20 * 60
+                        )
+            .log('stdio', stdout='''
+worker/0 TestWebKitAPI.TestName Passed
+Ran 1 tests of 1 with 1 successful
+------------------------------
+All tests successfully passed!
+''')
+            .exit(0),
+        )
+        self.expect_outcome(result=SUCCESS, state_string='Passed parallel safety for 1 test(s)')
+        return self.run_step()
+
+    def test_success_ios_simulator(self):
+        self.setup_step(RunAPITestsParallelSafety())
+        self.setProperty('fullPlatform', 'ios-simulator-17')
+        self.setProperty('platform', 'ios')
+        self.setProperty('configuration', 'debug')
+        self.setProperty('modified_api_tests', ['TestWebKitAPI.TestName'])
+
+        self.expectRemoteCommands(
+            ExpectShell(workdir='wkdir',
+                        log_environ=False,
+                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', f'python3 Tools/Scripts/run-api-tests --timestamps --no-build --debug --verbose --json-output={self.jsonFileName} --ios-simulator --test-parallel-safety TestWebKitAPI.TestName 2>&1 | Tools/Scripts/filter-test-logs api'],
+                        logfiles={'json': self.jsonFileName},
+                        timeout=20 * 60
+                        )
+            .log('stdio', stdout='''
+worker/0 TestWebKitAPI.TestName Passed
+Ran 1 tests of 1 with 1 successful
+------------------------------
+All tests successfully passed!
+''')
+            .exit(0),
+        )
+        self.expect_outcome(result=SUCCESS, state_string='Passed parallel safety for 1 test(s)')
+        return self.run_step()
+
+    def test_one_failure(self):
+        self.setup_step(RunAPITestsParallelSafety())
+        self.setProperty('fullPlatform', 'mac-sonoma')
+        self.setProperty('platform', 'mac')
+        self.setProperty('configuration', 'release')
+        self.setProperty('modified_api_tests', ['TestWebKitAPI.TestName'])
+
+        self.expectRemoteCommands(
+            ExpectShell(workdir='wkdir',
+                        log_environ=False,
+                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', f'python3 Tools/Scripts/run-api-tests --timestamps --no-build --release --verbose --json-output={self.jsonFileName} --test-parallel-safety TestWebKitAPI.TestName 2>&1 | Tools/Scripts/filter-test-logs api'],
+                        logfiles={'json': self.jsonFileName},
+                        timeout=20 * 60
+                        )
+            .log('stdio', stdout='''
+worker/0 TestWebKitAPI.TestName Failed
+Ran 1 tests of 1 with 0 successful
+------------------------------
+Test suite failed
+
+Failed
+
+    TestWebKitAPI.TestName
+        **FAIL** TestName
+
+Testing completed, Exit status: 3
+''')
+            .exit(1),
+        )
+        self.expect_outcome(result=FAILURE, state_string='1 parallel safety test failed')
+        return self.run_step()
+
+    def test_multiple_tests(self):
+        self.setup_step(RunAPITestsParallelSafety())
+        self.setProperty('fullPlatform', 'mac-sonoma')
+        self.setProperty('platform', 'mac')
+        self.setProperty('configuration', 'debug')
+        self.setProperty('modified_api_tests', ['TestWebKitAPI.Test1', 'TestWebKitAPI.Test2'])
+
+        self.expectRemoteCommands(
+            ExpectShell(workdir='wkdir',
+                        log_environ=False,
+                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', f'python3 Tools/Scripts/run-api-tests --timestamps --no-build --debug --verbose --json-output={self.jsonFileName} --test-parallel-safety TestWebKitAPI.Test1 --test-parallel-safety TestWebKitAPI.Test2 2>&1 | Tools/Scripts/filter-test-logs api'],
+                        logfiles={'json': self.jsonFileName},
+                        timeout=20 * 60
+                        )
+            .log('stdio', stdout='''
+worker/0 TestWebKitAPI.Test1 Passed
+worker/0 TestWebKitAPI.Test2 Passed
+Ran 2 tests of 2 with 2 successful
+------------------------------
+All tests successfully passed!
+''')
+            .exit(0),
+        )
+        self.expect_outcome(result=SUCCESS, state_string='Passed parallel safety for 2 test(s)')
+        return self.run_step()
+
+
 class TestArchiveTestResults(BuildStepMixinAdditions, unittest.TestCase):
     def setUp(self):
         self.longMessage = True
