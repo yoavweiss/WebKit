@@ -635,6 +635,9 @@ Bug(WPE) security/contentSecurityPolicy/image-with-blob-url-allowed-by-img-src-s
 Bug(WPE) security/contentSecurityPolicy/image-with-blob-url-blocked-by-img-src-star.html [ Skip ]
 Bug(WPE) security/contentSecurityPolicy/video-with-blob-url-allowed-by-media-src-star.html [ Skip ]
 
+webkit.org/b/316984 tiled-drawing/scrolling/non-fast-region/fixed-div-in-scrollable-page.html [ Failure ]
+webkit.org/b/316984 tiled-drawing/scrolling/non-fast-region/wheel-handler-in-overflow-scroll.html [ Failure ]
+
 # WPT: css
 # ========
 

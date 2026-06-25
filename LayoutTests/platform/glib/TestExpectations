@@ -635,6 +635,8 @@ http/tests/workers/service/getnotifications.html [ Pass ]
 http/tests/websocket/tests/hybi/deflate-frame-parameter.html [ Pass ]
 http/tests/websocket/tests/hybi/extensions.html [ Pass ]
 
+tiled-drawing/scrolling/non-fast-region [ Pass ]
+
 imported/mozilla/svg/text/textpath-multiline.svg [ Pass ]
 
 imported/w3c/web-platform-tests/css/css-align/baseline-rules/grid-item-input-type-number.html [ Pass ]
