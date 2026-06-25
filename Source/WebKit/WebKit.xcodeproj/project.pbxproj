@@ -5232,6 +5232,7 @@
 		2D9CD5EB21FA503F0029ACFA /* TextCheckingControllerProxy.messages.in */ = {isa = PBXFileReference; lastKnownFileType = text; path = TextCheckingControllerProxy.messages.in; sourceTree = "<group>"; };
 		2D9CD5EC21FA503F0029ACFA /* TextCheckingControllerProxy.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = TextCheckingControllerProxy.mm; sourceTree = "<group>"; };
 		2D9CD5ED21FA503F0029ACFA /* TextCheckingControllerProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TextCheckingControllerProxy.h; sourceTree = "<group>"; };
+		221419632FEB73BA00C7E2ED /* EditingRangeClamping.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = EditingRangeClamping.cpp; sourceTree = "<group>"; };
 		2D9CD5EE21FA75EE0029ACFA /* EditingRange.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EditingRange.cpp; sourceTree = "<group>"; };
 		2D9EA30C1A96CB59002D2807 /* WKPageInjectedBundleClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WKPageInjectedBundleClient.h; sourceTree = "<group>"; };
 		2D9EA30E1A96CBFF002D2807 /* WebPageInjectedBundleClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebPageInjectedBundleClient.h; sourceTree = "<group>"; };
@@ -16525,6 +16526,7 @@
 				1A7E814E1152D2240003695B /* mac */,
 				CE1A0BCA1A48E6C60054EF74 /* spi */,
 				51B15A7D138439B200321AD8 /* unix */,
+				221419632FEB73BA00C7E2ED /* EditingRangeClamping.cpp */,
 				ECA680D31E6904B500731D20 /* ExtraPrivateSymbolsForTAPI.h */,
 				ECBFC1DB1E6A4D66000300C7 /* ExtraPublicSymbolsForTAPI.h */,
 				E3C788F02D035CED00D6C13D /* LogClient.cpp */,
