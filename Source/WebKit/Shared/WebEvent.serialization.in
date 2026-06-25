@@ -25,7 +25,8 @@
     ControlKey,
     AltKey,
     MetaKey,
-    CapsLockKey
+    CapsLockKey,
+    AltGraphKey
 };
 
 class WebKit::WebEvent {

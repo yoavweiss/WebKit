@@ -23,6 +23,7 @@ list(APPEND TestWebCore_SOURCES
     Tests/WebCore/win/DIBPixelData.cpp
     Tests/WebCore/win/LinkedFonts.cpp
     Tests/WebCore/win/WebCoreBundle.cpp
+    Tests/WebCore/win/WindowsKeyNames.cpp
 
     win/TestWebCoreStubs.cpp
 )

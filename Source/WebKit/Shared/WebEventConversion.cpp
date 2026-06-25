@@ -231,6 +231,8 @@ OptionSet<WebCore::PlatformEvent::Modifier> platform(OptionSet<WebEventModifier>
         result.add(WebCore::PlatformEvent::Modifier::MetaKey);
     if (modifiers.contains(WebEventModifier::CapsLockKey))
         result.add(WebCore::PlatformEvent::Modifier::CapsLockKey);
+    if (modifiers.contains(WebEventModifier::AltGraphKey))
+        result.add(WebCore::PlatformEvent::Modifier::AltGraphKey);
     return result;
 }
 
@@ -247,6 +249,8 @@ OptionSet<WebEventModifier> kit(OptionSet<WebCore::PlatformEvent::Modifier> modi
         result.add(WebEventModifier::MetaKey);
     if (modifiers.contains(WebCore::PlatformEvent::Modifier::CapsLockKey))
         result.add(WebEventModifier::CapsLockKey);
+    if (modifiers.contains(WebCore::PlatformEvent::Modifier::AltGraphKey))
+        result.add(WebEventModifier::AltGraphKey);
     return result;
 }
 

@@ -84,6 +84,12 @@ static inline OptionSet<WebEventModifier> modifiersForEvent(const GdkEvent* even
         modifiers.add(WebEventModifier::MetaKey);
     if (state & GDK_LOCK_MASK && eventModifiersContainCapsLock(const_cast<GdkEvent*>(event)))
         modifiers.add(WebEventModifier::CapsLockKey);
+#if !GTK_CHECK_VERSION(4, 0, 0)
+    // On X11 the AltGraph (ISO_Level3_Shift) modifier is reported as Mod5. This
+    // GdkModifierType bit only exists in GTK3; GTK4 (and later) no longer expose it.
+    if (state & GDK_MOD5_MASK)
+        modifiers.add(WebEventModifier::AltGraphKey);
+#endif
 
     GdkEventType type = gdk_event_get_event_type(const_cast<GdkEvent*>(event));
     if (type != GDK_KEY_PRESS)
@@ -110,6 +116,14 @@ static inline OptionSet<WebEventModifier> modifiersForEvent(const GdkEvent* even
     case GDK_KEY_Meta_L:
     case GDK_KEY_Meta_R:
         modifiers.add(WebEventModifier::MetaKey);
+        break;
+    case GDK_KEY_ISO_Level3_Shift:
+    case GDK_KEY_ISO_Level3_Latch:
+    case GDK_KEY_ISO_Level3_Lock:
+    case GDK_KEY_ISO_Level5_Shift:
+    case GDK_KEY_ISO_Level5_Latch:
+    case GDK_KEY_ISO_Level5_Lock:
+        modifiers.add(WebEventModifier::AltGraphKey);
         break;
     case GDK_KEY_Caps_Lock:
         modifiers.add(WebEventModifier::CapsLockKey);
