@@ -191,7 +191,7 @@ inline LayoutRect RenderBox::marginBoxRect() const
 inline const LayoutRect RenderBox::scrollableContentAreaOverflowRect() const
 {
     if (!m_overflow)
-        return flippedClientBoxRect();
+        return flippedContentBoxRect();
 
     return m_overflow->contentArea();
 }
