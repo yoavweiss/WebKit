@@ -166,7 +166,7 @@ public:
 
     OrderedNamedElementsMap namedElements;
     FloatSize initialLargeViewportSize;
-    float initialPageZoom;
+    float initialPageZoom { 1 };
     MonotonicTime startTime;
     RefPtr<SecurityOrigin> oldDocumentOrigin;
 };
@@ -249,7 +249,7 @@ private:
     OrderedNamedElementsMap m_namedElements;
     ViewTransitionPhase m_phase { ViewTransitionPhase::PendingCapture };
     FloatSize m_initialLargeViewportSize;
-    float m_initialPageZoom;
+    float m_initialPageZoom { 1 };
 
     RefPtr<ViewTransitionUpdateCallback> m_updateCallback;
     bool m_isCrossDocument { false };
