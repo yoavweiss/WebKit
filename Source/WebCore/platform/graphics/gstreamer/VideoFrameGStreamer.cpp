@@ -498,6 +498,8 @@ VideoFrameGStreamer::VideoFrameGStreamer(const GRefPtr<GstSample>& sample, const
     , m_sample(sample)
     , m_presentationSize(options.presentationSize)
 {
+    ASSERT(m_sample);
+
     ensureVideoFrameDebugCategoryInitialized();
     setMemoryTypeFromCaps();
 
@@ -866,6 +868,38 @@ VideoFrameContentHint VideoFrameGStreamer::contentHint() const
 {
     auto buffer = gst_sample_get_buffer(m_sample.get());
     return webkitGstBufferGetContentHint(buffer);
+}
+
+bool VideoFrameGStreamer::isEncoded() const
+{
+    GstCaps* caps = gst_sample_get_caps(m_sample.get());
+    if (!caps)
+        return false;
+
+    const GstStructure* structure = gst_caps_get_structure(caps, 0);
+    if (!structure)
+        return false;
+
+    return gstStructureGetName(structure) != "video/x-raw"_s;
+}
+
+bool VideoFrameGStreamer::hasSameEncodedFormat(const VideoFrame& other) const
+{
+    if (!other.isGStreamer())
+        return false;
+
+    GstCaps* thisCaps = gst_sample_get_caps(m_sample.get());
+    GstCaps* otherCaps = gst_sample_get_caps(static_cast<const VideoFrameGStreamer&>(other).m_sample.get());
+
+    if (!thisCaps && !otherCaps)
+        return true;
+
+    if (!thisCaps || !otherCaps)
+        return false;
+
+    ASSERT(thisCaps && otherCaps);
+
+    return gst_caps_is_equal(thisCaps, otherCaps);
 }
 
 #undef GST_CAT_DEFAULT

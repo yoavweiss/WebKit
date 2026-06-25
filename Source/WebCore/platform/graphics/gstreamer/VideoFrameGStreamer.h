@@ -110,6 +110,9 @@ public:
 
     VideoFrameContentHint contentHint() const;
 
+    bool isEncoded() const final;
+    bool hasSameEncodedFormat(const VideoFrame&) const final;
+
 private:
     VideoFrameGStreamer(GRefPtr<GstSample>&&, const CreateOptions&, PlatformVideoColorSpace&&);
     VideoFrameGStreamer(const GRefPtr<GstSample>&, const CreateOptions&, PlatformVideoColorSpace&&);
