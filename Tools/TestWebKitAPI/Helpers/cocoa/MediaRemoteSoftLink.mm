@@ -25,7 +25,7 @@
 
 #include "MediaRemoteSoftLink.h"
 
-SOFT_LINK_FRAMEWORK_FOR_SOURCE(TestWebKitAPI, MediaRemote)
+SOFT_LINK_PRIVATE_FRAMEWORK_FOR_SOURCE(TestWebKitAPI, MediaRemote)
 
 SOFT_LINK_CONSTANT_FOR_SOURCE(TestWebKitAPI, MediaRemote, kMRMediaRemoteNowPlayingApplicationDidChangeNotification, CFStringRef)
 SOFT_LINK_CONSTANT_FOR_SOURCE(TestWebKitAPI, MediaRemote, kMRMediaRemoteNowPlayingApplicationPIDUserInfoKey, CFStringRef)

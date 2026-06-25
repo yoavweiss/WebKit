@@ -330,11 +330,6 @@ webkit.org/b/316931 [ ios ] TestWebKitAPI.CopyHTML.SanitizationPreservesCharacte
 webkit.org/b/317144 TestWebKitAPI.WKHTTPCookieStore.WebSocketCookiesFromRedirect [ Skip ]
 webkit.org/b/317144 TestWebKitAPI.WKHTTPCookieStore.WebSocketCookiesThroughRedirect [ Skip ]
 
-webkit.org/b/317214 [ mac ] TestWebKitAPI.MediaSessionTest.MinimalCommands [ Crash ]
-webkit.org/b/317214 [ mac ] TestWebKitAPI.NowPlayingTest.VideoElementWithMutedAudio [ Crash ]
-webkit.org/b/317214 [ mac ] TestWebKitAPI.NowPlayingTest.VideoElementWithoutAudio [ Crash ]
-webkit.org/b/317214 [ mac ] TestWebKitAPI.NowPlayingTest.VideoElementWithoutAudioPlayWithUserGesture [ Crash ]
-
 webkit.org/b/317783 [ ios ] TestWebKitAPI.SiteIsolation.FindStringSelectionSameOriginFrameBeforeWrap [ Skip ]
 
 webkit.org/b/317800 [ ios ] TestWebKitAPI.WKNavigation.PreferredHTTPSPolicyAutomaticHTTPFallbackAfterTerminateProcess [ Skip ]
