@@ -2563,6 +2563,14 @@ static WebCore::FloatPoint constrainContentOffset(WebCore::FloatPoint contentOff
 
 - (void)_dispatchSetOrientationForMediaCapture:(WebCore::IntDegrees)orientationForMediaCapture
 {
+    // orientation=0 maps to both UIInterfaceOrientationPortrait and UIInterfaceOrientationUnknown.
+    // When windowScene is nil the view has no valid scene (e.g. during initialisation before being
+    // added to a window), so 0 means Unknown, not Portrait. Dispatching it would broadcast to all
+    // GPU process connections and corrupt the orientation of any running camera source on other pages.
+    // didMoveToWindow will send the correct orientation once the view is placed in a scene.
+    if (!orientationForMediaCapture && !self.window.windowScene)
+        return;
+
     if (_perProcessState.lastSentOrientationForMediaCapture && _perProcessState.lastSentOrientationForMediaCapture.value() == orientationForMediaCapture)
         return;
 

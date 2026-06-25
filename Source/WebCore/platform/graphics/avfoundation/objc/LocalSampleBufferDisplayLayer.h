@@ -60,6 +60,8 @@ public:
     void rootLayerBoundsDidChange();
 
     CGRect bounds() const;
+    CGRect sampleLayerBoundsForTesting() const;
+    void setVideoFrameRotationForTesting(WebCore::VideoFrameRotation);
 
     PlatformLayer* NODELETE displayLayer();
 

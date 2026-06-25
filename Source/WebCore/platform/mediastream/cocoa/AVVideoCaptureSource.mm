@@ -1362,8 +1362,8 @@ void AVVideoCaptureSource::orientationChanged(IntDegrees orientation)
 {
     ASSERT(orientation == 0 || orientation == 90 || orientation == -90 || orientation == 180);
     m_deviceOrientation = orientation;
+    ALWAYS_LOG_IF_POSSIBLE(LOGIDENTIFIER, "orientation = ", m_deviceOrientation);
     computeVideoFrameRotation();
-    ALWAYS_LOG_IF_POSSIBLE(LOGIDENTIFIER, "rotation = ", m_videoFrameRotation, ", orientation = ", m_deviceOrientation);
 }
 
 void AVVideoCaptureSource::rotationAngleForHorizonLevelDisplayChanged(const String& devicePersistentId, VideoFrameRotation videoFrameRotation)
@@ -1376,8 +1376,8 @@ void AVVideoCaptureSource::rotationAngleForHorizonLevelDisplayChanged(const Stri
     if (videoFrameRotation == m_videoFrameRotation)
         return;
 
-    m_videoFrameRotation = videoFrameRotation;
     ALWAYS_LOG_IF_POSSIBLE(LOGIDENTIFIER, "rotation = ", m_videoFrameRotation);
+    m_videoFrameRotation = videoFrameRotation;
     notifySettingsDidChangeObservers({ RealtimeMediaSourceSettings::Flag::Width, RealtimeMediaSourceSettings::Flag::Height });
 }
 
@@ -1411,6 +1411,7 @@ void AVVideoCaptureSource::computeVideoFrameRotation()
     if (videoFrameRotation == m_videoFrameRotation)
         return;
 
+    ALWAYS_LOG_IF_POSSIBLE(LOGIDENTIFIER, "rotation was ", videoFrameRotation, ", is now ", m_videoFrameRotation);
     m_videoFrameRotation = videoFrameRotation;
     notifySettingsDidChangeObservers({ RealtimeMediaSourceSettings::Flag::Width, RealtimeMediaSourceSettings::Flag::Height });
 }

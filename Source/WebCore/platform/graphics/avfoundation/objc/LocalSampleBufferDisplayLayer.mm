@@ -292,6 +292,16 @@ CGRect LocalSampleBufferDisplayLayer::bounds() const
     return m_rootLayer.get().bounds;
 }
 
+CGRect LocalSampleBufferDisplayLayer::sampleLayerBoundsForTesting() const
+{
+    return m_sampleBufferDisplayLayer.get().bounds;
+}
+
+void LocalSampleBufferDisplayLayer::setVideoFrameRotationForTesting(VideoFrameRotation rotation)
+{
+    m_videoFrameRotation = rotation;
+}
+
 void LocalSampleBufferDisplayLayer::updateBoundsAndPosition(CGRect bounds, std::optional<WTF::MachSendRightAnnotated>&&)
 {
     updateSampleLayerBoundsAndPosition(bounds);
@@ -305,18 +315,21 @@ void LocalSampleBufferDisplayLayer::updateSampleLayerBoundsAndPosition(std::opti
             return;
 
         RetainPtr rootLayer = protectedThis->m_rootLayer;
-        auto layerBounds = bounds.value_or(rootLayer.get().bounds);
-        CGPoint layerPosition { layerBounds.size.width / 2, layerBounds.size.height / 2 };
-        if (rotation == VideoFrame::Rotation::Right || rotation == VideoFrame::Rotation::Left)
-            std::swap(layerBounds.size.width, layerBounds.size.height);
+        RetainPtr sampleBufferDisplayLayer = protectedThis->m_sampleBufferDisplayLayer;
         runWithoutAnimations([&] {
-            if (bounds) {
-                rootLayer.get().position = { bounds->size.width / 2, bounds->size.height / 2 };
-                rootLayer.get().bounds = *bounds;
-            }
-
-            RetainPtr sampleBufferDisplayLayer = protectedThis->m_sampleBufferDisplayLayer;
             sampleBufferDisplayLayer.get().affineTransform = affineTransform;
+            // Without explicit bounds, only update the transform. Swapping the stale root
+            // layer bounds here would produce a wrong-sized frame; the caller will provide
+            // correct explicit bounds via updateBoundsAndPosition once the rotation change
+            // has propagated through the media pipeline.
+            if (!bounds)
+                return;
+            auto layerBounds = *bounds;
+            CGPoint layerPosition { layerBounds.size.width / 2, layerBounds.size.height / 2 };
+            if (rotation == VideoFrame::Rotation::Right || rotation == VideoFrame::Rotation::Left)
+                std::swap(layerBounds.size.width, layerBounds.size.height);
+            rootLayer.get().position = { bounds->size.width / 2, bounds->size.height / 2 };
+            rootLayer.get().bounds = *bounds;
             sampleBufferDisplayLayer.get().position = layerPosition;
             sampleBufferDisplayLayer.get().bounds = layerBounds;
         });
