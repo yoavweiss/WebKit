@@ -391,6 +391,9 @@ if (ENABLE_WEBKIT)
     set(TestWebKit_FRAMEWORKS
         WebKit
     )
+    if (APPLE)
+        list(APPEND TestWebKit_FRAMEWORKS WebKitLegacy)
+    endif ()
 
     set(TestWebKit_DEPENDENCIES
         TestWebKitAPIInjectedBundle

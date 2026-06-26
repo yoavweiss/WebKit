@@ -19,16 +19,11 @@ set(MiniBrowser_SOURCES
     ${TOOLS_DIR}/MiniBrowser/MBToolbarItem.m
 )
 
-# WebKit headers must precede WebKitLegacy's -- Legacy has a WebKit -> WebKitLegacy symlink,
-# so <WebKit/WebKit.h> resolves to the legacy umbrella if Legacy is searched first.
 set(MiniBrowser_INCLUDE_DIRECTORIES
-    ${WebKit_FRAMEWORK_HEADERS_DIR}
-    ${WebKitLegacy_FRAMEWORK_HEADERS_DIR}
     ${WebCore_PRIVATE_FRAMEWORK_HEADERS_DIR}
     ${JavaScriptCore_FRAMEWORK_HEADERS_DIR}
     ${JavaScriptCore_PRIVATE_FRAMEWORK_HEADERS_DIR}
     ${WTF_FRAMEWORK_HEADERS_DIR}
-    ${CMAKE_SOURCE_DIR}/Source/WebKitLegacy
     ${CMAKE_SOURCE_DIR}/Source
     ${MINIBROWSER_DIR}
 )
@@ -39,8 +34,8 @@ set(MiniBrowser_LIBRARIES
     "-framework QuartzCore"
     "-framework UniformTypeIdentifiers"
     "-framework UserNotifications"
-    WebKit
-    WebKitLegacy
+    WebKit::WebKit
+    WebKit::WebKitLegacy
 )
 
 set(CMAKE_EXE_LINKER_FLAGS "-framework Cocoa")

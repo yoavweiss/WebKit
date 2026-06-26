@@ -448,22 +448,18 @@ set(WebKitLegacy_LEGACY_FORWARDING_HEADERS_FILES
     mac/WebView/WebWindowAnimation.h
 )
 
-# Add these to the project header map.
-# FIXME: The "forwarding" step can probably be replaced with this headermap,
-# since it makes the headers available via a framework-style import.
-set(WebKitLegacy_PROJECT_HEADERS ${WebKitLegacy_LEGACY_FORWARDING_HEADERS_FILES})
+# Add these to the public header map.
+set(WebKitLegacy_PRIVATE_FRAMEWORK_HEADERS ${WebKitLegacy_LEGACY_FORWARDING_HEADERS_FILES})
 
-foreach (_file ${WebKitLegacy_LEGACY_FORWARDING_HEADERS_FILES})
-    get_filename_component(_name "${_file}" NAME)
-    set(_target_filename "${WebKitLegacy_FRAMEWORK_HEADERS_DIR}/WebKitLegacy/${_name}")
-    if (NOT EXISTS ${_target_filename})
-        file(WRITE ${_target_filename} "#import \"${_file}\"")
-    endif ()
-endforeach ()
-
-# WK2 code imports WebKitLegacy headers via <WebKit/...> (e.g. _WKFeature.h -> <WebKit/WebFeature.h>).
-# Symlink WebKit/ -> WebKitLegacy/ so both prefixes resolve from the same headers dir.
-file(CREATE_LINK "${WebKitLegacy_FRAMEWORK_HEADERS_DIR}/WebKitLegacy"
-                 "${WebKitLegacy_FRAMEWORK_HEADERS_DIR}/WebKit" SYMBOLIC)
+if (USE_HEADER_MAPS)
+    WEBKIT_WRITE_HEADER_MAP(WebKit
+        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/WebKit-forwarding-headers.hmap
+        FILES ${WebKitLegacy_LEGACY_FORWARDING_HEADERS_FILES}
+        BRACKETED
+    )
+    set(WebKitLegacy_INTERFACE_INCLUDE_DIRECTORIES
+        ${CMAKE_CURRENT_BINARY_DIR}/WebKit-forwarding-headers.hmap
+    )
+endif ()
 
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -compatibility_version 1 -current_version ${WEBKIT_MAC_VERSION} -framework SecurityInterface")

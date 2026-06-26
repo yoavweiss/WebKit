@@ -772,6 +772,9 @@ set(WebKit_FRAMEWORKS
     WebCore
     bmalloc
 )
+if (APPLE)
+    list(APPEND WebKit_FRAMEWORKS WebKitLegacy)
+endif ()
 if (USE_APPLE_INTERNAL_SDK)
     list(APPEND WebKit_FRAMEWORKS WebKitAdditions)
     list(APPEND WebKit_PRIVATE_INCLUDE_DIRECTORIES "${WebKitAdditions_FRAMEWORK_HEADERS_DIR}/WebKitAdditions")
@@ -1506,6 +1509,8 @@ endif ()
 
 if (APPLE)
     WEBKIT_ADD_TARGET_CXX_FLAGS(WebKit -fobjc-weak)
+    set_property(TARGET WebKit
+        PROPERTY LINK_LIBRARY_OVERRIDE_WebKitLegacy REEXPORT_FRAMEWORK)
 endif ()
 
 if ("${PORT}" STREQUAL "Mac" OR "${PORT}" STREQUAL "IOS")

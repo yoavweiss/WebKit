@@ -28,6 +28,9 @@ set(WebKitTestRunner_FRAMEWORKS
     WebKit
     bmalloc
 )
+if (APPLE)
+    list(APPEND WebKitTestRunner_FRAMEWORKS WebKitLegacy)
+endif ()
 
 if (COMPILER_IS_GCC_OR_CLANG)
     if (HAVE_STD_EXPERIMENTAL_FILESYSTEM)
