@@ -33,11 +33,13 @@
 #import "Helpers/PlatformUtilities.h"
 #import "Helpers/Test.h"
 #import "Helpers/cocoa/TestWKWebView.h"
+#import "TestURLSchemeHandler.h"
 #import <WebKit/WKNavigationActionPrivate.h>
 #import <WebKit/WKNavigationDelegatePrivate.h>
 #import <WebKit/WKNavigationPrivate.h>
 #import <WebKit/WKPreferencesPrivate.h>
 #import <WebKit/WKWebViewPrivate.h>
+#import <WebKit/_WKFeature.h>
 #import <pal/spi/cocoa/AuthKitSPI.h>
 #import <wtf/BlockPtr.h>
 #import <wtf/RetainPtr.h>
@@ -1599,6 +1601,93 @@ TEST(SOAuthorizationRedirect, AuthorizationOptionsAboutBlank)
     checkAuthorizationOptions(true, ""_s, 0);
     EXPECT_TRUE(policyForAppSSOPerformed);
 }
+
+#if ENABLE(IPC_TESTING_API)
+static Vector<String> gObservedInitiatorOrigins;
+static unsigned gExpectedAuthorizationCount = 0;
+
+static void overrideBeginAuthorizationWithURLAndRecordInitiatorOrigin(id, SEL, NSURL *, NSDictionary *, NSData *)
+{
+    gObservedInitiatorOrigins.append([gAuthorization authorizationOptions][SOAuthorizationOptionInitiatorOrigin]);
+    if (gObservedInitiatorOrigins.size() >= gExpectedAuthorizationCount)
+        authorizationPerformed = true;
+    dispatch_async(mainDispatchQueueSingleton(), ^{
+        [gDelegate authorizationDidNotHandle:gAuthorization];
+    });
+}
+
+// A compromised WebContent process may forge originatingFrameInfoData.securityOrigin in
+// DecidePolicyForNavigationActionAsync. The InitiatorOrigin forwarded to AppSSO must be derived
+// from UI-process-authoritative state (the page's committed main-frame URL), not from that field.
+TEST(SOAuthorizationRedirect, InitiatorOriginIgnoresWebProcessSuppliedSourceFrameOrigin)
+{
+    resetState();
+    gObservedInitiatorOrigins = { };
+    gExpectedAuthorizationCount = 2;
+
+    ClassMethodSwizzler swizzler0(PAL::getSOAuthorizationClassSingleton(), @selector(canPerformAuthorizationWithURL:responseCode:callerBundleIdentifier:useInternalExtensions:completion:), reinterpret_cast<IMP>(overrideCanPerformAuthorizationWithURLCompletion));
+    ClassMethodSwizzler swizzler1(PAL::getSOAuthorizationClassSingleton(), @selector(canPerformAuthorizationWithURL:responseCode:), reinterpret_cast<IMP>(overrideCanPerformAuthorizationWithURL));
+    InstanceMethodSwizzler swizzler2(PAL::getSOAuthorizationClassSingleton(), @selector(setDelegate:), reinterpret_cast<IMP>(overrideSetDelegate));
+    InstanceMethodSwizzler swizzler3(PAL::getSOAuthorizationClassSingleton(), @selector(beginAuthorizationWithURL:httpHeaders:httpBody:), reinterpret_cast<IMP>(overrideBeginAuthorizationWithURLAndRecordInitiatorOrigin));
+    InstanceMethodSwizzler swizzler4(PAL::getSOAuthorizationClassSingleton(), @selector(cancelAuthorization), reinterpret_cast<IMP>(overrideCancelAuthorization));
+    InstanceMethodSwizzler swizzler5(PAL::getSOAuthorizationClassSingleton(), @selector(getAuthorizationHintsWithURL:responseCode:completion:), reinterpret_cast<IMP>(overrideGetAuthorizationHintsWithURL));
+
+    // Captures the raw bytes of the legitimate DecidePolicyForNavigationActionAsync IPC, byte-replaces
+    // every occurrence of the page's real host with a same-length forged host, and replays the message.
+    static constexpr auto byteReplayHTML =
+    "<script>"
+    "const msgName = IPC.messages.WebPageProxy_DecidePolicyForNavigationActionAsync.name;"
+    "const enc = new TextEncoder();"
+    "const realBytes = enc.encode('localhost');"
+    "const evilBytes = enc.encode('evil.host');"
+    "function replaceAll(u8, from, to) {"
+    "    outer: for (let i = 0; i + from.length <= u8.length; i++) {"
+    "        for (let j = 0; j < from.length; j++) if (u8[i+j] !== from[j]) continue outer;"
+    "        for (let j = 0; j < to.length; j++) u8[i+j] = to[j];"
+    "        i += from.length - 1;"
+    "    }"
+    "}"
+    "let replayed = false;"
+    "IPC.addOutgoingMessageListener('UI', function (desc) {"
+    "    if (!desc || desc.name !== msgName || replayed || !desc.buffer) return;"
+    "    replayed = true;"
+    "    const mutated = new Uint8Array(new Uint8Array(desc.buffer));"
+    "    replaceAll(mutated, realBytes, evilBytes);"
+    "    IPC.sendMessage('UI', desc.destinationID, msgName, mutated.slice(16));"
+    "});"
+    "location = 'http://www.example.com';"
+    "</script>"_s;
+
+    RetainPtr configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
+    for (_WKFeature *feature in [WKPreferences _features]) {
+        if ([feature.key isEqualToString:@"IPCTestingAPIEnabled"]) {
+            [[configuration preferences] _setEnabled:YES forFeature:feature];
+            break;
+        }
+    }
+    RetainPtr schemeHandler = adoptNS([[TestURLSchemeHandler alloc] init]);
+    [schemeHandler setStartURLSchemeTaskHandler:^(WKWebView *, id<WKURLSchemeTask> task) {
+        RetainPtr response = adoptNS([[NSURLResponse alloc] initWithURL:task.request.URL MIMEType:@"text/html" expectedContentLength:0 textEncodingName:nil]);
+        [task didReceiveResponse:response.get()];
+        [task didReceiveData:[NSData dataWithBytes:byteReplayHTML.characters() length:byteReplayHTML.length()]];
+        [task didFinish];
+    }];
+    [configuration setURLSchemeHandler:schemeHandler.get() forURLScheme:@"wcptest"];
+
+    RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 320, 500) configuration:configuration.get()]);
+    RetainPtr delegate = adoptNS([[TestSOAuthorizationDelegate alloc] init]);
+    configureSOAuthorizationWebView(webView.get(), delegate.get(), OpenExternalSchemesPolicy::Allow);
+
+    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"wcptest://localhost/"]]];
+    Util::run(&authorizationPerformed);
+
+    EXPECT_EQ(gObservedInitiatorOrigins.size(), 2u);
+    for (auto& origin : gObservedInitiatorOrigins) {
+        EXPECT_WK_STREQ(origin, "wcptest://localhost"_s);
+        EXPECT_FALSE(origin.contains("evil.host"_s));
+    }
+}
+#endif // ENABLE(IPC_TESTING_API)
 
 TEST(SOAuthorizationRedirect, InterceptionDidNotHandleTwice)
 {

@@ -239,13 +239,13 @@ void SOAuthorizationSession::beginAuthorizationIfReady()
     }
 
     auto initiatorOrigin = emptyString();
-    if (RefPtr sourceOrigin = m_navigationAction->sourceFrame() ? m_navigationAction->sourceFrame()->securityOrigin().securityOrigin().ptr() : nullptr; sourceOrigin && !sourceOrigin->isOpaque())
-        initiatorOrigin = sourceOrigin->toString();
     String initiatingPath = emptyString();
-    if (m_page->mainFrame()) {
-        if (m_action == InitiatingAction::SubFrame)
-            initiatorOrigin = WebCore::SecurityOrigin::create(m_page->mainFrame()->url())->toString();
-        initiatingPath = m_page->mainFrame()->url().path().toString();
+    RefPtr page = m_page.get();
+    if (RefPtr mainFrame = page ? page->mainFrame() : nullptr) {
+        Ref mainFrameOrigin = WebCore::SecurityOrigin::create(mainFrame->url());
+        if (m_action == InitiatingAction::SubFrame || !mainFrameOrigin->isOpaque())
+            initiatorOrigin = mainFrameOrigin->toString();
+        initiatingPath = mainFrame->url().path().toString();
     }
 
     RetainPtr<NSDictionary> authorizationOptions = @{

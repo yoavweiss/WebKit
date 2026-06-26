@@ -14207,11 +14207,24 @@ void WebPageProxy::makeStorageSpaceRequest(FrameIdentifier frameID, const String
 
 void WebPageProxy::requestGeolocationPermissionForFrame(IPC::Connection& connection, GeolocationIdentifier geolocationID, FrameInfoData&& frameInfo)
 {
-    RefPtr frame = WebFrameProxy::webFrame(frameInfo.frameID);
-    if (!frame)
-        return;
+    Ref process = WebProcessProxy::fromConnection(connection);
 
-    auto request = protect(internals().geolocationPermissionRequestManager)->createRequest(geolocationID, protect(frame->process()));
+    RefPtr frame = WebFrameProxy::webFrame(frameInfo.frameID);
+    MESSAGE_CHECK(process, frame);
+
+    if (!frame->url().host().isEmpty())
+        frameInfo.securityOrigin = frame->securityOrigin()->data();
+
+    // The registrable domain bound to the authorization token must likewise be derived UI-side
+    // when possible so that WebGeolocationManagerProxy::StartUpdating can validate the
+    // WebContent-supplied domain. An empty RegistrableDomain indicates the UI process could not
+    // authoritatively determine it; in that case StartUpdating skips the equality check and
+    // accepts the WebContent-supplied domain (pre-existing behavior for these edge cases).
+    WebCore::RegistrableDomain mainFrameDomain;
+    if (RefPtr mainFrame = m_mainFrame.get(); mainFrame && !mainFrame->url().host().isEmpty())
+        mainFrameDomain = WebCore::RegistrableDomain { mainFrame->url() };
+
+    auto request = protect(internals().geolocationPermissionRequestManager)->createRequest(geolocationID, protect(frame->process()), WTF::move(mainFrameDomain));
     Function<void(bool)> completionHandler = [request = WTF::move(request)](bool allowed) {
         if (allowed)
             request->allow();
