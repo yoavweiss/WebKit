@@ -278,6 +278,13 @@ static NSString * const editablePointerRegionIdentifier = @"WKEditablePointerReg
 @end
 #endif
 
+#if HAVE(ADDITIONAL_ESIM_AUTOFILL_IDENTIFIERS)
+// FIXME: rdar://180464666 (Replace additional eSIM identifier strings with their actual constants)
+static NSString * const WKUITextContentTypeCellularIMEI1 = @"esim-imei1";
+static NSString * const WKUITextContentTypeCellularIMEI2 = @"esim-imei2";
+static NSString * const WKUITextContentTypeCellularNAL = @"esim-nal";
+#endif
+
 #if HAVE(PEPPER_UI_CORE)
 #if HAVE(QUICKBOARD_CONTROLLER)
 @interface WKContentView (QuickboardControllerSupport) <PUICQuickboardControllerDelegate>
@@ -7256,6 +7263,18 @@ static UITextAutocapitalizationType toUITextAutocapitalize(WebCore::Autocapitali
 #else
     case WebCore::AutofillFieldName::DeviceEID:
     case WebCore::AutofillFieldName::DeviceIMEI:
+#endif
+#if HAVE(ESIM_AUTOFILL_SYSTEM_SUPPORT) && HAVE(ADDITIONAL_ESIM_AUTOFILL_IDENTIFIERS)
+    case WebCore::AutofillFieldName::DeviceIMEI1:
+        return protect(_page)->shouldAllowAutoFillForCellularIdentifiers() ? WKUITextContentTypeCellularIMEI1 : nil;
+    case WebCore::AutofillFieldName::DeviceIMEI2:
+        return protect(_page)->shouldAllowAutoFillForCellularIdentifiers() ? WKUITextContentTypeCellularIMEI2 : nil;
+    case WebCore::AutofillFieldName::DeviceNAL:
+        return protect(_page)->shouldAllowAutoFillForCellularIdentifiers() ? WKUITextContentTypeCellularNAL : nil;
+#else
+    case WebCore::AutofillFieldName::DeviceIMEI1:
+    case WebCore::AutofillFieldName::DeviceIMEI2:
+    case WebCore::AutofillFieldName::DeviceNAL:
 #endif
     case WebCore::AutofillFieldName::None:
     case WebCore::AutofillFieldName::NewPassword:

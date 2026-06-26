@@ -1496,6 +1496,78 @@ TEST(KeyboardInputTests, DeviceEIDAndIMEIAutoFill)
     EXPECT_NULL([webView effectiveTextInputTraits].textContentType);
 }
 
+#if HAVE(ADDITIONAL_ESIM_AUTOFILL_IDENTIFIERS)
+TEST(KeyboardInputTests, AdditionalEsimDeviceAutoFill)
+{
+    InstanceMethodSwizzler swizzler {
+        CoreTelephonyClient.class,
+        @selector(isAutofilleSIMIdAllowedForDomain:error:),
+        reinterpret_cast<IMP>(allowESIMAutoFillForWebKit)
+    };
+    [WKWebView _setApplicationBundleIdentifier:@"org.webkit.SomeTelephonyApp"];
+
+    RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 320, 500)]);
+    [webView focusInWindow];
+    RetainPtr navigationDelegate = adoptNS([TestNavigationDelegate new]);
+    RetainPtr inputDelegate = adoptNS([TestInputDelegate new]);
+    [inputDelegate setFocusStartsInputSessionPolicyHandler:[](WKWebView *, id<_WKFocusedElementInfo>) {
+        return _WKFocusStartsInputSessionPolicyAllow;
+    }];
+    __block bool didStartInputSession = false;
+    [inputDelegate setDidStartInputSessionHandler:^(WKWebView *, id<_WKFormInputSession>) {
+        didStartInputSession = true;
+    }];
+
+    [webView setNavigationDelegate:navigationDelegate];
+    [webView _setInputDelegate:inputDelegate];
+
+    auto loadSimulatedRequest = ^(NSString *urlString) {
+        [webView loadSimulatedRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:urlString]] responseHTMLString:@"<body>"
+            "<input id='imei1' type='number' placeholder='imei1' autocomplete='device-imei1' />"
+            "<input id='imei2' type='number' placeholder='imei2' autocomplete='device-imei2' />"
+            "<input id='nal' type='number' placeholder='nal' autocomplete='device-nal' />"
+            "</body>"];
+        [navigationDelegate waitForDidFinishNavigation];
+    };
+
+    auto focusElementWithID = ^(NSString *identifier) {
+        [webView objectByEvaluatingJavaScript:[NSString stringWithFormat:@"document.getElementById('%@').focus()", identifier]];
+        Util::run(&didStartInputSession);
+    };
+
+    auto blurActiveElement = ^{
+        [webView objectByEvaluatingJavaScript:@"document.activeElement.blur()"];
+        [webView waitForNextPresentationUpdate];
+        didStartInputSession = false;
+    };
+
+    // FIXME: rdar://180464666 (Replace additional eSIM identifier strings with their actual constants)
+    loadSimulatedRequest(@"https://login.webkit.org"); // AutoFill is allowed here.
+    focusElementWithID(@"imei1");
+    EXPECT_WK_STREQ("esim-imei1", [webView effectiveTextInputTraits].textContentType);
+
+    blurActiveElement();
+    focusElementWithID(@"imei2");
+    EXPECT_WK_STREQ("esim-imei2", [webView effectiveTextInputTraits].textContentType);
+
+    blurActiveElement();
+    focusElementWithID(@"nal");
+    EXPECT_WK_STREQ("esim-nal", [webView effectiveTextInputTraits].textContentType);
+
+    loadSimulatedRequest(@"https://apple.com"); // AutoFill is not allowed here.
+    focusElementWithID(@"imei1");
+    EXPECT_NULL([webView effectiveTextInputTraits].textContentType);
+
+    blurActiveElement();
+    focusElementWithID(@"imei2");
+    EXPECT_NULL([webView effectiveTextInputTraits].textContentType);
+
+    blurActiveElement();
+    focusElementWithID(@"nal");
+    EXPECT_NULL([webView effectiveTextInputTraits].textContentType);
+}
+#endif
+
 #endif // HAVE(ESIM_AUTOFILL_SYSTEM_SUPPORT)
 
 TEST(KeyboardInputTests, ImplementAllOptionalTextInputTraits)
