@@ -431,13 +431,13 @@ bool SkiaPaintingEngine::shouldUseVivanteSuperTiledTileTextures()
 bool SkiaPaintingEngine::isDDLEnabled()
 {
     static std::once_flag onceFlag;
-    static bool isDDLEnabled = false;
+    static bool isDDLEnabled = true;
 
     std::call_once(onceFlag, [] {
         if (const char* envString = getenv("WEBKIT_SKIA_ENABLE_DDL")) {
             auto envStringView = StringView::fromLatin1(envString);
-            if (envStringView == "1"_s)
-                isDDLEnabled = true;
+            if (envStringView == "0"_s)
+                isDDLEnabled = false;
         }
     });
 
