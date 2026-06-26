@@ -23,7 +23,9 @@
 import argparse
 import logging
 import os
+import re
 import sys
+import traceback
 
 from .blame import Blame
 from .branch import Branch
@@ -183,14 +185,22 @@ def main(
         parser.print_help()
         return -1
 
+    # Bugzilla's REST API embeds credentials as plain-text query parameters (login= and
+    # password=), which means they can appear in exception tracebacks when requests fail.
+    # Scrub them here at the top level so they're never printed to the terminal.
+    # This can be removed once Bugzilla auth no longer uses credentials in URLs.
     with Terminal.disable_keyboard_interrupt_stacktracktrace():
-        return parsed.main(
-            args=parsed,
-            repository=repository,
-            identifier_template=identifier_template,
-            subversion=subversion,
-            additional_setup=additional_setup,
-            hooks=hooks,
-            canonical_svn=canonical_svn,
-            fallback_path=fallback_path,
-        )
+        try:
+            return parsed.main(
+                args=parsed,
+                repository=repository,
+                identifier_template=identifier_template,
+                subversion=subversion,
+                additional_setup=additional_setup,
+                hooks=hooks,
+                canonical_svn=canonical_svn,
+                fallback_path=fallback_path,
+            )
+        except Exception:
+            sys.stderr.write(re.sub(r'(login|password)=[^&]+', r'\1=<REDACTED>', traceback.format_exc()))
+            return -1

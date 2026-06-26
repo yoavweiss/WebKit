@@ -2357,6 +2357,21 @@ No pre-PR checks to run""")
             ],
         )
 
+    def test_redacts_credentials_in_traceback(self):
+        with OutputCapture(level=logging.INFO) as captured, \
+             mocks.local.Git(self.path), \
+             patch('webkitbugspy.Tracker._trackers', []), \
+             patch('webkitscmpy.program.pull_request.PullRequest.main', side_effect=Exception(
+                 "url: /rest/bug/1?login=myuser&password=mysecret"
+             )):
+            self.assertEqual(-1, program.main(
+                args=('pull-request',),
+                path=self.path,
+            ))
+        self.assertIn('login=<REDACTED>', captured.stderr.getvalue())
+        self.assertIn('password=<REDACTED>', captured.stderr.getvalue())
+        self.assertNotIn('myuser', captured.stderr.getvalue())
+        self.assertNotIn('mysecret', captured.stderr.getvalue())
 
 class TestNetworkPullRequestGitHub(unittest.TestCase):
     remote = 'https://github.example.com/WebKit/WebKit'
