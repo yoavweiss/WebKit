@@ -83,11 +83,10 @@ static const MediaTime discontinuityTolerance = MediaTime(1, 1);
 
 Ref<AudioVideoRenderer> MediaPlayerPrivateWebM::createRenderer(LoggerHelper& loggerHelper, HTMLMediaElementIdentifier mediaElementIdentifier, MediaPlayerIdentifier playerIdentifier)
 {
-    if (hasPlatformStrategies()) {
-        if (RefPtr renderer = platformStrategies()->mediaStrategy()->createAudioVideoRenderer(&loggerHelper, mediaElementIdentifier, playerIdentifier))
-            return renderer.releaseNonNull();
-    }
-    return AudioVideoRendererAVFObjC::create(Ref { loggerHelper.logger() }, loggerHelper.logIdentifier());
+    RELEASE_ASSERT(hasPlatformStrategies());
+    RefPtr renderer = platformStrategies()->mediaStrategy()->createAudioVideoRenderer(&loggerHelper, mediaElementIdentifier, playerIdentifier);
+    // Can't return nullptr on Cocoa.
+    return renderer.releaseNonNull();
 }
 
 Ref<MediaPlayerPrivateWebM> MediaPlayerPrivateWebM::create(MediaPlayer& player)
@@ -106,7 +105,7 @@ MediaPlayerPrivateWebM::MediaPlayerPrivateWebM(MediaPlayer& player)
     , m_stallRequest(NativePromiseRequest::create())
     , m_playerIdentifier(MediaPlayerIdentifier::generate())
     , m_renderer(createRenderer(*this, player.clientIdentifier(), m_playerIdentifier))
-    , m_runningQueue(hasPlatformStrategies() && platformStrategies()->mediaStrategy()->hasRemoteRendererFor(MediaPlayerMediaEngineIdentifier::CocoaWebM) ? m_appendQueue.get() : WorkQueue::mainSingleton())
+    , m_runningQueue(m_appendQueue.get())
 {
     ALWAYS_LOG(LOGIDENTIFIER);
     m_parser->setLogger(m_logger, m_logIdentifier);
@@ -1758,9 +1757,9 @@ private:
         return MediaPlayerPrivateWebM::supportsType(parameters);
     }
 
-    MediaPlayerScope supportedScope(MediaContainmentEnabled mediaContainmentEnabled) const final
+    MediaPlayerScope supportedScope(MediaContainmentEnabled) const final
     {
-        return !hasPlatformStrategies() && mediaContainmentEnabled == MediaContainmentEnabled::Yes ? MediaPlayerScope::Supports : MediaPlayerScope::Playback;
+        return hasPlatformStrategies() ? MediaPlayerScope::Playback : MediaPlayerScope::Supports;
     }
 };
 
@@ -1768,9 +1767,7 @@ void MediaPlayerPrivateWebM::registerMediaEngine(MediaEngineRegistrar registrar)
 {
     if (hasPlatformStrategies() && !platformStrategies()->mediaStrategy()->enableWebMMediaPlayer())
         return;
-    bool useRemoteRenderer = hasPlatformStrategies() && platformStrategies()->mediaStrategy()->hasRemoteRendererFor(MediaPlayerMediaEngineIdentifier::CocoaWebM);
-    if (!useRemoteRenderer && RemoteMediaPlayerSupport::registerRemoteEngineIfAvailable(registrar, MediaPlayerEnums::MediaEngineIdentifier::CocoaWebM, PlatformMediaDecodingType::FileOrHLS))
-        return;
+
     if (!isAvailable())
         return;
 
