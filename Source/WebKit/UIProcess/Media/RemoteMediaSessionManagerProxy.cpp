@@ -241,8 +241,6 @@ bool RemoteMediaSessionManagerProxy::tryToSetActiveInternal(bool active)
     auto [succeeded] = sendResult.takeReplyOr(false);
  */
     bool succeeded = true;
-    if (succeeded)
-        m_audioConfiguration.isActive = active;
     return succeeded;
 }
 

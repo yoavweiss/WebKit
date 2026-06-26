@@ -132,7 +132,7 @@ void SpeechRecognitionServer::handleRequest(Ref<WebCore::SpeechRecognitionReques
     }, WTF::move(request));
 
 #if ENABLE(MEDIA_STREAM)
-    auto sourceOrError = m_realtimeMediaSourceCreateFunction();
+    auto sourceOrError = m_realtimeMediaSourceCreateFunction(clientIdentifier);
     if (!sourceOrError) {
         sendUpdate(WebCore::SpeechRecognitionUpdate::createError(clientIdentifier, WebCore::SpeechRecognitionError { WebCore::SpeechRecognitionErrorType::AudioCapture, sourceOrError.error.errorMessage }));
         return;

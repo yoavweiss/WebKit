@@ -31,6 +31,7 @@
 #include "MessageReceiver.h"
 #include "TextExtractionAssertionScope.h"
 #include <WebCore/UserGestureTokenIdentifier.h>
+#include <WebCore/SpeechRecognitionConnectionClientIdentifier.h>
 #include <wtf/ApproximateTime.h>
 #include <wtf/CheckedRef.h>
 #include <wtf/CompletionHandler.h>
@@ -2555,7 +2556,7 @@ public:
 
 #if ENABLE(MEDIA_STREAM)
     UserMediaPermissionRequestManagerProxy* NODELETE userMediaPermissionRequestManagerIfExists();
-    WebCore::CaptureSourceOrError createRealtimeMediaSourceForSpeechRecognition();
+    WebCore::CaptureSourceOrError createRealtimeMediaSourceForSpeechRecognition(WebCore::SpeechRecognitionConnectionClientIdentifier);
     void clearUserMediaPermissionRequestHistory(WebCore::PermissionName);
     bool shouldListenToVoiceActivity() const { return m_shouldListenToVoiceActivity; }
     void voiceActivityDetected();

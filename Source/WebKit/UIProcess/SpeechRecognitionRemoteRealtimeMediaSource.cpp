@@ -40,14 +40,15 @@
 
 namespace WebKit {
 
-Ref<WebCore::RealtimeMediaSource> SpeechRecognitionRemoteRealtimeMediaSource::create(SpeechRecognitionRemoteRealtimeMediaSourceManager& manager, const WebCore::CaptureDevice& captureDevice, WebCore::PageIdentifier pageIdentifier)
+Ref<WebCore::RealtimeMediaSource> SpeechRecognitionRemoteRealtimeMediaSource::create(SpeechRecognitionRemoteRealtimeMediaSourceManager& manager, const WebCore::CaptureDevice& captureDevice, WebCore::PageIdentifier pageIdentifier, WebCore::SpeechRecognitionConnectionClientIdentifier clientIdentifier)
 {
-    return adoptRef(*new SpeechRecognitionRemoteRealtimeMediaSource(WebCore::RealtimeMediaSourceIdentifier::generate(), manager, captureDevice, pageIdentifier));
+    return adoptRef(*new SpeechRecognitionRemoteRealtimeMediaSource(WebCore::RealtimeMediaSourceIdentifier::generate(), manager, captureDevice, pageIdentifier, clientIdentifier));
 }
 
-SpeechRecognitionRemoteRealtimeMediaSource::SpeechRecognitionRemoteRealtimeMediaSource(WebCore::RealtimeMediaSourceIdentifier identifier, SpeechRecognitionRemoteRealtimeMediaSourceManager& manager, const WebCore::CaptureDevice& captureDevice, WebCore::PageIdentifier pageIdentifier)
+SpeechRecognitionRemoteRealtimeMediaSource::SpeechRecognitionRemoteRealtimeMediaSource(WebCore::RealtimeMediaSourceIdentifier identifier, SpeechRecognitionRemoteRealtimeMediaSourceManager& manager, const WebCore::CaptureDevice& captureDevice, WebCore::PageIdentifier pageIdentifier, WebCore::SpeechRecognitionConnectionClientIdentifier clientIdentifier)
     : WebCore::RealtimeMediaSource(captureDevice, { }, pageIdentifier)
     , m_identifier(identifier)
+    , m_clientIdentifier(clientIdentifier)
     , m_manager(manager)
 {
     manager.addSource(*this, captureDevice);

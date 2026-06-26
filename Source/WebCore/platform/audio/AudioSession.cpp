@@ -137,8 +137,8 @@ bool AudioSession::tryToSetActive(bool active)
 
     ALWAYS_LOG(LOGIDENTIFIER, "is active = ", active, ", previousIsActive = ", previousIsActive);
 
-    bool hasActiveChanged = previousIsActive != isActive();
-    m_active = active;
+    bool hasActiveChanged = previousIsActive != active;
+    setActive(active);
     if (m_isInterrupted && m_active) {
         callOnMainThread([hasActiveChanged] {
             if (singleton().m_isInterrupted && singleton().m_active)
@@ -150,6 +150,11 @@ bool AudioSession::tryToSetActive(bool active)
         activeStateChanged();
 
     return true;
+}
+
+void AudioSession::setActive(bool active)
+{
+    m_active = active;
 }
 
 static WeakHashSet<AudioSessionInterruptionObserver>& NODELETE audioSessionInterruptionObserversSingleton()

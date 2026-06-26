@@ -130,7 +130,10 @@ public:
 #if PLATFORM(IOS_FAMILY)
         m_providePresentingApplicationPIDFunction();
 #endif
+        // FIXME: We should ensure that WebProcess sets up the AudioSession properly before starting to capture microphone.
         Ref session = AudioSession::singleton();
+        RELEASE_LOG_ERROR_IF(!session->isActive() || session->category() != AudioSession::CategoryType::PlayAndRecord, WebRTC, "Audio session should be active (%d) and category should be play and record (%d)", session->isActive(), session->category() != AudioSession::CategoryType::PlayAndRecord);
+
         session->setCategory(AudioSession::CategoryType::PlayAndRecord, AudioSession::Mode::VideoChat, RouteSharingPolicy::Default);
         session->tryToSetActive(true);
     }

@@ -268,7 +268,7 @@ void MediaStreamTrack::stopTrack(StopMode mode)
 
     if (isAudio() && isCaptureTrack())
         if (RefPtr manager = mediaSessionManager())
-            manager->audioCaptureSourceStateChanged();
+            manager->audioCaptureSourceStateChanged(MediaSessionManagerInterface::IsCaptureStarting::No);
 
     configureTrackRendering();
 }
@@ -559,7 +559,7 @@ void MediaStreamTrack::trackMutedChanged(MediaStreamTrackPrivate&)
 
         if (isAudio() && isCaptureTrack())
             if (RefPtr manager = mediaSessionManager())
-                manager->audioCaptureSourceStateChanged();
+                manager->audioCaptureSourceStateChanged(muted ? MediaSessionManagerInterface::IsCaptureStarting::No : MediaSessionManagerInterface::IsCaptureStarting::Yes);
 
         dispatchEvent(Event::create(muted ? eventNames().muteEvent : eventNames().unmuteEvent, Event::CanBubble::No, Event::IsCancelable::No));
     };

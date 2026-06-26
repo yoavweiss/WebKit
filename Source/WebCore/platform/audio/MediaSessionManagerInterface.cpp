@@ -578,6 +578,19 @@ void MediaSessionManagerInterface::removeAudioCaptureSource(AudioCaptureSource& 
     scheduleUpdateSessionState();
 }
 
+void MediaSessionManagerInterface::audioCaptureSourceStateChanged(IsCaptureStarting isCaptureStarting)
+{
+    updateSessionState();
+#if USE(AUDIO_SESSION)
+    if (isCaptureStarting == IsCaptureStarting::Yes)
+        maybeActivateAudioSession();
+    else if (!activeAudioSessionRequired())
+        maybeDeactivateAudioSession();
+#else
+    UNUSED_PARAM(isCaptureStarting);
+#endif
+}
+
 int MediaSessionManagerInterface::countActiveAudioCaptureSources()
 {
     int count = 0;

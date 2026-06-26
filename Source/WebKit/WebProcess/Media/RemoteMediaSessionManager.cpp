@@ -70,7 +70,6 @@ RemoteMediaSessionManager::RemoteMediaSessionManager(WebPage& webPage)
         sharedSession->preferredBufferSize(),
         sharedSession->outputLatency(),
         sharedSession->isMuted(),
-        sharedSession->isActive(),
         sharedSession->sceneIdentifier(),
         sharedSession->soundStageSize(),
         sharedSession->categoryOverride(),

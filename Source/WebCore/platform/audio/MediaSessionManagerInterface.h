@@ -138,7 +138,8 @@ public:
 
     virtual void addAudioCaptureSource(AudioCaptureSource&);
     virtual void removeAudioCaptureSource(AudioCaptureSource&);
-    virtual void audioCaptureSourceStateChanged() { updateSessionState(); }
+    enum class IsCaptureStarting : bool { No, Yes };
+    virtual void audioCaptureSourceStateChanged(IsCaptureStarting);
     virtual size_t audioCaptureSourceCount() const { return m_audioCaptureSources.computeSize(); }
 
     virtual void processDidReceiveRemoteControlCommand(PlatformMediaSessionRemoteControlCommandType, const PlatformMediaSessionRemoteCommandArgument&);

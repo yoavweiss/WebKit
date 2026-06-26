@@ -2648,8 +2648,8 @@ void WebProcessProxy::createSpeechRecognitionServer(SpeechRecognitionServerIdent
 
     m_speechRecognitionServerMap.ensure(identifier, [&]() {
 #if ENABLE(MEDIA_STREAM)
-        auto createRealtimeMediaSource = [weakPage = WeakPtr { targetPage }]() {
-            return weakPage ? weakPage->createRealtimeMediaSourceForSpeechRecognition() : CaptureSourceOrError { { "Page is invalid"_s, WebCore::MediaAccessDenialReason::InvalidAccess } };
+        auto createRealtimeMediaSource = [weakPage = WeakPtr { targetPage }](WebCore::SpeechRecognitionConnectionClientIdentifier clientIdentifier) {
+            return weakPage ? weakPage->createRealtimeMediaSourceForSpeechRecognition(clientIdentifier) : CaptureSourceOrError { { "Page is invalid"_s, WebCore::MediaAccessDenialReason::InvalidAccess } };
         };
         Ref speechRecognitionServer = SpeechRecognitionServer::create(*this, identifier, WTF::move(permissionChecker), WTF::move(checkIfMockCaptureDevicesEnabled), WTF::move(createRealtimeMediaSource));
 #else
