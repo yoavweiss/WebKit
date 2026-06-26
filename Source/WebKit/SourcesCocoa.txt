@@ -188,6 +188,7 @@ Shared/Cocoa/DefaultWebBrowserChecks.mm @nonARC
 Shared/Cocoa/EnhancedSecurityLinkUtilities.mm @nonARC
 Shared/Cocoa/InteractionInformationAtPosition.mm @nonARC
 Shared/Cocoa/InteractionInformationRequest.cpp
+Shared/Cocoa/LibAccessibilitySoftLink.mm @nonARC
 Shared/Cocoa/LoadParametersCocoa.mm @nonARC
 Shared/Cocoa/PDFKitSoftLink.mm @nonARC
 Shared/Cocoa/RevealItem.mm @nonARC

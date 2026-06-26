@@ -27,12 +27,7 @@
 #import "AccessibilityPreferences.h"
 
 #import "AccessibilitySupportSPI.h"
-#import <wtf/SoftLinking.h>
-
-#if ENABLE(ACCESSIBILITY_ANIMATION_CONTROL)
-SOFT_LINK_LIBRARY_OPTIONAL(libAccessibility)
-SOFT_LINK_OPTIONAL(libAccessibility, _AXSReduceMotionAutoplayAnimatedImagesEnabled, Boolean, (), ());
-#endif
+#import "LibAccessibilitySoftLink.h"
 
 #if ENABLE(ACCESSIBILITY_VIDEO_AUTOPLAY_CONTROL)
 #import <UIKit/UIAccessibility.h>
@@ -95,8 +90,8 @@ bool imageAnimationEnabled()
 #if ENABLE(ACCESSIBILITY_ANIMATION_CONTROL)
     if (shouldUseDefault()) [[unlikely]]
         return WebKit::initialImageAnimationEnabled;
-    if (auto* functionPointer = _AXSReduceMotionAutoplayAnimatedImagesEnabledPtr())
-        return functionPointer();
+    if (WebKit::islibAccessibilityLibraryAvailable() && WebKit::canLoad_libAccessibility__AXSReduceMotionAutoplayAnimatedImagesEnabled())
+        return WebKit::softLink_libAccessibility__AXSReduceMotionAutoplayAnimatedImagesEnabled();
 #endif
     return true;
 }

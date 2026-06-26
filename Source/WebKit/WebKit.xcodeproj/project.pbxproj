@@ -5944,6 +5944,8 @@
 		46F96C662B02A58100253A2B /* WebContextMenuItemData.serialization.in */ = {isa = PBXFileReference; lastKnownFileType = text; path = WebContextMenuItemData.serialization.in; sourceTree = "<group>"; };
 		46F9B26223526ED0006FE5FA /* WebBackForwardCacheEntry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebBackForwardCacheEntry.h; sourceTree = "<group>"; };
 		46FA2E752A04240300912BFE /* RemoteWorkerType.serialization.in */ = {isa = PBXFileReference; lastKnownFileType = text; path = RemoteWorkerType.serialization.in; sourceTree = "<group>"; };
+		489B47702FED6E0100884EE7 /* LibAccessibilitySoftLink.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LibAccessibilitySoftLink.h; sourceTree = "<group>"; };
+		489B47712FED6E0100884EE7 /* LibAccessibilitySoftLink.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = LibAccessibilitySoftLink.mm; sourceTree = "<group>"; };
 		48B188FE2E789A3B009B57A9 /* AccessibilityPreferences.mm */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; path = AccessibilityPreferences.mm; sourceTree = "<group>"; };
 		493102BC2683F3A5002BB885 /* AppPrivacyReport.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppPrivacyReport.h; sourceTree = "<group>"; };
 		4955A6E528076D4C00BB91C4 /* ArrayReferenceTuple.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ArrayReferenceTuple.h; sourceTree = "<group>"; };
@@ -13442,6 +13444,8 @@
 				E385F3662E86D6C900461B0C /* LaunchLogHook.mm */,
 				E385F37B2E87076100461B0C /* LaunchLogMessages.h */,
 				C1663E5A24AEA74200C6A3B2 /* LaunchServicesDatabaseXPCConstants.h */,
+				489B47702FED6E0100884EE7 /* LibAccessibilitySoftLink.h */,
+				489B47712FED6E0100884EE7 /* LibAccessibilitySoftLink.mm */,
 				2D1087621D2C641B00B85F82 /* LoadParametersCocoa.mm */,
 				2D440B8325EF235E00A98D87 /* PDFKitSoftLink.h */,
 				2D440B8225EF235E00A98D87 /* PDFKitSoftLink.mm */,
