@@ -19144,10 +19144,7 @@ RemoteMediaSessionManagerProxy* WebPageProxy::remoteMediaSessionManagerProxy()
 
 WebBackForwardListMessageForwarder& WebPageProxy::backForwardListMessageReceiver() const
 {
-    // Returns a pointer to something owned by the BackForwardList
-IGNORE_CLANG_WARNINGS_BEGIN("return-stack-address")
-    return backForwardList().getMessageReceiver().get();
-IGNORE_CLANG_WARNINGS_END
+    return m_backForwardList->messageReceiver();
 }
 
 #endif

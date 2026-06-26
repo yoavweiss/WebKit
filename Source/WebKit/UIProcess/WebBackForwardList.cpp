@@ -978,10 +978,16 @@ void WebBackForwardList::didReceiveProvisionalMessage(IPC::Connection& connectio
 
 WebBackForwardListWrapper::WebBackForwardListWrapper(WebPageProxy& webPageProxy)
     : m_impl(WTF::makeUniqueWithoutFastMallocCheck<WebBackForwardList>(WebBackForwardList::init(webPageProxy)))
+    , m_messageForwarder(m_impl->getMessageReceiver())
 {
 }
 
 WebBackForwardListWrapper::~WebBackForwardListWrapper() = default;
+
+WebBackForwardListMessageForwarder& WebBackForwardListWrapper::messageReceiver() const
+{
+    return m_messageForwarder.get();
+}
 
 WebBackForwardListItem* WebBackForwardListWrapper::currentItem() const
 {
