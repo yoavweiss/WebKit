@@ -28,6 +28,7 @@
 
 #include "CalendarFields.h"
 #include "CalendarICUBridge.h"
+#include "ISOArithmetic.h"
 #include "IntlDateTimeFormat.h"
 #include "IntlObjectInlines.h"
 #include "JSCInlines.h"
@@ -240,14 +241,13 @@ JSC_DEFINE_HOST_FUNCTION(temporalPlainMonthDayPrototypeFuncToPlainDate, (JSGloba
         RELEASE_AND_RETURN(scope, JSValue::encode(TemporalPlainDate::tryCreateIfValid(globalObject, globalObject->plainDateStructure(), WTF::move(resolved->isoDate), resolved->calendarId)));
     }
 
-    auto plainDateOptional =
-        TemporalDuration::regulateISODate(itemYear.value(), thisMonth, thisDay, TemporalOverflow::Constrain);
-    if (!plainDateOptional) [[unlikely]] {
+    auto plainDateResult = TemporalCore::regulateISODate(itemYear.value(), thisMonth, thisDay, TemporalOverflow::Constrain);
+    if (!plainDateResult) [[unlikely]] {
         throwRangeError(globalObject, scope, "Temporal.PlainMonthDay.prototype.toPlainDate: date is invalid"_s);
         return { };
     }
 
-    RELEASE_AND_RETURN(scope, JSValue::encode(TemporalPlainDate::tryCreateIfValid(globalObject, globalObject->plainDateStructure(), WTF::move(plainDateOptional.value()), monthDay->calendarID())));
+    RELEASE_AND_RETURN(scope, JSValue::encode(TemporalPlainDate::tryCreateIfValid(globalObject, globalObject->plainDateStructure(), WTF::move(*plainDateResult), monthDay->calendarID())));
 }
 
 // https://tc39.es/proposal-temporal/#sec-temporal.plainmonthday.prototype.valueof

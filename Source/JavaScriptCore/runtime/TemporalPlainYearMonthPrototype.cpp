@@ -29,6 +29,7 @@
 
 #include "CalendarFields.h"
 #include "CalendarICUBridge.h"
+#include "ISOArithmetic.h"
 #include "IntlDateTimeFormat.h"
 #include "IntlObjectInlines.h"
 #include "JSCInlines.h"
@@ -294,14 +295,13 @@ JSC_DEFINE_HOST_FUNCTION(temporalPlainYearMonthPrototypeFuncToPlainDate, (JSGlob
 
     auto thisYear = yearMonth->year();
     auto thisMonth = yearMonth->month();
-    auto plainDateOptional =
-        TemporalDuration::regulateISODate(thisYear, thisMonth, itemDay.value(), TemporalOverflow::Constrain);
-    if (!plainDateOptional) [[unlikely]] {
+    auto plainDateResult = TemporalCore::regulateISODate(thisYear, thisMonth, itemDay.value(), TemporalOverflow::Constrain);
+    if (!plainDateResult) [[unlikely]] {
         throwRangeError(globalObject, scope, "Temporal.PlainYearMonth.prototype.toPlainDate: date is invalid"_s);
         return { };
     }
 
-    RELEASE_AND_RETURN(scope, JSValue::encode(TemporalPlainDate::tryCreateIfValid(globalObject, globalObject->plainDateStructure(), WTF::move(plainDateOptional.value()), yearMonth->calendarID())));
+    RELEASE_AND_RETURN(scope, JSValue::encode(TemporalPlainDate::tryCreateIfValid(globalObject, globalObject->plainDateStructure(), WTF::move(*plainDateResult), yearMonth->calendarID())));
 }
 
 // https://tc39.es/proposal-temporal/#sec-temporal.plainyearmonth.prototype.tostring

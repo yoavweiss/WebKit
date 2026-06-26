@@ -71,10 +71,6 @@ public:
     String toString(JSGlobalObject*, JSValue options) const;
     String toString(JSGlobalObject* globalObject, std::tuple<Precision, unsigned> precision = { Precision::Auto, 0 }) const { return toString(globalObject, m_duration, precision); }
 
-    static ISO8601::InternalDuration toInternalDurationRecordWith24HourDays(JSGlobalObject*, ISO8601::Duration);
-
-    static ISO8601::InternalDuration round(JSGlobalObject*, ISO8601::InternalDuration, double increment, TemporalUnit, RoundingMode);
-    static std::optional<ISO8601::PlainDate> regulateISODate(int32_t year, int32_t month, int64_t day, TemporalOverflow);
     static ISO8601::Duration toDateDurationRecordWithoutTime(JSGlobalObject*, const ISO8601::Duration&);
 private:
     TemporalDuration(VM&, Structure*, ISO8601::Duration&&);
@@ -84,6 +80,10 @@ private:
     static std::optional<ISO8601::Duration> parse(StringParsingBuffer<CharacterType>&);
 
     static String toString(JSGlobalObject*, const ISO8601::Duration&, std::tuple<Precision, unsigned> precision);
+
+    static ISO8601::InternalDuration round(JSGlobalObject*, ISO8601::InternalDuration, double increment, TemporalUnit, RoundingMode);
+
+    static ISO8601::InternalDuration toInternalDurationRecordWith24HourDays(JSGlobalObject*, ISO8601::Duration);
 
     ISO8601::Duration m_duration;
 };
