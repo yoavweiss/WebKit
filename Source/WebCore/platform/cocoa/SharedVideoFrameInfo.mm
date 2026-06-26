@@ -229,6 +229,11 @@ bool SharedVideoFrameInfo::writePixelBuffer(CVPixelBufferRef pixelBuffer, std::s
         CVPixelBufferUnlockBaseAddress(pixelBuffer.get(), kCVPixelBufferLock_ReadOnly);
     });
 
+    if (!CVPixelBufferGetBaseAddress(pixelBuffer)) {
+        RELEASE_LOG_FAULT(WebRTC, "SharedVideoFrameInfo::writePixelBuffer pixel buffer is not readable");
+        return false;
+    }
+
     encode(data);
     skip(data, sizeof(SharedVideoFrameInfo));
 
