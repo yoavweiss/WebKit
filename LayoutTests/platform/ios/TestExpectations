@@ -8492,3 +8492,5 @@ imported/w3c/web-platform-tests/intersection-observer/cross-origin-tall-iframe.s
 imported/w3c/web-platform-tests/svg/text/scripted/getrotationofchar.html [ Skip ]
 imported/w3c/web-platform-tests/webrtc/RTCPeerConnection-createDataChannel.html?rest [ Skip ]
 imported/w3c/web-platform-tests/webrtc/RTCPeerConnection-setLocalDescription-offer.html?rest [ Skip ]
+
+imported/w3c/web-platform-tests/css/css-scroll-snap/input/keyboard-snap-interruption.html [ Skip ] # timeout

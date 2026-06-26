@@ -5614,6 +5614,8 @@ imported/w3c/web-platform-tests/css/css-scroll-snap/scroll-target-align-002.html
 imported/w3c/web-platform-tests/css/css-scroll-snap/snap-after-initial-layout/scroll-snap-writing-mode-000.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-scroll-snap/snap-after-style-change-respects-scroll-behavior.html [ Pass Failure ]
 webkit.org/b/218325 imported/w3c/web-platform-tests/css/css-scroll-snap/scroll-target-margin-001.html [ Pass ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-scroll-snap/snap-after-relayout/multiple-aligned-targets/prefer-snap-target-containing-focused-element.html [ Skip ] # timeout
+imported/w3c/web-platform-tests/css/css-scroll-snap/snap-after-relayout/multiple-aligned-targets/prefer-targeted-element-both-axes.html [ Skip ] # flaky 
 
 imported/w3c/web-platform-tests/css/css-scroll-snap/multicol-001.html [ Pass Failure ]
 imported/w3c/web-platform-tests/css/css-scroll-snap/multicol-002.html [ Pass Failure ]

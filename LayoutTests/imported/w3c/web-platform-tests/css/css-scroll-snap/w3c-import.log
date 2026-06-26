@@ -10,8 +10,6 @@ Do NOT modify or remove this file.
 ------------------------------------------------------------------------
 Properties requiring vendor prefixes:
 None
-Property values requiring vendor prefixes:
-None
 ------------------------------------------------------------------------
 List of files:
 /LayoutTests/imported/w3c/web-platform-tests/css/css-scroll-snap/META.yml
@@ -29,6 +27,7 @@ List of files:
 /LayoutTests/imported/w3c/web-platform-tests/css/css-scroll-snap/overflowing-snap-areas-nested.html
 /LayoutTests/imported/w3c/web-platform-tests/css/css-scroll-snap/overflowing-snap-areas.html
 /LayoutTests/imported/w3c/web-platform-tests/css/css-scroll-snap/overscroll-snap.html
+/LayoutTests/imported/w3c/web-platform-tests/css/css-scroll-snap/resnap-on-layout-is-immediate.html
 /LayoutTests/imported/w3c/web-platform-tests/css/css-scroll-snap/resnap-on-snap-alignment-change.html
 /LayoutTests/imported/w3c/web-platform-tests/css/css-scroll-snap/scroll-margin-editable.html
 /LayoutTests/imported/w3c/web-platform-tests/css/css-scroll-snap/scroll-margin-focus.html
@@ -58,12 +57,21 @@ List of files:
 /LayoutTests/imported/w3c/web-platform-tests/css/css-scroll-snap/scroll-snap-type-on-root-element.html
 /LayoutTests/imported/w3c/web-platform-tests/css/css-scroll-snap/scroll-snap-type.html
 /LayoutTests/imported/w3c/web-platform-tests/css/css-scroll-snap/scroll-target-001-ref.html
+/LayoutTests/imported/w3c/web-platform-tests/css/css-scroll-snap/scroll-target-004-ref.html
+/LayoutTests/imported/w3c/web-platform-tests/css/css-scroll-snap/scroll-target-005-ref.html
+/LayoutTests/imported/w3c/web-platform-tests/css/css-scroll-snap/scroll-target-006-ref.html
 /LayoutTests/imported/w3c/web-platform-tests/css/css-scroll-snap/scroll-target-align-001-expected.html
 /LayoutTests/imported/w3c/web-platform-tests/css/css-scroll-snap/scroll-target-align-001.html
 /LayoutTests/imported/w3c/web-platform-tests/css/css-scroll-snap/scroll-target-align-002-expected.html
 /LayoutTests/imported/w3c/web-platform-tests/css/css-scroll-snap/scroll-target-align-002.html
 /LayoutTests/imported/w3c/web-platform-tests/css/css-scroll-snap/scroll-target-align-003-expected.html
 /LayoutTests/imported/w3c/web-platform-tests/css/css-scroll-snap/scroll-target-align-003.html
+/LayoutTests/imported/w3c/web-platform-tests/css/css-scroll-snap/scroll-target-align-004-expected.html
+/LayoutTests/imported/w3c/web-platform-tests/css/css-scroll-snap/scroll-target-align-004.html
+/LayoutTests/imported/w3c/web-platform-tests/css/css-scroll-snap/scroll-target-align-005-expected.html
+/LayoutTests/imported/w3c/web-platform-tests/css/css-scroll-snap/scroll-target-align-005.html
+/LayoutTests/imported/w3c/web-platform-tests/css/css-scroll-snap/scroll-target-align-006-expected.html
+/LayoutTests/imported/w3c/web-platform-tests/css/css-scroll-snap/scroll-target-align-006.html
 /LayoutTests/imported/w3c/web-platform-tests/css/css-scroll-snap/scroll-target-margin-001-expected.html
 /LayoutTests/imported/w3c/web-platform-tests/css/css-scroll-snap/scroll-target-margin-001.html
 /LayoutTests/imported/w3c/web-platform-tests/css/css-scroll-snap/scroll-target-margin-002-expected.html
