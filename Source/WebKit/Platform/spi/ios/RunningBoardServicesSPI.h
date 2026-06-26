@@ -32,6 +32,7 @@ DECLARE_SYSTEM_HEADER
 #if USE(APPLE_INTERNAL_SDK)
 
 #import <RunningBoardServices/RunningBoardServices.h>
+#import <RunningBoardServices/RBSProcessHandle_Private.h>
 
 extern const NSTimeInterval RBSProcessTimeLimitationNone;
 
@@ -122,6 +123,7 @@ extern const NSTimeInterval RBSProcessTimeLimitationNone;
 + (RBSProcessHandle *)handleForIdentifier:(RBSProcessIdentifier *)identifier error:(NSError **)outError;
 + (RBSProcessHandle *)currentProcess;
 @property (nonatomic, readonly, assign) pid_t pid;
+@property (nonatomic, readonly, assign, getter=isManaged) BOOL managed;
 @property (nonatomic, readonly, strong) RBSProcessState *currentState;
 @property (nonatomic, readonly, strong) RBSProcessLimitations *activeLimitations;
 @property (nonatomic, readonly, strong, nullable) RBSProcessHandle *hostProcess;
