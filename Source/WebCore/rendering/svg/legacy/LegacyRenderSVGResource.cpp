@@ -138,10 +138,8 @@ LegacyRenderSVGResource* LegacyRenderSVGResource::strokePaintingResource(RenderE
 
 LegacyRenderSVGResourceSolidColor* LegacyRenderSVGResource::sharedSolidPaintingResource()
 {
-    static LegacyRenderSVGResourceSolidColor* s_sharedSolidPaintingResource = 0;
-    if (!s_sharedSolidPaintingResource)
-        s_sharedSolidPaintingResource = new LegacyRenderSVGResourceSolidColor;
-    return s_sharedSolidPaintingResource;
+    static NeverDestroyed<LegacyRenderSVGResourceSolidColor> s_sharedSolidPaintingResource;
+    return &s_sharedSolidPaintingResource.get();
 }
 
 static void removeFromCacheAndInvalidateDependencies(RenderElement& renderer, bool needsLayout, SingleThreadWeakHashSet<RenderObject>* visitedRenderers)
