@@ -263,7 +263,7 @@ ExceptionOr<Vector<RefPtr<WebGLOpaqueTexture>>> XRWebGLBinding::allocateColorTex
 
             // Layout / textureType differences (size, array length, texture target) are baked into the swapchain at construction time.
             Vector<RefPtr<WebGLOpaqueTexture>> textures;
-            auto& backing = static_cast<XRWebGLLayerBacking&>(layer.backing());
+            auto& backing = downcast<XRWebGLLayerBacking>(layer.backing());
             uint32_t textureCount = backing.requiresPerViewColorTextures() ? 2 : 1;
             for (uint32_t index = 0; index < textureCount; ++index) {
                 RefPtr currentColorTexture = backing.currentColorTexture(index);
@@ -294,7 +294,7 @@ ExceptionOr<Vector<RefPtr<WebGLOpaqueTexture>>> XRWebGLBinding::allocateDepthTex
             ASSERT(depthFormatIsSupportedForNonProjectionLayer(*init.depthFormat));
             ASSERT(layer.layout() != XRLayerLayout::Default);
 
-            auto& backing = static_cast<XRWebGLLayerBacking&>(layer.backing());
+            auto& backing = downcast<XRWebGLLayerBacking>(layer.backing());
             uint32_t textureCount = backing.requiresPerViewColorTextures() ? 2 : 1;
             for (uint32_t index = 0; index < textureCount; ++index) {
                 RefPtr currentDepthTexture = backing.currentDepthTexture(index);
@@ -446,7 +446,7 @@ ExceptionOr<Vector<RefPtr<WebGLOpaqueTexture>>> XRWebGLBinding::allocateColorTex
                 return Exception { ExceptionCode::InvalidStateError, "Cannot create a projection layer with a lost WebGL context"_s };
 
             Vector<RefPtr<WebGLOpaqueTexture>> textures;
-            auto& backing = static_cast<XRWebGLLayerBacking&>(layer.backing());
+            auto& backing = downcast<XRWebGLLayerBacking>(layer.backing());
             switch (layer.layout()) {
             case XRLayerLayout::Mono:
                 return Exception { ExceptionCode::NotSupportedError, "Mono layout not implemented."_s };
@@ -494,7 +494,7 @@ ExceptionOr<Vector<RefPtr<WebGLOpaqueTexture>>> XRWebGLBinding::allocateDepthTex
             if (baseContext->isWebGL1() && !baseContext->extensionIsEnabled("WEBGL_depth_texture"_s))
                 return textures;
 
-            auto& depthBacking = static_cast<XRWebGLLayerBacking&>(layer.backing());
+            auto& depthBacking = downcast<XRWebGLLayerBacking>(layer.backing());
             switch (layer.layout()) {
             case XRLayerLayout::Mono:
                 return Exception { ExceptionCode::NotSupportedError, "Mono layout not implemented."_s };
