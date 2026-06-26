@@ -114,11 +114,13 @@ void AXObjectCache::postPlatformNotification(AccessibilityObject& object, AXNoti
         return;
 
     auto notificationName = stringNotification.createNSString();
-    [object.wrapper() accessibilityOverrideProcessNotification:notificationName.get() notificationData:nil];
+    // The wrapper must outlive the call chain: accessibilityOverrideProcessNotification: re-enters WebKit and can detach the AccessibilityObject, clearing m_wrapper mid-call.
+    RetainPtr wrapper = object.wrapper();
+    [wrapper accessibilityOverrideProcessNotification:notificationName.get() notificationData:nil];
 
     // To simulate AX notifications for LayoutTests on the simulator, call
     // the wrapper's accessibilityPostedNotification.
-    [object.wrapper() accessibilityPostedNotification:notificationName.get()];
+    [wrapper accessibilityPostedNotification:notificationName.get()];
 }
 
 void AXObjectCache::postPlatformAnnouncementNotification(const String& message)
@@ -126,11 +128,12 @@ void AXObjectCache::postPlatformAnnouncementNotification(const String& message)
     auto notificationName = notificationPlatformName(AXNotification::AnnouncementRequested).createNSString();
     RetainPtr nsMessage = message.createNSString();
     if (RefPtr root = getOrCreate(protect(m_document->view()))) {
-        [root->wrapper() accessibilityOverrideProcessNotification:notificationName.get() notificationData:[nsMessage dataUsingEncoding:NSUTF8StringEncoding]];
+        RetainPtr wrapper = root->wrapper();
+        [wrapper accessibilityOverrideProcessNotification:notificationName.get() notificationData:[nsMessage dataUsingEncoding:NSUTF8StringEncoding]];
 
         // To simulate AX notifications for LayoutTests on the simulator, call
         // the wrapper's accessibilityPostedNotification.
-        [root->wrapper() accessibilityPostedNotification:notificationName.get() userInfo:@{ notificationName.get() : nsMessage.get() }];
+        [wrapper accessibilityPostedNotification:notificationName.get() userInfo:@{ notificationName.get() : nsMessage.get() }];
     }
 }
 
