@@ -167,7 +167,7 @@ static EncodedJSValue addDurationToPlainDateTime(JSGlobalObject* globalObject, T
 
     // Steps 5-6: ToInternalDurationRecordWith24HourDays + AddTime(dateTime.[[Time]], duration).
     auto balancedTimeDuration = TemporalPlainTime::addTime(plainDateTime->plainTime(), duration);
-    auto plainTime = TemporalPlainTime::toPlainTime(globalObject, balancedTimeDuration);
+    auto plainTime = TemporalPlainTime::validateAndCreateTimeRecord(globalObject, balancedTimeDuration);
     RETURN_IF_EXCEPTION(scope, { });
 
     TemporalOverflow overflow = toTemporalOverflow(globalObject, options);

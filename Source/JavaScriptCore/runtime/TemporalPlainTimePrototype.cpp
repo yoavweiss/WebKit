@@ -114,14 +114,18 @@ JSC_DEFINE_HOST_FUNCTION(temporalPlainTimePrototypeFuncAdd, (JSGlobalObject* glo
     VM& vm = globalObject->vm();
     auto scope = DECLARE_THROW_SCOPE(vm);
 
+    // Steps 1-2: branding.
     auto* plainTime = dynamicDowncast<TemporalPlainTime>(callFrame->thisValue());
     if (!plainTime) [[unlikely]]
         return throwVMTypeError(globalObject, scope, "Temporal.PlainTime.prototype.add called on value that's not a PlainTime"_s);
 
+    // Step 3: Return ? AddDurationToTime(~add~, this, temporalDurationLike).
+    //   Step 1: ? ToTemporalDuration. Steps 3-4: AddTime ignores date fields per spec.
     auto duration = TemporalDuration::toTemporalDurationRecord(globalObject, callFrame->argument(0));
     RETURN_IF_EXCEPTION(scope, { });
 
-    auto result = TemporalPlainTime::toPlainTime(globalObject, TemporalPlainTime::addTime(plainTime->plainTime(), duration));
+    //   Step 5: Return ! CreateTemporalTime(result).
+    auto result = TemporalPlainTime::validateAndCreateTimeRecord(globalObject, TemporalPlainTime::addTime(plainTime->plainTime(), duration));
     RETURN_IF_EXCEPTION(scope, { });
 
     return JSValue::encode(TemporalPlainTime::create(vm, globalObject->plainTimeStructure(), WTF::move(result)));
@@ -133,14 +137,17 @@ JSC_DEFINE_HOST_FUNCTION(temporalPlainTimePrototypeFuncSubtract, (JSGlobalObject
     VM& vm = globalObject->vm();
     auto scope = DECLARE_THROW_SCOPE(vm);
 
+    // Steps 1-2: branding.
     auto* plainTime = dynamicDowncast<TemporalPlainTime>(callFrame->thisValue());
     if (!plainTime) [[unlikely]]
         return throwVMTypeError(globalObject, scope, "Temporal.PlainTime.prototype.subtract called on value that's not a PlainTime"_s);
 
+    // Step 3: Return ? AddDurationToTime(~subtract~, this, temporalDurationLike).
+    //   Step 1: ? ToTemporalDuration. Step 2: `-duration` is CreateNegatedTemporalDuration. Steps 3-5: as in add.
     auto duration = TemporalDuration::toTemporalDurationRecord(globalObject, callFrame->argument(0));
     RETURN_IF_EXCEPTION(scope, { });
 
-    auto result = TemporalPlainTime::toPlainTime(globalObject, TemporalPlainTime::addTime(plainTime->plainTime(), -duration));
+    auto result = TemporalPlainTime::validateAndCreateTimeRecord(globalObject, TemporalPlainTime::addTime(plainTime->plainTime(), -duration));
     RETURN_IF_EXCEPTION(scope, { });
 
     return JSValue::encode(TemporalPlainTime::create(vm, globalObject->plainTimeStructure(), WTF::move(result)));
@@ -172,10 +179,12 @@ JSC_DEFINE_HOST_FUNCTION(temporalPlainTimePrototypeFuncUntil, (JSGlobalObject* g
     VM& vm = globalObject->vm();
     auto scope = DECLARE_THROW_SCOPE(vm);
 
+    // Steps 1-2: branding.
     auto* plainTime = dynamicDowncast<TemporalPlainTime>(callFrame->thisValue());
     if (!plainTime) [[unlikely]]
         return throwVMTypeError(globalObject, scope, "Temporal.PlainTime.prototype.until called on value that's not a PlainTime"_s);
 
+    // Step 3: Return ? DifferenceTemporalPlainTime(~until~, this, other, options).
     auto* other = TemporalPlainTime::from(globalObject, callFrame->argument(0), jsUndefined());
     RETURN_IF_EXCEPTION(scope, { });
 
@@ -191,10 +200,12 @@ JSC_DEFINE_HOST_FUNCTION(temporalPlainTimePrototypeFuncSince, (JSGlobalObject* g
     VM& vm = globalObject->vm();
     auto scope = DECLARE_THROW_SCOPE(vm);
 
+    // Steps 1-2: branding.
     auto* plainTime = dynamicDowncast<TemporalPlainTime>(callFrame->thisValue());
     if (!plainTime) [[unlikely]]
         return throwVMTypeError(globalObject, scope, "Temporal.PlainTime.prototype.since called on value that's not a PlainTime"_s);
 
+    // Step 3: Return ? DifferenceTemporalPlainTime(~since~, this, other, options).
     auto* other = TemporalPlainTime::from(globalObject, callFrame->argument(0), jsUndefined());
     RETURN_IF_EXCEPTION(scope, { });
 
@@ -230,13 +241,17 @@ JSC_DEFINE_HOST_FUNCTION(temporalPlainTimePrototypeFuncEquals, (JSGlobalObject* 
     VM& vm = globalObject->vm();
     auto scope = DECLARE_THROW_SCOPE(vm);
 
+    // Steps 1-2: branding.
     auto* plainTime = dynamicDowncast<TemporalPlainTime>(callFrame->thisValue());
     if (!plainTime) [[unlikely]]
         return throwVMTypeError(globalObject, scope, "Temporal.PlainTime.prototype.equals called on value that's not a PlainTime"_s);
 
+    // Step 3: Set other to ? ToTemporalTime(other).
     auto* other = TemporalPlainTime::from(globalObject, callFrame->argument(0), jsUndefined());
     RETURN_IF_EXCEPTION(scope, { });
 
+    // Steps 4-5: If CompareTimeRecord(this.[[Time]], other.[[Time]]) = 0 return true, else false.
+    //   operator== compares all six fields ≡ CompareTimeRecord = 0.
     return JSValue::encode(jsBoolean(plainTime->plainTime() == other->plainTime()));
 }
 
@@ -246,10 +261,12 @@ JSC_DEFINE_HOST_FUNCTION(temporalPlainTimePrototypeFuncToString, (JSGlobalObject
     VM& vm = globalObject->vm();
     auto scope = DECLARE_THROW_SCOPE(vm);
 
+    // Steps 1-2: branding.
     auto* plainTime = dynamicDowncast<TemporalPlainTime>(callFrame->thisValue());
     if (!plainTime) [[unlikely]]
         return throwVMTypeError(globalObject, scope, "Temporal.PlainTime.prototype.toString called on value that's not a PlainTime"_s);
 
+    // Steps 3-11: option parsing + RoundTime + TimeRecordToString — see instance method.
     RELEASE_AND_RETURN(scope, JSValue::encode(jsString(vm, plainTime->toString(globalObject, callFrame->argument(0)))));
 }
 
@@ -259,23 +276,27 @@ JSC_DEFINE_HOST_FUNCTION(temporalPlainTimePrototypeFuncToJSON, (JSGlobalObject* 
     VM& vm = globalObject->vm();
     auto scope = DECLARE_THROW_SCOPE(vm);
 
+    // Steps 1-2: branding.
     auto* plainTime = dynamicDowncast<TemporalPlainTime>(callFrame->thisValue());
     if (!plainTime) [[unlikely]]
         return throwVMTypeError(globalObject, scope, "Temporal.PlainTime.prototype.toJSON called on value that's not a PlainTime"_s);
 
+    // Step 3: Return TimeRecordToString(this.[[Time]], ~auto~).
     return JSValue::encode(jsString(vm, plainTime->toString()));
 }
 
-// https://tc39.es/proposal-temporal/#sec-temporal.plaintime.prototype.tolocalestring
+// https://tc39.es/proposal-temporal/#sup-temporal.plaintime.prototype.tolocalestring
 JSC_DEFINE_HOST_FUNCTION(temporalPlainTimePrototypeFuncToLocaleString, (JSGlobalObject* globalObject, CallFrame* callFrame))
 {
     VM& vm = globalObject->vm();
     auto scope = DECLARE_THROW_SCOPE(vm);
 
+    // Steps 1-2: branding.
     auto* plainTime = dynamicDowncast<TemporalPlainTime>(callFrame->thisValue());
     if (!plainTime) [[unlikely]]
         return throwVMTypeError(globalObject, scope, "Temporal.PlainTime.prototype.toLocaleString called on value that's not a PlainTime"_s);
 
+    // Step 3: dateFormat = ? CreateDateTimeFormat(%Intl.DateTimeFormat%, locales, options, ~time~, ~time~).
     JSValue locales = callFrame->argument(0);
     JSValue options = callFrame->argument(1);
     IntlDateTimeFormat* formatter;
@@ -287,6 +308,7 @@ JSC_DEFINE_HOST_FUNCTION(temporalPlainTimePrototypeFuncToLocaleString, (JSGlobal
     }
     RETURN_IF_EXCEPTION(scope, { });
 
+    // Step 4: Return ? FormatDateTime(dateFormat, plainTime).
     RELEASE_AND_RETURN(scope, JSValue::encode(formatter->format(globalObject, callFrame->thisValue())));
 }
 
@@ -296,9 +318,11 @@ JSC_DEFINE_HOST_FUNCTION(temporalPlainTimePrototypeFuncValueOf, (JSGlobalObject*
     VM& vm = globalObject->vm();
     auto scope = DECLARE_THROW_SCOPE(vm);
 
+    // Step 1: Throw a TypeError exception.
     return throwVMTypeError(globalObject, scope, "Temporal.PlainTime.prototype.valueOf must not be called. To compare PlainTime values, use Temporal.PlainTime.compare"_s);
 }
 
+// https://tc39.es/proposal-temporal/#sec-get-temporal.plaintime.prototype.hour
 JSC_DEFINE_CUSTOM_GETTER(temporalPlainTimePrototypeGetterHour, (JSGlobalObject* globalObject, EncodedJSValue thisValue, PropertyName))
 {
     VM& vm = globalObject->vm();
@@ -311,6 +335,7 @@ JSC_DEFINE_CUSTOM_GETTER(temporalPlainTimePrototypeGetterHour, (JSGlobalObject* 
     return JSValue::encode(jsNumber(plainTime->hour()));
 }
 
+// https://tc39.es/proposal-temporal/#sec-get-temporal.plaintime.prototype.minute
 JSC_DEFINE_CUSTOM_GETTER(temporalPlainTimePrototypeGetterMinute, (JSGlobalObject* globalObject, EncodedJSValue thisValue, PropertyName))
 {
     VM& vm = globalObject->vm();
@@ -323,6 +348,7 @@ JSC_DEFINE_CUSTOM_GETTER(temporalPlainTimePrototypeGetterMinute, (JSGlobalObject
     return JSValue::encode(jsNumber(plainTime->minute()));
 }
 
+// https://tc39.es/proposal-temporal/#sec-get-temporal.plaintime.prototype.second
 JSC_DEFINE_CUSTOM_GETTER(temporalPlainTimePrototypeGetterSecond, (JSGlobalObject* globalObject, EncodedJSValue thisValue, PropertyName))
 {
     VM& vm = globalObject->vm();
@@ -335,6 +361,7 @@ JSC_DEFINE_CUSTOM_GETTER(temporalPlainTimePrototypeGetterSecond, (JSGlobalObject
     return JSValue::encode(jsNumber(plainTime->second()));
 }
 
+// https://tc39.es/proposal-temporal/#sec-get-temporal.plaintime.prototype.millisecond
 JSC_DEFINE_CUSTOM_GETTER(temporalPlainTimePrototypeGetterMillisecond, (JSGlobalObject* globalObject, EncodedJSValue thisValue, PropertyName))
 {
     VM& vm = globalObject->vm();
@@ -347,6 +374,7 @@ JSC_DEFINE_CUSTOM_GETTER(temporalPlainTimePrototypeGetterMillisecond, (JSGlobalO
     return JSValue::encode(jsNumber(plainTime->millisecond()));
 }
 
+// https://tc39.es/proposal-temporal/#sec-get-temporal.plaintime.prototype.microsecond
 JSC_DEFINE_CUSTOM_GETTER(temporalPlainTimePrototypeGetterMicrosecond, (JSGlobalObject* globalObject, EncodedJSValue thisValue, PropertyName))
 {
     VM& vm = globalObject->vm();
@@ -359,6 +387,7 @@ JSC_DEFINE_CUSTOM_GETTER(temporalPlainTimePrototypeGetterMicrosecond, (JSGlobalO
     return JSValue::encode(jsNumber(plainTime->microsecond()));
 }
 
+// https://tc39.es/proposal-temporal/#sec-get-temporal.plaintime.prototype.nanosecond
 JSC_DEFINE_CUSTOM_GETTER(temporalPlainTimePrototypeGetterNanosecond, (JSGlobalObject* globalObject, EncodedJSValue thisValue, PropertyName))
 {
     VM& vm = globalObject->vm();

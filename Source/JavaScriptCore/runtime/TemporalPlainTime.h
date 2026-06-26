@@ -45,7 +45,7 @@ public:
 
     DECLARE_INFO;
 
-    static ISO8601::PlainTime toPlainTime(JSGlobalObject*, const ISO8601::Duration&);
+    static ISO8601::PlainTime validateAndCreateTimeRecord(JSGlobalObject*, const ISO8601::Duration&);
     static ISO8601::Duration roundTime(ISO8601::PlainTime, double increment, TemporalUnit, RoundingMode, std::optional<double> dayLengthNs);
     static ISO8601::Duration toTemporalTimeRecord(JSGlobalObject*, JSObject*, bool skipRelevantPropertyCheck = false);
     static std::array<std::optional<double>, numberOfTemporalPlainTimeUnits> toPartialTime(JSGlobalObject*, JSObject*, bool skipRelevantPropertyCheck = false);
@@ -76,10 +76,6 @@ public:
 private:
     TemporalPlainTime(VM&, Structure*, ISO8601::PlainTime&&);
     DECLARE_DEFAULT_FINISH_CREATION;
-
-    template<typename CharacterType>
-    static std::optional<ISO8601::PlainTime> parse(StringParsingBuffer<CharacterType>&);
-    static ISO8601::PlainTime fromObject(JSGlobalObject*, JSObject*);
 
     ISO8601::Duration differenceTemporalPlainTime(DifferenceOperation, JSGlobalObject*, TemporalPlainTime*, JSValue) const;
 

@@ -93,7 +93,7 @@ TemporalPlainDateTime* TemporalPlainDateTime::tryCreateIfValid(JSGlobalObject* g
     auto plainDate = TemporalPlainDate::toPlainDate(globalObject, duration);
     RETURN_IF_EXCEPTION(scope, { });
 
-    auto plainTime = TemporalPlainTime::toPlainTime(globalObject, duration);
+    auto plainTime = TemporalPlainTime::validateAndCreateTimeRecord(globalObject, duration);
     RETURN_IF_EXCEPTION(scope, { });
 
     RELEASE_AND_RETURN(scope, TemporalPlainDateTime::tryCreateIfValid(globalObject, structure, WTF::move(plainDate), WTF::move(plainTime)));

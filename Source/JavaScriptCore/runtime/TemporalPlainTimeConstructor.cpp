@@ -128,6 +128,7 @@ JSC_DEFINE_HOST_FUNCTION(temporalPlainTimeConstructorFuncFrom, (JSGlobalObject* 
     VM& vm = globalObject->vm();
     auto scope = DECLARE_THROW_SCOPE(vm);
 
+    // Step 1: Return ? ToTemporalTime(item, options).
     JSValue itemValue = callFrame->argument(0);
     JSValue optionsValue = callFrame->argument(1);
     RELEASE_AND_RETURN(scope, JSValue::encode(TemporalPlainTime::from(globalObject, itemValue, optionsValue)));
@@ -139,12 +140,15 @@ JSC_DEFINE_HOST_FUNCTION(temporalPlainTimeConstructorFuncCompare, (JSGlobalObjec
     VM& vm = globalObject->vm();
     auto scope = DECLARE_THROW_SCOPE(vm);
 
+    // Step 1: Set one to ? ToTemporalTime(one).
     auto* one = TemporalPlainTime::from(globalObject, callFrame->argument(0), jsUndefined());
     RETURN_IF_EXCEPTION(scope, { });
 
+    // Step 2: Set two to ? ToTemporalTime(two).
     auto* two = TemporalPlainTime::from(globalObject, callFrame->argument(1), jsUndefined());
     RETURN_IF_EXCEPTION(scope, { });
 
+    // Step 3: Return CompareTimeRecord(one.[[Time]], two.[[Time]]).
     return JSValue::encode(jsNumber(TemporalPlainTime::compare(one->plainTime(), two->plainTime())));
 }
 
