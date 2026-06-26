@@ -28,16 +28,14 @@ public import pal.Core.crypto.CryptoTypes
 
 // FIXME: (rdar://164560176) resolve the many 'unsafe' statements here
 
-// FIXME: No symbols in this file should be `public`. Remove when support for compilers < 6.2.3 is no longer needed.
-
 private enum LocalErrors: Error {
     case invalidArgument
 }
 
-// swift-format-ignore: AllPublicDeclarationsHaveDocumentation
-public final class AesGcm {
-    // swift-format-ignore: AllPublicDeclarationsHaveDocumentation
-    public static func encrypt(
+@_expose(Cxx)
+final class AesGcm {
+    @_expose(Cxx)
+    static func encrypt(
         key: PAL.Crypto.SpanConstUInt8,
         iv: PAL.Crypto.SpanConstUInt8,
         ad: PAL.Crypto.SpanConstUInt8,
@@ -71,10 +69,10 @@ public final class AesGcm {
     }
 }
 
-// swift-format-ignore: AllPublicDeclarationsHaveDocumentation
-public final class AesKw {
-    // swift-format-ignore: AllPublicDeclarationsHaveDocumentation
-    public static func wrap(
+@_expose(Cxx)
+final class AesKw {
+    @_expose(Cxx)
+    static func wrap(
         keyToWrap: PAL.Crypto.SpanConstUInt8,
         using: PAL.Crypto.SpanConstUInt8
     ) -> PAL.Crypto.CryptoOperationReturnValue {
@@ -89,8 +87,8 @@ public final class AesKw {
         return returnValue
     }
 
-    // swift-format-ignore: AllPublicDeclarationsHaveDocumentation
-    public static func unwrap(
+    @_expose(Cxx)
+    static func unwrap(
         wrappedKey: PAL.Crypto.SpanConstUInt8,
         using: PAL.Crypto.SpanConstUInt8
     ) -> PAL.Crypto.CryptoOperationReturnValue {
@@ -109,61 +107,61 @@ public final class AesKw {
     }
 }
 
-// swift-format-ignore: AllPublicDeclarationsHaveDocumentation
-public final class Digest {
+@_expose(Cxx)
+final class Digest {
     private var ctx: any CryptoKit.HashFunction
 
     private init<T: CryptoKit.HashFunction>(_: T.Type) {
         ctx = T()
     }
 
-    // swift-format-ignore: AllPublicDeclarationsHaveDocumentation
-    public static func sha1Init() -> Digest {
+    @_expose(Cxx)
+    static func sha1Init() -> Digest {
         Self(Insecure.SHA1.self)
     }
 
-    // swift-format-ignore: AllPublicDeclarationsHaveDocumentation
-    public static func sha256Init() -> Digest {
+    @_expose(Cxx)
+    static func sha256Init() -> Digest {
         Self(SHA256.self)
     }
 
-    // swift-format-ignore: AllPublicDeclarationsHaveDocumentation
-    public static func sha384Init() -> Digest {
+    @_expose(Cxx)
+    static func sha384Init() -> Digest {
         Self(SHA384.self)
     }
 
-    // swift-format-ignore: AllPublicDeclarationsHaveDocumentation
-    public static func sha512Init() -> Digest {
+    @_expose(Cxx)
+    static func sha512Init() -> Digest {
         Self(SHA512.self)
     }
 
-    // swift-format-ignore: AllPublicDeclarationsHaveDocumentation
-    public func update(_ data: PAL.Crypto.SpanConstUInt8) {
+    @_expose(Cxx)
+    func update(_ data: PAL.Crypto.SpanConstUInt8) {
         unsafe ctx.update(data: data)
     }
 
-    // swift-format-ignore: AllPublicDeclarationsHaveDocumentation
-    public func finalize() -> PAL.Crypto.VectorUInt8 {
+    @_expose(Cxx)
+    func finalize() -> PAL.Crypto.VectorUInt8 {
         ctx.finalize().copyToVectorUInt8()
     }
 
-    // swift-format-ignore: AllPublicDeclarationsHaveDocumentation
-    public static func sha1(_ data: PAL.Crypto.SpanConstUInt8) -> PAL.Crypto.VectorUInt8 {
+    @_expose(Cxx)
+    static func sha1(_ data: PAL.Crypto.SpanConstUInt8) -> PAL.Crypto.VectorUInt8 {
         unsafe digest(data, t: Insecure.SHA1.self)
     }
 
-    // swift-format-ignore: AllPublicDeclarationsHaveDocumentation
-    public static func sha256(_ data: PAL.Crypto.SpanConstUInt8) -> PAL.Crypto.VectorUInt8 {
+    @_expose(Cxx)
+    static func sha256(_ data: PAL.Crypto.SpanConstUInt8) -> PAL.Crypto.VectorUInt8 {
         unsafe digest(data, t: SHA256.self)
     }
 
-    // swift-format-ignore: AllPublicDeclarationsHaveDocumentation
-    public static func sha384(_ data: PAL.Crypto.SpanConstUInt8) -> PAL.Crypto.VectorUInt8 {
+    @_expose(Cxx)
+    static func sha384(_ data: PAL.Crypto.SpanConstUInt8) -> PAL.Crypto.VectorUInt8 {
         unsafe digest(data, t: SHA384.self)
     }
 
-    // swift-format-ignore: AllPublicDeclarationsHaveDocumentation
-    public static func sha512(_ data: PAL.Crypto.SpanConstUInt8) -> PAL.Crypto.VectorUInt8 {
+    @_expose(Cxx)
+    static func sha512(_ data: PAL.Crypto.SpanConstUInt8) -> PAL.Crypto.VectorUInt8 {
         unsafe digest(data, t: SHA512.self)
     }
 
@@ -215,12 +213,12 @@ private enum ECKeyInternal {
     case publicKey(ECPublicKey)
 }
 
-// swift-format-ignore: AllPublicDeclarationsHaveDocumentation
-public struct ECKey {
+@_expose(Cxx)
+struct ECKey {
     private let key: ECKeyInternal
 
-    // swift-format-ignore: AllPublicDeclarationsHaveDocumentation
-    public init(curve: PAL.Crypto.ECNamedCurve) {
+    @_expose(Cxx)
+    init(curve: PAL.Crypto.ECNamedCurve) {
         switch curve {
         case .P256:
             key = .privateKey(.p256(P256.Signing.PrivateKey(compactRepresentable: true)))
@@ -245,8 +243,8 @@ public struct ECKey {
         key = internalKey
     }
 
-    // swift-format-ignore: AllPublicDeclarationsHaveDocumentation
-    public func toPub() -> ECKey {
+    @_expose(Cxx)
+    func toPub() -> ECKey {
         switch key {
         case .publicKey:
             return self
@@ -262,8 +260,8 @@ public struct ECKey {
         }
     }
 
-    // swift-format-ignore: AllPublicDeclarationsHaveDocumentation
-    public static func importX963Pub(data: PAL.Crypto.SpanConstUInt8, curve: PAL.Crypto.ECNamedCurve) -> ECKey? {
+    @_expose(Cxx)
+    static func importX963Pub(data: PAL.Crypto.SpanConstUInt8, curve: PAL.Crypto.ECNamedCurve) -> ECKey? {
         do {
             return switch curve {
             case .P256:
@@ -280,8 +278,8 @@ public struct ECKey {
         }
     }
 
-    // swift-format-ignore: AllPublicDeclarationsHaveDocumentation
-    public func exportX963Pub() -> PAL.Crypto.CryptoOperationReturnValue {
+    @_expose(Cxx)
+    func exportX963Pub() -> PAL.Crypto.CryptoOperationReturnValue {
         var returnValue = PAL.Crypto.CryptoOperationReturnValue()
         do {
             switch try getInternalPublic() {
@@ -299,8 +297,8 @@ public struct ECKey {
         return returnValue
     }
 
-    // swift-format-ignore: AllPublicDeclarationsHaveDocumentation
-    public static func importCompressedPub(data: PAL.Crypto.SpanConstUInt8, curve: PAL.Crypto.ECNamedCurve) -> ECKey? {
+    @_expose(Cxx)
+    static func importCompressedPub(data: PAL.Crypto.SpanConstUInt8, curve: PAL.Crypto.ECNamedCurve) -> ECKey? {
         do {
             return switch curve {
             case .P256:
@@ -317,8 +315,8 @@ public struct ECKey {
         }
     }
 
-    // swift-format-ignore: AllPublicDeclarationsHaveDocumentation
-    public static func importX963Private(data: PAL.Crypto.SpanConstUInt8, curve: PAL.Crypto.ECNamedCurve) -> ECKey? {
+    @_expose(Cxx)
+    static func importX963Private(data: PAL.Crypto.SpanConstUInt8, curve: PAL.Crypto.ECNamedCurve) -> ECKey? {
         do {
             return switch curve {
             case .P256:
@@ -335,8 +333,8 @@ public struct ECKey {
         }
     }
 
-    // swift-format-ignore: AllPublicDeclarationsHaveDocumentation
-    public func exportX963Private() -> PAL.Crypto.CryptoOperationReturnValue {
+    @_expose(Cxx)
+    func exportX963Private() -> PAL.Crypto.CryptoOperationReturnValue {
         var returnValue = PAL.Crypto.CryptoOperationReturnValue()
         do {
             switch try getInternalPrivate() {
@@ -354,8 +352,8 @@ public struct ECKey {
         return returnValue
     }
 
-    // swift-format-ignore: AllPublicDeclarationsHaveDocumentation
-    public func sign(
+    @_expose(Cxx)
+    func sign(
         message: PAL.Crypto.SpanConstUInt8,
         hashFunction: PAL.Crypto.CryptoDigestHashFunction
     ) -> PAL.Crypto.CryptoOperationReturnValue {
@@ -382,8 +380,8 @@ public struct ECKey {
         return returnValue
     }
 
-    // swift-format-ignore: AllPublicDeclarationsHaveDocumentation
-    public func verify(
+    @_expose(Cxx)
+    func verify(
         message: PAL.Crypto.SpanConstUInt8,
         signature: PAL.Crypto.SpanConstUInt8,
         hashFunction: PAL.Crypto.CryptoDigestHashFunction
@@ -438,8 +436,8 @@ public struct ECKey {
         }
     }
 
-    // swift-format-ignore: AllPublicDeclarationsHaveDocumentation
-    public func deriveBits(publicKey: ECKey) -> PAL.Crypto.CryptoOperationReturnValue {
+    @_expose(Cxx)
+    func deriveBits(publicKey: ECKey) -> PAL.Crypto.CryptoOperationReturnValue {
         var returnValue = PAL.Crypto.CryptoOperationReturnValue()
         do {
             let internalPrivate = try getInternalPrivate()
@@ -496,10 +494,10 @@ public struct ECKey {
     }
 }
 
-// swift-format-ignore: AllPublicDeclarationsHaveDocumentation
-public final class EdKey {
-    // swift-format-ignore: AllPublicDeclarationsHaveDocumentation
-    public static func generatePrivateKey(algo: PAL.Crypto.EdSigningAlgorithm) -> PAL.Crypto.VectorUInt8 {
+@_expose(Cxx)
+final class EdKey {
+    @_expose(Cxx)
+    static func generatePrivateKey(algo: PAL.Crypto.EdSigningAlgorithm) -> PAL.Crypto.VectorUInt8 {
         switch algo {
         case .ED25519:
             Curve25519.Signing.PrivateKey().rawRepresentation.copyToVectorUInt8()
@@ -510,8 +508,8 @@ public final class EdKey {
         }
     }
 
-    // swift-format-ignore: AllPublicDeclarationsHaveDocumentation
-    public static func generatePrivateKeyKeyAgreement(algo: PAL.Crypto.EdKeyAgreementAlgorithm) -> PAL.Crypto.VectorUInt8 {
+    @_expose(Cxx)
+    static func generatePrivateKeyKeyAgreement(algo: PAL.Crypto.EdKeyAgreementAlgorithm) -> PAL.Crypto.VectorUInt8 {
         switch algo {
         case .X25519:
             Curve25519.KeyAgreement.PrivateKey().rawRepresentation.copyToVectorUInt8()
@@ -522,8 +520,8 @@ public final class EdKey {
         }
     }
 
-    // swift-format-ignore: AllPublicDeclarationsHaveDocumentation
-    public static func privateToPublic(
+    @_expose(Cxx)
+    static func privateToPublic(
         algo: PAL.Crypto.EdSigningAlgorithm,
         privateKey: PAL.Crypto.SpanConstUInt8
     ) -> PAL.Crypto.CryptoOperationReturnValue {
@@ -551,8 +549,8 @@ public final class EdKey {
         return returnValue
     }
 
-    // swift-format-ignore: AllPublicDeclarationsHaveDocumentation
-    public static func privateToPublicKeyAgreement(
+    @_expose(Cxx)
+    static func privateToPublicKeyAgreement(
         algo: PAL.Crypto.EdKeyAgreementAlgorithm,
         privateKey: PAL.Crypto.SpanConstUInt8
     ) -> PAL.Crypto.CryptoOperationReturnValue {
@@ -580,8 +578,8 @@ public final class EdKey {
         return returnValue
     }
 
-    // swift-format-ignore: AllPublicDeclarationsHaveDocumentation
-    public static func validateKeyPair(
+    @_expose(Cxx)
+    static func validateKeyPair(
         algo: PAL.Crypto.EdSigningAlgorithm,
         privateKey: PAL.Crypto.SpanConstUInt8,
         publicKey: PAL.Crypto.SpanConstUInt8
@@ -605,8 +603,8 @@ public final class EdKey {
         }
     }
 
-    // swift-format-ignore: AllPublicDeclarationsHaveDocumentation
-    public static func validateKeyPairKeyAgreement(
+    @_expose(Cxx)
+    static func validateKeyPairKeyAgreement(
         algo: PAL.Crypto.EdKeyAgreementAlgorithm,
         privateKey: PAL.Crypto.SpanConstUInt8,
         publicKey: PAL.Crypto.SpanConstUInt8
@@ -630,8 +628,8 @@ public final class EdKey {
         }
     }
 
-    // swift-format-ignore: AllPublicDeclarationsHaveDocumentation
-    public static func sign(
+    @_expose(Cxx)
+    static func sign(
         algo: PAL.Crypto.EdSigningAlgorithm,
         privateKey: PAL.Crypto.SpanConstUInt8,
         data: PAL.Crypto.SpanConstUInt8
@@ -654,8 +652,8 @@ public final class EdKey {
         return returnValue
     }
 
-    // swift-format-ignore: AllPublicDeclarationsHaveDocumentation
-    public static func verify(
+    @_expose(Cxx)
+    static func verify(
         algo: PAL.Crypto.EdSigningAlgorithm,
         publicKey: PAL.Crypto.SpanConstUInt8,
         signature: PAL.Crypto.SpanConstUInt8,
@@ -680,8 +678,8 @@ public final class EdKey {
         return returnValue
     }
 
-    // swift-format-ignore: AllPublicDeclarationsHaveDocumentation
-    public static func deriveBits(
+    @_expose(Cxx)
+    static func deriveBits(
         algo: PAL.Crypto.EdKeyAgreementAlgorithm,
         privateKey: PAL.Crypto.SpanConstUInt8,
         publicKey: PAL.Crypto.SpanConstUInt8
@@ -705,10 +703,10 @@ public final class EdKey {
     }
 }
 
-// swift-format-ignore: AllPublicDeclarationsHaveDocumentation
-public final class HMAC {
-    // swift-format-ignore: AllPublicDeclarationsHaveDocumentation
-    public static func sign(
+@_expose(Cxx)
+final class HMAC {
+    @_expose(Cxx)
+    static func sign(
         key: PAL.Crypto.SpanConstUInt8,
         data: PAL.Crypto.SpanConstUInt8,
         hashFunction: PAL.Crypto.CryptoDigestHashFunction
@@ -729,8 +727,8 @@ public final class HMAC {
         }
     }
 
-    // swift-format-ignore: AllPublicDeclarationsHaveDocumentation
-    public static func verify(
+    @_expose(Cxx)
+    static func verify(
         mac: PAL.Crypto.SpanConstUInt8,
         key: PAL.Crypto.SpanConstUInt8,
         data: PAL.Crypto.SpanConstUInt8,
@@ -764,10 +762,10 @@ private let hkdfInputSizeLimitSHA256 = 255 * SHA256.byteCount * 8
 private let hkdfInputSizeLimitSHA384 = 255 * SHA384.byteCount * 8
 private let hkdfInputSizeLimitSHA512 = 255 * SHA512.byteCount * 8
 
-// swift-format-ignore: AllPublicDeclarationsHaveDocumentation
-public final class HKDF {
-    // swift-format-ignore: AllPublicDeclarationsHaveDocumentation
-    public static func deriveBits(
+@_expose(Cxx)
+final class HKDF {
+    @_expose(Cxx)
+    static func deriveBits(
         key: PAL.Crypto.SpanConstUInt8,
         salt: PAL.Crypto.SpanConstUInt8,
         info: PAL.Crypto.SpanConstUInt8,
