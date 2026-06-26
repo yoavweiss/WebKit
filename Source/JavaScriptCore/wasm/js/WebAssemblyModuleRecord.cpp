@@ -868,16 +868,16 @@ JSValue WebAssemblyModuleRecord::evaluate(JSGlobalObject* globalObject)
             uint8_t* memory = static_cast<uint8_t*>(wasmMemory.basePointer());
             uint64_t sizeInBytes = wasmMemory.size();
 
-            uint32_t offset = 0;
+            uint64_t offset = 0;
             if (segment->offsetIfActive()->isGlobalImport())
-                offset = static_cast<uint32_t>(m_instance->loadI32Global(segment->offsetIfActive()->globalImportIndex()));
+                offset = static_cast<uint64_t>(m_instance->loadI32Global(segment->offsetIfActive()->globalImportIndex()));
             else if (segment->offsetIfActive()->isConst())
                 offset = segment->offsetIfActive()->constValue();
             else {
                 uint64_t result;
                 evaluateConstantExpression(globalObject, moduleInformation.constantExpressions[segment->offsetIfActive()->constantExpressionIndex()], moduleInformation, Wasm::Types::I32, result);
                 RETURN_IF_EXCEPTION(scope, void());
-                offset = static_cast<uint32_t>(result);
+                offset = result;
             }
 
             if (fn(memory, sizeInBytes, segment, offset) == IterationStatus::Done)
@@ -904,13 +904,13 @@ JSValue WebAssemblyModuleRecord::evaluate(JSGlobalObject* globalObject)
         return exception.value();
 
     // Validation of all segment ranges comes before all Table and Memory initialization.
-    forEachActiveDataSegment([&](uint8_t* memory, uint64_t sizeInBytes, const std::unique_ptr<Wasm::Segment>& segment, uint32_t offset) {
+    forEachActiveDataSegment([&](uint8_t* memory, uint64_t sizeInBytes, const std::unique_ptr<Wasm::Segment>& segment, uint64_t offset) {
         if (sizeInBytes < segment->sizeInBytes()) [[unlikely]] {
-            exception = dataSegmentFail(globalObject, vm, scope, sizeInBytes, segment->sizeInBytes(), offset, ", segment is too big"_s);
+            exception = dataSegmentFail(globalObject, vm, scope, sizeInBytes, static_cast<uint64_t>(segment->sizeInBytes()), offset, ", segment is too big"_s);
             return IterationStatus::Done;
         }
         if (offset > sizeInBytes - segment->sizeInBytes()) [[unlikely]] {
-            exception = dataSegmentFail(globalObject, vm, scope, sizeInBytes, segment->sizeInBytes(), offset, ", segment writes outside of memory"_s);
+            exception = dataSegmentFail(globalObject, vm, scope, sizeInBytes, static_cast<uint64_t>(segment->sizeInBytes()), offset, ", segment writes outside of memory"_s);
             return IterationStatus::Done;
         }
 

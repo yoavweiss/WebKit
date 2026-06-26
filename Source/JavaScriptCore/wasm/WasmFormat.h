@@ -658,7 +658,7 @@ class I32InitExpr {
         ExtendedExpression
     };
 
-    I32InitExpr(Type type, uint32_t bits)
+    I32InitExpr(Type type, uint64_t bits)
         : m_bits(bits)
         , m_type(type)
     { }
@@ -666,33 +666,35 @@ class I32InitExpr {
 public:
     I32InitExpr() = delete;
 
-    static I32InitExpr globalImport(uint32_t globalImportNumber) { return I32InitExpr(Global, globalImportNumber); }
-    static I32InitExpr constValue(uint32_t constValue) { return I32InitExpr(Const, constValue); }
-    static I32InitExpr extendedExpression(uint32_t constantExpressionNumber) { return I32InitExpr(ExtendedExpression, constantExpressionNumber); }
+    static I32InitExpr globalImport(uint64_t globalImportNumber) { return I32InitExpr(Global, globalImportNumber); }
+    static I32InitExpr constValue(uint64_t constValue) { return I32InitExpr(Const, constValue); }
+    static I32InitExpr extendedExpression(uint64_t constantExpressionNumber) { return I32InitExpr(ExtendedExpression, constantExpressionNumber); }
 
     bool isConst() const { return m_type == Const; }
     bool isGlobalImport() const { return m_type == Global; }
     bool isExtendedExpression() const { return m_type == ExtendedExpression; }
-    uint32_t constValue() const
+    uint64_t constValue() const
     {
         RELEASE_ASSERT(isConst());
         return m_bits;
     }
-    uint32_t globalImportIndex() const
+    uint64_t globalImportIndex() const
     {
         RELEASE_ASSERT(isGlobalImport());
         return m_bits;
     }
-    uint32_t constantExpressionIndex() const
+    uint64_t constantExpressionIndex() const
     {
         RELEASE_ASSERT(isExtendedExpression());
         return m_bits;
     }
 
 private:
-    uint32_t m_bits;
+    uint64_t m_bits;
     Type m_type;
 };
+
+using I64InitExpr = I32InitExpr;
 
 class Segment final : public TrailingArray<Segment, uint8_t> {
     WTF_DEPRECATED_MAKE_FAST_ALLOCATED(Segment);
