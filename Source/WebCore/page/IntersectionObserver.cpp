@@ -459,8 +459,13 @@ static std::optional<LayoutRect> computeClippedRectInRootContentsSpace(const Lay
     if (!absoluteClippedRect)
         return std::nullopt;
 
-    // If the renderer is in the main frame, there are no more frames to traverse to, so stop here.
-    if (enclosingFrame->isMainFrame())
+    // Stop here if there are no more parent frames to traverse to.
+    RefPtr enclosingFrameParent = enclosingFrame->parent();
+    if (!enclosingFrameParent)
+        return absoluteClippedRect;
+
+    RefPtr enclosingFrameParentView = enclosingFrameParent->virtualView();
+    if (!enclosingFrameParentView)
         return absoluteClippedRect;
 
     // The computed visible rect is in the coordinate space of enclosingFrame.
@@ -491,12 +496,7 @@ static std::optional<LayoutRect> computeClippedRectInRootContentsSpace(const Lay
         return computeClippedRectInRootContentsSpace(*absoluteClippedRect, targetSecurityOrigin, ownerRenderer.get(), scrollMargin);
     }
 
-    // We already checked above that enclosingFrame is not a main frame,
-    // so it MUST have a parent.
-    RefPtr enclosingFrameParent = enclosingFrame->parent();
-    ASSERT(enclosingFrameParent);
-
-    absoluteClippedRect->moveBy(enclosingFrameParent->virtualView()->childFrameOwnerContentBoxLocation(*enclosingFrame));
+    absoluteClippedRect->moveBy(enclosingFrameParentView->childFrameOwnerContentBoxLocation(*enclosingFrame));
     return computeClippedRectInRootContentsSpace(*absoluteClippedRect, targetSecurityOrigin, enclosingFrame.get(), WTF::move(scrollMargin));
 }
 
