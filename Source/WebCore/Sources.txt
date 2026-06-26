@@ -2572,6 +2572,7 @@ platform/graphics/BitmapImageSource.cpp
 platform/graphics/ByteArrayPixelBuffer.cpp
 platform/graphics/CachedSubimage.cpp
 platform/graphics/CodecUtilities.cpp
+platform/graphics/CornerShapeUtilities.cpp
 platform/graphics/Color.cpp
 platform/graphics/ColorBlending.cpp
 platform/graphics/ColorConversion.cpp
