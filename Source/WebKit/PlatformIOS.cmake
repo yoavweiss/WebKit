@@ -459,6 +459,12 @@ file(WRITE "${WebKit_CMAKE_MODULEMAP_DIR}/module.modulemap"
         header \"${WEBKIT_DIR}/UIProcess/API/Cocoa/WKWebViewConfigurationInternal.h\"
         export *
     }
+
+    module SwiftDemoLogoConfirmation {
+        requires cplusplus20
+        header \"${WEBKIT_DIR}/UIProcess/SwiftDemoLogoConfirmation.h\"
+        export *
+    }
 }
 ")
 set(WebKit_SWIFT_INTEROP_MODULE_PATH "${WebKit_CMAKE_MODULEMAP_DIR}")
@@ -544,10 +550,6 @@ target_compile_options(WebKit PRIVATE
     "$<$<COMPILE_LANGUAGE:Swift>:-emit-module-interface>"
     "$<$<COMPILE_LANGUAGE:Swift>:SHELL:-emit-private-module-interface-path ${CMAKE_BINARY_DIR}/Source/WebKit/WebKit.private.swiftinterface>"
 )
-
-# FIXME: Re-enable Swift C++ interop header generation once WebKit_Internal
-# umbrella module compiles cleanly on iOS. https://bugs.webkit.org/show_bug.cgi?id=312083
-set(WebKit_SWIFT_TYPECHECK_SOURCES "")
 
 # iOS WebKit's Swift compile transitively imports UIKit→UIKitCore→WebKit_Private.
 # Explicit-module-build pre-builds those PCMs with our project -Xcc -I/-D set
