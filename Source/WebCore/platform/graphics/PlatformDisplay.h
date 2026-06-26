@@ -117,6 +117,7 @@ public:
     void setSkiaGLContextForCurrentThread(std::unique_ptr<GLContext>&&);
     GrDirectContext* skiaGrContext() const;
     unsigned msaaSampleCount() const;
+    size_t maxSkiaResourceCacheBytes() const;
 #endif
 
 protected:

@@ -50,6 +50,7 @@ WTF_IGNORE_WARNINGS_IN_THIRD_PARTY_CODE_BEGIN
 WTF_IGNORE_WARNINGS_IN_THIRD_PARTY_CODE_END
 
 #include <wtf/NeverDestroyed.h>
+#include <wtf/RAMSize.h>
 #include <wtf/ThreadSafeWeakPtr.h>
 #include <wtf/text/StringToIntegerConversion.h>
 
@@ -229,6 +230,32 @@ static unsigned initializeMSAASampleCount(GrDirectContext* grContext)
     return sampleCount;
 }
 
+static constexpr size_t s_lowEndDeviceMemoryThresholdBytes = 2 * GB;
+static constexpr size_t s_highEndDeviceMemoryThresholdBytes = 4 * GB;
+
+static constexpr size_t s_lowEndDeviceGlyphCacheTextureMaximumBytes = 2 * MB;
+static constexpr size_t s_lowEndMaxResourceCacheBytes = 48 * MB;
+static constexpr size_t s_maxResourceCacheBytes = 80 * MB;
+
+static std::optional<size_t> glyphCacheTextureMaximumBytes()
+{
+    size_t memorySize = WTF::ramSize();
+    if (memorySize < s_lowEndDeviceMemoryThresholdBytes)
+        return s_lowEndDeviceGlyphCacheTextureMaximumBytes;
+    return std::nullopt;
+}
+
+static size_t initializeMaxResourceCacheBytes(GrDirectContext* grContext)
+{
+    size_t memorySize = WTF::ramSize();
+    if (memorySize < s_lowEndDeviceMemoryThresholdBytes)
+        grContext->setResourceCacheLimit(s_lowEndMaxResourceCacheBytes);
+    else if (memorySize < s_highEndDeviceMemoryThresholdBytes)
+        grContext->setResourceCacheLimit(s_maxResourceCacheBytes);
+    // Use GrDirectContext default (256MB) for high end devices.
+    return grContext->getResourceCacheLimit();
+}
+
 class SkiaGLContext : public ThreadSafeRefCountedAndCanMakeThreadSafeWeakPtr<SkiaGLContext> {
 public:
     static Ref<SkiaGLContext> create(PlatformDisplay& display)
@@ -268,6 +295,11 @@ public:
         return m_sampleCount;
     }
 
+    size_t maxResourceCacheBytes() const
+    {
+        return m_maxResourceCacheBytes;
+    }
+
 private:
     explicit SkiaGLContext(PlatformDisplay& display)
         : SkiaGLContext(GLContext::createOffscreen(display))
@@ -284,10 +316,14 @@ private:
         options.fAllowMSAAOnNewIntel = shouldAllowMSAAOnNewIntel();
         thread_local std::unique_ptr<SkExecutor> s_executor = SkExecutor::MakeFIFOThreadPool(2);
         options.fExecutor = s_executor.get();
+        if (auto bytes = glyphCacheTextureMaximumBytes())
+            options.fGlyphCacheTextureMaximumBytes = *bytes;
+
         if (auto grContext = GrDirectContexts::MakeGL(skiaGLInterface(), options)) {
             m_skiaGLContext = WTF::move(glContext);
             m_skiaGrContext = WTF::move(grContext);
             m_sampleCount = initializeMSAASampleCount(m_skiaGrContext.get());
+            m_maxResourceCacheBytes = initializeMaxResourceCacheBytes(m_skiaGrContext.get());
         }
     }
 
@@ -295,6 +331,7 @@ private:
     sk_sp<GrDirectContext> m_skiaGrContext WTF_GUARDED_BY_LOCK(m_lock);
     mutable Lock m_lock;
     unsigned m_sampleCount { 0 };
+    size_t m_maxResourceCacheBytes { 0 };
 };
 #endif
 
@@ -333,6 +370,11 @@ GrDirectContext* PlatformDisplay::skiaGrContext() const
 unsigned PlatformDisplay::msaaSampleCount() const
 {
     return s_skiaGLContext ? s_skiaGLContext->sampleCount() : 0;
+}
+
+size_t PlatformDisplay::maxSkiaResourceCacheBytes() const
+{
+    return s_skiaGLContext ? s_skiaGLContext->maxResourceCacheBytes() : 0;
 }
 
 void PlatformDisplay::clearSkiaGLContext()
