@@ -65,6 +65,7 @@ static bool isValidVariableReference(CSSParserTokenRange, const CSSParserContext
 static bool isValidConstantReference(CSSParserTokenRange, const CSSParserContext&);
 static bool isValidDashedFunction(CSSParserTokenRange, const CSSParserContext&);
 static bool isValidAttrReference(CSSParserTokenRange, const CSSParserContext&);
+static bool isValidRandomItemReference(CSSParserTokenRange, const CSSParserContext&);
 
 struct ClassifyBlockResult {
     bool hasSubstitutionFunctions { false };
@@ -135,6 +136,12 @@ static std::optional<ClassifyBlockResult> classifyBlock(CSSParserTokenRange rang
             }
             if (token.functionId() == CSSValueAttr && parserContext.cssAttrSubstitutionFunctionEnabled) {
                 if (!isValidAttrReference(block, parserContext))
+                    return { };
+                result.hasSubstitutionFunctions = true;
+                continue;
+            }
+            if (token.functionId() == CSSValueRandomItem && parserContext.cssRandomItemFunctionEnabled) {
+                if (!isValidRandomItemReference(block, parserContext))
                     return { };
                 result.hasSubstitutionFunctions = true;
                 continue;
@@ -219,24 +226,29 @@ bool isValidConstantReference(CSSParserTokenRange range, const CSSParserContext&
     return !!classifyBlock(range, parserContext);
 }
 
+// Validates a single comma-separated argument that is a <declaration-value> subject to the
+// comma-containing-production rules: a {}-wrapped block groups internal commas, but may not be
+// mixed with other values, and a bare {} is not a valid value.
+// https://drafts.csswg.org/css-values-5/#component-function-commas
+// `allowEmpty` distinguishes <declaration-value># (dashed functions) from <declaration-value>?#
+// (random-item() items, where an item may be empty).
+static bool isValidDeclarationValueArgument(CSSParserTokenRange argumentRange, const CSSParserContext& parserContext, bool allowEmpty)
+{
+    if (argumentRange.atEnd())
+        return allowEmpty;
+
+    auto result = classifyBlock(argumentRange, parserContext);
+    return result && !result->hasTopLevelBraceBlockMixedWithOtherValues && !result->hasEmptyTopLevelBraceBlock;
+}
+
 bool isValidDashedFunction(CSSParserTokenRange range, const CSSParserContext& parserContext)
 {
     // <dashed-function> --*( <declaration-value>#? )
     range.consumeWhitespace();
 
-    auto validateArgument = [&](auto argumentRange) {
-        if (argumentRange.atEnd())
-            return false;
-
-        // https://drafts.csswg.org/css-values-5/#component-function-commas
-        // Empty brace blocks are just empty values.
-        auto result = classifyBlock(argumentRange, parserContext);
-        return result && !result->hasTopLevelBraceBlockMixedWithOtherValues && !result->hasEmptyTopLevelBraceBlock;
-    };
-
     unsigned index = 0;
     while (auto argumentRange = CSSPropertyParserHelpers::consumeArgument(range, index)) {
-        if (!validateArgument(*argumentRange))
+        if (!isValidDeclarationValueArgument(*argumentRange, parserContext, /* allowEmpty */ false))
             return false;
         ++index;
     }
@@ -271,6 +283,48 @@ bool isValidAttrReference(CSSParserTokenRange range, const CSSParserContext& par
         return true;
 
     return !!classifyBlock(range, parserContext);
+}
+
+// https://drafts.csswg.org/css-values-5/#funcdef-random-item
+// <random-item-args> = random-item( <declaration-value>, [ <declaration-value>? ]# )
+// Validate using the argument grammar. Parsing the first argument as <random-key> and
+// selecting an item happen at substitution time.
+bool isValidRandomItemReference(CSSParserTokenRange range, const CSSParserContext& parserContext)
+{
+    range.consumeWhitespace();
+
+    // The first argument is the required <random-key>. Split at the first literal comma;
+    // commas inside blocks (e.g. {a, b}) are not separators.
+    auto keyStart = range;
+    while (!range.atEnd() && range.peek().type() != CommaToken)
+        range.consumeComponentValue();
+    auto keyRange = keyStart.rangeUntil(range);
+
+    // The <random-key> argument must be non-empty.
+    if (keyRange.atEnd())
+        return false;
+
+    if (!classifyBlock(keyRange, parserContext))
+        return false;
+
+    // A comma must separate the key from the list of items.
+    if (!CSSPropertyParserHelpers::consumeCommaIncludingWhitespace(range))
+        return false;
+
+    // [ <declaration-value>? ]# : a comma-separated list of one or more items, each of which
+    // may be empty. Items follow the same comma-containing-production rules as dashed-function
+    // arguments, except an empty item is allowed here.
+    do {
+        auto itemStart = range;
+        while (!range.atEnd() && range.peek().type() != CommaToken)
+            range.consumeComponentValue();
+        auto itemRange = itemStart.rangeUntil(range);
+
+        if (!isValidDeclarationValueArgument(itemRange, parserContext, /* allowEmpty */ true))
+            return false;
+    } while (CSSPropertyParserHelpers::consumeCommaIncludingWhitespace(range));
+
+    return range.atEnd();
 }
 
 struct VariableType {
