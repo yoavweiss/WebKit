@@ -37,6 +37,7 @@
 #import "MediaStreamPrivate.h"
 #import "PixelBufferConformerCV.h"
 #import "PlatformDynamicRangeLimitCocoa.h"
+#import "PlatformStrategies.h"
 #import "VideoFrame.h"
 #import "VideoFrameMetadata.h"
 #import "VideoLayerManagerObjC.h"
@@ -213,7 +214,7 @@ private:
 
 void MediaPlayerPrivateMediaStreamAVFObjC::registerMediaEngine(MediaEngineRegistrar registrar)
 {
-    if (!isAvailable())
+    if (!isAvailable() || !hasPlatformStrategies())
         return;
 
     registrar(makeUnique<MediaPlayerFactoryMediaStreamAVFObjC>());

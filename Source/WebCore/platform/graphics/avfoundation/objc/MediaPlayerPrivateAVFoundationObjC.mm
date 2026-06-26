@@ -311,6 +311,8 @@ private:
 
 void MediaPlayerPrivateAVFoundationObjC::registerMediaEngine(MediaEngineRegistrar registrar)
 {
+    if (RemoteMediaPlayerSupport::registerRemoteEngineIfAvailable(registrar, MediaPlayerEnums::MediaEngineIdentifier::AVFoundation, PlatformMediaDecodingType::FileOrHLS))
+        return;
     if (!isAvailable())
         return;
 

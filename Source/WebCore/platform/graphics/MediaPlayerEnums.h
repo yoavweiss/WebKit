@@ -182,6 +182,16 @@ enum class MediaPlaybackTargetType : uint8_t {
     Serialized = 1 << 3,
 };
 
+enum class MediaPlayerScope : uint8_t {
+    Playback,
+    Supports,
+};
+
+enum class MediaContainmentEnabled : bool {
+    No,
+    Yes,
+};
+
 } // namespace WebCore
 
 

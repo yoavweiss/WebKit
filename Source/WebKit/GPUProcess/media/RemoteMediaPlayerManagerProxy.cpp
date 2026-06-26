@@ -58,6 +58,24 @@ using namespace WebCore;
 
 WTF_MAKE_TZONE_ALLOCATED_IMPL(RemoteMediaPlayerManagerProxy);
 
+CheckedPtr<const MediaPlayerFactory> RemoteMediaPlayerManagerProxy::playbackEngineForConnection(MediaPlayerEnums::MediaEngineIdentifier engineIdentifier) const
+{
+    auto connection = m_gpuConnectionToWebProcess.get();
+    auto containment = MediaContainmentEnabled::No;
+#if PLATFORM(COCOA)
+    if (connection && connection->sharedPreferencesForWebProcessValue().mediaContainmentEnabled)
+        containment = MediaContainmentEnabled::Yes;
+#else
+    UNUSED_PARAM(connection);
+#endif
+    MediaPlayerEngineSelection selection {
+        .identifier = engineIdentifier,
+        .scope = MediaPlayerScope::Playback,
+        .mediaContainmentEnabled = containment,
+    };
+    return MediaPlayer::mediaEngine(selection);
+}
+
 RemoteMediaPlayerManagerProxy::RemoteMediaPlayerManagerProxy(GPUConnectionToWebProcess& connection)
     : m_gpuConnectionToWebProcess(connection)
 #if !RELEASE_LOG_DISABLED
@@ -104,11 +122,7 @@ void RemoteMediaPlayerManagerProxy::createMediaPlayer(MediaPlayerIdentifier iden
     ASSERT(RunLoop::isMain());
     ASSERT(!m_proxies.contains(identifier));
 
-#if PLATFORM(COCOA)
-    MESSAGE_CHECK(!connection->sharedPreferencesForWebProcessValue().mediaContainmentEnabled
-        || engineIdentifier == MediaPlayerEnums::MediaEngineIdentifier::AVFoundation
-        || engineIdentifier == MediaPlayerEnums::MediaEngineIdentifier::WirelessPlayback);
-#endif
+    MESSAGE_CHECK(playbackEngineForConnection(engineIdentifier));
 
     auto proxy = RemoteMediaPlayerProxy::create(*this, identifier, clientIdentifier, connection->connection(), engineIdentifier, WTF::move(proxyConfiguration), Ref { connection->videoFrameObjectHeap() }, connection->webProcessIdentity());
     m_proxies.add(identifier, WTF::move(proxy));
@@ -131,7 +145,7 @@ void RemoteMediaPlayerManagerProxy::deleteMediaPlayer(MediaPlayerIdentifier iden
 
 void RemoteMediaPlayerManagerProxy::getSupportedTypes(MediaPlayerEnums::MediaEngineIdentifier engineIdentifier, CompletionHandler<void(Vector<String>&&)>&& completionHandler)
 {
-    CheckedPtr engine = MediaPlayer::mediaEngine(engineIdentifier);
+    CheckedPtr engine = playbackEngineForConnection(engineIdentifier);
     if (!engine) {
         WTFLogAlways("Failed to find media engine.");
         completionHandler({ });
@@ -150,7 +164,7 @@ void RemoteMediaPlayerManagerProxy::getSupportedTypes(MediaPlayerEnums::MediaEng
 
 void RemoteMediaPlayerManagerProxy::supportsTypeAndCodecs(MediaPlayerEnums::MediaEngineIdentifier engineIdentifier, const MediaEngineSupportParameters&& parameters, CompletionHandler<void(MediaPlayer::SupportsType)>&& completionHandler)
 {
-    CheckedPtr engine = MediaPlayer::mediaEngine(engineIdentifier);
+    CheckedPtr engine = playbackEngineForConnection(engineIdentifier);
     if (!engine) {
         WTFLogAlways("Failed to find media engine.");
         completionHandler(MediaPlayer::SupportsType::IsNotSupported);
@@ -163,7 +177,7 @@ void RemoteMediaPlayerManagerProxy::supportsTypeAndCodecs(MediaPlayerEnums::Medi
 
 void RemoteMediaPlayerManagerProxy::supportsKeySystem(MediaPlayerEnums::MediaEngineIdentifier engineIdentifier, const String&& keySystem, const String&& mimeType, CompletionHandler<void(bool)>&& completionHandler)
 {
-    CheckedPtr engine = MediaPlayer::mediaEngine(engineIdentifier);
+    CheckedPtr engine = playbackEngineForConnection(engineIdentifier);
     if (!engine) {
         WTFLogAlways("Failed to find media engine.");
         return;

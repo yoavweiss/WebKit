@@ -171,10 +171,18 @@ private:
     {
         return MediaPlayerPrivateMediaSourceAVFObjC::supportsTypeAndCodecs(parameters);
     }
+
+    MediaPlayerScope supportedScope(MediaContainmentEnabled mediaContainmentEnabled) const final
+    {
+        return !hasPlatformStrategies() && mediaContainmentEnabled == MediaContainmentEnabled::Yes ? MediaPlayerScope::Supports : MediaPlayerScope::Playback;
+    }
 };
 
 void MediaPlayerPrivateMediaSourceAVFObjC::registerMediaEngine(MediaEngineRegistrar registrar)
 {
+    bool useMSERemoteRenderer = hasPlatformStrategies() && platformStrategies()->mediaStrategy()->hasRemoteRendererFor(MediaPlayerMediaEngineIdentifier::AVFoundationMSE);
+    if (!useMSERemoteRenderer && RemoteMediaPlayerSupport::registerRemoteEngineIfAvailable(registrar, MediaPlayerEnums::MediaEngineIdentifier::AVFoundationMSE, PlatformMediaDecodingType::MediaSource))
+        return;
     if (!isAvailable())
         return;
 

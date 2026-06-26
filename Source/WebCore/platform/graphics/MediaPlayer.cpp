@@ -95,6 +95,10 @@
 #include "MediaPlayerPrivateMediaSourceAVFObjC.h"
 #endif
 
+#if ENABLE(MEDIA_SOURCE)
+#include "MockMediaPlayerMediaSource.h"
+#endif
+
 #if ENABLE(MEDIA_STREAM) && USE(AVFOUNDATION)
 #include "MediaPlayerPrivateMediaStreamAVFObjC.h"
 #endif
@@ -110,7 +114,6 @@
 #endif
 
 #if ENABLE(WIRELESS_PLAYBACK_MEDIA_PLAYER)
-#include "MediaDeviceRouteController.h"
 #include "MediaPlayerPrivateWirelessPlayback.h"
 #endif
 
@@ -309,41 +312,40 @@ void RemoteMediaPlayerSupport::setRegisterRemotePlayerCallback(RegisterRemotePla
     registerRemotePlayerCallback() = WTF::move(callback);
 }
 
+bool RemoteMediaPlayerSupport::registerRemoteEngineIfAvailable(MediaEngineRegistrar registrar, MediaPlayerEnums::MediaEngineIdentifier identifier, PlatformMediaDecodingType platformType)
+{
+    auto& callback = registerRemotePlayerCallback();
+    if (!callback)
+        return false;
+    callback(registrar, identifier, platformType);
+    return true;
+}
+
 static void buildMediaEnginesVector() WTF_REQUIRES_LOCK(mediaEngineVectorLock)
 {
     ASSERT(mediaEngineVectorLock.isLocked());
 
 #if USE(AVFOUNDATION)
-    auto& registerRemoteEngine = registerRemotePlayerCallback();
 #if ENABLE(MEDIA_SOURCE)
-    bool useMSERemoteRenderer = hasPlatformStrategies() && platformStrategies()->mediaStrategy()->hasRemoteRendererFor(MediaPlayerMediaEngineIdentifier::AVFoundationMSE);
-    if (!useMSERemoteRenderer && registerRemoteEngine && platformStrategies()->mediaStrategy()->mockMediaSourceEnabled())
-        registerRemoteEngine(addMediaEngine, MediaPlayerEnums::MediaEngineIdentifier::MockMSE, PlatformMediaDecodingType::MediaSource);
+    // Mock mode disables AVFoundation, so this branch sits outside the
+    // isAVFoundationEnabled() gate. When MediaPlayerPrivateMediaSourceAVFObjC would run in
+    // the GPU process (i.e. MSE is not using a remote renderer), register MockMSE as a
+    // remote proxy so MockMSE runs in the same process as MSE and inherits the same
+    // registration policy.
+    if (hasPlatformStrategies()
+        && platformStrategies()->mediaStrategy()->mockMediaSourceEnabled()
+        && !platformStrategies()->mediaStrategy()->hasRemoteRendererFor(MediaPlayerMediaEngineIdentifier::AVFoundationMSE))
+        RemoteMediaPlayerSupport::registerRemoteEngineIfAvailable(addMediaEngine, MediaPlayerEnums::MediaEngineIdentifier::MockMSE, PlatformMediaDecodingType::MediaSource);
 #endif
 
     if (DeprecatedGlobalSettings::isAVFoundationEnabled()) {
-        if (registerRemoteEngine)
-            registerRemoteEngine(addMediaEngine, MediaPlayerEnums::MediaEngineIdentifier::AVFoundation, PlatformMediaDecodingType::FileOrHLS);
-        else
-            MediaPlayerPrivateAVFoundationObjC::registerMediaEngine(addMediaEngine);
-
+        MediaPlayerPrivateAVFoundationObjC::registerMediaEngine(addMediaEngine);
 #if ENABLE(MEDIA_SOURCE)
-        if (registerRemoteEngine && !useMSERemoteRenderer)
-            registerRemoteEngine(addMediaEngine, MediaPlayerEnums::MediaEngineIdentifier::AVFoundationMSE, PlatformMediaDecodingType::MediaSource);
-        else
-            MediaPlayerPrivateMediaSourceAVFObjC::registerMediaEngine(addMediaEngine);
+        MediaPlayerPrivateMediaSourceAVFObjC::registerMediaEngine(addMediaEngine);
 #endif
-
 #if ENABLE(COCOA_WEBM_PLAYER)
-        bool useRemoteRenderer = hasPlatformStrategies() && platformStrategies()->mediaStrategy()->hasRemoteRendererFor(MediaPlayerMediaEngineIdentifier::CocoaWebM);
-        if (!hasPlatformStrategies() || platformStrategies()->mediaStrategy()->enableWebMMediaPlayer()) {
-            if (registerRemoteEngine && !useRemoteRenderer)
-                registerRemoteEngine(addMediaEngine, MediaPlayerEnums::MediaEngineIdentifier::CocoaWebM, PlatformMediaDecodingType::MediaSource);
-            else
-                MediaPlayerPrivateWebM::registerMediaEngine(addMediaEngine);
-        }
+        MediaPlayerPrivateWebM::registerMediaEngine(addMediaEngine);
 #endif
-
 #if ENABLE(MEDIA_STREAM)
         MediaPlayerPrivateMediaStreamAVFObjC::registerMediaEngine(addMediaEngine);
 #endif
@@ -368,12 +370,7 @@ static void buildMediaEnginesVector() WTF_REQUIRES_LOCK(mediaEngineVectorLock)
 #endif
 
 #if ENABLE(WIRELESS_PLAYBACK_MEDIA_PLAYER)
-    if (!hasPlatformStrategies() || platformStrategies()->mediaStrategy()->wirelessPlaybackMediaPlayerEnabled()) {
-        if (registerRemoteEngine && !mockMediaDeviceRouteControllerEnabled())
-            registerRemoteEngine(addMediaEngine, MediaPlayerEnums::MediaEngineIdentifier::WirelessPlayback, PlatformMediaDecodingType::FileOrHLS);
-        else
-            MediaPlayerPrivateWirelessPlayback::registerMediaEngine(addMediaEngine);
-    }
+    MediaPlayerPrivateWirelessPlayback::registerMediaEngine(addMediaEngine);
 #endif
 
     haveMediaEnginesVector() = true;
@@ -412,17 +409,29 @@ MediaPlayerPrivateInterface* MediaPlayer::playerPrivate()
     return m_private.get();
 }
 
-
-const MediaPlayerFactory* MediaPlayer::mediaEngine(MediaPlayerEnums::MediaEngineIdentifier identifier)
+static bool engineScopeMatchesSelection(MediaPlayerScope engineScope, MediaPlayerScope selectionScope)
 {
+    if (selectionScope == MediaPlayerScope::Playback)
+        return engineScope == MediaPlayerScope::Playback;
+    ASSERT(selectionScope == MediaPlayerScope::Supports);
+    return true;
+}
+
+const MediaPlayerFactory* MediaPlayer::mediaEngine(const MediaPlayerEngineSelection& selection)
+{
+    if (!selection.identifier) {
+        RELEASE_LOG_ERROR(Media, "MediaPlayer::mediaEngine called without an engine identifier");
+        return nullptr;
+    }
     auto& engines = installedMediaEngines();
-    auto currentIndex = engines.findIf([identifier] (auto& engine) {
-        return engine->identifier() == identifier;
+    auto currentIndex = engines.findIf([&] (auto& engine) {
+        return engine->identifier() == *selection.identifier
+            && engineScopeMatchesSelection(engine->supportedScope(selection.mediaContainmentEnabled), selection.scope);
     });
 
     if (currentIndex == notFound) {
 #if PLATFORM(IOS_FAMILY_SIMULATOR)
-        ASSERT(identifier == MediaPlayerEnums::MediaEngineIdentifier::AVFoundationMSE);
+        ASSERT(selection.identifier == MediaPlayerEnums::MediaEngineIdentifier::AVFoundationMSE);
 #endif
         return nullptr;
     }
@@ -430,13 +439,13 @@ const MediaPlayerFactory* MediaPlayer::mediaEngine(MediaPlayerEnums::MediaEngine
     return engines[currentIndex].get();
 }
 
-static const MediaPlayerFactory* bestMediaEngineForSupportParameters(const MediaEngineSupportParameters& parameters, const WeakHashSet<const MediaPlayerFactory>& attemptedEngines = { }, const MediaPlayerFactory* current = nullptr)
+static const MediaPlayerFactory* bestMediaEngineForSupportParameters(const MediaEngineSupportParameters& parameters, const MediaPlayerEngineSelection& selection, const WeakHashSet<const MediaPlayerFactory>& attemptedEngines = { }, const MediaPlayerFactory* current = nullptr)
 {
     if (parameters.type.isEmpty() && parameters.platformType == PlatformMediaDecodingType::FileOrHLS)
         return nullptr;
 
     // 4.8.10.3 MIME types - In the absence of a specification to the contrary, the MIME type "application/octet-stream"
-    // when used with parameters, e.g. "application/octet-stream;codecs=theora", is a type that the user agent knows 
+    // when used with parameters, e.g. "application/octet-stream;codecs=theora", is a type that the user agent knows
     // it cannot render.
     if (parameters.type.containerType() == applicationOctetStream()) {
         if (!parameters.type.codecs().isEmpty())
@@ -446,6 +455,8 @@ static const MediaPlayerFactory* bestMediaEngineForSupportParameters(const Media
     const MediaPlayerFactory* foundEngine = nullptr;
     MediaPlayer::SupportsType supported = MediaPlayer::SupportsType::IsNotSupported;
     for (auto& engine : installedMediaEngines()) {
+        if (!engineScopeMatchesSelection(engine->supportedScope(selection.mediaContainmentEnabled), selection.scope))
+            continue;
         if (current) {
             if (current == engine.get())
                 current = nullptr;
@@ -466,7 +477,7 @@ static const MediaPlayerFactory* bestMediaEngineForSupportParameters(const Media
 CheckedPtr<const MediaPlayerFactory> MediaPlayer::nextMediaEngine(const MediaPlayerFactory* current)
 {
     if (m_activeEngineIdentifier) {
-        CheckedPtr engine = mediaEngine(m_activeEngineIdentifier.value());
+        CheckedPtr engine = mediaEngine({ .identifier = m_activeEngineIdentifier.value() });
         return current != engine ? engine : nullptr;
     }
 
@@ -624,14 +635,14 @@ CheckedPtr<const MediaPlayerFactory> MediaPlayer::nextBestMediaEngine(const Medi
         if (current)
             return nullptr;
 
-        CheckedPtr engine = mediaEngine(m_activeEngineIdentifier.value());
+        CheckedPtr engine = mediaEngine({ .identifier = m_activeEngineIdentifier.value() });
         if (engine && engine->supportsTypeAndCodecs(parameters) != SupportsType::IsNotSupported)
             return engine;
 
         return nullptr;
     }
 
-    return bestMediaEngineForSupportParameters(parameters, m_attemptedEngines, current);
+    return bestMediaEngineForSupportParameters(parameters, { .scope = MediaPlayerScope::Playback }, m_attemptedEngines, current);
 }
 
 void MediaPlayer::reloadAndResumePlaybackIfNeeded()
@@ -1270,9 +1281,9 @@ bool MediaPlayer::shouldGetNativeImageForCanvasDrawing() const
     return protect(m_private)->shouldGetNativeImageForCanvasDrawing();
 }
 
-MediaPlayer::SupportsType MediaPlayer::supportsType(const MediaEngineSupportParameters& parameters)
+MediaPlayer::SupportsType MediaPlayer::supportsType(const MediaEngineSupportParameters& parameters, const MediaPlayerEngineSelection& selection)
 {
-    // 4.8.10.3 MIME types - The canPlayType(type) method must return the empty string if type is a type that the 
+    // 4.8.10.3 MIME types - The canPlayType(type) method must return the empty string if type is a type that the
     // user agent knows it cannot render or is the type "application/octet-stream"
     AtomString containerType { parameters.type.containerType() };
     if (containerType == applicationOctetStream())
@@ -1281,7 +1292,7 @@ MediaPlayer::SupportsType MediaPlayer::supportsType(const MediaEngineSupportPara
     if (!startsWithLettersIgnoringASCIICase(containerType, "video/"_s) && !startsWithLettersIgnoringASCIICase(containerType, "audio/"_s) && !startsWithLettersIgnoringASCIICase(containerType, "application/"_s))
         return SupportsType::IsNotSupported;
 
-    CheckedPtr engine = bestMediaEngineForSupportParameters(parameters);
+    CheckedPtr engine = bestMediaEngineForSupportParameters(parameters, selection);
     if (!engine)
         return SupportsType::IsNotSupported;
 

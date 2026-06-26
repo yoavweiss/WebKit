@@ -30,8 +30,11 @@
 
 #include "Logging.h"
 #include "MediaDeviceRoute.h"
+#include "MediaDeviceRouteController.h"
 #include "MediaPlaybackTargetWirelessPlayback.h"
 #include "MediaSelectionOption.h"
+#include "MediaStrategy.h"
+#include "PlatformStrategies.h"
 #include <pal/avfoundation/MediaTimeAVFoundation.h>
 #include <wtf/BlockPtr.h>
 #include <wtf/TZoneMallocInlines.h>
@@ -71,6 +74,10 @@ private:
 
 void MediaPlayerPrivateWirelessPlayback::registerMediaEngine(MediaEngineRegistrar registrar)
 {
+    if (hasPlatformStrategies() && !platformStrategies()->mediaStrategy()->wirelessPlaybackMediaPlayerEnabled())
+        return;
+    if (!mockMediaDeviceRouteControllerEnabled() && RemoteMediaPlayerSupport::registerRemoteEngineIfAvailable(registrar, MediaPlayerEnums::MediaEngineIdentifier::WirelessPlayback, PlatformMediaDecodingType::FileOrHLS))
+        return;
     registrar(makeUnique<MediaPlayerFactoryWirelessPlayback>());
 }
 

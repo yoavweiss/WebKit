@@ -129,6 +129,12 @@ struct MediaEngineSupportParameters {
 #endif
 };
 
+struct MediaPlayerEngineSelection {
+    std::optional<MediaPlayerEnums::MediaEngineIdentifier> identifier { };
+    MediaPlayerScope scope { MediaPlayerScope::Playback };
+    MediaContainmentEnabled mediaContainmentEnabled { MediaContainmentEnabled::No };
+};
+
 struct SeekTarget {
     WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(SeekTarget);
     SeekTarget(const MediaTime& targetTime, const MediaTime& negativeThreshold, const MediaTime& positiveThreshold)
@@ -377,8 +383,8 @@ public:
 
     // Media engine support.
     using MediaPlayerEnums::SupportsType;
-    static const MediaPlayerFactory* mediaEngine(MediaPlayerEnums::MediaEngineIdentifier);
-    static SupportsType supportsType(const MediaEngineSupportParameters&);
+    static const MediaPlayerFactory* mediaEngine(const MediaPlayerEngineSelection& = { });
+    static SupportsType supportsType(const MediaEngineSupportParameters&, const MediaPlayerEngineSelection& = { });
     static void getSupportedTypes(HashSet<String>&);
     static bool isAvailable();
     static HashSet<SecurityOriginData> originsInMediaCache(const String& path);
@@ -929,6 +935,12 @@ public:
     virtual void clearMediaCache(const String&, WallTime) const { }
     virtual void clearMediaCacheForOrigins(const String&, const HashSet<SecurityOriginData>&) const { }
     virtual bool supportsKeySystem(const String& /* keySystem */, const String& /* mimeType */) const { return false; }
+
+    // Describes how this factory may be used. The `mediaContainmentEnabled` context
+    // mirrors the per-WebProcess preference of the same name; in the GPU process it's
+    // sourced from the calling connection. Default is Playback; subclasses override
+    // only if they need to answer differently for some contexts.
+    virtual MediaPlayerScope supportedScope(MediaContainmentEnabled = MediaContainmentEnabled::No) const { return MediaPlayerScope::Playback; }
 };
 
 using MediaEngineRegistrar = void(std::unique_ptr<MediaPlayerFactory>&&);
@@ -943,6 +955,12 @@ class RemoteMediaPlayerSupport {
 public:
     using RegisterRemotePlayerCallback = Function<void(MediaEngineRegistrar, MediaPlayerEnums::MediaEngineIdentifier, PlatformMediaDecodingType)>;
     WEBCORE_EXPORT static void setRegisterRemotePlayerCallback(RegisterRemotePlayerCallback&&);
+
+    // If a remote-player callback has been installed (i.e. this is the WebContent
+    // process and a GPU process is available), register a remote proxy factory for
+    // the given engine and return true. Otherwise return false and leave the
+    // caller to register a local factory.
+    WEBCORE_EXPORT static bool registerRemoteEngineIfAvailable(MediaEngineRegistrar, MediaPlayerEnums::MediaEngineIdentifier, PlatformMediaDecodingType);
 };
 
 inline String MediaPlayer::audioOutputDeviceId() const

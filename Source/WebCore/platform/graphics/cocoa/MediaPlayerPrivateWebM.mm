@@ -1757,10 +1757,20 @@ private:
     {
         return MediaPlayerPrivateWebM::supportsType(parameters);
     }
+
+    MediaPlayerScope supportedScope(MediaContainmentEnabled mediaContainmentEnabled) const final
+    {
+        return !hasPlatformStrategies() && mediaContainmentEnabled == MediaContainmentEnabled::Yes ? MediaPlayerScope::Supports : MediaPlayerScope::Playback;
+    }
 };
 
 void MediaPlayerPrivateWebM::registerMediaEngine(MediaEngineRegistrar registrar)
 {
+    if (hasPlatformStrategies() && !platformStrategies()->mediaStrategy()->enableWebMMediaPlayer())
+        return;
+    bool useRemoteRenderer = hasPlatformStrategies() && platformStrategies()->mediaStrategy()->hasRemoteRendererFor(MediaPlayerMediaEngineIdentifier::CocoaWebM);
+    if (!useRemoteRenderer && RemoteMediaPlayerSupport::registerRemoteEngineIfAvailable(registrar, MediaPlayerEnums::MediaEngineIdentifier::CocoaWebM, PlatformMediaDecodingType::FileOrHLS))
+        return;
     if (!isAvailable())
         return;
 

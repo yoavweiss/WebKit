@@ -109,6 +109,8 @@ private:
     void supportsTypeAndCodecs(WebCore::MediaPlayerEnums::MediaEngineIdentifier, const WebCore::MediaEngineSupportParameters&&, CompletionHandler<void(WebCore::MediaPlayer::SupportsType)>&&);
     void supportsKeySystem(WebCore::MediaPlayerEnums::MediaEngineIdentifier, const String&&, const String&&, CompletionHandler<void(bool)>&&);
 
+    CheckedPtr<const WebCore::MediaPlayerFactory> playbackEngineForConnection(WebCore::MediaPlayerEnums::MediaEngineIdentifier) const;
+
 #if !RELEASE_LOG_DISABLED
     ASCIILiteral logClassName() const { return "RemoteMediaPlayerManagerProxy"; }
     WTFLogChannel& NODELETE logChannel() const;
