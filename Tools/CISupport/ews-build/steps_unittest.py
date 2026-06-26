@@ -11376,5 +11376,63 @@ class TestTrigger(BuildStepMixinAdditions, unittest.TestCase):
         self.assertEqual(step.schedulerNames, ['scheduler1', 'scheduler2'])
 
 
+class TestResultsDatabaseFailureHandling(unittest.TestCase):
+    def _mock_twisted_request(self, response):
+        return patch('ews-build.results_db.TwistedAdditions.request', lambda *args, **kwargs: defer.succeed(response))
+
+    def _ok_response(self, payload):
+        return TwistedAdditions.Response(status_code=200, content=json.dumps(payload).encode('utf-8'))
+
+    @defer.inlineCallbacks
+    def test_make_request_returns_none_on_no_response(self):
+        with self._mock_twisted_request(None):
+            result = yield ResultsDatabase.make_request('results-summary', suite='layout-tests', test='foo')
+        self.assertIsNone(result)
+
+    @defer.inlineCallbacks
+    def test_make_request_returns_none_on_non_200(self):
+        with self._mock_twisted_request(TwistedAdditions.Response(status_code=500)):
+            result = yield ResultsDatabase.make_request('results-summary', suite='layout-tests', test='foo')
+        self.assertIsNone(result)
+
+    @defer.inlineCallbacks
+    def test_make_request_returns_payload_on_success(self):
+        with self._mock_twisted_request(self._ok_response({'pass': 95})):
+            result = yield ResultsDatabase.make_request('results-summary', suite='layout-tests', test='foo')
+        self.assertEqual(result, {'pass': 95})
+
+    @defer.inlineCallbacks
+    def test_does_result_match_returns_none_on_request_failure_even_with_default(self):
+        with self._mock_twisted_request(None):
+            result = yield ResultsDatabase.does_result_match(
+                'JavaScriptCore/b3/air/AirAllocateStackByGraphColoring.cpp/NoDeleteChecker',
+                result_type='FAIL', suite='safer-cpp-checks', default='PASS',
+            )
+        self.assertIsNone(result)
+
+    @defer.inlineCallbacks
+    def test_does_result_match_uses_default_on_empty_success(self):
+        with self._mock_twisted_request(self._ok_response([])):
+            result = yield ResultsDatabase.does_result_match(
+                'foo.cpp/Checker', result_type='FAIL', suite='safer-cpp-checks', default='PASS',
+            )
+        self.assertIsNotNone(result)
+        self.assertFalse(result['does_result_match'])
+
+    @defer.inlineCallbacks
+    def test_is_test_pre_existing_failure_flags_request_failure(self):
+        with self._mock_twisted_request(None):
+            result = yield ResultsDatabase.is_test_pre_existing_failure('layout/test.html', suite='layout-tests')
+        self.assertTrue(result['request_failed'])
+        self.assertFalse(result['is_existing_failure'])
+
+    @defer.inlineCallbacks
+    def test_is_test_pre_existing_failure_on_success(self):
+        with self._mock_twisted_request(self._ok_response({'pass': 10, 'warning': 0})):
+            result = yield ResultsDatabase.is_test_pre_existing_failure('layout/test.html', suite='layout-tests')
+        self.assertFalse(result['request_failed'])
+        self.assertTrue(result['is_existing_failure'])
+
+
 if __name__ == '__main__':
     unittest.main()
