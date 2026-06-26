@@ -185,6 +185,17 @@ def main(args):
     if len(xcodebuild_args):
         make_command.extend(['ARGS={}'.format(' '.join(["{}=\"{}\"".format(key, xcodebuild_args[key]) for key in xcodebuild_args]))])
 
+    # FIXME (rdar://168692628): With Xcode compilation caching (CAS) disabled,
+    # clang's `-fbounds-safety` silently turns on
+    # `-fexperimental-late-parse-attributes` without it appearing on the command
+    # line, so it is absent from the explicit-module context hash.  The
+    # `SwiftShims` PCM built for a bounds-safety C++-interop target (late-parse
+    # on) then collides in the module cache with the toolchain's own Swift
+    # interface compiles (`Cxx`, `_StringProcessing`; late-parse off)
+    if args.enable_experimental_late_parse_attributes:
+        make_command.append('OTHER_CFLAGS=-fexperimental-late-parse-attributes')
+        make_command.append('OTHER_SWIFT_FLAGS=-Xcc -fexperimental-late-parse-attributes')
+
     commands = [
         [set_webkit_config_path, '--{}'.format(args.configuration)],
         make_command,
@@ -254,6 +265,9 @@ def parse_args():
     compile_cache_group.add_argument('--disable-compile-cache', dest='enable_compile_cache',
                         action='store_false', default=False,
                         help='Disable Xcode compilation caching (CAS) (default).')
+    parser.add_argument('--enable-experimental-late-parse-attributes', dest='enable_experimental_late_parse_attributes',
+                        action='store_true', default=False,
+                        help='Pass -fexperimental-late-parse-attributes to clang and swift-frontend. Workaround for rdar://168692628 SwiftShims PCM mismatch when compilation caching is disabled')
 
     args = parser.parse_args()
 
