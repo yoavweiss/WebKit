@@ -329,14 +329,33 @@ void FunctionDefinitionWriter::emitNecessaryHelpers()
                 m_indent, "\n"_s,
                 m_indent, "PackedVec3(packed_vec<T, 3> v) : x(v.x), y(v.y), z(v.z) { }\n"_s,
                 m_indent, "\n"_s,
-                m_indent, "operator vec<T, 3>() { return vec<T, 3>(x, y, z); }\n"_s,
-                m_indent, "operator packed_vec<T, 3>() { return packed_vec<T, 3>(x, y, z); }\n"_s,
+                m_indent, "operator vec<T, 3>() const thread { return vec<T, 3>(x, y, z); }\n"_s,
+                m_indent, "operator vec<T, 3>() const device { return vec<T, 3>(x, y, z); }\n"_s,
+                m_indent, "operator vec<T, 3>() const constant { return vec<T, 3>(x, y, z); }\n"_s,
+                m_indent, "operator vec<T, 3>() const threadgroup { return vec<T, 3>(x, y, z); }\n"_s,
+                m_indent, "operator packed_vec<T, 3>() const thread { return packed_vec<T, 3>(x, y, z); }\n"_s,
+                m_indent, "operator packed_vec<T, 3>() const device { return packed_vec<T, 3>(x, y, z); }\n"_s,
+                m_indent, "operator packed_vec<T, 3>() const constant { return packed_vec<T, 3>(x, y, z); }\n"_s,
+                m_indent, "operator packed_vec<T, 3>() const threadgroup { return packed_vec<T, 3>(x, y, z); }\n"_s,
                 m_indent, "\n"_s,
                 m_indent, "T operator[](int i) const { return i ? i == 2 ? z : y : x; }\n"_s,
+                m_indent, "T operator[](int i) const device { return i ? i == 2 ? z : y : x; }\n"_s,
                 m_indent, "device T& operator[](int i) device { return i ? i == 2 ? z : y : x; }\n"_s,
                 m_indent, "constant T& operator[](int i) constant { return i ? i == 2 ? z : y : x; }\n"_s,
                 m_indent, "thread T& operator[](int i) thread { return i ? i == 2 ? z : y : x; }\n"_s,
                 m_indent, "threadgroup T& operator[](int i) threadgroup { return i ? i == 2 ? z : y : x; }\n"_s
+            );
+        }
+        m_output.append(m_indent, "};\n\n"_s);
+
+        m_output.append(
+            m_indent, "template<typename T, int C>\n"_s,
+            m_indent, "struct PackedMatrix {\n"_s
+        );
+        {
+            IndentationScope scope(m_indent);
+            m_output.append(
+                m_indent, "PackedVec3<T> columns[C];\n"_s
             );
         }
         m_output.append(m_indent, "};\n\n"_s);
@@ -357,6 +376,55 @@ void FunctionDefinitionWriter::emitNecessaryHelpers()
         m_output.append("};\n\n"_s);
     }
 
+    if (m_shaderModule.usesPackVector()) {
+        m_shaderModule.clearUsesPackVector();
+        m_output.append(m_indent, "template<typename T>\n"_s,
+            m_indent, "static __attribute__((always_inline)) packed_vec<T, 3> __pack(vec<T, 3> unpacked) { return unpacked; }\n\n"_s);
+
+        if (m_shaderModule.usesPackedVec3()) {
+            m_output.append(m_indent, "template<typename T, int C>\n"_s,
+                m_indent, "static __attribute__((always_inline)) PackedMatrix<T, C> __pack(matrix<T, C, 3> unpacked)\n"_s,
+                m_indent, "{\n"_s);
+            {
+                IndentationScope scope(m_indent);
+                m_output.append(m_indent, "PackedMatrix<T, C> packed;\n"_s,
+                    m_indent, "for (int i = 0; i < C; i++)\n"_s);
+                {
+                    IndentationScope scope(m_indent);
+                    m_output.append(m_indent, "packed.columns[i] = PackedVec3<T>(packed_vec<T, 3>(unpacked[i]));\n"_s);
+                }
+                m_output.append(m_indent, "return packed;\n"_s);
+            }
+            m_output.append(m_indent, "}\n\n"_s);
+        }
+    }
+
+    if (m_shaderModule.usesUnpackVector()) {
+        m_shaderModule.clearUsesUnpackVector();
+        m_output.append(m_indent, "template<typename T>\n"_s,
+            m_indent, "static __attribute__((always_inline)) vec<T, 3> __unpack(packed_vec<T, 3> packed) { return packed; }\n\n"_s);
+
+        if (m_shaderModule.usesPackedVec3()) {
+            m_output.append(m_indent, "template<typename T>\n"_s,
+                m_indent, "static vec<T, 3> __unpack(PackedVec3<T> packed) { return packed; }\n\n"_s);
+
+            m_output.append(m_indent, "template<typename T, int C>\n"_s,
+                m_indent, "static __attribute__((always_inline)) matrix<T, C, 3> __unpack(PackedMatrix<T, C> packed)\n"_s,
+                m_indent, "{\n"_s);
+            {
+                IndentationScope scope(m_indent);
+                m_output.append(m_indent, "matrix<T, C, 3> unpacked;\n"_s,
+                    m_indent, "for (int i = 0; i < C; i++)\n"_s);
+                {
+                    IndentationScope scope(m_indent);
+                    m_output.append(m_indent, "unpacked[i] = vec<T, 3>(packed.columns[i]);\n"_s);
+                }
+                m_output.append(m_indent, "return unpacked;\n"_s);
+            }
+            m_output.append(m_indent, "}\n\n"_s);
+        }
+    }
+
     if (m_shaderModule.usesPackArray()) {
         m_shaderModule.clearUsesPackArray();
 
@@ -369,6 +437,11 @@ void FunctionDefinitionWriter::emitNecessaryHelpers()
             m_output.append(m_indent, "template<typename T, size_t N>\n"_s,
                 m_indent, "struct __PackedTypeImpl<array<vec<T, 3>, N>> {"_s,
                 m_indent, "using Type = array<PackedVec3<T>, N>;"_s,
+                m_indent, "};\n\n"_s);
+
+            m_output.append(m_indent, "template<typename T, int C>\n"_s,
+                m_indent, "struct __PackedTypeImpl<matrix<T, C, 3>> {"_s,
+                m_indent, "using Type = PackedMatrix<T, C>;"_s,
                 m_indent, "};\n\n"_s);
 
             m_output.append(m_indent, "template<typename T, size_t N>\n"_s,
@@ -418,6 +491,11 @@ void FunctionDefinitionWriter::emitNecessaryHelpers()
                 m_indent, "using Type = array<vec<T, 3>, N>;"_s,
                 m_indent, "};\n\n"_s);
 
+            m_output.append(m_indent, "template<typename T, int C>\n"_s,
+                m_indent, "struct __UnpackedTypeImpl<PackedMatrix<T, C>> {"_s,
+                m_indent, "using Type = matrix<T, C, 3>;"_s,
+                m_indent, "};\n\n"_s);
+
             m_output.append(m_indent, "template<typename T, size_t N>\n"_s,
                 m_indent, "static __attribute__((always_inline)) array<vec<T, 3>, N> __unpack(array<PackedVec3<T>, N> packed)\n"_s,
                 m_indent, "{\n"_s);
@@ -448,23 +526,6 @@ void FunctionDefinitionWriter::emitNecessaryHelpers()
             m_output.append(m_indent, "return unpacked;\n"_s);
         }
         m_output.append(m_indent, "}\n\n"_s);
-    }
-
-    if (m_shaderModule.usesPackVector()) {
-        m_shaderModule.clearUsesPackVector();
-        m_output.append(m_indent, "template<typename T>\n"_s,
-            m_indent, "static __attribute__((always_inline)) packed_vec<T, 3> __pack(vec<T, 3> unpacked) { return unpacked; }\n\n"_s);
-    }
-
-    if (m_shaderModule.usesUnpackVector()) {
-        m_shaderModule.clearUsesUnpackVector();
-        m_output.append(m_indent, "template<typename T>\n"_s,
-            m_indent, "static __attribute__((always_inline)) vec<T, 3> __unpack(packed_vec<T, 3> packed) { return packed; }\n\n"_s);
-
-        if (m_shaderModule.usesPackedVec3()) {
-            m_output.append(m_indent, "template<typename T>\n"_s,
-                m_indent, "static vec<T, 3> __unpack(PackedVec3<T> packed) { return packed; }\n\n"_s);
-        }
     }
 
     if (m_shaderModule.usesWorkgroupUniformLoad()) {
@@ -973,7 +1034,13 @@ void FunctionDefinitionWriter::generatePackingHelpers(AST::Structure& structure)
         m_body.append(m_indent, packedName, " packed;\n"_s);
         for (auto& member : structure.members()) {
             auto& name = member.name();
-            if (member.type().inferredType()->packing() & (Packing::PStruct | Packing::PArray))
+            auto* memberType = member.type().inferredType();
+            bool needsPack = memberType->packing() & (Packing::PStruct | Packing::PArray);
+            if (!needsPack) {
+                if (auto* matrix = std::get_if<Types::Matrix>(memberType))
+                    needsPack = matrix->rows == 3;
+            }
+            if (needsPack)
                 m_body.append(m_indent, "packed."_s, name, " = __pack(unpacked."_s, name, ");\n"_s);
             else
                 m_body.append(m_indent, "packed."_s, name, " = unpacked."_s, name, ";\n"_s);
@@ -988,7 +1055,13 @@ void FunctionDefinitionWriter::generatePackingHelpers(AST::Structure& structure)
         m_body.append(m_indent, unpackedName, " unpacked;\n"_s);
         for (auto& member : structure.members()) {
             auto& name = member.name();
-            if (member.type().inferredType()->packing() & (Packing::PStruct | Packing::PArray))
+            auto* memberType = member.type().inferredType();
+            bool needsUnpack = memberType->packing() & (Packing::PStruct | Packing::PArray);
+            if (!needsUnpack) {
+                if (auto* matrix = std::get_if<Types::Matrix>(memberType))
+                    needsUnpack = matrix->rows == 3;
+            }
+            if (needsUnpack)
                 m_body.append(m_indent, "unpacked."_s, name, " = __unpack(packed."_s, name, ");\n"_s);
             else
                 m_body.append(m_indent, "unpacked."_s, name, " = packed."_s, name, ";\n"_s);
@@ -1342,9 +1415,15 @@ void FunctionDefinitionWriter::visit(const Type* type, bool shouldPack)
             m_body.append(", "_s, vector.size, '>');
         },
         [&](const Matrix& matrix) {
-            m_body.append("matrix<"_s);
-            visit(matrix.element, shouldPack);
-            m_body.append(", "_s, matrix.columns, ", "_s, matrix.rows, '>');
+            if (shouldPack && matrix.rows == 3) {
+                m_body.append("PackedMatrix<"_s);
+                visit(matrix.element, shouldPack);
+                m_body.append(", "_s, matrix.columns, '>');
+            } else {
+                m_body.append("matrix<"_s);
+                visit(matrix.element, shouldPack);
+                m_body.append(", "_s, matrix.columns, ", "_s, matrix.rows, '>');
+            }
         },
         [&](const Array& array) {
             m_body.append("array<"_s);
@@ -2539,12 +2618,32 @@ void FunctionDefinitionWriter::visit(AST::PointerDereferenceExpression& pointerD
 }
 void FunctionDefinitionWriter::visit(AST::IndexAccessExpression& access)
 {
-    bool isPointer = std::holds_alternative<Types::Pointer>(*access.base().inferredType());
+    auto* baseType = access.base().inferredType();
+    bool isPointer = std::holds_alternative<Types::Pointer>(*baseType);
+
+    bool isPackedMatrix = false;
+    {
+        const Type* elementType = nullptr;
+        if (auto* ref = std::get_if<Types::Reference>(baseType)) {
+            if (ref->addressSpace == AddressSpace::Storage || ref->addressSpace == AddressSpace::Uniform)
+                elementType = ref->element;
+        } else if (auto* ptr = std::get_if<Types::Pointer>(baseType)) {
+            if (ptr->addressSpace == AddressSpace::Storage || ptr->addressSpace == AddressSpace::Uniform)
+                elementType = ptr->element;
+        }
+        if (elementType) {
+            if (auto* matrix = std::get_if<Types::Matrix>(elementType))
+                isPackedMatrix = matrix->rows == 3;
+        }
+    }
+
     if (isPointer)
         m_body.append("(*("_s);
     visit(access.base());
     if (isPointer)
         m_body.append("))"_s);
+    if (isPackedMatrix)
+        m_body.append(".columns"_s);
     m_body.append('[');
     visit(access.index());
     m_body.append(']');
@@ -2641,6 +2740,7 @@ void FunctionDefinitionWriter::visit(AST::CallStatement& statement)
 void FunctionDefinitionWriter::visit(AST::CompoundAssignmentStatement& statement)
 {
     bool serialized = false;
+    bool needsPack = false;
     auto* leftExpression = &statement.leftExpression();
     if (auto* identity = dynamicDowncast<AST::IdentityExpression>(*leftExpression))
         leftExpression = &identity->expression();
@@ -2649,7 +2749,13 @@ void FunctionDefinitionWriter::visit(AST::CompoundAssignmentStatement& statement
         if (auto* identifier = dynamicDowncast<AST::IdentifierExpression>(target)) {
             if (identifier->identifier() == "__unpack"_s) {
                 serialized = true;
-                visit(call->arguments()[0]);
+                auto& rawExpr = call->arguments()[0];
+                visit(rawExpr);
+                auto* rawType = rawExpr.inferredType();
+                if (auto* ref = std::get_if<Types::Reference>(rawType))
+                    rawType = ref->element;
+                if (auto* matrix = std::get_if<Types::Matrix>(rawType))
+                    needsPack = matrix->rows == 3;
             }
         }
     }
@@ -2657,7 +2763,11 @@ void FunctionDefinitionWriter::visit(AST::CompoundAssignmentStatement& statement
         visit(statement.leftExpression());
 
     m_body.append(" = "_s);
+    if (needsPack)
+        m_body.append("__pack("_s);
     serializeBinaryExpression(statement.leftExpression(), statement.operation(), statement.rightExpression());
+    if (needsPack)
+        m_body.append(')');
 }
 
 void FunctionDefinitionWriter::visit(AST::CompoundStatement& statement)

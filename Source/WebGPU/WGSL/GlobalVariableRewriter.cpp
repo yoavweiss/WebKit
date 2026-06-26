@@ -404,8 +404,13 @@ void RewriteGlobalVariables::visit(AST::AssignmentStatement& statement)
 {
     Packing lhsPacking = pack(Packing::Either, statement.lhs());
     ASSERT(lhsPacking != Packing::Either);
-    if (lhsPacking == Packing::PackedVec3)
-        lhsPacking = Packing::Either;
+    if (lhsPacking == Packing::PackedVec3) {
+        auto* lhsType = statement.lhs().inferredType();
+        if (auto* ref = std::get_if<Types::Reference>(lhsType))
+            lhsType = ref->element;
+        if (std::holds_alternative<Types::Vector>(*lhsType))
+            lhsPacking = Packing::Either;
+    }
     pack(lhsPacking, statement.rhs());
 }
 
@@ -588,6 +593,8 @@ Packing RewriteGlobalVariables::getPacking(AST::IndexAccessExpression& expressio
     if (auto* pointerType = std::get_if<Types::Pointer>(baseType))
         baseType = pointerType->element;
     if (std::holds_alternative<Types::Vector>(*baseType))
+        return Packing::Unpacked;
+    if (std::holds_alternative<Types::Matrix>(*baseType))
         return Packing::Unpacked;
     ASSERT(std::holds_alternative<Types::Array>(*baseType));
     auto& arrayType = std::get<Types::Array>(*baseType);
@@ -918,6 +925,16 @@ void RewriteGlobalVariables::packResource(AST::Variable& global)
         packStructResource(global, structType);
         return;
     }
+
+    if (auto* matrixType = std::get_if<Types::Matrix>(resolvedType)) {
+        if (matrixType->rows == 3) {
+            m_shaderModule.setUsesPackedVec3();
+            m_shaderModule.setUsesPackVector();
+            m_shaderModule.setUsesUnpackVector();
+            m_shaderModule.replace(&global.role(), AST::VariableRole::PackedResource);
+        }
+        return;
+    }
 }
 
 void RewriteGlobalVariables::packStructResource(AST::Variable& global, const Types::Struct* structType)
@@ -991,6 +1008,14 @@ const Type* RewriteGlobalVariables::packType(const Type* type)
     if (auto* vectorType = std::get_if<Types::Vector>(type)) {
         if (vectorType->size == 3) {
             m_shaderModule.setUsesPackedVec3();
+            return type;
+        }
+    }
+    if (auto* matrixType = std::get_if<Types::Matrix>(type)) {
+        if (matrixType->rows == 3) {
+            m_shaderModule.setUsesPackedVec3();
+            m_shaderModule.setUsesPackVector();
+            m_shaderModule.setUsesUnpackVector();
             return type;
         }
     }
