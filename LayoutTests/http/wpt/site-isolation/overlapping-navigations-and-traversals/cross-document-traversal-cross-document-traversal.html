@@ -1,21 +1,64 @@
 <!-- webkit-test-runner [ SiteIsolationEnabled=true UseUIProcessForBackForwardItemLoading=true ] -->
 <!DOCTYPE html>
 <meta charset="utf-8">
-<title>Cross-document traversals during cross-document traversals (back direction)</title>
+<title>Cross-document traversals during cross-document traversals</title>
 <script src="/resources/testharness.js"></script>
 <script src="/resources/testharnessreport.js"></script>
-
-<!--
-  Focused subset of the upstream WPT cluster test for bug 317044 (iframe
-  client-redirect URL preservation). Only the back-direction subtest is
-  included here; the other three subtests need the dead-frame skip
-  follow-up to bug 317090 to avoid timing out, and are added by that
-  commit.
--->
 
 <body>
 <script type="module">
 import { createIframe, waitForLoad, delay, waitForPotentialNetworkLoads } from "./resources/helpers.mjs";
+
+promise_test(async t => {
+  const iframe = await createIframe(t);
+
+  iframe.contentWindow.location.search = "?1";
+  await waitForLoad(iframe);
+  await delay(t, 0);
+  iframe.contentWindow.location.search = "?2";
+  await waitForLoad(iframe);
+  await delay(t, 0);
+  iframe.contentWindow.location.search = "?3";
+  await waitForLoad(iframe);
+  await delay(t, 0);
+  iframe.contentWindow.history.back();
+  await waitForLoad(iframe);
+  await delay(t, 0);
+  assert_equals(iframe.contentWindow.location.search, "?2", "we made our way to ?2 for setup");
+
+  iframe.contentWindow.history.back();
+  assert_equals(iframe.contentWindow.location.search, "?2", "must not go back synchronously");
+
+  iframe.contentWindow.history.forward();
+  assert_equals(iframe.contentWindow.location.search, "?2", "must not go forward synchronously");
+
+  iframe.onload = t.unreached_func("second load event");
+
+  await waitForPotentialNetworkLoads(t);
+  assert_equals(iframe.contentWindow.location.search, "?2", "must stay on ?2");
+}, "cross-document traversals in opposite directions: the result is going nowhere");
+
+promise_test(async t => {
+  const iframe = await createIframe(t);
+
+  iframe.contentWindow.location.search = "?1";
+  await waitForLoad(iframe);
+  await delay(t, 0);
+  iframe.contentWindow.location.search = "?2";
+  await waitForLoad(iframe);
+  await delay(t, 0);
+
+  iframe.contentWindow.history.back();
+  assert_equals(iframe.contentWindow.location.search, "?2", "must not go back synchronously");
+
+  iframe.contentWindow.history.forward();
+  assert_equals(iframe.contentWindow.location.search, "?2", "must not go forward synchronously");
+
+  iframe.onload = t.unreached_func("second load event");
+
+  await waitForPotentialNetworkLoads(t);
+  assert_equals(iframe.contentWindow.location.search, "?2", "must stay on ?2");
+}, "cross-document traversals in opposite directions, second traversal invalid at queuing time but valid at the time it is run: the result is going nowhere");
 
 promise_test(async t => {
   const iframe = await createIframe(t);
@@ -44,4 +87,40 @@ promise_test(async t => {
   await waitForPotentialNetworkLoads(t);
   assert_equals(iframe.contentWindow.location.search, "?1", "must stay on ?1");
 }, "cross-document traversals in the same (back) direction: the result is going -2 with only one load event");
+
+promise_test(async t => {
+  const iframe = await createIframe(t);
+
+  iframe.contentWindow.location.search = "?1";
+  await waitForLoad(iframe);
+  await delay(t, 0);
+  iframe.contentWindow.location.search = "?2";
+  await waitForLoad(iframe);
+  await delay(t, 0);
+  iframe.contentWindow.location.search = "?3";
+  await waitForLoad(iframe);
+  await delay(t, 0);
+  iframe.contentWindow.history.back();
+  await waitForLoad(iframe);
+  await delay(t, 0);
+  assert_equals(iframe.contentWindow.location.search, "?2", "we made our way to ?2 for setup");
+  iframe.contentWindow.history.back();
+  await waitForLoad(iframe);
+  await delay(t, 0);
+  assert_equals(iframe.contentWindow.location.search, "?1", "we made our way to ?1 for setup");
+
+  iframe.contentWindow.history.forward();
+  assert_equals(iframe.contentWindow.location.search, "?1", "must not go forward synchronously (1)");
+
+  iframe.contentWindow.history.forward();
+  assert_equals(iframe.contentWindow.location.search, "?1", "must not go forward synchronously (2)");
+
+  await waitForLoad(iframe);
+  assert_equals(iframe.contentWindow.location.search, "?3", "first load event must be going forward");
+
+  iframe.onload = t.unreached_func("second load event");
+
+  await waitForPotentialNetworkLoads(t);
+  assert_equals(iframe.contentWindow.location.search, "?3", "must stay on ?3");
+}, "cross-document traversals in the same (forward) direction: the result is going +2 with only one load event");
 </script>
