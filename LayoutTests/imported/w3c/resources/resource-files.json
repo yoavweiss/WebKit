@@ -13910,6 +13910,7 @@
         "web-platform-tests/mimesniff/sniffing/support/atom.html",
         "web-platform-tests/mimesniff/sniffing/support/rss.html",
         "web-platform-tests/navigation-api/navigate-event/abort-in-nested-navigations.html",
+        "web-platform-tests/navigation-timing/nav2-data-uri.html",
         "web-platform-tests/page-lifecycle/set-composited-layer-position-ref.html",
         "web-platform-tests/payment-request/show-method-postmessage-iframe.html",
         "web-platform-tests/permissions-policy/permissions-policy-frame-policy-timing-iframe-camera.https.sub.html",
