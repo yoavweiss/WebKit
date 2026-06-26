@@ -4629,6 +4629,8 @@ void HTMLMediaElement::pause()
 {
     HTMLMEDIAELEMENT_RELEASE_LOG(Pause);
 
+    m_lastUserPauseTime = MonotonicTime::now();
+
     m_temporarilyAllowingInlinePlaybackAfterFullscreen = false;
 
     if (m_waitingToEnterFullscreen)

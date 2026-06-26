@@ -156,6 +156,9 @@ struct QuirksData {
         RequiresUserGestureToLoadInPictureInPictureQuirk,
         RequiresUserGestureToPauseInPictureInPictureQuirk,
 #endif
+#if ENABLE(FULLSCREEN_API)
+        RequiresUserGestureToPlayInFullscreenQuirk,
+#endif
         ReturnNullPictureInPictureElementDuringFullscreenChangeQuirk,
 #if PLATFORM(IOS_FAMILY)
         ShouldAllowPopupFromMicrosoftOfficeToOneDrive,

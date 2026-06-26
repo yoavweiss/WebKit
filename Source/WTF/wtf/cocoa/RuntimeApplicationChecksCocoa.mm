@@ -667,6 +667,12 @@ bool IOSApplication::isTubular()
     return isTubular;
 }
 
+bool IOSApplication::isLensApp()
+{
+    static bool isLensApp = applicationBundleIsEqualTo("com.float.lens"_s);
+    return isLensApp;
+}
+
 #endif // PLATFORM(IOS_FAMILY)
 
 } // namespace WTF

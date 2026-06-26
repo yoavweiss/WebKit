@@ -1654,6 +1654,18 @@ bool Quirks::requiresUserGestureToPauseInPictureInPicture() const
 #endif
 }
 
+// youtube.com: rdar://178769976
+bool Quirks::requiresUserGestureToPlayInFullscreen() const
+{
+#if ENABLE(FULLSCREEN_API)
+    QUIRKS_EARLY_RETURN_IF_DISABLED_WITH_VALUE(false);
+
+    return m_quirksData.quirkIsEnabled(QuirksData::SiteSpecificQuirk::RequiresUserGestureToPlayInFullscreenQuirk);
+#else
+    return false;
+#endif
+}
+
 // bbc.co.uk: rdar://126494734
 // bbc.com: rdar://157499149
 bool Quirks::returnNullPictureInPictureElementDuringFullscreenChange() const
@@ -4031,6 +4043,12 @@ static void handleYouTubeQuirks(QuirksData& quirksData, const URL& quirksURL, co
 #if PLATFORM(IOS_FAMILY)
     if (WTF::IOSApplication::isTubular())
         quirksData.enableQuirk(QuirksData::SiteSpecificQuirk::ShouldSuppressMediaSessionPauseActionOnInterruption);
+#endif
+
+#if PLATFORM(VISION) && ENABLE(FULLSCREEN_API)
+    // Lens.app rdar://178769976
+    if (WTF::IOSApplication::isLensApp())
+        quirksData.enableQuirk(QuirksData::SiteSpecificQuirk::RequiresUserGestureToPlayInFullscreenQuirk);
 #endif
 
     UNUSED_PARAM(quirksURL);

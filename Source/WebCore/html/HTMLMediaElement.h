@@ -320,6 +320,7 @@ public:
 
     WEBCORE_EXPORT void play() override;
     WEBCORE_EXPORT void pause() override;
+    MonotonicTime lastUserPauseTime() const { return m_lastUserPauseTime; }
     WEBCORE_EXPORT void fastSeek(double);
     double minFastReverseRate() const;
     double maxFastForwardRate() const;
@@ -1253,6 +1254,7 @@ private:
 
     // The last time a timeupdate event was sent (based on monotonic clock).
     MonotonicTime m_clockTimeAtLastUpdateEvent;
+    MonotonicTime m_lastUserPauseTime { MonotonicTime::nan() };
 
     // The last time a timeupdate event was sent in movie time.
     MediaTime m_lastTimeUpdateEventMovieTime;

@@ -231,6 +231,7 @@ WTF_EXPORT_PRIVATE bool isDOFUSTouch();
 WTF_EXPORT_PRIVATE bool isMyRideK12();
 WTF_EXPORT_PRIVATE bool isTableau();
 WTF_EXPORT_PRIVATE bool isTubular();
+WTF_EXPORT_PRIVATE bool isLensApp();
 
 } // IOSApplication
 

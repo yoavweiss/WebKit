@@ -478,6 +478,14 @@ Expected<void, MediaPlaybackDenialExplanation> MediaElementSession::playbackStat
         && !document->processingUserGestureForMedia())
         return makeUnexpectedDenial(MediaPlaybackDenialReason::UserGestureRequired, "Quirk requires user gesture to pause in Picture-in-Picture"_s);
 
+#if ENABLE(FULLSCREEN_API)
+    if (mainFrameDocument && mainFrameDocument->quirks().requiresUserGestureToPlayInFullscreen() && document->fullscreen().fullscreenElement() && state == MediaPlaybackState::Playing && element->paused()) {
+        auto lastPause = element->lastUserPauseTime();
+        bool reboundFromRecentPause = lastPause.isFinite() && (MonotonicTime::now() - lastPause) < 500_ms;
+        if (!document->processingUserGestureForMedia() || reboundFromRecentPause)
+            return makeUnexpectedDenial(MediaPlaybackDenialReason::UserGestureRequired, "Quirk requires user gesture to play while in fullscreen"_s);
+    }
+#endif
     if (mainFrameDocument
         && mainFrameDocument->mediaState() & MediaProducerMediaState::HasUserInteractedWithMediaElement
         && mainFrameDocument->quirks().needsPerDocumentAutoplayBehavior())
