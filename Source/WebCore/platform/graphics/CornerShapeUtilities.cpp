@@ -30,13 +30,13 @@
 namespace WebCore {
 
 // https://drafts.csswg.org/css-borders-4/#contour-path
-void borderContourPath(Path&, const CornerInput[4])
+void borderContourPath(Path&, const RectCorners<CornerInput>&)
 {
     // TODO: implement superellipse contour path generation.
 }
 
 // https://drafts.csswg.org/css-borders-4/#corner-shape-constrain-radii
-double oppositeCornerScaleFactor(const CornerInput[4])
+double oppositeCornerScaleFactor(const RectCorners<CornerInput>&)
 {
     // TODO: implement opposite-corner scale factor computation.
     return 1.0;

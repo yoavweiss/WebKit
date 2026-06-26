@@ -24,6 +24,8 @@
 
 #pragma once
 
+#include "RectCorners.h"
+
 namespace WebCore {
 
 class Path;
@@ -36,13 +38,13 @@ struct CornerInput {
     double curvature { 0 }; // superellipse parameter s
     double startInset { 0 };
     double endInset { 0 };
-    int orientation { 0 };
+    BoxCorner orientation { BoxCorner::TopRight };
 };
 
 // https://drafts.csswg.org/css-borders-4/#contour-path
-void borderContourPath(Path&, const CornerInput cornerRects[4]);
+void borderContourPath(Path&, const RectCorners<CornerInput>&);
 
 // https://drafts.csswg.org/css-borders-4/#corner-shape-constrain-radii
-double oppositeCornerScaleFactor(const CornerInput cornerRects[4]);
+double oppositeCornerScaleFactor(const RectCorners<CornerInput>&);
 
 } // namespace WebCore
