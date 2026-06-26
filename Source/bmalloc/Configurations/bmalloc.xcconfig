@@ -48,9 +48,9 @@ WK_ENABLE_PGO_USE_YES_YES_Production_iphoneos = YES;
 WK_ENABLE_PGO_USE_YES_YES_Production_xros = YES;
 
 WK_PGO_USE_CFLAGS = $(WK_PGO_USE_CFLAGS_$(WK_ENABLE_PGO_USE));
-WK_PGO_USE_CFLAGS_YES = -fprofile-use=$(WK_OPTIMIZATION_PROFILE_FILE) -Wno-error=backend-plugin;
+WK_PGO_USE_CFLAGS_YES = -fprofile-use=$(WK_OPTIMIZATION_PROFILE_FILE) -Wno-error=backend-plugin -Wno-error=profile-instr-unprofiled -Wno-error=profile-instr-missing -Wno-error=profile-instr-out-of-date;
 WK_PGO_USE_LDFLAGS = $(WK_PGO_USE_LDFLAGS_$(WK_ENABLE_PGO_USE));
-WK_PGO_USE_LDFLAGS_YES = -fprofile-use=$(WK_OPTIMIZATION_PROFILE_FILE) -Wno-error=backend-plugin;
+WK_PGO_USE_LDFLAGS_YES = -fprofile-use=$(WK_OPTIMIZATION_PROFILE_FILE) -Wno-error=backend-plugin -Wno-error=profile-instr-unprofiled -Wno-error=profile-instr-missing -Wno-error=profile-instr-out-of-date;
 
 WK_PGO_GEN_FLAGS = $(WK_PGO_GEN_FLAGS_$(ENABLE_LLVM_PROFILE_GENERATION));
 WK_PGO_GEN_FLAGS_YES = -fprofile-generate;
