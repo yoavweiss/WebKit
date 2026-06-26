@@ -59,7 +59,10 @@ AutoInstall.register(Package('monotonic', Version(1, 5)))
 AutoInstall.register(Package('xmltodict', Version(0, 11, 0)))
 AutoInstall.register(Package('webkitbugspy', Version(0, 15, 1)), local=True)
 
-AutoInstall.register(Package('rapidfuzz', Version(3, 4, 0)))
+if sys.version_info >= (3, 10):
+    AutoInstall.register(Package('rapidfuzz', Version(3, 14, 5), wheel=True))
+else:
+    AutoInstall.register(Package('rapidfuzz', Version(3, 4, 0)))
 
 from webkitscmpy.contributor import Contributor
 from webkitscmpy.commit import Commit
