@@ -251,6 +251,12 @@ bool InsertTextCommand::applySmartListsIfNeeded()
     if (!styleToPreserve->isEmpty())
         m_styleToPreserveForSmartList = WTF::move(styleToPreserve);
 
+    m_smartListUndoData =  {
+        previousLineText,
+        currentLineText,
+        listElement,
+    };
+
     return true;
 }
 #endif // PLATFORM(COCOA)

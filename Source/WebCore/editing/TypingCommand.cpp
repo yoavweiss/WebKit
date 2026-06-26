@@ -503,6 +503,8 @@ bool TypingCommand::willAddTypingToOpenCommand(Type commandType, TextGranularity
     m_currentTextToInsert = text;
     m_currentTypingEditAction = editActionForTypingCommand(commandType, granularity, m_compositionType, m_isAutocompletion);
 
+    m_smartListUndoData = std::nullopt;
+
     if (!shouldDeferWillApplyCommandUntilAddingTypingCommand())
         return true;
 
@@ -563,6 +565,8 @@ void TypingCommand::insertTextRunWithoutNewlines(const String& text, bool select
 
     applyCommandToComposite(WTF::move(command), endingSelection());
     typingAddedToOpenCommand(Type::InsertText);
+
+    m_smartListUndoData = WTF::move(insertTextCommand->m_smartListUndoData);
 
     if (insertTextCommand->m_styleToPreserveForSmartList)
         document().selection().setTypingStyle(WTF::move(insertTextCommand->m_styleToPreserveForSmartList));
@@ -658,6 +662,9 @@ void TypingCommand::deleteKeyPressed(TextGranularity granularity, bool shouldAdd
     RefPtr protectedFrame = document().frame();
 
     protect(document())->editor().updateMarkersForWordsAffectedByEditing(false);
+
+    if (performSmartListUndo(granularity))
+        return;
 
     VisibleSelection selectionToDelete;
     VisibleSelection selectionAfterUndo;
@@ -772,6 +779,46 @@ void TypingCommand::deleteKeyPressed(TextGranularity granularity, bool shouldAdd
     CompositeEditCommand::deleteSelection(selectionToDelete, m_smartDelete, /* mergeBlocksAfterDelete*/ true, /* replace*/ false, expandForSpecialElements, /*sanitizeMarkup*/ true);
     setSmartDelete(false);
     typingAddedToOpenCommand(Type::DeleteKey);
+}
+
+bool TypingCommand::performSmartListUndo(TextGranularity granularity)
+{
+    auto undoData = std::exchange(m_smartListUndoData, std::nullopt);
+    if (!undoData)
+        return false;
+
+    RefPtr listElement = undoData->listElement;
+    if (!listElement || !listElement->isConnected())
+        return false;
+
+    if (!endingSelection().isCaret())
+        return false;
+
+    RefPtr secondItem = enclosingListChild(endingSelection().base().anchorNode());
+    if (!secondItem || secondItem->parentNode() != listElement.get())
+        return false;
+
+    if (secondItem->nextSibling() || !secondItem->previousSibling())
+        return false;
+
+    if (!willAddTypingToOpenCommand(Type::DeleteKey, granularity, { }, { }))
+        return true;
+
+    Ref document = this->document();
+    auto firstParagraph = createDefaultParagraphElement(document);
+    auto secondParagraph = createDefaultParagraphElement(document);
+
+    insertNodeBefore(firstParagraph.copyRef(), *listElement);
+    insertNodeAt(document->createEditingTextNode(WTF::move(undoData->previousLineText)), firstPositionInNode(firstParagraph));
+
+    insertNodeBefore(secondParagraph.copyRef(), *listElement);
+    insertNodeAt(document->createEditingTextNode(makeString(WTF::move(undoData->currentLineText), ' ')), firstPositionInNode(secondParagraph));
+
+    removeNode(*listElement);
+
+    setEndingSelection(VisibleSelection(lastPositionInNode(secondParagraph), Affinity::Downstream, endingSelection().directionality()));
+    typingAddedToOpenCommand(Type::DeleteKey);
+    return true;
 }
 
 void TypingCommand::forwardDeleteKeyPressed(TextGranularity granularity, bool shouldAddToKillRing)

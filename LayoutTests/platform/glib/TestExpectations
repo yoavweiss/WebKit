@@ -1546,22 +1546,7 @@ editing/async-clipboard/clipboard-change-data-while-reading.html [ Skip ]
 editing/async-clipboard/clipboard-read-text-from-platform.html [ Skip ]
 
 # These tests are intended to exercise Smart Lists support specific to Apple ports.
-editing/smart-lists/different-list-styles-do-not-merge.html [ Skip ]
-editing/smart-lists/inserting-space-after-bullet-point-generates-empty-list.html [ Skip ]
-editing/smart-lists/inserting-space-after-em-dash-generates-dashed-list.html [ Skip ]
-editing/smart-lists/inserting-space-after-en-dash-generates-dashed-list.html [ Skip ]
-editing/smart-lists/inserting-space-after-hyphen-minus-generates-dashed-list.html [ Skip ]
-editing/smart-lists/inserting-space-after-multi-digit-number-generates-ordered-list.html [ Skip ]
-editing/smart-lists/inserting-space-after-number-generates-ordered-list.html [ Skip ]
-editing/smart-lists/inserting-space-after-unicode-hyphen-generates-dashed-list.html [ Skip ]
-editing/smart-lists/inserting-space-and-text-after-bullet-point-generates-list-with-text.html [ Skip ]
-editing/smart-lists/list-merges-with-previous-list-if-possible.html [ Skip ]
-editing/smart-lists/list-preserves-typing-style.html [ Skip ]
-editing/smart-lists/newline-on-empty-list-element-removes-plain-text-markers.html [ Skip ]
-editing/smart-lists/ordered-list-starting-from-non-one-sets-start-attribute.html [ Skip ]
-editing/smart-lists/ordered-markers-with-different-delimiters-generate-list.html [ Skip ]
-editing/smart-lists/ordered-smart-list-rtl.html [ Skip ]
-editing/smart-lists/space-inside-list-element-does-not-activate-smart-lists.html [ Skip ]
+editing/smart-lists/ [ Skip ]
 
 webkit.org/b/186099 editing/caret/caret-in-empty-cell.html [ ImageOnlyFailure ]
 
