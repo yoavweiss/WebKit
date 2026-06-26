@@ -149,6 +149,7 @@ bool RemoteGraphicsContextGLProxy::enableExtension(GCGLExtension extension)
 
 void RemoteGraphicsContextGLProxy::initialize(const RemoteGraphicsContextGLInitializationState& initializationState)
 {
+    setContextAttributes(initializationState.attributes);
     m_knownActiveExtensions = EnumSet<GCGLExtension>::fromRaw(initializationState.knownActiveExtensions);
     m_requestableExtensions = EnumSet<GCGLExtension>::fromRaw(initializationState.requestableExtensions);
     m_externalImageTarget = initializationState.externalImageTarget;

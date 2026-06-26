@@ -583,7 +583,7 @@ void WebGLRenderingContextBase::initializeContextState()
         if (m_attributes.depth)
             m_attributes.depth = glAttributes.depth;
         if (m_attributes.stencil)
-            m_attributes.depth = glAttributes.depth;
+            m_attributes.stencil = glAttributes.stencil;
     }
     // WebXR might use multisampling in WebGL2 context. Multisample extensions are also enabled in WebGL 1 case context
     // is antialiased.

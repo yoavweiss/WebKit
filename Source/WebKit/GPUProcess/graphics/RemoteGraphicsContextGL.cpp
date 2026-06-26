@@ -132,10 +132,11 @@ void RemoteGraphicsContextGL::workQueueInitialize(WebCore::GraphicsContextGLAttr
         auto requestableExtensions = context->requestableExtensions();
         auto [externalImageTarget, externalImageBindingQuery] = context->externalImageTextureBindingPoint();
         RemoteGraphicsContextGLInitializationState initializationState {
+            .attributes = context->contextAttributes(),
             .knownActiveExtensions = knownActiveExtensions.toRaw(),
             .requestableExtensions = requestableExtensions.toRaw(),
             .externalImageTarget = externalImageTarget,
-            .externalImageBindingQuery = externalImageBindingQuery
+            .externalImageBindingQuery = externalImageBindingQuery,
         };
         send(Messages::RemoteGraphicsContextGLProxy::WasCreated(workQueue().wakeUpSemaphore(), m_connection->clientWaitSemaphore(), { initializationState }));
         m_connection->startReceivingMessages(*this, Messages::RemoteGraphicsContextGL::messageReceiverName(), m_identifier.toUInt64());
