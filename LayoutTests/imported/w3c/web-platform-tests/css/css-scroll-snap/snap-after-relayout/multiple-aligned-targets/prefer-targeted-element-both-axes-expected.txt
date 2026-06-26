@@ -1,4 +1,4 @@
 
 
-FAIL scroller selects targeted area among multiple aligned areas on both axes assert_equals: scroller prefers #target over #a on X axis expected 200 but got 210
+PASS scroller selects targeted area among multiple aligned areas on both axes
 
