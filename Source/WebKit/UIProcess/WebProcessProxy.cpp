@@ -982,6 +982,16 @@ void WebProcessProxy::sendPageCloseMessage(std::optional<WebPageProxyIdentifier>
     }, pageID);
 }
 
+void WebProcessProxy::addPagePendingClose(WebPageProxyIdentifier pageID)
+{
+    m_pagesPendingClose.add(pageID);
+}
+
+void WebProcessProxy::removePagePendingClose(WebPageProxyIdentifier pageID)
+{
+    m_pagesPendingClose.remove(pageID);
+}
+
 bool WebProcessProxy::hasCommittedClientOrigin(const WebCore::ClientOrigin& clientOrigin) const
 {
     if (m_committedClientOrigins.contains(clientOrigin))

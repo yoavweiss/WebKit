@@ -30,6 +30,7 @@
 #import "Helpers/Test.h"
 #import "TestInputDelegate.h"
 #import "Helpers/cocoa/TestNavigationDelegate.h"
+#import "Helpers/cocoa/TestScriptMessageHandler.h"
 #import "Helpers/cocoa/TestUIDelegate.h"
 #import "Helpers/cocoa/TestWKWebView.h"
 #import "UIKitSPIForTesting.h"
@@ -46,6 +47,7 @@
 #import <WebKit/WKUserScript.h>
 #import <WebKit/WKUserScriptPrivate.h>
 #import <WebKit/WKWebViewConfigurationPrivate.h>
+#import <WebKit/WKWebViewPrivate.h>
 #import <WebKit/WebKit.h>
 #import <WebKit/_WKContentWorldConfiguration.h>
 #import <WebKit/_WKFrameTreeNode.h>
@@ -2088,4 +2090,27 @@ TEST(WKUserContentController, JSBufferInjectsWebKitNamespace)
     EXPECT_FALSE([[webView objectByEvaluatingJavaScript:@"window.webkit.evaluateScript"] boolValue]);
     EXPECT_FALSE([[webView objectByEvaluatingJavaScript:@"window.webkit.createJSHandle"] boolValue]);
     EXPECT_FALSE([[webView objectByEvaluatingJavaScript:@"window.webkit.serializeNode"] boolValue]);
+}
+
+TEST(WKUserContentController, PostMessageDuringPageClose)
+{
+    constexpr NSUInteger messageCount = 50;
+
+    RetainPtr handler = adoptNS([TestScriptMessageHandler new]);
+    RetainPtr configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
+    [[configuration userContentController] addScriptMessageHandler:handler.get() name:@"handler"];
+
+    RetainPtr webView = adoptNS([[WKWebView alloc] initWithFrame:NSMakeRect(0, 0, 800, 600) configuration:configuration.get()]);
+
+    RetainPtr html = [NSString stringWithFormat:@"<script>for (let i = 0; i < %lu; i++) window.webkit.messageHandlers.handler.postMessage(i);</script>", static_cast<unsigned long>(messageCount)];
+    [webView loadHTMLString:html.get() baseURL:nil];
+
+    // Close the page on the first message, then confirm the remaining in-flight messages
+    // are still delivered without terminating the WebContent process.
+    for (NSUInteger i = 0; i < messageCount; i++) {
+        WKScriptMessage *message = [handler waitForMessage];
+        EXPECT_EQ([(NSNumber *)message.body unsignedIntegerValue], i);
+        if (!i)
+            [webView _close];
+    }
 }

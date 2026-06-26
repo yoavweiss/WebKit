@@ -277,6 +277,8 @@ public:
     void removeWebPage(WebPageProxy&, EndsUsingDataStore);
 
     void sendPageCloseMessage(std::optional<WebPageProxyIdentifier>, WebCore::PageIdentifier, CompletionHandler<void()>&& = [] { });
+    void addPagePendingClose(WebPageProxyIdentifier);
+    void removePagePendingClose(WebPageProxyIdentifier);
 
     void addProvisionalPageProxy(ProvisionalPageProxy&);
     void removeProvisionalPageProxy(ProvisionalPageProxy&);

@@ -1970,6 +1970,7 @@ void WebPageProxy::close()
     };
     Vector<ProcessToClose> processesToClose;
     forEachWebContentProcess([&](auto& process, auto pageID) {
+        process.addPagePendingClose(identifier());
         processesToClose.append({
             process,
             pageID,
@@ -1977,9 +1978,13 @@ void WebPageProxy::close()
         });
     });
     // Delay sending close message to next runloop cycle to avoid white flash.
-    RunLoop::currentSingleton().dispatch([processesToClose = WTF::move(processesToClose), pageProxyID = identifier()] mutable {
-        for (auto& [process, pageID, scope] : processesToClose)
-            protect(process)->sendPageCloseMessage(pageProxyID, pageID, [scope = WTF::move(scope)] { });
+    RunLoop::currentSingleton().dispatch([processesToClose = WTF::move(processesToClose), pageProxyID = identifier()] {
+        for (auto [process, pageID, scope] : processesToClose) {
+            protect(process)->sendPageCloseMessage(std::nullopt, pageID, [scope = WTF::move(scope), pageProxyID, weakProcess = WeakPtr { process }] {
+                if (RefPtr process = weakProcess.get())
+                    process->removePagePendingClose(pageProxyID);
+            });
+        }
     });
 
     process->removeWebPage(*this, WebProcessProxy::EndsUsingDataStore::Yes);
