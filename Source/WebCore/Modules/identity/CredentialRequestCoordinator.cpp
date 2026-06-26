@@ -208,7 +208,7 @@ void CredentialRequestCoordinator::processCredentialChooserResponse(Expected<Dig
     auto& responseData = responseOrException.value();
 
     if (responseData.responseDataJSON.isEmpty())
-        return settleTheCredentialRequest(Exception { ExceptionCode::AbortError, "User aborted the operation."_s });
+        return settleTheCredentialRequest(Exception { ExceptionCode::NotAllowedError, "The user cancelled the credential request."_s });
 
     auto parsedObject = parseDigitalCredentialsResponseData(responseData.responseDataJSON);
 
