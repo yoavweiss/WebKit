@@ -1016,6 +1016,8 @@ header: <WebCore/AttachmentAssociatedElement.h>
     ExplicitlySet
 };
 
+using WebCore::ScrollPosition = WebCore::IntPoint;
+
 [RefCounted] class WebCore::RemoteFrameLayoutInfo {
     std::optional<WebCore::LayoutRect> visibleRectInParent();
     WebCore::TransformationMatrix childFrameOwnerToRootContentTransform();
