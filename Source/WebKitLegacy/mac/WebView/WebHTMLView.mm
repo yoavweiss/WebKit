@@ -89,6 +89,7 @@
 #import <WebCore/DocumentFragment.h>
 #import <WebCore/DocumentMarkerController.h>
 #import <WebCore/DocumentMarkers.h>
+#import <WebCore/DocumentPage.h>
 #import <WebCore/DocumentResourceLoader.h>
 #import <WebCore/DocumentView.h>
 #import <WebCore/DragController.h>

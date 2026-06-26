@@ -35,6 +35,7 @@
 #import <WebCore/ContainerNodeInlines.h>
 #import <WebCore/Document.h>
 #import <WebCore/DocumentFullscreen.h>
+#import <WebCore/DocumentView.h>
 #import <WebCore/Element.h>
 #import <WebCore/FloatQuad.h>
 #import <WebCore/FloatRect.h>

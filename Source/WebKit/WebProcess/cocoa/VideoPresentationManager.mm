@@ -44,6 +44,8 @@
 #import <WebCore/Color.h>
 #import <WebCore/DocumentFullscreen.h>
 #import <WebCore/DocumentPage.h>
+#import <WebCore/DocumentQuirks.h>
+#import <WebCore/DocumentView.h>
 #import <WebCore/Event.h>
 #import <WebCore/EventNames.h>
 #import <WebCore/HTMLVideoElement.h>

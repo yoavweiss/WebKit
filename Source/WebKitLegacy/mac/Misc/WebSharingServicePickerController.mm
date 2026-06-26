@@ -34,8 +34,10 @@
 #import <WebCore/Document.h>
 #import <WebCore/Editor.h>
 #import <WebCore/FocusController.h>
+#import <WebCore/FrameDestructionObserverInlines.h>
 #import <WebCore/FrameSelection.h>
 #import <WebCore/LocalFrameInlines.h>
+#import <WebCore/NodeDocument.h>
 #import <WebCore/Page.h>
 
 static NSString *serviceControlsPasteboardName = @"WebKitServiceControlsPasteboard";
