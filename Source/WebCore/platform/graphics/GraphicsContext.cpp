@@ -615,11 +615,13 @@ FloatRect GraphicsContext::computeLineBoundsAndAntialiasingModeForText(const Flo
     }
 
     FloatPoint devicePoint = transform.mapPoint(rect.location());
-    // Visual overflow might occur here due to integral roundf/ceilf. visualOverflowForDecorations adjusts the overflow value for underline decoration.
-    FloatPoint deviceOrigin = FloatPoint(roundf(devicePoint.x()), ceilf(devicePoint.y()));
-    if (auto inverse = transform.inverse())
-        origin = inverse.value().mapPoint(deviceOrigin);
-    return FloatRect(origin, FloatSize(rect.width(), thickness));
+    // Visual overflow might occur here due to integral roundf/floorf/ceilf. visualOverflowForDecorations adjusts the overflow value for underline decoration.
+    if (auto inverse = transform.inverse()) {
+        // Snap away from the decorated text (toward increasing local y).
+        auto snappedDeviceY = transform.d() < 0 ? floorf(devicePoint.y()) : ceilf(devicePoint.y());
+        origin = inverse.value().mapPoint(FloatPoint { roundf(devicePoint.x()), snappedDeviceY });
+    }
+    return { origin, FloatSize { rect.width(), thickness } };
 }
 
 float GraphicsContext::dashedLineCornerWidthForStrokeWidth(float strokeWidth) const
