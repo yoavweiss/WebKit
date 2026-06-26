@@ -2179,6 +2179,10 @@ class YarrGenerator final : public YarrJITInfo {
         unsigned subpatternId = term->backReferenceSubpatternId;
         unsigned duplicateNamedGroupId = m_pattern.hasDuplicateNamedCaptureGroups() ? m_pattern.m_duplicateNamedGroupForSubpatternId[subpatternId] : 0;
 
+#if ENABLE(YARR_JIT_UNICODE_EXPRESSIONS) && ENABLE(YARR_JIT_UNICODE_CAN_INCREMENT_INDEX_FOR_NON_BMP)
+        SetForScope useOptimizationScope(m_useFirstNonBMPCharacterOptimization, false);
+#endif
+
         MacroAssembler::Label loop(&m_jit);
 
 #if ENABLE(YARR_JIT_BACKREFERENCES_FOR_16BIT_EXPRS)
