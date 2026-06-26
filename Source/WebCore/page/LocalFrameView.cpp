@@ -926,7 +926,7 @@ void LocalFrameView::updateSnapOffsets()
     LayoutRect viewport = LayoutRect(IntPoint(), baseLayoutViewportSize());
     viewport.move(-rootRenderer->marginLeft(), -rootRenderer->marginTop());
 
-    updateSnapOffsetsForScrollableArea(*this, *rootRenderer, *styleToUse, viewport, rootRenderer->style().writingMode(), protect(m_frame->document()->focusedElement()).get());
+    updateSnapOffsetsForScrollableArea(*this, *rootRenderer, *styleToUse, viewport, rootRenderer->style().writingMode(), protect(m_frame->document()->focusedElement()).get(), protect(m_frame->document()->cssTarget()).get());
 }
 
 bool LocalFrameView::isScrollSnapInProgress() const

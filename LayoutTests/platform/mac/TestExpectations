@@ -1820,7 +1820,6 @@ imported/w3c/web-platform-tests/css/css-scroll-snap/snap-fling-in-large-area.htm
 
 imported/w3c/web-platform-tests/css/css-scroll-snap/snap-after-relayout/multiple-aligned-targets/common-to-both-axes-supercedes-first-in-tree-order.html [ Pass Failure ]
 imported/w3c/web-platform-tests/css/css-scroll-snap/snap-after-relayout/multiple-aligned-targets/prefer-focused-nested-containers.html [ Pass Failure ]
-imported/w3c/web-platform-tests/css/css-scroll-snap/snap-after-relayout/multiple-aligned-targets/prefer-targeted-element.html [ Skip ]
 
 webkit.org/b/170629  memory/memory-pressure-simulation.html [ Pass Failure Crash ]
 

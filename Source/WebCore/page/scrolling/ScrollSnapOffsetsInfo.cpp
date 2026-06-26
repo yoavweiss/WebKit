@@ -312,7 +312,7 @@ bool mayHaveScrollSnappedBoxes(const RenderBox& scrollingElementBox)
     return true;
 }
 
-void updateSnapOffsetsForScrollableArea(ScrollableArea& scrollableArea, const RenderBox& scrollingElementBox, const Style::ComputedStyle& scrollingElementStyle, LayoutRect viewportRectInBorderBoxCoordinates, WritingMode writingMode, Element* focusedElement)
+void updateSnapOffsetsForScrollableArea(ScrollableArea& scrollableArea, const RenderBox& scrollingElementBox, const Style::ComputedStyle& scrollingElementStyle, LayoutRect viewportRectInBorderBoxCoordinates, WritingMode writingMode, Element* focusedElement, Element* targetElement)
 {
     auto scrollSnapTypeContainer = scrollingElementStyle.scrollSnapType().tryContainer();
     const auto& boxesWithScrollSnapPositions = scrollingElementBox.view().boxesWithScrollSnapPositions();
@@ -321,18 +321,33 @@ void updateSnapOffsetsForScrollableArea(ScrollableArea& scrollableArea, const Re
         return;
     }
 
-    auto addOrUpdateStopForSnapOffset = [](HashMap<LayoutUnit, SnapOffset<LayoutUnit>>& offsets, LayoutUnit newOffset, ScrollSnapStop stop, bool hasSnapAreaLargerThanViewport, bool isFocused, NodeIdentifier snapTargetID, size_t snapAreaIndices)
+    // When several snap areas resolve to the same snap offset (an aligned "tie"), the snap offset's
+    // snapTargetID records the box that should be re-snapped to per the priority order in
+    // https://drafts.csswg.org/css-scroll-snap-1/#re-snap: a focused element, then a fragment-targeted
+    // element, then the first box in tree order. isFocused/isTarget accumulate across all areas
+    // sharing the offset (not just the first one added).
+    auto addOrUpdateStopForSnapOffset = [](HashMap<LayoutUnit, SnapOffset<LayoutUnit>>& offsets, LayoutUnit newOffset, ScrollSnapStop stop, bool hasSnapAreaLargerThanViewport, bool isFocused, bool isTarget, NodeIdentifier snapTargetID, size_t snapAreaIndices)
     {
         if (!offsets.isValidKey(newOffset))
             return;
 
         auto& offset = offsets.ensure(newOffset, [&] {
-            return SnapOffset<LayoutUnit> { newOffset, stop, hasSnapAreaLargerThanViewport, isFocused, snapTargetID, { } };
+            return SnapOffset<LayoutUnit> { newOffset, stop, hasSnapAreaLargerThanViewport, isFocused, isTarget, snapTargetID, { } };
         }).iterator->value;
 
         // If the offset already exists, we ensure that it has ScrollSnapStop::Always, when appropriate.
         if (stop == ScrollSnapStop::Always)
             offset.stop = ScrollSnapStop::Always;
+
+        // A focused box takes precedence over a fragment-targeted one, which takes precedence over the
+        // box that first established this offset. Update snapTargetID to reflect the highest-priority
+        // box seen so far so that re-snapping follows it.
+        if (isFocused && !offset.isFocused)
+            offset.snapTargetID = snapTargetID;
+        else if (isTarget && !offset.isFocused && !offset.isTarget)
+            offset.snapTargetID = snapTargetID;
+        offset.isFocused |= isFocused;
+        offset.isTarget |= isTarget;
 
         offset.hasSnapAreaLargerThanViewport |= hasSnapAreaLargerThanViewport;
         offset.snapAreaIndices.append(snapAreaIndices);
@@ -414,18 +429,19 @@ void updateSnapOffsetsForScrollableArea(ScrollableArea& scrollableArea, const Re
         snapAreas.append(scrollSnapAreaAsOffsets);
         
         auto isFocused = child->element() ? focusedElement == child->element() : false;
+        auto isTarget = child->element() ? targetElement == child->element() : false;
         auto identifier = protect(child->element())->nodeIdentifier();
         snapAreasIDs.append(identifier);
 
         if (snapsHorizontally) {
             auto absoluteScrollXPosition = computeScrollSnapAlignOffset(scrollSnapArea.x(), scrollSnapArea.maxX(), xAlign, areaXAxisFlipped) - computeScrollSnapAlignOffset(scrollSnapPort.x(), scrollSnapPort.maxX(), xAlign, areaXAxisFlipped);
             auto absoluteScrollOffset = clampTo<int>(scrollableArea.scrollOffsetFromPosition({ roundToInt(absoluteScrollXPosition), 0 }).x(), 0, maxScrollOffset.x());
-            addOrUpdateStopForSnapOffset(horizontalSnapOffsetsMap, absoluteScrollOffset, stop, scrollSnapAreaAsOffsets.width() > scrollSnapPort.width(), isFocused, identifier, snapAreas.size() - 1);
+            addOrUpdateStopForSnapOffset(horizontalSnapOffsetsMap, absoluteScrollOffset, stop, scrollSnapAreaAsOffsets.width() > scrollSnapPort.width(), isFocused, isTarget, identifier, snapAreas.size() - 1);
         }
         if (snapsVertically) {
             auto absoluteScrollYPosition = computeScrollSnapAlignOffset(scrollSnapArea.y(), scrollSnapArea.maxY(), yAlign, areaYAxisFlipped) - computeScrollSnapAlignOffset(scrollSnapPort.y(), scrollSnapPort.maxY(), yAlign, areaYAxisFlipped);
             auto absoluteScrollOffset = clampTo<int>(scrollableArea.scrollOffsetFromPosition({ 0, roundToInt(absoluteScrollYPosition) }).y(), 0, maxScrollOffset.y());
-            addOrUpdateStopForSnapOffset(verticalSnapOffsetsMap, absoluteScrollOffset, stop, scrollSnapAreaAsOffsets.height() > scrollSnapPort.height(), isFocused, identifier, snapAreas.size() - 1);
+            addOrUpdateStopForSnapOffset(verticalSnapOffsetsMap, absoluteScrollOffset, stop, scrollSnapAreaAsOffsets.height() > scrollSnapPort.height(), isFocused, isTarget, identifier, snapAreas.size() - 1);
         }
 
         if (!snapAreas.isEmpty())
@@ -474,7 +490,7 @@ static ScrollSnapOffsetsInfo<OutputType, OutputRectType> convertOffsetInfo(const
     auto convertOffsets = [scaleFactor](const Vector<SnapOffset<InputType>>& input)
     {
         return input.map([scaleFactor](auto& offset) -> SnapOffset<OutputType> {
-            return { convertOffsetUnit(offset.offset, scaleFactor), offset.stop, offset.hasSnapAreaLargerThanViewport, offset.isFocused, offset.snapTargetID, offset.snapAreaIndices };
+            return { convertOffsetUnit(offset.offset, scaleFactor), offset.stop, offset.hasSnapAreaLargerThanViewport, offset.isFocused, offset.isTarget, offset.snapTargetID, offset.snapAreaIndices };
         });
     };
 

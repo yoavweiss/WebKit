@@ -54,6 +54,7 @@
 #include "DocumentInlines.h"
 #include "DocumentView.h"
 #include "Editor.h"
+#include "ElementInlines.h"
 #include "ElementInlinesLight.h"
 #include "ElementRuleCollector.h"
 #include "EventHandler.h"
@@ -1628,7 +1629,7 @@ void RenderLayerScrollableArea::updateSnapOffsets()
         clearSnapOffsets();
         return;
     }
-    updateSnapOffsetsForScrollableArea(*this, *box, box->style(), box->paddingBoxRect(), box->style().writingMode(), protect(m_layer.renderer().document().focusedElement()).get());
+    updateSnapOffsetsForScrollableArea(*this, *box, box->style(), box->paddingBoxRect(), box->style().writingMode(), protect(m_layer.renderer().document().focusedElement()).get(), protect(m_layer.renderer().document().cssTarget()).get());
 }
 
 bool RenderLayerScrollableArea::isScrollSnapInProgress() const

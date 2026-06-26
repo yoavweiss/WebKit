@@ -1611,6 +1611,7 @@ enum class WebCore::ScrollSnapStop : bool;
     WebCore::ScrollSnapStop stop;
     bool hasSnapAreaLargerThanViewport;
     bool isFocused;
+    bool isTarget;
     Markable<WebCore::NodeIdentifier> snapTargetID;
     Vector<size_t, 1> snapAreaIndices;
 };
