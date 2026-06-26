@@ -428,8 +428,10 @@ void updateSnapOffsetsForScrollableArea(ScrollableArea& scrollableArea, const Re
         auto scrollSnapAreaAsOffsets = LayoutRect(scrollableArea.scrollOffsetFromPosition(roundedIntPoint(snapAreaOriginRelativeToBorderEdge)), scrollSnapArea.size());
         snapAreas.append(scrollSnapAreaAsOffsets);
         
-        auto isFocused = child->element() ? focusedElement == child->element() : false;
-        auto isTarget = child->element() ? targetElement == child->element() : false;
+        // Per https://drafts.csswg.org/css-scroll-snap-1/#multiple-aligned, a snap area is treated as
+        // focused/targeted if it is the focused/fragment-targeted element or has it as a descendant.
+        auto isFocused = child->element() ? child->element()->contains(focusedElement) : false;
+        auto isTarget = child->element() ? child->element()->contains(targetElement) : false;
         auto identifier = protect(child->element())->nodeIdentifier();
         snapAreasIDs.append(identifier);
 
