@@ -68,6 +68,7 @@ public:
 
 private:
     void settleTheCredentialRequest(ExceptionOr<RefPtr<BasicCredential>>&&);
+    void rejectTheCredentialRequestWith(Exception&&);
     void clearAbortAlgorithm();
 
     class InteractionStateGuard final {

@@ -116,6 +116,7 @@ void CredentialRequestCoordinator::setInteractionState(InteractionState newState
 
 void CredentialRequestCoordinator::setCurrentPromise(CredentialPromise&& promise)
 {
+    ASSERT(m_interactionState == InteractionState::Requesting);
     ASSERT(!m_currentPromise);
     m_currentPromise = makeUnique<CredentialPromise>(WTF::move(promise));
 }
@@ -130,8 +131,12 @@ void CredentialRequestCoordinator::prepareCredentialRequests(const Document& doc
     if (m_interactionState != InteractionState::Idle)
         return promise.reject(ExceptionCode::InvalidStateError, "A credential request is already in progress."_s);
 
+    ASSERT(!m_currentPromise);
+    setInteractionState(InteractionState::Requesting);
+    setCurrentPromise(WTF::move(promise));
+
     if (!m_page)
-        return promise.reject(ExceptionCode::AbortError, "Page was destroyed."_s);
+        return rejectTheCredentialRequestWith(Exception { ExceptionCode::AbortError, "Page was destroyed."_s });
 
     auto validatedRequestsOrException = m_client->validateAndParseDigitalCredentialRequests(
         protect(document.topOrigin()),
@@ -139,12 +144,11 @@ void CredentialRequestCoordinator::prepareCredentialRequests(const Document& doc
         unvalidatedRequests);
 
     if (validatedRequestsOrException.hasException())
-        return promise.reject(validatedRequestsOrException.releaseException());
+        return rejectTheCredentialRequestWith(validatedRequestsOrException.releaseException());
 
-    setCurrentPromise(WTF::move(promise));
+    auto validatedCredentialRequests = validatedRequestsOrException.releaseReturnValue();
 
     if (signal) {
-        // CredentialsContainer handled rejecting pre-aborted signal
         ASSERT(!signal->aborted());
         m_abortSignal = signal;
         m_abortAlgorithmIdentifier = signal->addAlgorithm([weakThis = WeakPtr { *this }, signal = protect(signal)](JSC::JSValue reason) {
@@ -156,22 +160,17 @@ void CredentialRequestCoordinator::prepareCredentialRequests(const Document& doc
     }
 
     if (signal && signal->aborted())
-        return;
+        return rejectTheCredentialRequestWith(Exception { ExceptionCode::AbortError, "Signal was already aborted."_s });
 
-    auto validatedCredentialRequests = validatedRequestsOrException.releaseReturnValue();
     initiateTheCredentialRequest(document, WTF::move(validatedCredentialRequests), WTF::move(unvalidatedRequests), signal);
 }
 
 void CredentialRequestCoordinator::initiateTheCredentialRequest(const Document& document, Vector<ValidatedDigitalCredentialRequest>&& validatedRequests, Vector<UnvalidatedDigitalCredentialRequest>&& unvalidatedRequests, RefPtr<AbortSignal> signal)
 {
     auto requestDataAndRawRequests = DigitalCredentialsRequestDataBuilder::build(validatedRequests, document, WTF::move(unvalidatedRequests));
-    if (requestDataAndRawRequests.hasException()) {
-        if (auto* promise = currentPromise())
-            promise->reject(requestDataAndRawRequests.releaseException());
-        return;
-    }
+    if (requestDataAndRawRequests.hasException())
+        return rejectTheCredentialRequestWith(requestDataAndRawRequests.releaseException());
 
-    setInteractionState(InteractionState::Requesting);
     observeContext(protect(document.scriptExecutionContext()).get());
 
     auto [requestData, rawRequests] = requestDataAndRawRequests.releaseReturnValue();
@@ -261,6 +260,17 @@ ExceptionOr<JSC::JSObject*> CredentialRequestCoordinator::parseDigitalCredential
     return parsedJSON.getObject();
 }
 
+// https://w3c-fedid.github.io/digital-credentials/#dfn-reject-the-credential-request-with
+void CredentialRequestCoordinator::rejectTheCredentialRequestWith(Exception&& exception)
+{
+    ASSERT(m_interactionState != InteractionState::Idle);
+    ASSERT(m_currentPromise);
+    clearAbortAlgorithm();
+    m_currentPromise->reject(WTF::move(exception));
+    m_currentPromise.reset();
+    setInteractionState(InteractionState::Idle);
+}
+
 void CredentialRequestCoordinator::settleTheCredentialRequest(ExceptionOr<RefPtr<BasicCredential>>&& result)
 {
     clearAbortAlgorithm();
@@ -304,14 +314,7 @@ void CredentialRequestCoordinator::abortTheCredentialRequest(ExceptionOr<JSC::JS
 {
     clearAbortAlgorithm();
     if (m_interactionState == InteractionState::Idle) {
-        // No UI teardown needed. Settle (defensively) and return.
-        if (m_currentPromise) {
-            if (reason.hasException())
-                m_currentPromise->reject(reason.releaseException());
-            else
-                m_currentPromise->rejectType<IDLAny>(reason.releaseReturnValue());
-            m_currentPromise.reset();
-        }
+        ASSERT(!m_currentPromise);
         return;
     }
 
