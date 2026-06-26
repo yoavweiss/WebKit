@@ -592,6 +592,68 @@ void GraphicsContextGLANGLE::getIntegeri_v(GCGLenum pname, GCGLuint index, std::
     GL_GetIntegeri_vRobustANGLE(pname, index, value.size(), nullptr, value.data());
 }
 
+GCGLint GraphicsContextGLANGLE::maxCombinedTextureImageUnits()
+{
+    return getInteger(GraphicsContextGL::MAX_COMBINED_TEXTURE_IMAGE_UNITS);
+}
+
+GCGLint GraphicsContextGLANGLE::maxVertexAttribs()
+{
+    return getInteger(GraphicsContextGL::MAX_VERTEX_ATTRIBS);
+}
+
+GCGLint GraphicsContextGLANGLE::maxTextureSize()
+{
+    return getInteger(GraphicsContextGL::MAX_TEXTURE_SIZE);
+}
+
+GCGLint GraphicsContextGLANGLE::maxCubeMapTextureSize()
+{
+    return getInteger(GraphicsContextGL::MAX_CUBE_MAP_TEXTURE_SIZE);
+}
+
+GCGLint GraphicsContextGLANGLE::maxRenderbufferSize()
+{
+    return getInteger(GraphicsContextGL::MAX_RENDERBUFFER_SIZE);
+}
+
+std::array<GCGLint, 2> GraphicsContextGLANGLE::maxViewportDims()
+{
+    std::array<GCGLint, 2> dims { 0, 0 };
+    getIntegerv(GraphicsContextGL::MAX_VIEWPORT_DIMS, dims);
+    return dims;
+}
+
+GCGLint GraphicsContextGLANGLE::maxSamples()
+{
+    return getInteger(GraphicsContextGL::MAX_SAMPLES);
+}
+
+GCGLint GraphicsContextGLANGLE::maxTransformFeedbackSeparateAttribs()
+{
+    return getInteger(GraphicsContextGL::MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS);
+}
+
+GCGLint GraphicsContextGLANGLE::maxUniformBufferBindings()
+{
+    return getInteger(GraphicsContextGL::MAX_UNIFORM_BUFFER_BINDINGS);
+}
+
+GCGLint GraphicsContextGLANGLE::uniformBufferOffsetAlignment()
+{
+    return getInteger(GraphicsContextGL::UNIFORM_BUFFER_OFFSET_ALIGNMENT);
+}
+
+GCGLint GraphicsContextGLANGLE::max3DTextureSize()
+{
+    return getInteger(GraphicsContextGL::MAX_3D_TEXTURE_SIZE);
+}
+
+GCGLint GraphicsContextGLANGLE::maxArrayTextureLayers()
+{
+    return getInteger(GraphicsContextGL::MAX_ARRAY_TEXTURE_LAYERS);
+}
+
 void GraphicsContextGLANGLE::getShaderPrecisionFormat(GCGLenum shaderType, GCGLenum precisionType, std::span<GCGLint, 2> range, GCGLint* precision)
 {
     if (!makeContextCurrent())

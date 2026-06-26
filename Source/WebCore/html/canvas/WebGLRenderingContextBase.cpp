@@ -558,21 +558,20 @@ void WebGLRenderingContextBase::initializeContextState()
     m_colorMask[0] = m_colorMask[1] = m_colorMask[2] = m_colorMask[3] = true;
 
     RefPtr context = m_context;
-    GCGLint numCombinedTextureImageUnits = context->getInteger(GraphicsContextGL::MAX_COMBINED_TEXTURE_IMAGE_UNITS);
+    GCGLint numCombinedTextureImageUnits = context->maxCombinedTextureImageUnits();
     m_textureUnits.clear();
     m_textureUnits.grow(numCombinedTextureImageUnits);
 
-    GCGLint numVertexAttribs = context->getInteger(GraphicsContextGL::MAX_VERTEX_ATTRIBS);
+    GCGLint numVertexAttribs = context->maxVertexAttribs();
     m_vertexAttribValue.clear();
     m_vertexAttribValue.grow(numVertexAttribs);
 
-    m_maxTextureSize = context->getInteger(GraphicsContextGL::MAX_TEXTURE_SIZE);
+    m_maxTextureSize = context->maxTextureSize();
     m_maxTextureLevel = WebGLTexture::computeLevelCount(m_maxTextureSize, m_maxTextureSize);
-    m_maxCubeMapTextureSize = context->getInteger(GraphicsContextGL::MAX_CUBE_MAP_TEXTURE_SIZE);
+    m_maxCubeMapTextureSize = context->maxCubeMapTextureSize();
     m_maxCubeMapTextureLevel = WebGLTexture::computeLevelCount(m_maxCubeMapTextureSize, m_maxCubeMapTextureSize);
-    m_maxRenderbufferSize = context->getInteger(GraphicsContextGL::MAX_RENDERBUFFER_SIZE);
-    m_maxViewportDims = { 0, 0 };
-    context->getIntegerv(GraphicsContextGL::MAX_VIEWPORT_DIMS, m_maxViewportDims);
+    m_maxRenderbufferSize = context->maxRenderbufferSize();
+    m_maxViewportDims = context->maxViewportDims();
     m_isDepthStencilSupported = context->enableExtension(GCGLExtension::OES_packed_depth_stencil) || context->enableExtension(GCGLExtension::ANGLE_depth_texture);
     auto glAttributes = m_context->contextAttributes();
     m_attributes.powerPreference = glAttributes.powerPreference;
@@ -587,7 +586,7 @@ void WebGLRenderingContextBase::initializeContextState()
     }
     // WebXR might use multisampling in WebGL2 context. Multisample extensions are also enabled in WebGL 1 case context
     // is antialiased.
-    m_maxSamples = (isWebGL2() || m_attributes.antialias) ? context->getInteger(GraphicsContextGL::MAX_SAMPLES) : 0;
+    m_maxSamples = (isWebGL2() || m_attributes.antialias) ? context->maxSamples() : 0;
 
     // These two values from EXT_draw_buffers are lazily queried.
     m_maxDrawBuffers = 0;

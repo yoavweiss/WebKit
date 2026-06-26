@@ -132,19 +132,19 @@ void WebGL2RenderingContext::initializeContextState()
     WebGLRenderingContextBase::initializeContextState();
 
     RefPtr context = m_context;
-    m_maxTransformFeedbackSeparateAttribs = context->getInteger(GraphicsContextGL::MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS);
+    m_maxTransformFeedbackSeparateAttribs = context->maxTransformFeedbackSeparateAttribs();
 
     m_defaultTransformFeedback = WebGLTransformFeedback::create(*this);
     m_boundTransformFeedback = m_defaultTransformFeedback;
     if (m_defaultTransformFeedback)
         context->bindTransformFeedback(GraphicsContextGL::TRANSFORM_FEEDBACK, m_defaultTransformFeedback->object());
 
-    m_boundIndexedUniformBuffers.resize(context->getInteger(GraphicsContextGL::MAX_UNIFORM_BUFFER_BINDINGS));
-    m_uniformBufferOffsetAlignment = context->getInteger(GraphicsContextGL::UNIFORM_BUFFER_OFFSET_ALIGNMENT);
+    m_boundIndexedUniformBuffers.resize(context->maxUniformBufferBindings());
+    m_uniformBufferOffsetAlignment = context->uniformBufferOffsetAlignment();
 
-    m_max3DTextureSize = context->getInteger(GraphicsContextGL::MAX_3D_TEXTURE_SIZE);
+    m_max3DTextureSize = context->max3DTextureSize();
     m_max3DTextureLevel = WebGLTexture::computeLevelCount(m_max3DTextureSize, m_max3DTextureSize);
-    m_maxArrayTextureLayers = context->getInteger(GraphicsContextGL::MAX_ARRAY_TEXTURE_LAYERS);
+    m_maxArrayTextureLayers = context->maxArrayTextureLayers();
 
     m_boundSamplers.resize(m_textureUnits.size());
 }

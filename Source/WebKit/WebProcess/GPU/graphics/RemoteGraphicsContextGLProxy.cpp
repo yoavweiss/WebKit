@@ -154,6 +154,18 @@ void RemoteGraphicsContextGLProxy::initialize(const RemoteGraphicsContextGLIniti
     m_requestableExtensions = EnumSet<GCGLExtension>::fromRaw(initializationState.requestableExtensions);
     m_externalImageTarget = initializationState.externalImageTarget;
     m_externalImageBindingQuery = initializationState.externalImageBindingQuery;
+    m_maxCombinedTextureImageUnits = initializationState.maxCombinedTextureImageUnits;
+    m_maxVertexAttribs = initializationState.maxVertexAttribs;
+    m_maxTextureSize = initializationState.maxTextureSize;
+    m_maxCubeMapTextureSize = initializationState.maxCubeMapTextureSize;
+    m_maxRenderbufferSize = initializationState.maxRenderbufferSize;
+    m_maxViewportDims = initializationState.maxViewportDims;
+    m_maxSamples = initializationState.maxSamples;
+    m_maxTransformFeedbackSeparateAttribs = initializationState.maxTransformFeedbackSeparateAttribs;
+    m_maxUniformBufferBindings = initializationState.maxUniformBufferBindings;
+    m_uniformBufferOffsetAlignment = initializationState.uniformBufferOffsetAlignment;
+    m_max3DTextureSize = initializationState.max3DTextureSize;
+    m_maxArrayTextureLayers = initializationState.maxArrayTextureLayers;
 }
 
 std::tuple<GCGLenum, GCGLenum> RemoteGraphicsContextGLProxy::externalImageTextureBindingPoint()

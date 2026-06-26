@@ -128,6 +128,7 @@ void RemoteGraphicsContextGL::workQueueInitialize(WebCore::GraphicsContextGLAttr
     m_connection->open(*this, m_workQueue);
     if (RefPtr context = m_context) {
         context->setClient(this);
+        auto contextAttributes = context->contextAttributes();
         auto knownActiveExtensions = context->knownActiveExtensions();
         auto requestableExtensions = context->requestableExtensions();
         auto [externalImageTarget, externalImageBindingQuery] = context->externalImageTextureBindingPoint();
@@ -137,7 +138,22 @@ void RemoteGraphicsContextGL::workQueueInitialize(WebCore::GraphicsContextGLAttr
             .requestableExtensions = requestableExtensions.toRaw(),
             .externalImageTarget = externalImageTarget,
             .externalImageBindingQuery = externalImageBindingQuery,
+            .maxCombinedTextureImageUnits = context->maxCombinedTextureImageUnits(),
+            .maxVertexAttribs = context->maxVertexAttribs(),
+            .maxTextureSize = context->maxTextureSize(),
+            .maxCubeMapTextureSize = context->maxCubeMapTextureSize(),
+            .maxRenderbufferSize = context->maxRenderbufferSize(),
+            .maxViewportDims = context->maxViewportDims(),
         };
+        if (contextAttributes.isWebGL2 || contextAttributes.antialias)
+            initializationState.maxSamples = context->maxSamples();
+        if (contextAttributes.isWebGL2) {
+            initializationState.maxTransformFeedbackSeparateAttribs = context->maxTransformFeedbackSeparateAttribs();
+            initializationState.maxUniformBufferBindings = context->maxUniformBufferBindings();
+            initializationState.uniformBufferOffsetAlignment = context->uniformBufferOffsetAlignment();
+            initializationState.max3DTextureSize = context->max3DTextureSize();
+            initializationState.maxArrayTextureLayers = context->maxArrayTextureLayers();
+        }
         send(Messages::RemoteGraphicsContextGLProxy::WasCreated(workQueue().wakeUpSemaphore(), m_connection->clientWaitSemaphore(), { initializationState }));
         m_connection->startReceivingMessages(*this, Messages::RemoteGraphicsContextGL::messageReceiverName(), m_identifier.toUInt64());
     } else

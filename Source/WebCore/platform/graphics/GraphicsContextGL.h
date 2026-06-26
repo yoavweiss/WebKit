@@ -38,6 +38,7 @@
 #include <WebCore/Image.h>
 #include <WebCore/IntRect.h>
 #include <WebCore/IntSize.h>
+#include <array>
 #include <span>
 #include <wtf/EnumSet.h>
 #include <wtf/FunctionDispatcher.h>
@@ -1653,6 +1654,22 @@ public:
 
     GraphicsContextGLAttributes contextAttributes() const { return m_attrs; }
     void setContextAttributes(const GraphicsContextGLAttributes& attrs) { m_attrs = attrs; }
+
+    // Static GL implementation limits. These never change for the lifetime of
+    // the context, so the remote-context implementation caches them at context
+    // creation and returns them without an IPC round-trip.
+    virtual GCGLint maxCombinedTextureImageUnits() = 0;
+    virtual GCGLint maxVertexAttribs() = 0;
+    virtual GCGLint maxTextureSize() = 0;
+    virtual GCGLint maxCubeMapTextureSize() = 0;
+    virtual GCGLint maxRenderbufferSize() = 0;
+    virtual std::array<GCGLint, 2> maxViewportDims() = 0;
+    virtual GCGLint maxSamples() = 0;
+    virtual GCGLint maxTransformFeedbackSeparateAttribs() = 0;
+    virtual GCGLint maxUniformBufferBindings() = 0;
+    virtual GCGLint uniformBufferOffsetAlignment() = 0;
+    virtual GCGLint max3DTextureSize() = 0;
+    virtual GCGLint maxArrayTextureLayers() = 0;
 
     virtual std::tuple<GCGLenum, GCGLenum> externalImageTextureBindingPoint();
 

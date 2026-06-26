@@ -28,6 +28,18 @@ struct WebKit::RemoteGraphicsContextGLInitializationState {
     uint64_t requestableExtensions;
     GCGLenum externalImageTarget;
     GCGLenum externalImageBindingQuery;
+    GCGLint maxCombinedTextureImageUnits;
+    GCGLint maxVertexAttribs;
+    GCGLint maxTextureSize;
+    GCGLint maxCubeMapTextureSize;
+    GCGLint maxRenderbufferSize;
+    std::array<GCGLint, 2> maxViewportDims;
+    GCGLint maxSamples;
+    GCGLint maxTransformFeedbackSeparateAttribs;
+    GCGLint maxUniformBufferBindings;
+    GCGLint uniformBufferOffsetAlignment;
+    GCGLint max3DTextureSize;
+    GCGLint maxArrayTextureLayers;
 };
 
 enum class WebCore::TextDrawingMode : uint8_t {

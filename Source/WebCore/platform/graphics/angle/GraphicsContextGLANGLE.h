@@ -115,6 +115,19 @@ public:
     void getIntegeri_v(GCGLenum pname, GCGLuint index, std::span<GCGLint, 4> value) final; // NOLINT
     GCGLint64 getInteger64(GCGLenum pname) final;
     GCGLint64 getInteger64i(GCGLenum pname, GCGLuint index) final;
+
+    GCGLint maxCombinedTextureImageUnits() final;
+    GCGLint maxVertexAttribs() final;
+    GCGLint maxTextureSize() final;
+    GCGLint maxCubeMapTextureSize() final;
+    GCGLint maxRenderbufferSize() final;
+    std::array<GCGLint, 2> maxViewportDims() final;
+    GCGLint maxSamples() final;
+    GCGLint maxTransformFeedbackSeparateAttribs() final;
+    GCGLint maxUniformBufferBindings() final;
+    GCGLint uniformBufferOffsetAlignment() final;
+    GCGLint max3DTextureSize() final;
+    GCGLint maxArrayTextureLayers() final;
     GCGLint getProgrami(PlatformGLObject program, GCGLenum pname) final;
     CString getProgramInfoLog(PlatformGLObject) final;
     GCGLint getRenderbufferParameteri(GCGLenum target, GCGLenum pname) final;
