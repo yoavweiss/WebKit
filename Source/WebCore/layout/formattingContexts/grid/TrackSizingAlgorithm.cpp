@@ -212,6 +212,7 @@ static Vector<LayoutUnit> maxContentContributions(const TrackSizingItemList& tra
     });
 }
 
+// https://www.w3.org/TR/css-grid-2/#algo-single-span-items
 static Vector<LayoutUnit> minimumContributions(const TrackSizingItemList& trackSizingItems, const ComputedSizesList& gridItemComputedSizesList, const UsedBorderAndPaddingList& borderAndPaddingList,
     const GridItemIndexes& gridItemIndexes, const TrackSizingGridItemConstraintList& oppositeAxisConstraints, const GridItemSizingFunctions& gridItemSizingFunctions, const TrackSizingFunctionsList& trackSizingFunctions)
 {

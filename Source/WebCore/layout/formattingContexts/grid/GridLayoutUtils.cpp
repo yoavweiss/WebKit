@@ -467,22 +467,21 @@ GridItemSizingFunctions blockAxisGridItemSizingFunctions(const GridFormattingCon
     };
 }
 
+// https://www.w3.org/TR/css-sizing-3/#behave-as-auto
+// To have a common term for both when width/height computes to auto and
+// when it is defined to behave as if auto were specified.
+// (as in the case of block percentage heights resolving against an indefinite size, see CSS2§10.5),
+// the property is said to behave as auto in both of these cases.
 bool preferredSizeBehavesAsAuto(const Style::PreferredSize& preferredSize)
 {
-    return WTF::switchOn(preferredSize,
-        [](const CSS::Keyword::Auto&) {
-            return true;
-        },
-        [](const auto&) {
-            ASSERT_NOT_IMPLEMENTED_YET();
-            return false;
-    });
+    // FIXME: Handle cases where preferred size is not auto but behaves as auto,
+    // such as percentage height resolving against indefinite size.
+    return preferredSize.isAuto();
 }
 
-bool preferredSizeDependsOnContainingBlockSize(const Style::PreferredSize&)
+bool preferredSizeDependsOnContainingBlockSize(const Style::PreferredSize& preferredSize)
 {
-    ASSERT_NOT_IMPLEMENTED_YET();
-    return false;
+    return preferredSize.isStretch() || preferredSize.isFitContent() || preferredSize.isPercentOrCalculated();
 }
 
 }
