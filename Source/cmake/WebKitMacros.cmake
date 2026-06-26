@@ -1015,7 +1015,7 @@ function(_webkit_setup_swift_header_deps _target _stamp _header _resp)
             target_compile_definitions(${_target}_SwiftCompile PRIVATE $<TARGET_PROPERTY:${_target},COMPILE_DEFINITIONS>)
             target_include_directories(${_target}_SwiftCompile PRIVATE $<TARGET_PROPERTY:${_target},INCLUDE_DIRECTORIES>)
             # Emit the interop header from the helper only: it is the sole writer
-            # of WebKit-Swift-CPP.h.tmp in the legacy path and produces the
+            # of WebKit-Swift-Generated.h.tmp in the legacy path and produces the
             # swiftmodule the copy depends on, so the copy is ordered after the
             # single write. ${_target} deliberately does not emit it here.
             if (DEFINED ${_target}_SWIFT_EMIT_HEADER_FLAGS)
@@ -1291,7 +1291,7 @@ macro(WEBKIT_SETUP_SWIFT_AND_GENERATE_SWIFT_CPP_INTEROP_HEADER _target _module_n
         add_custom_target(${_target}_SwiftRebuildTrigger DEPENDS "${_trigger_path}")
 
         if (NOT _skip_swift_cxx_header)
-            # WebKit-Swift-CPP.h.tmp must be written by exactly one target: the one
+            # WebKit-Swift-Generated.h.tmp must be written by exactly one target: the one
             # whose ${_module_name}.swiftmodule the copy command below depends on. A
             # second writer races the copy and fails it sporadically.
             # https://bugs.webkit.org/show_bug.cgi?id=316000
