@@ -986,7 +986,13 @@
     (require-all
         (extension "com.apple.webkit.extension.mach")
         (global-name "com.apple.coreservices.launchservicesd")))
-        
+
+(with-filter (system-attribute apple-internal)
+    (allow mach-lookup
+        (require-all
+            (extension "com.apple.webkit.extension.mach")
+            (global-name "com.apple.gputools.service"))))
+
 (deny mach-lookup (with no-report)
     (global-name-prefix "com.apple.distributed_notifications"))
 
