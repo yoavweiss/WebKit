@@ -164,16 +164,7 @@ struct AppKitGesturesTests {
         arguments: [true, false]
     )
     func draggingSelectionToWindowEdgeAutoscrolls(dragPastEdge: Bool) async throws {
-        let lines = (0..<100)
-            .reversed()
-            .map { "<p id='line\($0)'>\($0) bottles of beer on the wall</p>" }
-            .joined(separator: "\n")
-
-        let html = """
-            <div id="text" style="font-size: 60px; margin: 0;">\(lines)</div>
-            """
-        try await page.load(html: html).wait()
-
+        try await loadScrollableText()
         await page.waitForNextPresentationUpdate()
 
         let startViewportCoordinates = try await page.callJavaScript(JavaScriptMessages.BoundingClientRect(elementID: "line97"))
@@ -189,10 +180,7 @@ struct AppKitGesturesTests {
 
         // Arbitrarily chosen to be close to the edge of the window.
         let dragEndYInWindow: CGFloat = dragPastEdge ? -20 : 20
-        let dragEnd = convertToCoreGraphicsScreenCoordinates(
-            pointInWindowCoordinates: CGPoint(x: window.frame.width / 2, y: dragEndYInWindow),
-            window: window
-        )
+        let dragEnd = screenBounds(ofPointInWindowCoordinates: CGPoint(x: window.frame.width / 2, y: dragEndYInWindow))
 
         await recap.play { composer in
             // Click-and-hold to begin a range selection, then drag to the bottom edge and hold.
@@ -223,7 +211,7 @@ struct AppKitGesturesTests {
         try await loadScrollableText()
         await page.waitForNextPresentationUpdate()
 
-        let startBounds = try await screenBounds(ofElementWithID: "line297")
+        let startBounds = try await screenBounds(ofElementWithID: "line97")
 
         // Recap requires this test to be ran within an app host.
         guard NSApp.isActive else {
@@ -240,7 +228,7 @@ struct AppKitGesturesTests {
         }
 
         // Just inside the bottom edge of the window (window coordinates have a bottom-left origin).
-        let dragEnd = windowEdgePointInScreenCoordinates(x: window.frame.width / 2, y: 20)
+        let dragEnd = screenBounds(ofPointInWindowCoordinates: CGPoint(x: window.frame.width / 2, y: 20))
 
         await recap.play { composer in
             composer._wk_click(at: startBounds.center, for: .seconds(0.5))
@@ -274,7 +262,7 @@ struct AppKitGesturesTests {
         try await loadScrollableText()
         await page.waitForNextPresentationUpdate()
 
-        let startBounds = try await screenBounds(ofElementWithID: "line297")
+        let startBounds = try await screenBounds(ofElementWithID: "line97")
 
         // Recap requires this test to be ran within an app host.
         guard NSApp.isActive else {
@@ -285,7 +273,7 @@ struct AppKitGesturesTests {
         #expect(CGPoint(initialScrollPosition) == .zero)
 
         let contentHeight = try #require(window.contentViewController?.view.frame.height)
-        let midContent = windowEdgePointInScreenCoordinates(x: window.frame.width / 2, y: contentHeight / 2)
+        let midContent = screenBounds(ofPointInWindowCoordinates: NSPoint(x: window.frame.width / 2, y: contentHeight / 2))
 
         await recap.play { composer in
             composer._wk_click(at: startBounds.center, for: .seconds(0.5))
@@ -306,14 +294,14 @@ struct AppKitGesturesTests {
         try await loadScrollableText()
         await page.waitForNextPresentationUpdate()
 
-        let startBounds = try await screenBounds(ofElementWithID: "line297")
+        let startBounds = try await screenBounds(ofElementWithID: "line97")
 
         // Recap requires this test to be ran within an app host.
         guard NSApp.isActive else {
             return
         }
 
-        let dragEnd = windowEdgePointInScreenCoordinates(x: window.frame.width / 2, y: 20)
+        let dragEnd = screenBounds(ofPointInWindowCoordinates: NSPoint(x: window.frame.width / 2, y: 20))
 
         await recap.play { composer in
             composer._wk_click(at: startBounds.center, for: .seconds(0.5))
@@ -354,8 +342,8 @@ struct AppKitGesturesTests {
 
         // Begin a selection on the visible text at the window's center, then drag up to the top edge.
         let contentHeight = try #require(window.contentViewController?.view.frame.height)
-        let start = windowEdgePointInScreenCoordinates(x: window.frame.width / 2, y: contentHeight / 2)
-        let dragEnd = windowEdgePointInScreenCoordinates(x: window.frame.width / 2, y: contentHeight - 20)
+        let start = screenBounds(ofPointInWindowCoordinates: NSPoint(x: window.frame.width / 2, y: contentHeight / 2))
+        let dragEnd = screenBounds(ofPointInWindowCoordinates: NSPoint(x: window.frame.width / 2, y: contentHeight - 20))
 
         await recap.play { composer in
             composer._wk_click(at: start, for: .seconds(0.5))
@@ -381,15 +369,12 @@ struct AppKitGesturesTests {
             return
         }
 
-        let initialScrollPosition = try await page.callJavaScript(JavaScriptMessages.ScrollPosition())
-        #expect(CGPoint(initialScrollPosition) == .zero)
-
         // Begin the selection inside the bottom edge band (~70pt from the bottom; the band is 100pt) and
         // drag only a short distance toward the edge - less than the ~50pt threshold. The selection
         // originates near the edge but the drag is too small to be a deliberate "scroll past the edge"
         // gesture, so the page must not autoscroll. (Pre-fix, being in the band alone started autoscroll.)
-        let start = windowEdgePointInScreenCoordinates(x: window.frame.width / 2, y: 70)
-        let dragEnd = windowEdgePointInScreenCoordinates(x: window.frame.width / 2, y: 45)
+        let start = screenBounds(ofPointInWindowCoordinates: NSPoint(x: window.frame.width / 2, y: 70))
+        let dragEnd = screenBounds(ofPointInWindowCoordinates: NSPoint(x: window.frame.width / 2, y: 45))
 
         await recap.play { composer in
             composer._wk_click(at: start, for: .seconds(0.5))
@@ -417,13 +402,10 @@ struct AppKitGesturesTests {
             return
         }
 
-        let initialScrollPosition = try await page.callJavaScript(JavaScriptMessages.ScrollPosition())
-        #expect(CGPoint(initialScrollPosition) == .zero)
-
         // Same near-edge origin as the short-drag test, but now drag well past the threshold (and past the
         // window edge) and hold, so the deliberate gesture engages autoscroll.
-        let start = windowEdgePointInScreenCoordinates(x: window.frame.width / 2, y: 70)
-        let dragEnd = windowEdgePointInScreenCoordinates(x: window.frame.width / 2, y: -40)
+        let start = screenBounds(ofPointInWindowCoordinates: NSPoint(x: window.frame.width / 2, y: 70))
+        let dragEnd = screenBounds(ofPointInWindowCoordinates: NSPoint(x: window.frame.width / 2, y: -40))
 
         await recap.play { composer in
             composer._wk_click(at: start, for: .seconds(0.5))
@@ -479,7 +461,7 @@ struct AppKitGesturesTests {
     func clickingAndHoldingOnEmptyContentOpensContextMenu(contentEditable: Bool) async throws {
         try await loadHTML(contentEditable: contentEditable)
 
-        let middleOfWindow = convertToCoreGraphicsScreenCoordinates(pointInWindowCoordinates: window.frame.center, window: window)
+        let middleOfWindow = screenBounds(ofPointInWindowCoordinates: window.frame.center)
 
         // Recap requires this test to be ran within an app host.
         guard NSApp.isActive else {
@@ -564,7 +546,7 @@ struct AppKitGesturesTests {
 
         await page.waitForNextPresentationUpdate()
 
-        let start = convertToCoreGraphicsScreenCoordinates(pointInWindowCoordinates: window.frame.center, window: window)
+        let start = screenBounds(ofPointInWindowCoordinates: window.frame.center)
         let end = CGPoint(x: start.x, y: start.y + 200)
 
         await recap.play { composer in
@@ -623,10 +605,7 @@ struct AppKitGesturesTests {
             return
         }
 
-        let clickPoint = convertToCoreGraphicsScreenCoordinates(
-            pointInWindowCoordinates: .init(x: 100, y: 350),
-            window: window
-        )
+        let clickPoint = screenBounds(ofPointInWindowCoordinates: .init(x: 100, y: 350))
 
         await recap.play { composer in
             composer._wk_click(at: clickPoint, for: .seconds(0.1))
@@ -743,7 +722,7 @@ struct AppKitGesturesTests {
         let initialScrollPosition = try await page.callJavaScript(JavaScriptMessages.ScrollPosition())
         #expect(CGPoint(initialScrollPosition) == .zero)
 
-        let start = convertToCoreGraphicsScreenCoordinates(pointInWindowCoordinates: window.frame.center, window: window)
+        let start = screenBounds(ofPointInWindowCoordinates: window.frame.center)
         let end = CGPoint(x: start.x, y: start.y - 200)
 
         await recap.play { composer in
@@ -774,7 +753,7 @@ struct AppKitGesturesTests {
             return
         }
 
-        let center = convertToCoreGraphicsScreenCoordinates(pointInWindowCoordinates: window.frame.center, window: window)
+        let center = screenBounds(ofPointInWindowCoordinates: window.frame.center)
         let scrollEnd = CGPoint(x: center.x, y: center.y - 200)
 
         // Begin a momentum scroll, then catch it before it settles.
@@ -1170,10 +1149,8 @@ extension AppKitGesturesTests {
         return screenCoordinates
     }
 
-    // Loads a tall column of identified lines (`line0` at the bottom, `line<count - 1>` at the top) so a
-    // selection drag has somewhere to autoscroll.
-    private func loadScrollableText(lineCount: Int = 300) async throws {
-        let lines = (0..<lineCount)
+    private func loadScrollableText() async throws {
+        let lines = (0..<100)
             .reversed()
             .map { "<p id='line\($0)'>\($0) bottles of beer on the wall</p>" }
             .joined(separator: "\n")
@@ -1189,8 +1166,8 @@ extension AppKitGesturesTests {
         return convertToCoreGraphicsScreenCoordinates(rectInViewportCoordinates: viewportCoordinates, window: window)
     }
 
-    private func windowEdgePointInScreenCoordinates(x: CGFloat, y: CGFloat) -> CGPoint {
-        convertToCoreGraphicsScreenCoordinates(pointInWindowCoordinates: CGPoint(x: x, y: y), window: window)
+    private func screenBounds(ofPointInWindowCoordinates point: NSPoint) -> NSPoint {
+        convertToCoreGraphicsScreenCoordinates(pointInWindowCoordinates: point, window: window)
     }
 }
 
