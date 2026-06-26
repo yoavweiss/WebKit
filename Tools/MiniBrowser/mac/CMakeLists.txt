@@ -64,6 +64,7 @@ add_custom_target(MiniBrowserNibs ALL DEPENDS
 
 include_directories(${MiniBrowser_INCLUDE_DIRECTORIES})
 add_executable(MiniBrowser MACOSX_BUNDLE ${MiniBrowser_SOURCES})
+target_compile_options(MiniBrowser PRIVATE -fobjc-arc)
 # FIXME: Remove once source files are fixed. https://bugs.webkit.org/show_bug.cgi?id=312034
 WEBKIT_ADD_TARGET_CXX_FLAGS(MiniBrowser -Wno-unused-parameter)
 set_target_properties(MiniBrowser PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${MINIBROWSER_DIR}/Info.plist)
