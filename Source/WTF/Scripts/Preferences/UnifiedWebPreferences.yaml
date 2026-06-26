@@ -7023,7 +7023,13 @@ SWVPDecodersAlwaysEnabled:
   webcoreBinding: none
   condition: ENABLE(VP9)
   defaultValue:
+    WebKitLegacy:
+      "PLATFORM(IOS_FAMILY_SIMULATOR)": true
+      default: false
     WebKit:
+      "PLATFORM(IOS_FAMILY_SIMULATOR)": true
+      default: false
+    WebCore:
       default: false
 
 SafeBrowsingEnabled:
