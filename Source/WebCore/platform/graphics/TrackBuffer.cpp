@@ -481,8 +481,9 @@ PlatformTimeRanges TrackBuffer::removeSamples(const DecodeOrderSampleMap::MapTyp
     return Ref { a.second }->decodeTime() < Ref { b.second }->decodeTime();
 };
 
-int64_t TrackBuffer::removeCodedFrames(const MediaTime& start, const MediaTime& end, const MediaTime& currentTime)
+int64_t TrackBuffer::removeCodedFrames(const MediaTime& startIn, const MediaTime& end, const MediaTime& currentTime)
 {
+    MediaTime start = startIn;
     ASSERT(start.isValid());
     ASSERT(end.isValid());
     // 3.5.9 Coded Frame Removal Algorithm
@@ -503,12 +504,21 @@ int64_t TrackBuffer::removeCodedFrames(const MediaTime& start, const MediaTime& 
     // first sample to erase — find it by its actual PTS (which may differ slightly from `start`
     // due to timescale rounding, in either direction). Otherwise the original sample (with PTS <
     // start) must be retained per spec; use findSampleStartingOnOrAfter to skip it.
-    auto splitAtStart = tryDivideSampleAtTime(start, ApplyDivide::Yes);
-    tryDivideSampleAtTime(end, ApplyDivide::Yes);
+    auto splitAtStart = tryDivideSampleAtTime(start, ApplyDivide::No);
+    if (splitAtStart.afterSplitPresentationTime.isValid()) {
+        // NOTE: When the sample at `start` is divisible, `tryDivideSampleAtTime()` snaps the
+        // split point UP to the next sub-sample boundary at or after `start`. That boundary
+        // can land beyond `end` when the requested removal range is shorter than one sub-sample
+        // (e.g. shorter than one AAC frame inside a bundled CMSampleBuffer). If another sample
+        // happens to sit at PTS in [end, afterSplitPresentationTime), the lower_bound calls
+        // below would invert iterator order and walk std::minmax_element off the end of the map.
+        if (splitAtStart.afterSplitPresentationTime >= end)
+            return 0;
+    }
 
-    auto removePresentationStart = splitAtStart.afterSplitPresentationTime.isValid()
-        ? m_samples.presentationOrder().findSampleStartingOnOrAfterPresentationTime(splitAtStart.afterSplitPresentationTime)
-        : m_samples.presentationOrder().findSampleStartingOnOrAfterPresentationTime(start);
+    splitAtStart = tryDivideSampleAtTime(start, ApplyDivide::Yes);
+    tryDivideSampleAtTime(end, ApplyDivide::Yes);
+    auto removePresentationStart = m_samples.presentationOrder().findSampleStartingOnOrAfterPresentationTime(start);
     auto removePresentationEnd = m_samples.presentationOrder().findSampleStartingOnOrAfterPresentationTime(end);
     if (removePresentationStart == m_samples.presentationOrder().end() || removePresentationStart == removePresentationEnd)
         return framesSizeBefore - samples().sizeInBytes(); // This could be negative if new frames were created above.
@@ -546,19 +556,25 @@ int64_t TrackBuffer::removeCodedFrames(const MediaTime& start, const MediaTime& 
     return framesSizeBefore - samples().sizeInBytes();
 }
 
-int64_t TrackBuffer::codedFramesIntervalSize(const MediaTime& start, const MediaTime& end)
+int64_t TrackBuffer::codedFramesIntervalSize(const MediaTime& startIn, const MediaTime& end)
 {
-    ASSERT(start.isValid());
+    ASSERT(startIn.isValid());
     ASSERT(end.isValid());
+
+    MediaTime start = startIn;
 
     // Mirror removeCodedFrames' iterator selection. Compute split sizes without mutating the
     // sample map (ApplyDivide::No).
     auto splitAtStart = tryDivideSampleAtTime(start, ApplyDivide::No);
-    auto splitAtEnd = tryDivideSampleAtTime(end, ApplyDivide::No);
+    if (splitAtStart.afterSplitPresentationTime.isValid()) {
+        start = splitAtStart.afterSplitPresentationTime;
+        // See removeCodedFrames() for why this guard is required.
+        if (start >= end)
+            return 0;
+    }
 
-    auto removePresentationStart = splitAtStart.afterSplitPresentationTime.isValid()
-        ? m_samples.presentationOrder().findSampleStartingOnOrAfterPresentationTime(splitAtStart.afterSplitPresentationTime)
-        : m_samples.presentationOrder().findSampleStartingOnOrAfterPresentationTime(start);
+    auto splitAtEnd = tryDivideSampleAtTime(end, ApplyDivide::No);
+    auto removePresentationStart = m_samples.presentationOrder().findSampleStartingOnOrAfterPresentationTime(start);
     auto removePresentationEnd = m_samples.presentationOrder().findSampleStartingOnOrAfterPresentationTime(end);
     if (removePresentationStart == m_samples.presentationOrder().end() || removePresentationStart == removePresentationEnd)
         return 0;
