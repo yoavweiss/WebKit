@@ -329,13 +329,21 @@ AXIsolatedTree::CachedUnignoredChildren& AXIsolatedObject::ensureCachedUnignored
     auto result = cache.ensure(objectID(), [&] {
         auto children = AXCoreObject::unignoredChildren();
         bool hasPotentialStitchable = false;
+        bool hasCrossFrameChild = false;
         for (const auto& child : children) {
-            if (child->hasStitchableRole()) {
+            if (!hasPotentialStitchable && child->hasStitchableRole())
                 hasPotentialStitchable = true;
+#if ENABLE_ACCESSIBILITY_LOCAL_FRAME
+            if (child->isLocalFrame())
+                hasCrossFrameChild = true;
+            if (hasPotentialStitchable && hasCrossFrameChild)
                 break;
-            }
+#else
+            if (hasPotentialStitchable)
+                break;
+#endif
         }
-        return AXIsolatedTree::CachedUnignoredChildren { WTF::move(children), hasPotentialStitchable };
+        return AXIsolatedTree::CachedUnignoredChildren { WTF::move(children), hasPotentialStitchable, hasCrossFrameChild };
     });
     return result.iterator->value;
 }
@@ -398,41 +406,43 @@ const AXCoreObject::AccessibilityChildrenVector* AXIsolatedObject::cachedStitche
     return nullptr;
 }
 
+std::optional<bool> AXIsolatedObject::cachedHasCrossFrameChild()
+{
+    AX_ASSERT(!isMainThread());
+#if ENABLE_ACCESSIBILITY_LOCAL_FRAME
+    auto& entry = ensureCachedUnignoredChildren();
+    return entry.hasCrossFrameChild || (entry.children.isEmpty() && crossFrameChildObject());
+#else
+    return false;
+#endif
+}
+
 AXCoreObject::AccessibilityChildrenVector AXIsolatedObject::crossFrameUnignoredChildrenInRange(size_t start, size_t maxCount)
 {
     AX_ASSERT(!isMainThread());
     auto& entry = ensureCachedUnignoredChildren();
 
-    if (entry.children.isEmpty()) {
 #if ENABLE_ACCESSIBILITY_LOCAL_FRAME
-        if (!start && maxCount) {
-            if (RefPtr crossFrameChild = crossFrameChildObject())
-                return { Ref { *crossFrameChild } };
-        }
-#endif
-        return { };
+    if (entry.hasCrossFrameChild || (entry.children.isEmpty() && crossFrameChildObject())) {
+        auto children = crossFrameUnignoredChildren();
+        if (start >= children.size())
+            return { };
+        size_t count = std::min(maxCount, children.size() - start);
+        return AccessibilityChildrenVector { children.span().subspan(start, count) };
     }
+#endif
+
+    if (entry.children.isEmpty())
+        return { };
 
     if (!entry.hasPotentialStitchable) {
         if (start >= entry.children.size())
             return { };
-        size_t end = std::min(start + maxCount, entry.children.size());
-
-        AccessibilityChildrenVector result;
-        result.reserveInitialCapacity(end - start);
-        for (size_t i = start; i < end; i++) {
-            Ref child = entry.children[i];
-#if ENABLE_ACCESSIBILITY_LOCAL_FRAME
-            if (RefPtr crossFrameChild = child->crossFrameChildObject())
-                result.append(crossFrameChild.releaseNonNull());
-            else
-#endif
-                result.append(WTF::move(child));
-        }
-        return result;
+        size_t count = std::min(maxCount, entry.children.size() - start);
+        return AccessibilityChildrenVector { entry.children.span().subspan(start, count) };
     }
 
-    // Has potential stitchable children — need to skip stitched-away elements
+    // Has potential stitchable children -- need to skip stitched-away elements
     // while computing the range relative to the stitched result.
     AccessibilityChildrenVector result;
     size_t stitchedIndex = 0;
@@ -444,14 +454,8 @@ AXCoreObject::AccessibilityChildrenVector AXIsolatedObject::crossFrameUnignoredC
         }
         if (stitchedIndex >= start + maxCount)
             break;
-        if (stitchedIndex >= start) {
-#if ENABLE_ACCESSIBILITY_LOCAL_FRAME
-            if (RefPtr crossFrameChild = child->crossFrameChildObject())
-                result.append(*crossFrameChild);
-            else
-#endif
-                result.append(child);
-        }
+        if (stitchedIndex >= start)
+            result.append(child);
         ++stitchedIndex;
     }
     return result;

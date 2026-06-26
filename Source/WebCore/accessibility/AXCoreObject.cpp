@@ -479,27 +479,80 @@ AXCoreObject::AccessibilityChildrenVector AXCoreObject::crossFrameUnignoredChild
     AXCoreObject::AccessibilityChildrenVector result = stitchedUnignoredChildren();
 
 #if ENABLE_ACCESSIBILITY_LOCAL_FRAME
+    // When a cross-frame child (i.e. a local frame's root) is ignored, e.g. via
+    // role="presentation", hoist its content rather than returning the ignored root,
+    // which would cause parent-child mismatches in the AT-exposed accessibility tree.
+    // crossFrameParentObjectUnignored() is the matching parent-side hoist that keeps the
+    // hoisted content reciprocal.
+    auto appendCrossFrameContent = [](AccessibilityChildrenVector& out, AXCoreObject& crossFrameChild) {
+        if (crossFrameChild.isIgnored()) {
+            for (auto& grandchild : crossFrameChild.stitchedUnignoredChildren())
+                out.append(grandchild);
+        } else
+            out.append(crossFrameChild);
+    };
+
     if (result.isEmpty()) {
         if (RefPtr crossFrameChild = crossFrameChildObject())
-            result.append(*crossFrameChild);
+            appendCrossFrameContent(result, *crossFrameChild);
     } else {
+        AccessibilityChildrenVector splicedResult;
+        splicedResult.reserveInitialCapacity(result.size());
         for (size_t i = 0; i < result.size(); i++) {
             if (RefPtr crossFrameChild = protect(result[i])->crossFrameChildObject())
-                result[i] = crossFrameChild.releaseNonNull();
+                appendCrossFrameContent(splicedResult, *crossFrameChild);
+            else
+                splicedResult.append(WTF::move(result[i]));
         }
+        result = WTF::move(splicedResult);
     }
 #endif
 
     return result;
 }
 
+size_t AXCoreObject::crossFrameUnignoredChildrenCount()
+{
+    std::optional hasCrossFrameChild = cachedHasCrossFrameChild();
+    if (hasCrossFrameChild && !*hasCrossFrameChild)
+        return stitchedUnignoredChildrenCount();
+    return crossFrameUnignoredChildren().size();
+}
+
+std::optional<bool> AXCoreObject::cachedHasCrossFrameChild()
+{
+#if ENABLE_ACCESSIBILITY_LOCAL_FRAME
+    // The base (live) tree has no cached has-cross-frame-child flag, so it can't answer cheaply.
+    return std::nullopt;
+#else
+    // Cross-frame children only exist with ACCESSIBILITY_LOCAL_FRAME.
+    return false;
+#endif
+}
+
 AXCoreObject* AXCoreObject::crossFrameParentObjectUnignored() const
 {
-    if (SUPPRESS_UNCOUNTED_LOCAL auto* result = parentObjectUnignored())
-        return result;
+    if (auto* parent = roleSpecificUnignoredParent())
+        return parent;
+
+    // Walk to the nearest unignored ancestor, crossing a local-frame boundary when the walk
+    // reaches a frame root (e.g. the frame's scroll view + web area are ignored, as for a
+    // presentational iframe). crossFrameParentObject() already returns an unignored object in the
+    // parent frame, so it needs no further ignored check. Returning no parent causes lots of issues
+    // for assistive technologies.
+    for (RefPtr ancestor = parentObject(); ancestor; ancestor = ancestor->parentObject()) {
+        if (!ancestor->isIgnored())
+            return ancestor.unsafeGet();
+#if ENABLE_ACCESSIBILITY_LOCAL_FRAME
+        if (auto* crossParent = ancestor->crossFrameParentObject())
+            return crossParent;
+#endif
+    }
+
 #if ENABLE_ACCESSIBILITY_LOCAL_FRAME
     return crossFrameParentObject();
 #endif
+
     return nullptr;
 }
 
@@ -2037,12 +2090,21 @@ void AXCoreObject::appendRadioButtonGroupMembers(AccessibilityChildrenVector& li
     }
 }
 
-AXCoreObject* AXCoreObject::parentObjectUnignored() const
+AXCoreObject* AXCoreObject::roleSpecificUnignoredParent() const
 {
+    // Some roles have a parent determined by structure rather than the nearest unignored ancestor:
+    // a table row's parent is its exposed table. Returns nullptr when no such special case applies.
     if (role() == AccessibilityRole::Row) {
         if (auto* table = exposedTableAncestor())
             return table;
     }
+    return nullptr;
+}
+
+AXCoreObject* AXCoreObject::parentObjectUnignored() const
+{
+    if (auto* parent = roleSpecificUnignoredParent())
+        return parent;
 
     return Accessibility::findAncestor<AXCoreObject>(*this, false, [&] (const AXCoreObject& object) {
         return !object.isIgnored();

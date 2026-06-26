@@ -482,6 +482,8 @@ public:
     struct CachedUnignoredChildren {
         Vector<Ref<AXCoreObject>> children;
         bool hasPotentialStitchable { false };
+        // true if any child hosts a cross-frame subtree (i.e. a LocalFrame).
+        bool hasCrossFrameChild { false };
     };
     HashMap<AXID, CachedUnignoredChildren>& cachedUnignoredChildrenMap() { AX_ASSERT(!isMainThread()); return m_cachedUnignoredChildren; }
 

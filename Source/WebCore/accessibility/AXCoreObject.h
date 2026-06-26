@@ -868,6 +868,9 @@ public:
 #endif
     virtual AXCoreObject* parentObject() const = 0;
     virtual AXCoreObject* parentObjectUnignored() const;
+    // The unignored parent for roles whose parent is structural rather than the nearest unignored
+    // ancestor (currently a table row -> its exposed table); nullptr if no such special case applies.
+    AXCoreObject* roleSpecificUnignoredParent() const;
     AXCoreObject* parentInCoreTree() const
     {
         // Returns the parent in the "core", platform-agnostic accessibility tree, which is not necessarily
@@ -889,6 +892,11 @@ public:
     // Helpers that run on any platform and return children and parents, calling the cross frame functions if needed
     // to walk between LocalFrames.
     AccessibilityChildrenVector crossFrameUnignoredChildren();
+    size_t crossFrameUnignoredChildrenCount();
+    // Whether this object hosts a cross-frame subtree that crossFrameUnignoredChildren() hoists.
+    // Returns std::nullopt when the implementation can not cheaply determine (i.e. from a cache)
+    // whether a cross-frame child is present.
+    virtual std::optional<bool> cachedHasCrossFrameChild();
     AXCoreObject* crossFrameParentObjectUnignored() const;
     AccessibilityChildrenVector crossFrameChildrenIncludingIgnored(bool updateChildrenIfNeeded = true);
     bool crossFrameIsAncestorOfObject(const AXCoreObject&) const;

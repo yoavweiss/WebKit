@@ -87,6 +87,7 @@ public:
     const AccessibilityChildrenVector* cachedUnignoredChildren() final;
     const AccessibilityChildrenVector* cachedStitchedUnignoredChildren() final;
     AccessibilityChildrenVector crossFrameUnignoredChildrenInRange(size_t start, size_t maxCount) final;
+    std::optional<bool> cachedHasCrossFrameChild() final;
     AXIsolatedObject* parentObject() const final { return tree().objectForID(parent()); }
     AXIsolatedObject* parentObjectUnignored() const final { return downcast<AXIsolatedObject>(AXCoreObject::parentObjectUnignored()); }
     bool isEditableWebArea() const final { return boolAttributeValue(AXProperty::IsEditableWebArea); }

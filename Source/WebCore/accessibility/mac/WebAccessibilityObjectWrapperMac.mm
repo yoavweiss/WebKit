@@ -1324,7 +1324,7 @@ static id handleParentAttribute(WebAccessibilityObjectWrapper*, AXCoreObject& ba
         }
     }
 
-    RefPtr parent = backingObject.parentObjectUnignored();
+    RefPtr parent = backingObject.crossFrameParentObjectUnignored();
     if (!parent)
         return nil;
 
@@ -4433,10 +4433,20 @@ ALLOW_DEPRECATED_IMPLEMENTATIONS_END
     if (backingObject->isTree())
         return [super accessibilityIndexOfChild:targetChild];
 
-    const auto* childrenPointer = backingObject->cachedStitchedUnignoredChildren();
     AXCoreObject::AccessibilityChildrenVector computedChildren;
-    if (!childrenPointer) {
-        computedChildren = backingObject->stitchedUnignoredChildren();
+    const AXCoreObject::AccessibilityChildrenVector* childrenPointer = nullptr;
+    std::optional hasCrossFrameChild = backingObject->cachedHasCrossFrameChild();
+    if (hasCrossFrameChild && !*hasCrossFrameChild) {
+        // Cheaply known to have no cross-frame child, so we can directly use
+        // the cached children.
+        childrenPointer = backingObject->cachedStitchedUnignoredChildren();
+        if (!childrenPointer) {
+            computedChildren = backingObject->stitchedUnignoredChildren();
+            childrenPointer = &computedChildren;
+        }
+    } else {
+        // There is a cross-frame child (or we can't tell cheaply), so take the slow path.
+        computedChildren = backingObject->crossFrameUnignoredChildren();
         childrenPointer = &computedChildren;
     }
     const auto& children = *childrenPointer;
@@ -4478,7 +4488,7 @@ ALLOW_DEPRECATED_DECLARATIONS_BEGIN
             return children(*backingObject).count;
 
         // FIXME: this is duplicating the logic in children(AXCoreObject&) so it should be reworked.
-        size_t childrenSize = backingObject->stitchedUnignoredChildrenCount();
+        size_t childrenSize = backingObject->crossFrameUnignoredChildrenCount();
         if (!childrenSize) {
 #if ENABLE(MODEL_ELEMENT_ACCESSIBILITY)
             if (backingObject->isModel())

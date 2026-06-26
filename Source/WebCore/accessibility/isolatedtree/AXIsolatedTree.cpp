@@ -2196,6 +2196,15 @@ IsolatedObjectData createIsolatedObjectData(const Ref<AccessibilityObject>& axOb
             if (auto frameID = localFrame ? localFrame->frameID() : std::nullopt)
                 setProperty(AXProperty::CrossFrameChildFrameID, *frameID);
         }
+
+        if (object.isScrollArea() && !object.parentObject()) {
+            if (RefPtr crossFrameParent = object.crossFrameParentObject()) {
+                if (WeakPtr parentCache = crossFrameParent->axObjectCache()) {
+                    setProperty(AXProperty::CrossFrameParentFrameID, parentCache->frameID());
+                    setProperty(AXProperty::CrossFrameParentAXID, Markable { crossFrameParent->objectID() });
+                }
+            }
+        }
 #endif
     };
 
@@ -2275,16 +2284,6 @@ IsolatedObjectData createIsolatedObjectData(const Ref<AccessibilityObject>& axOb
         bool isWebArea = axObject->isWebArea();
         bool isScrollArea = axObject->isScrollArea();
         if (isScrollArea && !axObject->parentObject()) {
-#if ENABLE(ACCESSIBILITY_LOCAL_FRAME)
-            RefPtr crossFrameParent = axObject->crossFrameParentObject();
-            if (crossFrameParent) {
-                WeakPtr parentCache = crossFrameParent->axObjectCache();
-                if (parentCache) {
-                    setProperty(AXProperty::CrossFrameParentFrameID, parentCache->frameID());
-                    setProperty(AXProperty::CrossFrameParentAXID, Markable { crossFrameParent->objectID() });
-                }
-            }
-#endif
             // Eagerly cache the screen relative position for the root. AXIsolatedObject::screenRelativePosition()
             // of non-root objects depend on the root object's screen relative position, so make sure it's there
             // from the start. We keep this up-to-date via AXIsolatedTree::updateRootScreenRelativePosition().
