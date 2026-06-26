@@ -42,6 +42,7 @@
 #include "B3ValueInlines.h"
 #include "B3Variable.h"
 #include "JITOpaqueByproducts.h"
+#include <wtf/GraphOrdering.h>
 #include <wtf/ListDump.h>
 #include <wtf/TZoneMallocInlines.h>
 #include <wtf/text/MakeString.h>
