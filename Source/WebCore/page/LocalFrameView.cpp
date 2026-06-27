@@ -5810,6 +5810,11 @@ void LocalFrameView::didPaintContents(GraphicsContext& context, const IntRect& d
 
 void LocalFrameView::paintContents(GraphicsContext& context, const IntRect& dirtyRect, SecurityOriginPaintPolicy securityOriginPaintPolicy, RegionContext* regionContext)
 {
+    paintContents(context, dirtyRect, nullptr, securityOriginPaintPolicy, regionContext);
+}
+
+void LocalFrameView::paintContents(GraphicsContext& context, const IntRect& dirtyRect, Node* subtreePaintRoot, SecurityOriginPaintPolicy securityOriginPaintPolicy, RegionContext* regionContext)
+{
 #ifndef NDEBUG
     bool fillWithWarningColor = [&] {
         if (m_frame->document()->printing())
@@ -5824,7 +5829,7 @@ void LocalFrameView::paintContents(GraphicsContext& context, const IntRect& dirt
         if (m_paintBehavior.containsAny({ PaintBehavior::SelectionOnly, PaintBehavior::FixedAndStickyLayersOnly }))
             return false; // Don't fill with warning color for selection and fixed-position snapshots.
 
-        if (m_nodeToDraw)
+        if (subtreePaintRoot)
             return false; // Element images are transparent, don't fill with warning color.
 
         return true;
@@ -5855,8 +5860,8 @@ void LocalFrameView::paintContents(GraphicsContext& context, const IntRect& dirt
     PaintingState paintingState;
     willPaintContents(context, dirtyRect, paintingState, regionContext);
 
-    // m_nodeToDraw is used to draw only one element (and its descendants)
-    RenderObject* renderer = m_nodeToDraw ? m_nodeToDraw->renderer() : nullptr;
+    // subtreePaintRoot is used to draw only one element (and its descendants).
+    RenderObject* renderer = subtreePaintRoot ? subtreePaintRoot->renderer() : nullptr;
     CheckedPtr rootLayer = renderView->layer();
 
     RenderObject::SetLayoutNeededForbiddenScope forbidSetNeedsLayout(rootLayer->renderer());
@@ -5886,12 +5891,7 @@ bool LocalFrameView::isPainting() const
 }
 
 // FIXME: change this to use the subtreePaint terminology.
-void LocalFrameView::setNodeToDraw(Node* node)
-{
-    m_nodeToDraw = node;
-}
-
-void LocalFrameView::paintContentsForSnapshot(GraphicsContext& context, const IntRect& imageRect, SelectionInSnapshot shouldPaintSelection, CoordinateSpaceForSnapshot coordinateSpace)
+void LocalFrameView::paintContentsForSnapshot(GraphicsContext& context, const IntRect& imageRect, Node* nodeToDraw, SelectionInSnapshot shouldPaintSelection, CoordinateSpaceForSnapshot coordinateSpace)
 {
     updateLayoutAndStyleIfNeededRecursive();
 
@@ -5913,10 +5913,11 @@ void LocalFrameView::paintContentsForSnapshot(GraphicsContext& context, const In
     }
 
     if (coordinateSpace == DocumentCoordinates)
-        paintContents(context, imageRect);
+        paintContents(context, imageRect, nodeToDraw, SecurityOriginPaintPolicy::AnyOrigin, nullptr);
     else {
         // A snapshot in ViewCoordinates will include a scrollbar, and the snapshot will contain
         // whatever content the document is currently scrolled to.
+        ASSERT(!nodeToDraw);
         paint(context, imageRect);
     }
 

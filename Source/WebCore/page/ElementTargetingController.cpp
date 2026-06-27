@@ -2098,17 +2098,15 @@ RefPtr<Image> ElementTargetingController::snapshotIgnoringVisibilityAdjustment(N
 
     auto backgroundColor = frameView->baseBackgroundColor();
     frameView->setBaseBackgroundColor(Color::transparentBlack);
-    frameView->setNodeToDraw(element.get());
     auto resetPaintingState = makeScopeExit([frameView, backgroundColor]() mutable {
         frameView->setBaseBackgroundColor(WTF::move(backgroundColor));
-        frameView->setNodeToDraw(nullptr);
     });
 
     auto snapshotRect = renderer->absoluteBoundingBoxRect();
     if (snapshotRect.isEmpty())
         return { };
 
-    auto buffer = snapshotFrameRect(*mainFrame, snapshotRect, { { }, PixelFormat::BGRA8, DestinationColorSpace::SRGB() });
+    auto buffer = snapshotFrameRect(*mainFrame, snapshotRect, { { }, PixelFormat::BGRA8, DestinationColorSpace::SRGB() }, element.get());
     return BitmapImage::create(ImageBuffer::sinkIntoNativeImage(WTF::move(buffer)));
 }
 

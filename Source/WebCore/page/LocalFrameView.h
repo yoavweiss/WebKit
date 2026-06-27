@@ -449,11 +449,10 @@ public:
     bool NODELETE isPainting() const;
     bool hasEverPainted() const { return !!m_lastPaintTime; }
     void setLastPaintTime(MonotonicTime lastPaintTime) { m_lastPaintTime = lastPaintTime; }
-    WEBCORE_EXPORT void setNodeToDraw(Node*);
 
     enum SelectionInSnapshot { IncludeSelection, ExcludeSelection };
     enum CoordinateSpaceForSnapshot { DocumentCoordinates, ViewCoordinates };
-    WEBCORE_EXPORT void paintContentsForSnapshot(GraphicsContext&, const IntRect& imageRect, SelectionInSnapshot shouldPaintSelection, CoordinateSpaceForSnapshot);
+    WEBCORE_EXPORT void paintContentsForSnapshot(GraphicsContext&, const IntRect& imageRect, Node* nodeToDraw, SelectionInSnapshot shouldPaintSelection, CoordinateSpaceForSnapshot);
 
     void paintOverhangAreas(GraphicsContext&, const IntRect& horizontalOverhangArea, const IntRect& verticalOverhangArea, const IntRect& dirtyRect) final;
     void paintScrollCorner(GraphicsContext&, const IntRect& cornerRect) final;
@@ -940,6 +939,8 @@ private:
 
     void notifyScrollableAreasThatContentAreaWillPaint() const;
 
+    void paintContents(GraphicsContext&, const IntRect& dirtyRect, Node* subtreePaintRoot, SecurityOriginPaintPolicy, RegionContext*);
+
     bool hasCustomScrollbars() const;
 
     void updateScrollCorner() final;
@@ -999,7 +1000,6 @@ private:
 
     RefPtr<ContainerNode> m_maintainScrollPositionAnchor;
     RefPtr<ContainerNode> m_scheduledMaintainScrollPositionAnchor;
-    RefPtr<Node> m_nodeToDraw;
     std::optional<SimpleRange> m_pendingTextFragmentIndicatorRange;
     bool m_haveCreatedTextIndicator { false };
     String m_pendingTextFragmentIndicatorText;
