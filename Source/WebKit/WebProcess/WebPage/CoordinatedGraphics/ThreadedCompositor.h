@@ -55,6 +55,10 @@ class TextureMapper;
 class TransformationMatrix;
 }
 
+namespace WTF {
+enum class Critical : bool;
+}
+
 namespace WebKit {
 class AcceleratedSurface;
 class CoordinatedSceneState;
@@ -102,6 +106,8 @@ public:
 #endif
 
     void fillGLInformation(RenderProcessInfo&&, CompletionHandler<void(RenderProcessInfo&&)>&&);
+
+    void releaseMemory(WTF::Critical);
 
     sk_sp<GrContextThreadSafeProxy> threadSafeGrContext() const { return m_threadSafeGrContext; }
 

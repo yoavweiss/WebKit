@@ -49,6 +49,7 @@ WTF_IGNORE_WARNINGS_IN_THIRD_PARTY_CODE_BEGIN
 #endif
 WTF_IGNORE_WARNINGS_IN_THIRD_PARTY_CODE_END
 
+#include <wtf/MemoryPressureHandler.h>
 #include <wtf/NeverDestroyed.h>
 #include <wtf/RAMSize.h>
 #include <wtf/ThreadSafeWeakPtr.h>
@@ -300,6 +301,23 @@ public:
         return m_maxResourceCacheBytes;
     }
 
+    void releaseUnusedResources(WTF::Critical critical)
+    {
+        Locker locker { m_lock };
+        if (!m_skiaGLContext)
+            return;
+
+        GLContext::ScopedGLContextCurrent scopedCurrent(*m_skiaGLContext);
+        switch (critical) {
+        case Critical::No:
+            m_skiaGrContext->purgeUnlockedResources(GrPurgeResourceOptions::kScratchResourcesOnly);
+            break;
+        case Critical::Yes:
+            m_skiaGrContext->freeGpuResources();
+            break;
+        }
+    }
+
 private:
     explicit SkiaGLContext(PlatformDisplay& display)
         : SkiaGLContext(GLContext::createOffscreen(display))
@@ -375,6 +393,12 @@ unsigned PlatformDisplay::msaaSampleCount() const
 size_t PlatformDisplay::maxSkiaResourceCacheBytes() const
 {
     return s_skiaGLContext ? s_skiaGLContext->maxResourceCacheBytes() : 0;
+}
+
+void PlatformDisplay::skiaReleaseUnusedResources(WTF::Critical critical)
+{
+    if (s_skiaGLContext)
+        s_skiaGLContext->releaseUnusedResources(critical);
 }
 
 void PlatformDisplay::clearSkiaGLContext()

@@ -174,6 +174,12 @@ void DrawingAreaCoordinatedGraphics::backgroundColorDidChange()
     m_renderer->backgroundColorDidChange();
 }
 
+void DrawingAreaCoordinatedGraphics::releaseMemory(WTF::Critical critical)
+{
+    if (m_renderer)
+        m_renderer->releaseMemory(critical);
+}
+
 void DrawingAreaCoordinatedGraphics::setDeviceScaleFactor(float deviceScaleFactor, CompletionHandler<void()>&& completionHandler)
 {
     Ref webPage = m_webPage;

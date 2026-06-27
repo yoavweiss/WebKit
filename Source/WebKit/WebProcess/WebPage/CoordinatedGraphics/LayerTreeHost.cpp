@@ -575,6 +575,12 @@ void LayerTreeHost::fillGLInformation(RenderProcessInfo&& info, CompletionHandle
     m_compositor->fillGLInformation(WTF::move(info), WTF::move(completionHandler));
 }
 
+void LayerTreeHost::releaseMemory(WTF::Critical critical)
+{
+    PlatformDisplay::sharedDisplay().skiaReleaseUnusedResources(critical);
+    m_compositor->releaseMemory(critical);
+}
+
 } // namespace WebKit
 
 #endif // USE(COORDINATED_GRAPHICS)

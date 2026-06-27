@@ -381,6 +381,12 @@ void NonCompositedFrameRenderer::fillGLInformation(RenderProcessInfo&& info, Com
     completionHandler(WTF::move(info));
 }
 
+void NonCompositedFrameRenderer::releaseMemory(WTF::Critical critical)
+{
+    if (m_context)
+        PlatformDisplay::sharedDisplay().skiaReleaseUnusedResources(critical);
+}
+
 } // namespace WebKit
 
 #endif // USE(COORDINATED_GRAPHICS)

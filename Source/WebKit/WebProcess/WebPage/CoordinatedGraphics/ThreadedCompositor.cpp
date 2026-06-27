@@ -766,6 +766,13 @@ void ThreadedCompositor::fillGLInformation(RenderProcessInfo&& info, CompletionH
     });
 }
 
+void ThreadedCompositor::releaseMemory(WTF::Critical critical)
+{
+    m_workQueue->dispatchSync([protectedThis = Ref { *this }, critical] {
+        PlatformDisplay::sharedDisplay().skiaReleaseUnusedResources(critical);
+    });
+}
+
 } // namespace WebKit
 
 #endif // USE(COORDINATED_GRAPHICS)

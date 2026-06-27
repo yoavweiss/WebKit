@@ -5527,11 +5527,16 @@ void WebPage::didCompleteRenderingFrame()
     protect(corePage())->didCompleteRenderingFrame();
 }
 
-void WebPage::releaseMemory(Critical)
+void WebPage::releaseMemory(Critical critical)
 {
 #if ENABLE(GPU_PROCESS)
     if (RefPtr renderingBackend = m_remoteRenderingBackendProxy)
         renderingBackend->releaseMemory();
+#endif
+
+#if USE(COORDINATED_GRAPHICS)
+    if (RefPtr drawingArea = m_drawingArea)
+        drawingArea->releaseMemory(critical);
 #endif
 
     m_foundTextRangeController->clearCachedRanges();
