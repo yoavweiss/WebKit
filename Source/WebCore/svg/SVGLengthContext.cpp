@@ -51,6 +51,15 @@
 
 namespace WebCore {
 
+// Per SVG2 spec, when an SVGLength has no associated element, font-relative units
+// use the initial value of font-size as the basis. CSS defines this initial value
+// as 'medium', but does not specify its absolute size — 16px is a universal UA
+// convention matching DefaultFontSize in Source/WTF/Scripts/Preferences/UnifiedWebPreferences.yaml.
+// We hardcode it here because detached SVGLengths have no document to query Settings from.
+// https://svgwg.org/svg2-draft/types.html#__svg__SVGLength__convertToSpecifiedUnits
+// https://www.w3.org/TR/css-fonts-4/#absolute-size-mapping
+static constexpr float initialFontSizePx = 16.0f;
+
 SVGLengthContext::SVGLengthContext(const SVGElement* context, const std::optional<FloatSize>& viewportSize)
     : m_context(context)
     , m_viewportSize(!m_context ? viewportSize : std::nullopt)
@@ -207,8 +216,13 @@ float SVGLengthContext::computeNonCalcLength(float inputValue, CSS::LengthUnit u
 
 
     auto conversionData = cssConversionData();
-    if (!conversionData)
+    if (!conversionData) {
+        // No associated element: fall back to initialFontSizePx for font-relative units.
+        if (!m_context && CSS::isFontRelativeLength(unit))
+            return inputValue * initialFontSizePx;
+
         return 0.0f;
+    }
 
     auto resolvedValue = clampTo<float>(Style::computeNonCalcLengthDouble(inputValue, unit, *conversionData));
 
@@ -307,8 +321,12 @@ ExceptionOr<CSS::LengthPercentage<>> SVGLengthContext::resolveValueFromUserUnits
 ExceptionOr<float> SVGLengthContext::convertValueFromUserUnitsToPercentage(float value, SVGLengthMode lengthMode) const
 {
     auto viewportSize = this->viewportSize();
-    if (!viewportSize)
-        return Exception { ExceptionCode::NotSupportedError };
+    if (!viewportSize) {
+        // No associated element: percentage basis is 100 per SVG2 spec.
+        if (m_context)
+            return Exception { ExceptionCode::NotSupportedError };
+        return value;
+    }
 
     if (auto divisor = dimensionForLengthMode(lengthMode, *viewportSize))
         return clampTo<float>(static_cast<double>(value) / divisor * 100);
@@ -319,8 +337,12 @@ ExceptionOr<float> SVGLengthContext::convertValueFromUserUnitsToPercentage(float
 ExceptionOr<double> SVGLengthContext::convertValueFromPercentageToUserUnits(double value, SVGLengthMode lengthMode) const
 {
     auto viewportSize = this->viewportSize();
-    if (!viewportSize)
-        return Exception { ExceptionCode::NotSupportedError };
+    if (!viewportSize) {
+        // No associated element: percentage basis is 100 per SVG2 spec.
+        if (m_context)
+            return Exception { ExceptionCode::NotSupportedError };
+        return value * 100;
+    }
 
     return convertValueFromPercentageToUserUnits(value, lengthMode, *viewportSize);
 }
@@ -385,8 +407,13 @@ std::optional<CSSToLengthConversionData> SVGLengthContext::cssConversionData() c
 ExceptionOr<float> SVGLengthContext::convertValueFromUserUnitsToEXS(float value) const
 {
     auto* style = renderStyleForLengthResolving(m_context.get());
-    if (!style)
-        return Exception { ExceptionCode::NotSupportedError };
+    if (!style) {
+        // No associated element: x-height falls back to 0.5em per CSS Values spec.
+        if (m_context)
+            return Exception { ExceptionCode::NotSupportedError };
+        constexpr float initialXHeightPx = initialFontSizePx * 0.5f;
+        return value / initialXHeightPx;
+    }
 
     // Use of ceil allows a pixel match to the W3Cs expected output of coords-units-03-b.svg
     // if this causes problems in real world cases maybe it would be best to remove this
@@ -400,8 +427,13 @@ ExceptionOr<float> SVGLengthContext::convertValueFromUserUnitsToEXS(float value)
 ExceptionOr<float> SVGLengthContext::convertValueFromEXSToUserUnits(float value) const
 {
     auto* style = renderStyleForLengthResolving(m_context.get());
-    if (!style)
-        return Exception { ExceptionCode::NotSupportedError };
+    if (!style) {
+        // No associated element: x-height falls back to 0.5em per CSS Values spec.
+        if (m_context)
+            return Exception { ExceptionCode::NotSupportedError };
+        constexpr float initialXHeightPx = initialFontSizePx * 0.5f;
+        return value * initialXHeightPx;
+    }
 
     // Use of ceil allows a pixel match to the W3Cs expected output of coords-units-03-b.svg
     // if this causes problems in real world cases maybe it would be best to remove this
