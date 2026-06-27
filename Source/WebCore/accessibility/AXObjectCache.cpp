@@ -2669,8 +2669,18 @@ void AXObjectCache::onStyleChange(Element& element, OptionSet<Style::Change> cha
     if (element.renderer()) {
         // Unlike changes to `visibility`, changes to `content-visibility` do not provide accessibility
         // children changed notifications via the render tree, so check for that here.
-        if (isContentVisibilityHidden(*oldStyle) != isContentVisibilityHidden(*newStyle))
+        if (isContentVisibilityHidden(*oldStyle) != isContentVisibilityHidden(*newStyle)) {
             childrenChanged(object.get());
+
+#if ENABLE(INCLUDE_IGNORED_IN_CORE_AX_TREE)
+            // Object's ignored state is dependent on content-visibility:hidden, so clear the is-ignored
+            // cache and update the isolated tree.
+            stopCachingComputedObjectAttributes();
+#if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
+            updateIsolatedTree(*object, AXNotification::InertOrVisibilityChanged);
+#endif
+#endif // ENABLE(INCLUDE_IGNORED_IN_CORE_AX_TREE)
+        }
     } else if (isVisibilityHidden(*oldStyle) != isVisibilityHidden(*newStyle)) {
         // We only need to do this when the given element doesn't have a renderer, as if it did, we would
         // get a children-changed event through the render tree.
