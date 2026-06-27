@@ -385,7 +385,7 @@ static RetainPtr<NSArray<NSArray<WKIdentityDocumentPresentmentRequestAuthenticat
 {
     if (!response && !error) {
         LOG(DigitalCredentials, "No response or error from document provider.");
-        WebCore::ExceptionData exceptionData = { ExceptionCode::UnknownError, "No response from document provider."_s };
+        WebCore::ExceptionData exceptionData = { ExceptionCode::OperationError, "No response from document provider."_s };
         [self completeWith:makeUnexpected(exceptionData)];
         return;
     }
@@ -439,12 +439,9 @@ static RetainPtr<NSArray<NSArray<WKIdentityDocumentPresentmentRequestAuthenticat
     case WKIdentityDocumentPresentmentErrorRequestInProgress:
         exceptionData = { ExceptionCode::InvalidStateError, "Request already in progress."_s };
         break;
-    case WKIdentityDocumentPresentmentErrorCancelled:
-        exceptionData = { ExceptionCode::AbortError, "Request was cancelled."_s };
-        break;
     default:
         LOG(DigitalCredentials, "The error code was not in the case statement? %zd.", error.code);
-        exceptionData = { ExceptionCode::UnknownError, "Some other error."_s };
+        exceptionData = { ExceptionCode::OperationError, "The credential request failed."_s };
         RetainPtr debugDescription = error.userInfo[NSDebugDescriptionErrorKey] ?: error.userInfo[NSLocalizedDescriptionKey];
         LOG(DigitalCredentials, "Internal error: %@", debugDescription ? debugDescription.get() : @"Unknown error with no description.");
         break;
@@ -457,9 +454,7 @@ static RetainPtr<NSArray<NSArray<WKIdentityDocumentPresentmentRequestAuthenticat
             consoleMessage = makeString(consoleMessage, " ("_s, String(debugDescription.get()), ")"_s);
 
         auto targetFrameID = page->focusedFrame() ? page->focusedFrame()->frameID() : page->mainFrame()->frameID();
-        auto logLevel = exceptionData.code == ExceptionCode::AbortError ? MessageLevel::Warning : MessageLevel::Error;
-
-        page->addConsoleMessage(targetFrameID, MessageSource::JS, logLevel, makeString("Digital Credential request failed: "_s, consoleMessage));
+        page->addConsoleMessage(targetFrameID, MessageSource::JS, MessageLevel::Error, makeString("Digital Credential request failed: "_s, consoleMessage));
     }
 
     [self completeWith:makeUnexpected(exceptionData)];
