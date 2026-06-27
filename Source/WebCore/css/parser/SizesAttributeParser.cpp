@@ -43,8 +43,6 @@
 #include "CSSPropertyParserState.h"
 #include "CSSToLengthConversionData.h"
 #include "CSSTokenizer.h"
-#include "FontCascadeInlines.h"
-#include "FontSelector.h"
 #include "MediaQueryEvaluator.h"
 #include "MediaQueryParser.h"
 #include "MediaQueryParserContext.h"
@@ -153,19 +151,6 @@ std::optional<float> SizesAttributeParser::parseDimension(CSSParserTokenRange to
         return result;
     };
 
-    // Because we evaluate "sizes" at parse time (before style has been resolved), the font metrics used for these specific units
-    // are not available. The font selector's internal consistency isn't guaranteed just yet, so we can just temporarily clear
-    // the pointer to it for the duration of the unit evaluation. This is acceptable because the style always comes from the
-    // RenderView, which has its font information hardcoded in resolveForDocument() to be -webkit-standard, whose operations
-    // don't require a font selector.
-    if (unit == CSS::LengthUnit::Ex || unit == CSS::LengthUnit::Cap || unit == CSS::LengthUnit::Ch || unit == CSS::LengthUnit::Ic) {
-        RefPtr fontSelector = conversionData->style()->fontCascade().fontSelector();
-        conversionData->style()->fontCascade().update(nullptr);
-        auto resetFontSelectorScope = makeScopeExit([&] { conversionData->style()->fontCascade().update(fontSelector.get()); });
-
-        return resolve();
-    }
-
     return resolve();
 }
 
@@ -200,14 +185,6 @@ std::optional<float> SizesAttributeParser::parseFunction(CSSParserTokenRange tok
         .symbolTable = { },
         .allowZeroValueLengthRemovalFromSum = true,
     };
-
-    // See `parseDimension` for why this unset/set of the font selector is needed.
-    // FIXME: This could be made more efficient if we only did this when actually
-    // needed. That could be accomplished via new simplification/evaluation options
-    // or by adding delegation for dimension resolution.
-    RefPtr fontSelector = conversionData->style()->fontCascade().fontSelector();
-    conversionData->style()->fontCascade().update(nullptr);
-    auto resetFontSelectorScope = makeScopeExit([&] { conversionData->style()->fontCascade().update(fontSelector.get()); });
 
     auto tree = CSSCalc::parseAndSimplify(tokens, parserState, parserOptions, simplificationOptions);
     if (!tree)

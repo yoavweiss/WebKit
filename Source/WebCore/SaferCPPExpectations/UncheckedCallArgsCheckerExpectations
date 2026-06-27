@@ -60,7 +60,6 @@ css/CSSStyleSheet.cpp
 css/CSSToLengthConversionData.cpp
 css/SelectorCheckerTestFunctions.h
 css/StyleAttributeMutationScope.h
-css/parser/SizesAttributeParser.cpp
 dom/Attr.cpp
 dom/CollectionIndexCacheInlines.h
 dom/ComposedTreeIterator.h
