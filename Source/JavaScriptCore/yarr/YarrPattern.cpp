@@ -2387,8 +2387,6 @@ public:
             return;
         if (m_pattern.sticky())
             return;
-        if (m_pattern.eitherUnicode())
-            return;
         if (m_pattern.ignoreCase())
             return;
 
@@ -2414,6 +2412,8 @@ public:
                 if (term.inputPosition != index)
                     return false;
                 if (U16_LENGTH(term.patternCharacter) != 1)
+                    return false;
+                if (m_pattern.eitherUnicode() && U_IS_SURROGATE(term.patternCharacter))
                     return false;
                 if (term.m_matchDirection != MatchDirection::Forward)
                     return false;
@@ -2617,6 +2617,9 @@ public:
         };
 
         if (tryExtractAtom())
+            return;
+
+        if (m_pattern.eitherUnicode())
             return;
 
         if (tryExtractSpaces())
