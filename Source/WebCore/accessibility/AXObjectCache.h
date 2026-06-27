@@ -880,6 +880,7 @@ private:
     static AccessibilityObject* focusedImageMapUIElement(HTMLAreaElement&);
 
     void notificationPostTimerFired();
+    void enqueueNotificationToPost(Ref<AccessibilityObject>&&, AXNotificationWithData&&);
 
     void liveRegionChangedNotificationPostTimerFired();
 
@@ -1028,6 +1029,7 @@ private:
 
     Timer m_notificationPostTimer;
     Vector<std::pair<Ref<AccessibilityObject>, AXNotificationWithData>> m_notificationsToPost;
+    HashSet<AXID> m_pendingLayoutCompleteObjectIDs;
 
 #if PLATFORM(COCOA)
     Timer m_passwordNotificationTimer;
