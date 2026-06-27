@@ -2,8 +2,8 @@
 <html>
 <style>
 * { font-size: 16px; }
-svg, rect { font-family: 'Ahem'; }
-div { font-size: 8px; } 
+svg, rect, circle { font-family: 'Ahem'; }
+div { font-size: 8px; }
 </style>
 <html>
 <svg id="svg" width="0" height="0"></svg>
@@ -11,12 +11,24 @@ div { font-size: 8px; }
 <script>
 description("Test that length values for presentation attribute accept calc.");
 
+function elementForProperty(property) {
+    switch (property) {
+    case 'cx':
+    case 'cy':
+    case 'r':
+        return 'circle';
+    default:
+        return 'rect';
+    }
+}
+
 function computedStyle(property, value) {
-    var rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-    document.getElementById('svg').appendChild(rect);
-    rect.setAttribute(property, value);
-    var computedValue = getComputedStyle(rect).getPropertyValue(property);
-    document.getElementById('svg').removeChild(rect);
+    var tagName = elementForProperty(property);
+    var el = document.createElementNS('http://www.w3.org/2000/svg', tagName);
+    document.getElementById('svg').appendChild(el);
+    el.setAttribute(property, value);
+    var computedValue = getComputedStyle(el).getPropertyValue(property);
+    document.getElementById('svg').removeChild(el);
     return computedValue;
 }
 

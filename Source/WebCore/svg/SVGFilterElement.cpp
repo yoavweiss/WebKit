@@ -109,7 +109,7 @@ void SVGFilterElement::svgAttributeChanged(const QualifiedName& attrName)
 {
     if (PropertyRegistry::isAnimatedLengthAttribute(attrName)) {
         InstanceInvalidationGuard guard(*this);
-        setPresentationalHintStyleIsDirty();
+        updateSVGRendererForElementChange();
         return;
     }
 

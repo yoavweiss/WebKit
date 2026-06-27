@@ -209,7 +209,7 @@ protected:
     SVGElementRareData& ensureSVGRareData();
 
     void reportAttributeParsingError(SVGParsingError, const QualifiedName&, const AtomString&);
-    static CSSPropertyID NODELETE cssPropertyIdForSVGAttributeName(const QualifiedName&, const Settings&);
+    CSSPropertyID cssPropertyIdForSVGAttributeName(const QualifiedName&) const;
 
     bool hasPresentationalHintsForAttribute(const QualifiedName&) const override;
     void collectPresentationalHintsForAttribute(const QualifiedName&, const AtomString&, MutableStyleProperties&) override;

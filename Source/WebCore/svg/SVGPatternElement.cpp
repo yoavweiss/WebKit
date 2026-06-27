@@ -121,8 +121,6 @@ void SVGPatternElement::svgAttributeChanged(const QualifiedName& attrName)
 {
     if (PropertyRegistry::isKnownAttribute(attrName) || SVGFitToViewBox::isKnownAttribute(attrName) || SVGURIReference::isKnownAttribute(attrName)) {
         InstanceInvalidationGuard guard(*this);
-        if (PropertyRegistry::isAnimatedLengthAttribute(attrName))
-            setPresentationalHintStyleIsDirty();
         if (document().settings().layerBasedSVGEngineEnabled()) {
             if (CheckedPtr patternRenderer = dynamicDowncast<RenderSVGResourcePattern>(renderer()))
                 patternRenderer->invalidatePattern();

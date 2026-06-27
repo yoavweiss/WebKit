@@ -46,19 +46,24 @@
 #include "RenderAncestorIterator.h"
 #include "RenderSVGResourceContainer.h"
 #include "ResolvedStyle.h"
+#include "SVGCircleElement.h"
 #include "SVGDocumentExtensions.h"
 #include "SVGElementRareData.h"
 #include "SVGElementTypeHelpers.h"
+#include "SVGEllipseElement.h"
 #include "SVGForeignObjectElement.h"
 #include "SVGGraphicsElement.h"
 #include "SVGImageElement.h"
 #include "SVGNames.h"
 #include "SVGParsingError.h"
+#include "SVGPathElement.h"
 #include "SVGPropertyAnimatorFactory.h"
 #include "SVGPropertyOwnerRegistry.h"
+#include "SVGRectElement.h"
 #include "SVGRenderSupport.h"
 #include "SVGResourceElementClient.h"
 #include "SVGSVGElement.h"
+#include "SVGSymbolElement.h"
 #include "SVGTitleElement.h"
 #include "SVGUseElement.h"
 #include "Settings.h"
@@ -857,10 +862,27 @@ bool SVGElement::rendererIsNeeded(const Style::ComputedStyle& style)
     return false;
 }
 
-CSSPropertyID SVGElement::cssPropertyIdForSVGAttributeName(const QualifiedName& attrName, const Settings& settings)
+CSSPropertyID SVGElement::cssPropertyIdForSVGAttributeName(const QualifiedName& attrName) const
 {
+    // The 10 SVG2 geometry presentation attributes (cx, cy, r, rx, ry, x, y, width, height, d)
+    // are element-restricted per https://w3c.github.io/svgwg/svg2-draft/geometry.html. The
+    // applicability check is folded into the switch below: each geometry case returns its
+    // CSS property only when *this is one of the owning element types, otherwise
+    // CSSPropertyInvalid. Doing this inline rather than via a virtual override keeps this
+    // mapping non-virtual on the attribute fast path; bug 313380.
     if (!attrName.namespaceURI().isNull())
         return CSSPropertyInvalid;
+
+    auto supportsXY = [&] {
+        return is<SVGForeignObjectElement>(*this) || is<SVGImageElement>(*this) || is<SVGRectElement>(*this)
+            || is<SVGSVGElement>(*this) || is<SVGSymbolElement>(*this) || is<SVGUseElement>(*this);
+    };
+    auto supportsWidthHeight = [&] {
+        if (is<SVGForeignObjectElement>(*this) || is<SVGImageElement>(*this) || is<SVGRectElement>(*this))
+            return true;
+        auto* svg = dynamicDowncast<SVGSVGElement>(*this);
+        return svg && svg->isOutermostSVGSVGElement();
+    };
 
     switch (attrName.nodeName()) {
     case AttributeNames::alignment_baselineAttr:
@@ -884,13 +906,11 @@ CSSPropertyID SVGElement::cssPropertyIdForSVGAttributeName(const QualifiedName& 
     case AttributeNames::cursorAttr:
         return CSSPropertyCursor;
     case AttributeNames::cxAttr:
-        return CSSPropertyCx;
+        return is<SVGCircleElement>(*this) || is<SVGEllipseElement>(*this) ? CSSPropertyCx : CSSPropertyInvalid;
     case AttributeNames::cyAttr:
-        return CSSPropertyCy;
+        return is<SVGCircleElement>(*this) || is<SVGEllipseElement>(*this) ? CSSPropertyCy : CSSPropertyInvalid;
     case AttributeNames::dAttr:
-        if (settings.cssDPropertyEnabled())
-            return CSSPropertyD;
-        break;
+        return is<SVGPathElement>(*this) && document().settings().cssDPropertyEnabled() ? CSSPropertyD : CSSPropertyInvalid;
     case AttributeNames::directionAttr:
         return CSSPropertyDirection;
     case AttributeNames::displayAttr:
@@ -926,10 +946,10 @@ CSSPropertyID SVGElement::cssPropertyIdForSVGAttributeName(const QualifiedName& 
         return CSSPropertyFontWeight;
     case AttributeNames::glyph_orientation_verticalAttr:
         return CSSPropertyGlyphOrientationVertical;
+    case AttributeNames::heightAttr:
+        return supportsWidthHeight() ? CSSPropertyHeight : CSSPropertyInvalid;
     case AttributeNames::image_renderingAttr:
         return CSSPropertyImageRendering;
-    case AttributeNames::heightAttr:
-        return CSSPropertyHeight;
     case AttributeNames::letter_spacingAttr:
         return CSSPropertyLetterSpacing;
     case AttributeNames::lighting_colorAttr:
@@ -953,11 +973,11 @@ CSSPropertyID SVGElement::cssPropertyIdForSVGAttributeName(const QualifiedName& 
     case AttributeNames::pointer_eventsAttr:
         return CSSPropertyPointerEvents;
     case AttributeNames::rAttr:
-        return CSSPropertyR;
+        return is<SVGCircleElement>(*this) ? CSSPropertyR : CSSPropertyInvalid;
     case AttributeNames::rxAttr:
-        return CSSPropertyRx;
+        return is<SVGEllipseElement>(*this) || is<SVGRectElement>(*this) ? CSSPropertyRx : CSSPropertyInvalid;
     case AttributeNames::ryAttr:
-        return CSSPropertyRy;
+        return is<SVGEllipseElement>(*this) || is<SVGRectElement>(*this) ? CSSPropertyRy : CSSPropertyInvalid;
     case AttributeNames::shape_renderingAttr:
         return CSSPropertyShapeRendering;
     case AttributeNames::stop_colorAttr:
@@ -993,15 +1013,15 @@ CSSPropertyID SVGElement::cssPropertyIdForSVGAttributeName(const QualifiedName& 
     case AttributeNames::visibilityAttr:
         return CSSPropertyVisibility;
     case AttributeNames::widthAttr:
-        return CSSPropertyWidth;
+        return supportsWidthHeight() ? CSSPropertyWidth : CSSPropertyInvalid;
     case AttributeNames::word_spacingAttr:
         return CSSPropertyWordSpacing;
     case AttributeNames::writing_modeAttr:
         return CSSPropertyWritingMode;
     case AttributeNames::xAttr:
-        return CSSPropertyX;
+        return supportsXY() ? CSSPropertyX : CSSPropertyInvalid;
     case AttributeNames::yAttr:
-        return CSSPropertyY;
+        return supportsXY() ? CSSPropertyY : CSSPropertyInvalid;
     case AttributeNames::transform_originAttr:
         return CSSPropertyTransformOrigin;
     default:
@@ -1013,7 +1033,7 @@ CSSPropertyID SVGElement::cssPropertyIdForSVGAttributeName(const QualifiedName& 
 
 bool SVGElement::hasPresentationalHintsForAttribute(const QualifiedName& name) const
 {
-    if (cssPropertyIdForSVGAttributeName(name, document().settings()) > 0)
+    if (cssPropertyIdForSVGAttributeName(name) > 0)
         return true;
     if (name.matches(XMLNames::langAttr) || name.matches(HTMLNames::langAttr))
         return true;
@@ -1022,7 +1042,7 @@ bool SVGElement::hasPresentationalHintsForAttribute(const QualifiedName& name) c
 
 void SVGElement::collectPresentationalHintsForAttribute(const QualifiedName& name, const AtomString& value, MutableStyleProperties& style)
 {
-    CSSPropertyID propertyID = cssPropertyIdForSVGAttributeName(name, document().settings());
+    CSSPropertyID propertyID = cssPropertyIdForSVGAttributeName(name);
     if (propertyID > 0)
         addPropertyToPresentationalHintStyle(style, propertyID, value);
     else if (name.matches(XMLNames::langAttr) || (name.matches(HTMLNames::langAttr) && !hasAttributeWithoutSynchronization(XMLNames::langAttr)))
@@ -1037,7 +1057,7 @@ void SVGElement::updateSVGRendererForElementChange(Style::SVGRendererUpdateType 
 
 void SVGElement::svgAttributeChanged(const QualifiedName& attrName)
 {
-    CSSPropertyID propId = cssPropertyIdForSVGAttributeName(attrName, document().settings());
+    CSSPropertyID propId = cssPropertyIdForSVGAttributeName(attrName);
     if (propId > 0) {
         invalidateInstances();
         return;

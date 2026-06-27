@@ -29,7 +29,7 @@ PASS SVG Geometry Properties: getComputedStyle().width, <svg> inline style (pixe
 PASS SVG Geometry Properties: getComputedStyle().width, <svg> inline style (percentage)
 PASS SVG Geometry Properties: getComputedStyle().width, <svg> inline style but "display: none"
 PASS SVG Geometry Properties: getComputedStyle().width, <g> initial
-FAIL SVG Geometry Properties: getComputedStyle().width, <g> initial (with dummy attribute) assert_equals: initial (with dummy attribute) expected "auto" but got "100px"
+PASS SVG Geometry Properties: getComputedStyle().width, <g> initial (with dummy attribute)
 PASS SVG Geometry Properties: getComputedStyle().width, <g> inline style (percentage)
 PASS SVG Geometry Properties: getComputedStyle().width, <g> inline style (auto)
 PASS SVG Geometry Properties: getComputedStyle().width, <g> inline style (pixels)
