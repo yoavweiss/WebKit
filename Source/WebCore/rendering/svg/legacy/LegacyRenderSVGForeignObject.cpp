@@ -79,7 +79,7 @@ void LegacyRenderSVGForeignObject::paint(PaintInfo& paintInfo, const LayoutPoint
             return;
     }
 
-    LayoutPoint childPoint = IntPoint();
+    LayoutPoint childPoint;
     if (paintInfo.phase == PaintPhase::Selection) {
         RenderBlock::paint(childPaintInfo, childPoint);
         return;
