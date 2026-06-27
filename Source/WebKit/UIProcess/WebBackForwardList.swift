@@ -1005,6 +1005,22 @@ final class WebBackForwardList {
     ) {
         let process = WebKit.WebProcessProxy.fromConnection(connection)
 
+        // __convertToBool necessary due to rdar://137879510
+        if messageCheck(
+            process: process,
+            !navigatedFrameState.ptr().itemID.__convertToBool()
+                || contentsMatch(navigatedFrameState.ptr().itemID.pointee.processIdentifier(), process.ptr().coreProcessIdentifier())
+        ) {
+            return
+        }
+        if messageCheck(
+            process: process,
+            !navigatedFrameState.ptr().frameItemID.__convertToBool()
+                || contentsMatch(navigatedFrameState.ptr().frameItemID.pointee.processIdentifier(), process.ptr().coreProcessIdentifier())
+        ) {
+            return
+        }
+
         if messageCheckItemURLs(frameState: navigatedFrameState, process: process) {
             return
         }
@@ -1013,6 +1029,19 @@ final class WebBackForwardList {
         let targetFrame = WebKit.WebFrameProxy.webFrame(navigatedFrameID)
 
         guard let targetFrame else {
+            return
+        }
+
+        let listPage = page.get()
+        let framePage = targetFrame.page()
+        let pagesMatch: Bool
+        if let framePage, let listPage {
+            // We can't use == here due to rdar://162357139
+            pagesMatch = contentsMatch(framePage.identifier(), listPage.identifier())
+        } else {
+            pagesMatch = framePage == nil && listPage == nil
+        }
+        if messageCheck(process: process, pagesMatch) {
             return
         }
 

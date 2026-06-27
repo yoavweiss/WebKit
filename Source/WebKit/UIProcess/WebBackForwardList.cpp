@@ -779,9 +779,14 @@ static void messageCheckItemURLs(Ref<FrameState>& frameState, Ref<WebProcessProx
 void WebBackForwardList::backForwardAddItemShared(IPC::Connection& connection, Ref<FrameState>&& navigatedFrameState, LoadedWebArchive loadedWebArchive)
 {
     Ref process = WebProcessProxy::fromConnection(connection);
+
+    MESSAGE_CHECK(process, !navigatedFrameState->itemID || navigatedFrameState->itemID->processIdentifier() == process->coreProcessIdentifier());
+    MESSAGE_CHECK(process, !navigatedFrameState->frameItemID || navigatedFrameState->frameItemID->processIdentifier() == process->coreProcessIdentifier());
+
     messageCheckItemURLs(navigatedFrameState, process);
 
     if (RefPtr targetFrame = WebFrameProxy::webFrame(navigatedFrameState->frameID)) {
+        MESSAGE_CHECK(process, targetFrame->page() == m_page.get());
         if (targetFrame->isPendingInitialHistoryItem()) {
             targetFrame->setIsPendingInitialHistoryItem(false);
             if (RefPtr parent = targetFrame->parentFrame())

@@ -1629,6 +1629,13 @@ bool WebProcessProxy::wasPreviouslyApprovedFileURL(const URL& url) const
     return m_previouslyApprovedFilePaths.contains(fileSystemPath);
 }
 
+bool WebProcessProxy::hasGrantedSandboxExtensionForFile(const URL& url) const
+{
+    return m_mayHaveUniversalFileReadSandboxExtension
+        || hasAssumedReadAccessToURL(url)
+        || wasPreviouslyApprovedFileURL(url);
+}
+
 void WebProcessProxy::recordUserGestureAuthorizationToken(FrameIdentifier frameID, PageIdentifier pageID, WTF::UUID authorizationToken)
 {
     if (RefPtr dataStore = websiteDataStore()) {
