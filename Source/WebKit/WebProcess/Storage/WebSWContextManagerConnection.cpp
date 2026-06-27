@@ -226,16 +226,22 @@ void WebSWContextManagerConnection::installServiceWorker(ServiceWorkerContextDat
 
 #if ENABLE(REMOTE_INSPECTOR_SERVICE_WORKER_AUTO_INSPECTION)
         ASSERT(RunLoop::isMain());
-        handleThreadDebuggerTasksStarted = [serviceWorkerIdentifier, scopeURL, inspectable] {
-            // This may or may not be called on the main thread.
-            CompletionHandler<void(bool)> handleDebuggableCreated { [serviceWorkerIdentifier](bool shouldWait) {
-                ASSERT(RunLoop::isMain());
-                if (!shouldWait)
-                    SWContextManager::singleton().stopRunningDebuggerTasksOnServiceWorker(serviceWorkerIdentifier);
-                // Otherwise, let the worker remain paused until the auto-launched inspector's frontendInitialized.
-            }, CompletionHandlerCallThread::MainThread };
+        CompletionHandler<void(bool)> handleDebuggableCreated { [serviceWorkerIdentifier](bool shouldWait) {
+            ASSERT(RunLoop::isMain());
+            if (!shouldWait)
+                SWContextManager::singleton().stopRunningDebuggerTasksOnServiceWorker(serviceWorkerIdentifier);
+            // Otherwise, let the worker remain paused until the auto-launched inspector's frontendInitialized.
+        }, CompletionHandlerCallThread::MainThread };
+        auto createDebuggable = [serviceWorkerIdentifier, scopeURL, inspectable, handleDebuggableCreated = WTF::move(handleDebuggableCreated)]() mutable {
             WebProcess::singleton().sendWithAsyncReply(Messages::WebProcessProxy::CreateServiceWorkerDebuggable(serviceWorkerIdentifier, scopeURL, inspectable), WTF::move(handleDebuggableCreated));
         };
+        // For main-thread workers, postDebuggerTask dispatches to RunLoop::mainSingleton() before the
+        // worker's global scope exists, so the task is silently dropped by WorkerMainRunLoop::postTaskForMode.
+        // Send the IPC directly instead of deferring via handleThreadDebuggerTasksStarted.
+        if (workerThreadMode == WorkerThreadMode::UseMainThread)
+            createDebuggable();
+        else
+            handleThreadDebuggerTasksStarted = WTF::move(createDebuggable);
 #else
         WebProcess::singleton().send(Messages::WebProcessProxy::CreateServiceWorkerDebuggable(serviceWorkerIdentifier, scopeURL, inspectable));
 #endif

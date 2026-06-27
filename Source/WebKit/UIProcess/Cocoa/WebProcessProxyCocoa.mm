@@ -78,6 +78,11 @@
 #import <wtf/spi/cocoa/OSLogSPI.h>
 #endif
 
+#if ENABLE(WK_WEB_EXTENSIONS)
+#import "WebExtensionContext.h"
+#import "WebExtensionController.h"
+#endif
+
 #if PLATFORM(MAC) || PLATFORM(MACCATALYST)
 #import "TCCSoftLink.h"
 #endif
@@ -322,6 +327,19 @@ void WebProcessProxy::createServiceWorkerDebuggable(WebCore::ServiceWorkerIdenti
     }
 
     Ref serviceWorkerDebuggableProxy = ServiceWorkerDebuggableProxy::create(url.string(), identifier, *this);
+
+#if ENABLE(WK_WEB_EXTENSIONS)
+    // Set the nameOverride from the extension context's inspection name so the correct name appears for the debuggable before it gets sent to clients.
+    for (auto& page : m_pageMap.values()) {
+        if (RefPtr webExtensionController = page->webExtensionController()) {
+            if (RefPtr extensionContext = webExtensionController->extensionContext(url)) {
+                serviceWorkerDebuggableProxy->setNameOverride(extensionContext->backgroundWebViewInspectionName());
+                break;
+            }
+        }
+    }
+#endif
+
     m_serviceWorkerDebuggableProxies.add(identifier, serviceWorkerDebuggableProxy);
     serviceWorkerDebuggableProxy->init();
     serviceWorkerDebuggableProxy->setInspectable(isInspectable == WebCore::ServiceWorkerIsInspectable::Yes);
