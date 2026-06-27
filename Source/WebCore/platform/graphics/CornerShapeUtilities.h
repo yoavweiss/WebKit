@@ -24,7 +24,7 @@
 
 #pragma once
 
-#include "RectCorners.h"
+#include <WebCore/RectCorners.h>
 
 namespace WebCore {
 
