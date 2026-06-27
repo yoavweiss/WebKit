@@ -318,7 +318,7 @@ header: <WebCore/ResourceRequest.h>
 #if PLATFORM(COCOA)
 [CreateUsing=fromResourceRequestData] class WebCore::ResourceRequest {
     Variant<WebCore::ResourceRequest::RequestData, WebCore::ResourceRequestPlatformData> getRequestDataToSerialize();
-    String cachePartition();
+    bool shouldBlockThirdPartyStorage();
     bool hiddenFromInspector();
 };
 #endif

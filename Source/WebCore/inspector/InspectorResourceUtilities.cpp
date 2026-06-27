@@ -249,7 +249,7 @@ RefPtr<CachedResource> cachedResource(const LocalFrame* frame, const URL& url)
     RefPtr cachedResource = protect(frame->document())->cachedResourceLoader().cachedResource(MemoryCache::removeFragmentIdentifierIfNeeded(url));
     if (!cachedResource) {
         ResourceRequest request(URL { url });
-        request.setDomainForCachePartition(protect(frame->document())->domainForCachePartition());
+        request.setShouldBlockThirdPartyStorage(protect(frame->document())->shouldBlockThirdPartyStorage());
         cachedResource = MemoryCache::singleton().resourceForRequest(request, frame->page()->sessionID());
     }
 

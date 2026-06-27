@@ -139,7 +139,7 @@ public:
 
     const ResourceRequest& resourceRequest() const LIFETIME_BOUND { return m_resourceRequest; }
     const URL& url() const LIFETIME_BOUND { return m_resourceRequest.url(); }
-    const String& cachePartition() const LIFETIME_BOUND { return m_resourceRequest.cachePartition(); }
+    String cachePartition() const { return m_resourceRequest.cachePartition(); }
     PAL::SessionID sessionID() const { return m_sessionID; }
     const CookieJar* cookieJar() const { return m_cookieJar.get(); }
     Type type() const { return m_type; }

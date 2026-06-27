@@ -5213,10 +5213,7 @@ void Page::setupForRemoteWorker(const URL& scriptURL, const SecurityOriginData& 
     if (auto* documentLoader = localMainFrame->loader().documentLoader())
         documentLoader->setAdvancedPrivacyProtections(advancedPrivacyProtections);
 
-    if (document->settings().storageBlockingPolicy() != StorageBlockingPolicy::BlockThirdParty)
-        document->setDomainForCachePartition(String { emptyString() });
-    else
-        document->setDomainForCachePartition(origin->domainForCachePartition());
+    document->setStorageBlockingPolicy(document->settings().storageBlockingPolicy());
 
     if (auto policy = parseReferrerPolicy(referrerPolicy, ReferrerPolicySource::HTTPHeader))
         document->setReferrerPolicy(*policy);

@@ -987,7 +987,7 @@ CachedResource* Internals::resourceFromMemoryCache(const String& url)
         return nullptr;
 
     ResourceRequest request(contextDocument()->encodingParseURL(url));
-    request.setDomainForCachePartition(contextDocument()->domainForCachePartition());
+    request.setShouldBlockThirdPartyStorage(contextDocument()->shouldBlockThirdPartyStorage());
 
     return MemoryCache::singleton().resourceForRequest(request, contextDocument()->page()->sessionID());
 }
