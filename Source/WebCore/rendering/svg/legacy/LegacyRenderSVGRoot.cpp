@@ -369,7 +369,7 @@ void LegacyRenderSVGRoot::paintReplaced(PaintInfo& paintInfo, const LayoutPoint&
 
 void LegacyRenderSVGRoot::willBeDestroyed()
 {
-    RenderBlock::removePercentHeightDescendant(const_cast<LegacyRenderSVGRoot&>(*this));
+    RenderBlock::removePercentHeightDescendant(*this);
 
     SVGResourcesCache::clientDestroyed(*this);
     RenderReplaced::willBeDestroyed();
