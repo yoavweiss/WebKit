@@ -980,6 +980,7 @@ WEBKIT_ADD_TARGET_CXX_FLAGS(Skia
     -Wno-cast-align
     -Wno-dangling-reference
     -Wno-deprecated
+    -Wno-maybe-musttail-local-addr
     -Wno-psabi
     -Wno-redundant-move
     -Wno-suggest-attribute=format
