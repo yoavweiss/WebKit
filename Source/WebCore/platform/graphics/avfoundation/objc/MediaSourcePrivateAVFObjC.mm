@@ -56,7 +56,7 @@ WorkQueue& MediaSourcePrivateAVFObjC::queueSingleton()
     static std::once_flag onceKey;
     static LazyNeverDestroyed<Ref<WorkQueue>> workQueue;
     std::call_once(onceKey, [] {
-        workQueue.construct(hasPlatformStrategies() && platformStrategies()->mediaStrategy()->hasRemoteRendererFor(MediaPlayerMediaEngineIdentifier::AVFoundationMSE) ? WorkQueue::create("MediaSourcePrivateAVFObjC"_s) : Ref { WorkQueue::mainSingleton() });
+        workQueue.construct(WorkQueue::create("MediaSourcePrivateAVFObjC"_s));
     });
     return workQueue.get();
 }

@@ -141,8 +141,8 @@ std::unique_ptr<WebCore::NowPlayingManager> WebMediaStrategy::createNowPlayingMa
 
 bool WebMediaStrategy::hasThreadSafeMediaSourceSupport() const
 {
-#if ENABLE(GPU_PROCESS)
-    return m_useGPUProcess;
+#if USE(AVFOUNDATION)
+    return true;
 #else
     return false;
 #endif
@@ -160,20 +160,6 @@ void WebMediaStrategy::enableMockMediaSource()
 #endif
     m_mockMediaSourceEnabled = true;
 
-#if USE(AVFOUNDATION)
-    if (hasRemoteRendererFor(MediaPlayerMediaEngineIdentifier::AVFoundationMSE)) {
-        WebCore::MediaStrategy::addMockMediaSourceEngine();
-        return;
-    }
-#endif
-
-#if ENABLE(GPU_PROCESS)
-    if (m_useGPUProcess) {
-        Ref connection = WebProcess::singleton().ensureGPUProcessConnection().connection();
-        connection->send(Messages::GPUConnectionToWebProcess::EnableMockMediaSource { }, 0);
-        return;
-    }
-#endif
     WebCore::MediaStrategy::addMockMediaSourceEngine();
 }
 #endif

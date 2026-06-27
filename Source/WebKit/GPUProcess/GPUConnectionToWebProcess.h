@@ -310,9 +310,6 @@ private:
     void clearNowPlayingInfo();
     void setNowPlayingInfo(WebCore::NowPlayingInfo&&);
 
-#if ENABLE(MEDIA_SOURCE)
-    void enableMockMediaSource();
-#endif
 #if PLATFORM(COCOA) && ENABLE(MEDIA_STREAM)
     void updateSampleBufferDisplayLayerBoundsAndPosition(WebKit::SampleBufferDisplayLayerIdentifier, WebCore::FloatRect, std::optional<WTF::MachSendRightAnnotated>&&);
 #endif
@@ -449,9 +446,6 @@ private:
     RefPtr<RemoteRemoteCommandListenerProxy> m_remoteRemoteCommandListener;
     bool m_isActiveNowPlayingProcess { false };
     const bool m_isLockdownModeEnabled { false };
-#if ENABLE(MEDIA_SOURCE)
-    bool m_mockMediaSourceEnabled { false };
-#endif
 
 #if ENABLE(EXTENSION_CAPABILITIES)
     HashMap<WebCore::PageIdentifier, String> m_mediaPlaybackEnvironments;

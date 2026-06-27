@@ -412,7 +412,6 @@
     [Legacy] MessageParam RemoteImageDecoderAVFProxy.CreateDecoder data
     [Legacy] MessageParam RemoteImageDecoderAVFProxy.SetData data
     [Legacy] MessageParam RemoteMediaResourceLoader.DataReceived data
-    [Legacy] MessageParam RemoteSourceBufferProxy.Append data
     [Legacy] MessageParam WebProcess.ConsumeAudioComponentRegistrations registrationData
     [Legacy] MessageParam WebPageProxy.RegisterAttachmentIdentifierFromData data
     [Legacy] MessageParam ServiceWorkerDownloadTask.DidReceiveData data
@@ -474,7 +473,6 @@
     [NotSentFromWebContent] MessageParam VisitedLinkTableController.SetVisitedLinkTable handle
     [NotSentFromWebContent] MessageParam WebSWClientConnection.SetSWOriginTableSharedMemory handle
     [NotSentFromWebContent] MessageParam RemoteVideoFrameObjectHeapProxyProcessor.SetSharedVideoFrameMemory storageHandle
-    [NotSentFromWebContent] MessageParam SourceBufferPrivateRemoteMessageReceiver.TakeOwnershipOfMemory remoteData
     [DebugOnly] MessageParam WebPasteboardProxy.TestIPCSharedMemory handle
 }
 

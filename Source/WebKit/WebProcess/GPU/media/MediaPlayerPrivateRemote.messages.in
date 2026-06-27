@@ -76,8 +76,6 @@ messages -> MediaPlayerPrivateRemote {
 
     ResourceNotSupported()
 
-    ActiveSourceBuffersChanged()
-
 #if ENABLE(ENCRYPTED_MEDIA)
     WaitingForKeyChanged(bool waitingForKey)
     InitializationDataEncountered(String initDataType, std::span<const uint8_t> initData)

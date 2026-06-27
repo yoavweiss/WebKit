@@ -136,14 +136,6 @@ RemoteMediaPlayerProxy::~RemoteMediaPlayerProxy()
     setShouldEnableAudioSourceProvider(false);
 }
 
-void RemoteMediaPlayerProxy::connectionToWebProcessClosed()
-{
-#if ENABLE(MEDIA_SOURCE)
-    if (RefPtr mediaSource = m_mediaSourceProxy)
-        mediaSource->connectionToWebProcessClosed();
-#endif
-}
-
 void RemoteMediaPlayerProxy::invalidate()
 {
     m_updateCachedStateMessageTimer.stop();
@@ -204,34 +196,6 @@ void RemoteMediaPlayerProxy::load(URL&& url, std::optional<SandboxExtension::Han
     getConfiguration(configuration);
     completionHandler(WTF::move(configuration));
 }
-
-#if ENABLE(MEDIA_SOURCE)
-void RemoteMediaPlayerProxy::loadMediaSource(URL&& url, const MediaPlayer::LoadOptions& options, RemoteMediaSourceIdentifier mediaSourceIdentifier, CompletionHandler<void(RemoteMediaPlayerConfiguration&&)>&& completionHandler)
-{
-    RefPtr manager = m_manager.get();
-    ASSERT(manager && manager->gpuConnectionToWebProcess());
-
-    RemoteMediaPlayerConfiguration configuration;
-    if (!manager || !manager->gpuConnectionToWebProcess()) {
-        completionHandler(WTF::move(configuration));
-        return;
-    }
-    bool reattached = false;
-    if (RefPtr mediaSourceProxy = manager->pendingMediaSource(mediaSourceIdentifier)) {
-        m_mediaSourceProxy = WTF::move(mediaSourceProxy);
-        reattached = true;
-    } else
-        m_mediaSourceProxy = adoptRef(*new RemoteMediaSourceProxy(*manager, mediaSourceIdentifier, *this));
-
-    RefPtr player = m_player;
-    player->load(url, options, *protect(m_mediaSourceProxy));
-
-    if (reattached)
-        protect(m_mediaSourceProxy)->setMediaPlayers(*this, protect(player->playerPrivate()));
-    getConfiguration(configuration);
-    completionHandler(WTF::move(configuration));
-}
-#endif
 
 void RemoteMediaPlayerProxy::cancelLoad()
 {
@@ -820,11 +784,6 @@ void RemoteMediaPlayerProxy::mediaPlayerSizeChanged()
     protect(m_webProcessConnection)->send(Messages::MediaPlayerPrivateRemote::SizeChanged(m_cachedState.naturalSize), m_id);
 }
 
-void RemoteMediaPlayerProxy::mediaPlayerActiveSourceBuffersChanged()
-{
-    protect(m_webProcessConnection)->send(Messages::MediaPlayerPrivateRemote::ActiveSourceBuffersChanged(), m_id);
-}
-
 #if ENABLE(LEGACY_ENCRYPTED_MEDIA)
 RefPtr<ArrayBuffer> RemoteMediaPlayerProxy::mediaPlayerCachedKeyForKeyId(const String& keyId) const
 {
@@ -1069,10 +1028,7 @@ void RemoteMediaPlayerProxy::updateCachedState(bool forceCurrentTimeUpdate)
     maybeUpdateCachedVideoMetrics();
     if (m_bufferedChanged) {
         m_bufferedChanged = false;
-        if (m_engineIdentifier != MediaPlayerEnums::MediaEngineIdentifier::AVFoundationMSE
-            && m_engineIdentifier != MediaPlayerEnums::MediaEngineIdentifier::MockMSE) {
-            m_cachedState.bufferedRanges = player->buffered();
-        }
+        m_cachedState.bufferedRanges = player->buffered();
     }
 }
 
@@ -1157,11 +1113,6 @@ void RemoteMediaPlayerProxy::setShouldContinueAfterKeyNeeded(bool should)
     protect(m_player)->setShouldContinueAfterKeyNeeded(should);
 }
 #endif
-
-void RemoteMediaPlayerProxy::notifyActiveSourceBuffersChanged()
-{
-    protect(m_webProcessConnection)->send(Messages::MediaPlayerPrivateRemote::ActiveSourceBuffersChanged(), m_id);
-}
 
 void RemoteMediaPlayerProxy::applicationWillResignActive()
 {

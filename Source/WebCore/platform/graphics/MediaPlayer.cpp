@@ -326,18 +326,6 @@ static void buildMediaEnginesVector() WTF_REQUIRES_LOCK(mediaEngineVectorLock)
     ASSERT(mediaEngineVectorLock.isLocked());
 
 #if USE(AVFOUNDATION)
-#if ENABLE(MEDIA_SOURCE)
-    // Mock mode disables AVFoundation, so this branch sits outside the
-    // isAVFoundationEnabled() gate. When MediaPlayerPrivateMediaSourceAVFObjC would run in
-    // the GPU process (i.e. MSE is not using a remote renderer), register MockMSE as a
-    // remote proxy so MockMSE runs in the same process as MSE and inherits the same
-    // registration policy.
-    if (hasPlatformStrategies()
-        && platformStrategies()->mediaStrategy()->mockMediaSourceEnabled()
-        && !platformStrategies()->mediaStrategy()->hasRemoteRendererFor(MediaPlayerMediaEngineIdentifier::AVFoundationMSE))
-        RemoteMediaPlayerSupport::registerRemoteEngineIfAvailable(addMediaEngine, MediaPlayerEnums::MediaEngineIdentifier::MockMSE, PlatformMediaDecodingType::MediaSource);
-#endif
-
     if (DeprecatedGlobalSettings::isAVFoundationEnabled()) {
         MediaPlayerPrivateAVFoundationObjC::registerMediaEngine(addMediaEngine);
 #if ENABLE(MEDIA_SOURCE)
@@ -581,10 +569,6 @@ bool MediaPlayer::load(const URL& url, const LoadOptions& options, MediaSourcePr
     m_mediaSource = mediaSource;
     m_url = url;
     m_loadOptions = options;
-#if USE(AVFOUNDATION)
-    if (DeprecatedGlobalSettings::isAVFoundationEnabled() && hasPlatformStrategies() && platformStrategies()->mediaStrategy()->hasRemoteRendererFor(MediaPlayerMediaEngineIdentifier::AVFoundationMSE))
-        m_activeEngineIdentifier = MediaPlayerMediaEngineIdentifier::AVFoundationMSE;
-#endif
     loadWithNextMediaEngine(nullptr);
     return static_cast<bool>(m_currentMediaEngine);
 }

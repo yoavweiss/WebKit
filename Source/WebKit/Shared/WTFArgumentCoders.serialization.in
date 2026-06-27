@@ -101,8 +101,6 @@ template: struct WebKit::RemoteCDMInstanceIdentifierType
 template: struct WebKit::RemoteCDMInstanceSessionIdentifierType
 template: struct WebKit::RemoteLegacyCDMIdentifierType
 template: struct WebKit::RemoteLegacyCDMSessionIdentifierType
-template: enum class WebKit::RemoteMediaSourceIdentifierType
-template: enum class WebKit::RemoteSourceBufferIdentifierType
 template: struct WebKit::RetrieveRecordResponseBodyCallbackIdentifierType
 template: struct WebKit::ShapeDetectionIdentifierType
 template: struct WebKit::StorageAreaImplIdentifierType

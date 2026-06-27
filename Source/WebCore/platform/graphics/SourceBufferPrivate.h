@@ -86,42 +86,42 @@ public:
 
     virtual constexpr MediaPlatformType platformType() const = 0;
 
-    WEBCORE_EXPORT virtual void setActive(bool);
+    void setActive(bool);
 
-    WEBCORE_EXPORT virtual Ref<MediaPromise> append(Ref<SharedBuffer>&&);
+    Ref<MediaPromise> append(Ref<SharedBuffer>&&);
 
-    virtual void abort();
+    void abort();
     // Overrides must call the base class.
     virtual void resetParserState();
     virtual void removedFromMediaSource();
 
     virtual bool canSwitchToType(const ContentType&) { return false; }
 
-    WEBCORE_EXPORT virtual void setMediaSourceEnded(bool);
-    WEBCORE_EXPORT virtual void setMode(SourceBufferAppendMode);
-    WEBCORE_EXPORT virtual void reenqueueMediaIfNeeded(const MediaTime& currentMediaTime);
-    WEBCORE_EXPORT virtual void addTrackBuffer(TrackID, RefPtr<MediaDescription>&&);
-    WEBCORE_EXPORT virtual void resetTrackBuffers();
-    WEBCORE_EXPORT virtual void clearTrackBuffers(bool shouldReportToClient = false);
-    WEBCORE_EXPORT virtual void setAllTrackBuffersNeedRandomAccess();
-    virtual void setGroupStartTimestamp(const MediaTime&);
-    virtual void setGroupStartTimestampToEndTimestamp();
-    virtual void setShouldGenerateTimestamps(bool);
-    WEBCORE_EXPORT virtual Ref<MediaPromise> removeCodedFrames(const MediaTime& start, const MediaTime& end, const MediaTime& currentMediaTime);
-    WEBCORE_EXPORT virtual bool evictCodedFrames(uint64_t newDataSize, const MediaTime& currentTime);
-    WEBCORE_EXPORT virtual void asyncEvictCodedFrames(uint64_t newDataSize, const MediaTime& currentTime);
+    void setMediaSourceEnded(bool);
+    void setMode(SourceBufferAppendMode);
+    void reenqueueMediaIfNeeded(const MediaTime& currentMediaTime);
+    void addTrackBuffer(TrackID, RefPtr<MediaDescription>&&);
+    void resetTrackBuffers();
+    void clearTrackBuffers(bool shouldReportToClient = false);
+    void setAllTrackBuffersNeedRandomAccess();
+    void setGroupStartTimestamp(const MediaTime&);
+    void setGroupStartTimestampToEndTimestamp();
+    void setShouldGenerateTimestamps(bool);
+    Ref<MediaPromise> removeCodedFrames(const MediaTime& start, const MediaTime& end, const MediaTime& currentMediaTime);
+    bool evictCodedFrames(uint64_t newDataSize, const MediaTime& currentTime);
+    void asyncEvictCodedFrames(uint64_t newDataSize, const MediaTime& currentTime);
     WEBCORE_EXPORT virtual size_t platformEvictionThreshold() const;
     WEBCORE_EXPORT uint64_t contentSize() const;
-    WEBCORE_EXPORT virtual void resetTimestampOffsetInTrackBuffers();
+    void resetTimestampOffsetInTrackBuffers();
     virtual void startChangingType();
-    WEBCORE_EXPORT virtual void setTimestampOffset(const MediaTime&);
+    void setTimestampOffset(const MediaTime&);
     WEBCORE_EXPORT MediaTime timestampOffset() const;
-    virtual void setAppendWindowStart(const MediaTime&);
-    virtual void setAppendWindowEnd(const MediaTime&);
+    void setAppendWindowStart(const MediaTime&);
+    void setAppendWindowEnd(const MediaTime&);
     std::pair<MediaTime, MediaTime> appendWindow() const;
 
     WEBCORE_EXPORT MediaTime computeSeekTime(const SeekTarget&);
-    WEBCORE_EXPORT virtual void reenqueueMediaForTime(const MediaTime&);
+    void reenqueueMediaForTime(const MediaTime&);
     WEBCORE_EXPORT virtual void updateTrackIds(Vector<std::pair<TrackID, TrackID>>&& trackIdPairs);
 
     WEBCORE_EXPORT void setClient(SourceBufferPrivateClient&);
@@ -144,20 +144,20 @@ public:
     bool NODELETE hasReceivedFirstInitializationSegment() const;
 
     virtual size_t platformMaximumBufferSize() const { return 0; }
-    virtual Ref<GenericPromise> setMaximumBufferSize(size_t);
+    Ref<GenericPromise> setMaximumBufferSize(size_t);
 
     // Methods for ManagedSourceBuffer
-    WEBCORE_EXPORT virtual void memoryPressure(const MediaTime& currentTime);
+    void memoryPressure(const MediaTime& currentTime);
 
     // Methods for Detachable MediaSource
     virtual void detach() { }
-    WEBCORE_EXPORT virtual void attach();
+    void attach();
 
     // Test Utility methods
     using SamplesPromise = NativePromise<Vector<String>, PlatformMediaError>;
-    WEBCORE_EXPORT virtual Ref<SamplesPromise> bufferedSamplesForTrackId(TrackID);
+    Ref<SamplesPromise> bufferedSamplesForTrackId(TrackID);
     WEBCORE_EXPORT virtual Ref<SamplesPromise> enqueuedSamplesForTrackID(TrackID);
-    WEBCORE_EXPORT virtual MediaTime minimumUpcomingPresentationTimeForTrackID(TrackID);
+    WEBCORE_EXPORT MediaTime minimumUpcomingPresentationTimeForTrackID(TrackID);
     virtual void setMaximumQueueDepthForTrackID(TrackID, uint64_t) { }
 
 #if !RELEASE_LOG_DISABLED

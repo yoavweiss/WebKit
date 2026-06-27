@@ -43,17 +43,12 @@
 #include <wtf/ThreadSafeWeakPtr.h>
 #include <wtf/WeakPtr.h>
 
-#if ENABLE(MEDIA_SOURCE)
-#include "RemoteMediaSourceIdentifier.h"
-#endif
-
 namespace WebKit {
 
 class RemoteMediaPlayerProxy;
 struct RemoteMediaPlayerConfiguration;
 struct RemoteMediaPlayerProxyConfiguration;
 struct SharedPreferencesForWebProcess;
-class RemoteMediaSourceProxy;
 class VideoReceiverEndpointMessage;
 class VideoReceiverSwapEndpointsMessage;
 
@@ -74,7 +69,7 @@ public:
 
     RefPtr<GPUConnectionToWebProcess> gpuConnectionToWebProcess() { return m_gpuConnectionToWebProcess.get(); }
     void clear();
-    void connectionToWebProcessClosed();
+    void connectionToWebProcessClosed() { clear(); }
 
 #if !RELEASE_LOG_DISABLED
     Logger& logger() { return m_logger; }
@@ -86,12 +81,6 @@ public:
     void didReceiveSyncPlayerMessage(IPC::Connection&, IPC::Decoder&, UniqueRef<IPC::Encoder>&);
 
     RefPtr<WebCore::MediaPlayer> mediaPlayer(std::optional<WebCore::MediaPlayerIdentifier>);
-
-#if ENABLE(MEDIA_SOURCE)
-    RefPtr<RemoteMediaSourceProxy> pendingMediaSource(RemoteMediaSourceIdentifier);
-    void registerMediaSource(RemoteMediaSourceIdentifier, RemoteMediaSourceProxy&);
-    void invalidateMediaSource(RemoteMediaSourceIdentifier);
-#endif
 
     std::optional<SharedPreferencesForWebProcess> sharedPreferencesForWebProcess() const;
 private:
@@ -119,10 +108,6 @@ private:
 
     HashMap<WebCore::MediaPlayerIdentifier, Ref<RemoteMediaPlayerProxy>> m_proxies;
     ThreadSafeWeakPtr<GPUConnectionToWebProcess> m_gpuConnectionToWebProcess;
-
-#if ENABLE(MEDIA_SOURCE)
-    HashMap<RemoteMediaSourceIdentifier, Ref<RemoteMediaSourceProxy>> m_pendingMediaSources;
-#endif
 
 #if !RELEASE_LOG_DISABLED
     uint64_t m_logIdentifier { 0 };

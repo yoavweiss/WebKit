@@ -72,10 +72,6 @@
 #include <WebCore/LegacyCDM.h>
 #endif
 
-#if ENABLE(MEDIA_SOURCE)
-#include "RemoteMediaSourceIdentifier.h"
-#endif
-
 #if PLATFORM(COCOA)
 #include <WebCore/PixelBufferConformerCV.h>
 #include <WebCore/VideoFrameCV.h>
@@ -353,11 +349,6 @@ void MediaPlayerPrivateRemote::setPrivateBrowsingMode(bool privateMode)
 
 MediaTime MediaPlayerPrivateRemote::duration() const
 {
-#if ENABLE(MEDIA_SOURCE)
-    if (RefPtr mediaSourcePrivate = m_mediaSourcePrivate)
-        return mediaSourcePrivate->duration();
-#endif
-
     ASSERT(isMainRunLoop());
     return m_cachedState.duration;
 }
@@ -365,42 +356,6 @@ MediaTime MediaPlayerPrivateRemote::duration() const
 MediaTime MediaPlayerPrivateRemote::currentTime() const
 {
     Locker locker { m_currentTimeEstimator.lock() };
-    return currentTimeWithLockHeld();
-}
-
-MediaTime MediaPlayerPrivateRemote::currentTimeWithLockHeld() const
-{
-#if ENABLE(MEDIA_SOURCE)
-    if (RefPtr mediaSourcePrivate = m_mediaSourcePrivate; mediaSourcePrivate && timeIsProgressing()) {
-        if (!mediaSourcePrivate->hasBufferedData())
-            return m_currentTimeEstimator.cachedTimeWithLockHeld();
-        MediaTime currentTime = m_currentTimeEstimator.currentTimeWithLockHeld();
-        if (currentTime >= duration())
-            return duration();
-        auto ranges = mediaSourcePrivate->buffered();
-        // Handle the most common case.
-        MediaTime startGap;
-        if (ranges.start(ranges.length() - 1) <= currentTime) {
-            if (currentTime <= ranges.maximumBufferedTime())
-                return currentTime; // We are in the buffered range.
-            startGap = ranges.maximumBufferedTime();
-        } else {
-            unsigned i = 0;
-            for (; i < ranges.length(); i++) {
-                if (ranges.start(i) <= currentTime && currentTime <= ranges.end(i))
-                    return currentTime; // We are in the buffered range.
-                // We allow currentTime to be in a buffered gap smaller than the fudge factor.
-                if (i < ranges.length() - 1 && (ranges.start(i + 1) - ranges.end(i)) <= mediaSourcePrivate->timeFudgeFactor() && ranges.start(i + 1) >= currentTime)
-                    return currentTime;
-                if (ranges.start(i) > currentTime)
-                    break;
-            }
-            startGap = ranges.end(i - 1);
-        }
-        // The GPU's time is the reference time, it can't go backward.
-        return std::max(startGap, m_currentTimeEstimator.cachedTimeWithLockHeld());
-    }
-#endif
     return m_currentTimeEstimator.currentTimeWithLockHeld();
 }
 
@@ -428,7 +383,7 @@ MediaTime MediaPlayerPrivateRemote::currentOrPendingSeekTime() const
     auto pendingSeekTime = MediaPlayerPrivateInterface::pendingSeekTime();
     if (pendingSeekTime.isValid())
         return pendingSeekTime;
-    return currentTimeWithLockHeld();
+    return m_currentTimeEstimator.currentTimeWithLockHeld();
 }
 
 void MediaPlayerPrivateRemote::seekToTarget(const WebCore::SeekTarget& target)
@@ -479,16 +434,14 @@ void MediaPlayerPrivateRemote::networkStateChanged(RemoteMediaPlayerState&& stat
 
 void MediaPlayerPrivateRemote::setReadyState(MediaPlayer::ReadyState readyState)
 {
-    // Can be called by the MediaSourcePrivateRemote on its WorkQueue.
+    assertIsMainThread();
     ALWAYS_LOG(LOGIDENTIFIER, readyState);
-    ensureOnMainRunLoop([protectedThis = Ref { *this }, this, readyState] {
-        if (std::exchange(m_readyState, readyState) == readyState)
-            return;
-        if (readyState > MediaPlayer::ReadyState::HaveCurrentData && m_readyState == MediaPlayer::ReadyState::HaveCurrentData)
-            ALWAYS_LOG(LOGIDENTIFIER, "stall detected");
-        if (RefPtr player = m_player.get())
-            player->readyStateChanged();
-    });
+    if (std::exchange(m_readyState, readyState) == readyState)
+        return;
+    if (readyState > MediaPlayer::ReadyState::HaveCurrentData && m_readyState == MediaPlayer::ReadyState::HaveCurrentData)
+        ALWAYS_LOG(LOGIDENTIFIER, "stall detected");
+    if (RefPtr player = m_player.get())
+        player->readyStateChanged();
 }
 
 void MediaPlayerPrivateRemote::readyStateChanged(RemoteMediaPlayerState&& state, MediaPlayer::ReadyState readyState)
@@ -774,11 +727,6 @@ void MediaPlayerPrivateRemote::addRemoteAudioTrack(AudioTrackPrivateRemoteConfig
     auto addResult = m_audioTracks.emplace(configuration.trackId, AudioTrackPrivateRemote::create(protect(manager()->gpuProcessConnection()), m_id, WTF::move(configuration)));
     ASSERT(addResult.second);
 
-#if ENABLE(MEDIA_SOURCE)
-    if (m_mediaSourcePrivate)
-        return;
-#endif
-
     if (RefPtr player = m_player.get())
         player->addAudioTrack(addResult.first->second);
 }
@@ -823,11 +771,6 @@ void MediaPlayerPrivateRemote::addRemoteTextTrack(TextTrackPrivateRemoteConfigur
 
     auto addResult = m_textTracks.emplace(configuration.trackId, TextTrackPrivateRemote::create(protect(manager()->gpuProcessConnection()), m_id, WTF::move(configuration)));
     ASSERT(addResult.second);
-
-#if ENABLE(MEDIA_SOURCE)
-    if (m_mediaSourcePrivate)
-        return;
-#endif
 
     if (RefPtr player = m_player.get())
         player->addTextTrack(addResult.first->second);
@@ -988,11 +931,6 @@ void MediaPlayerPrivateRemote::addRemoteVideoTrack(VideoTrackPrivateRemoteConfig
     auto addResult = m_videoTracks.emplace(configuration.trackId, VideoTrackPrivateRemote::create(protect(manager()->gpuProcessConnection()), m_id, WTF::move(configuration)));
     ASSERT(addResult.second);
 
-#if ENABLE(MEDIA_SOURCE)
-    if (m_mediaSourcePrivate)
-        return;
-#endif
-
     if (RefPtr player = m_player.get())
         player->addVideoTrack(addResult.first->second);
 }
@@ -1031,40 +969,8 @@ void MediaPlayerPrivateRemote::remoteVideoTrackConfigurationChanged(TrackID trac
 }
 
 #if ENABLE(MEDIA_SOURCE)
-void MediaPlayerPrivateRemote::load(const URL& url, const LoadOptions& options, MediaSourcePrivateClient& client)
+void MediaPlayerPrivateRemote::load(const URL&, const LoadOptions&, MediaSourcePrivateClient&)
 {
-    if (m_remoteEngineIdentifier == MediaPlayerEnums::MediaEngineIdentifier::AVFoundationMSE
-        || (platformStrategies()->mediaStrategy()->mockMediaSourceEnabled() && m_remoteEngineIdentifier == MediaPlayerEnums::MediaEngineIdentifier::MockMSE)) {
-
-        RefPtr mediaSourcePrivate = downcast<MediaSourcePrivateRemote>(client.mediaSourcePrivate());
-        RemoteMediaSourceIdentifier identifier = [&] {
-            if (mediaSourcePrivate) {
-                mediaSourcePrivate->setPlayer(this);
-                return mediaSourcePrivate->identifier();
-            }
-            return RemoteMediaSourceIdentifier::generate();
-        }();
-        protect(connection())->sendWithAsyncReply(Messages::RemoteMediaPlayerProxy::LoadMediaSource(url, options, identifier), [weakThis = ThreadSafeWeakPtr { *this }](RemoteMediaPlayerConfiguration&& configuration) {
-            RefPtr protectedThis = weakThis.get();
-            if (!protectedThis)
-                return;
-
-            auto player = protectedThis->m_player.get();
-            if (!player)
-                return;
-
-            protectedThis->updateConfiguration(WTF::move(configuration));
-            player->mediaEngineUpdated();
-        }, m_id);
-        if (mediaSourcePrivate) {
-            m_mediaSourcePrivate = WTF::move(mediaSourcePrivate);
-            // MediaSource can only be re-opened after RemoteMediaPlayerProxy::LoadMediaSource has been called.
-            client.reOpen();
-        } else
-            m_mediaSourcePrivate = MediaSourcePrivateRemote::create(protect(manager()->gpuProcessConnection()), identifier, protect(manager()->typeCache(m_remoteEngineIdentifier)), *this, client);
-        return;
-    }
-
     callOnMainRunLoop([weakThis = ThreadSafeWeakPtr { *this }] {
         RefPtr protectedThis = weakThis.get();
         if (!protectedThis)
@@ -1584,12 +1490,6 @@ void MediaPlayerPrivateRemote::notifyTrackModeChanged()
     protect(connection())->send(Messages::RemoteMediaPlayerProxy::NotifyTrackModeChanged(), m_id);
 }
 
-void MediaPlayerPrivateRemote::notifyActiveSourceBuffersChanged()
-{
-    // FIXME: this just rounds trip up and down to activeSourceBuffersChanged(). Should this call ::activeSourceBuffersChanged directly?
-    protect(connection())->send(Messages::RemoteMediaPlayerProxy::NotifyActiveSourceBuffersChanged(), m_id);
-}
-
 bool MediaPlayerPrivateRemote::inVideoFullscreenOrPictureInPicture() const
 {
 #if PLATFORM(COCOA) && ENABLE(VIDEO_PRESENTATION_MODE)
@@ -1685,12 +1585,6 @@ void MediaPlayerPrivateRemote::resourceNotSupported()
 {
     if (RefPtr player = m_player.get())
         player->resourceNotSupported();
-}
-
-void MediaPlayerPrivateRemote::activeSourceBuffersChanged()
-{
-    if (RefPtr player = m_player.get())
-        player->activeSourceBuffersChanged();
 }
 
 #if PLATFORM(IOS_FAMILY)

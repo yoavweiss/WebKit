@@ -1239,16 +1239,6 @@ RemoteVideoFrameObjectHeap& GPUConnectionToWebProcess::videoFrameObjectHeap() co
 #endif
 
 
-#if ENABLE(MEDIA_SOURCE)
-void GPUConnectionToWebProcess::enableMockMediaSource()
-{
-    if (m_mockMediaSourceEnabled)
-        return;
-    MediaStrategy::addMockMediaSourceEngine();
-    m_mockMediaSourceEnabled = true;
-}
-#endif
-
 #if PLATFORM(COCOA) && ENABLE(MEDIA_STREAM)
 void GPUConnectionToWebProcess::updateSampleBufferDisplayLayerBoundsAndPosition(SampleBufferDisplayLayerIdentifier identifier, WebCore::FloatRect bounds, std::optional<MachSendRightAnnotated>&& fence)
 {

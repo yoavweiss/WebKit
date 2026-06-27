@@ -96,22 +96,6 @@ void RemoteMediaPlayerManagerProxy::clear()
 
     for (Ref proxy : proxies.values())
         proxy->invalidate();
-
-#if ENABLE(MEDIA_SOURCE)
-    m_pendingMediaSources.clear();
-#endif
-}
-
-void RemoteMediaPlayerManagerProxy::connectionToWebProcessClosed()
-{
-    for (Ref proxy : m_proxies.values())
-        proxy->connectionToWebProcessClosed();
-
-#if ENABLE(MEDIA_SOURCE)
-    for (auto keyValuePair : m_pendingMediaSources)
-        Ref { keyValuePair.value }->connectionToWebProcessClosed();
-#endif
-    clear();
 }
 
 void RemoteMediaPlayerManagerProxy::createMediaPlayer(MediaPlayerIdentifier identifier, MediaPlayerClientIdentifier clientIdentifier, MediaPlayerEnums::MediaEngineIdentifier engineIdentifier, RemoteMediaPlayerProxyConfiguration&& proxyConfiguration)
@@ -222,34 +206,6 @@ RefPtr<MediaPlayer> RemoteMediaPlayerManagerProxy::mediaPlayer(std::optional<Med
 WTFLogChannel& RemoteMediaPlayerManagerProxy::logChannel() const
 {
     return WebKit2LogMedia;
-}
-#endif
-
-#if ENABLE(MEDIA_SOURCE)
-void RemoteMediaPlayerManagerProxy::registerMediaSource(RemoteMediaSourceIdentifier identifier, RemoteMediaSourceProxy& mediaSource)
-{
-    ASSERT(RunLoop::isMain());
-
-    ASSERT(!m_pendingMediaSources.contains(identifier));
-    m_pendingMediaSources.add(identifier, mediaSource);
-}
-
-void RemoteMediaPlayerManagerProxy::invalidateMediaSource(RemoteMediaSourceIdentifier identifier)
-{
-    ASSERT(RunLoop::isMain());
-
-    ASSERT(m_pendingMediaSources.contains(identifier));
-    m_pendingMediaSources.remove(identifier);
-}
-
-RefPtr<RemoteMediaSourceProxy> RemoteMediaPlayerManagerProxy::pendingMediaSource(RemoteMediaSourceIdentifier identifier)
-{
-    ASSERT(RunLoop::isMain());
-
-    auto iterator = m_pendingMediaSources.find(identifier);
-    if (iterator == m_pendingMediaSources.end())
-        return nullptr;
-    return iterator->value.copyRef();
 }
 #endif
 

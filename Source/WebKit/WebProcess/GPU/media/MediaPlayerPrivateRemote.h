@@ -50,10 +50,6 @@
 #include <wtf/MediaTime.h>
 #include <wtf/StdUnorderedMap.h>
 
-#if ENABLE(MEDIA_SOURCE)
-#include "MediaSourcePrivateRemote.h"
-#endif
-
 #if ENABLE(MACH_PORT_LAYER_HOSTING)
 #include <wtf/MachSendRightAnnotated.h>
 #endif
@@ -172,8 +168,6 @@ public:
 
     void resourceNotSupported();
 
-    void activeSourceBuffersChanged();
-
     bool inVideoFullscreenOrPictureInPicture() const final;
 
 #if ENABLE(ENCRYPTED_MEDIA)
@@ -245,8 +239,6 @@ private:
         ThreadSafeWeakRef<const MediaPlayerPrivateRemote> m_parent;
     };
     TimeProgressEstimator m_currentTimeEstimator;
-
-    MediaTime currentTimeWithLockHeld() const;
 
 #if !RELEASE_LOG_DISABLED
     const Logger& logger() const final { return m_logger; }
@@ -440,8 +432,6 @@ private:
 
     void notifyTrackModeChanged() final;
 
-    void notifyActiveSourceBuffersChanged() final;
-
     void setShouldDisableSleep(bool) final;
 
     void applicationWillResignActive() final;
@@ -525,10 +515,6 @@ private:
 
 #if ENABLE(WEB_AUDIO) && PLATFORM(COCOA)
     RefPtr<RemoteAudioSourceProvider> m_audioSourceProvider;
-#endif
-
-#if ENABLE(MEDIA_SOURCE)
-    RefPtr<MediaSourcePrivateRemote> m_mediaSourcePrivate;
 #endif
 
     mutable Lock m_lock;

@@ -85,7 +85,7 @@ public:
     RefPtr<MediaSourcePrivateClient> client() const;
     virtual RefPtr<MediaPlayerPrivateInterface> player() const = 0;
     virtual void setPlayer(MediaPlayerPrivateInterface*) = 0;
-    virtual void shutdown();
+    void shutdown();
     // Implementation override must be thread-safe. For the base implementation to be thread-safe, player() must be a ThreadSafeRefCounted object.
     virtual MediaTime currentTime() const;
     virtual bool timeIsProgressing() const;
@@ -110,13 +110,13 @@ public:
     WEBCORE_EXPORT static PlatformTimeRanges computeBufferedRanges(const Vector<PlatformTimeRanges>& activeRanges, bool ended);
 
     MediaPlayer::ReadyState NODELETE mediaPlayerReadyState() const;
-    virtual void setMediaPlayerReadyState(MediaPlayer::ReadyState);
+    void setMediaPlayerReadyState(MediaPlayer::ReadyState);
     virtual void markEndOfStream(EndOfStreamStatus);
     virtual void unmarkEndOfStream() { m_isEnded = false; }
     bool isEnded() const { return m_isEnded; }
 
     virtual MediaSourceReadyState readyState() const { return m_readyState; }
-    virtual void setReadyState(MediaSourceReadyState readyState) { m_readyState = readyState; }
+    void setReadyState(MediaSourceReadyState readyState) { m_readyState = readyState; }
     void setLiveSeekableRange(const PlatformTimeRanges&);
     const PlatformTimeRanges& liveSeekableRange() const;
     void clearLiveSeekableRange();
@@ -125,9 +125,9 @@ public:
     Ref<GenericPromise> reenqueueMediaForTime(const MediaTime&);
     bool isReenqueuePending() const { return m_reenqueuePending; }
     void clearReenqueuePending() { m_reenqueuePending = false; }
-    virtual void cancelPendingWaitForTarget();
+    void cancelPendingWaitForTarget();
 
-    virtual void setTimeFudgeFactor(const MediaTime& fudgeFactor) { m_timeFudgeFactor = fudgeFactor; }
+    void setTimeFudgeFactor(const MediaTime& fudgeFactor) { m_timeFudgeFactor = fudgeFactor; }
     MediaTime timeFudgeFactor() const { return m_timeFudgeFactor; }
 
     MediaTime duration() const;

@@ -49,7 +49,6 @@
 #include "RemoteSharedResourceCacheProxy.h"
 #include "SampleBufferDisplayLayerManager.h"
 #include "SampleBufferDisplayLayerMessages.h"
-#include "SourceBufferPrivateRemoteMessageReceiverMessages.h"
 #include "WebPage.h"
 #include "WebPageCreationParameters.h"
 #include "WebPageMessages.h"
@@ -269,13 +268,6 @@ bool GPUProcessConnection::dispatchMessage(IPC::Connection& connection, IPC::Dec
 #if USE(AUDIO_SESSION)
     if (decoder.messageReceiverName() == Messages::RemoteAudioSession::messageReceiverName()) {
         RELEASE_LOG_ERROR(Media, "The RemoteAudioSession object has beed destroyed");
-        return true;
-    }
-#endif
-
-#if ENABLE(MEDIA_SOURCE)
-    if (decoder.messageReceiverName() == Messages::SourceBufferPrivateRemoteMessageReceiver::messageReceiverName()) {
-        RELEASE_LOG_ERROR(Media, "The SourceBufferPrivateRemote object has beed destroyed");
         return true;
     }
 #endif

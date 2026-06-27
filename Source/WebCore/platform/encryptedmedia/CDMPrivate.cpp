@@ -35,6 +35,7 @@
 #include "MediaPlayer.h"
 #include "NotImplemented.h"
 #include "ParsedContentType.h"
+#include "PlatformStrategies.h"
 #include "SharedBuffer.h"
 #include <wtf/TZoneMallocInlines.h>
 #include <wtf/WeakPtr.h>
@@ -423,10 +424,11 @@ std::optional<Vector<CDMMediaCapability>> CDMPrivate::getSupportedCapabilitiesFo
         //       combination of container, media types, robustness and local accumulated configuration in combination
         //       with restrictions:
         MediaEngineSupportParameters parameters { .type = ContentType(contentType->contentType()) };
-        if (MediaPlayer::supportsType(parameters) == MediaPlayer::SupportsType::IsNotSupported) {
+        MediaPlayerEngineSelection selection { .scope = hasPlatformStrategies() ? MediaPlayerScope::Playback : MediaPlayerScope::Supports };
+        if (MediaPlayer::supportsType(parameters, selection) == MediaPlayer::SupportsType::IsNotSupported) {
             // Try with Media Source:
             parameters.platformType = PlatformMediaDecodingType::MediaSource;
-            if (MediaPlayer::supportsType(parameters) == MediaPlayer::SupportsType::IsNotSupported)
+            if (MediaPlayer::supportsType(parameters, selection) == MediaPlayer::SupportsType::IsNotSupported)
                 continue;
         }
 

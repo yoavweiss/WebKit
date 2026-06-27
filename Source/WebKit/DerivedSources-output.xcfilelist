@@ -282,8 +282,6 @@ $(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/RemoteMediaSessionManagerMessage
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/RemoteMediaSessionManagerMessages.h
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/RemoteMediaSessionManagerProxyMessageReceiver.cpp
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/RemoteMediaSessionManagerProxyMessages.h
-$(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/RemoteMediaSourceProxyMessageReceiver.cpp
-$(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/RemoteMediaSourceProxyMessages.h
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/RemoteMeshMessageReceiver.cpp
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/RemoteMeshMessages.h
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/RemoteObjectRegistryMessageReceiver.cpp
@@ -326,8 +324,6 @@ $(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/RemoteSharedResourceCacheMessage
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/RemoteSharedResourceCacheMessages.h
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/RemoteSnapshotRecorderMessageReceiver.cpp
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/RemoteSnapshotRecorderMessages.h
-$(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/RemoteSourceBufferProxyMessageReceiver.cpp
-$(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/RemoteSourceBufferProxyMessages.h
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/RemoteSurfaceMessageReceiver.cpp
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/RemoteSurfaceMessages.h
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/RemoteSwapChainMessageReceiver.cpp
@@ -374,9 +370,6 @@ $(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/ServiceWorkerFetchTaskMessageRec
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/ServiceWorkerFetchTaskMessages.h
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/SmartMagnificationControllerMessageReceiver.cpp
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/SmartMagnificationControllerMessages.h
-$(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/SourceBufferPrivateRemoteMessageReceiver.cpp
-$(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/SourceBufferPrivateRemoteMessageReceiverMessageReceiver.cpp
-$(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/SourceBufferPrivateRemoteMessageReceiverMessages.h
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/SpeechRecognitionRealtimeMediaSourceManagerMessageReceiver.cpp
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/SpeechRecognitionRealtimeMediaSourceManagerMessages.h
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebKit/IPC/SpeechRecognitionRemoteRealtimeMediaSourceManagerMessageReceiver.cpp

@@ -223,7 +223,6 @@ MESSAGE_RECEIVERS = \
 	WebProcess/GPU/media/RemoteLegacyCDMSession \
 	WebProcess/GPU/media/RemoteMediaResourceLoaderProxy \
 	WebProcess/GPU/media/RemoteRemoteCommandListener \
-	WebProcess/GPU/media/SourceBufferPrivateRemoteMessageReceiver \
 	WebProcess/GPU/media/ios/RemoteMediaSessionHelper \
 	WebProcess/GPU/webrtc/RemoteVideoFrameObjectHeapProxyProcessor \
 	WebProcess/WebStorage/StorageAreaMap \
@@ -341,9 +340,7 @@ MESSAGE_RECEIVERS = \
 	GPUProcess/media/RemoteMediaPlayerProxy \
 	GPUProcess/media/RemoteMediaResourceLoader \
 	GPUProcess/media/RemoteVideoFrameObjectHeap \
-	GPUProcess/media/RemoteMediaSourceProxy \
 	GPUProcess/media/RemoteRemoteCommandListenerProxy \
-	GPUProcess/media/RemoteSourceBufferProxy \
 	ModelProcess/ModelConnectionToWebProcess \
 	ModelProcess/ModelProcess \
 	ModelProcess/ModelProcessModelPlayerManagerProxy \

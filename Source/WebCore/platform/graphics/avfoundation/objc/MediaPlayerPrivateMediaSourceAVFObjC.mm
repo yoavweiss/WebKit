@@ -94,11 +94,10 @@ namespace WebCore {
 
 Ref<AudioVideoRenderer> MediaPlayerPrivateMediaSourceAVFObjC::createRenderer(LoggerHelper& loggerHelper, HTMLMediaElementIdentifier mediaElementIdentifier, MediaPlayerIdentifier playerIdentifier)
 {
-    if (hasPlatformStrategies()) {
-        if (RefPtr renderer = platformStrategies()->mediaStrategy()->createAudioVideoRenderer(&loggerHelper, mediaElementIdentifier, playerIdentifier))
-            return renderer.releaseNonNull();
-    }
-    return AudioVideoRendererAVFObjC::create(Ref { loggerHelper.logger() }, loggerHelper.logIdentifier());
+    RELEASE_ASSERT(hasPlatformStrategies());
+    RefPtr renderer = platformStrategies()->mediaStrategy()->createAudioVideoRenderer(&loggerHelper, mediaElementIdentifier, playerIdentifier);
+    // Can't be null on cocoa platform.
+    return renderer.releaseNonNull();
 }
 
 MediaPlayerPrivateMediaSourceAVFObjC::MediaPlayerPrivateMediaSourceAVFObjC(MediaPlayer& player)
@@ -172,17 +171,16 @@ private:
         return MediaPlayerPrivateMediaSourceAVFObjC::supportsTypeAndCodecs(parameters);
     }
 
-    MediaPlayerScope supportedScope(MediaContainmentEnabled mediaContainmentEnabled) const final
+    // Only reached when registered locally; registerMediaEngine may instead install
+    // a remote proxy for this engine.
+    MediaPlayerScope supportedScope(MediaContainmentEnabled) const final
     {
-        return !hasPlatformStrategies() && mediaContainmentEnabled == MediaContainmentEnabled::Yes ? MediaPlayerScope::Supports : MediaPlayerScope::Playback;
+        return hasPlatformStrategies() ? MediaPlayerScope::Playback : MediaPlayerScope::Supports;
     }
 };
 
 void MediaPlayerPrivateMediaSourceAVFObjC::registerMediaEngine(MediaEngineRegistrar registrar)
 {
-    bool useMSERemoteRenderer = hasPlatformStrategies() && platformStrategies()->mediaStrategy()->hasRemoteRendererFor(MediaPlayerMediaEngineIdentifier::AVFoundationMSE);
-    if (!useMSERemoteRenderer && RemoteMediaPlayerSupport::registerRemoteEngineIfAvailable(registrar, MediaPlayerEnums::MediaEngineIdentifier::AVFoundationMSE, PlatformMediaDecodingType::MediaSource))
-        return;
     if (!isAvailable())
         return;
 

@@ -32,9 +32,6 @@ messages -> RemoteMediaPlayerProxy {
     PrepareForPlayback(bool privateMode, enum:uint8_t WebCore::MediaPlayerPreload preload, bool preservesPitch, enum:uint8_t WebCore::MediaPlayerPitchCorrectionAlgorithm pitchCorrectionAlgorithm, bool prepareToPlay, bool prepareForRendering, WebCore::IntSize presentationSize, float videoContentScale, bool isFullscreen, enum:uint8_t WebCore::DynamicRangeMode mode, WebCore::PlatformDynamicRangeLimit platformDynamicRangeLimit)
 
     Load(URL url, std::optional<WebKit::SandboxExtensionHandle> sandboxExtension, struct WebCore::MediaPlayerLoadOptions options) -> (struct WebKit::RemoteMediaPlayerConfiguration playerConfiguration)
-#if ENABLE(MEDIA_SOURCE)
-    [EnabledBy=MediaSourceEnabled || ManagedMediaSourceEnabled] LoadMediaSource(URL url, struct WebCore::MediaPlayerLoadOptions options, WebKit::RemoteMediaSourceIdentifier mediaSourceIdentifier) -> (struct WebKit::RemoteMediaPlayerConfiguration playerConfiguration)
-#endif
     CancelLoad()
 
     PrepareToPlay()
@@ -96,8 +93,6 @@ messages -> RemoteMediaPlayerProxy {
 #if ENABLE(LEGACY_ENCRYPTED_MEDIA) && ENABLE(ENCRYPTED_MEDIA)
     [EnabledBy=LegacyEncryptedMediaAPIEnabled] SetShouldContinueAfterKeyNeeded(bool should)
 #endif
-
-    NotifyActiveSourceBuffersChanged()
 
     ApplicationWillResignActive()
     ApplicationDidBecomeActive()

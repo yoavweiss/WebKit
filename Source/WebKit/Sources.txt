@@ -93,9 +93,7 @@ GPUProcess/media/RemoteMediaPlayerProxy.cpp @cost:4
 GPUProcess/media/RemoteMediaResource.cpp @cost:3
 GPUProcess/media/RemoteMediaResourceLoader.cpp @cost:3
 GPUProcess/media/RemoteVideoFrameObjectHeap.cpp
-GPUProcess/media/RemoteMediaSourceProxy.cpp @cost:3
 GPUProcess/media/RemoteRemoteCommandListenerProxy.cpp
-GPUProcess/media/RemoteSourceBufferProxy.cpp @cost:4
 GPUProcess/media/RemoteTextTrackProxy.cpp @cost:3
 GPUProcess/media/RemoteVideoTrackProxy.cpp @cost:3
 GPUProcess/webrtc/RemoteSampleBufferDisplayLayerManager.cpp
@@ -823,7 +821,6 @@ WebProcess/GPU/graphics/RemoteResourceCacheProxy.cpp
 WebProcess/GPU/media/AudioTrackPrivateRemote.cpp
 WebProcess/GPU/media/AudioVideoRendererRemote.cpp @cost:5
 WebProcess/GPU/media/MediaPlayerPrivateRemote.cpp @cost:5
-WebProcess/GPU/media/MediaSourcePrivateRemote.cpp @cost:3
 WebProcess/GPU/media/RemoteAudioDestinationProxy.cpp
 WebProcess/GPU/media/RemoteAudioHardwareListener.cpp
 WebProcess/GPU/media/RemoteAudioSession.cpp
@@ -842,7 +839,6 @@ WebProcess/GPU/media/RemoteMediaResourceProxy.cpp
 WebProcess/GPU/media/RemoteVideoFrameProxy.cpp @cost:3
 WebProcess/GPU/media/RemoteRemoteCommandListener.cpp
 WebProcess/GPU/media/RemoteVideoCodecFactory.cpp
-WebProcess/GPU/media/SourceBufferPrivateRemote.cpp @cost:4
 WebProcess/GPU/media/TextTrackPrivateRemote.cpp
 WebProcess/GPU/media/VideoTrackPrivateRemote.cpp
 WebProcess/GPU/media/WebMediaStrategy.cpp

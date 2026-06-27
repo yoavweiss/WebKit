@@ -5278,9 +5278,6 @@ void WebPage::updatePreferences(const WebPreferencesStore& store)
     downcast<WebMediaStrategy>(platformStrategies()->mediaStrategy()).setUseGPUProcess(m_shouldPlayMediaInGPUProcess);
 #if ENABLE(VIDEO)
     protect(WebProcess::singleton().remoteMediaPlayerManager())->setUseGPUProcess(m_shouldPlayMediaInGPUProcess);
-#if PLATFORM(COCOA)
-    platformStrategies()->mediaStrategy()->enableRemoteRenderer(MediaPlayerMediaEngineIdentifier::AVFoundationMSE, settings.mediaContainmentEnabled());
-#endif
 #endif
 #if HAVE(AVASSETREADER)
     protect(WebProcess::singleton().remoteImageDecoderAVFManager())->setUseGPUProcess(m_shouldPlayMediaInGPUProcess);
