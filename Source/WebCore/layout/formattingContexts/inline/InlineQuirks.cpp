@@ -28,7 +28,6 @@
 
 #include "InlineFormattingContext.h"
 #include "FontCascadeInlines.h"
-#include "LayoutBoxInlines.h"
 #include "InlineLineBox.h"
 #include "LayoutBoxGeometry.h"
 #include "LayoutBoxInlines.h"

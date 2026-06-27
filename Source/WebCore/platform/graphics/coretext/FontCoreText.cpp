@@ -56,8 +56,6 @@
 #include "MultiRepresentationHEICMetrics.h"
 #endif
 
-#include <pal/cf/CoreTextSoftLink.h>
-
 namespace WebCore {
 
 static inline bool caseInsensitiveCompare(CFStringRef a, CFStringRef b)

@@ -47,7 +47,6 @@
 #include "FrameDestructionObserverInlines.h"
 #include "FrameLoader.h"
 #include "HTMLSrcsetParser.h"
-#include <JavaScriptCore/ConsoleTypes.h>
 #include "JSFetchRequestDestination.h"
 #include "LinkHeader.h"
 #include "LinkPreloadResourceClients.h"
