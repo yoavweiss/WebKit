@@ -366,6 +366,13 @@ JSValue JSBigInt::toPrimitive(JSGlobalObject*, PreferredPrimitiveType) const
     return const_cast<JSBigInt*>(this);
 }
 
+unsigned JSBigInt::bitLength() const
+{
+    if (isZero())
+        return 1;
+    return m_length * digitBits - clz(digit(m_length - 1));
+}
+
 JSValue JSBigInt::parseInt(JSGlobalObject* globalObject, StringView s, ErrorParseMode parserMode)
 {
     if (s.is8Bit())
@@ -1649,6 +1656,162 @@ JSBigInt::ImplResult JSBigInt::unaryMinusImpl(JSGlobalObject* globalObject, BigI
 JSValue JSBigInt::unaryMinus(JSGlobalObject* globalObject, JSBigInt* x)
 {
     return tryConvertToBigInt32(unaryMinusImpl(globalObject, HeapBigIntImpl { x }));
+}
+
+JSBigInt::ComparisonResult JSBigInt::compareDigits(std::span<const Digit> x, std::span<const Digit> y)
+{
+    x = normalize(x);
+    y = normalize(y);
+    if (x.size() != y.size())
+        return x.size() < y.size() ? ComparisonResult::LessThan : ComparisonResult::GreaterThan;
+    for (size_t i = x.size(); i-- > 0;) {
+        if (x[i] != y[i])
+            return x[i] < y[i] ? ComparisonResult::LessThan : ComparisonResult::GreaterThan;
+    }
+    return ComparisonResult::Equal;
+}
+
+std::span<JSBigInt::Digit> JSBigInt::addDigits(std::span<const Digit> x, std::span<const Digit> y, std::span<Digit> result)
+{
+    x = normalize(x);
+    y = normalize(y);
+    if (x.size() < y.size())
+        std::swap(x, y);
+    RELEASE_ASSERT(result.size() >= x.size() + 1);
+    return normalize(addTextbook(x, y, result));
+}
+
+std::span<JSBigInt::Digit> JSBigInt::multiplyDigits(std::span<const Digit> x, std::span<const Digit> y, std::span<Digit> result)
+{
+    x = normalize(x);
+    y = normalize(y);
+    if (x.empty() || y.empty())
+        return { };
+    if (x.size() < y.size())
+        std::swap(x, y);
+    RELEASE_ASSERT(result.size() >= x.size() + y.size());
+    return normalize((y.size() == 1) ? multiplySingle(x, y[0], result) : multiplyTextbook(x, y, result));
+}
+
+std::span<JSBigInt::Digit> JSBigInt::divideDigits(std::span<Digit> quotient, std::span<const Digit> x, std::span<const Digit> y)
+{
+    x = normalize(x);
+    y = normalize(y);
+    RELEASE_ASSERT(!y.empty());
+
+    auto comparisonResult = compareDigits(x, y);
+    if (comparisonResult == ComparisonResult::LessThan)
+        return { };
+
+    RELEASE_ASSERT(quotient.size() >= x.size());
+    if (comparisonResult == ComparisonResult::Equal) {
+        quotient[0] = 1;
+        return quotient.first(1);
+    }
+
+    // x > y, thus x.size() >= y.size().
+    if (y.size() == 1) {
+        Digit remainder;
+        return normalize(divideSingle(quotient, remainder, x, y[0]));
+    }
+
+    if (x.size() == y.size()) {
+        auto quotientDigit = divideSameSize(x, y);
+        if (!quotientDigit)
+            return { };
+        quotient[0] = quotientDigit;
+        return quotient.first(1);
+    }
+
+    auto [quotientSpan, remainderSpan] = divideTextbook(quotient, { }, x, y);
+    return normalize(quotientSpan);
+}
+
+std::span<JSBigInt::Digit> JSBigInt::oneShiftedLeft(std::span<Digit> result, unsigned bitIndex)
+{
+    unsigned digitIndex = bitIndex / digitBits;
+    RELEASE_ASSERT(result.size() >= digitIndex + 1);
+    result = result.first(digitIndex + 1);
+    zeroSpan(result);
+    result[digitIndex] = static_cast<Digit>(1) << (bitIndex % digitBits);
+    return result;
+}
+
+// https://tc39.es/proposal-bigint-math/#sec-bigint.sqrt
+JSValue JSBigInt::sqrt(JSGlobalObject* globalObject, JSBigInt* bigInt)
+{
+    VM& vm = globalObject->vm();
+    auto scope = DECLARE_THROW_SCOPE(vm);
+
+    ASSERT(!bigInt->sign());
+
+    if (bigInt->isZero())
+        RELEASE_AND_RETURN(scope, bigInt);
+
+    auto value = bigInt->digits();
+    Vector<Digit, 16> resultStorage(value.size() + 2);
+    Vector<Digit, 16> quotientStorage(value.size() + 2);
+    Vector<Digit, 16> sumStorage(value.size() + 2);
+    Vector<Digit, 16> nextStorage(value.size() + 2);
+
+    // 2^floor(floor(log2(value)) / 2)
+    auto result = oneShiftedLeft(resultStorage.mutableSpan(), (bigInt->bitLength() - 1) >> 1);
+    for (size_t iteration = 0; ; ++iteration) {
+        // result = ((value / result) + result) >> 1
+        auto quotient = divideDigits(quotientStorage.mutableSpan(), value, result);
+        auto sum = addDigits(quotient, result, sumStorage.mutableSpan());
+        auto next = normalize(rightShift(nextStorage.mutableSpan(), sum, 1));
+        if (iteration) {
+            auto comparisonResult = compareDigits(next, result);
+            if (comparisonResult == ComparisonResult::Equal || comparisonResult == ComparisonResult::GreaterThan)
+                break;
+        }
+
+        result = spanCopy(resultStorage.mutableSpan(), next);
+    }
+
+    RELEASE_AND_RETURN(scope, tryConvertToBigInt32(tryCreateFromImpl(globalObject, vm, false, result)));
+}
+
+// https://tc39.es/proposal-bigint-math/#sec-bigint.cbrt
+JSValue JSBigInt::cbrt(JSGlobalObject* globalObject, JSBigInt* bigInt)
+{
+    VM& vm = globalObject->vm();
+    auto scope = DECLARE_THROW_SCOPE(vm);
+
+    if (bigInt->isZero())
+        RELEASE_AND_RETURN(scope, bigInt);
+
+    constexpr std::array<Digit, 1> three = { 3 };
+
+    bool sign = bigInt->sign();
+    auto value = bigInt->digits();
+    Vector<Digit, 16> resultStorage(value.size() + 2);
+    Vector<Digit, 16> squaredStorage(value.size() + 2);
+    Vector<Digit, 16> quotientStorage(value.size() + 2);
+    Vector<Digit, 16> doubledStorage(value.size() + 2);
+    Vector<Digit, 16> sumStorage(value.size() + 2);
+    Vector<Digit, 16> nextStorage(value.size() + 2);
+
+    // 2^floor(floor(log2(value)) / 3)
+    auto result = oneShiftedLeft(resultStorage.mutableSpan(), (bigInt->bitLength() - 1) / 3);
+    for (size_t iteration = 0; ; ++iteration) {
+        // result = ((2 * result) + (value / (result * result))) / 3
+        auto resultSquared = multiplyDigits(result, result, squaredStorage.mutableSpan());
+        auto quotient = divideDigits(quotientStorage.mutableSpan(), value, resultSquared);
+        auto doubledResult = normalize(leftShift(doubledStorage.mutableSpan(), result, 1));
+        auto sum = addDigits(doubledResult, quotient, sumStorage.mutableSpan());
+        auto next = divideDigits(nextStorage.mutableSpan(), sum, three);
+        if (iteration) {
+            auto comparisonResult = compareDigits(next, result);
+            if (comparisonResult == ComparisonResult::Equal || comparisonResult == ComparisonResult::GreaterThan)
+                break;
+        }
+
+        result = spanCopy(resultStorage.mutableSpan(), next);
+    }
+
+    RELEASE_AND_RETURN(scope, tryConvertToBigInt32(tryCreateFromImpl(globalObject, vm, sign, result)));
 }
 
 // Compute the multiplicative inverse Inv ≈ floor(2^(2n*digitBits) / B) for cached modulo.
