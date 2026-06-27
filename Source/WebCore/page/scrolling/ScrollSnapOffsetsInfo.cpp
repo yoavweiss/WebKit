@@ -126,7 +126,7 @@ static bool NODELETE offsetHasVisibleSnapArea(const InfoType& info, const SnapOf
     for (auto index : snapOffset.snapAreaIndices) {
         const auto& snapArea = info.snapAreas[index];
         auto [otherAxisMin, otherAxisMax] = rangeForAxis<UnitType>(snapArea, otherAxis);
-        if ((snapOffsetOther.offset + viewportLengthInOtherAxis) > otherAxisMin && snapOffsetOther.offset < otherAxisMax)
+        if ((snapOffsetOther.offset + viewportLengthInOtherAxis) > otherAxisMin && snapOffsetOther.offset <= otherAxisMax)
             return true;
     }
     return false;
@@ -145,7 +145,7 @@ static size_t findCompatibleSnapArea(const InfoType& info, const SnapOffset<Unit
         auto [otherAxisMin, otherAxisMax] = rangeForAxis<UnitType>(snapArea, otherAxis);
         if (info.offsetsForAxis(otherAxis).isEmpty() && ((scrollDestinationInOtherAxis + viewportLengthInOtherAxis) < otherAxisMin || scrollDestinationInOtherAxis > otherAxisMax))
             return false;
-        return (snapOffset.offset + viewportLength) > axisMin && snapOffset.offset < axisMax;
+        return (snapOffset.offset + viewportLength) > axisMin && snapOffset.offset <= axisMax;
     });
 }
 
