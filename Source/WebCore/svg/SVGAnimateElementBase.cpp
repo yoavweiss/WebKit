@@ -106,10 +106,8 @@ bool SVGAnimateElementBase::setFromAndToValues(const String& fromString, const S
     if (!target)
         return false;
 
-    if (RefPtr animator = this->animator()) {
-        animator->setFromAndToValues(*target, animateRangeString(fromString), animateRangeString(toString));
-        return true;
-    }
+    if (RefPtr animator = this->animator())
+        return animator->setFromAndToValues(*target, animateRangeString(fromString), animateRangeString(toString));
     return false;
 }
 

@@ -75,7 +75,8 @@ public:
     {
         m_from = SVGPropertyTraits<Color>::fromString(targetElement, from);
         m_to = SVGPropertyTraits<Color>::fromString(targetElement, to);
-        return true;
+        // Allow empty 'from' for to-animation mode.
+        return (from.isEmpty() || m_from.isValid()) && m_to.isValid();
     }
 
     bool setToAtEndOfDurationValue(SVGElement& targetElement, const String& toAtEndOfDuration) override
@@ -158,14 +159,18 @@ public:
 
     bool setFromAndToValues(SVGElement&, const String& from, const String& to) override
     {
-        m_from = SVGLengthValue(m_lengthMode, from);
-        m_to = SVGLengthValue(m_lengthMode, to);
-        return true;
+        // Allow empty 'from' for to-animation mode, where the start value is derived at runtime.
+        if (!from.isEmpty() && m_from.setValueAsString(from, m_lengthMode).hasException())
+            return false;
+        return !m_to.setValueAsString(to, m_lengthMode).hasException();
     }
 
     bool setToAtEndOfDurationValue(SVGElement&, const String& toAtEndOfDuration) override
     {
-        m_toAtEndOfDuration = SVGLengthValue(m_lengthMode, toAtEndOfDuration);
+        SVGLengthValue value(m_lengthMode);
+        if (value.setValueAsString(toAtEndOfDuration).hasException())
+            return false;
+        m_toAtEndOfDuration = WTF::move(value);
         return true;
     }
 
