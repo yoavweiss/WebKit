@@ -145,6 +145,6 @@ WK_CLASS_AVAILABLE(macos(10.15), ios(13.0))
  @discussion The default value is NO. When enabled, both navigator.globalPrivacyControl and the
  Sec-GPC: 1 request header are active for the main frame, its subframes, and their subresources.
  */
-@property (nonatomic) BOOL globalPrivacyControlEnabled WK_API_AVAILABLE(macos(WK_MAC_TBA), ios(WK_IOS_TBA), visionos(WK_XROS_TBA));
+@property (nonatomic) BOOL globalPrivacyControlStatus WK_API_AVAILABLE(macos(WK_MAC_TBA), ios(WK_IOS_TBA), visionos(WK_XROS_TBA));
 
 @end

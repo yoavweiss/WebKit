@@ -555,14 +555,14 @@ ALLOW_DEPRECATED_IMPLEMENTATIONS_END
     return _websitePolicies->allowPrivacyProxy();
 }
 
-- (void)setGlobalPrivacyControlEnabled:(BOOL)enabled
+- (void)setGlobalPrivacyControlStatus:(BOOL)enabled
 {
-    _websitePolicies->setGlobalPrivacyControlEnabled(enabled);
+    _websitePolicies->setGlobalPrivacyControlStatus(enabled);
 }
 
-- (BOOL)globalPrivacyControlEnabled
+- (BOOL)globalPrivacyControlStatus
 {
-    return protect(*_websitePolicies)->globalPrivacyControlEnabled().value_or(false);
+    return protect(*_websitePolicies)->globalPrivacyControlStatus().value_or(false);
 }
 
 - (_WKWebsiteColorSchemePreference)_colorSchemePreference

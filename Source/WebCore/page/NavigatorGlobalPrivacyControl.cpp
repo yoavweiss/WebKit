@@ -33,20 +33,20 @@
 
 namespace WebCore {
 
-bool NavigatorGlobalPrivacyControl::globalPrivacyControlEnabled(Navigator& navigator)
+bool NavigatorGlobalPrivacyControl::globalPrivacyControlStatus(Navigator& navigator)
 {
     auto* frame = navigator.frame();
     if (!frame)
         return false;
-    return frame->settings().globalPrivacyControlEnabled();
+    return frame->settings().globalPrivacyControlStatus();
 }
 
-bool NavigatorGlobalPrivacyControl::globalPrivacyControlEnabled(WorkerNavigator& navigator)
+bool NavigatorGlobalPrivacyControl::globalPrivacyControlStatus(WorkerNavigator& navigator)
 {
     RefPtr scope = navigator.scriptExecutionContext();
     if (!scope)
         return false;
-    return scope->settingsValues().globalPrivacyControlEnabled;
+    return scope->settingsValues().globalPrivacyControlStatus;
 }
 
 } // namespace WebCore
