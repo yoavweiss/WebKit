@@ -949,7 +949,7 @@ webkit.org/b/285785 printing/light-text-dark-background-economy.html [ ImageOnly
 
 webkit.org/b/177294 platform/gtk/fonts/fontconfig-aliasing-settings.html [ Failure ]
 
-webkit.org/b/314266 webkit.org/b/182763 accessibility/gtk/aria-activedescendant-changed-notification.html [ Failure Crash ]
+webkit.org/b/314266 webkit.org/b/182763 accessibility/gtk/aria-activedescendant-changed-notification.html [ Failure Crash Timeout ]
 
 webkit.org/b/183902 fast/dom/frame-loading-via-document-write.html [ Failure ]
 
@@ -1281,7 +1281,7 @@ pointer-lock/lock-lost-on-alert.html [ Pass Failure ]
 webkit.org/b/311846 webrtc/h264-high.html [ Pass Failure Slow ]
 webkit.org/b/311847 webrtc/dtmf-gc.html [ Pass Timeout ]
 
-webkit.org/b/311927 accessibility/combobox/gtk/combobox-collapsed-selection-changed.html [ Failure Pass ]
+webkit.org/b/311927 accessibility/combobox/gtk/combobox-collapsed-selection-changed.html [ Failure Pass Timeout ]
 
 webkit.org/b/311930 fonts/font-cache-memory-pressure-crash.html [ Failure Pass ]
 
@@ -1322,3 +1322,24 @@ webkit.org/b/315455 http/tests/IndexedDB/transaction-stop-during-request-dispatc
 webkit.org/b/315455 webgl/1.0.x/conformance/extensions/ext-sRGB.html [ Failure ]
 
 webkit.org/b/317975 fast/dom/HTMLImageElement/sizes/image-sizes-js-innerhtml.html [ Failure Pass ]
+
+# Gardening 2026-06-27 (GTK x86_64, builder 57) https://bugs.webkit.org/show_bug.cgi?id=318036
+webkit.org/b/318021 accessibility/ARIA-reflection.html [ Pass Timeout ]
+webkit.org/b/318022 accessibility/combobox/aria-combobox-control-owns-elements.html [ Pass Timeout ]
+webkit.org/b/318023 animations/3d/animate-to-transform-perpective-to-none.html [ Pass Timeout ]
+webkit.org/b/318024 animations/CSSKeyframesRule-name-null.html [ Pass Timeout ]
+webkit.org/b/318025 animations/font-variations/font-stretch.html [ Pass Timeout ]
+webkit.org/b/318026 fast/canvas/canvas-layer-drawing.html [ Pass ImageOnlyFailure ]
+webkit.org/b/318027 fast/events/mouse-focus-imagemap.html [ Pass Failure ]
+webkit.org/b/318028 fast/parser/entity-end-xmp-tag.html [ Pass Timeout ]
+webkit.org/b/318029 media/media-source/media-source-seek-twice.html [ Pass Timeout ]
+webkit.org/b/318030 inspector/canvas/create-context-2d.html [ Crash Pass ]
+webkit.org/b/318031 imported/w3c/web-platform-tests/css/filter-effects/filtered-inline-applies-to-block.html [ Pass ImageOnlyFailure ]
+webkit.org/b/318032 svg/filters/feImage-element-primitive-subregion.svg [ Pass ImageOnlyFailure ]
+webkit.org/b/318033 imported/w3c/web-platform-tests/css/css-backgrounds/background-clip/clip-border-area-corner-shape.html [ Pass ImageOnlyFailure ]
+webkit.org/b/157179 fast/events/bogus-dropEffect-effectAllowed.html [ Failure Timeout ]
+webkit.org/b/318035 imported/w3c/web-platform-tests/css/css-view-transitions/iframe-and-main-frame-transition-new-main-new-iframe.html [ Pass ImageOnlyFailure ]
+webkit.org/b/318035 imported/w3c/web-platform-tests/css/css-view-transitions/iframe-and-main-frame-transition-new-main-old-iframe.html [ Pass ImageOnlyFailure ]
+webkit.org/b/318035 imported/w3c/web-platform-tests/css/css-view-transitions/iframe-and-main-frame-transition-old-main-new-iframe.html [ Pass ImageOnlyFailure ]
+webkit.org/b/318035 imported/w3c/web-platform-tests/css/css-view-transitions/iframe-and-main-frame-transition-old-main-old-iframe.html [ Pass ImageOnlyFailure ]
+webkit.org/b/318035 imported/w3c/web-platform-tests/css/css-view-transitions/iframe-and-main-frame-transition-old-main.html [ Pass ImageOnlyFailure ]

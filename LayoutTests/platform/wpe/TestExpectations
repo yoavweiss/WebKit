@@ -1207,7 +1207,6 @@ webkit.org/b/310411 [ arm64 ] fast/events/event-timing-back-forward-cache-durati
 webkit.org/b/309627 [ arm64 ] fast/forms/textarea/textarea-placeholder-paint-order-2.html [ Pass ImageOnlyFailure ]
 
 webkit.org/b/309369 [ arm64 ] svg/custom/use-on-symbol-inside-pattern.svg [ Failure ]
-webkit.org/b/309369 [ arm64 ] svg/W3C-SVG-1.1/extend-namespace-01-f.svg [ Failure ]
 webkit.org/b/309369 [ arm64 ] svg/W3C-SVG-1.1/metadata-example-01-b.svg [ Failure ]
 
 webkit.org/b/309369 [ arm64 ] imported/w3c/web-platform-tests/css/motion/offset-path-ray-contain-003.html [ ImageOnlyFailure ]
@@ -1222,8 +1221,6 @@ webkit.org/b/309372 [ arm64 ] webaudio/ScriptProcessor/scriptprocessor-offlineau
 webkit.org/b/309376 [ arm64 ] compositing/animation/animation-backing.html [ Failure Pass ]
 
 webkit.org/b/310413 [ arm64 ] compositing/backing/animate-into-view.html [ Failure Pass ]
-
-webkit.org/b/309381 [ arm64 ] webgl/2.0.y/conformance2/rendering/blitframebuffer-filter-srgb.html [ Failure ]
 
 webkit.org/b/309382 [ arm64 ] fast/canvas/2d.text.draw.fill.maxWidth.gradient.html [ Failure Pass ]
 
@@ -1241,9 +1238,6 @@ webkit.org/b/309863 [ arm64 ] media/video-seek-have-nothing.html [ Pass Failure 
 
 webkit.org/b/312150 [ arm64 ] imported/w3c/web-platform-tests/encoding/textdecoder-mistakes.any.html [ Failure ]
 webkit.org/b/312150 [ arm64 ] imported/w3c/web-platform-tests/encoding/textdecoder-mistakes.any.worker.html [ Failure ]
-
-webkit.org/b/315145 [ arm64 ] fast/images/animated-avif.html [ ImageOnlyFailure ]
-webkit.org/b/315145 [ arm64 ] imported/w3c/web-platform-tests/css/filter-effects/backdrop-filter-image-size-filter-size-mismatch.html [ ImageOnlyFailure ]
 
 [ arm64 ] imported/w3c/web-platform-tests/content-security-policy/frame-ancestors/frame-ancestors-none-block.html [ Failure Pass ]
 
@@ -1320,8 +1314,6 @@ webkit.org/b/316709 scrollbars/scrollbar-drag-thumb-with-large-content.html [ Fa
 
 webkit.org/b/309744 [ arm64 ] fast/events/monotonic-event-time.html [ Pass Failure ]
 webkit.org/b/311654 [ arm64 ] imported/w3c/web-platform-tests/event-timing/gap-keydown-keyup.html [ Pass Failure ]
-webkit.org/b/317019 [ arm64 ] imported/w3c/web-platform-tests/svg/path/property/d-interpolation-relative-absolute.svg [ Failure ]
-webkit.org/b/317019 [ arm64 ] imported/w3c/web-platform-tests/svg/path/property/d-interpolation-single.svg [ Failure ]
 webkit.org/b/317020 [ arm64 ] fast/events/site-isolation/event-timing-back-forward-cache-duration.html [ Pass Failure ]
 webkit.org/b/252878 [ arm64 ] fast/frames/lots-of-objects.html [ Pass Timeout ]
 webkit.org/b/317021 [ arm64 ] fast/parser/elementstack-nesting-depth.html [ Pass Timeout ]
@@ -1349,3 +1341,6 @@ webkit.org/b/317973 [ arm64 ] fast/visual-viewport/client-rects-relative-to-layo
 webkit.org/b/317974 [ arm64 ] imported/w3c/web-platform-tests/largest-contentful-paint/cross-origin-image.sub.html [ Failure Pass ]
 webkit.org/b/317975 [ arm64 ] fast/dom/HTMLImageElement/sizes/image-sizes-js-innerhtml.html [ Failure Pass ]
 webkit.org/b/317976 [ arm64 ] imported/w3c/web-platform-tests/largest-contentful-paint/observe-svg-data-uri-image.html [ Failure Pass ]
+
+# Gardening 2026-06-27 (WPE x86_64, builder 40) https://bugs.webkit.org/show_bug.cgi?id=318036
+webkit.org/b/318034 [ x86_64 ] fast/canvas/image-potential-subsample.html [ Failure Pass ]
