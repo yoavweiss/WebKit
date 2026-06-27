@@ -282,8 +282,13 @@ void SoupNetworkSession::setProxySettings(const SoupNetworkProxySettings& settin
         resolver = adoptGRef(g_simple_proxy_resolver_new(nullptr, nullptr));
         if (!m_proxySettings.defaultProxyURL.isNull())
             g_simple_proxy_resolver_set_default_proxy(G_SIMPLE_PROXY_RESOLVER(resolver.get()), m_proxySettings.defaultProxyURL.data());
-        if (m_proxySettings.ignoreHosts)
-            g_simple_proxy_resolver_set_ignore_hosts(G_SIMPLE_PROXY_RESOLVER(resolver.get()), m_proxySettings.ignoreHosts.get());
+        if (!m_proxySettings.ignoreHosts.isEmpty()) {
+            auto ignoreHosts = m_proxySettings.ignoreHosts.map([](const CString& host) {
+                return const_cast<char*>(host.data());
+            });
+            ignoreHosts.append(nullptr);
+            g_simple_proxy_resolver_set_ignore_hosts(G_SIMPLE_PROXY_RESOLVER(resolver.get()), ignoreHosts.mutableSpan().data());
+        }
         for (const auto& iter : m_proxySettings.proxyMap)
             g_simple_proxy_resolver_set_uri_proxy(G_SIMPLE_PROXY_RESOLVER(resolver.get()), iter.key.data(), iter.value.data());
         break;
