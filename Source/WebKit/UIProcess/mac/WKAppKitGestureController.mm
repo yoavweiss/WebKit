@@ -1571,6 +1571,12 @@ static inline bool isSamePair(NSGestureRecognizer *a, NSGestureRecognizer *b, NS
     if (!webView)
         return NO;
 
+    // None of our gesture recognizers may prevent an enclosing scroll view's pan (or any other
+    // scroll/zoom) gesture, so that a scroll can always be handed off to the enclosing scroll view
+    // e.g. a scroll over a draggable <img> in a non-scrollable web view.
+    if ([self _isScrollOrZoomGestureRecognizer:preventedGestureRecognizer])
+        return NO;
+
     bool isOurClickGesture = preventingGestureRecognizer == _singleClickGestureRecognizer
         || preventingGestureRecognizer == _secondaryClickGestureRecognizer
         || preventingGestureRecognizer == _mouseTrackingGestureRecognizer
@@ -1578,9 +1584,6 @@ static inline bool isSamePair(NSGestureRecognizer *a, NSGestureRecognizer *b, NS
 
     if (!isOurClickGesture)
         return YES;
-
-    if ([self _isScrollOrZoomGestureRecognizer:preventedGestureRecognizer])
-        return NO;
 
     // Don't let other click gestures prevent the secondary click GR; it must be allowed to fire its
     // press timer (0.72s) without being short-circuited by gestures that recognize earlier

@@ -35,49 +35,37 @@ private import TestWebKitAPILibrary
 private import Recap
 private import AppKit_Private.NSMenu_Private
 
-private actor Recap {
-    static let shared = Recap()
+extension AppKitGesturesTests {
+    @MainActor
+    @Suite(.serialized, .timeLimit(.minutes(1)))
+    struct Basic: AppKitGestureTestSuite {
+        static let text = "Here's to the crazy ones."
 
-    func play(events: @Sendable (_ composer: any RCPEventStreamComposer) -> Void) async {
-        let eventStream: RCPSyntheticEventStream = RCPSyntheticEventStream { composer in
-            guard let composer else {
-                preconditionFailure()
+        let recap = Recap.shared
+
+        let page: WebPage = {
+            var configuration = WebPage.Configuration()
+            configuration.requiresUserActionForEditingControlsManager = true
+            return WebPage(configuration: configuration)
+        }()
+
+        let window: NSWindow
+
+        init() async throws {
+            let contentSize = NSSize(width: 800, height: 600)
+
+            self.window = NSWindow(size: contentSize) { [page] in
+                WebView(page)
             }
-            composer.senderProperties = ._wk_trackpadSender()
-            events(composer)
-        }
 
-        await RCPInlinePlayer.play(eventStream, options: .init())
+            self.window.setFrameOrigin(.zero)
+            NSApp.activate(ignoringOtherApps: true)
+            self.window.makeKeyAndOrderFront(nil)
+        }
     }
 }
 
-@MainActor
-@Suite(.serialized, .timeLimit(.minutes(1)))
-struct AppKitGesturesTests {
-    private static let text = "Here's to the crazy ones."
-
-    private let recap = Recap.shared
-
-    private let page: WebPage = {
-        var configuration = WebPage.Configuration()
-        configuration.requiresUserActionForEditingControlsManager = true
-        return WebPage(configuration: configuration)
-    }()
-
-    private let window: NSWindow
-
-    init() async throws {
-        let contentSize = NSSize(width: 800, height: 600)
-
-        self.window = NSWindow(size: contentSize) { [page] in
-            WebView(page)
-        }
-
-        self.window.setFrameOrigin(.zero)
-        NSApp.activate(ignoringOtherApps: true)
-        self.window.makeKeyAndOrderFront(nil)
-    }
-
+extension AppKitGesturesTests.Basic {
     @Test(
         .bug("https://webkit.org/b/314880", "Only mouse tracking mode produces pointer events"),
         arguments: [true, false]
@@ -168,7 +156,7 @@ struct AppKitGesturesTests {
         await page.waitForNextPresentationUpdate()
 
         let startViewportCoordinates = try await page.callJavaScript(JavaScriptMessages.BoundingClientRect(elementID: "line97"))
-        let startBounds = convertToCoreGraphicsScreenCoordinates(rectInViewportCoordinates: startViewportCoordinates, window: window)
+        let startBounds = screenBounds(ofRectInViewportCoordinates: startViewportCoordinates)
 
         // Recap requires this test to be ran within an app host.
         guard NSApp.isActive else {
@@ -323,7 +311,7 @@ struct AppKitGesturesTests {
         #expect(scrollLater.y == scrollAfterLift.y)
     }
 
-    @Test()
+    @Test
     func draggingSelectionToTopEdgeScrollsUp() async throws {
         try await loadScrollableText()
         await page.waitForNextPresentationUpdate()
@@ -792,7 +780,7 @@ struct AppKitGesturesTests {
         }
 
         let sliderBounds = try await page.callJavaScript(JavaScriptMessages.BoundingClientRect(elementID: elementID))
-        let convertedSliderBounds = convertToCoreGraphicsScreenCoordinates(rectInViewportCoordinates: sliderBounds, window: window)
+        let convertedSliderBounds = screenBounds(ofRectInViewportCoordinates: sliderBounds)
 
         let start = convertedSliderBounds.center
         let end = CGPoint(x: convertedSliderBounds.maxX, y: convertedSliderBounds.center.y)
@@ -887,10 +875,7 @@ struct AppKitGesturesTests {
             let viewportCoordinates = try await page.callJavaScript(
                 JavaScriptMessages.BoundingClientRect(in: "link", range: linkRange)
             )
-            return convertToCoreGraphicsScreenCoordinates(
-                rectInViewportCoordinates: viewportCoordinates,
-                window: window
-            )
+            return screenBounds(ofRectInViewportCoordinates: viewportCoordinates)
         }()
 
         let dragEnd = CGPoint(x: linkBounds.maxX + 50, y: linkBounds.midY)
@@ -948,10 +933,7 @@ struct AppKitGesturesTests {
         }
 
         let imgViewportBounds = try await page.callJavaScript(JavaScriptMessages.BoundingClientRect(elementID: "img"))
-        let imgBounds = convertToCoreGraphicsScreenCoordinates(
-            rectInViewportCoordinates: imgViewportBounds,
-            window: window
-        )
+        let imgBounds = screenBounds(ofRectInViewportCoordinates: imgViewportBounds)
 
         let dragEnd = CGPoint(x: imgBounds.maxX + 50, y: imgBounds.midY)
 
@@ -1050,55 +1032,6 @@ struct AppKitGesturesTests {
     }
 }
 
-// MARK: Helpers
-
-@MainActor
-private func convertToCoreGraphicsScreenCoordinates(pointInWindowCoordinates: CGPoint, window: NSWindow) -> CGPoint {
-    guard let screen = window.screen else {
-        preconditionFailure()
-    }
-
-    let inAppKitScreenCoordinates = window.convertPoint(toScreen: pointInWindowCoordinates)
-
-    let inCoreGraphicsScreenCoordinates = CGPoint(
-        x: inAppKitScreenCoordinates.x,
-        y: screen.frame.maxY - inAppKitScreenCoordinates.y
-    )
-
-    return inCoreGraphicsScreenCoordinates
-}
-
-@MainActor
-private func convertToCoreGraphicsScreenCoordinates(rectInViewportCoordinates: DOMRect, window: NSWindow) -> CGRect {
-    guard let contentViewController = window.contentViewController else {
-        preconditionFailure()
-    }
-
-    guard let screen = window.screen else {
-        preconditionFailure()
-    }
-
-    let inViewportCoordinates = CGRect(rectInViewportCoordinates)
-
-    let inWindowCoordinates = CGRect(
-        x: inViewportCoordinates.origin.x,
-        y: contentViewController.view.frame.height - inViewportCoordinates.origin.y - inViewportCoordinates.size.height,
-        width: inViewportCoordinates.size.width,
-        height: inViewportCoordinates.size.height,
-    )
-
-    let inAppKitScreenCoordinates = window.convertToScreen(inWindowCoordinates)
-
-    let inCoreGraphicsScreenCoordinates = CGRect(
-        x: inAppKitScreenCoordinates.origin.x,
-        y: screen.frame.maxY - inAppKitScreenCoordinates.maxY,
-        width: inAppKitScreenCoordinates.width,
-        height: inAppKitScreenCoordinates.height,
-    )
-
-    return inCoreGraphicsScreenCoordinates
-}
-
 nonisolated(nonsending) private func withSwizzledContextMenu(perform body: () async -> Void) async {
     typealias CompletionHandler = @convention(block) () -> Void
     typealias ObjCImplementation = @convention(block) (NSMenu.Type, NSMenu, _NSViewMenuContext, NSView, CompletionHandler?) -> Void
@@ -1122,7 +1055,7 @@ nonisolated(nonsending) private func withSwizzledContextMenu(perform body: () as
     }
 }
 
-extension AppKitGesturesTests {
+extension AppKitGesturesTests.Basic {
     private func loadHTML(contentEditable: Bool = false, clickHandler: Bool = false) async throws {
         let contentEditableMarkup = contentEditable ? "contenteditable" : ""
         let clickHandlerMarkup = clickHandler ? "onclick='void(0)'" : ""
@@ -1132,21 +1065,6 @@ extension AppKitGesturesTests {
             """
 
         try await page.load(html: html).wait()
-    }
-
-    private func screenBoundsOfText(_ text: String) async throws -> CGRect {
-        let range = try #require(Self.text.utf16Range(of: text))
-
-        let viewportCoordinates = try await page.callJavaScript(
-            JavaScriptMessages.BoundingClientRect(in: "div", range: range)
-        )
-
-        let screenCoordinates = convertToCoreGraphicsScreenCoordinates(
-            rectInViewportCoordinates: viewportCoordinates,
-            window: window
-        )
-
-        return screenCoordinates
     }
 
     private func loadScrollableText() async throws {
@@ -1160,15 +1078,6 @@ extension AppKitGesturesTests {
             """
         try await page.load(html: html).wait()
     }
-
-    private func screenBounds(ofElementWithID id: String) async throws -> CGRect {
-        let viewportCoordinates = try await page.callJavaScript(JavaScriptMessages.BoundingClientRect(elementID: id))
-        return convertToCoreGraphicsScreenCoordinates(rectInViewportCoordinates: viewportCoordinates, window: window)
-    }
-
-    private func screenBounds(ofPointInWindowCoordinates point: NSPoint) -> NSPoint {
-        convertToCoreGraphicsScreenCoordinates(pointInWindowCoordinates: point, window: window)
-    }
 }
 
-#endif // HAVE_APPKIT_GESTURES_SUPPORT
+#endif
