@@ -437,9 +437,15 @@ private:
 
     static constexpr uint32_t entriesCapacityFromBucketCount(uint32_t bucketCount)
     {
-        // Load factor 3/4: entries array is 3/4 of bucket array. Leaves room for
-        // empty slots so probing terminates quickly.
-        return (bucketCount * 3) / 4;
+        // Match WTF::HashTable's load factor policy (HashTable.h):
+        //   small tables (<= 1024 buckets): 3/4 max load
+        //   large tables (>  1024 buckets): 1/2 max load
+        // Larger tables use a lower load factor so probe sequences stay short
+        // once the bucket array exceeds the L1/L2 footprint.
+        constexpr uint32_t maxSmallTableCapacity = 1024;
+        if (bucketCount <= maxSmallTableCapacity)
+            return (bucketCount * 3) / 4;
+        return bucketCount / 2;
     }
 
     static constexpr uint32_t bucketCountForKeyCount(uint32_t keyCount)
