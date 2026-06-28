@@ -1242,8 +1242,9 @@ private:
         case GetByVal:
         case GetByValMegamorphic: {
             if (!node->prediction()) {
-                m_insertionSet.insertNode(
-                    m_indexInBlock, SpecNone, ForceOSRExit, node->origin);
+                // Widen to "any type" instead of forcing an OSR exit. Downstream
+                // nodes will speculate via their own edge UseKinds if needed.
+                node->predict(SpecBytecodeTop);
             }
 
             {
