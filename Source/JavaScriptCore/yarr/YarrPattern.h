@@ -29,6 +29,7 @@
 #include <JavaScriptCore/YarrErrorCode.h>
 #include <JavaScriptCore/YarrFlags.h>
 #include <JavaScriptCore/YarrUnicodeProperties.h>
+#include <array>
 #include <wtf/CheckedArithmetic.h>
 #include <wtf/HashMap.h>
 #include <wtf/OptionSet.h>
@@ -146,6 +147,14 @@ public:
     Vector<CharacterRange> m_ranges8;
     Vector<char32_t> m_matches32;
     Vector<CharacterRange> m_ranges32;
+
+    static constexpr unsigned latin1TableSize = 256;
+    struct ByteTable {
+        WTF_MAKE_TZONE_ALLOCATED(ByteTable);
+    public:
+        std::array<uint8_t, latin1TableSize> data { { } };
+    };
+    std::unique_ptr<ByteTable> m_latin1Table;
 
     Table m_table;
     CharacterClassWidths m_characterWidths;

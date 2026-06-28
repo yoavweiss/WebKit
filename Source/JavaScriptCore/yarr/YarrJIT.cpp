@@ -1140,6 +1140,18 @@ class YarrGenerator final : public YarrJITInfo {
             return;
         }
 
+        if (m_charSize == CharSize::Char8 && charClass->m_latin1Table) {
+            const auto* table = m_boyerMooreData->addLatin1Table(*charClass->m_latin1Table);
+            if (matchTargets.hasFailedTarget()) {
+                MacroAssembler::ExtendedAddress tableEntry(character, reinterpret_cast<intptr_t>(table));
+                matchTargets.appendFailed(m_jit.branchTest8(MacroAssembler::Zero, tableEntry));
+                return;
+            }
+            MacroAssembler::ExtendedAddress tableEntry(character, reinterpret_cast<intptr_t>(table));
+            matchTargets.appendSucceeded(m_jit.branchTest8(MacroAssembler::NonZero, tableEntry));
+            return;
+        }
+
         Vector<char32_t, 32> unifiedMatches;
         Vector<CharacterRange, 32> unifiedRanges;
         unifiedMatches.appendVector(charClass->m_matches8);

@@ -478,6 +478,8 @@ public:
         characterClass->m_anyCharacter = anyCharacter();
         characterClass->m_characterWidths = characterWidths();
 
+        buildLatin1TableIfBeneficial(*characterClass);
+
         m_anyCharacter = false;
         m_characterWidths = CharacterClassWidths::Unknown;
 
@@ -487,6 +489,44 @@ public:
     void NODELETE setIsCaseInsensitive(bool ignoreCase)
     {
         m_isCaseInsensitive = ignoreCase;
+    }
+
+    static void buildLatin1TableIfBeneficial(CharacterClass& characterClass)
+    {
+        if (!characterClass.m_strings.isEmpty() || characterClass.m_anyCharacter || characterClass.m_table)
+            return;
+
+        const auto& matches = characterClass.m_matches8;
+        const auto& ranges = characterClass.m_ranges8;
+
+        // A single range is already one subtract + one compare in the JIT, so a table would not help.
+        unsigned entryCount = matches.size() + ranges.size();
+        if (entryCount < 2)
+            return;
+
+        constexpr char32_t maxLatin1 = CharacterClass::latin1TableSize - 1;
+        char32_t low = !ranges.isEmpty() ? ranges.first().begin : matches.first();
+        char32_t high = !ranges.isEmpty() ? ranges.last().end : matches.last();
+        if (!matches.isEmpty()) {
+            low = std::min<char32_t>(low, matches.first());
+            high = std::max<char32_t>(high, matches.last());
+        }
+        ASSERT_UNUSED(maxLatin1, low <= maxLatin1 && high <= maxLatin1);
+        constexpr char32_t bitTestFootprint = 64;
+        if (high - low < bitTestFootprint)
+            return;
+
+        auto table = makeUnique<CharacterClass::ByteTable>();
+        for (auto match : matches) {
+            ASSERT(match <= maxLatin1);
+            table->data[match] = 1;
+        }
+        for (auto range : ranges) {
+            ASSERT(range.end <= maxLatin1);
+            for (char32_t ch = range.begin; ch <= range.end; ++ch)
+                table->data[ch] = 1;
+        }
+        characterClass.m_latin1Table = WTF::move(table);
     }
 
 private:
