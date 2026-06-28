@@ -2056,9 +2056,17 @@ public:
     //     matching JIT code.
     void checkForTerminalParentheses()
     {
-        // This check is much too crude; should be just checking whether the candidate
-        // node contains nested capturing subpatterns, not the whole expression!
-        if (m_pattern.m_numSubpatterns)
+        // For match-only patterns capture results are never observed, so the string-list optimization
+        // may run even when the pattern declares capturing subpatterns, and a capturing group wrapping
+        // a fixed string (e.g. "(t0)") may be treated as that string. Backreferences and named groups
+        // can still observe captures even in match-only mode, so keep the conservative bail for them.
+        bool ignoreCaptures = m_pattern.m_executionMode != ExecutionMode::IncludeSubpatterns
+            && !m_pattern.m_containsBackreferences
+            && !m_pattern.m_hasNamedCaptureGroups
+            && !m_pattern.m_numDuplicateNamedCaptureGroups
+            && !m_pattern.m_containsLookbehinds;
+
+        if (m_pattern.m_numSubpatterns && !ignoreCaptures)
             return;
 
         Vector<std::unique_ptr<PatternAlternative>>& alternatives = m_pattern.m_body->m_alternatives;
@@ -2074,6 +2082,7 @@ public:
                 && terms[1].type == PatternTerm::Type::ParenthesesSubpattern
                 && terms[1].quantityType == QuantifierType::FixedCount
                 && terms[1].quantityMaxCount == 1
+                && !terms[1].parentheses.isCopy
                 && (terms.size() == 2
                     || (terms.size() == 3 && terms[2].type == PatternTerm::Type::AssertionEOL))) {
                 // We start assuming this is a string list and then prove the negative.
@@ -2084,20 +2093,71 @@ public:
                 PatternDisjunction* nestedDisjunction = term.parentheses.disjunction;
                 constexpr unsigned emptyAlternativeNotFound = std::numeric_limits<unsigned>::max();
                 unsigned firstEmptyAlternative = emptyAlternativeNotFound;
+
+                auto isPureCharacterSequence = [](const Vector<PatternTerm>& innerTerms) {
+                    for (auto& innerTerm : innerTerms) {
+                        if (innerTerm.type != PatternTerm::Type::PatternCharacter
+                            || innerTerm.quantityType != QuantifierType::FixedCount
+                            || innerTerm.quantityMaxCount != 1)
+                            return false;
+                    }
+                    return true;
+                };
+
+                // When ignoring captures, an alternative that is exactly one once-quantified group
+                // wrapping a pure fixed string (e.g. "(t0)") is equivalent to that string for
+                // matching purposes. Returns the wrapped disjunction so the caller can flatten the
+                // alternative to the group's character terms; nullptr if the shape does not match.
+                auto unwrapSingleGroup = [&](const Vector<PatternTerm>& innerTerms) -> PatternDisjunction* {
+                    if (innerTerms.size() != 1)
+                        return nullptr;
+
+                    const PatternTerm& only = innerTerms[0];
+                    if (only.type != PatternTerm::Type::ParenthesesSubpattern
+                        || only.quantityType != QuantifierType::FixedCount
+                        || only.quantityMinCount != 1
+                        || only.quantityMaxCount != 1
+                        || only.parentheses.isCopy)
+                        return nullptr;
+
+                    PatternDisjunction* inner = only.parentheses.disjunction;
+                    if (inner->m_alternatives.size() != 1)
+                        return nullptr;
+
+                    // Leave an empty capture group (e.g. "()") to the generic path: flattening it to
+                    // an empty sequence would hide it from the empty-alternative bookkeeping below,
+                    // which scans the pre-flattened terms.
+                    if (inner->m_alternatives[0]->m_terms.isEmpty())
+                        return nullptr;
+
+                    if (!isPureCharacterSequence(inner->m_alternatives[0]->m_terms))
+                        return nullptr;
+
+                    return inner;
+                };
+
+                // Pass 1: confirm every alternative is a fixed string (possibly after seeing through a
+                // single wrapping group). Do not mutate the tree yet, so a late non-string alternative
+                // never leaves a half-rewritten tree.
                 for (unsigned alt = 0; isStringList && alt < nestedDisjunction->m_alternatives.size(); ++alt) {
-                    Vector<PatternTerm>& innerTerms = nestedDisjunction->m_alternatives[alt]->m_terms;
+                    const auto& innerTerms = nestedDisjunction->m_alternatives[alt]->m_terms;
 
                     if (innerTerms.isEmpty() && firstEmptyAlternative == emptyAlternativeNotFound)
                         firstEmptyAlternative = alt;
 
-                    for (size_t termIndex = 0; termIndex < innerTerms.size(); ++termIndex) {
-                        PatternTerm& innerTerm = innerTerms[termIndex];
-                        if (innerTerm.type != PatternTerm::Type::PatternCharacter
-                            || innerTerm.quantityType != QuantifierType::FixedCount
-                            || innerTerm.quantityMaxCount != 1) {
-                            isStringList = false;
-                            break;
-                        }
+                    if (isPureCharacterSequence(innerTerms))
+                        continue;
+                    if (ignoreCaptures && unwrapSingleGroup(innerTerms))
+                        continue;
+                    isStringList = false;
+                }
+
+                // Pass 2: now that the whole list is confirmed, flatten any wrapped-group alternatives
+                // by replacing the group term with a copy of its character terms.
+                if (isStringList && ignoreCaptures) {
+                    for (auto& alternative : nestedDisjunction->m_alternatives) {
+                        if (PatternDisjunction* inner = unwrapSingleGroup(alternative->m_terms))
+                            alternative->m_terms = inner->m_alternatives[0]->m_terms;
                     }
                 }
 
@@ -2125,7 +2185,8 @@ public:
                     && term.quantityType == QuantifierType::Greedy
                     && term.quantityMinCount == 0
                     && term.quantityMaxCount == quantifyInfinite
-                    && !term.capture())
+                    && !term.capture()
+                    && !term.containsAnyCaptures())
                     term.parentheses.isTerminal = true;
             }
         }
@@ -2890,7 +2951,7 @@ ErrorCode YarrPattern::compile(StringView patternString)
     return ErrorCode::NoError;
 }
 
-YarrPattern::YarrPattern(StringView pattern, OptionSet<Flags> flags, ErrorCode& error)
+YarrPattern::YarrPattern(StringView pattern, OptionSet<Flags> flags, ErrorCode& error, ExecutionMode executionMode)
     : m_containsBackreferences(false)
     , m_containsBOL(false)
     , m_containsLookbehinds(false)
@@ -2899,6 +2960,7 @@ YarrPattern::YarrPattern(StringView pattern, OptionSet<Flags> flags, ErrorCode& 
     , m_hasCopiedParenSubexpressions(false)
     , m_hasNamedCaptureGroups(false)
     , m_saveInitialStartValue(false)
+    , m_executionMode(executionMode)
     , m_flags(flags)
 {
     ASSERT(m_flags != Flags::DeletedValue);

@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include <JavaScriptCore/Yarr.h>
 #include <JavaScriptCore/YarrErrorCode.h>
 #include <JavaScriptCore/YarrFlags.h>
 #include <JavaScriptCore/YarrUnicodeProperties.h>
@@ -594,7 +595,7 @@ struct TermChain {
 
 
 struct YarrPattern {
-    JS_EXPORT_PRIVATE YarrPattern(StringView pattern, OptionSet<Flags>, ErrorCode&);
+    JS_EXPORT_PRIVATE YarrPattern(StringView pattern, OptionSet<Flags>, ErrorCode&, ExecutionMode = ExecutionMode::IncludeSubpatterns);
 
     void resetForReparsing()
     {
@@ -781,6 +782,7 @@ struct YarrPattern {
     bool m_hasCopiedParenSubexpressions : 1;
     bool m_hasNamedCaptureGroups : 1;
     bool m_saveInitialStartValue : 1;
+    ExecutionMode m_executionMode { ExecutionMode::IncludeSubpatterns };
     OptionSet<Flags> m_flags;
     SpecificPattern m_specificPattern { SpecificPattern::None };
     unsigned m_numSubpatterns { 0 };

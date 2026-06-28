@@ -436,12 +436,7 @@ private:
     std::optional<JITFailureReason> m_failureReason;
 };
 
-enum class JITCompileMode : uint8_t {
-    MatchOnly,
-    IncludeSubpatterns,
-    InlineTest
-};
-void jitCompile(YarrPattern&, StringView patternString, CharSize, std::optional<StringView> sampleString, VM*, YarrCodeBlock& jitObject, JITCompileMode);
+void jitCompile(YarrPattern&, StringView patternString, CharSize, std::optional<StringView> sampleString, VM*, YarrCodeBlock& jitObject, ExecutionMode);
 
 #if ENABLE(YARR_JIT_REGEXP_TEST_INLINE)
 

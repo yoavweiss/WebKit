@@ -85,6 +85,12 @@ enum class SpecificPattern : uint8_t {
     Newlines,
 };
 
+enum class ExecutionMode : uint8_t {
+    MatchOnly,
+    IncludeSubpatterns,
+    InlineTest
+};
+
 struct BytecodePattern;
 
 } } // namespace JSC::Yarr

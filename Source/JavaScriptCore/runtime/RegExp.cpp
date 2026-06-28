@@ -274,7 +274,7 @@ void RegExp::compile(VM* vm, Yarr::CharSize charSize, std::optional<StringView> 
         && !pattern.m_containsLookbehinds
         ) {
         auto& jitCode = ensureRegExpJITCode();
-        Yarr::jitCompile(pattern, m_patternString, charSize, sampleString, vm, jitCode, Yarr::JITCompileMode::IncludeSubpatterns);
+        Yarr::jitCompile(pattern, m_patternString, charSize, sampleString, vm, jitCode, Yarr::ExecutionMode::IncludeSubpatterns);
         if (!jitCode.failureReason()) {
             m_state = JITCode;
             return;
@@ -317,8 +317,8 @@ bool RegExp::matchConcurrently(
 void RegExp::compileMatchOnly(VM* vm, Yarr::CharSize charSize, std::optional<StringView> sampleString)
 {
     Locker locker { cellLock() };
-    
-    Yarr::YarrPattern pattern(m_patternString, m_flags, m_constructionErrorCode);
+
+    Yarr::YarrPattern pattern(m_patternString, m_flags, m_constructionErrorCode, Yarr::ExecutionMode::MatchOnly);
     if (hasError(m_constructionErrorCode)) {
         m_state = ParseError;
         return;
@@ -342,7 +342,7 @@ void RegExp::compileMatchOnly(VM* vm, Yarr::CharSize charSize, std::optional<Str
         && !pattern.m_containsLookbehinds
         ) {
         auto& jitCode = ensureRegExpJITCode();
-        Yarr::jitCompile(pattern, m_patternString, charSize, sampleString, vm, jitCode, Yarr::JITCompileMode::MatchOnly);
+        Yarr::jitCompile(pattern, m_patternString, charSize, sampleString, vm, jitCode, Yarr::ExecutionMode::MatchOnly);
         if (!jitCode.failureReason()) {
             m_state = JITCode;
             return;
@@ -356,7 +356,16 @@ void RegExp::compileMatchOnly(VM* vm, Yarr::CharSize charSize, std::optional<Str
     dataLogLnIf(Options::dumpCompiledRegExpPatterns(), "Can't JIT this regular expression: \"/", m_patternString, "/\"");
 
     m_state = ByteCode;
-    m_regExpBytecode = byteCodeCompilePattern(vm, pattern, m_constructionErrorCode);
+    // m_regExpBytecode is shared with capture-observing operations (exec/match) and the Yarr
+    // interpreter has no StringList fast path, so compile it from a capture-complete pattern rather
+    // than the match-only one above, whose capturing fixed-string alternations may have been
+    // flattened (dropping their subpatterns) for the JIT.
+    Yarr::YarrPattern bytecodePattern(m_patternString, m_flags, m_constructionErrorCode, Yarr::ExecutionMode::IncludeSubpatterns);
+    if (hasError(m_constructionErrorCode)) {
+        m_state = ParseError;
+        return;
+    }
+    m_regExpBytecode = byteCodeCompilePattern(vm, bytecodePattern, m_constructionErrorCode);
     if (!m_regExpBytecode) {
         m_state = ParseError;
         return;
