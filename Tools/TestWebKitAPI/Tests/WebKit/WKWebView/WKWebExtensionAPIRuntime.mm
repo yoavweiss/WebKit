@@ -532,6 +532,46 @@ TEST(WKWebExtensionAPIRuntime, SendMessageFromContentScript)
     [manager run];
 }
 
+TEST(WKWebExtensionAPIRuntime, SendMessageFromContentScriptWhileBackgroundIsLoading)
+{
+    // A content script sends runtime.sendMessage while the non-persistent background content
+    // is still loading on initial load (before its onMessage listener has registered). The
+    // message must be queued and delivered once the background loads, not dropped.
+
+    TestWebKitAPI::HTTPServer server({
+        { "/"_s, { { { "Content-Type"_s, "text/html"_s } }, ""_s } },
+    }, TestWebKitAPI::HTTPServer::Protocol::Http);
+
+    auto *urlRequest = server.requestWithLocalhost();
+
+    auto *backgroundScript = Util::constructScript(@[
+        @"browser.runtime.onMessage.addListener((message, sender, sendResponse) => {",
+        @"  browser.test.assertEq(message?.content, 'Hello', 'Should receive the message sent while the background was loading')",
+        @"  sendResponse({ content: 'Received' })",
+        @"})",
+    ]);
+
+    auto *contentScript = Util::constructScript(@[
+        @"(async () => {",
+        @"  const response = await browser.runtime.sendMessage({ content: 'Hello' })",
+
+        @"  browser.test.assertEq(response?.content, 'Received', 'Should get the response from the background script')",
+
+        @"  browser.test.notifyPass()",
+        @"})()"
+    ]);
+
+    auto manager = Util::loadExtension(runtimeContentScriptManifest, @{ @"background.js": backgroundScript, @"content.js": contentScript });
+
+    [manager.get().context setPermissionStatus:WKWebExtensionContextPermissionStatusGrantedExplicitly forURL:urlRequest.URL];
+
+    // Load the tab immediately, without waiting for the background to be ready, so the content script's
+    // runtime.sendMessage races the initial background content load.
+    [manager.get().defaultTab.webView loadRequest:urlRequest];
+
+    [manager run];
+}
+
 TEST(WKWebExtensionAPIRuntime, SendMessageFromContentScriptWithAsyncReply)
 {
     TestWebKitAPI::HTTPServer server({

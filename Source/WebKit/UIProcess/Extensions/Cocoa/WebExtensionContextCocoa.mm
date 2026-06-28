@@ -351,6 +351,7 @@ Expected<bool, RefPtr<API::Error>> WebExtensionContext::unload()
 
     m_actionsToPerformAfterBackgroundContentLoads.clear();
     m_backgroundContentEventListeners.clear();
+    m_backgroundContentHasLoadedOnce = false;
     m_eventListenerFrames.clear();
     m_installReason = InstallReason::None;
     m_previousVersion = nullString();
@@ -1275,7 +1276,7 @@ void WebExtensionContext::didOpenWindow(WebExtensionWindow& window, UpdateWindow
     }
 
     for (Ref tab : window.tabs())
-        didOpenTab(tab);
+        didOpenTab(tab, suppressEvents);
 
     if (!isLoaded() || !window.extensionHasAccess() || suppressEvents == SuppressEvents::Yes)
         return;
@@ -2778,6 +2779,7 @@ void WebExtensionContext::performTasksAfterBackgroundContentLoads()
         action();
 
     m_backgroundContentIsLoaded = true;
+    m_backgroundContentHasLoadedOnce = true;
     m_actionsToPerformAfterBackgroundContentLoads.clear();
 
     saveBackgroundPageListenersToStorage();

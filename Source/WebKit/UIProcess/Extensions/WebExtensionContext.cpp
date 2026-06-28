@@ -1879,8 +1879,13 @@ void WebExtensionContext::wakeUpBackgroundContentIfNecessaryToFireEvents(EventLi
             }
         }
 
+        // Until the background content has loaded once, an empty listener set means the listeners
+        // aren't known yet, not that the event is unhandled. Queue rather than drop it, so a content
+        // script that calls runtime.sendMessage while racing the initial background load isn't lost.
+        bool backgroundContentListenersAreUnknown = m_backgroundContentEventListeners.isEmpty() && !m_backgroundContentHasLoadedOnce;
+
         // Don't load the background page if it isn't expecting these events.
-        if (!backgroundContentListensToAtLeastOneEvent) {
+        if (!backgroundContentListensToAtLeastOneEvent && !backgroundContentListenersAreUnknown) {
             completionHandler();
             return;
         }
