@@ -550,6 +550,7 @@ class SpeechRecognitionPermissionManager;
 class SuspendedPageProxy;
 class SystemPreviewController;
 class TextExtractionAssertionScope;
+class TextExtractionCache;
 class UserData;
 class UserMediaPermissionRequestManagerProxy;
 class UserMediaPermissionRequestProxy;
@@ -2756,6 +2757,8 @@ public:
     void hasTextExtractionFilterRules(CompletionHandler<void(bool)>&&);
     void updateTextExtractionFilterRules(Vector<WebCore::TextExtraction::FilterRuleData>&&);
     void applyTextExtractionFilter(const String& input, CompletionHandler<void(String&&)>&&);
+
+    TextExtractionCache& textExtractionCache();
 
     void hasVideoInPictureInPictureDidChange(bool);
 

@@ -67,6 +67,7 @@
 #import "SafeBrowsingUtilities.h"
 #import "SessionStateCoding.h"
 #import "TextExtractionAssertionScope.h"
+#import "TextExtractionCache.h"
 #import "TextExtractionFilter.h"
 #import "TextExtractionToStringConversion.h"
 #import "TextExtractionTokenizer.h"
@@ -7436,7 +7437,11 @@ static RetainPtr<_WKTextExtractionResult> createEmptyTextExtractionResult()
                 return completionHandler(createEmptyTextExtractionResult().get());
 
             RELEASE_LOG(TextExtraction, "<%@: %p> Extraction complete (%.0f ms)", [strongSelf class], strongSelf.get(), (MonotonicTime::now() - startTime).milliseconds());
-            auto [text, filteredOutAnyText, shortenedURLStrings, textToContainerMap] = result;
+            auto [text, filteredOutAnyText, shortenedURLStrings, textToContainerMap, lineContents] = result;
+
+            if (strongSelf->_page)
+                strongSelf->_page->textExtractionCache().add(strongSelf->_page->currentURL(), WTF::move(lineContents));
+
             RetainPtr shortenedURLs = adoptNS([[NSMutableDictionary alloc] initWithCapacity:shortenedURLStrings.size()]);
             for (auto& string : shortenedURLStrings) {
                 if (auto url = urlCache->urlForShortenedString(string); url.isValid()) {

@@ -442,6 +442,7 @@ UIProcess/SpeechRecognitionPermissionManager.cpp
 UIProcess/TextChecker.cpp
 UIProcess/TextCheckerCompletion.cpp
 UIProcess/TextExtractionAssertionScope.cpp
+UIProcess/TextExtractionCache.cpp
 UIProcess/UIProcessLogInitialization.cpp
 UIProcess/UserMediaPermissionCheckProxy.cpp
 UIProcess/UserMediaPermissionRequestManagerProxy.cpp @cost:5

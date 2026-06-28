@@ -110,11 +110,17 @@ struct TextExtractionOptions {
     String topHostName;
 };
 
+struct TextExtractionLineContent {
+    String contentWithoutIdentifier;
+    std::optional<String> nodeIdentifier;
+};
+
 struct TextExtractionResult {
     String textContent;
     bool filteredOutAnyText { false };
     Vector<String> shortenedURLStrings;
     HashMap<String, Vector<ExtractedNodeInfo>> textToContainerMap;
+    Vector<TextExtractionLineContent> lineContents;
 };
 
 void convertToText(WebCore::TextExtraction::Item&&, TextExtractionOptions&&, CompletionHandler<void(TextExtractionResult&&)>&&);

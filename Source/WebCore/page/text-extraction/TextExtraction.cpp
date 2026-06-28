@@ -1875,7 +1875,7 @@ static String invalidNodeIdentifierDescription(std::optional<NodeIdentifier>&& i
     if (!identifier)
         return "Missing nodeIdentifier"_s;
 
-    return makeString("Failed to resolve nodeIdentifier "_s, identifier->loggingString());
+    return makeString("Failed to resolve stale uid="_s, identifier->loggingString());
 }
 
 static String searchTextNotFoundDescription(const String& searchText)
@@ -1940,12 +1940,15 @@ static Expected<ResolvedMouseTarget, String> resolveMouseTarget(Node& targetNode
         element = targetNode.parentElementInComposedTree();
 
     if (!element || !element->isConnected())
-        return makeUnexpected("Target has been disconnected from the DOM"_s);
+        return makeUnexpected("Target element could not be found; uid may be stale"_s);
+
+    if (!element->document().hasLivingRenderTree())
+        return makeUnexpected("Target belongs to a detached document; uid may be stale"_s);
 
     {
         CheckedPtr renderer = element->renderer();
         if (!renderer)
-            return makeUnexpected("Target is not rendered (possibly display: none)"_s);
+            return makeUnexpected("Target is not rendered (possibly display: none) or uid may be stale"_s);
 
         if (renderer->style().usedVisibility() != Visibility::Visible)
             return makeUnexpected("Target is hidden via CSS visibility"_s);

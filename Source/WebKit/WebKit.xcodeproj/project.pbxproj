@@ -7258,6 +7258,8 @@
 		7DDEC9D32D4C5DDA000B1353 /* WebExtensionRegisteredScriptsSQLiteStore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WebExtensionRegisteredScriptsSQLiteStore.h; sourceTree = "<group>"; };
 		7DDEC9D42D4C5DDA000B1353 /* WebExtensionRegisteredScriptsSQLiteStore.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = WebExtensionRegisteredScriptsSQLiteStore.cpp; sourceTree = "<group>"; };
 		7DE4AC4A2E55521C00475DD8 /* WebExtensionDeclarativeNetRequestSQLiteStoreCocoa.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = WebExtensionDeclarativeNetRequestSQLiteStoreCocoa.mm; sourceTree = "<group>"; };
+		7E0C1A0E000000000000CAC1 /* TextExtractionCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextExtractionCache.h; sourceTree = "<group>"; };
+		7E0C1A0F000000000000CAC2 /* TextExtractionCache.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TextExtractionCache.cpp; sourceTree = "<group>"; };
 		7E0E785501701FB501FB7E04 /* GeneratedSerializersSharedExtensions.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = GeneratedSerializersSharedExtensions.mm; sourceTree = "<group>"; };
 		7E70A07B501701FB501FB523 /* GeneratedSerializersSharedAPI.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = GeneratedSerializersSharedAPI.mm; sourceTree = "<group>"; };
 		7E70A07B501701FB501FB525 /* GeneratedSerializersSharedCocoa.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = GeneratedSerializersSharedCocoa.mm; sourceTree = "<group>"; };
@@ -15853,6 +15855,8 @@
 				53CFBBC72224D1B000266546 /* TextCheckerCompletion.h */,
 				F41D73EA2EFF607700FD1ECB /* TextExtractionAssertionScope.cpp */,
 				F41D73E92EFF607700FD1ECB /* TextExtractionAssertionScope.h */,
+				7E0C1A0F000000000000CAC2 /* TextExtractionCache.cpp */,
+				7E0C1A0E000000000000CAC1 /* TextExtractionCache.h */,
 				CD9A64A027C8972C003827C0 /* UIProcessLogInitialization.cpp */,
 				CD9A649F27C8972C003827C0 /* UIProcessLogInitialization.h */,
 				07297F9C1C17BBEA003F0735 /* UserMediaPermissionCheckProxy.cpp */,

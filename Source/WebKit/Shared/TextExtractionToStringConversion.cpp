@@ -368,6 +368,7 @@ struct TextExtractionLine {
     unsigned enclosingBlockNumber { 0 };
     unsigned superscriptLevel { 0 };
     unsigned visualBlockContainerNumber { 0 };
+    std::optional<String> nodeIdentifier { };
 };
 
 static bool shouldEmitFullStopBetweenLines(const TextExtractionLine& previous, const String& previousText, const TextExtractionLine& line, const String& text)
@@ -410,6 +411,8 @@ static bool shouldEmitExtraSpace(char16_t previousCharacter, char16_t nextCharac
 
 enum class HasAdjacentLinkAfter : bool { No, Yes };
 
+static String lineWithoutNodeIdentifier(const String&, const std::optional<String>&);
+
 class TextExtractionAggregator : public RefCounted<TextExtractionAggregator> {
     WTF_MAKE_NONCOPYABLE(TextExtractionAggregator);
     WTF_MAKE_TZONE_ALLOCATED(TextExtractionAggregator);
@@ -426,8 +429,7 @@ public:
     {
         addNativeMenuItemsIfNeeded();
         addVersionNumberIfNeeded();
-
-        m_completion({ takeResults(), m_filteredOutAnyText, std::exchange(m_shortenedURLStrings, { }), std::exchange(m_textToContainerMap, { }) });
+        m_completion({ takeResults(), m_filteredOutAnyText, std::exchange(m_shortenedURLStrings, { }), std::exchange(m_textToContainerMap, { }), std::exchange(m_lineContents, { }) });
     }
 
     String takeResults()
@@ -463,6 +465,14 @@ public:
         }
 
         if (useTextTreeOutput() || useHTMLOutput()) {
+            if (useTextTreeOutput()) {
+                m_lineContents = m_lines.map([](auto& stringAndLine) {
+                    return TextExtractionLineContent {
+                        lineWithoutNodeIdentifier(stringAndLine.first, stringAndLine.second.nodeIdentifier),
+                        stringAndLine.second.nodeIdentifier
+                    };
+                });
+            }
             return makeStringByJoining(m_lines.map([](auto& stringAndLine) {
                 return stringAndLine.first;
             }), "\n"_s);
@@ -516,7 +526,7 @@ public:
         if (components.isEmpty())
             return;
 
-        auto [lineIndex, indentLevel, enclosingBlockNumber, superscriptLevel, visualBlockContainerNumber] = line;
+        auto [lineIndex, indentLevel, enclosingBlockNumber, superscriptLevel, visualBlockContainerNumber, nodeIdentifier] = line;
         if (lineIndex >= m_lines.size()) {
             ASSERT_NOT_REACHED();
             return;
@@ -833,6 +843,7 @@ private:
 
     const TextExtractionOptions m_options;
     Vector<std::pair<String, TextExtractionLine>> m_lines;
+    Vector<TextExtractionLineContent> m_lineContents;
     Vector<String, 1> m_urlStringStack;
     unsigned m_superscriptLevel { 0 };
     unsigned m_strikethroughLevel { 0 };
@@ -1279,6 +1290,21 @@ static String quoteValue(const String& value, bool conditionalQuoting)
 
 enum class IncludeRectForParentItem : bool { No, Yes };
 
+static String lineWithoutNodeIdentifier(const String& line, const std::optional<String>& identifier)
+{
+    if (!identifier)
+        return line;
+
+    auto token = makeString("uid="_s, *identifier);
+    size_t location = line.find(token);
+    if (location == notFound)
+        return line;
+
+    unsigned start = static_cast<unsigned>(location);
+    unsigned end = start + token.length();
+    return makeString(StringView { line }.left(start), StringView { line }.substring(end));
+}
+
 static Vector<String> partsForItem(const TextExtraction::Item& item, const TextExtractionAggregator& aggregator, IncludeRectForParentItem includeRectForParentItem)
 {
     Vector<String> parts;
@@ -1446,10 +1472,12 @@ static void addPartsForText(const TextExtraction::TextItemData& textItem, Vector
     });
 }
 
-static void addPartsForItem(const TextExtraction::Item& item, std::optional<NodeIdentifier>&& enclosingNode, const TextExtractionLine& line, TextExtractionAggregator& aggregator, IncludeRectForParentItem includeRectForParentItem, HasAdjacentLinkAfter hasAdjacentLinkAfter = HasAdjacentLinkAfter::No)
+static void addPartsForItem(const TextExtraction::Item& item, std::optional<NodeIdentifier>&& enclosingNode, TextExtractionLine line, TextExtractionAggregator& aggregator, IncludeRectForParentItem includeRectForParentItem, HasAdjacentLinkAfter hasAdjacentLinkAfter = HasAdjacentLinkAfter::No)
 {
     Vector<String> parts;
     bool streamlined = aggregator.useTextTreeOutput();
+    if (item.nodeIdentifier)
+        line.nodeIdentifier = aggregator.stringForIdentifiers(item.frameIdentifier, *item.nodeIdentifier);
     WTF::switchOn(item.data,
         [&](const TextExtraction::ContainerType& containerType) {
             auto containerString = containerTypeString(containerType);

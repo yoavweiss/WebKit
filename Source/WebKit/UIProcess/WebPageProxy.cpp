@@ -1596,6 +1596,7 @@ void WebPageProxy::swapToProvisionalPage(Ref<ProvisionalPageProxy>&& provisional
     m_webPageID = provisionalPage->webPageID();
     if (RefPtr pageClient = this->pageClient())
         pageClient->didChangeWebPageID();
+    internals().textExtractionCache.clear();
     ASSERT(m_legacyMainFrameProcess->websiteDataStore());
     m_websiteDataStore = *m_legacyMainFrameProcess->websiteDataStore();
 #if ENABLE(WEB_ARCHIVE)
@@ -18709,6 +18710,11 @@ void WebPageProxy::updateTextExtractionFilterRules(Vector<WebCore::TextExtractio
 void WebPageProxy::applyTextExtractionFilter(const String& input, CompletionHandler<void(String&&)>&& completion)
 {
     sendWithAsyncReply(Messages::WebPage::ApplyTextExtractionFilter(input), WTF::move(completion));
+}
+
+TextExtractionCache& WebPageProxy::textExtractionCache()
+{
+    return internals().textExtractionCache;
 }
 
 void WebPageProxy::addConsoleMessage(FrameIdentifier frameID, MessageSource messageSource, MessageLevel messageLevel, const String& message, std::optional<ResourceLoaderIdentifier> coreIdentifier)

@@ -36,6 +36,7 @@
 #include "ProcessActivityGroup.h"
 #include "ProcessThrottler.h"
 #include "ScrollingAccelerationCurve.h"
+#include "TextExtractionCache.h"
 #include "TextManipulationParameters.h"
 #include "VisibleWebPageCounter.h"
 #include "WebColorPicker.h"
@@ -240,6 +241,8 @@ public:
     UserObservablePageCounter::Token pageIsUserObservableCount;
     std::optional<MonotonicTime> pageLoadStart;
     PageLoadState pageLoadState;
+
+    TextExtractionCache textExtractionCache;
     OptionSet<WebCore::ActivityState> potentiallyChangedActivityStateFlags;
     ProcessSuppressionDisabledToken preventProcessSuppressionCount;
     std::optional<PrivateClickMeasurementAndMetadata> privateClickMeasurement;
