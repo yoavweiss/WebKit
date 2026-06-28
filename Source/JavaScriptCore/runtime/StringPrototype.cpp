@@ -345,6 +345,8 @@ JSString* replaceUsingRegExpSearch(VM& vm, JSGlobalObject* globalObject, JSStrin
     RegExp* regExp = regExpObject->regExp();
     bool global = regExp->global();
     bool hasNamedCaptures = regExp->hasNamedCaptures();
+    bool hasDuplicateNamedCaptureGroups = regExp->hasDuplicateNamedCaptureGroups();
+    Structure* groupsStructure = hasNamedCaptures ? regExp->ensureGroupsStructure(vm, globalObject) : nullptr;
 
     if (global) {
         // ES5.1 15.5.4.10 step 8.a.
@@ -414,7 +416,8 @@ JSString* replaceUsingRegExpSearch(VM& vm, JSGlobalObject* globalObject, JSStrin
                 cachedCall = &cachedCallHolder.value();
             }
             cachedCall->clearArguments();
-            JSObject* groups = hasNamedCaptures ? constructEmptyObject(vm, globalObject->nullPrototypeObjectStructure()) : nullptr;
+            JSObject* groups = hasNamedCaptures ? constructEmptyObject(vm, groupsStructure ? groupsStructure : globalObject->nullPrototypeObjectStructure()) : nullptr;
+            PropertyOffset groupOffset = 0;
 
             for (unsigned i = 0; i < regExp->numSubpatterns() + 1; ++i) {
                 int matchStart = ovector[i * 2];
@@ -432,25 +435,31 @@ JSString* replaceUsingRegExpSearch(VM& vm, JSGlobalObject* globalObject, JSStrin
                 cachedCall->appendArgument(patternValue);
 
                 if (i && hasNamedCaptures) {
-                    String groupName = regExp->getCaptureGroupNameForSubpatternId(i);
+                    const AtomString& groupName = regExp->getCaptureGroupNameForSubpatternId(i);
                     if (!groupName.isEmpty()) {
-                        auto captureIndex = regExp->subpatternIdForGroupName(groupName, ovector);
+                        unsigned captureIndex = i;
+                        if (hasDuplicateNamedCaptureGroups) [[unlikely]]
+                            captureIndex = regExp->subpatternIdForGroupName(groupName, ovector);
 
+                        JSValue captureValue;
                         if (captureIndex == i)
-                            groups->putDirect(vm, Identifier::fromString(vm, groupName), patternValue);
+                            captureValue = patternValue;
                         else if (captureIndex > 0) {
                             int captureStart = ovector[captureIndex * 2];
                             int captureEnd = ovector[captureIndex * 2 + 1];
-                            JSValue captureValue;
                             if (captureStart < 0 || captureEnd < captureStart)
                                 captureValue = jsUndefined();
                             else {
                                 captureValue = jsSubstring(globalObject, vm, string, captureStart, captureEnd - captureStart);
                                 RETURN_IF_EXCEPTION(scope, nullptr);
                             }
-                            groups->putDirect(vm, Identifier::fromString(vm, groupName), captureValue);
                         } else
-                            groups->putDirect(vm, Identifier::fromString(vm, groupName), jsUndefined());
+                            captureValue = jsUndefined();
+
+                        if (groupsStructure)
+                            groups->putDirectOffset(vm, groupOffset++, captureValue);
+                        else
+                            groups->putDirect(vm, Identifier::fromString(vm, groupName), captureValue);
                     }
                 }
             }
@@ -499,7 +508,8 @@ JSString* replaceUsingRegExpSearch(VM& vm, JSGlobalObject* globalObject, JSStrin
                 OUT_OF_MEMORY(globalObject, scope);
 
             MarkedArgumentBuffer args;
-            JSObject* groups = hasNamedCaptures ? constructEmptyObject(vm, globalObject->nullPrototypeObjectStructure()) : nullptr;
+            JSObject* groups = hasNamedCaptures ? constructEmptyObject(vm, groupsStructure ? groupsStructure : globalObject->nullPrototypeObjectStructure()) : nullptr;
+            PropertyOffset groupOffset = 0;
 
             for (unsigned i = 0; i < regExp->numSubpatterns() + 1; ++i) {
                 int matchStart = ovector[i * 2];
@@ -517,25 +527,31 @@ JSString* replaceUsingRegExpSearch(VM& vm, JSGlobalObject* globalObject, JSStrin
                 args.append(patternValue);
 
                 if (i && hasNamedCaptures) {
-                    String groupName = regExp->getCaptureGroupNameForSubpatternId(i);
+                    const AtomString& groupName = regExp->getCaptureGroupNameForSubpatternId(i);
                     if (!groupName.isEmpty()) {
-                        auto captureIndex = regExp->subpatternIdForGroupName(groupName, ovector);
+                        unsigned captureIndex = i;
+                        if (hasDuplicateNamedCaptureGroups) [[unlikely]]
+                            captureIndex = regExp->subpatternIdForGroupName(groupName, ovector);
 
+                        JSValue captureValue;
                         if (captureIndex == i)
-                            groups->putDirect(vm, Identifier::fromString(vm, groupName), patternValue);
+                            captureValue = patternValue;
                         else if (captureIndex > 0) {
                             int captureStart = ovector[captureIndex * 2];
                             int captureEnd = ovector[captureIndex * 2 + 1];
-                            JSValue captureValue;
                             if (captureStart < 0 || captureEnd < captureStart)
                                 captureValue = jsUndefined();
                             else {
                                 captureValue = jsSubstring(globalObject, vm, string, captureStart, captureEnd - captureStart);
                                 RETURN_IF_EXCEPTION(scope, nullptr);
                             }
-                            groups->putDirect(vm, Identifier::fromString(vm, groupName), captureValue);
                         } else
-                            groups->putDirect(vm, Identifier::fromString(vm, groupName), jsUndefined());
+                            captureValue = jsUndefined();
+
+                        if (groupsStructure)
+                            groups->putDirectOffset(vm, groupOffset++, captureValue);
+                        else
+                            groups->putDirect(vm, Identifier::fromString(vm, groupName), captureValue);
                     }
                 }
             }

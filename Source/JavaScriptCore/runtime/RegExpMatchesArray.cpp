@@ -83,10 +83,17 @@ JSArray* createRegExpMatchesArrayWithGroupsOrIndices(VM& vm, JSGlobalObject* glo
     // FIXME: This should handle array allocation errors gracefully.
     // https://bugs.webkit.org/show_bug.cgi?id=155144
 
-    JSObject* groups = hasNamedCaptures ? constructEmptyObject(vm, globalObject->nullPrototypeObjectStructure()) : nullptr;
+    Structure* groupsStructure = nullptr;
+    JSObject* groups = nullptr;
+    JSObject* indicesGroups = nullptr;
+    if (hasNamedCaptures) {
+        groupsStructure = regExp->ensureGroupsStructure(vm, globalObject);
+        Structure* structureForGroups = groupsStructure ? groupsStructure : globalObject->nullPrototypeObjectStructure();
+        groups = constructEmptyObject(vm, structureForGroups);
+        if (createIndices)
+            indicesGroups = constructEmptyObject(vm, structureForGroups);
+    }
     Structure* matchStructure = createIndices ? globalObject->regExpMatchesArrayWithIndicesStructure() : globalObject->regExpMatchesArrayStructure();
-
-    JSObject* indicesGroups = createIndices && hasNamedCaptures ? constructEmptyObject(vm, globalObject->nullPrototypeObjectStructure()) : nullptr;
 
     auto setProperties = [&] () {
         array->putDirectOffset(vm, RegExpMatchesArrayIndexPropertyOffset, jsNumber(result.start));
@@ -210,21 +217,34 @@ JSArray* createRegExpMatchesArrayWithGroupsOrIndices(VM& vm, JSGlobalObject* glo
     // We initialize the groups and indices objects late as they could allocate, which with the current API could cause
     // allocations.
     if (hasNamedCaptures) {
+        bool hasDuplicateNamedCaptureGroups = regExp->hasDuplicateNamedCaptureGroups();
+        PropertyOffset groupOffset = 0;
         for (unsigned i = 1; i <= numSubpatterns; ++i) {
-            String groupName = regExp->getCaptureGroupNameForSubpatternId(i);
+            const AtomString& groupName = regExp->getCaptureGroupNameForSubpatternId(i);
             if (!groupName.isEmpty()) {
-                auto captureIndex = regExp->subpatternIdForGroupName(groupName, subpatternResults);
+                unsigned captureIndex = i;
+                if (hasDuplicateNamedCaptureGroups) [[unlikely]]
+                    captureIndex = regExp->subpatternIdForGroupName(groupName, subpatternResults);
 
                 JSValue value;
                 if (captureIndex > 0)
                     value = array->getIndexQuickly(captureIndex);
                 else
                     value = jsUndefined();
-                groups->putDirect(vm, Identifier::fromString(vm, groupName), value);
+                JSValue indicesValue;
+                if (createIndices)
+                    indicesValue = captureIndex > 0 ? indicesArray->getIndexQuickly(captureIndex) : jsUndefined();
 
-                if (createIndices) {
-                    JSValue indicesValue = captureIndex > 0 ? indicesArray->getIndexQuickly(captureIndex) : jsUndefined();
-                    indicesGroups->putDirect(vm, Identifier::fromString(vm, groupName), indicesValue);
+                if (groupsStructure) {
+                    groups->putDirectOffset(vm, groupOffset, value);
+                    if (createIndices)
+                        indicesGroups->putDirectOffset(vm, groupOffset, indicesValue);
+                    groupOffset++;
+                } else {
+                    Identifier ident = Identifier::fromString(vm, groupName);
+                    groups->putDirect(vm, ident, value);
+                    if (createIndices)
+                        indicesGroups->putDirect(vm, ident, indicesValue);
                 }
             }
         }

@@ -28,6 +28,7 @@
 #include "RegExpInlines.h"
 #include "YarrJIT.h"
 #include <wtf/Assertions.h>
+#include <wtf/Atomics.h>
 #include <wtf/DataLog.h>
 #include <wtf/text/MakeString.h>
 
@@ -171,10 +172,15 @@ void RegExp::finishCreation(VM& vm)
 
     m_numSubpatterns = pattern.m_numSubpatterns;
     if (!pattern.m_captureGroupNames.isEmpty() || !pattern.m_namedGroupToParenIndices.isEmpty()) {
-        m_rareData = makeUnique<RareData>();
-        m_rareData->m_numDuplicateNamedCaptureGroups = pattern.m_numDuplicateNamedCaptureGroups;
-        m_rareData->m_captureGroupNames.swap(pattern.m_captureGroupNames);
-        m_rareData->m_namedGroupToParenIndices.swap(pattern.m_namedGroupToParenIndices);
+        auto rareData = makeUnique<RareData>();
+        rareData->m_numDuplicateNamedCaptureGroups = pattern.m_numDuplicateNamedCaptureGroups;
+        rareData->m_captureGroupNames = WTF::map(pattern.m_captureGroupNames, [](auto& name) {
+            return AtomString { name };
+        });
+        rareData->m_namedGroupToParenIndices.swap(pattern.m_namedGroupToParenIndices);
+        // The concurrent GC thread reads m_rareData in visitChildren, so it must observe a fully initialized RareData.
+        WTF::storeStoreFence();
+        m_rareData = WTF::move(rareData);
     }
 
     unsigned offsetVectorSize = offsetVectorBaseForNamedCaptures();
@@ -202,6 +208,47 @@ size_t RegExp::estimatedSize(JSCell* cell, VM& vm)
 #endif
     regexDataSize += thisObject->m_ovector.capacity() * sizeof(int);
     return Base::estimatedSize(cell, vm) + regexDataSize;
+}
+
+template<typename Visitor>
+void RegExp::visitChildrenImpl(JSCell* cell, Visitor& visitor)
+{
+    auto* thisObject = uncheckedDowncast<RegExp>(cell);
+    ASSERT_GC_OBJECT_INHERITS(thisObject, info());
+    Base::visitChildren(thisObject, visitor);
+    if (thisObject->m_rareData)
+        visitor.append(thisObject->m_rareData->m_cachedGroupsStructureID);
+}
+
+DEFINE_VISIT_CHILDREN(RegExp);
+
+Structure* RegExp::ensureGroupsStructure(VM& vm, JSGlobalObject* globalObject)
+{
+    ASSERT(hasNamedCaptures());
+    if (Structure* cached = m_rareData->m_cachedGroupsStructureID.get()) {
+        if (cached->realm() == globalObject)
+            return cached;
+    }
+
+    Structure* baseStructure = globalObject->nullPrototypeObjectStructure();
+    if (m_rareData->m_namedGroupToParenIndices.size() > baseStructure->inlineCapacity())
+        return nullptr;
+
+    Structure* structure = baseStructure;
+    PropertyOffset offset = invalidOffset;
+    PropertyOffset expectedOffset = 0;
+    for (auto& name : m_rareData->m_captureGroupNames) {
+        if (name.isEmpty())
+            continue;
+        structure = Structure::addPropertyTransition(vm, structure, Identifier::fromString(vm, name), 0, offset);
+        // Callers store via putDirectOffset assuming sequential inline offsets.
+        if (offset != expectedOffset || structure->isDictionary())
+            return nullptr;
+        expectedOffset++;
+    }
+    ASSERT(!structure->outOfLineCapacity());
+    m_rareData->m_cachedGroupsStructureID.set(vm, this, structure);
+    return structure;
 }
 
 RegExp* RegExp::createWithoutCaching(VM& vm, const String& patternString, OptionSet<Yarr::Flags> flags)
