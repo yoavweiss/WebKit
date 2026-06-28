@@ -735,6 +735,7 @@ void BorderPainter::drawBoxSideFromPath(const BorderShape& borderShape, const Pa
         return;
 
     auto& graphicsContext = m_paintInfo.context();
+    auto deviceScaleFactor = protect(document())->deviceScaleFactor();
 
     if (borderStyle == BorderStyle::Double && thickness < 3)
         borderStyle = BorderStyle::Solid;
@@ -795,7 +796,7 @@ void BorderPainter::drawBoxSideFromPath(const BorderShape& borderShape, const Pa
             GraphicsContextStateSaver stateSaver(graphicsContext);
 
             auto innerThirdShape = borderShape.shapeWithBorderWidths(innerThirdInsets);
-            innerThirdShape.clipToInnerShape(graphicsContext, protect(document())->deviceScaleFactor()); // FIXME: Cache document().deviceScaleFactor().
+            innerThirdShape.clipToInnerShape(graphicsContext, deviceScaleFactor);
 
             drawBoxSideFromPath(borderShape, borderPath, edges, thickness, drawThickness, side, color, BorderStyle::Solid, bleedAvoidance);
         }
@@ -803,7 +804,7 @@ void BorderPainter::drawBoxSideFromPath(const BorderShape& borderShape, const Pa
         // Draw outer border line
         {
             auto outerThirdShape = borderShape.shapeWithBorderWidths(outerThirdInsets);
-            outerThirdShape.clipOutInnerShape(graphicsContext, protect(document())->deviceScaleFactor());
+            outerThirdShape.clipOutInnerShape(graphicsContext, deviceScaleFactor);
 
             drawBoxSideFromPath(borderShape, borderPath, edges, thickness, drawThickness, side, color, BorderStyle::Solid, bleedAvoidance);
         }
@@ -836,7 +837,7 @@ void BorderPainter::drawBoxSideFromPath(const BorderShape& borderShape, const Pa
         };
 
         auto midBorderShape = borderShape.shapeWithBorderWidths(midWidths);
-        midBorderShape.clipToInnerShape(graphicsContext, protect(document())->deviceScaleFactor());
+        midBorderShape.clipToInnerShape(graphicsContext, deviceScaleFactor);
 
         drawBoxSideFromPath(borderShape, borderPath, edges, thickness, drawThickness, side, color, s2, bleedAvoidance);
         return;
@@ -852,7 +853,7 @@ void BorderPainter::drawBoxSideFromPath(const BorderShape& borderShape, const Pa
     graphicsContext.setStrokeStyle(StrokeStyle::NoStroke);
     graphicsContext.setFillColor(color);
 
-    auto borderRect = borderShape.snappedOuterRect(protect(document())->deviceScaleFactor());
+    auto borderRect = borderShape.snappedOuterRect(deviceScaleFactor);
     graphicsContext.drawRect(borderRect);
 }
 
