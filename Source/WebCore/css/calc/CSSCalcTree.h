@@ -79,6 +79,7 @@ struct Abs;
 struct Sign;
 struct Random;
 struct Progress;
+struct ProgressNoClamp;
 struct CalcMix;
 
 // CSS Anchor Positioning functions.
@@ -231,6 +232,7 @@ using Node = Variant<
     IndirectNode<Sign>,
     IndirectNode<Random>,
     IndirectNode<Progress>,
+    IndirectNode<ProgressNoClamp>,
     IndirectNode<CalcMix>,
     IndirectNode<Anchor>,
     IndirectNode<AnchorSize>
@@ -806,6 +808,25 @@ struct Progress {
     bool operator==(const Progress&) const = default;
 };
 
+// Progress Function (no-clamp variant) - https://drafts.csswg.org/css-values-5/#progress
+struct ProgressNoClamp {
+    WTF_MAKE_STRUCT_TZONE_ALLOCATED(ProgressNoClamp);
+    static constexpr auto id = CSSValueProgress;
+
+    // <progress()> = progress( no-clamp <calc-sum>, <calc-sum>, <calc-sum> )
+    //     - INPUT: "consistent" <number>, <dimension>, or <percentage>
+    //     - OUTPUT: <number> "made consistent"
+    static constexpr auto input = AllowedTypes::Any;
+    static constexpr auto merge = MergePolicy::Consistent;
+    static constexpr auto output = OutputTransform::NumberMadeConsistent;
+
+    Child value;
+    Child start;
+    Child end;
+
+    bool operator==(const ProgressNoClamp&) const = default;
+};
+
 // CalcMix Function - https://drafts.csswg.org/css-values-5/#calc-mix
 
 struct CalcMix {
@@ -959,6 +980,7 @@ std::optional<Type> toType(const Abs&);
 std::optional<Type> toType(const Sign&);
 std::optional<Type> toType(const Random&);
 std::optional<Type> toType(const Progress&);
+std::optional<Type> toType(const ProgressNoClamp&);
 std::optional<Type> toType(const CalcMix&);
 
 // MARK: CSSUnitType Evaluation
@@ -1219,6 +1241,16 @@ template<size_t I> const auto& get(const Progress& root)
         return root.end;
 }
 
+template<size_t I> const auto& get(const ProgressNoClamp& root)
+{
+    if constexpr (!I)
+        return root.value;
+    else if constexpr (I == 1)
+        return root.start;
+    else if constexpr (I == 2)
+        return root.end;
+}
+
 template<size_t I> const auto& get(const CalcMix& root)
 {
     static_assert(!I);
@@ -1276,6 +1308,7 @@ OP_TUPLE_LIKE_CONFORMANCE(Exp, 1);
 OP_TUPLE_LIKE_CONFORMANCE(Abs, 1);
 OP_TUPLE_LIKE_CONFORMANCE(Sign, 1);
 OP_TUPLE_LIKE_CONFORMANCE(Progress, 3);
+OP_TUPLE_LIKE_CONFORMANCE(ProgressNoClamp, 3);
 OP_TUPLE_LIKE_CONFORMANCE(Random, 4);
 OP_TUPLE_LIKE_CONFORMANCE(CalcMix, 1);
 // FIXME (webkit.org/b/280798): make Anchor and AnchorSize tuple-like

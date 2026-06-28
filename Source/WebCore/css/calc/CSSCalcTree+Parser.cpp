@@ -900,12 +900,9 @@ static std::optional<TypedChild> consumeRandom(CSSParserTokenRange& tokens, int 
     return TypedChild { makeChild(WTF::move(op), *outputType), *outputType };
 }
 
-static std::optional<TypedChild> consumeProgress(CSSParserTokenRange& tokens, int depth, ParserState& state)
+template<typename Op>
+static std::optional<TypedChild> consumeProgressImpl(CSSParserTokenRange& tokens, int depth, ParserState& state)
 {
-    // <progress()> = progress( <calc-sum>, <calc-sum>, <calc-sum> )
-
-    using Op = Progress;
-
     auto value = parseCalcSum(tokens, depth, state);
     if (!value) {
         LOG_WITH_STREAM(Calc, stream << "Failed '" << nameLiteralForSerialization(Op::id) << "' function - failed parse of argument #1");
@@ -983,6 +980,15 @@ static std::optional<TypedChild> consumeProgress(CSSParserTokenRange& tokens, in
             return TypedChild { WTF::move(*replacement), *outputType };
     }
     return TypedChild { makeChild(WTF::move(op), *outputType), *outputType };
+}
+
+static std::optional<TypedChild> consumeProgress(CSSParserTokenRange& tokens, int depth, ParserState& state)
+{
+    // <progress()> = progress( no-clamp? <calc-sum>, <calc-sum>, <calc-sum> )
+
+    if (CSSPropertyParserHelpers::consumeIdentRaw<CSSValueNoClamp>(tokens))
+        return consumeProgressImpl<ProgressNoClamp>(tokens, depth, state);
+    return consumeProgressImpl<Progress>(tokens, depth, state);
 }
 
 static std::optional<TypedChild> consumeValueWithoutSimplifyingRootCalc(CSSParserTokenRange& tokens, int depth, ParserState& state)

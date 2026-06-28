@@ -57,6 +57,7 @@ WTF_MAKE_STRUCT_TZONE_ALLOCATED_IMPL(Negate);
 WTF_MAKE_STRUCT_TZONE_ALLOCATED_IMPL(Pow);
 WTF_MAKE_STRUCT_TZONE_ALLOCATED_IMPL(Product);
 WTF_MAKE_STRUCT_TZONE_ALLOCATED_IMPL(Progress);
+WTF_MAKE_STRUCT_TZONE_ALLOCATED_IMPL(ProgressNoClamp);
 WTF_MAKE_STRUCT_TZONE_ALLOCATED_IMPL(Random);
 WTF_MAKE_STRUCT_TZONE_ALLOCATED_IMPL(Rem);
 WTF_MAKE_STRUCT_TZONE_ALLOCATED_IMPL(RoundDown);
@@ -590,6 +591,14 @@ std::optional<Type> toType(const Random& root)
 }
 
 std::optional<Type> toType(const Progress& root)
+{
+    auto type = getValidatedTypeFor(root, root.value);
+    type = mergeTypesFor(root, type, getValidatedTypeFor(root, root.start));
+    type = mergeTypesFor(root, type, getValidatedTypeFor(root, root.end));
+    return transformTypeFor(root, type);
+}
+
+std::optional<Type> toType(const ProgressNoClamp& root)
 {
     auto type = getValidatedTypeFor(root, root.value);
     type = mergeTypesFor(root, type, getValidatedTypeFor(root, root.start));

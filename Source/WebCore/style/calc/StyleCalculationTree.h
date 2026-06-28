@@ -72,6 +72,7 @@ struct Hypot;
 struct Abs;
 struct Sign;
 struct Progress;
+struct ProgressNoClamp;
 struct Random;
 struct CalcMix;
 
@@ -162,6 +163,7 @@ using Node = Variant<
     IndirectNode<Abs>,
     IndirectNode<Sign>,
     IndirectNode<Progress>,
+    IndirectNode<ProgressNoClamp>,
     IndirectNode<Random>,
     IndirectNode<CalcMix>,
     IndirectNode<Blend>
@@ -511,6 +513,17 @@ struct Progress {
     bool operator==(const Progress&) const = default;
 };
 
+struct ProgressNoClamp {
+    WTF_MAKE_STRUCT_TZONE_ALLOCATED(ProgressNoClamp);
+    static constexpr auto op = CSSCalc::Operator::ProgressNoClamp;
+
+    Child progress;
+    Child from;
+    Child to;
+
+    bool operator==(const ProgressNoClamp&) const = default;
+};
+
 // Random Function - https://drafts.csswg.org/css-values-5/#random
 struct Random {
     WTF_MAKE_STRUCT_TZONE_ALLOCATED(Random);
@@ -788,6 +801,16 @@ template<size_t I> const auto& get(const Progress& root)
         return root.to;
 }
 
+template<size_t I> const auto& get(const ProgressNoClamp& root)
+{
+    if constexpr (!I)
+        return root.progress;
+    else if constexpr (I == 1)
+        return root.from;
+    else if constexpr (I == 2)
+        return root.to;
+}
+
 template<size_t I> const auto& get(const Random& root)
 {
     if constexpr (!I)
@@ -867,6 +890,7 @@ OP_TUPLE_LIKE_CONFORMANCE(Exp, 1);
 OP_TUPLE_LIKE_CONFORMANCE(Abs, 1);
 OP_TUPLE_LIKE_CONFORMANCE(Sign, 1);
 OP_TUPLE_LIKE_CONFORMANCE(Progress, 3);
+OP_TUPLE_LIKE_CONFORMANCE(ProgressNoClamp, 3);
 OP_TUPLE_LIKE_CONFORMANCE(Random, 4);
 OP_TUPLE_LIKE_CONFORMANCE(CalcMix, 1);
 OP_TUPLE_LIKE_CONFORMANCE(Blend, 3);

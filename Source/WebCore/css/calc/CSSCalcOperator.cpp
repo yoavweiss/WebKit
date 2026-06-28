@@ -63,6 +63,7 @@ TextStream& operator<<(TextStream& ts, Operator op)
     case Operator::RoundToZero: ts << "to-zero"_s; break;
     case Operator::RoundNearest: ts << "nearest"_s; break;
     case Operator::Progress: ts << "progress"_s; break;
+    case Operator::ProgressNoClamp: ts << "progress(no-clamp)"_s; break;
     case Operator::Random: ts << "random"_s; break;
     case Operator::CalcMix: ts << "calc-mix"_s; break;
     case Operator::Blend: ts << "blend"_s; break;

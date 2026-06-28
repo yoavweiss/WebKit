@@ -61,6 +61,7 @@ enum class Operator : uint8_t {
     RoundDown,
     RoundToZero,
     Progress,
+    ProgressNoClamp,
     Random,
     CalcMix,
     Blend,

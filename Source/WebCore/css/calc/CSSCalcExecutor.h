@@ -468,8 +468,23 @@ template<> struct OperatorExecutor<Operator::Sign> {
 template<> struct OperatorExecutor<Operator::Progress> {
     double operator()(double progress, double from, double to)
     {
-        // (progress value - start value) / (end value - start value)
+        if (from == to)
+            return 0.0;
         return executeOperation<Operator::Clamp>(0.0, (progress - from) / (to - from), 1.0);
+    }
+};
+
+template<> struct OperatorExecutor<Operator::ProgressNoClamp> {
+    double operator()(double progress, double from, double to)
+    {
+        if (from == to) {
+            if (progress < from)
+                return -std::numeric_limits<double>::infinity();
+            if (progress > from)
+                return std::numeric_limits<double>::infinity();
+            return 0.0;
+        }
+        return (progress - from) / (to - from);
     }
 };
 

@@ -1408,6 +1408,27 @@ std::optional<Child> simplify(Progress& root, const SimplificationOptions& optio
     );
 }
 
+std::optional<Child> simplify(ProgressNoClamp& root, const SimplificationOptions& options)
+{
+    if (root.value.index() != root.start.index() || root.start.index() != root.end.index())
+        return { };
+
+    return WTF::switchOn(root.value,
+        [&]<Numeric T>(const T& numericValue) -> std::optional<Child> {
+            const auto& numericStart = get<T>(root.start);
+            const auto& numericEnd = get<T>(root.end);
+
+            if (!unitsMatch(numericValue, numericStart, options) || !unitsMatch(numericStart, numericEnd, options) || !fullyResolved(numericValue, options))
+                return { };
+
+            return makeChild(Number { .value = executeMathOperation<ProgressNoClamp>(numericValue.value, numericStart.value, numericEnd.value) });
+        },
+        [](const auto&) -> std::optional<Child> {
+            return { };
+        }
+    );
+}
+
 std::optional<Child> simplify(CalcMix& root, const SimplificationOptions& options)
 {
     // 1. Let `specified sum` be the sum of the percentages specified in items (clamped to 100%), or 0% if the percentages are omitted for all items.
