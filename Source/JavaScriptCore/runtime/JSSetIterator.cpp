@@ -68,22 +68,4 @@ void JSSetIterator::visitChildrenImpl(JSCell* cell, Visitor& visitor)
 
 DEFINE_VISIT_CHILDREN(JSSetIterator);
 
-JSC_DEFINE_HOST_FUNCTION(setIteratorPrivateFuncSetIteratorNext, (JSGlobalObject * globalObject, CallFrame* callFrame))
-{
-    ASSERT(callFrame->argument(0).isCell());
-
-    VM& vm = globalObject->vm();
-    JSCell* cell = callFrame->uncheckedArgument(0).asCell();
-    return JSValue::encode(uncheckedDowncast<JSSetIterator>(cell)->next(vm));
-}
-
-JSC_DEFINE_HOST_FUNCTION(setIteratorPrivateFuncSetIteratorKey, (JSGlobalObject * globalObject, CallFrame* callFrame))
-{
-    ASSERT(callFrame->argument(0).isCell());
-
-    VM& vm = globalObject->vm();
-    JSCell* cell = callFrame->uncheckedArgument(0).asCell();
-    return JSValue::encode(uncheckedDowncast<JSSetIterator>(cell)->peekKey(vm));
-}
-
 }

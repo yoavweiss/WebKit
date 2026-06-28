@@ -42,15 +42,10 @@ class JSGlobalObject;
     v(mapIterationEntry, nullptr) \
     v(mapIterationEntryKey, nullptr) \
     v(mapIterationEntryValue, nullptr) \
-    v(mapIteratorNext, nullptr) \
-    v(mapIteratorKey, nullptr) \
-    v(mapIteratorValue, nullptr) \
     v(setStorage, nullptr) \
     v(setIterationNext, nullptr) \
     v(setIterationEntry, nullptr) \
     v(setIterationEntryKey, nullptr) \
-    v(setIteratorNext, nullptr) \
-    v(setIteratorKey, nullptr) \
     v(setPrototypeDirect, nullptr) \
     v(setPrototypeDirectOrThrow, nullptr) \
     v(copyDataProperties, nullptr) \

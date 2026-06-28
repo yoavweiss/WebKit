@@ -185,10 +185,7 @@ namespace JSC {
     macro(JSSetIterationEntryIntrinsic) \
     macro(JSSetIterationEntryKeyIntrinsic) \
     macro(JSMapIteratorNextIntrinsic) \
-    macro(JSMapIteratorKeyIntrinsic) \
-    macro(JSMapIteratorValueIntrinsic) \
     macro(JSSetIteratorNextIntrinsic) \
-    macro(JSSetIteratorKeyIntrinsic) \
     macro(JSSetHasIntrinsic) \
     macro(JSSetAddIntrinsic) \
     macro(JSSetDeleteIntrinsic) \

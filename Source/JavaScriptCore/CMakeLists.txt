@@ -375,14 +375,12 @@ set(JavaScriptCore_BUILTINS_SOURCES
     ${JAVASCRIPTCORE_DIR}/builtins/JSIteratorHelperPrototype.js
     ${JAVASCRIPTCORE_DIR}/builtins/JSIteratorPrototype.js
     ${JAVASCRIPTCORE_DIR}/builtins/MapConstructor.js
-    ${JAVASCRIPTCORE_DIR}/builtins/MapIteratorPrototype.js
     ${JAVASCRIPTCORE_DIR}/builtins/MapPrototype.js
     ${JAVASCRIPTCORE_DIR}/builtins/ObjectConstructor.js
     ${JAVASCRIPTCORE_DIR}/builtins/PromiseConstructor.js
     ${JAVASCRIPTCORE_DIR}/builtins/PromiseOperations.js
     ${JAVASCRIPTCORE_DIR}/builtins/ProxyHelpers.js
     ${JAVASCRIPTCORE_DIR}/builtins/ReflectObject.js
-    ${JAVASCRIPTCORE_DIR}/builtins/SetIteratorPrototype.js
     ${JAVASCRIPTCORE_DIR}/builtins/SetPrototype.js
     ${JAVASCRIPTCORE_DIR}/builtins/ShadowRealmPrototype.js
     ${JAVASCRIPTCORE_DIR}/builtins/StringConstructor.js

@@ -4478,24 +4478,42 @@ auto ByteCodeParser::handleIntrinsicCall(Node* callee, Operand resultOperand, Ca
 
         case JSSetIteratorNextIntrinsic:
         case JSMapIteratorNextIntrinsic: {
-            ASSERT(argumentCountIncludingThis == 2);
+            if (!is64Bit())
+                return CallOptimizationResult::DidNothing;
 
-            insertChecks();
-            Node* mapIterator = get(virtualRegisterForArgumentIncludingThis(1, registerOffset));
+            if (m_inlineStackTop->m_exitProfile.hasExitSite(m_currentIndex, BadType) || m_inlineStackTop->m_exitProfile.hasExitSite(m_currentIndex, BadCache))
+                return CallOptimizationResult::DidNothing;
+
+            JSGlobalObject* globalObject = m_graph.globalObjectFor(currentNodeOrigin().semantic);
+            Structure* iteratorResultStructure = globalObject->iteratorResultObjectStructureConcurrently();
+            if (!iteratorResultStructure)
+                return CallOptimizationResult::DidNothing;
+
             bool isMapIterator = intrinsic == JSMapIteratorNextIntrinsic;
             UseKind iteratorUseKind = isMapIterator ? MapIteratorObjectUse : SetIteratorObjectUse;
             UseKind ownerUseKind = isMapIterator ? MapObjectUse : SetObjectUse;
             SpeculatedType ownerSpec = isMapIterator ? SpecMapObject : SpecSetObject;
+            BucketOwnerType ownerType = isMapIterator ? BucketOwnerType::Map : BucketOwnerType::Set;
+            Structure* iteratorStructure = isMapIterator ? globalObject->mapIteratorStructure() : globalObject->setIteratorStructure();
 
             unsigned storageFieldIndex = isMapIterator ? static_cast<unsigned>(JSMapIterator::Field::Storage) : static_cast<unsigned>(JSSetIterator::Field::Storage);
             unsigned iteratedObjectFieldIndex = isMapIterator ? static_cast<unsigned>(JSMapIterator::Field::IteratedObject) : static_cast<unsigned>(JSSetIterator::Field::IteratedObject);
             unsigned entryFieldIndex = isMapIterator ? static_cast<unsigned>(JSMapIterator::Field::Entry) : static_cast<unsigned>(JSSetIterator::Field::Entry);
+            unsigned kindFieldIndex = isMapIterator ? static_cast<unsigned>(JSMapIterator::Field::Kind) : static_cast<unsigned>(JSSetIterator::Field::Kind);
 
-            addToGraph(Check, Edge(mapIterator, iteratorUseKind));
+            // Pass true so endSpecialCase skips emitArgumentPhantoms; we emit our own
+            // intra-continuation-block Phantoms below.
+            insertChecks(true);
 
-            Node* storageField = addToGraph(GetInternalField, OpInfo(storageFieldIndex), OpInfo(SpecCellOther | SpecEmpty), mapIterator);
-            Node* iteratedObjectField = addToGraph(GetInternalField, OpInfo(iteratedObjectFieldIndex), OpInfo(ownerSpec), mapIterator);
-            Node* entryField = addToGraph(GetInternalField, OpInfo(entryFieldIndex), OpInfo(SpecInt32Only), mapIterator);
+            VirtualRegister iteratorOperand = virtualRegisterForArgumentIncludingThis(0, registerOffset);
+
+            Node* iterator = get(iteratorOperand);
+            addToGraph(CheckStructure, OpInfo(m_graph.addStructureSet(iteratorStructure)), iterator);
+            addToGraph(Check, Edge(iterator, iteratorUseKind));
+
+            Node* storageField = addToGraph(GetInternalField, OpInfo(storageFieldIndex), OpInfo(SpecCellOther | SpecEmpty), iterator);
+            Node* iteratedObjectField = addToGraph(GetInternalField, OpInfo(iteratedObjectFieldIndex), OpInfo(ownerSpec), iterator);
+            Node* entryField = addToGraph(GetInternalField, OpInfo(entryFieldIndex), OpInfo(SpecInt32Only), iterator);
 
             Node* tuple = addToGraph(MapIteratorNext, Edge(storageField), Edge(iteratedObjectField, ownerUseKind), Edge(entryField));
 
@@ -4504,55 +4522,166 @@ auto ByteCodeParser::handleIntrinsicCall(Node* callee, Operand resultOperand, Ca
             Node* newEntry = addToGraph(ExtractFromTuple, OpInfo(1), tuple);
             newEntry->setResult(NodeResultInt32);
 
-            addToGraph(PutInternalField, OpInfo(storageFieldIndex), mapIterator, newStorage);
-            addToGraph(PutInternalField, OpInfo(entryFieldIndex), mapIterator, newEntry);
-
             FrozenValue* sentinelConst = m_graph.freezeStrong(m_graph.m_vm.orderedHashTableSentinel());
-            Node* done = addToGraph(CompareEqPtr, OpInfo(sentinelConst), newStorage);
+            Node* doneNode = addToGraph(CompareEqPtr, OpInfo(sentinelConst), newStorage);
 
-            setResult(done);
-            return CallOptimizationResult::Inlined;
-        }
+            // Stash the advanced (storage, entry) and the per-kind value into private
+            // tmps so successor blocks read them via phi merges rather than cross-block
+            // edges that would violate the CPS validator.
+            auto nextTmps = allocatePrivateTmps(3);
+            Operand tmpStorage = nextTmps.operandAt(0);
+            Operand tmpEntry = nextTmps.operandAt(1);
+            Operand tmpValue = nextTmps.operandAt(2);
 
-        case JSSetIteratorKeyIntrinsic:
-        case JSMapIteratorKeyIntrinsic: {
-            ASSERT(argumentCountIncludingThis == 2);
+            set(tmpStorage, newStorage, ImmediateNakedSet);
+            flush(tmpStorage);
+            set(tmpEntry, newEntry, ImmediateNakedSet);
+            flush(tmpEntry);
 
-            insertChecks();
-            Node* mapIterator = get(virtualRegisterForArgumentIncludingThis(1, registerOffset));
-            bool isMapIterator = intrinsic == JSMapIteratorKeyIntrinsic;
-            UseKind iteratorUseKind = isMapIterator ? MapIteratorObjectUse : SetIteratorObjectUse;
-            BucketOwnerType ownerType = isMapIterator ? BucketOwnerType::Map : BucketOwnerType::Set;
+            BasicBlock* doneBlock = allocateUntargetableBlock();
+            BasicBlock* notDoneBlock = allocateUntargetableBlock();
+            BasicBlock* keysBlock = allocateUntargetableBlock();
+            BasicBlock* valuesBlock = isMapIterator ? allocateUntargetableBlock() : nullptr;
+            BasicBlock* entriesBlock = allocateUntargetableBlock();
+            BasicBlock* continuation = allocateUntargetableBlock();
 
-            unsigned storageFieldIndex = isMapIterator ? static_cast<unsigned>(JSMapIterator::Field::Storage) : static_cast<unsigned>(JSSetIterator::Field::Storage);
-            unsigned entryFieldIndex = isMapIterator ? static_cast<unsigned>(JSMapIterator::Field::Entry) : static_cast<unsigned>(JSSetIterator::Field::Entry);
+            emitExitOK();
 
-            addToGraph(Check, Edge(mapIterator, iteratorUseKind));
+            {
+                BranchData* branchData = m_graph.m_branchData.add();
+                branchData->taken = BranchTarget(doneBlock);
+                branchData->notTaken = BranchTarget(notDoneBlock);
+                addToGraph(Branch, OpInfo(branchData), doneNode);
+                flushForTerminal();
+            }
 
-            Node* storageField = addToGraph(GetInternalField, OpInfo(storageFieldIndex), OpInfo(SpecCellOther), mapIterator);
-            Node* entryField = addToGraph(GetInternalField, OpInfo(entryFieldIndex), OpInfo(SpecInt32Only), mapIterator);
+            // done: value = undefined.
+            {
+                m_currentBlock = doneBlock;
+                clearCaches();
+                keepUsesOfCurrentInstructionAlive(m_currentInstruction, m_currentIndex.checkpoint());
+                emitExitOK();
 
-            Node* result = addToGraph(MapIteratorKey, OpInfo(ownerType), OpInfo(prediction), Edge(storageField), Edge(entryField));
-            setResult(result);
-            return CallOptimizationResult::Inlined;
-        }
+                set(tmpValue, jsConstant(jsUndefined()), ImmediateNakedSet);
+                emitExitOK();
+                addToGraph(Jump, OpInfo(continuation));
+            }
 
-        case JSMapIteratorValueIntrinsic: {
-            ASSERT(argumentCountIncludingThis == 2);
+            // !done: dispatch on Kind.
+            {
+                m_currentBlock = notDoneBlock;
+                clearCaches();
+                keepUsesOfCurrentInstructionAlive(m_currentInstruction, m_currentIndex.checkpoint());
+                emitExitOK();
 
-            insertChecks();
-            Node* mapIterator = get(virtualRegisterForArgumentIncludingThis(1, registerOffset));
+                Node* iteratorInBlock = get(iteratorOperand);
+                Node* kindField = addToGraph(GetInternalField, OpInfo(kindFieldIndex), OpInfo(SpecInt32Only), iteratorInBlock);
 
-            unsigned storageFieldIndex = static_cast<unsigned>(JSMapIterator::Field::Storage);
-            unsigned entryFieldIndex = static_cast<unsigned>(JSMapIterator::Field::Entry);
+                SwitchData& data = *m_graph.m_switchData.add();
+                data.kind = SwitchImm;
+                data.fallThrough = BranchTarget(entriesBlock);
+                data.cases.append(SwitchCase(LazyJSValue(m_graph.freeze(jsNumber(static_cast<int32_t>(IterationKind::Keys)))), keysBlock));
+                if (isMapIterator) {
+                    data.cases.append(SwitchCase(LazyJSValue(m_graph.freeze(jsNumber(static_cast<int32_t>(IterationKind::Values)))), valuesBlock));
+                    data.cases.append(SwitchCase(LazyJSValue(m_graph.freeze(jsNumber(static_cast<int32_t>(IterationKind::Entries)))), entriesBlock));
+                } else {
+                    // Set's Values yields the same as Keys, so reuse keysBlock.
+                    data.cases.append(SwitchCase(LazyJSValue(m_graph.freeze(jsNumber(static_cast<int32_t>(IterationKind::Values)))), keysBlock));
+                    data.cases.append(SwitchCase(LazyJSValue(m_graph.freeze(jsNumber(static_cast<int32_t>(IterationKind::Entries)))), entriesBlock));
+                }
+                addToGraph(Switch, OpInfo(&data), kindField);
+                flushForTerminal();
+            }
 
-            addToGraph(Check, Edge(mapIterator, MapIteratorObjectUse));
+            auto loadKey = [&]() -> Node* {
+                Node* keyStorage = get(tmpStorage);
+                Node* keyEntry = get(tmpEntry);
+                return addToGraph(MapIteratorKey, OpInfo(ownerType), OpInfo(SpecBytecodeTop), Edge(keyStorage), Edge(keyEntry));
+            };
+            auto loadValue = [&]() -> Node* {
+                Node* keyStorage = get(tmpStorage);
+                Node* keyEntry = get(tmpEntry);
+                return addToGraph(MapIteratorValue, OpInfo(ownerType), OpInfo(SpecBytecodeTop), Edge(keyStorage), Edge(keyEntry));
+            };
 
-            Node* storageField = addToGraph(GetInternalField, OpInfo(storageFieldIndex), OpInfo(SpecCellOther), mapIterator);
-            Node* entryField = addToGraph(GetInternalField, OpInfo(entryFieldIndex), OpInfo(SpecInt32Only), mapIterator);
+            // Keys (Map and Set, plus Set's Values which yields the key).
+            {
+                m_currentBlock = keysBlock;
+                clearCaches();
+                keepUsesOfCurrentInstructionAlive(m_currentInstruction, m_currentIndex.checkpoint());
+                emitExitOK();
 
-            Node* result = addToGraph(MapIteratorValue, OpInfo(BucketOwnerType::Map), OpInfo(prediction), Edge(storageField), Edge(entryField));
-            setResult(result);
+                Node* keyValue = loadKey();
+                emitExitOK();
+                set(tmpValue, keyValue, ImmediateNakedSet);
+                emitExitOK();
+                addToGraph(Jump, OpInfo(continuation));
+            }
+
+            // Values (Map only).
+            if (isMapIterator) {
+                m_currentBlock = valuesBlock;
+                clearCaches();
+                keepUsesOfCurrentInstructionAlive(m_currentInstruction, m_currentIndex.checkpoint());
+                emitExitOK();
+
+                Node* valValue = loadValue();
+                emitExitOK();
+                set(tmpValue, valValue, ImmediateNakedSet);
+                emitExitOK();
+                addToGraph(Jump, OpInfo(continuation));
+            }
+
+            // Entries: [key, value] for Map, [key, key] for Set.
+            {
+                m_currentBlock = entriesBlock;
+                clearCaches();
+                keepUsesOfCurrentInstructionAlive(m_currentInstruction, m_currentIndex.checkpoint());
+                emitExitOK();
+
+                Node* keyValue = loadKey();
+                emitExitOK();
+                Node* secondValue = keyValue;
+                if (isMapIterator) {
+                    secondValue = loadValue();
+                    emitExitOK();
+                }
+                addVarArgChild(keyValue);
+                addVarArgChild(secondValue);
+                unsigned vectorHint = 2;
+                Node* arr = addToGraph(Node::VarArg, NewArray, OpInfo(ArrayWithContiguous), OpInfo(vectorHint));
+                set(tmpValue, arr, ImmediateNakedSet);
+                emitExitOK();
+                addToGraph(Jump, OpInfo(continuation));
+            }
+
+            {
+                m_currentBlock = continuation;
+                clearCaches();
+                keepUsesOfCurrentInstructionAlive(m_currentInstruction, m_currentIndex.checkpoint());
+                emitExitOK();
+
+                Node* finalValue = get(tmpValue);
+                Node* committedStorage = get(tmpStorage);
+                Node* committedEntry = get(tmpEntry);
+                Node* finalDone = addToGraph(CompareEqPtr, OpInfo(sentinelConst), committedStorage);
+
+                // Mirror endSpecialCase's emitArgumentPhantoms via get() so the edges
+                // stay intra-block; Phantom(callTargetNode) is omitted for the same
+                // cross-block reason.
+                for (int i = 0; i < argumentCountIncludingThis; ++i)
+                    addToGraph(Phantom, get(virtualRegisterForArgumentIncludingThis(i, registerOffset)));
+
+                Node* resultObject = addToGraph(NewObject, OpInfo(m_graph.registerStructure(iteratorResultStructure)));
+                handlePutByOffset(resultObject, m_graph.identifiers().ensure(m_vm->propertyNames->value.impl()), iteratorResultObjectValuePropertyOffset, finalValue);
+                handlePutByOffset(resultObject, m_graph.identifiers().ensure(m_vm->propertyNames->done.impl()), iteratorResultObjectDonePropertyOffset, finalDone);
+
+                Node* iteratorInBlock = get(iteratorOperand);
+                addToGraph(PutInternalField, OpInfo(storageFieldIndex), iteratorInBlock, committedStorage);
+                addToGraph(PutInternalField, OpInfo(entryFieldIndex), iteratorInBlock, committedEntry);
+
+                setResult(resultObject);
+            }
             return CallOptimizationResult::Inlined;
         }
 

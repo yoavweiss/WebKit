@@ -130,22 +130,6 @@ public:
         return true;
     }
 
-    JSValue next(VM& vm)
-    {
-        JSValue key = nextWithAdvance(vm);
-        return key.isEmpty() ? jsBoolean(true) : jsBoolean(false);
-    }
-
-    JSValue peekKey(VM& vm)
-    {
-        JSSet::Helper::Entry entry = this->entry() - 1;
-        JSCell* storage = this->tryGetStorage();
-        ASSERT(storage);
-        ASSERT_UNUSED(vm, storage != vm.orderedHashTableSentinel());
-        JSSet::Storage& storageRef = *uncheckedDowncast<JSSet::Storage>(storage);
-        return JSSet::Helper::getKey(storageRef, entry);
-    }
-
     IterationKind kind() const { return static_cast<IterationKind>(internalField(Field::Kind).get().asUInt32AsAnyInt()); }
     JSSet* iteratedObject() const { return uncheckedDowncast<JSSet>(internalField(Field::IteratedObject).get()); }
     JSCell* tryGetStorage() const
@@ -181,8 +165,5 @@ private:
     void finishCreation(VM&);
 };
 STATIC_ASSERT_IS_TRIVIALLY_DESTRUCTIBLE(JSSetIterator);
-
-JSC_DECLARE_HOST_FUNCTION(setIteratorPrivateFuncSetIteratorNext);
-JSC_DECLARE_HOST_FUNCTION(setIteratorPrivateFuncSetIteratorKey);
 
 } // namespace JSC
