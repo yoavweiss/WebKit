@@ -486,18 +486,19 @@ void GraphicsContext::fillRect(const FloatRect& rect, Gradient& gradient)
 
 void GraphicsContext::fillRect(const FloatRect& rect, const Color& color, CompositeOperator op, BlendMode blendMode)
 {
-    CompositeOperator previousOperator = compositeOperation();
+    auto previousCompositeMode = compositeMode();
     setCompositeOperation(op, blendMode);
     fillRect(rect, color);
-    setCompositeOperation(previousOperator);
+    setCompositeMode(previousCompositeMode);
 }
 
 void GraphicsContext::fillRoundedRect(const FloatRoundedRect& rect, const Color& color, BlendMode blendMode)
 {
     if (rect.hasNonZeroRadii()) {
+        auto previousCompositeMode = compositeMode();
         setCompositeOperation(compositeOperation(), blendMode);
         fillRoundedRectImpl(rect, color);
-        setCompositeOperation(compositeOperation());
+        setCompositeMode(previousCompositeMode);
     } else
         fillRect(rect.rect(), color, compositeOperation(), blendMode);
 }

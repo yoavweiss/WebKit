@@ -31,6 +31,7 @@
 #import <Metal/Metal.h>
 #import <QuartzCore/QuartzCore.h>
 #import <WebCore/DestinationColorSpace.h>
+#import <WebCore/FloatRoundedRect.h>
 #import <WebCore/GraphicsContextCG.h>
 #import <WebCore/IOSurface.h>
 #import <WebCore/NativeImage.h>
@@ -94,6 +95,43 @@ TEST(GraphicsContextTests, DrawNativeImageDoesNotLeakCompositeOperator)
 
     EXPECT_EQ(ctx.compositeOperation(), CompositeOperator::SourceOver);
     EXPECT_EQ(ctx.blendMode(), BlendMode::Normal);
+}
+
+TEST(GraphicsContextTests, FillRoundedRectPreservesActiveBlendMode)
+{
+    auto colorSpace = DestinationColorSpace::SRGB();
+    RetainPtr cgContext = adoptCF(CGBitmapContextCreate(nullptr, contextWidth, contextHeight, 8, 4 * contextWidth, colorSpace.platformColorSpace(), kCGImageAlphaPremultipliedLast));
+    GraphicsContextCG ctx(cgContext.get());
+
+    // A non-Normal blend mode that was set on the context before the fill
+    // should still be active afterwards: fillRoundedRect only changes the
+    // blend mode temporarily and must restore the previous state in full.
+    ctx.setCompositeOperation(CompositeOperator::SourceOver, BlendMode::Multiply);
+    EXPECT_EQ(ctx.compositeOperation(), CompositeOperator::SourceOver);
+    EXPECT_EQ(ctx.blendMode(), BlendMode::Multiply);
+
+    FloatRoundedRect roundedRect({ 0, 0, contextWidth, contextHeight }, CornerRadii { 1 });
+    ctx.fillRoundedRect(roundedRect, Color::green, BlendMode::Screen);
+
+    EXPECT_EQ(ctx.compositeOperation(), CompositeOperator::SourceOver);
+    EXPECT_EQ(ctx.blendMode(), BlendMode::Multiply);
+}
+
+TEST(GraphicsContextTests, FillRectWithBlendModePreservesActiveBlendMode)
+{
+    auto colorSpace = DestinationColorSpace::SRGB();
+    RetainPtr cgContext = adoptCF(CGBitmapContextCreate(nullptr, contextWidth, contextHeight, 8, 4 * contextWidth, colorSpace.platformColorSpace(), kCGImageAlphaPremultipliedLast));
+    GraphicsContextCG ctx(cgContext.get());
+
+    // Same expectation for the fillRect(rect, color, op, blendMode) overload.
+    ctx.setCompositeOperation(CompositeOperator::SourceOver, BlendMode::Multiply);
+    EXPECT_EQ(ctx.compositeOperation(), CompositeOperator::SourceOver);
+    EXPECT_EQ(ctx.blendMode(), BlendMode::Multiply);
+
+    ctx.fillRect(FloatRect(0, 0, contextWidth, contextHeight), Color::green, CompositeOperator::Copy, BlendMode::Screen);
+
+    EXPECT_EQ(ctx.compositeOperation(), CompositeOperator::SourceOver);
+    EXPECT_EQ(ctx.blendMode(), BlendMode::Multiply);
 }
 
 TEST(GraphicsContextTests, CGBitmapRenderingModeIsUnaccelerated)
