@@ -266,39 +266,29 @@ Ref<InbandGenericCue> InbandTextTrackPrivateAVF::processCueAttributes(CFAttribut
                 continue;
             }
 
-            if (CFStringCompare(key.get(), PAL::kCMTextMarkupAttribute_ForegroundColorARGB, 0) == kCFCompareEqualTo) {
+            auto applyColorAttribute = [&](void (InbandGenericCue::*setter)(const Color&)) {
                 RetainPtr arrayValue = dynamic_cf_cast<CFArrayRef>(value.get());
                 if (!arrayValue)
-                    continue;
+                    return;
 
                 auto color = makeSimpleColorFromARGBCFArray(arrayValue.get());
                 if (!color)
-                    continue;
-                cueData->setForegroundColor(*color);
+                    return;
+                (cueData.get().*setter)(*color);
+            };
+
+            if (CFStringCompare(key.get(), PAL::kCMTextMarkupAttribute_ForegroundColorARGB, 0) == kCFCompareEqualTo) {
+                applyColorAttribute(&InbandGenericCue::setForegroundColor);
                 continue;
             }
 
             if (CFStringCompare(key.get(), PAL::kCMTextMarkupAttribute_BackgroundColorARGB, 0) == kCFCompareEqualTo) {
-                RetainPtr arrayValue = dynamic_cf_cast<CFArrayRef>(value.get());
-                if (!arrayValue)
-                    continue;
-
-                auto color = makeSimpleColorFromARGBCFArray(arrayValue.get());
-                if (!color)
-                    continue;
-                cueData->setBackgroundColor(*color);
+                applyColorAttribute(&InbandGenericCue::setBackgroundColor);
                 continue;
             }
 
             if (CFStringCompare(key.get(), PAL::kCMTextMarkupAttribute_CharacterBackgroundColorARGB, 0) == kCFCompareEqualTo) {
-                RetainPtr arrayValue = dynamic_cf_cast<CFArrayRef>(value.get());
-                if (!arrayValue)
-                    continue;
-
-                auto color = makeSimpleColorFromARGBCFArray(arrayValue.get());
-                if (!color)
-                    continue;
-                cueData->setHighlightColor(*color);
+                applyColorAttribute(&InbandGenericCue::setHighlightColor);
                 continue;
             }
         }
