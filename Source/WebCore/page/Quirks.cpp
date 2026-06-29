@@ -2025,12 +2025,13 @@ bool Quirks::needsIPhoneUserAgent(const URL& url)
 
 std::optional<String> Quirks::needsCustomUserAgentOverride(const URL& url, const String& applicationNameForUserAgent, const String& currentUserAgent)
 {
-    auto hostDomain = RegistrableDomain(url);
+    RegistrableDomain hostDomain { url };
+    auto& domainString = hostDomain.string();
     auto firefoxUserAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:139.0) Gecko/20100101 Firefox/139.0"_s;
     // FIXME(rdar://83078414): Remove once 101edu.co and aktiv.com removes the unsupported message.
-    if (hostDomain.string() == "app.101edu.co")
+    if (domainString == "app.101edu.co"_s)
         return firefoxUserAgent;
-    if (hostDomain.string() == "app.aktiv.com")
+    if (domainString == "app.aktiv.com"_s)
         return firefoxUserAgent;
 
     auto chromeUserAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"_s;
@@ -2040,7 +2041,7 @@ std::optional<String> Quirks::needsCustomUserAgentOverride(const URL& url, const
         return chromeUserAgent;
 #endif
 
-    if ((hostDomain.string() == "messenger.com" || hostDomain.string() == "facebook.com") && url.path().startsWith("/groupcall/ROOM:"_s))
+    if ((domainString == "messenger.com"_s || domainString == "facebook.com"_s) && url.path().startsWith("/groupcall/ROOM:"_s))
         return chromeUserAgent;
 
     // Outlook detects Safari and handles selections incorrectly in their rich text editor roosterjs
@@ -2050,7 +2051,7 @@ std::optional<String> Quirks::needsCustomUserAgentOverride(const URL& url, const
 
 #if PLATFORM(COCOA)
     // FIXME(rdar://148759791): Remove this once TikTok removes the outdated error message.
-    if (hostDomain.string() == "tiktok.com"_s) {
+    if (domainString == "tiktok.com"_s) {
         auto baseUA = currentUserAgent.isEmpty() ? standardUserAgentWithApplicationName(applicationNameForUserAgent) : currentUserAgent;
         return makeStringByReplacingAll(baseUA, "like Gecko"_s, "like Gecko, like Chrome/136."_s);
     }
