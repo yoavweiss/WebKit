@@ -2403,3 +2403,8 @@ webkit.org/b/317799 [ Debug ] http/wpt/site-isolation/overlapping-navigations-an
 
 webkit.org/b/318150 imported/w3c/web-platform-tests/css/css-backgrounds/background-clip/clip-border-area-border-shape-overflow.html [ ImageOnlyFailure ]
 webkit.org/b/318150 imported/w3c/web-platform-tests/css/css-backgrounds/background-clip/clip-border-area-border-shape.html [ ImageOnlyFailure ]
+
+webkit.org/b/318157 [ Debug ] imported/w3c/web-platform-tests/IndexedDB/interleaved-cursors-small.any.sharedworker.html [ Failure ]
+webkit.org/b/318157 [ Debug ] imported/w3c/web-platform-tests/IndexedDB/interleaved-cursors-small.any.worker.html [ Failure ]
+webkit.org/b/318157 [ Debug ] imported/w3c/web-platform-tests/IndexedDB/nested-cloning-large-multiple.any.serviceworker.html [ Failure ]
+webkit.org/b/318157 [ Debug ] imported/w3c/web-platform-tests/IndexedDB/nested-cloning-large-multiple.any.sharedworker.html [ Failure ]
