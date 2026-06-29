@@ -28,6 +28,7 @@
 #include "config.h"
 #include "SVGRenderSupport.h"
 
+#include "DashArray.h"
 #include "ElementAncestorIteratorInlines.h"
 #include "LegacyRenderSVGForeignObject.h"
 #include "LegacyRenderSVGImage.h"
@@ -552,7 +553,7 @@ void SVGRenderSupport::applyStrokeStyleToContext(GraphicsContext& context, const
         }
         
         bool canSetLineDash = false;
-        auto dashArray = DashArray::map(dashes, [&](auto& dash) -> DashArrayElement {
+        auto dashArray = DashArray::map(dashes, [&lengthContext, scaleFactor, &canSetLineDash](auto& dash) -> DashArrayElement {
             auto value = lengthContext.valueForLength(dash, Style::ZoomNeeded { }) * scaleFactor;
             if (value > 0)
                 canSetLineDash = true;
