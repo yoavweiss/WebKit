@@ -90,6 +90,9 @@ static CFDictionaryRef gradientOptionsDictionary(ColorInterpolationMethod colorI
     case AlphaPremultiplication::Premultiplied:
         return gradientInterpolatesPremultipliedOptionsDictionary();
     }
+
+    ASSERT_NOT_REACHED();
+    return nullptr;
 }
 
 // MARK: - Direct CGGradient strategy (sRGB only).
