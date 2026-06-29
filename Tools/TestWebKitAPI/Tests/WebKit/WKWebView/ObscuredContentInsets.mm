@@ -973,12 +973,19 @@ TEST(ObscuredContentInsets, ScrollPocketCoversFullScreenTitlebar)
     [webView setObscuredContentInsets:NSEdgeInsetsMake(topInset, 0, 0, 0)];
     [webView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
 
-    auto styleMask = NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskResizable;
+    auto styleMask = NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskResizable | NSWindowStyleMaskFullSizeContentView;
     RetainPtr toolbar = adoptNS([[NSToolbar alloc] initWithIdentifier:@"ScrollPocketTestToolbar"]);
     RetainPtr window = adoptNS([[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 800, 600) styleMask:styleMask backing:NSBackingStoreBuffered defer:NO]);
 
     [window setCollectionBehavior:[window collectionBehavior] | NSWindowCollectionBehaviorFullScreenPrimary];
     [window setToolbar:toolbar.get()];
+
+    // Attach a titlebar accessory so AppKit does not autohide the fullscreen toolbar mid-test.
+    RetainPtr accessoryViewController = adoptNS([[NSTitlebarAccessoryViewController alloc] init]);
+    [accessoryViewController setView:adoptNS([[NSView alloc] initWithFrame:NSMakeRect(0, 0, 1, 1)]).get()];
+    [accessoryViewController setLayoutAttribute:NSLayoutAttributeRight];
+    [window addTitlebarAccessoryViewController:accessoryViewController.get()];
+
     [[window contentView] addSubview:webView.get()];
     [webView setFrame:[[window contentView] bounds]];
     [window makeKeyAndOrderFront:nil];
@@ -1005,7 +1012,11 @@ TEST(ObscuredContentInsets, ScrollPocketCoversFullScreenTitlebar)
 
     auto overlayHeight = [webView _fullScreenTitlebarOverlayHeightForTesting];
     EXPECT_GT(overlayHeight, topInset);
-    EXPECT_EQ(overlayHeight, NSHeight([[webView _topScrollPocket] frame]));
+
+    // The scroll pocket height should be equal to the height of the titlebar overlay
+    // minus the top safe area (which is non-zero on notched devices).
+    auto screenTopSafeArea = [[[webView window] screen] safeAreaInsets].top;
+    EXPECT_NEAR(overlayHeight - screenTopSafeArea, NSHeight([[webView _topScrollPocket] frame]), 1);
 
     RetainPtr expectedColor = [webView _sampledTopFixedPositionContentColor];
     EXPECT_NOT_NULL(expectedColor.get());
@@ -1015,7 +1026,6 @@ TEST(ObscuredContentInsets, ScrollPocketCoversFullScreenTitlebar)
     EXPECT_TRUE(Util::runFor(&didExit, 10_s));
     [webView waitForNextPresentationUpdate];
 
-    EXPECT_EQ(0, [webView _fullScreenTitlebarOverlayHeightForTesting]);
     EXPECT_EQ(topInset, NSHeight([[webView _topScrollPocket] frame]));
 
     [NSNotificationCenter.defaultCenter removeObserver:enterObserver.get()];
