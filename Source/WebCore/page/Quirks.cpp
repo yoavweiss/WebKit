@@ -3081,7 +3081,7 @@ static void handleScribdQuirks(QuirksData& quirksData, const URL& /* quirksURL *
 static void handleTMobileQuirks(QuirksData& quirksData, const URL& quirksURL, const String& /* quirksDomainString */, const URL& /* documentURL */)
 {
     auto topDocumentHost = quirksURL.host();
-    if (topDocumentHost != "digits.t-mobile.com")
+    if (topDocumentHost != "digits.t-mobile.com"_s)
         return;
 
     quirksData.enableQuirks({
