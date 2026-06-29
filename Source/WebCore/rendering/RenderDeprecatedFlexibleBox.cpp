@@ -360,12 +360,12 @@ void RenderDeprecatedFlexibleBox::layoutBlock(RelayoutChildren relayoutChildren,
         resetLogicalHeightBeforeLayoutIfNeeded();
         preparePaginationBeforeBlockLayout(relayoutChildren);
 
-        LayoutSize previousSize = size();
+        LayoutSize previousSize = borderBoxSize();
 
         updateLogicalWidth();
         updateLogicalHeight();
 
-        if (previousSize != size()
+        if (previousSize != borderBoxSize()
             || (parent()->isRenderDeprecatedFlexibleBox() && parent()->style().boxOrient() == BoxOrient::Horizontal
                 && parent()->style().boxAlign() == BoxAlignment::Stretch))
             relayoutChildren = RelayoutChildren::Yes;

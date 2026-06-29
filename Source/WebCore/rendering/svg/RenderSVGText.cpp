@@ -1019,7 +1019,7 @@ void RenderSVGText::updatePositionAndOverflow(const FloatRect& boundaries)
 
         auto boundingRect = enclosingLayoutRect(m_objectBoundingBox);
         setLocation(boundingRect.location());
-        setSize(boundingRect.size());
+        setBorderBoxSize(boundingRect.size());
 
         auto overflowRect = visualOverflowRectEquivalent();
         if (auto& textShadow = style().textShadow(); !textShadow.isNone())
@@ -1031,7 +1031,7 @@ void RenderSVGText::updatePositionAndOverflow(const FloatRect& boundaries)
 
     auto boundingRect = enclosingLayoutRect(boundaries);
     setLocation(boundingRect.location());
-    setSize(boundingRect.size());
+    setBorderBoxSize(boundingRect.size());
     m_objectBoundingBox = boundingRect;
     ASSERT(m_objectBoundingBox == frameRect());
 }

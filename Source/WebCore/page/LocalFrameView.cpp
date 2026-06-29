@@ -1979,7 +1979,7 @@ void LocalFrameView::setVisualViewportOverrideRect(std::optional<LayoutRect> rec
 
 LayoutSize LocalFrameView::baseLayoutViewportSize() const
 {
-    return renderView() ? renderView()->size() : size();
+    return renderView() ? renderView()->borderBoxSize() : size();
 }
 
 void LocalFrameView::updateLayoutViewport()

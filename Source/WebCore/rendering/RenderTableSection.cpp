@@ -1007,7 +1007,7 @@ void RenderTableSection::paint(PaintInfo& paintInfo, const LayoutPoint& paintOff
         popContentsClip(paintInfo, phase, adjustedPaintOffset);
 
     if ((phase == PaintPhase::Outline || phase == PaintPhase::SelfOutline) && style().usedVisibility() == Visibility::Visible)
-        paintOutline(paintInfo, LayoutRect(adjustedPaintOffset, size()));
+        paintOutline(paintInfo, LayoutRect(adjustedPaintOffset, borderBoxSize()));
 }
 
 static inline bool NODELETE compareCellPositions(const SingleThreadWeakPtr<RenderTableCell>& elem1, const SingleThreadWeakPtr<RenderTableCell>& elem2)
@@ -1249,7 +1249,7 @@ void RenderTableSection::paintRowGroupBorderIfRequired(const PaintInfo& paintInf
 
     const Style::ComputedStyle& style = this->style();
     bool antialias = BorderPainter::shouldAntialiasLines(paintInfo.context());
-    LayoutRect rowGroupRect = LayoutRect(paintOffset, size());
+    LayoutRect rowGroupRect = LayoutRect(paintOffset, borderBoxSize());
     rowGroupRect.moveBy(-LayoutPoint(outerBorderLeft(table()->writingMode()), (borderSide == BoxSide::Right) ? 0_lu : outerBorderTop(table()->writingMode())));
 
     switch (borderSide) {

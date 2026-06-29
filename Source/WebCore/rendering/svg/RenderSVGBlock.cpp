@@ -77,7 +77,7 @@ bool RenderSVGBlock::needsHasSVGTransformFlags() const
 void RenderSVGBlock::boundingRects(Vector<LayoutRect>& rects, const LayoutPoint& accumulatedOffset) const
 {
     if (document().settings().layerBasedSVGEngineEnabled()) {
-        rects.append({ accumulatedOffset, size() });
+        rects.append({ accumulatedOffset, borderBoxSize() });
         return;
     }
 
@@ -87,7 +87,7 @@ void RenderSVGBlock::boundingRects(Vector<LayoutRect>& rects, const LayoutPoint&
 
 void RenderSVGBlock::absoluteQuads(Vector<FloatQuad>& quads, bool* wasFixed) const
 {
-    quads.append(localToAbsoluteQuad(FloatRect { { }, size() }, MapCoordinatesMode::UseTransforms, wasFixed));
+    quads.append(localToAbsoluteQuad(FloatRect { { }, borderBoxSize() }, MapCoordinatesMode::UseTransforms, wasFixed));
 }
 
 void RenderSVGBlock::willBeDestroyed()

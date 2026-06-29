@@ -647,7 +647,7 @@ template<typename Layer> BackgroundImageGeometry BackgroundPainter::calculateFil
         // its margins. Since those were added in already, we have to factor them out when computing
         // the background positioning area.
         if (renderer.isDocumentElementRenderer()) {
-            positioningAreaSize = downcast<RenderBox>(renderer).size() - LayoutSize(left + right, top + bottom);
+            positioningAreaSize = downcast<RenderBox>(renderer).borderBoxSize() - LayoutSize(left + right, top + bottom);
             positioningAreaSize = LayoutSize(snapSizeToDevicePixel(positioningAreaSize, LayoutPoint(), deviceScaleFactor));
             if (protect(view)->frameView().hasExtendedBackgroundRectForPainting()) {
                 LayoutRect extendedBackgroundRect = protect(view)->frameView().extendedBackgroundRectForPainting();

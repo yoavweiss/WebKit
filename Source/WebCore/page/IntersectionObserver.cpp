@@ -608,7 +608,7 @@ auto IntersectionObserver::computeIntersectionState(const IntersectionObserverRe
             else if (rootRenderer->hasNonVisibleOverflow())
                 intersectionState.rootBounds = rootRenderer->paddingBoxRect();
             else
-                intersectionState.rootBounds = { FloatPoint(), rootRenderer->size() };
+                intersectionState.rootBounds = { FloatPoint(), rootRenderer->borderBoxSize() };
 
             return;
         }

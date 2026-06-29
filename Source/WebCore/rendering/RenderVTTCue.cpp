@@ -276,7 +276,7 @@ bool RenderVTTCue::switchDirection(bool& switched, LayoutUnit& step)
     // 16. If switched is true, then remove all the boxes in boxes, and
     // jump to the step labeled done positioning below.
     if (switched) {
-        setSize({ });
+        setBorderBoxSize({ });
         return false;
     }
 

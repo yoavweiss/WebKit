@@ -161,7 +161,7 @@ bool RenderListMarker::isImage() const
 
 LayoutRect RenderListMarker::localSelectionRect()
 {
-    return LayoutRect(LayoutPoint(), size());
+    return LayoutRect(LayoutPoint(), borderBoxSize());
 }
 
 static String reversed(StringView string)
@@ -238,7 +238,7 @@ void RenderListMarker::paint(PaintInfo& paintInfo, const LayoutPoint& paintOffse
     if (!paintInfo.rect.intersects(overflowRect))
         return;
 
-    LayoutRect box(boxOrigin, size());
+    LayoutRect box(boxOrigin, borderBoxSize());
 
     auto markerRect = relativeMarkerRect();
     markerRect.moveBy(boxOrigin);

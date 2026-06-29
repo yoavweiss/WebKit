@@ -750,7 +750,7 @@ void RenderBlockFlow::layoutBlock(RelayoutChildren relayoutChildren, LayoutUnit 
             repaintRect.moveBy(-scrollPosition());
 
             // Don't allow this rect to spill out of our overflow box.
-            repaintRect.intersect(LayoutRect(LayoutPoint(), size()));
+            repaintRect.intersect(LayoutRect(LayoutPoint(), borderBoxSize()));
         }
 
         // Make sure the rect is still non-empty after intersecting for overflow above

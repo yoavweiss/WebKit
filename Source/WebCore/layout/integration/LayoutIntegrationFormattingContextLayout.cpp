@@ -91,7 +91,7 @@ static inline void populateRootRendererWithFloatsFromIFC(auto& rootBlockContaine
             continue;
         }
 
-        auto [marginBoxVisualRect, borderBoxVisualRect] = Layout::IntegrationUtils::toMarginAndBorderBoxVisualRect(floatItem.boxGeometry(), rootBlockContainer.size(), blockFormattingContextRootWritingMode);
+        auto [marginBoxVisualRect, borderBoxVisualRect] = Layout::IntegrationUtils::toMarginAndBorderBoxVisualRect(floatItem.boxGeometry(), rootBlockContainer.borderBoxSize(), blockFormattingContextRootWritingMode);
         floatingObject.setFrameRect(marginBoxVisualRect);
         floatingObject.setMarginOffset({ borderBoxVisualRect.x() - marginBoxVisualRect.x(), borderBoxVisualRect.y() - marginBoxVisualRect.y() });
         floatingObject.setIsPlaced(true);

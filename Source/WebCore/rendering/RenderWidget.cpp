@@ -342,7 +342,7 @@ void RenderWidget::paint(PaintInfo& paintInfo, const LayoutPoint& paintOffset)
     }
 
     if ((paintInfo.phase == PaintPhase::Outline || paintInfo.phase == PaintPhase::SelfOutline) && hasOutline())
-        paintOutline(paintInfo, LayoutRect(adjustedPaintOffset, size()));
+        paintOutline(paintInfo, LayoutRect(adjustedPaintOffset, borderBoxSize()));
 
     // FIXME: Shouldn't check if the frame view needs layout during event region painting. This is a workaround
     // for the fact that non-composited frames depend on their enclosing compositing layer to perform an event
@@ -353,7 +353,7 @@ void RenderWidget::paint(PaintInfo& paintInfo, const LayoutPoint& paintOffset)
         return;
 
     if (style().border().hasBorderRadius()) {
-        LayoutRect borderRect = LayoutRect(adjustedPaintOffset, size());
+        LayoutRect borderRect = LayoutRect(adjustedPaintOffset, borderBoxSize());
 
         if (borderRect.isEmpty())
             return;

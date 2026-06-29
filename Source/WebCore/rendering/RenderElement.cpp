@@ -2138,7 +2138,7 @@ bool RenderElement::getTrailingCorner(FloatPoint& point, bool& insideFixed) cons
     }
 
     if (!isInline() || isBlockLevelReplacedOrAtomicInline()) {
-        point = localToAbsolute(LayoutPoint(downcast<RenderBox>(*this).size()), MapCoordinatesMode::UseTransforms, &insideFixed);
+        point = localToAbsolute(LayoutPoint(downcast<RenderBox>(*this).borderBoxSize()), MapCoordinatesMode::UseTransforms, &insideFixed);
         return true;
     }
 

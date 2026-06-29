@@ -231,10 +231,10 @@ LayoutUnit RenderSVGRoot::computeReplacedLogicalHeight(std::optional<LayoutUnit>
 
 bool RenderSVGRoot::updateLayoutSizeIfNeeded()
 {
-    auto previousSize = size();
+    auto previousSize = borderBoxSize();
     updateLogicalWidth();
     updateLogicalHeight();
-    return selfNeedsLayout() || previousSize != size();
+    return selfNeedsLayout() || previousSize != borderBoxSize();
 }
 
 void RenderSVGRoot::layout()
@@ -382,7 +382,7 @@ void RenderSVGRoot::paintObject(PaintInfo& paintInfo, const LayoutPoint& paintOf
         // bounds via paintContents below. Skip the interaction-region contribution so the
         // SVG root's border rect doesn't change the interaction-region shape — only the
         // children should contribute to interaction regions.
-        auto borderRect = LayoutRect(adjustedPaintOffset, size());
+        auto borderRect = LayoutRect(adjustedPaintOffset, borderBoxSize());
         auto borderShape = BorderShape::shapeForBorderRect(style(), borderRect);
         paintInfo.eventRegionContext()->unite(borderShape.deprecatedPixelSnappedRoundedRect(document().deviceScaleFactor()), *this, style(), false, EventRegionContext::ContributeToInteractionRegions::No);
     }
@@ -419,7 +419,7 @@ void RenderSVGRoot::paintObject(PaintInfo& paintInfo, const LayoutPoint& paintOf
         paintContents(paintInfo, scrolledOffset);
 
     if ((paintInfo.phase == PaintPhase::Outline || paintInfo.phase == PaintPhase::SelfOutline) && hasOutline() && style().usedVisibility() == Visibility::Visible)
-        paintOutline(paintInfo, LayoutRect(adjustedPaintOffset, size()));
+        paintOutline(paintInfo, LayoutRect(adjustedPaintOffset, borderBoxSize()));
 }
 
 void RenderSVGRoot::paintContents(PaintInfo& paintInfo, const LayoutPoint& paintOffset)
@@ -523,7 +523,7 @@ bool RenderSVGRoot::nodeAtPoint(const HitTestRequest& request, HitTestResult& re
 
     // If we didn't early exit above, we've just hit the container <svg> element. Unlike SVG 1.1, 2nd Edition allows container elements to be hit.
     if ((hitTestAction == HitTestAction::BlockBackground || hitTestAction == HitTestAction::ChildBlockBackground) && visibleToHitTesting(request)) {
-        LayoutRect boundsRect(adjustedLocation, size());
+        LayoutRect boundsRect(adjustedLocation, borderBoxSize());
         if (locationInContainer.intersects(boundsRect)) {
             updateHitTestResult(result, flipForWritingMode(locationInContainer.point() - toLayoutSize(adjustedLocation)));
             if (result.addNodeToListBasedTestResult(protect(nodeForHitTest()).get(), request, locationInContainer, boundsRect) == HitTestProgress::Stop)

@@ -688,7 +688,7 @@ void RenderBox::setScrollPosition(const ScrollPosition& position, const ScrollPo
 
 void RenderBox::boundingRects(Vector<LayoutRect>& rects, const LayoutPoint& accumulatedOffset) const
 {
-    rects.append({ accumulatedOffset, size() });
+    rects.append({ accumulatedOffset, borderBoxSize() });
 }
 
 void RenderBox::absoluteQuads(Vector<FloatQuad>& quads, bool* wasFixed) const
@@ -2055,7 +2055,7 @@ void RenderBox::paintMask(PaintInfo& paintInfo, const LayoutPoint& paintOffset)
     if (!paintInfo.shouldPaintWithinRoot(*this) || style().usedVisibility() != Visibility::Visible || paintInfo.phase != PaintPhase::Mask || paintInfo.context().paintingDisabled())
         return;
 
-    LayoutRect paintRect = LayoutRect(paintOffset, size());
+    LayoutRect paintRect = LayoutRect(paintOffset, borderBoxSize());
     adjustBorderBoxRectForPainting(paintRect);
     paintMaskImages(paintInfo, paintRect);
 }
@@ -2065,7 +2065,7 @@ void RenderBox::paintClippingMask(PaintInfo& paintInfo, const LayoutPoint& paint
     if (!paintInfo.shouldPaintWithinRoot(*this) || style().usedVisibility() != Visibility::Visible || paintInfo.phase != PaintPhase::ClippingMask || paintInfo.context().paintingDisabled())
         return;
 
-    LayoutRect paintRect = LayoutRect(paintOffset, size());
+    LayoutRect paintRect = LayoutRect(paintOffset, borderBoxSize());
 
     if (document().settings().layerBasedSVGEngineEnabled() && WTF::holdsAlternative<Style::ReferencePath>(style().clipPath())) {
         paintSVGClippingMask(paintInfo, paintRect);
@@ -2270,13 +2270,13 @@ bool RenderBox::repaintLayerRectsForImage(WrappedImagePtr image, const Layers& l
 
 void RenderBox::clipToPaddingBoxShape(GraphicsContext& context, const LayoutPoint& accumulatedOffset, float deviceScaleFactor) const
 {
-    auto borderShape = BorderShape::shapeForBorderRect(style(), LayoutRect(accumulatedOffset, size()));
+    auto borderShape = BorderShape::shapeForBorderRect(style(), LayoutRect(accumulatedOffset, borderBoxSize()));
     borderShape.clipToInnerShape(context, deviceScaleFactor);
 }
 
 void RenderBox::clipToContentBoxShape(GraphicsContext& context, const LayoutPoint& accumulatedOffset, float deviceScaleFactor) const
 {
-    auto borderShape = borderShapeForContentClipping(LayoutRect { accumulatedOffset, size() });
+    auto borderShape = borderShapeForContentClipping(LayoutRect { accumulatedOffset, borderBoxSize() });
     borderShape.clipToInnerShape(context, deviceScaleFactor);
 }
 
@@ -5215,7 +5215,7 @@ void RenderBox::flipForWritingMode(RepaintRects& rects) const
     if (!writingMode().isBlockFlipped())
         return;
 
-    rects.flipForWritingMode(size(), isHorizontalWritingMode());
+    rects.flipForWritingMode(borderBoxSize(), isHorizontalWritingMode());
 }
 
 LayoutPoint RenderBox::topLeftLocationWithFlipping() const

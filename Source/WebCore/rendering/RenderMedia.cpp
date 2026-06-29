@@ -54,9 +54,9 @@ void RenderMedia::paintReplaced(PaintInfo&, const LayoutPoint&)
 
 void RenderMedia::layout()
 {
-    LayoutSize oldSize = size();
+    LayoutSize oldSize = borderBoxSize();
     RenderImage::layout();
-    if (oldSize != size())
+    if (oldSize != borderBoxSize())
         protect(mediaElement())->layoutSizeChanged();
 }
 

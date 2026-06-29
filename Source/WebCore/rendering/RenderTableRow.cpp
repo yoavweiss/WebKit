@@ -238,7 +238,7 @@ void RenderTableRow::paintOutlineForRowIfNeeded(PaintInfo& paintInfo, const Layo
     PaintPhase paintPhase = paintInfo.phase;
     if ((paintPhase == PaintPhase::Outline || paintPhase == PaintPhase::SelfOutline) && style().usedVisibility() == Visibility::Visible) {
         auto adjustedPaintOffset = paintOffset + location();
-        paintOutline(paintInfo, LayoutRect(adjustedPaintOffset, size()));
+        paintOutline(paintInfo, LayoutRect(adjustedPaintOffset, borderBoxSize()));
     }
 }
 
@@ -248,7 +248,7 @@ void RenderTableRow::paintShadowForRowIfNeeded(PaintInfo& paintInfo, const Layou
         return;
 
     auto adjustedPaintOffset = paintOffset + location();
-    LayoutRect rect(adjustedPaintOffset, size());
+    LayoutRect rect(adjustedPaintOffset, borderBoxSize());
     adjustBorderBoxRectForPainting(rect);
 
     BackgroundPainter backgroundPainter { *this, paintInfo };

@@ -71,7 +71,7 @@ LayoutSize RenderAttachment::layoutWideLayoutAttachmentOnly()
             if (wideLayoutShadowRenderer->needsLayout())
                 wideLayoutShadowRenderer->layout();
             ASSERT(!wideLayoutShadowRenderer->needsLayout());
-            return wideLayoutShadowRenderer->size();
+            return wideLayoutShadowRenderer->borderBoxSize();
         }
     }
     return { };

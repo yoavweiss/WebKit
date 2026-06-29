@@ -256,7 +256,7 @@ void SliderThumbElement::setPositionFromPoint(const LayoutPoint& absolutePoint)
     bool isInlineFlipped = thumbRenderer->writingMode().isInlineFlipped() || (isVertical && thumbRenderer->writingMode().isHorizontal());
 
     auto offset = inputRenderer->absoluteToLocal(absolutePoint, MapCoordinatesMode::UseTransforms);
-    auto trackBoundingBox = trackRenderer->localToContainerQuad(FloatRect { { }, trackRenderer->size() }, inputRenderer.get()).enclosingBoundingBox();
+    auto trackBoundingBox = trackRenderer->localToContainerQuad(FloatRect { { }, trackRenderer->borderBoxSize() }, inputRenderer.get()).enclosingBoundingBox();
 
     LayoutUnit trackLength;
     LayoutUnit position;

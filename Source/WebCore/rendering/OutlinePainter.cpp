@@ -365,7 +365,7 @@ void OutlinePainter::collectFocusRingRects(const RenderElement& renderer, Vector
             return;
     }
     if (CheckedPtr box = dynamicDowncast<RenderBox>(renderer))
-        appendIfNotEmpty(rects, { additionalOffset, box->size() });
+        appendIfNotEmpty(rects, { additionalOffset, box->borderBoxSize() });
 }
 
 bool OutlinePainter::collectFocusRingRectsForListBox(const RenderListBox& renderer, Vector<LayoutRect>& rects, const LayoutPoint& additionalOffset, const RenderLayerModelObject*)
@@ -418,7 +418,7 @@ bool OutlinePainter::collectFocusRingRectsForBlock(const RenderBlock& renderer, 
         return false;
 
     if (renderer.width() && renderer.height())
-        rects.append(LayoutRect(additionalOffset, renderer.size()));
+        rects.append(LayoutRect(additionalOffset, renderer.borderBoxSize()));
 
     // Table rows share coordinate space with cells; don't recurse into cells
     // as their bounds may extend beyond the row (e.g. rowspan).

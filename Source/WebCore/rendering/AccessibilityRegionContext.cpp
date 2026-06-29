@@ -72,7 +72,7 @@ void AccessibilityRegionContext::takeBounds(const RenderBox& renderBox, LayoutPo
         takeBounds(*renderView, WTF::move(paintOffset));
         return;
     }
-    auto mappedPaintRect = enclosingIntRect(mapRect(LayoutRect(paintOffset, renderBox.size())));
+    auto mappedPaintRect = enclosingIntRect(mapRect(LayoutRect(paintOffset, renderBox.borderBoxSize())));
     takeBoundsInternal(renderBox, WTF::move(mappedPaintRect));
 }
 

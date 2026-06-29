@@ -876,7 +876,7 @@ void RenderTable::paintObject(PaintInfo& paintInfo, const LayoutPoint& paintOffs
 
     // Paint outline.
     if ((paintPhase == PaintPhase::Outline || paintPhase == PaintPhase::SelfOutline) && hasOutline() && style().usedVisibility() == Visibility::Visible)
-        paintOutline(paintInfo, LayoutRect(paintOffset, size()));
+        paintOutline(paintInfo, LayoutRect(paintOffset, borderBoxSize()));
 }
 
 void RenderTable::paintCollapsedBordersForRow(PaintInfo& paintInfo, RenderTableRow& row, const LayoutPoint& paintOffset)
@@ -923,7 +923,7 @@ void RenderTable::paintBoxDecorations(PaintInfo& paintInfo, const LayoutPoint& p
     if (!paintInfo.shouldPaintWithinRoot(*this))
         return;
 
-    LayoutRect rect(paintOffset, size());
+    LayoutRect rect(paintOffset, borderBoxSize());
     adjustBorderBoxRectForPainting(rect);
 
     BackgroundPainter backgroundPainter { *this, paintInfo };
@@ -958,7 +958,7 @@ void RenderTable::paintMask(PaintInfo& paintInfo, const LayoutPoint& paintOffset
     if (style().usedVisibility() != Visibility::Visible || paintInfo.phase != PaintPhase::Mask)
         return;
 
-    LayoutRect rect(paintOffset, size());
+    LayoutRect rect(paintOffset, borderBoxSize());
     adjustBorderBoxRectForPainting(rect);
 
     paintMaskImages(paintInfo, rect);
@@ -1747,7 +1747,7 @@ bool RenderTable::nodeAtPoint(const HitTestRequest& request, HitTestResult& resu
     }
 
     // Check our bounds next.
-    LayoutRect boundsRect(adjustedLocation, size());
+    LayoutRect boundsRect(adjustedLocation, borderBoxSize());
     if (visibleToHitTesting(request) && (action == HitTestAction::BlockBackground || action == HitTestAction::ChildBlockBackground) && locationInContainer.intersects(boundsRect)) {
         updateHitTestResult(result, flipForWritingMode(locationInContainer.point() - toLayoutSize(adjustedLocation)));
         if (result.addNodeToListBasedTestResult(protect(nodeForHitTest()).get(), request, locationInContainer, boundsRect) == HitTestProgress::Stop)

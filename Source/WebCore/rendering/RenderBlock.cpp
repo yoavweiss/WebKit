@@ -1222,7 +1222,7 @@ void RenderBlock::paintObject(PaintInfo& paintInfo, const LayoutPoint& paintOffs
     if ((paintPhase == PaintPhase::BlockBackground || paintPhase == PaintPhase::ChildBlockBackground) && style().usedVisibility() == Visibility::Visible) {
         if (hasVisibleBoxDecorations())
             paintBoxDecorations(paintInfo, paintOffset);
-        paintDebugBoxShadowIfApplicable(paintInfo.context(), { paintOffset, size() });
+        paintDebugBoxShadowIfApplicable(paintInfo.context(), { paintOffset, borderBoxSize() });
     }
     
     // Paint legends just above the border before we scroll or clip.
@@ -1247,7 +1247,7 @@ void RenderBlock::paintObject(PaintInfo& paintInfo, const LayoutPoint& paintOffs
         paintInfo.accessibilityRegionContext()->takeBounds(*this, paintOffset);
 
     if (paintPhase == PaintPhase::EventRegion) {
-        auto borderRect = LayoutRect(paintOffset, size());
+        auto borderRect = LayoutRect(paintOffset, borderBoxSize());
 
         Ref document = this->document();
         if (paintInfo.paintBehavior.contains(PaintBehavior::EventRegionIncludeBackground) && visibleToHitTesting()) {
@@ -1330,7 +1330,7 @@ void RenderBlock::paintObject(PaintInfo& paintInfo, const LayoutPoint& paintOffs
 
     // 5. paint outline.
     if ((paintPhase == PaintPhase::Outline || paintPhase == PaintPhase::SelfOutline) && hasOutline() && style().usedVisibility() == Visibility::Visible)
-        paintOutline(paintInfo, LayoutRect(paintOffset, size()));
+        paintOutline(paintInfo, LayoutRect(paintOffset, borderBoxSize()));
 
     // 7. paint caret.
     // If the caret's node's render object's containing block is this block, and the paint action is PaintPhase::Foreground,
@@ -2086,7 +2086,7 @@ bool RenderBlock::nodeAtPoint(const HitTestRequest& request, HitTestResult& resu
 
     // Now hit test our background
     if (hitTestAction == HitTestAction::BlockBackground || hitTestAction == HitTestAction::ChildBlockBackground) {
-        LayoutRect boundsRect(adjustedLocation, size());
+        LayoutRect boundsRect(adjustedLocation, borderBoxSize());
         if (visibleToHitTesting(request) && locationInContainer.intersects(boundsRect)) {
             updateHitTestResult(result, flipForWritingMode(locationInContainer.point() - localOffset));
             if (result.addNodeToListBasedTestResult(protect(nodeForHitTest()).get(), request, locationInContainer, boundsRect) == HitTestProgress::Stop)
@@ -2680,14 +2680,14 @@ void RenderBlock::setPageLogicalOffset(LayoutUnit logicalOffset)
 
 void RenderBlock::boundingRects(Vector<LayoutRect>& rects, const LayoutPoint& accumulatedOffset) const
 {
-    rects.append({ accumulatedOffset, size() });
+    rects.append({ accumulatedOffset, borderBoxSize() });
 }
 
 void RenderBlock::absoluteQuads(Vector<FloatQuad>& quads, bool* wasFixed) const
 {
     // FIXME: This is wrong for block-flows that are horizontal.
     // https://bugs.webkit.org/show_bug.cgi?id=46781
-    FloatRect logicalRect { { }, size() };
+    FloatRect logicalRect { { }, borderBoxSize() };
     CheckedPtr fragmentedFlow = enclosingFragmentedFlow();
     if (!fragmentedFlow || !fragmentedFlow->absoluteQuadsForBox(quads, wasFixed, *this))
         quads.append(localToAbsoluteQuad(logicalRect, MapCoordinatesMode::UseTransforms, wasFixed));

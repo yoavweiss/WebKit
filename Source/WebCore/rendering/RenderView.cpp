@@ -687,7 +687,7 @@ bool RenderView::shouldUsePrintingLayout() const
 LayoutRect RenderView::viewRect() const
 {
     if (shouldUsePrintingLayout())
-        return LayoutRect(LayoutPoint(), size());
+        return LayoutRect(LayoutPoint(), borderBoxSize());
     return frameView().visibleContentRect(ScrollableArea::LegacyIOSDocumentVisibleRect);
 }
 

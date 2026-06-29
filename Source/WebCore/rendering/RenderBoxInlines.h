@@ -77,7 +77,7 @@ inline LayoutUnit RenderBox::paddingBoxWidth() const { return std::max(0_lu, wid
 inline int RenderBox::scrollbarLogicalHeight() const { return writingMode().isHorizontal() ? horizontalScrollbarHeight() : verticalScrollbarWidth(); }
 inline int RenderBox::scrollbarLogicalWidth() const { return writingMode().isHorizontal() ? verticalScrollbarWidth() : horizontalScrollbarHeight(); }
 inline void RenderBox::setLogicalLocation(LayoutPoint location) { setLocation(writingMode().isHorizontal() ? location : location.transposedPoint()); }
-inline void RenderBox::setLogicalSize(LayoutSize size) { setSize(writingMode().isHorizontal() ? size : size.transposedSize()); }
+inline void RenderBox::setLogicalSize(LayoutSize size) { setBorderBoxSize(writingMode().isHorizontal() ? size : size.transposedSize()); }
 inline bool RenderBox::shouldTrimChildMargin(Style::MarginTrimSide type, const RenderBox& child) const { return style().marginTrim().contains(type) && isChildEligibleForMarginTrim(type, child); }
 inline bool RenderBox::stretchesToViewport() const { return document().inQuirksMode() && style().logicalHeight().isAuto() && !isFloatingOrOutOfFlowPositioned() && (isDocumentElementRenderer() || isBody()) && !shouldComputeLogicalHeightFromAspectRatio() && !isInline(); }
 inline bool RenderBox::isColumnSpanner() const { return style().columnSpan() == ColumnSpan::All; }
@@ -184,7 +184,7 @@ inline LayoutRect RenderBox::marginBoxRect() const
     auto right = resolveLengthPercentageUsingContainerLogicalWidth(style().marginRight(), zoomFactor);
     auto top = resolveLengthPercentageUsingContainerLogicalWidth(style().marginTop(), zoomFactor);
     auto bottom = resolveLengthPercentageUsingContainerLogicalWidth(style().marginBottom(), zoomFactor);
-    return { -left, -top, size().width() + left + right, size().height() + top + bottom };
+    return { -left, -top, borderBoxSize().width() + left + right, borderBoxSize().height() + top + bottom };
 }
 
 

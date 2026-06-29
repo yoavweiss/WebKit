@@ -118,7 +118,7 @@ void RenderTextControlSingleLine::layout()
     // toggled. For example, hiding and showing the caps lock indicator will cause a size change.
     LayoutSize oldInnerTextSize;
     if (innerTextRenderer)
-        oldInnerTextSize = innerTextRenderer->size();
+        oldInnerTextSize = innerTextRenderer->borderBoxSize();
 
     {
         auto scope = LayoutScope { *this };
@@ -220,7 +220,7 @@ void RenderTextControlSingleLine::layout()
     else if (container && containerRenderer)
         centerRendererIfNeeded(*containerRenderer);
 
-    bool innerTextSizeChanged = innerTextRenderer && innerTextRenderer->size() != oldInnerTextSize;
+    bool innerTextSizeChanged = innerTextRenderer && innerTextRenderer->borderBoxSize() != oldInnerTextSize;
 
     RefPtr placeholderElement = protect(inputElement())->placeholderElement();
     if (RenderBox* placeholderBox = placeholderElement ? placeholderElement->renderBox() : 0) {

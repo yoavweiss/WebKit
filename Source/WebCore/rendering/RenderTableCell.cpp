@@ -1497,7 +1497,7 @@ static LayoutRect NODELETE backgroundRectForRow(const RenderBox& tableRow, const
 
 static LayoutRect NODELETE backgroundRectForSection(const RenderTableSection& tableSection, const RenderTable& table)
 {
-    LayoutRect rect = { { }, tableSection.size() };
+    LayoutRect rect = { { }, tableSection.borderBoxSize() };
     if (!table.collapseBorders()) {
         auto hSpacing = table.hBorderSpacing();
         auto vSpacing = table.vBorderSpacing();
@@ -1554,7 +1554,7 @@ void RenderTableCell::paintBackgroundsBehindCell(PaintInfo& paintInfo, LayoutPoi
     bool shouldClip = paintBackgroundObject || (backgroundObject->hasLayer() && (backgroundObject == this || backgroundObject == parent()) && tableElt->collapseBorders());
     GraphicsContextStateSaver stateSaver(paintInfo.context(), shouldClip);
     if (paintBackgroundObject)
-        paintInfo.context().clip({ adjustedPaintOffset, size() });
+        paintInfo.context().clip({ adjustedPaintOffset, borderBoxSize() });
     else if (shouldClip) {
         LayoutRect clipRect(adjustedPaintOffset.x() + borderLeft(), adjustedPaintOffset.y() + borderTop(),
             width() - borderLeft() - borderRight(), height() - borderTop() - borderBottom());
@@ -1568,7 +1568,7 @@ void RenderTableCell::paintBackgroundsBehindCell(PaintInfo& paintInfo, LayoutPoi
             fillRect = backgroundRectForRow(*backgroundObject, *tableElt);
         fillRect.moveBy(backgroundPaintOffset);
     } else
-        fillRect = LayoutRect { adjustedPaintOffset, size() };
+        fillRect = LayoutRect { adjustedPaintOffset, borderBoxSize() };
 
     // When painting a cell's own background with collapsed borders, inset the
     // fill rect at the table's outer edges to match this cell's collapsed

@@ -99,19 +99,19 @@ public:
 
     LayoutPoint location() const { return m_frameRect.location(); }
     LayoutSize locationOffset() const { return LayoutSize(x(), y()); }
-    LayoutSize size() const { return m_frameRect.size(); }
+    LayoutSize borderBoxSize() const { return m_frameRect.size(); }
     inline LayoutSize logicalSize() const;
 
     void setLocation(const LayoutPoint& location) { m_frameRect.setLocation(location); }
     
-    void setSize(const LayoutSize& size) { m_frameRect.setSize(size); }
+    void setBorderBoxSize(const LayoutSize& size) { m_frameRect.setSize(size); }
     void move(LayoutUnit dx, LayoutUnit dy) { m_frameRect.move(dx, dy); }
 
     LayoutRect frameRect() const { return m_frameRect; }
     void setFrameRect(const LayoutRect& rect) { m_frameRect = rect; }
 
     inline LayoutRect marginBoxRect() const;
-    LayoutRect borderBoxRect() const { return LayoutRect(LayoutPoint(), size()); }
+    LayoutRect borderBoxRect() const { return LayoutRect(LayoutPoint(), borderBoxSize()); }
     LayoutRect borderBoundingBox() const final { return borderBoxRect(); }
     inline LayoutSize borderBoxLogicalSize() const;
 

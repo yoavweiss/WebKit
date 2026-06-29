@@ -220,7 +220,7 @@ bool RenderFragmentedFlow::absoluteQuadsForBox(Vector<FloatQuad>& quads, bool* w
     if (!hasValidFragmentInfo())
         return false;
 
-    auto boxRect = FloatRect { { }, box.size() };
+    auto boxRect = FloatRect { { }, box.borderBoxSize() };
     auto boxRectInFlowCoordinates = LayoutRect { box.localToContainerQuad(boxRect, this).boundingBox() };
 
     RenderFragmentContainer* startFragment = nullptr;
@@ -247,7 +247,7 @@ bool RenderFragmentedFlow::boxIsFragmented(const RenderBox& box) const
 {
     ASSERT(hasValidFragmentInfo());
 
-    auto boxRect = FloatRect { { }, box.size() };
+    auto boxRect = FloatRect { { }, box.borderBoxSize() };
     auto boxRectInFlowCoordinates = LayoutRect { box.localToContainerQuad(boxRect, this).boundingBox() };
 
     RenderFragmentContainer* startFragment = nullptr;

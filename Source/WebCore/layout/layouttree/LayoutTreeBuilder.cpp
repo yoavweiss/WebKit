@@ -562,7 +562,7 @@ void printLayoutTreeForLiveDocuments()
         auto layoutTree = TreeBuilder::buildLayoutTree(renderView);
         auto layoutState = LayoutState { document, layoutTree->root(), Layout::LayoutState::Type::Secondary, { }, { }, { }, { } };
 
-        LayoutContext(layoutState).layout(renderView.size());
+        LayoutContext(layoutState).layout(renderView.borderBoxSize());
         showLayoutTree(downcast<InitialContainingBlock>(layoutState.root()), &layoutState);
     }
 }

@@ -76,7 +76,7 @@ FloatPoint ShapeOutsideInfo::shapeToRendererPoint(const FloatPoint& point) const
 static LayoutSize computeLogicalBoxSize(const RenderBox& renderer, bool isHorizontalWritingMode)
 {
     auto& shapeOutside = renderer.style().shapeOutside();
-    auto size = isHorizontalWritingMode ? renderer.size() : renderer.size().transposedSize();
+    auto size = isHorizontalWritingMode ? renderer.borderBoxSize() : renderer.borderBoxSize().transposedSize();
     switch (shapeOutside.effectiveCSSBox()) {
     case CSSBoxType::MarginBox:
         if (isHorizontalWritingMode)

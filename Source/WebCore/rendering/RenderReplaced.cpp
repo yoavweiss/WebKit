@@ -279,7 +279,7 @@ void RenderReplaced::paint(PaintInfo& paintInfo, const LayoutPoint& paintOffset)
         // contribution so the SVG root's border rect doesn't change the interaction-region
         // shape. The children still register their precise bounds via paintReplaced.
         if (visibleToHitTesting()) {
-            auto borderRect = LayoutRect(adjustedPaintOffset, size());
+            auto borderRect = LayoutRect(adjustedPaintOffset, borderBoxSize());
             auto borderShape = BorderShape::shapeForBorderRect(style(), borderRect);
             auto contributeToInteractionRegions = (svgRootHasChildrenOrFilters && !isSkippedContentRoot(*this))
                 ? EventRegionContext::ContributeToInteractionRegions::No
@@ -329,7 +329,7 @@ void RenderReplaced::paint(PaintInfo& paintInfo, const LayoutPoint& paintOffset)
         return;
     }
 
-    LayoutRect paintRect = LayoutRect(adjustedPaintOffset, size());
+    LayoutRect paintRect = LayoutRect(adjustedPaintOffset, borderBoxSize());
     if (paintInfo.phase == PaintPhase::Outline || paintInfo.phase == PaintPhase::SelfOutline) {
         if (style().usedOutlineWidth())
             paintOutline(paintInfo, paintRect);
@@ -355,7 +355,7 @@ void RenderReplaced::paint(PaintInfo& paintInfo, const LayoutPoint& paintOffset)
 
     bool completelyClippedOut = false;
     if (style().border().hasBorderRadius()) {
-        completelyClippedOut = size().isEmpty();
+        completelyClippedOut = borderBoxSize().isEmpty();
         if (!completelyClippedOut) {
             // Push a clip if we have a border radius, since we want to round the foreground content that gets painted.
             paintInfo.context().save();
@@ -958,7 +958,7 @@ LayoutRect RenderReplaced::localSelectionRect(bool checkWhetherSelected) const
     if (checkWhetherSelected && !isSelected())
         return LayoutRect();
 
-    return LayoutRect(LayoutPoint(), size());
+    return LayoutRect(LayoutPoint(), borderBoxSize());
 }
 
 bool RenderReplaced::isSelected() const
