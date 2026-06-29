@@ -217,7 +217,7 @@ def resolve_preset_build_dir(presetName):
     return binaryDir
 
 
-def rewrite_argv(entry, absSrc, clang, checkers):
+def rewrite_argv(entry, absSrc, clang, checkers, header_only=False):
     tokens = shlex.split(entry['command'])
     out = [clang]
     i = 1
@@ -227,6 +227,9 @@ def rewrite_argv(entry, absSrc, clang, checkers):
     while i < n:
         t = tokens[i]
         if t == '-o' or t == '-MT' or t == '-MF' or t == '-MQ' or t == '-include':
+            i += 2
+            continue
+        if t == '-x' and i + 1 < n:
             i += 2
             continue
         if t in ('-c', '-MD', '-MMD', '-Winvalid-pch', '-fpch-instantiate-templates',
@@ -250,6 +253,8 @@ def rewrite_argv(entry, absSrc, clang, checkers):
         out.append(t)
         i += 1
 
+    if header_only:
+        out += ['-x', 'c++-header']
     out += [
         absSrc,
         '--analyze',
@@ -354,30 +359,21 @@ def map_header_to_tu(headerPath, db):
         candidate = stem + suffix
         if os.path.isfile(candidate) and db.lookup(candidate):
             return candidate
-
-    basename = os.path.basename(headerPath)
-    headerDir = os.path.dirname(headerPath)
-    patterns = ['-e', '"{}"'.format(basename)]
-    project, _ = project_for_path(headerPath)
-    if project:
-        patterns += ['-e', '<{}/{}>'.format(project, basename)]
-    proc = subprocess.run(
-        ['git', '-C', WEBKIT_ROOT, 'grep', '-l', '-F'] + patterns +
-        ['--', ':(glob)Source/**/*.cpp', ':(glob)Source/**/*.mm'],
-        capture_output=True, text=True)
-    candidates = []
-    for line in proc.stdout.splitlines():
-        path = os.path.realpath(os.path.join(WEBKIT_ROOT, line.strip()))
-        try:
-            size = os.path.getsize(path)
-        except OSError:
-            continue
-        candidates.append((os.path.dirname(path) != headerDir, size, path))
-    candidates.sort()
-    for _, _, path in candidates:
-        if db.lookup(path):
-            return path
     return None
+
+
+def find_flags_entry(headerPath, db):
+    headerDir = os.path.dirname(headerPath)
+    _, projectRoot = project_for_path(headerPath)
+    fallback = None
+    for path, entry in db.byFile.items():
+        if '/unified-sources/UnifiedSource' in path:
+            continue
+        if os.path.dirname(path) == headerDir:
+            return entry
+        if fallback is None and projectRoot and path.startswith(projectRoot + os.sep):
+            fallback = entry
+    return fallback
 
 
 def normalize_checkers(values, parser):
@@ -562,45 +558,56 @@ def main():
     seenTUs = set()
     for path in requested:
         ext = os.path.splitext(path)[1]
+        header_only = False
+        flags_entry = None
         if ext in HEADER_EXT:
             tu = map_header_to_tu(path, db)
-            if not tu:
-                print('SKIP: {} (header has no sibling or direct includer in this checkout)'.format(repo_relative(path)))
-                continue
-            tu = os.path.realpath(tu)
-            if args.verbose:
-                sys.stderr.write('header {} -> {}\n'.format(repo_relative(path), repo_relative(tu)))
-            requestedPaths.add(tu)
+            if tu:
+                tu = os.path.realpath(tu)
+                if args.verbose:
+                    sys.stderr.write('header {} -> {}\n'.format(repo_relative(path), repo_relative(tu)))
+                requestedPaths.add(tu)
+            else:
+                flags_entry = find_flags_entry(path, db)
+                if not flags_entry:
+                    print('SKIP: {} (no compile command found for project)'.format(repo_relative(path)))
+                    continue
+                if args.verbose:
+                    sys.stderr.write('header {} -> header-only (flags from {})\n'.format(
+                        repo_relative(path), repo_relative(os.path.realpath(flags_entry['file']))))
+                tu = path
+                header_only = True
         else:
             tu = path
         if tu in seenTUs:
             continue
-        entry = db.lookup(tu)
+        entry = flags_entry if header_only else db.lookup(tu)
         if not entry:
             print('SKIP: {} (no compile command found; is the build configured?)'.format(repo_relative(tu)))
             continue
         seenTUs.add(tu)
-        workItems.append((tu, entry))
+        workItems.append((tu, entry, header_only))
 
     if not workItems:
         print('Nothing to analyze.')
         return 0
 
     def runOne(item):
-        tu, entry = item
-        argv, cwd = rewrite_argv(entry, tu, clang, args.checkers)
+        tu, entry, header_only = item
+        argv, cwd = rewrite_argv(entry, tu, clang, args.checkers, header_only)
         if args.verbose:
             sys.stderr.write(' '.join(shlex.quote(a) for a in argv) + '\n')
         proc = subprocess.run(argv, cwd=cwd, capture_output=True, text=True)
-        return tu, proc.stderr
+        return tu, proc.stderr, header_only
 
     totalUnexpected = 0
     totalErrors = 0
     with concurrent.futures.ThreadPoolExecutor(max_workers=max(1, args.j)) as pool:
-        for tu, stderr in pool.map(runOne, workItems):
+        for tu, stderr, header_only in pool.map(runOne, workItems):
             blocks, unexpected, errors = filter_diagnostics(
                 stderr, requestedPaths, expectations, args.ignore_expectations)
-            print('==> {}'.format(repo_relative(tu)))
+            label = repo_relative(tu) + ' (header-only)' if header_only else repo_relative(tu)
+            print('==> {}'.format(label))
             if blocks:
                 for b in blocks:
                     print(b)
