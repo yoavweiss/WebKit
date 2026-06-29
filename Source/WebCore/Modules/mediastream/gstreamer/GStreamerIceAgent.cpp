@@ -683,9 +683,7 @@ static void webkitGstWebRTCIceAgentClose(GstWebRTCICE* ice, GstPromise* promise)
     {
         Locker locker { backend->priv->stateLock };
 
-        bool shouldWait = promise == nullptr;
-        auto isClosed = backend->priv->state == AgentState::Closed;
-        if (!shouldWait || isClosed) {
+        if (!backend->priv->closePromise) {
             GST_DEBUG_OBJECT(ice, "No need to wait close procedure completion");
             backend->priv->state = AgentState::Closed;
             return;
