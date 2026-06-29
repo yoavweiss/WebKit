@@ -424,11 +424,10 @@ std::optional<Vector<CDMMediaCapability>> CDMPrivate::getSupportedCapabilitiesFo
         //       combination of container, media types, robustness and local accumulated configuration in combination
         //       with restrictions:
         MediaEngineSupportParameters parameters { .type = ContentType(contentType->contentType()) };
-        MediaPlayerEngineSelection selection { .scope = hasPlatformStrategies() ? MediaPlayerScope::Playback : MediaPlayerScope::Supports };
-        if (MediaPlayer::supportsType(parameters, selection) == MediaPlayer::SupportsType::IsNotSupported) {
+        if (MediaPlayer::supportsType(parameters) == MediaPlayer::SupportsType::IsNotSupported) {
             // Try with Media Source:
             parameters.platformType = PlatformMediaDecodingType::MediaSource;
-            if (MediaPlayer::supportsType(parameters, selection) == MediaPlayer::SupportsType::IsNotSupported)
+            if (MediaPlayer::supportsType(parameters) == MediaPlayer::SupportsType::IsNotSupported)
                 continue;
         }
 

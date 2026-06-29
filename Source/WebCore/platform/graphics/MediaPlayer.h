@@ -131,8 +131,8 @@ struct MediaEngineSupportParameters {
 
 struct MediaPlayerEngineSelection {
     std::optional<MediaPlayerEnums::MediaEngineIdentifier> identifier { };
-    MediaPlayerScope scope { MediaPlayerScope::Playback };
-    MediaContainmentEnabled mediaContainmentEnabled { MediaContainmentEnabled::No };
+    // When unset, resolves to Playback in the WebContent process and Supports in the GPU process.
+    std::optional<MediaPlayerScope> scope { };
 };
 
 struct SeekTarget {
@@ -936,11 +936,9 @@ public:
     virtual void clearMediaCacheForOrigins(const String&, const HashSet<SecurityOriginData>&) const { }
     virtual bool supportsKeySystem(const String& /* keySystem */, const String& /* mimeType */) const { return false; }
 
-    // Describes how this factory may be used. The `mediaContainmentEnabled` context
-    // mirrors the per-WebProcess preference of the same name; in the GPU process it's
-    // sourced from the calling connection. Default is Playback; subclasses override
-    // only if they need to answer differently for some contexts.
-    virtual MediaPlayerScope supportedScope(MediaContainmentEnabled = MediaContainmentEnabled::No) const { return MediaPlayerScope::Playback; }
+    // Describes how this factory may be used. Default is Playback; subclasses
+    // override only if they need to answer differently for some contexts.
+    virtual MediaPlayerScope supportedScope() const { return MediaPlayerScope::Playback; }
 };
 
 using MediaEngineRegistrar = void(std::unique_ptr<MediaPlayerFactory>&&);

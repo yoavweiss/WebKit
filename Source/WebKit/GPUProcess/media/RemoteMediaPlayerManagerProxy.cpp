@@ -60,18 +60,9 @@ WTF_MAKE_TZONE_ALLOCATED_IMPL(RemoteMediaPlayerManagerProxy);
 
 CheckedPtr<const MediaPlayerFactory> RemoteMediaPlayerManagerProxy::playbackEngineForConnection(MediaPlayerEnums::MediaEngineIdentifier engineIdentifier) const
 {
-    auto connection = m_gpuConnectionToWebProcess.get();
-    auto containment = MediaContainmentEnabled::No;
-#if PLATFORM(COCOA)
-    if (connection && connection->sharedPreferencesForWebProcessValue().mediaContainmentEnabled)
-        containment = MediaContainmentEnabled::Yes;
-#else
-    UNUSED_PARAM(connection);
-#endif
     MediaPlayerEngineSelection selection {
         .identifier = engineIdentifier,
         .scope = MediaPlayerScope::Playback,
-        .mediaContainmentEnabled = containment,
     };
     return MediaPlayer::mediaEngine(selection);
 }

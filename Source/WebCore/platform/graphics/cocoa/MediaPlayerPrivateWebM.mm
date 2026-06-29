@@ -1757,7 +1757,7 @@ private:
         return MediaPlayerPrivateWebM::supportsType(parameters);
     }
 
-    MediaPlayerScope supportedScope(MediaContainmentEnabled) const final
+    MediaPlayerScope supportedScope() const final
     {
         return hasPlatformStrategies() ? MediaPlayerScope::Playback : MediaPlayerScope::Supports;
     }

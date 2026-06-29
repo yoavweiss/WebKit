@@ -635,14 +635,8 @@ void GPUConnectionToWebProcess::canDecodeExtendedType(PlatformMediaDecodingType 
         .platformType = platformType,
         .type = contentType,
     };
-    auto containment = MediaContainmentEnabled::No;
-#if PLATFORM(COCOA)
-    if (sharedPreferencesForWebProcessValue().mediaContainmentEnabled)
-        containment = MediaContainmentEnabled::Yes;
-#endif
     MediaPlayerEngineSelection selection {
         .scope = MediaPlayerScope::Supports,
-        .mediaContainmentEnabled = containment,
     };
     completionHandler(MediaPlayer::supportsType(parameters, selection) != MediaPlayer::SupportsType::IsNotSupported);
 }

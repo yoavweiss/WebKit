@@ -397,6 +397,11 @@ MediaPlayerPrivateInterface* MediaPlayer::playerPrivate()
     return m_private.get();
 }
 
+static MediaPlayerScope effectiveSelectedScope(const MediaPlayerEngineSelection& selection)
+{
+    return selection.scope.value_or(hasPlatformStrategies() ? MediaPlayerScope::Playback : MediaPlayerScope::Supports);
+}
+
 static bool engineScopeMatchesSelection(MediaPlayerScope engineScope, MediaPlayerScope selectionScope)
 {
     if (selectionScope == MediaPlayerScope::Playback)
@@ -414,7 +419,7 @@ const MediaPlayerFactory* MediaPlayer::mediaEngine(const MediaPlayerEngineSelect
     auto& engines = installedMediaEngines();
     auto currentIndex = engines.findIf([&] (auto& engine) {
         return engine->identifier() == *selection.identifier
-            && engineScopeMatchesSelection(engine->supportedScope(selection.mediaContainmentEnabled), selection.scope);
+            && engineScopeMatchesSelection(engine->supportedScope(), effectiveSelectedScope(selection));
     });
 
     if (currentIndex == notFound) {
@@ -443,7 +448,7 @@ static const MediaPlayerFactory* bestMediaEngineForSupportParameters(const Media
     const MediaPlayerFactory* foundEngine = nullptr;
     MediaPlayer::SupportsType supported = MediaPlayer::SupportsType::IsNotSupported;
     for (auto& engine : installedMediaEngines()) {
-        if (!engineScopeMatchesSelection(engine->supportedScope(selection.mediaContainmentEnabled), selection.scope))
+        if (!engineScopeMatchesSelection(engine->supportedScope(), effectiveSelectedScope(selection)))
             continue;
         if (current) {
             if (current == engine.get())

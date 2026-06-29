@@ -187,11 +187,6 @@ enum class MediaPlayerScope : uint8_t {
     Supports,
 };
 
-enum class MediaContainmentEnabled : bool {
-    No,
-    Yes,
-};
-
 } // namespace WebCore
 
 

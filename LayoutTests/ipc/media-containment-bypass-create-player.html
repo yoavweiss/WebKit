@@ -25,11 +25,10 @@ window.onload = function() {
         return;
     }
 
-    // Engines that GPU's RemoteMediaPlayerManagerProxy::createMediaPlayer must reject
-    // when MediaContainmentEnabled is true. AVFoundation (0) and WirelessPlayback (10)
-    // are the only allowed engines; AVFoundationMSE (1) corresponds to
-    // MediaPlayerPrivateMediaSourceAVFObjC, and CocoaWebM (9) corresponds to
-    // MediaPlayerPrivateWebM.
+    // Engines that GPU's RemoteMediaPlayerManagerProxy::createMediaPlayer must reject.
+    // AVFoundation (0) and WirelessPlayback (10) are the only allowed engines;
+    // AVFoundationMSE (1) corresponds to MediaPlayerPrivateMediaSourceAVFObjC,
+    // and CocoaWebM (9) corresponds to MediaPlayerPrivateWebM.
     var blockedEngines = [
         { id: 1, name: 'AVFoundationMSE' },
         { id: 9, name: 'CocoaWebM' },

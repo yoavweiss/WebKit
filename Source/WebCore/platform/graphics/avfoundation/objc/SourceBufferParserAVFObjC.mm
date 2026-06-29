@@ -236,7 +236,7 @@ SourceBufferParserAVFObjC::SourceBufferParserAVFObjC(const ContentType& contentT
 
 #if USE(MEDIAPARSERD)
     if ([m_parser.get() respondsToSelector:@selector(setPreferSandboxedParsing:)])
-        [m_parser.get() setPreferSandboxedParsing:!m_configuration.demuxInProcess];
+        [m_parser.get() setPreferSandboxedParsing:NO];
 #endif
 }
 

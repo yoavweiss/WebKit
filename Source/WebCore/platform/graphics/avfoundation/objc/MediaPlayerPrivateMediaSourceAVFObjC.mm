@@ -173,7 +173,7 @@ private:
 
     // Only reached when registered locally; registerMediaEngine may instead install
     // a remote proxy for this engine.
-    MediaPlayerScope supportedScope(MediaContainmentEnabled) const final
+    MediaPlayerScope supportedScope() const final
     {
         return hasPlatformStrategies() ? MediaPlayerScope::Playback : MediaPlayerScope::Supports;
     }
