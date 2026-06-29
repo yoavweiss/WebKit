@@ -305,6 +305,7 @@ void RenderTreeAsText::writeRenderObject(TextStream& ts, const RenderObject& o, 
                 break;
             case FlowDirection::RightToLeft:
                 borderRight -= block.intrinsicBorderForFieldset();
+                break;
             }
         }
         if (borderTop || borderRight || borderBottom || borderLeft) {
