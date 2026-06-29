@@ -201,7 +201,7 @@ static Color colorWithTargetLuminance(Color color, float targetLuminance)
 
     const auto [x, y, z, alpha] = color.toColorTypeLossy<XYZA<float, WhitePoint::D65>>().resolved();
 
-    targetLuminance = std::clamp(0.f, targetLuminance, 1.f);
+    targetLuminance = std::clamp(targetLuminance, 0.f, 1.f);
     if (y > 0.0f) {
         const auto scale = targetLuminance / y;
         return Color(XYZA<float, WhitePoint::D65> { x * scale, targetLuminance, z * scale, alpha });
