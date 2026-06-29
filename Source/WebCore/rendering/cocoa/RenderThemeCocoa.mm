@@ -2992,7 +2992,7 @@ static float cornerRadiusForConcentricTextBasedControl(const RenderElement& box,
         canBeConcentric = WTF::areEssentiallyEqual(inlineDistance, leftDistance) && WTF::areEssentiallyEqual(inlineDistance, rightDistance);
     } else {
         inlineDistance = isInlineFlipped ? leftDistance : rightDistance;
-        canBeConcentric = WTF::areEssentiallyEqual(inlineDistance, topDistance) && WTF::areEssentiallyEqual(inlineDistance, topDistance);
+        canBeConcentric = WTF::areEssentiallyEqual(inlineDistance, topDistance) && WTF::areEssentiallyEqual(inlineDistance, bottomDistance);
     }
 
     if (canBeConcentric) {
