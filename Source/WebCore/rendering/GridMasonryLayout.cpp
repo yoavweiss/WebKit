@@ -168,13 +168,13 @@ LayoutUnit GridMasonryLayout::masonryAxisMarginBoxForItem(const RenderBox& gridI
     LayoutUnit marginBoxSize;
     if (m_masonryAxisDirection == Style::GridTrackSizingDirection::Rows) {
         if (GridLayoutFunctions::isOrthogonalGridItem(m_renderGrid, gridItem))
-            marginBoxSize = gridItem.isHorizontalWritingMode() ? gridItem.width() + gridItem.horizontalMarginExtent() : gridItem.height() + gridItem.verticalMarginExtent();
+            marginBoxSize = gridItem.isHorizontalWritingMode() ? gridItem.borderBoxWidth() + gridItem.horizontalMarginExtent() : gridItem.borderBoxHeight() + gridItem.verticalMarginExtent();
         else
             marginBoxSize = gridItem.logicalHeight() + gridItem.marginLogicalHeight();
 
     } else {
         if (GridLayoutFunctions::isOrthogonalGridItem(m_renderGrid, gridItem))
-            marginBoxSize = gridItem.isHorizontalWritingMode() ? gridItem.height() + gridItem.verticalMarginExtent() : gridItem.width() + gridItem.horizontalMarginExtent();
+            marginBoxSize = gridItem.isHorizontalWritingMode() ? gridItem.borderBoxHeight() + gridItem.verticalMarginExtent() : gridItem.borderBoxWidth() + gridItem.horizontalMarginExtent();
         else
             marginBoxSize = gridItem.logicalWidth() + gridItem.marginLogicalWidth();
     }

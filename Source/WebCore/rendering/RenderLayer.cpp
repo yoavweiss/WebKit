@@ -2988,8 +2988,8 @@ LayoutSize RenderLayer::minimumSizeForResizing(float zoomFactor) const
     // Use the resizer size as the strict minimum size
     auto resizerRect = overflowControlsRects().resizer;
     auto& rendererStyle = renderer().style();
-    auto minWidth = Style::evaluateMinimum<LayoutUnit>(rendererStyle.minWidth(), renderer().containingBlock()->width(), rendererStyle.usedZoomForLength());
-    auto minHeight = Style::evaluateMinimum<LayoutUnit>(rendererStyle.minHeight(), renderer().containingBlock()->height(), rendererStyle.usedZoomForLength());
+    auto minWidth = Style::evaluateMinimum<LayoutUnit>(rendererStyle.minWidth(), renderer().containingBlock()->borderBoxWidth(), rendererStyle.usedZoomForLength());
+    auto minHeight = Style::evaluateMinimum<LayoutUnit>(rendererStyle.minHeight(), renderer().containingBlock()->borderBoxHeight(), rendererStyle.usedZoomForLength());
     minWidth = std::max(LayoutUnit(minWidth / zoomFactor), LayoutUnit(resizerRect.width()));
     minHeight = std::max(LayoutUnit(minHeight / zoomFactor), LayoutUnit(resizerRect.height()));
     return LayoutSize(minWidth, minHeight);
@@ -3023,7 +3023,7 @@ void RenderLayer::resize(const PlatformMouseEvent& evt, const LayoutSize& oldOff
     newOffset.setWidth(newOffset.width() / zoomFactor);
     newOffset.setHeight(newOffset.height() / zoomFactor);
 
-    LayoutSize currentSize = LayoutSize(renderer->width() / zoomFactor, renderer->height() / zoomFactor);
+    LayoutSize currentSize = LayoutSize(renderer->borderBoxWidth() / zoomFactor, renderer->borderBoxHeight() / zoomFactor);
 
     LayoutSize adjustedOldOffset = LayoutSize(oldOffset.width() / zoomFactor, oldOffset.height() / zoomFactor);
     if (renderer->shouldPlaceVerticalScrollbarOnLeft()) {
@@ -3045,7 +3045,7 @@ void RenderLayer::resize(const PlatformMouseEvent& evt, const LayoutSize& oldOff
             styledElement->setInlineStyleProperty(CSSPropertyMarginLeft, renderer->marginLeft() / zoomFactor, CSSUnitType::CSS_PX);
             styledElement->setInlineStyleProperty(CSSPropertyMarginRight, renderer->marginRight() / zoomFactor, CSSUnitType::CSS_PX);
         }
-        LayoutUnit baseWidth = renderer->width() - (isBoxSizingBorder ? 0_lu : renderer->horizontalBorderAndPaddingExtent());
+        LayoutUnit baseWidth = renderer->borderBoxWidth() - (isBoxSizingBorder ? 0_lu : renderer->horizontalBorderAndPaddingExtent());
         baseWidth = baseWidth / zoomFactor;
         styledElement->setInlineStyleProperty(CSSPropertyWidth, roundToInt(baseWidth + difference.width()), CSSUnitType::CSS_PX);
 
@@ -3060,7 +3060,7 @@ void RenderLayer::resize(const PlatformMouseEvent& evt, const LayoutSize& oldOff
             styledElement->setInlineStyleProperty(CSSPropertyMarginTop, renderer->marginTop() / zoomFactor, CSSUnitType::CSS_PX);
             styledElement->setInlineStyleProperty(CSSPropertyMarginBottom, renderer->marginBottom() / zoomFactor, CSSUnitType::CSS_PX);
         }
-        LayoutUnit baseHeight = renderer->height() - (isBoxSizingBorder ? 0_lu : renderer->verticalBorderAndPaddingExtent());
+        LayoutUnit baseHeight = renderer->borderBoxHeight() - (isBoxSizingBorder ? 0_lu : renderer->verticalBorderAndPaddingExtent());
         baseHeight = baseHeight / zoomFactor;
         styledElement->setInlineStyleProperty(CSSPropertyHeight, roundToInt(baseHeight + difference.height()), CSSUnitType::CSS_PX);
 

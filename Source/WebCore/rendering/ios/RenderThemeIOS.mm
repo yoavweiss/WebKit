@@ -432,7 +432,7 @@ void RenderThemeIOS::adjustRoundBorderRadius(Style::ComputedStyle& style, Render
     auto boxLogicalHeight = box.logicalHeight();
     auto unzoomedBoxLogicalHeight = box.logicalHeight() / usedZoom.value;
 
-    auto minDimension = std::min(box.width(), box.height());
+    auto minDimension = std::min(box.borderBoxWidth(), box.borderBoxHeight());
     auto unzoomedMinDimension = minDimension / usedZoom.value;
 
     if ((isAnyOf<RenderButton, RenderMenuList>(box)) && boxLogicalHeight >= largeButtonSize) {

@@ -146,7 +146,7 @@ int RenderMarquee::computePosition(MarqueeDirection dir, bool stopAtContentEdge)
         if (ltr)
             contentWidth += (box->paddingRight() - box->borderLeft());
         else {
-            contentWidth = box->width() - contentWidth;
+            contentWidth = box->borderBoxWidth() - contentWidth;
             contentWidth += (box->paddingLeft() - box->borderRight());
         }
         if (dir == MarqueeDirection::Right) {

@@ -341,7 +341,7 @@ void RenderListMarker::layout()
         RefPtr image = m_image;
         setWidth(image->imageSize(this, style().usedZoom()).width());
         setHeight(image->imageSize(this, style().usedZoom()).height());
-        m_layoutBounds = { height(), 0 };
+        m_layoutBounds = { borderBoxHeight(), 0 };
     } else {
         setLogicalWidth(minContentLogicalWidthContribution());
         setLogicalHeight(style().metricsOfPrimaryFont().intHeight());
@@ -364,7 +364,7 @@ void RenderListMarker::imageChanged(WrappedImagePtr o, const IntRect* rect)
     if (parent()) {
         RefPtr image = m_image;
         if (image && o == image->data()) {
-            if (width() != image->imageSize(this, style().usedZoom()).width() || height() != image->imageSize(this, style().usedZoom()).height() || image->errorOccurred())
+            if (borderBoxWidth() != image->imageSize(this, style().usedZoom()).width() || borderBoxHeight() != image->imageSize(this, style().usedZoom()).height() || image->errorOccurred())
                 setNeedsLayoutAndInvalidateContentLogicalWidths();
             else
                 repaint();
@@ -567,7 +567,7 @@ FloatRect RenderListMarker::relativeMarkerRect()
 
     if (!writingMode().isHorizontal()) {
         relativeRect = relativeRect.transposedRect();
-        relativeRect.setX(width() - relativeRect.x() - relativeRect.width());
+        relativeRect.setX(borderBoxWidth() - relativeRect.x() - relativeRect.width());
     }
 
     return relativeRect;

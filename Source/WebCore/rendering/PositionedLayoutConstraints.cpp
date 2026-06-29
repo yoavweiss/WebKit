@@ -206,7 +206,7 @@ void PositionedLayoutConstraints::captureGridArea()
 
     if (!startIsBefore()) {
         auto containerSize = BoxAxis::Horizontal == m_physicalAxis
-            ? gridContainer->width() : gridContainer->height();
+            ? gridContainer->borderBoxWidth() : gridContainer->borderBoxHeight();
         m_containingRange.moveTo(containerSize - m_containingRange.max());
     }
 

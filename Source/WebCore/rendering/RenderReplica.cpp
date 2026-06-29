@@ -62,7 +62,7 @@ void RenderReplica::layout()
 
 void RenderReplica::computeIntrinsicLogicalWidthContributions()
 {
-    m_minContentLogicalWidthContribution = parentBox()->width();
+    m_minContentLogicalWidthContribution = parentBox()->borderBoxWidth();
     m_maxContentLogicalWidthContribution = m_minContentLogicalWidthContribution;
     clearContentLogicalWidthsInvalidation();
 }

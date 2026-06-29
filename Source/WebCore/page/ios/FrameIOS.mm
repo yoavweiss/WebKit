@@ -355,7 +355,7 @@ int LocalFrame::preferredHeight() const
     if (!block)
         return 0;
 
-    return block->height() + block->marginTop() + block->marginBottom();
+    return block->borderBoxHeight() + block->marginTop() + block->marginBottom();
 }
 
 void LocalFrame::updateLayout() const

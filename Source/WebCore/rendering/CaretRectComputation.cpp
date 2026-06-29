@@ -274,11 +274,11 @@ static LayoutRect computeCaretRectForBox(const RenderBox& renderer, const Inline
     // They never refer to children.
     // FIXME: Paint the carets inside empty blocks differently than the carets before/after elements.
 
-    LayoutRect rect(renderer.location(), LayoutSize(caretWidth(), renderer.height()));
+    LayoutRect rect(renderer.location(), LayoutSize(caretWidth(), renderer.borderBoxHeight()));
     auto writingMode = boxAndOffset.box ? boxAndOffset.box->writingMode() : renderer.writingMode();
 
     if ((!boxAndOffset.offset) == writingMode.isInlineFlipped())
-        rect.move(LayoutSize(renderer.width() - caretWidth(), 0_lu));
+        rect.move(LayoutSize(renderer.borderBoxWidth() - caretWidth(), 0_lu));
 
     if (boxAndOffset.box) {
         auto lineBox = boxAndOffset.box->lineBox();
@@ -311,7 +311,7 @@ static LayoutRect computeCaretRectForBox(const RenderBox& renderer, const Inline
     }
 
     if (caretRectMode == CaretRectMode::ExpandToEndOfLine)
-        rect.shiftMaxXEdgeTo(renderer.x() + renderer.width());
+        rect.shiftMaxXEdgeTo(renderer.x() + renderer.borderBoxWidth());
 
     return writingMode.isHorizontal() ? rect : rect.transposedRect();
 }

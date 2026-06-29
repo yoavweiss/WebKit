@@ -247,7 +247,7 @@ Ref<const LayoutShape> makeShapeForShapeOutside(const RenderBox& renderer)
     auto zoom = style.usedZoomForLength();
 
     auto boxSize = computeLogicalBoxSize(renderer, isHorizontalWritingMode);
-    auto borderBoxLogicalWidth = isHorizontalWritingMode ? renderer.width() : renderer.height();
+    auto borderBoxLogicalWidth = isHorizontalWritingMode ? renderer.borderBoxWidth() : renderer.borderBoxHeight();
 
     auto logicalMargin = [&] {
         auto shapeMargin = Style::evaluate<LayoutUnit>(style.shapeMargin(), containingBlock.contentBoxLogicalWidth(), zoom).toFloat();

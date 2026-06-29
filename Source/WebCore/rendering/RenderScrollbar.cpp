@@ -64,8 +64,8 @@ RenderScrollbar::RenderScrollbar(ScrollableArea& scrollableArea, ScrollbarOrient
     updateScrollbarPart(ScrollbarBGPart);
     if (CheckedPtr part = m_parts.get(ScrollbarBGPart)) {
         part->layout();
-        width = part->width();
-        height = part->height();
+        width = part->borderBoxWidth();
+        height = part->borderBoxHeight();
     } else if (this->orientation() == ScrollbarOrientation::Horizontal)
         width = this->width();
     else
@@ -190,7 +190,7 @@ void RenderScrollbar::updateScrollbarParts()
     int newThickness = 0;
     if (CheckedPtr part = m_parts.get(ScrollbarBGPart)) {
         part->layout();
-        newThickness = isHorizontal ? part->height() : part->width();
+        newThickness = isHorizontal ? part->borderBoxHeight() : part->borderBoxWidth();
     }
 
     if (newThickness != oldThickness) {
@@ -358,7 +358,7 @@ int RenderScrollbar::minimumThumbLength() const
     if (!partRenderer)
         return 0;    
     partRenderer->layout();
-    return orientation() == ScrollbarOrientation::Horizontal ? partRenderer->width() : partRenderer->height();
+    return orientation() == ScrollbarOrientation::Horizontal ? partRenderer->borderBoxWidth() : partRenderer->borderBoxHeight();
 }
 
 float RenderScrollbar::opacity() const

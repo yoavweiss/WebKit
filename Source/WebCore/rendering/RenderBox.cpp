@@ -696,7 +696,7 @@ void RenderBox::absoluteQuads(Vector<FloatQuad>& quads, bool* wasFixed) const
     if (CheckedPtr fragmentedFlow = enclosingFragmentedFlow(); fragmentedFlow && fragmentedFlow->absoluteQuadsForBox(quads, wasFixed, *this))
         return;
 
-    auto localRect = FloatRect { 0, 0, width(), height() };
+    auto localRect = FloatRect { 0, 0, borderBoxWidth(), borderBoxHeight() };
     quads.append(localToAbsoluteQuad(localRect, MapCoordinatesMode::UseTransforms, wasFixed));
 }
 
@@ -935,8 +935,8 @@ LayoutRect RenderBox::paddingBoxRect() const
     return LayoutRect {
         borderWidths.left() + offsetForScrollbar,
         borderWidths.top(),
-        width() - borderWidths.left() - borderWidths.right() - verticalScrollbarWidth,
-        height() - borderWidths.top() - borderWidths.bottom() - horizontalScrollbarHeight
+        borderBoxWidth() - borderWidths.left() - borderWidths.right() - verticalScrollbarWidth,
+        borderBoxHeight() - borderWidths.top() - borderWidths.bottom() - horizontalScrollbarHeight
     };
 }
 
@@ -1956,7 +1956,7 @@ static bool isCandidateForOpaquenessTest(const RenderBox& childBox)
         return false;
     if (!childStyle.shapeOutside().isNone())
         return false;
-    if (!childBox.width() || !childBox.height())
+    if (!childBox.borderBoxWidth() || !childBox.borderBoxHeight())
         return false;
     if (CheckedPtr childLayer = childBox.layer()) {
         if (childLayer->isComposited())
@@ -1993,7 +1993,7 @@ bool RenderBox::foregroundIsKnownToBeOpaqueInRect(const LayoutRect& localRect, u
                 return false;
             continue;
         }
-        if (childLocalRect.maxY() > childBox.height() || childLocalRect.maxX() > childBox.width())
+        if (childLocalRect.maxY() > childBox.borderBoxHeight() || childLocalRect.maxX() > childBox.borderBoxWidth())
             continue;
         if (childBox.backgroundIsKnownToBeOpaqueInRect(childLocalRect))
             return true;
@@ -2217,8 +2217,8 @@ bool RenderBox::repaintLayerRectsForImage(WrappedImagePtr image, const Layers& l
 
                     rendererRect = LayoutRect(-layerRenderer->marginLeft(),
                         -layerRenderer->marginTop(),
-                        std::max(layerRenderer->width() + layerRenderer->horizontalMarginExtent() + layerRenderer->borderLeft() + layerRenderer->borderRight(), rw),
-                        std::max(layerRenderer->height() + layerRenderer->verticalMarginExtent() + layerRenderer->borderTop() + layerRenderer->borderBottom(), rh));
+                        std::max(layerRenderer->borderBoxWidth() + layerRenderer->horizontalMarginExtent() + layerRenderer->borderLeft() + layerRenderer->borderRight(), rw),
+                        std::max(layerRenderer->borderBoxHeight() + layerRenderer->verticalMarginExtent() + layerRenderer->borderTop() + layerRenderer->borderBottom(), rh));
 
                     // If we're drawing the root background, then we want to use the bounds of the view
                     // (since root backgrounds cover the canvas, not just the element). If the root element
@@ -2368,7 +2368,7 @@ LayoutRect RenderBox::clipRect(const LayoutPoint& location) const
             // from the left and top edges. Therefore it's better to avoid constraining to smaller widths and heights.
 
             if (auto clipRight = rect.value->right().tryLength())
-                clipRect.contract(width() - LayoutUnit { clipRight->resolveZoom(Style::ZoomNeeded { }) }, 0_lu);
+                clipRect.contract(borderBoxWidth() - LayoutUnit { clipRight->resolveZoom(Style::ZoomNeeded { }) }, 0_lu);
 
             if (auto clipTop = rect.value->top().tryLength()) {
                 auto c = LayoutUnit { clipTop->resolveZoom(Style::ZoomNeeded { }) };
@@ -2377,7 +2377,7 @@ LayoutRect RenderBox::clipRect(const LayoutPoint& location) const
             }
 
             if (auto clipBottom = rect.value->bottom().tryLength())
-                clipRect.contract(0_lu, height() - LayoutUnit { clipBottom->resolveZoom(Style::ZoomNeeded { }) });
+                clipRect.contract(0_lu, borderBoxHeight() - LayoutUnit { clipBottom->resolveZoom(Style::ZoomNeeded { }) });
 
             return clipRect;
         }
@@ -4245,9 +4245,9 @@ LayoutRange RenderBox::containingBlockRangeForPositioned(const RenderBoxModelObj
             if (auto boxInfo = containingBlock->renderBoxFragmentInfo(fragment)) {
                 auto size = boxInfo->logicalWidth();
                 if (BoxAxis::Horizontal == physicalAxis)
-                    size -= containingBlock->width() - containingBlock->clientWidth();
+                    size -= containingBlock->borderBoxWidth() - containingBlock->clientWidth();
                 else
-                    size -= containingBlock->height() - containingBlock->clientHeight();
+                    size -= containingBlock->borderBoxHeight() - containingBlock->clientHeight();
                 return LayoutRange(startEdge, std::max<LayoutUnit>(0, size));
             }
         }
@@ -5067,9 +5067,9 @@ LayoutRect RenderBox::convertRectToParentWritingMode(LayoutRect rect, const Writ
     // We are putting ourselves into our parent's coordinate space. If there is a flipped block mismatch
     // in a particular axis, then we have to flip the rect along that axis.
     if (writingMode().blockDirection() == FlowDirection::RightToLeft || parentWritingMode.blockDirection() == FlowDirection::RightToLeft)
-        rect.setX(width() - rect.maxX());
+        rect.setX(borderBoxWidth() - rect.maxX());
     else if (writingMode().blockDirection() == FlowDirection::BottomToTop || parentWritingMode.blockDirection() == FlowDirection::BottomToTop)
-        rect.setY(height() - rect.maxY());
+        rect.setY(borderBoxHeight() - rect.maxY());
 
     return rect;
 }
@@ -5156,8 +5156,8 @@ LayoutPoint RenderBox::flipForWritingModeForChild(const RenderBox& child, const 
     // The child is going to add in its x() and y(), so we have to make sure it ends up in
     // the right place.
     if (isHorizontalWritingMode())
-        return LayoutPoint(point.x(), point.y() + height() - child.height() - (2 * child.y()));
-    return LayoutPoint(point.x() + width() - child.width() - (2 * child.x()), point.y());
+        return LayoutPoint(point.x(), point.y() + borderBoxHeight() - child.borderBoxHeight() - (2 * child.y()));
+    return LayoutPoint(point.x() + borderBoxWidth() - child.borderBoxWidth() - (2 * child.x()), point.y());
 }
 
 void RenderBox::flipForWritingMode(LayoutRect& rect) const
@@ -5166,9 +5166,9 @@ void RenderBox::flipForWritingMode(LayoutRect& rect) const
         return;
 
     if (isHorizontalWritingMode())
-        rect.setY(height() - rect.maxY());
+        rect.setY(borderBoxHeight() - rect.maxY());
     else
-        rect.setX(width() - rect.maxX());
+        rect.setX(borderBoxWidth() - rect.maxX());
 }
 
 LayoutUnit RenderBox::flipForWritingMode(LayoutUnit position) const
@@ -5182,21 +5182,21 @@ LayoutPoint RenderBox::flipForWritingMode(const LayoutPoint& position) const
 {
     if (!writingMode().isBlockFlipped())
         return position;
-    return isHorizontalWritingMode() ? LayoutPoint(position.x(), height() - position.y()) : LayoutPoint(width() - position.x(), position.y());
+    return isHorizontalWritingMode() ? LayoutPoint(position.x(), borderBoxHeight() - position.y()) : LayoutPoint(borderBoxWidth() - position.x(), position.y());
 }
 
 LayoutSize RenderBox::flipForWritingMode(const LayoutSize& offset) const
 {
     if (!writingMode().isBlockFlipped())
         return offset;
-    return isHorizontalWritingMode() ? LayoutSize(offset.width(), height() - offset.height()) : LayoutSize(width() - offset.width(), offset.height());
+    return isHorizontalWritingMode() ? LayoutSize(offset.width(), borderBoxHeight() - offset.height()) : LayoutSize(borderBoxWidth() - offset.width(), offset.height());
 }
 
 FloatPoint RenderBox::flipForWritingMode(const FloatPoint& position) const
 {
     if (!writingMode().isBlockFlipped())
         return position;
-    return isHorizontalWritingMode() ? FloatPoint(position.x(), height() - position.y()) : FloatPoint(width() - position.x(), position.y());
+    return isHorizontalWritingMode() ? FloatPoint(position.x(), borderBoxHeight() - position.y()) : FloatPoint(borderBoxWidth() - position.x(), position.y());
 }
 
 void RenderBox::flipForWritingMode(FloatRect& rect) const
@@ -5205,9 +5205,9 @@ void RenderBox::flipForWritingMode(FloatRect& rect) const
         return;
 
     if (isHorizontalWritingMode())
-        rect.setY(height() - rect.maxY());
+        rect.setY(borderBoxHeight() - rect.maxY());
     else
-        rect.setX(width() - rect.maxX());
+        rect.setX(borderBoxWidth() - rect.maxX());
 }
 
 void RenderBox::flipForWritingMode(RepaintRects& rects) const

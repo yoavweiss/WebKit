@@ -2240,7 +2240,7 @@ LayoutRange RenderGrid::gridAreaRangeForOutOfFlow(const RenderBox& gridItem, Sty
         defaultRange = isRowAxis == writingMode().isHorizontal()
             ? scrollablePaddingAreaOverflowRect().xRange() : scrollablePaddingAreaOverflowRect().yRange();
         if (writingMode().isInlineFlipped() && isRowAxis)
-            defaultRange.moveTo(width() - defaultRange.max());
+            defaultRange.moveTo(borderBoxWidth() - defaultRange.max());
     }
 
     if (currentGrid().needsItemsPlacement()) {

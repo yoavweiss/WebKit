@@ -688,9 +688,9 @@ void RenderMultiColumnSet::paintColumnRules(PaintInfo& paintInfo, const LayoutPo
 
         if (!topToBottom) {
             if (isHorizontalWritingMode())
-                ruleRect.setY(height() - ruleRect.maxY());
+                ruleRect.setY(borderBoxHeight() - ruleRect.maxY());
             else
-                ruleRect.setX(width() - ruleRect.maxX());
+                ruleRect.setX(borderBoxWidth() - ruleRect.maxX());
         }
 
         ruleRect.moveBy(paintOffset);

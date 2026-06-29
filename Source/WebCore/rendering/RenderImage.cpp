@@ -112,16 +112,16 @@ void RenderImage::collectSelectionGeometries(Vector<SelectionGeometry>& geometri
     auto run = InlineIterator::boxFor(*this);
     if (!run) {
         // This is a block image.
-        imageRect = IntRect(0, 0, width(), height());
+        imageRect = IntRect(0, 0, borderBoxWidth(), borderBoxHeight());
         isFirstOnLine = true;
         isLastOnLine = true;
         lineExtentRect = imageRect;
         if (containingBlock->isHorizontalWritingMode()) {
             lineExtentRect.setX(containingBlock->x());
-            lineExtentRect.setWidth(containingBlock->width());
+            lineExtentRect.setWidth(containingBlock->borderBoxWidth());
         } else {
             lineExtentRect.setY(containingBlock->y());
-            lineExtentRect.setHeight(containingBlock->height());
+            lineExtentRect.setHeight(containingBlock->borderBoxHeight());
         }
     } else {
         auto selectionLogicalRect = LineSelection::logicalRect(*run->lineBox());

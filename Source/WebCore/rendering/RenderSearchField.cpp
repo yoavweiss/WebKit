@@ -217,7 +217,7 @@ int RenderSearchField::clientInsetLeft() const
 {
     // Inset the menu by the radius of the cap on the left so that
     // it only runs along the straight part of the bezel.
-    return height() / 2;
+    return borderBoxHeight() / 2;
 }
 
 int RenderSearchField::clientInsetRight() const
@@ -225,7 +225,7 @@ int RenderSearchField::clientInsetRight() const
     // Inset the menu by the radius of the cap on the right so that
     // it only runs along the straight part of the bezel (unless it needs
     // to be wider).
-    return height() / 2;
+    return borderBoxHeight() / 2;
 }
 
 LayoutUnit RenderSearchField::clientPaddingLeft() const
@@ -244,7 +244,7 @@ LayoutUnit RenderSearchField::clientPaddingRight() const
     if (CheckedPtr containerBox = container ? container->renderBox() : nullptr) {
         RefPtr innerBlock = innerBlockElement();
         if (auto* innerBlockBox = innerBlock ? innerBlock->renderBox() : nullptr)
-            padding += containerBox->width() - (innerBlockBox->x() + innerBlockBox->width());
+            padding += containerBox->borderBoxWidth() - (innerBlockBox->x() + innerBlockBox->borderBoxWidth());
     }
     return padding;
 }

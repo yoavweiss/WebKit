@@ -147,7 +147,7 @@ private:
     Scrollbar* NODELETE verticalScrollbar() const final;
     Scrollbar* NODELETE horizontalScrollbar() const final;
     IntSize contentsSize() const final;
-    IntSize visibleSize() const final { return IntSize(width(), height()); }
+    IntSize visibleSize() const final { return IntSize(borderBoxWidth(), borderBoxHeight()); }
     IntPoint lastKnownMousePositionInView() const final;
     bool isHandlingWheelEvent() const final;
     bool shouldSuspendScrollAnimations() const final;

@@ -84,8 +84,8 @@ void RenderFrameSet::paintColumnBorder(const PaintInfo& paintInfo, const IntRect
     // Now stroke the edges but only if we have enough room to paint both edges with a little
     // bit of the fill color showing through.
     if (borderRect.width() >= 3) {
-        context.fillRect(IntRect(borderRect.location(), IntSize(1, height())), borderStartEdgeColor);
-        context.fillRect(IntRect(IntPoint(borderRect.maxX() - 1, borderRect.y()), IntSize(1, height())), borderEndEdgeColor);
+        context.fillRect(IntRect(borderRect.location(), IntSize(1, borderBoxHeight())), borderStartEdgeColor);
+        context.fillRect(IntRect(IntPoint(borderRect.maxX() - 1, borderRect.y()), IntSize(1, borderBoxHeight())), borderEndEdgeColor);
     }
 }
 
@@ -103,8 +103,8 @@ void RenderFrameSet::paintRowBorder(const PaintInfo& paintInfo, const IntRect& b
     // Now stroke the edges but only if we have enough room to paint both edges with a little
     // bit of the fill color showing through.
     if (borderRect.height() >= 3) {
-        context.fillRect(IntRect(borderRect.location(), IntSize(width(), 1)), borderStartEdgeColor);
-        context.fillRect(IntRect(IntPoint(borderRect.x(), borderRect.maxY() - 1), IntSize(width(), 1)), borderEndEdgeColor);
+        context.fillRect(IntRect(borderRect.location(), IntSize(borderBoxWidth(), 1)), borderStartEdgeColor);
+        context.fillRect(IntRect(IntPoint(borderRect.x(), borderRect.maxY() - 1), IntSize(borderBoxWidth(), 1)), borderEndEdgeColor);
     }
 }
 
@@ -130,7 +130,7 @@ void RenderFrameSet::paint(PaintInfo& paintInfo, const LayoutPoint& paintOffset)
             downcast<RenderElement>(*child).paint(paintInfo, adjustedPaintOffset);
             xPos += m_cols.m_sizes[c];
             if (borderThickness && m_cols.m_allowBorder[c + 1]) {
-                paintColumnBorder(paintInfo, snappedIntRect(LayoutRect(adjustedPaintOffset.x() + xPos, adjustedPaintOffset.y() + yPos, borderThickness, height())));
+                paintColumnBorder(paintInfo, snappedIntRect(LayoutRect(adjustedPaintOffset.x() + xPos, adjustedPaintOffset.y() + yPos, borderThickness, borderBoxHeight())));
                 xPos += borderThickness;
             }
             child = child->nextSibling();
@@ -139,7 +139,7 @@ void RenderFrameSet::paint(PaintInfo& paintInfo, const LayoutPoint& paintOffset)
         }
         yPos += m_rows.m_sizes[r];
         if (borderThickness && m_rows.m_allowBorder[r + 1]) {
-            paintRowBorder(paintInfo, snappedIntRect(LayoutRect(adjustedPaintOffset.x(), adjustedPaintOffset.y() + yPos, width(), borderThickness)));
+            paintRowBorder(paintInfo, snappedIntRect(LayoutRect(adjustedPaintOffset.x(), adjustedPaintOffset.y() + yPos, borderBoxWidth(), borderThickness)));
             yPos += borderThickness;
         }
     }
@@ -453,8 +453,8 @@ void RenderFrameSet::layout()
     }
 
     LayoutUnit borderThickness = frameSetElement().border();
-    layOutAxis(m_rows, frameSetElement().rowDimensions(), height() - (rows - 1) * borderThickness);
-    layOutAxis(m_cols, frameSetElement().colDimensions(), width() - (cols - 1) * borderThickness);
+    layOutAxis(m_rows, frameSetElement().rowDimensions(), borderBoxHeight() - (rows - 1) * borderThickness);
+    layOutAxis(m_cols, frameSetElement().colDimensions(), borderBoxWidth() - (cols - 1) * borderThickness);
 
     positionFrames();
 

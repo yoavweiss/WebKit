@@ -229,7 +229,7 @@ void RenderTreeAsText::writeRenderObject(TextStream& ts, const RenderObject& o, 
         // captured by the results.
         // FIXME: Cell positions are row-relative but we dump them as section-relative to avoid rebaselining every table test.
         auto rowOffset = cell->parent() ? downcast<RenderBox>(*cell->parent()).location() : LayoutPoint();
-        r = LayoutRect(cell->x() + rowOffset.x(), cell->y() + rowOffset.y() + cell->intrinsicPaddingBefore(), cell->width(), cell->height() - cell->intrinsicPaddingBefore() - cell->intrinsicPaddingAfter());
+        r = LayoutRect(cell->x() + rowOffset.x(), cell->y() + rowOffset.y() + cell->intrinsicPaddingBefore(), cell->borderBoxWidth(), cell->borderBoxHeight() - cell->intrinsicPaddingBefore() - cell->intrinsicPaddingAfter());
     } else if (auto* box = dynamicDowncast<RenderBox>(o))
         r = box->frameRect();
     else if (auto* svgModelObject = dynamicDowncast<RenderSVGModelObject>(o)) {
@@ -849,7 +849,7 @@ String externalRepresentation(LocalFrame* frame, OptionSet<RenderAsTextFlag> beh
 
     Ref printContext = PrintContext::create(frame);
     if (behavior.contains(RenderAsTextFlag::PrintingMode))
-        printContext->begin(renderer->width());
+        printContext->begin(renderer->borderBoxWidth());
 
     return externalRepresentation(*renderer, behavior);
 }

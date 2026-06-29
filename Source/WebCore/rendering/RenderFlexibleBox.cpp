@@ -714,7 +714,7 @@ Style::FlexBasis RenderFlexibleBox::flexBasisForFlexItem(const RenderBox& flexIt
 
 LayoutUnit RenderFlexibleBox::crossAxisExtentForFlexItem(const RenderBox& flexItem) const
 {
-    return isHorizontalFlow() ? flexItem.height() : flexItem.width();
+    return isHorizontalFlow() ? flexItem.borderBoxHeight() : flexItem.borderBoxWidth();
 }
 
 LayoutUnit RenderFlexibleBox::flexItemContentLogicalHeight(const RenderBox& flexItem) const
@@ -1589,7 +1589,7 @@ void RenderFlexibleBox::performFlexLayout(RelayoutChildren relayoutChildren)
     if (allItems.isEmpty()) {
         if (hasLineIfEmpty()) {
             auto minHeight = borderAndPaddingLogicalHeight() + lineHeight() + scrollbarLogicalHeight();
-            if (height() < minHeight)
+            if (borderBoxHeight() < minHeight)
                 setLogicalHeight(minHeight);
         }
         updateLogicalHeight();

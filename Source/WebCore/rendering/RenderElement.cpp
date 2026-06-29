@@ -1613,7 +1613,7 @@ bool RenderElement::repaintAfterLayoutIfNeeded(SingleThreadWeakPtr<const RenderL
                 auto* renderBox = dynamicDowncast<RenderBox>(*this);
                 if (!renderBox)
                     return { };
-                auto borderBoxWidth = renderBox->width();
+                auto borderBoxWidth = renderBox->borderBoxWidth();
                 return std::max({
                     renderBox->borderRight(),
                     Style::evaluate<LayoutUnit>(style.borderTopRightRadius().width(), borderBoxWidth, zoom),
@@ -1657,7 +1657,7 @@ bool RenderElement::repaintAfterLayoutIfNeeded(SingleThreadWeakPtr<const RenderL
                 auto* renderBox = dynamicDowncast<RenderBox>(*this);
                 if (!renderBox)
                     return { };
-                auto borderBoxHeight = renderBox->height();
+                auto borderBoxHeight = renderBox->borderBoxHeight();
                 return std::max({
                     renderBox->borderBottom(),
                     Style::evaluate<LayoutUnit>(style.borderBottomLeftRadius().height(), borderBoxHeight, zoom),

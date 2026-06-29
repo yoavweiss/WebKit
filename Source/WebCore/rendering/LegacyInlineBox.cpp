@@ -251,8 +251,8 @@ FloatPoint LegacyInlineBox::locationIncludingFlipping() const
     if (!writingMode.isBlockFlipped())
         return topLeft();
     if (writingMode.isHorizontal())
-        return { x(), rootContainer.height() - height() - y() };
-    return { rootContainer.width() - width() - x(), y() };
+        return { x(), rootContainer.borderBoxHeight() - height() - y() };
+    return { rootContainer.borderBoxWidth() - width() - x(), y() };
 }
 
 void LegacyInlineBox::flipForWritingMode(FloatRect& rect) const

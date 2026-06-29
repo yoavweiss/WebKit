@@ -1135,7 +1135,7 @@ LayoutRect LineLayout::firstInlineBoxRect(const RenderInline& renderInline) cons
     case FlowDirection::LeftToRight:
         return firstBoxRect;
     case FlowDirection::RightToLeft:
-        firstBoxRect.setX(flow().width() - firstBoxRect.maxX());
+        firstBoxRect.setX(flow().borderBoxWidth() - firstBoxRect.maxX());
         return firstBoxRect;
     default:
         ASSERT_NOT_REACHED();

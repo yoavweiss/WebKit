@@ -1304,7 +1304,7 @@ static WebFrameLoadType NODELETE toWebFrameLoadType(WebCore::FrameLoadType frame
     if (!n)
         return CGSizeMake(0, 0);
     if (auto* renderBox = dynamicDowncast<WebCore::RenderBox>(n->renderer()))
-        return CGSizeMake(std::min((float)renderBox->maxContentLogicalWidthContribution(), width), renderBox->height());
+        return CGSizeMake(std::min((float)renderBox->maxContentLogicalWidthContribution(), width), renderBox->borderBoxHeight());
     return CGSizeMake(0, 0);
 }
 

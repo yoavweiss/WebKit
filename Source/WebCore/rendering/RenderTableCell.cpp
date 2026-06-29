@@ -567,7 +567,7 @@ auto RenderTableCell::localRectsForRepaint(RepaintOutlineBounds repaintOutlineBo
     }
 
     LayoutPoint location(std::max<LayoutUnit>(left, -visualOverflowRect().x()), std::max<LayoutUnit>(top, -visualOverflowRect().y()));
-    auto overflowRect = LayoutRect(-location.x(), -location.y(), location.x() + std::max(width() + right, visualOverflowRect().maxX()), location.y() + std::max(height() + bottom, visualOverflowRect().maxY()));
+    auto overflowRect = LayoutRect(-location.x(), -location.y(), location.x() + std::max(borderBoxWidth() + right, visualOverflowRect().maxX()), location.y() + std::max(borderBoxHeight() + bottom, visualOverflowRect().maxY()));
 
     // FIXME: layoutDelta needs to be applied in parts before/after transforms and
     // repaint containers. https://bugs.webkit.org/show_bug.cgi?id=23308
@@ -1557,7 +1557,7 @@ void RenderTableCell::paintBackgroundsBehindCell(PaintInfo& paintInfo, LayoutPoi
         paintInfo.context().clip({ adjustedPaintOffset, borderBoxSize() });
     else if (shouldClip) {
         LayoutRect clipRect(adjustedPaintOffset.x() + borderLeft(), adjustedPaintOffset.y() + borderTop(),
-            width() - borderLeft() - borderRight(), height() - borderTop() - borderBottom());
+            borderBoxWidth() - borderLeft() - borderRight(), borderBoxHeight() - borderTop() - borderBottom());
         paintInfo.context().clip(clipRect);
     }
     LayoutRect fillRect;

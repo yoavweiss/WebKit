@@ -417,7 +417,7 @@ bool OutlinePainter::collectFocusRingRectsForBlock(const RenderBlock& renderer, 
     if (renderer.isRenderTextControl())
         return false;
 
-    if (renderer.width() && renderer.height())
+    if (renderer.borderBoxWidth() && renderer.borderBoxHeight())
         rects.append(LayoutRect(additionalOffset, renderer.borderBoxSize()));
 
     // Table rows share coordinate space with cells; don't recurse into cells

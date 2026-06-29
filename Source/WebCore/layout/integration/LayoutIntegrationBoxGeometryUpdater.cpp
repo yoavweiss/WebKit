@@ -424,7 +424,7 @@ static std::optional<LayoutUnit> baselineForBox(const RenderBox& renderBox)
     if (noBoxBaseline)
         return { };
 
-    auto borderBoxBottom = renderBox.height();
+    auto borderBoxBottom = renderBox.borderBoxHeight();
     auto marginBoxBottom = renderBox.marginBoxLogicalHeight(writingMode) - (writingMode.isHorizontal() ? renderBox.marginTop() : renderBox.marginRight());
 
     if (auto* renderImage = dynamicDowncast<RenderImage>(renderBox)) {
@@ -443,7 +443,7 @@ static std::optional<LayoutUnit> baselineForBox(const RenderBox& renderBox)
         if (auto* baselineElement = rendererAttachment->attachmentElement().wideLayoutImageElement()) {
             if (auto* baselineElementRenderBox = baselineElement->renderBox()) {
                 // This is the bottom of the image assuming it is vertically centered.
-                return (borderBoxBottom + baselineElementRenderBox->height()) / 2 - marginBefore;
+                return (borderBoxBottom + baselineElementRenderBox->borderBoxHeight()) / 2 - marginBefore;
             }
             // Fallback to the bottom of the attachment if there is no image.
             return borderBoxBottom - marginBefore;

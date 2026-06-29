@@ -185,7 +185,7 @@ void RenderView::layout()
     }
 
     // Use calcWidth/Height to get the new width/height, since this will take the full page zoom factor into account.
-    bool relayoutChildren = !shouldUsePrintingLayout() && (width() != viewWidth() || height() != viewHeight());
+    bool relayoutChildren = !shouldUsePrintingLayout() && (borderBoxWidth() != viewWidth() || borderBoxHeight() != viewHeight());
     if (relayoutChildren) {
         setChildNeedsLayout(MarkingBehavior::MarkOnlyThis);
 
@@ -442,7 +442,7 @@ void RenderView::paintBoxDecorations(PaintInfo& paintInfo, const LayoutPoint&)
     if (RenderElement* rootRenderer = documentElement ? documentElement->renderer() : nullptr) {
         // The document element's renderer is currently forced to be a block, but may not always be.
         auto* rootBox = dynamicDowncast<RenderBox>(*rootRenderer);
-        rootFillsViewport = rootBox && !rootBox->x() && !rootBox->y() && rootBox->width() >= width() && rootBox->height() >= height();
+        rootFillsViewport = rootBox && !rootBox->x() && !rootBox->y() && rootBox->borderBoxWidth() >= borderBoxWidth() && rootBox->borderBoxHeight() >= borderBoxHeight();
         rootObscuresBackground = rendererObscuresBackground(*rootRenderer);
         shouldPropagateBackgroundPaintingToInitialContainingBlock = !!rendererForRootBackground();
     }

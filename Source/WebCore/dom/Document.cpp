@@ -10824,11 +10824,11 @@ void Document::updateMainArticleElementAfterLayout()
 
     for (auto& article : m_articleElements) {
         auto* box = article->renderBox();
-        float height = box ? box->height().toFloat() : 0;
+        float height = box ? box->borderBoxHeight().toFloat() : 0;
         if (height >= tallestArticleHeight) {
             secondTallestArticleHeight = tallestArticleHeight;
             tallestArticleHeight = height;
-            tallestArticleWidth = box ? box->width().toFloat() : 0;
+            tallestArticleWidth = box ? box->borderBoxWidth().toFloat() : 0;
             tallestArticle = article.ptr();
         } else if (height >= secondTallestArticleHeight)
             secondTallestArticleHeight = height;

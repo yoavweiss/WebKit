@@ -1200,7 +1200,7 @@ LayoutUnit RenderTableSection::offsetLeftForRowGroupBorder(RenderTableCell* cell
 
     if (table()->writingMode().isHorizontal()) {
         if (table()->writingMode().isInlineLeftToRight())
-            return cell ? cell->x() + cell->width() : 0_lu;
+            return cell ? cell->x() + cell->borderBoxWidth() : 0_lu;
         return -outerBorderLeft(table()->writingMode());
     }
     bool isLastRow = row + 1 == m_grid.size();
@@ -1214,7 +1214,7 @@ LayoutUnit RenderTableSection::offsetTopForRowGroupBorder(RenderTableCell* cell,
     if (table()->writingMode().isHorizontal())
         return m_rowPos[row] + (!row && borderSide == BoxSide::Right ? -outerBorderTop(table()->writingMode()) : isLastRow && borderSide == BoxSide::Left ? outerBorderTop(table()->writingMode()) : 0_lu);
     if (table()->writingMode().isInlineTopToBottom())
-        return (cell ? cell->y() + cell->height() : 0_lu) + (borderSide == BoxSide::Left ? outerBorderTop(table()->writingMode()) : 0_lu);
+        return (cell ? cell->y() + cell->borderBoxHeight() : 0_lu) + (borderSide == BoxSide::Left ? outerBorderTop(table()->writingMode()) : 0_lu);
     return borderSide == BoxSide::Right ? -outerBorderTop(table()->writingMode()) : 0_lu;
 }
 
@@ -1225,16 +1225,16 @@ LayoutUnit RenderTableSection::verticalRowGroupBorderHeight(RenderTableCell* cel
     if (table()->writingMode().isHorizontal())
         return m_rowPos[row + 1] - m_rowPos[row] + (!row ? outerBorderTop(table()->writingMode()) : isLastRow ? outerBorderBottom(table()->writingMode()) : 0_lu);
     if (table()->writingMode().isInlineTopToBottom())
-        return rowGroupRect.height() - (cell ? cell->y() + cell->height() : 0_lu) + outerBorderBottom(table()->writingMode());
-    return cell ? rowGroupRect.height() - (cell->y() - cell->height()) : 0_lu;
+        return rowGroupRect.height() - (cell ? cell->y() + cell->borderBoxHeight() : 0_lu) + outerBorderBottom(table()->writingMode());
+    return cell ? rowGroupRect.height() - (cell->y() - cell->borderBoxHeight()) : 0_lu;
 }
 
 LayoutUnit RenderTableSection::horizontalRowGroupBorderWidth(RenderTableCell* cell, const LayoutRect& rowGroupRect, unsigned row, unsigned column)
 {
     if (table()->writingMode().isHorizontal()) {
         if (table()->writingMode().isInlineLeftToRight())
-            return rowGroupRect.width() - (cell ? cell->x() + cell->width() : 0_lu) + (!column ? outerBorderLeft(table()->writingMode()) : column == table()->numEffCols() ? outerBorderRight(table()->writingMode()) : 0_lu);
-        return cell ? rowGroupRect.width() - (cell->x() - cell->width()) : 0_lu;
+            return rowGroupRect.width() - (cell ? cell->x() + cell->borderBoxWidth() : 0_lu) + (!column ? outerBorderLeft(table()->writingMode()) : column == table()->numEffCols() ? outerBorderRight(table()->writingMode()) : 0_lu);
+        return cell ? rowGroupRect.width() - (cell->x() - cell->borderBoxWidth()) : 0_lu;
     }
     bool isLastRow = row + 1 == m_grid.size();
     return m_rowPos[row + 1] - m_rowPos[row] + (isLastRow ? outerBorderLeft(table()->writingMode()) : !row ? outerBorderRight(table()->writingMode()) : 0_lu);

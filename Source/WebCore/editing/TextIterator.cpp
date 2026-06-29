@@ -1028,7 +1028,7 @@ static bool NODELETE shouldEmitNewlineBeforeNode(Node& node, bool emitsNewlinesP
 static bool shouldEmitExtraNewlineForNode(Node& node, bool emitsNewlinesPerInnerTextSpec)
 {
     CheckedPtr renderBox = dynamicDowncast<RenderBox>(node.renderer());
-    if (!renderBox || !renderBox->height())
+    if (!renderBox || !renderBox->borderBoxHeight())
         return false;
 
     // Per the WHATWG spec, <p> elements get a required line break count of 2,
@@ -1118,7 +1118,7 @@ bool TextIterator::shouldRepresentNodeOffsetZero()
         return false;
 
     if (auto* renderBlockFlow = dynamicDowncast<RenderBlockFlow>(*currentNode->renderer())) {
-        if (!renderBlockFlow->height() && !is<HTMLBodyElement>(currentNode))
+        if (!renderBlockFlow->borderBoxHeight() && !is<HTMLBodyElement>(currentNode))
             return false;
     }
 

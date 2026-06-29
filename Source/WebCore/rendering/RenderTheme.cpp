@@ -1164,7 +1164,7 @@ Color RenderTheme::platformInactiveListBoxSelectionForegroundColor(OptionSet<Sty
 
 int RenderTheme::baselinePosition(const RenderBox& box) const
 {
-    return box.isHorizontalWritingMode() ? box.height() : LayoutUnit(box.width() / 2.0f);
+    return box.isHorizontalWritingMode() ? box.borderBoxHeight() : LayoutUnit(box.borderBoxWidth() / 2.0f);
 }
 
 bool RenderTheme::isControlContainer(StyleAppearance appearance) const

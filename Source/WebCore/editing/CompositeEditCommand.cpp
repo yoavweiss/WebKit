@@ -1192,7 +1192,7 @@ RefPtr<Node> CompositeEditCommand::addBlockPlaceholderIfNeeded(Element* containe
             return nullptr;
 
         // Append the placeholder to make sure it follows any unrendered blocks.
-        if (blockFlow->height() && (!blockFlow->isRenderListItem() || blockFlow->firstChild()))
+        if (blockFlow->borderBoxHeight() && (!blockFlow->isRenderListItem() || blockFlow->firstChild()))
             return nullptr;
     }
 

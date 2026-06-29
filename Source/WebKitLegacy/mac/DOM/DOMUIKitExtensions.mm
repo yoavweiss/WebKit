@@ -270,7 +270,7 @@ static WebCore::Node* firstNodeAfter(const WebCore::BoundaryPoint& point)
             BOOL noCost = NO;
             if (auto renderBox = dynamicDowncast<RenderBox>(*renderer)) {
                 auto* parentRenderBox = dynamicDowncast<RenderBox>(renderBox->parent());
-                if (parentRenderBox && renderBox->width() == parentRenderBox->width())
+                if (parentRenderBox && renderBox->borderBoxWidth() == parentRenderBox->borderBoxWidth())
                     noCost = YES;
             }
             result = (noCost ? 0 : 1);

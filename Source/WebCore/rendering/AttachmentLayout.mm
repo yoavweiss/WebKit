@@ -228,7 +228,7 @@ static CGFloat attachmentDynamicTypeScaleFactor()
 AttachmentLayout::AttachmentLayout(const RenderAttachment& attachment, AttachmentLayoutStyle)
 {
     excludeTypographicLeading = true;
-    attachmentRect = FloatRect(0, 0, attachment.width().toFloat(), attachment.height().toFloat());
+    attachmentRect = FloatRect(0, 0, attachment.borderBoxWidth().toFloat(), attachment.borderBoxHeight().toFloat());
     wrappingWidth = attachmentWrappingTextMaximumWidth * attachmentDynamicTypeScaleFactor();
     widthPadding = attachmentRect.width();
 

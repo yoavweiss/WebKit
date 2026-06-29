@@ -399,7 +399,7 @@ void RenderDeprecatedFlexibleBox::layoutBlock(RelayoutChildren relayoutChildren,
         updateInFlowDescendantTransformsAfterLayout();
         computeInFlowOverflow(contentArea);
 
-        if (isDocumentElementRenderer() || previousSize.height() != height())
+        if (isDocumentElementRenderer() || previousSize.height() != borderBoxHeight())
             layoutOutOfFlowBoxes(RelayoutChildren::Yes);
         else
             layoutOutOfFlowBoxes(relayoutChildren);
@@ -516,9 +516,9 @@ void RenderDeprecatedFlexibleBox::layoutHorizontalBox(RelayoutChildren relayoutC
 
             // Update our height and overflow height.
             if (style().boxAlign() == BoxAlignment::Baseline) {
-                LayoutUnit ascent = child->firstLineBaseline().value_or(child->height() + child->marginBottom());
+                LayoutUnit ascent = child->firstLineBaseline().value_or(child->borderBoxHeight() + child->marginBottom());
                 ascent += child->marginTop();
-                LayoutUnit descent = (child->height() + child->verticalMarginExtent()) - ascent;
+                LayoutUnit descent = (child->borderBoxHeight() + child->verticalMarginExtent()) - ascent;
 
                 // Update our maximum ascent.
                 maxAscent = std::max(maxAscent, ascent);
@@ -527,23 +527,23 @@ void RenderDeprecatedFlexibleBox::layoutHorizontalBox(RelayoutChildren relayoutC
                 maxDescent = std::max(maxDescent, descent);
 
                 // Now update our height.
-                setHeight(std::max(yPos + maxAscent + maxDescent, height()));
+                setHeight(std::max(yPos + maxAscent + maxDescent, borderBoxHeight()));
             }
             else
-                setHeight(std::max(height(), yPos + child->height() + child->verticalMarginExtent()));
+                setHeight(std::max(borderBoxHeight(), yPos + child->borderBoxHeight() + child->verticalMarginExtent()));
         }
         ASSERT(childIndex == childLayoutDeltas.size());
 
         if (!iterator.first() && hasLineIfEmpty())
-            setHeight(height() + lineHeight());
+            setHeight(borderBoxHeight() + lineHeight());
 
-        setHeight(height() + toAdd);
+        setHeight(borderBoxHeight() + toAdd);
 
-        oldHeight = height();
+        oldHeight = borderBoxHeight();
         updateLogicalHeight();
 
         relayoutChildren = RelayoutChildren::No;
-        if (oldHeight != height())
+        if (oldHeight != borderBoxHeight())
             heightSpecified = true;
 
         // Now that our height is actually known, we can place our boxes.
@@ -567,9 +567,9 @@ void RenderDeprecatedFlexibleBox::layoutHorizontalBox(RelayoutChildren relayoutC
             // We need to see if this child's height has changed, since we make block elements
             // fill the height of a containing box by default.
             // Now do a layout.
-            LayoutUnit oldChildHeight = child->height();
+            LayoutUnit oldChildHeight = child->borderBoxHeight();
             child->updateLogicalHeight();
-            if (oldChildHeight != child->height())
+            if (oldChildHeight != child->borderBoxHeight())
                 child->setChildNeedsLayout(MarkingBehavior::MarkOnlyThis);
 
             child->markForPaginationRelayoutIfNeeded();
@@ -581,16 +581,16 @@ void RenderDeprecatedFlexibleBox::layoutHorizontalBox(RelayoutChildren relayoutC
             LayoutUnit childY = yPos;
             switch (style().boxAlign()) {
             case BoxAlignment::Center:
-                childY += child->marginTop() + std::max<LayoutUnit>(0, (contentBoxHeight() - (child->height() + child->verticalMarginExtent())) / 2);
+                childY += child->marginTop() + std::max<LayoutUnit>(0, (contentBoxHeight() - (child->borderBoxHeight() + child->verticalMarginExtent())) / 2);
                 break;
             case BoxAlignment::Baseline: {
-                LayoutUnit ascent = child->firstLineBaseline().value_or(child->height() + child->marginBottom());
+                LayoutUnit ascent = child->firstLineBaseline().value_or(child->borderBoxHeight() + child->marginBottom());
                 ascent += child->marginTop();
                 childY += child->marginTop() + (maxAscent - ascent);
                 break;
             }
             case BoxAlignment::End:
-                childY += contentBoxHeight() - child->marginBottom() - child->height();
+                childY += contentBoxHeight() - child->marginBottom() - child->borderBoxHeight();
                 break;
             default: // BoxAlignment::Start
                 childY += child->marginTop();
@@ -599,7 +599,7 @@ void RenderDeprecatedFlexibleBox::layoutHorizontalBox(RelayoutChildren relayoutC
 
             placeChild(child, LayoutPoint(xPos, childY), &childLayoutDelta);
 
-            xPos += child->width() + child->marginRight();
+            xPos += child->borderBoxWidth() + child->marginRight();
         }
         ASSERT(childIndex == childLayoutDeltas.size());
 
@@ -816,7 +816,7 @@ void RenderDeprecatedFlexibleBox::layoutVerticalBox(RelayoutChildren relayoutChi
     // out within the box.
     do {
         setHeight(borderTop() + paddingTop());
-        LayoutUnit minHeight = height() + toAdd;
+        LayoutUnit minHeight = borderBoxHeight() + toAdd;
 
         for (RenderBox* child = iterator.first(); child; child = iterator.next()) {
             // Make sure we relayout children if we need it.
@@ -827,8 +827,8 @@ void RenderDeprecatedFlexibleBox::layoutVerticalBox(RelayoutChildren relayoutChi
                 child->containingBlock()->addOutOfFlowBox(*child);
                 CheckedPtr childLayer = child->layer();
                 childLayer->setStaticInlinePosition(borderAndPaddingStart()); // FIXME: Not right for regions.
-                if (childLayer->staticBlockPosition() != height()) {
-                    childLayer->setStaticBlockPosition(height());
+                if (childLayer->staticBlockPosition() != borderBoxHeight()) {
+                    childLayer->setStaticBlockPosition(borderBoxHeight());
                     if (child->style().hasStaticBlockPosition(writingMode().isHorizontal()))
                         child->setChildNeedsLayout(MarkingBehavior::MarkOnlyThis);
                 }
@@ -839,7 +839,7 @@ void RenderDeprecatedFlexibleBox::layoutVerticalBox(RelayoutChildren relayoutChi
             child->computeAndSetBlockDirectionMargins(*this);
 
             // Add in the child's marginTop to our height.
-            setHeight(height() + child->marginTop());
+            setHeight(borderBoxHeight() + child->marginTop());
 
             if (!haveLineClamp)
                 child->markForPaginationRelayoutIfNeeded();
@@ -854,43 +854,43 @@ void RenderDeprecatedFlexibleBox::layoutVerticalBox(RelayoutChildren relayoutChi
             switch (style().boxAlign()) {
             case BoxAlignment::Center:
             case BoxAlignment::Baseline: // Baseline just maps to center for vertical boxes
-                childX += child->marginLeft() + std::max<LayoutUnit>(0, (contentBoxWidth() - (child->width() + child->horizontalMarginExtent())) / 2);
+                childX += child->marginLeft() + std::max<LayoutUnit>(0, (contentBoxWidth() - (child->borderBoxWidth() + child->horizontalMarginExtent())) / 2);
                 break;
             case BoxAlignment::End:
                 if (!style().writingMode().deprecatedIsLeftToRightDirection())
                     childX += child->marginLeft();
                 else
-                    childX += contentBoxWidth() - child->marginRight() - child->width();
+                    childX += contentBoxWidth() - child->marginRight() - child->borderBoxWidth();
                 break;
             default: // BoxAlignment::Start/BoxAlignment::Stretch
                 if (style().writingMode().deprecatedIsLeftToRightDirection())
                     childX += child->marginLeft();
                 else
-                    childX += contentBoxWidth() - child->marginRight() - child->width();
+                    childX += contentBoxWidth() - child->marginRight() - child->borderBoxWidth();
                 break;
             }
 
             // Place the child.
-            placeChild(child, LayoutPoint(childX, height()));
-            setHeight(height() + child->height() + child->marginBottom());
+            placeChild(child, LayoutPoint(childX, borderBoxHeight()));
+            setHeight(borderBoxHeight() + child->borderBoxHeight() + child->marginBottom());
         }
 
-        yPos = height();
+        yPos = borderBoxHeight();
 
         if (!iterator.first() && hasLineIfEmpty())
-            setHeight(height() + lineHeight());
+            setHeight(borderBoxHeight() + lineHeight());
 
-        setHeight(height() + toAdd);
+        setHeight(borderBoxHeight() + toAdd);
 
         // Negative margins can cause our height to shrink below our minimal height (border/padding).
         // If this happens, ensure that the computed height is increased to the minimal height.
-        if (height() < minHeight)
+        if (borderBoxHeight() < minHeight)
             setHeight(minHeight);
 
         // Now we have to calc our height, so we know how much space we have remaining.
-        oldHeight = height();
+        oldHeight = borderBoxHeight();
         updateLogicalHeight();
-        if (oldHeight != height())
+        if (oldHeight != borderBoxHeight())
             heightSpecified = true;
 
         remainingSpace = borderTop() + paddingTop() + contentBoxHeight() - yPos;
@@ -1039,11 +1039,11 @@ void RenderDeprecatedFlexibleBox::layoutVerticalBox(RelayoutChildren relayoutChi
             ASSERT_NOT_REACHED();
             return contentBoxLocation().y();
         };
-        auto usedHeight = height();
+        auto usedHeight = borderBoxHeight();
         auto clampedHeight = contentOffset() + clampedContent.contentHeight + borderBottom() + paddingBottom();
         setHeight(clampedHeight);
         updateLogicalHeight();
-        if (clampedHeight != height())
+        if (clampedHeight != borderBoxHeight())
             setHeight(heightSpecified ? oldHeight : usedHeight);
     } else if (heightSpecified)
         setHeight(oldHeight);

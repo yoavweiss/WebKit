@@ -392,7 +392,7 @@ bool HTMLTextFormControlElement::setSelectionRange(unsigned start, unsigned end,
 
         // Cache selection if renderer is invisible.
         if (auto* renderer = this->renderer()) {
-            if (renderer->style().visibility() == Visibility::Hidden || !innerText->renderBox() || !innerText->renderBox()->height())
+            if (renderer->style().visibility() == Visibility::Hidden || !innerText->renderBox() || !innerText->renderBox()->borderBoxHeight())
                 return cacheSelection(start, end, direction);
         }
     }

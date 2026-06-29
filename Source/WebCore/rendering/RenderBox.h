@@ -64,8 +64,8 @@ public:
 
     LayoutUnit x() const { return m_frameRect.x(); }
     LayoutUnit y() const { return m_frameRect.y(); }
-    LayoutUnit width() const { return m_frameRect.width(); }
-    LayoutUnit height() const { return m_frameRect.height(); }
+    LayoutUnit borderBoxWidth() const { return m_frameRect.width(); }
+    LayoutUnit borderBoxHeight() const { return m_frameRect.height(); }
 
     // These represent your location relative to your container as a physical offset.
     // In layout related methods you almost always want the logical location (e.g. x() and y()).
@@ -212,8 +212,8 @@ public:
 
     // IE extensions. Used to calculate offsetWidth/Height.  Overridden by inlines (RenderFlow)
     // to return the remaining width on a given line (and the height of a single line).
-    LayoutUnit offsetWidth() const override { return width(); }
-    LayoutUnit offsetHeight() const override { return height(); }
+    LayoutUnit offsetWidth() const override { return borderBoxWidth(); }
+    LayoutUnit offsetHeight() const override { return borderBoxHeight(); }
 
     // More IE extensions.  clientWidth and clientHeight represent the interior of an object
     // excluding border and scrollbar.  clientLeft/Top are just the borderLeftWidth and borderTopWidth.
@@ -500,10 +500,10 @@ public:
     // that just updates the object's position. If the size does change, the object remains dirty.
     bool tryLayoutDoingOutOfFlowMovementOnly()
     {
-        LayoutUnit oldWidth = width();
+        LayoutUnit oldWidth = borderBoxWidth();
         updateLogicalWidth();
         // If we shrink to fit our width may have changed, so we still need full layout.
-        if (oldWidth != width())
+        if (oldWidth != borderBoxWidth())
             return false;
         updateLogicalHeight();
         return true;

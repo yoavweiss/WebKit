@@ -1444,7 +1444,7 @@ LayoutRect RenderThemeCocoa::adjustedPaintRect(const RenderBox& box, const Layou
     if (box.style().usedAppearance() == StyleAppearance::Checkbox || box.style().usedAppearance() == StyleAppearance::Radio) {
         float width = std::min(paintRect.width(), paintRect.height());
         float height = width;
-        return enclosingLayoutRect(FloatRect(paintRect.x(), paintRect.y() + (box.height() - height) / 2, width, height)); // Vertically center the checkbox.
+        return enclosingLayoutRect(FloatRect(paintRect.x(), paintRect.y() + (box.borderBoxHeight() - height) / 2, width, height)); // Vertically center the checkbox.
     }
 #else
     UNUSED_PARAM(box);
@@ -1843,7 +1843,7 @@ static RoundedShape shapeForButton(const RenderElement& box, const FloatRect& re
         // at different positions don't fall on different sides of the
         // threshold due to device pixel snapping.
         if (CheckedPtr renderBox = dynamicDowncast<RenderBox>(box)) {
-            const auto sizeRatio = (renderBox->width() / renderBox->height()).toFloat();
+            const auto sizeRatio = (renderBox->borderBoxWidth() / renderBox->borderBoxHeight()).toFloat();
             const auto limitingRatio = 1.5f;
             if (limitingRatio > sizeRatio && sizeRatio > 1 / limitingRatio)
                 controlRadius = radiusForLargeButton;

@@ -143,8 +143,7 @@ void RenderFileUploadControl::paintControl(PaintInfo& paintInfo, const LayoutPoi
     // Push a clip.
     GraphicsContextStateSaver stateSaver(paintInfo.context(), false);
     if (paintInfo.phase == PaintPhase::Foreground || paintInfo.phase == PaintPhase::ChildBlockBackgrounds) {
-        IntRect clipRect = enclosingIntRect(LayoutRect(paintOffset.x() + borderLeft(), paintOffset.y() + borderTop(),
-                         width() - borderLeft() - borderRight(), height() - borderBottom() - borderTop() + buttonShadowHeight));
+        auto clipRect = enclosingIntRect(LayoutRect(paintOffset.x() + borderLeft(), paintOffset.y() + borderTop(), borderBoxWidth() - borderLeft() - borderRight(), borderBoxHeight() - borderBottom() - borderTop() + buttonShadowHeight));
         if (clipRect.isEmpty())
             return;
         stateSaver.save();

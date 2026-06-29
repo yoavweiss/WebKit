@@ -2398,7 +2398,7 @@ std::pair<FixedContainerEdges, WeakElementEdges> LocalFrameView::fixedContainerE
         if (!box)
             return { };
 
-        if (box->width() <= thinBorderWidth || box->height() <= thinBorderWidth)
+        if (box->borderBoxWidth() <= thinBorderWidth || box->borderBoxHeight() <= thinBorderWidth)
             return { };
 
         if (isHiddenOrNearlyTransparent(*box))

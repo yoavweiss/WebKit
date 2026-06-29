@@ -155,7 +155,7 @@ bool RenderButton::canHaveGeneratedChildren() const
 LayoutRect RenderButton::controlClipRect(const LayoutPoint& additionalOffset) const
 {
     // Clip to the padding box to at least give content the extra padding space.
-    return LayoutRect(additionalOffset.x() + borderLeft(), additionalOffset.y() + borderTop(), width() - borderLeft() - borderRight(), height() - borderTop() - borderBottom());
+    return LayoutRect(additionalOffset.x() + borderLeft(), additionalOffset.y() + borderTop(), borderBoxWidth() - borderLeft() - borderRight(), borderBoxHeight() - borderTop() - borderBottom());
 }
 
 #if PLATFORM(IOS_FAMILY)

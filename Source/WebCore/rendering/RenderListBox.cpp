@@ -593,16 +593,16 @@ int RenderListBox::listIndexAtOffset(const LayoutSize& offset) const
     if (RefPtr hBar = horizontalScrollbar())
         scrollbarHeight = hBar->height();
 
-    if (offset.height() < borderTop() || offset.height() > height() - borderBottom() - scrollbarHeight)
+    if (offset.height() < borderTop() || offset.height() > borderBoxHeight() - borderBottom() - scrollbarHeight)
         return -1;
 
     int scrollbarWidth = 0;
     if (RefPtr vBar = verticalScrollbar())
         scrollbarWidth = vBar->width();
 
-    if (shouldPlaceVerticalScrollbarOnLeft() && (offset.width() < borderLeft() + paddingLeft() + scrollbarWidth || offset.width() > width() - borderRight() - paddingRight()))
+    if (shouldPlaceVerticalScrollbarOnLeft() && (offset.width() < borderLeft() + paddingLeft() + scrollbarWidth || offset.width() > borderBoxWidth() - borderRight() - paddingRight()))
         return -1;
-    if (!shouldPlaceVerticalScrollbarOnLeft() && (offset.width() < borderLeft() + paddingLeft() || offset.width() > width() - borderRight() - paddingRight() - scrollbarWidth))
+    if (!shouldPlaceVerticalScrollbarOnLeft() && (offset.width() < borderLeft() + paddingLeft() || offset.width() > borderBoxWidth() - borderRight() - paddingRight() - scrollbarWidth))
         return -1;
 
     auto offsetLogicalHeight = writingMode().isHorizontal() ? offset.height() : offset.width();
@@ -1027,14 +1027,14 @@ LayoutRect RenderListBox::rectForScrollbar(const Scrollbar& scrollbar) const
     LayoutUnit left, top, width, height;
 
     if (scrollbar.orientation() == ScrollbarOrientation::Vertical) {
-        left = shouldPlaceVerticalScrollbarOnLeft() ? borderLeft() : this->width() - borderRight() - scrollbar.width();
+        left = shouldPlaceVerticalScrollbarOnLeft() ? borderLeft() : this->borderBoxWidth() - borderRight() - scrollbar.width();
         top = borderTop();
         width = scrollbar.width();
-        height = this->height() - verticalBorderExtent();
+        height = this->borderBoxHeight() - verticalBorderExtent();
     } else {
         left = borderLeft();
-        top = this->height() - borderBottom() - scrollbar.height();
-        width = this->width() - horizontalBorderExtent();
+        top = this->borderBoxHeight() - borderBottom() - scrollbar.height();
+        width = this->borderBoxWidth() - horizontalBorderExtent();
         height = scrollbar.height();
     }
 
