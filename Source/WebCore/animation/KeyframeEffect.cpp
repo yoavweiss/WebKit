@@ -2617,6 +2617,9 @@ bool KeyframeEffect::computeExtentOfTransformAnimation(LayoutRect& bounds) const
             continue;
 
         auto offset = keyframe.offset();
+        if (std::isnan(offset))
+            return false;
+
         if (!offset)
             computedBoundsForFromKeyframe = true;
         if (offset == 1.0)
