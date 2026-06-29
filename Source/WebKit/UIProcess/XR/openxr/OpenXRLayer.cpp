@@ -28,32 +28,11 @@
 #if ENABLE(WEBXR) && USE(OPENXR)
 
 #include "OpenXRLayer.h"
-#include <openxr/openxr.h>
-#if USE(LIBEPOXY)
-#define __GBM__ 1
-#include <epoxy/egl.h>
-#else
-#include <EGL/egl.h>
-#endif
 
-#include <WebCore/FourCC.h>
-#include <WebCore/GLContext.h>
-#include <WebCore/GLDisplay.h>
-#include <wtf/SafeStrerror.h>
+#include "OpenXRGraphicsBinding.h"
+#include <openxr/openxr.h>
 #include <wtf/Scope.h>
 #include <wtf/TZoneMallocInlines.h>
-#include <wtf/unix/UnixFileDescriptor.h>
-
-#if OS(ANDROID)
-#include <android/hardware_buffer.h>
-#endif
-
-#if USE(GBM)
-#include <WebCore/DMABufBuffer.h>
-#include <WebCore/GBMDevice.h>
-#include <WebCore/GBMVersioning.h>
-#include <drm_fourcc.h>
-#endif
 
 namespace WebKit {
 
@@ -73,284 +52,7 @@ OpenXRLayer::OpenXRLayer(UniqueRef<OpenXRSwapchain>&& swapchain)
 {
 }
 
-OpenXRLayer::~OpenXRLayer()
-{
-    ASSERT(WebCore::GLContext::current());
-#if USE(GBM)
-    if (m_fbosForBlitting[0])
-        glDeleteFramebuffers(m_fbosForBlitting.size(), m_fbosForBlitting.data());
-    for (auto texture : m_exportedTexturesMap.values())
-        glDeleteTextures(1, &texture);
-#endif
-}
-
-#if OS(ANDROID)
-std::optional<PlatformXR::FrameData::ExternalTexture> OpenXRLayer::exportOpenXRTextureAndroid(WebCore::GLDisplay& display, PlatformGLObject openxrTexture, uint32_t width, uint32_t height)
-{
-    static constexpr auto kHardwareBufferUsage = AHARDWAREBUFFER_USAGE_GPU_FRAMEBUFFER | AHARDWAREBUFFER_USAGE_GPU_SAMPLED_IMAGE;
-
-    RefPtr<AHardwareBuffer> hardwareBuffer;
-    {
-        RELEASE_ASSERT(width > 0);
-        RELEASE_ASSERT(height > 0);
-
-        AHardwareBuffer_Desc bufferDesc = { };
-        bufferDesc.width = width;
-        bufferDesc.height = height;
-        bufferDesc.usage = kHardwareBufferUsage;
-        bufferDesc.layers = 1;
-
-        switch (m_swapchain->format()) {
-        case GL_RGBA8:
-            bufferDesc.format = AHARDWAREBUFFER_FORMAT_R8G8B8A8_UNORM;
-            break;
-        case GL_RGB8:
-            bufferDesc.format = AHARDWAREBUFFER_FORMAT_R8G8B8X8_UNORM;
-            if (!AHardwareBuffer_isSupported(&bufferDesc))
-                bufferDesc.format = AHARDWAREBUFFER_FORMAT_R8G8B8_UNORM;
-            break;
-        case GL_RGB565:
-            bufferDesc.format = AHARDWAREBUFFER_FORMAT_R5G6B5_UNORM;
-            break;
-        case GL_RGBA16F:
-            bufferDesc.format = AHARDWAREBUFFER_FORMAT_R16G16B16A16_FLOAT;
-            break;
-        case GL_RGB10_A2:
-            bufferDesc.format = AHARDWAREBUFFER_FORMAT_R10G10B10A2_UNORM;
-            break;
-        }
-
-        if (!bufferDesc.format || !AHardwareBuffer_isSupported(&bufferDesc)) {
-            RELEASE_LOG_INFO(XR, "AHardwareBuffer format %#" PRIX32 " not supported, using"
-                " RGBA8888 fallback that may result in slow blits", bufferDesc.format);
-            bufferDesc.format = AHARDWAREBUFFER_FORMAT_R8G8B8A8_UNORM;
-        }
-
-        AHardwareBuffer* buffer { nullptr };
-        if (auto error = AHardwareBuffer_allocate(&bufferDesc, &buffer)) {
-            if (error < 0)
-                RELEASE_LOG_ERROR(XR, "Failed to allocate AHardwareBuffer for OpenXR texture: %s", safeStrerror(-error).data());
-            else
-                RELEASE_LOG_ERROR(XR, "Failed to allocate AHardwareBuffer for OpenXR texture: %" PRIi32, error);
-            return { };
-        }
-        hardwareBuffer = adoptRef(buffer);
-    }
-
-    static PFNEGLGETNATIVECLIENTBUFFERANDROIDPROC s_eglGetNativeClientBufferANDROID { nullptr };
-    if (!s_eglGetNativeClientBufferANDROID) [[unlikely]] {
-        s_eglGetNativeClientBufferANDROID = reinterpret_cast<PFNEGLGETNATIVECLIENTBUFFERANDROIDPROC>(eglGetProcAddress("eglGetNativeClientBufferANDROID"));
-        RELEASE_ASSERT(s_eglGetNativeClientBufferANDROID);
-    }
-
-    static const Vector<EGLAttrib> attributes = { EGL_IMAGE_PRESERVED, EGL_TRUE, EGL_NONE };
-    auto clientBuffer = s_eglGetNativeClientBufferANDROID(hardwareBuffer.get());
-    auto image = display.createImage(EGL_NO_CONTEXT, EGL_NATIVE_BUFFER_ANDROID, clientBuffer, attributes);
-    if (image == EGL_NO_IMAGE_KHR) {
-        RELEASE_LOG(XR, "Failed to create EGL image for OpenXR texture (%#06x)", eglGetError());
-        return { };
-    }
-
-    GLint boundTexture = 0;
-    glGetIntegerv(GL_TEXTURE_BINDING_2D, &boundTexture);
-    PlatformGLObject exportedTexture;
-    glGenTextures(1, &exportedTexture);
-    glBindTexture(GL_TEXTURE_2D, exportedTexture);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, image);
-    glBindTexture(GL_TEXTURE_2D, boundTexture);
-
-    display.destroyImage(image);
-
-    m_exportedTexturesMap.add(openxrTexture, exportedTexture);
-
-    return hardwareBuffer;
-}
-#else
-std::optional<PlatformXR::FrameData::ExternalTexture> OpenXRLayer::exportOpenXRTextureDMABuf(WebCore::GLDisplay& display, WebCore::GLContext& context, PlatformGLObject openxrTexture)
-{
-    // Texture must be bound to be exported.
-    glBindTexture(GL_TEXTURE_2D, openxrTexture);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-    auto image = display.createImage(context.platformContext(), EGL_GL_TEXTURE_2D, (EGLClientBuffer)(uint64_t)openxrTexture, { });
-
-    auto releaseImageOnError = makeScopeExit([&] {
-        if (image)
-            display.destroyImage(image);
-    });
-
-    if (!image) {
-        RELEASE_LOG(XR, "Failed to create EGL image from OpenXR texture");
-        return std::nullopt;
-    }
-
-    int fourcc, planeCount;
-    uint64_t modifier;
-    if (!eglExportDMABUFImageQueryMESA(display.eglDisplay(), image, &fourcc, &planeCount, &modifier)) {
-        RELEASE_LOG(XR, "eglExportDMABUFImageQueryMESA failed");
-        return std::nullopt;
-    }
-
-    Vector<int> fdsOut(planeCount);
-    Vector<int> stridesOut(planeCount);
-    Vector<int> offsetsOut(planeCount);
-    if (!eglExportDMABUFImageMESA(display.eglDisplay(), image, fdsOut.mutableSpan().data(), stridesOut.mutableSpan().data(), offsetsOut.mutableSpan().data())) {
-        RELEASE_LOG(XR, "eglExportDMABUFImageMESA failed");
-        return std::nullopt;
-    }
-
-    display.destroyImage(image);
-
-    releaseImageOnError.release();
-
-    Vector<UnixFileDescriptor> fds = fdsOut.map([](int fd) {
-        return UnixFileDescriptor(fd, UnixFileDescriptor::Adopt);
-    });
-    Vector<uint32_t> strides = stridesOut.map([](int stride) {
-        return static_cast<uint32_t>(stride);
-    });
-    Vector<uint32_t> offsets = offsetsOut.map([](int offset) {
-        return static_cast<uint32_t>(offset);
-    });
-
-    return PlatformXR::FrameData::ExternalTexture {
-        .fds = WTF::move(fds),
-        .strides = WTF::move(strides),
-        .offsets = WTF::move(offsets),
-        .fourcc = static_cast<uint32_t>(fourcc),
-        .modifier = modifier,
-    };
-}
-#endif // !OS(ANDROID)
-
-#if USE(GBM)
-void OpenXRLayer::setGBMDevice(RefPtr<WebCore::GBMDevice> gbmDevice)
-{
-    m_gbmDevice = gbmDevice;
-}
-
-std::optional<PlatformXR::FrameData::ExternalTexture> OpenXRLayer::exportOpenXRTextureGBM(WebCore::GLDisplay& display, PlatformGLObject openxrTexture, uint32_t width, uint32_t height)
-{
-    static constexpr std::array<WebCore::FourCC, 3> preferredAlphaDRMFormats = { DRM_FORMAT_ARGB8888, DRM_FORMAT_RGBA8888, DRM_FORMAT_ABGR8888 };
-    static constexpr std::array<WebCore::FourCC, 3> preferredNoAlphaDRMFormats = { DRM_FORMAT_XRGB8888, DRM_FORMAT_RGBX8888, DRM_FORMAT_BGRX8888 };
-    const auto& preferredDRMFormats = m_swapchain->hasAlpha() == OpenXRSwapchain::HasAlpha::Yes ? preferredAlphaDRMFormats : preferredNoAlphaDRMFormats;
-    WebCore::GLDisplay::BufferFormat format;
-    const auto& supportedFormats = display.bufferFormats();
-    for (const auto& preferredFormat : preferredDRMFormats) {
-        auto matchIndex = supportedFormats.findIf([preferredFormat](const auto& supportedFormat) {
-            return supportedFormat.fourcc == preferredFormat;
-        });
-        if (matchIndex != notFound) {
-            format = supportedFormats[matchIndex];
-            break;
-        }
-    }
-
-    if (!format.fourcc.value) {
-        RELEASE_LOG(XR, "OpenXR texture format not supported");
-        return std::nullopt;
-    }
-
-    auto* buffer = gbm_bo_create_with_modifiers2(m_gbmDevice->device(), width, height, format.fourcc.value, format.modifiers.span().data(), format.modifiers.size(), GBM_BO_USE_RENDERING);
-    if (!buffer)
-        buffer = gbm_bo_create(m_gbmDevice->device(), width, height, format.fourcc.value, GBM_BO_USE_RENDERING);
-    if (!buffer) {
-        RELEASE_LOG(XR, "Failed to allocate GBM buffer for OpenXR texture");
-        return std::nullopt;
-    }
-
-    auto dmaBufAttributes = WebCore::DMABufBufferAttributes::fromGBMBufferObject(buffer);
-    if (!dmaBufAttributes) {
-        gbm_bo_destroy(buffer);
-        RELEASE_LOG(XR, "Failed to extract DMA-buf attributes from GBM buffer for OpenXR texture");
-        return std::nullopt;
-    }
-
-    auto image = WebCore::DMABufBuffer::createEGLImage(display, *dmaBufAttributes);
-    gbm_bo_destroy(buffer);
-    if (!image) {
-        RELEASE_LOG(XR, "Failed to create EGL image from OpenXR texture");
-        return std::nullopt;
-    }
-
-    GLint boundTexture = 0;
-    glGetIntegerv(GL_TEXTURE_BINDING_2D, &boundTexture);
-    PlatformGLObject exportedTexture;
-    glGenTextures(1, &exportedTexture);
-    glBindTexture(GL_TEXTURE_2D, exportedTexture);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, image);
-    glBindTexture(GL_TEXTURE_2D, boundTexture);
-
-    display.destroyImage(image);
-
-    m_exportedTexturesMap.add(openxrTexture, exportedTexture);
-
-    return PlatformXR::FrameData::ExternalTexture {
-        .fds = WTF::move(dmaBufAttributes->fds),
-        .strides = WTF::move(dmaBufAttributes->strides),
-        .offsets = WTF::move(dmaBufAttributes->offsets),
-        .fourcc = dmaBufAttributes->fourcc.value,
-        .modifier = dmaBufAttributes->modifier
-    };
-}
-#endif // USE(GBM)
-
-#if USE(GBM) || OS(ANDROID)
-void OpenXRLayer::blitTexture() const
-{
-    auto openxrTexture = m_swapchain->acquiredTexture();
-    ASSERT(openxrTexture);
-
-    auto exportedTexture = m_exportedTexturesMap.get(openxrTexture);
-    ASSERT(exportedTexture);
-
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, m_fbosForBlitting[0]);
-    glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, exportedTexture, 0);
-
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_fbosForBlitting[1]);
-    glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, openxrTexture, 0);
-
-    auto width = m_swapchain->width();
-    auto height = m_swapchain->height();
-    glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
-#endif // USE(GBM) || OS(ANDROID)
-
-std::optional<PlatformXR::FrameData::ExternalTexture> OpenXRLayer::exportOpenXRTexture(PlatformGLObject openxrTexture, uint32_t width, uint32_t height)
-{
-    auto* glContext = WebCore::GLContext::current();
-    ASSERT(glContext);
-
-    auto display = glContext->display();
-    ASSERT(display);
-
-#if OS(ANDROID)
-    return exportOpenXRTextureAndroid(*display, openxrTexture, width, height);
-#else
-    if (display->extensions().MESA_image_dma_buf_export)
-        return exportOpenXRTextureDMABuf(*display, *glContext, openxrTexture);
-#endif
-
-#if USE(GBM)
-    if (m_gbmDevice)
-        return exportOpenXRTextureGBM(*display, openxrTexture, width, height);
-#endif
-
-    RELEASE_LOG(XR, "Failed to export OpenXR texture");
-    return std::nullopt;
-}
+OpenXRLayer::~OpenXRLayer() = default;
 
 // OpenXRLayerProjection
 
@@ -365,7 +67,7 @@ OpenXRLayerProjection::OpenXRLayerProjection(UniqueRef<OpenXRSwapchain>&& swapch
 {
 }
 
-std::optional<PlatformXR::FrameData::LayerData> OpenXRLayerProjection::startFrame()
+std::optional<PlatformXR::FrameData::LayerData> OpenXRLayerProjection::startFrame(OpenXRGraphicsBinding& graphicsBinding)
 {
     auto texture = m_swapchain->acquireImage();
     if (!texture)
@@ -386,7 +88,7 @@ std::optional<PlatformXR::FrameData::LayerData> OpenXRLayerProjection::startFram
         return layerData;
     m_nextReusableTextureIndex++;
 
-    auto externalTexture = exportOpenXRTexture(*texture, m_swapchain->width(), m_swapchain->height());
+    auto externalTexture = graphicsBinding.exportTexture(*texture, m_swapchain, OpenXRGraphicsBinding::TextureType::Texture2D, m_swapchain->width(), m_swapchain->height());
     if (!externalTexture)
         return std::nullopt;
 
@@ -404,17 +106,11 @@ std::optional<PlatformXR::FrameData::LayerData> OpenXRLayerProjection::startFram
     return layerData;
 }
 
-Vector<XrCompositionLayerBaseHeader*> OpenXRLayerProjection::endFrame(const PlatformXR::DeviceLayer& layer, XrSpace space, const Vector<XrView>& frameViews)
+Vector<XrCompositionLayerBaseHeader*> OpenXRLayerProjection::endFrame(OpenXRGraphicsBinding& graphicsBinding, const PlatformXR::DeviceLayer& layer, XrSpace space, const Vector<XrView>& frameViews)
 {
     ASSERT(m_swapchain->acquiredTexture());
 
-#if OS(ANDROID) || USE(GBM)
-    if (needsBlitTexture()) {
-        if (!m_fbosForBlitting[0])
-            glGenFramebuffers(m_fbosForBlitting.size(), m_fbosForBlitting.data());
-        blitTexture();
-    }
-#endif
+    graphicsBinding.commitFrame(m_swapchain->acquiredTexture(), m_swapchain, OpenXRGraphicsBinding::TextureType::Texture2D, { m_swapchain->acquiredTexture() });
     auto viewCount = frameViews.size();
     m_projectionViews.fill(createOpenXRStruct<XrCompositionLayerProjectionView, XR_TYPE_COMPOSITION_LAYER_PROJECTION_VIEW>(), viewCount);
     for (uint32_t i = 0; i < viewCount; ++i) {
@@ -472,7 +168,7 @@ OpenXRQuadLayer::OpenXRQuadLayer(UniqueRef<OpenXRSwapchain>&& swapchain, Platfor
     }
 }
 
-std::optional<PlatformXR::FrameData::LayerData> OpenXRQuadLayer::startFrame()
+std::optional<PlatformXR::FrameData::LayerData> OpenXRQuadLayer::startFrame(OpenXRGraphicsBinding& graphicsBinding)
 {
     auto texture = m_swapchain->acquireImage();
     if (!texture)
@@ -493,7 +189,7 @@ std::optional<PlatformXR::FrameData::LayerData> OpenXRQuadLayer::startFrame()
         return layerData;
     m_nextReusableTextureIndex++;
 
-    auto externalTexture = exportOpenXRTexture(*texture, m_swapchain->width(), m_swapchain->height());
+    auto externalTexture = graphicsBinding.exportTexture(*texture, m_swapchain, OpenXRGraphicsBinding::TextureType::Texture2D, m_swapchain->width(), m_swapchain->height());
     if (!externalTexture)
         return std::nullopt;
 
@@ -508,17 +204,11 @@ std::optional<PlatformXR::FrameData::LayerData> OpenXRQuadLayer::startFrame()
     return layerData;
 }
 
-Vector<XrCompositionLayerBaseHeader*> OpenXRQuadLayer::endFrame(const PlatformXR::DeviceLayer& layer, XrSpace space, const Vector<XrView>& frameViews)
+Vector<XrCompositionLayerBaseHeader*> OpenXRQuadLayer::endFrame(OpenXRGraphicsBinding& graphicsBinding, const PlatformXR::DeviceLayer& layer, XrSpace space, const Vector<XrView>& frameViews)
 {
     ASSERT(m_swapchain->acquiredTexture());
 
-#if OS(ANDROID) || USE(GBM)
-    if (needsBlitTexture()) {
-        if (!m_fbosForBlitting[0])
-            glGenFramebuffers(m_fbosForBlitting.size(), m_fbosForBlitting.data());
-        blitTexture();
-    }
-#endif
+    graphicsBinding.commitFrame(m_swapchain->acquiredTexture(), m_swapchain, OpenXRGraphicsBinding::TextureType::Texture2D, { m_swapchain->acquiredTexture() });
 
     auto eyeVisibility = [](bool isLeftEye, bool isMonoPresentation) {
         if (isMonoPresentation)
@@ -603,7 +293,7 @@ OpenXREquirectLayer::OpenXREquirectLayer(UniqueRef<OpenXRSwapchain>&& swapchain,
     }
 }
 
-std::optional<PlatformXR::FrameData::LayerData> OpenXREquirectLayer::startFrame()
+std::optional<PlatformXR::FrameData::LayerData> OpenXREquirectLayer::startFrame(OpenXRGraphicsBinding& graphicsBinding)
 {
     auto texture = m_swapchain->acquireImage();
     if (!texture)
@@ -624,7 +314,7 @@ std::optional<PlatformXR::FrameData::LayerData> OpenXREquirectLayer::startFrame(
         return layerData;
     m_nextReusableTextureIndex++;
 
-    auto externalTexture = exportOpenXRTexture(*texture, m_swapchain->width(), m_swapchain->height());
+    auto externalTexture = graphicsBinding.exportTexture(*texture, m_swapchain, OpenXRGraphicsBinding::TextureType::Texture2D, m_swapchain->width(), m_swapchain->height());
     if (!externalTexture)
         return std::nullopt;
 
@@ -639,17 +329,11 @@ std::optional<PlatformXR::FrameData::LayerData> OpenXREquirectLayer::startFrame(
     return layerData;
 }
 
-Vector<XrCompositionLayerBaseHeader*> OpenXREquirectLayer::endFrame(const PlatformXR::DeviceLayer& layer, XrSpace space, const Vector<XrView>& frameViews)
+Vector<XrCompositionLayerBaseHeader*> OpenXREquirectLayer::endFrame(OpenXRGraphicsBinding& graphicsBinding, const PlatformXR::DeviceLayer& layer, XrSpace space, const Vector<XrView>& frameViews)
 {
     ASSERT(m_swapchain->acquiredTexture());
 
-#if OS(ANDROID) || USE(GBM)
-    if (needsBlitTexture()) {
-        if (!m_fbosForBlitting[0])
-            glGenFramebuffers(m_fbosForBlitting.size(), m_fbosForBlitting.data());
-        blitTexture();
-    }
-#endif
+    graphicsBinding.commitFrame(m_swapchain->acquiredTexture(), m_swapchain, OpenXRGraphicsBinding::TextureType::Texture2D, { m_swapchain->acquiredTexture() });
 
     auto eyeVisibility = [](bool isLeftEye, bool isMonoPresentation) {
         if (isMonoPresentation)
@@ -736,7 +420,7 @@ OpenXRCylinderLayer::OpenXRCylinderLayer(UniqueRef<OpenXRSwapchain>&& swapchain,
     }
 }
 
-std::optional<PlatformXR::FrameData::LayerData> OpenXRCylinderLayer::startFrame()
+std::optional<PlatformXR::FrameData::LayerData> OpenXRCylinderLayer::startFrame(OpenXRGraphicsBinding& graphicsBinding)
 {
     auto texture = m_swapchain->acquireImage();
     if (!texture)
@@ -757,7 +441,7 @@ std::optional<PlatformXR::FrameData::LayerData> OpenXRCylinderLayer::startFrame(
         return layerData;
     m_nextReusableTextureIndex++;
 
-    auto externalTexture = exportOpenXRTexture(*texture, m_swapchain->width(), m_swapchain->height());
+    auto externalTexture = graphicsBinding.exportTexture(*texture, m_swapchain, OpenXRGraphicsBinding::TextureType::Texture2D, m_swapchain->width(), m_swapchain->height());
     if (!externalTexture)
         return std::nullopt;
 
@@ -772,17 +456,11 @@ std::optional<PlatformXR::FrameData::LayerData> OpenXRCylinderLayer::startFrame(
     return layerData;
 }
 
-Vector<XrCompositionLayerBaseHeader*> OpenXRCylinderLayer::endFrame(const PlatformXR::DeviceLayer& layer, XrSpace space, const Vector<XrView>& frameViews)
+Vector<XrCompositionLayerBaseHeader*> OpenXRCylinderLayer::endFrame(OpenXRGraphicsBinding& graphicsBinding, const PlatformXR::DeviceLayer& layer, XrSpace space, const Vector<XrView>& frameViews)
 {
     ASSERT(m_swapchain->acquiredTexture());
 
-#if OS(ANDROID) || USE(GBM)
-    if (needsBlitTexture()) {
-        if (!m_fbosForBlitting[0])
-            glGenFramebuffers(m_fbosForBlitting.size(), m_fbosForBlitting.data());
-        blitTexture();
-    }
-#endif
+    graphicsBinding.commitFrame(m_swapchain->acquiredTexture(), m_swapchain, OpenXRGraphicsBinding::TextureType::Texture2D, { m_swapchain->acquiredTexture() });
 
     auto eyeVisibility = [](bool isLeftEye, bool isMonoPresentation) {
         if (isMonoPresentation)
@@ -860,16 +538,7 @@ OpenXRCubeLayer::OpenXRCubeLayer(UniqueRef<OpenXRSwapchain>&& swapchain, std::un
     }
 }
 
-OpenXRCubeLayer::~OpenXRCubeLayer()
-{
-    ASSERT(WebCore::GLContext::current());
-    for (auto texture : m_sideBySideTextures.values())
-        glDeleteTextures(1, &texture);
-    if (m_reconstructionFBOs[0])
-        glDeleteFramebuffers(m_reconstructionFBOs.size(), m_reconstructionFBOs.data());
-}
-
-std::optional<PlatformXR::FrameData::LayerData> OpenXRCubeLayer::startFrame()
+std::optional<PlatformXR::FrameData::LayerData> OpenXRCubeLayer::startFrame(OpenXRGraphicsBinding& graphicsBinding)
 {
     auto texture = m_swapchain->acquireImage();
     if (!texture)
@@ -901,32 +570,14 @@ std::optional<PlatformXR::FrameData::LayerData> OpenXRCubeLayer::startFrame()
     }
     m_nextReusableTextureIndex++;
 
-    // The WebProcess renders the cube faces into a side-by-side 2D buffer (cubeCount*faceCount faces laid
-    // out horizontally, each face square). This layer reconstructs those into the cubemap swapchain(s).
-    int faceSize = m_swapchain->width();
-    int sideBySideWidth = static_cast<int>(faceCount * cubeCount()) * faceSize;
-    uint32_t width = static_cast<uint32_t>(sideBySideWidth);
-    uint32_t height = static_cast<uint32_t>(faceSize);
+    // The cube faces are laid out side by side (cubeCount * faceCount squares) in a single 2D buffer.
+    uint32_t faceSize = m_swapchain->width();
+    uint32_t sideBySideWidth = faceCount * cubeCount() * faceSize;
 
-    std::optional<PlatformXR::FrameData::ExternalTexture> externalTexture;
-    PlatformGLObject sideBySideTexture = 0;
-#if OS(ANDROID)
-    externalTexture = exportOpenXRTexture(*texture, width, height);
-    if (externalTexture)
-        sideBySideTexture = m_exportedTexturesMap.take(*texture);
-#else
-    GLint boundTexture = 0;
-    glGetIntegerv(GL_TEXTURE_BINDING_2D, &boundTexture);
-    glGenTextures(1, &sideBySideTexture);
-    glBindTexture(GL_TEXTURE_2D, sideBySideTexture);
-    glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, sideBySideWidth, faceSize);
-    glBindTexture(GL_TEXTURE_2D, boundTexture);
-    externalTexture = exportOpenXRTexture(sideBySideTexture, width, height);
-#endif
-    if (!externalTexture || !sideBySideTexture)
+    auto externalTexture = graphicsBinding.exportTexture(*texture, m_swapchain, OpenXRGraphicsBinding::TextureType::Cubemap, sideBySideWidth, faceSize);
+    if (!externalTexture)
         return std::nullopt;
 
-    m_sideBySideTextures.set(*texture, sideBySideTexture);
     layerData.textureData->colorTexture = WTF::move(externalTexture.value());
     layerData.layerSetup = {
         .physicalSize = { { { static_cast<uint16_t>(sideBySideWidth), static_cast<uint16_t>(faceSize) } } },
@@ -938,43 +589,15 @@ std::optional<PlatformXR::FrameData::LayerData> OpenXRCubeLayer::startFrame()
     return layerData;
 }
 
-void OpenXRCubeLayer::reconstructCubeFaces()
-{
-    auto sideBySideTexture = m_sideBySideTextures.get(m_swapchain->acquiredTexture());
-    if (!sideBySideTexture)
-        return;
-
-    if (!m_reconstructionFBOs[0])
-        glGenFramebuffers(m_reconstructionFBOs.size(), m_reconstructionFBOs.data());
-
-    int faceSize = m_swapchain->width();
-
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, m_reconstructionFBOs[0]);
-    glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, sideBySideTexture, 0);
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_reconstructionFBOs[1]);
-
-    // Region (cube*faceCount + face) maps to GL_TEXTURE_CUBE_MAP_POSITIVE_X + face of that cube's swapchain;
-    // same ordering as the WebProcess blit.
-    // FIXME: face winding/orientation may need adjustment once validated against a runtime.
-    for (uint32_t cube = 0; cube < cubeCount(); ++cube) {
-        auto cubeTexture = swapchainForCube(cube).acquiredTexture();
-        if (!cubeTexture)
-            continue;
-        for (uint32_t face = 0; face < faceCount; ++face) {
-            glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, cubeTexture, 0);
-            int srcX = static_cast<int>(cube * faceCount + face) * faceSize;
-            glBlitFramebuffer(srcX, 0, srcX + faceSize, faceSize, 0, 0, faceSize, faceSize, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-        }
-    }
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
-
-Vector<XrCompositionLayerBaseHeader*> OpenXRCubeLayer::endFrame(const PlatformXR::DeviceLayer& layer, XrSpace space, const Vector<XrView>&)
+Vector<XrCompositionLayerBaseHeader*> OpenXRCubeLayer::endFrame(OpenXRGraphicsBinding& graphicsBinding, const PlatformXR::DeviceLayer& layer, XrSpace space, const Vector<XrView>&)
 {
     ASSERT(m_swapchain->acquiredTexture());
 
-    reconstructCubeFaces();
+    Vector<uint64_t> cubeImages;
+    cubeImages.reserveCapacity(cubeCount());
+    for (uint32_t cube = 0; cube < cubeCount(); ++cube)
+        cubeImages.append(swapchainForCube(cube).acquiredTexture());
+    graphicsBinding.commitFrame(m_swapchain->acquiredTexture(), m_swapchain, OpenXRGraphicsBinding::TextureType::Cubemap, cubeImages);
 
     auto flags = layer.blendTextureSourceAlpha ? XR_COMPOSITION_LAYER_BLEND_TEXTURE_SOURCE_ALPHA_BIT : 0;
     XrQuaternionf orientation { 0, 0, 0, 1 };

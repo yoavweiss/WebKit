@@ -36,17 +36,12 @@
 #include <wtf/TZoneMalloc.h>
 #include <wtf/Threading.h>
 
-namespace WebCore {
-class GBMDevice;
-class GLContext;
-class GLDisplay;
-}
-
 namespace WebKit {
 
 #if ENABLE(WEBXR_HIT_TEST)
 class OpenXRHitTestManager;
 #endif
+class OpenXRGraphicsBinding;
 class OpenXRInput;
 class OpenXRLayer;
 class OpenXRSwapchain;
@@ -82,7 +77,6 @@ public:
 
 private:
     void createInstance();
-    RefPtr<WebCore::GLDisplay> createGLDisplay(bool isForTesting) const;
     void initializeDevice(bool isForTesting);
     void initializeSystem();
     void initializeBlendModes();
@@ -101,7 +95,6 @@ private:
 
     void createSessionIfNeeded();
     void handleSessionStateChange();
-    void tryInitializeGraphicsBinding();
     void cleanupAllResources();
     void cleanupInstanceAndAssociatedResources();
     void cleanupSessionAndAssociatedResources();
@@ -129,10 +122,7 @@ private:
     XrEnvironmentBlendMode m_vrBlendMode;
     XrEnvironmentBlendMode m_arBlendMode;
     PlatformXR::SessionMode m_sessionMode;
-    RefPtr<WebCore::GLDisplay> m_glDisplay;
-#if USE(GBM)
-    mutable RefPtr<WebCore::GBMDevice> m_gbmDevice;
-#endif
+    std::unique_ptr<OpenXRGraphicsBinding> m_graphicsBinding;
     std::unique_ptr<OpenXRInput> m_input;
 
     XrSession m_session { XR_NULL_HANDLE };
@@ -141,12 +131,6 @@ private:
     Vector<XrView> m_views;
     HashMap<PlatformXR::LayerHandle, std::unique_ptr<OpenXRLayer>> m_layers;
     Vector<int64_t> m_supportedSwapchainFormats;
-#if OS(ANDROID)
-    XrGraphicsBindingOpenGLESAndroidKHR m_graphicsBinding;
-#else
-    XrGraphicsBindingEGLMNDX m_graphicsBinding;
-#endif
-    std::unique_ptr<WebCore::GLContext> m_glContext;
     XrSpace m_viewerSpace { XR_NULL_HANDLE };
     XrSpace m_localSpace { XR_NULL_HANDLE };
     XrSpace m_floorSpace { XR_NULL_HANDLE };

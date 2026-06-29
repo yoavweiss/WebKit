@@ -28,13 +28,14 @@
 #if ENABLE(WEBXR) && USE(OPENXR)
 #include "OpenXRSwapchain.h"
 
+#include "OpenXRGraphicsBinding.h"
 #include <wtf/TZoneMallocInlines.h>
 
 namespace WebKit {
 
 WTF_MAKE_TZONE_ALLOCATED_IMPL(OpenXRSwapchain);
 
-std::unique_ptr<OpenXRSwapchain> OpenXRSwapchain::create(XrSession session, const XrSwapchainCreateInfo& info, HasAlpha hasAlpha)
+std::unique_ptr<OpenXRSwapchain> OpenXRSwapchain::create(XrSession session, const XrSwapchainCreateInfo& info, HasAlpha hasAlpha, const OpenXRGraphicsBinding& graphicsBinding)
 {
     ASSERT(session != XR_NULL_HANDLE);
     // faceCount is 1 for regular swapchains and 6 for cube (cubemap) swapchains.
@@ -47,31 +48,19 @@ std::unique_ptr<OpenXRSwapchain> OpenXRSwapchain::create(XrSession session, cons
         return nullptr;
     }
 
-    uint32_t imageCount;
-    CHECK_XRCMD(xrEnumerateSwapchainImages(swapchain, 0, &imageCount, nullptr));
-    if (!imageCount) {
-        LOG(XR, "xrEnumerateSwapchainImages(): no images\n");
+    auto imageHandles = graphicsBinding.enumerateSwapchainImages(swapchain);
+    if (imageHandles.isEmpty()) {
+        xrDestroySwapchain(swapchain);
         return nullptr;
     }
 
-    Vector<XrSwapchainImageOpenGLESKHR> imageBuffers(FillWith { }, imageCount, [] {
-        return createOpenXRStruct<XrSwapchainImageOpenGLESKHR, XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_ES_KHR>();
-    }());
-
-    Vector<XrSwapchainImageBaseHeader*> imageHeaders = imageBuffers.map([](auto& image) {
-        return (XrSwapchainImageBaseHeader*) &image;
-    });
-
-    // Get images from an XrSwapchain
-    CHECK_XRCMD(xrEnumerateSwapchainImages(swapchain, imageCount, &imageCount, imageHeaders[0]));
-
-    return std::unique_ptr<OpenXRSwapchain>(new OpenXRSwapchain(swapchain, info, WTF::move(imageBuffers), hasAlpha));
+    return std::unique_ptr<OpenXRSwapchain>(new OpenXRSwapchain(swapchain, info, WTF::move(imageHandles), hasAlpha));
 }
 
-OpenXRSwapchain::OpenXRSwapchain(XrSwapchain swapchain, const XrSwapchainCreateInfo& info, Vector<XrSwapchainImageOpenGLESKHR>&& imageBuffers, HasAlpha hasAlpha)
+OpenXRSwapchain::OpenXRSwapchain(XrSwapchain swapchain, const XrSwapchainCreateInfo& info, Vector<uint64_t>&& imageHandles, HasAlpha hasAlpha)
     : m_swapchain(swapchain)
     , m_createInfo(info)
-    , m_imageBuffers(WTF::move(imageBuffers))
+    , m_imageHandles(WTF::move(imageHandles))
     , m_hasAlpha(hasAlpha)
 {
 }
@@ -84,20 +73,20 @@ OpenXRSwapchain::~OpenXRSwapchain()
         xrDestroySwapchain(m_swapchain);
 }
 
-std::optional<PlatformGLObject> OpenXRSwapchain::acquireImage()
+std::optional<uint64_t> OpenXRSwapchain::acquireImage()
 {
     RELEASE_ASSERT_WITH_MESSAGE(!m_acquiredTexture , "Expected no acquired images. ReleaseImage not called?");
 
     auto acquireInfo = createOpenXRStruct<XrSwapchainImageAcquireInfo, XR_TYPE_SWAPCHAIN_IMAGE_ACQUIRE_INFO>();
     uint32_t swapchainImageIndex = 0;
     CHECK_XRCMD(xrAcquireSwapchainImage(m_swapchain, &acquireInfo, &swapchainImageIndex));
-    ASSERT(swapchainImageIndex < m_imageBuffers.size());
+    ASSERT(swapchainImageIndex < m_imageHandles.size());
 
     auto waitInfo = createOpenXRStruct<XrSwapchainImageWaitInfo, XR_TYPE_SWAPCHAIN_IMAGE_WAIT_INFO>();
     waitInfo.timeout = XR_INFINITE_DURATION;
     CHECK_XRCMD(xrWaitSwapchainImage(m_swapchain, &waitInfo));
 
-    m_acquiredTexture = m_imageBuffers[swapchainImageIndex].image;
+    m_acquiredTexture = m_imageHandles[swapchainImageIndex];
 
     return m_acquiredTexture;
 }

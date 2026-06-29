@@ -28,56 +28,42 @@
 #if ENABLE(WEBXR) && USE(OPENXR)
 
 #include "OpenXRUtils.h"
-#include <WebCore/GraphicsTypesGL.h>
 #include <WebCore/IntSize.h>
-
-typedef void* EGLDisplay;
-typedef void* EGLContext;
-typedef void* EGLConfig;
-typedef unsigned EGLenum;
-
-#if defined(XR_USE_PLATFORM_EGL)
-typedef void (*(*PFNEGLGETPROCADDRESSPROC)(const char *))(void);
-#endif
-
-// The JNI types need to be defined before including openxr_platform.h
-#if OS(ANDROID)
-#include <jni.h>
-#endif
-
-#include <openxr/openxr_platform.h>
+#include <openxr/openxr.h>
 #include <wtf/Noncopyable.h>
 #include <wtf/TZoneMalloc.h>
 #include <wtf/Vector.h>
 
 namespace WebKit {
 
+class OpenXRGraphicsBinding;
+
 class OpenXRSwapchain {
     WTF_MAKE_TZONE_ALLOCATED(OpenXRSwapchain);
     WTF_MAKE_NONCOPYABLE(OpenXRSwapchain);
 public:
     enum class HasAlpha { No, Yes };
-    static std::unique_ptr<OpenXRSwapchain> create(XrSession, const XrSwapchainCreateInfo&, HasAlpha);
+    static std::unique_ptr<OpenXRSwapchain> create(XrSession, const XrSwapchainCreateInfo&, HasAlpha, const OpenXRGraphicsBinding&);
     ~OpenXRSwapchain();
 
-    std::optional<PlatformGLObject> acquireImage();
+    std::optional<uint64_t> acquireImage();
     void releaseImage();
     XrSwapchain swapchain() const { return m_swapchain; }
     int32_t width() const { return m_createInfo.width; }
     int32_t height() const { return m_createInfo.height; }
     WebCore::IntSize size() const { return WebCore::IntSize(width(), height()); }
     int64_t format() const { return m_createInfo.format; }
-    PlatformGLObject acquiredTexture() const { return m_acquiredTexture; }
+    uint64_t acquiredTexture() const { return m_acquiredTexture; }
     HasAlpha hasAlpha() const { return m_hasAlpha; }
-    size_t imageCount() const { return m_imageBuffers.size(); }
+    size_t imageCount() const { return m_imageHandles.size(); }
 
 private:
-    OpenXRSwapchain(XrSwapchain, const XrSwapchainCreateInfo&, Vector<XrSwapchainImageOpenGLESKHR>&&, HasAlpha);
+    OpenXRSwapchain(XrSwapchain, const XrSwapchainCreateInfo&, Vector<uint64_t>&&, HasAlpha);
 
     XrSwapchain m_swapchain;
     XrSwapchainCreateInfo m_createInfo;
-    Vector<XrSwapchainImageOpenGLESKHR> m_imageBuffers;
-    PlatformGLObject m_acquiredTexture { 0 };
+    Vector<uint64_t> m_imageHandles;
+    uint64_t m_acquiredTexture { 0 };
     HasAlpha m_hasAlpha;
 };
 
