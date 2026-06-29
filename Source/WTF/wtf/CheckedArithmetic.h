@@ -890,15 +890,11 @@ typedef Checked<int64_t, RecordOverflow> CheckedInt64;
 typedef Checked<uint64_t, RecordOverflow> CheckedUint64;
 typedef Checked<size_t, RecordOverflow> CheckedSize;
 
-template<typename T, typename U>
-Checked<T, RecordOverflow> checkedSum(U value)
+template<typename T, typename... Args>
+requires (sizeof...(Args) >= 2)
+Checked<T, RecordOverflow> checkedSum(Args... args)
 {
-    return Checked<T, RecordOverflow>(value);
-}
-template<typename T, typename U, typename... Args>
-Checked<T, RecordOverflow> checkedSum(U value, Args... args)
-{
-    return Checked<T, RecordOverflow>(value) + checkedSum<T>(args...);
+    return (... + Checked<T, RecordOverflow>(args));
 }
 
 template<typename T, typename U, typename V>
@@ -926,15 +922,11 @@ template<typename T> T sumIfNoOverflowOrFirstValue(T firstValue, T secondValue)
     return result.hasOverflowed() ? firstValue : result.value();
 }
 
-template<typename T, typename U>
-Checked<T, RecordOverflow> checkedProduct(U value)
+template<typename T, typename... Args>
+requires (sizeof...(Args) >= 2)
+Checked<T, RecordOverflow> checkedProduct(Args... args)
 {
-    return Checked<T, RecordOverflow>(value);
-}
-template<typename T, typename U, typename... Args>
-Checked<T, RecordOverflow> checkedProduct(U value, Args... args)
-{
-    return Checked<T, RecordOverflow>(value) * checkedProduct<T>(args...);
+    return (... * Checked<T, RecordOverflow>(args));
 }
 
 // Sometimes, you just want to check if some math would overflow - the code to do the math is
