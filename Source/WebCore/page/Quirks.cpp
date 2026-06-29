@@ -2127,10 +2127,11 @@ bool Quirks::needsConsistentQueryParameterFilteringQuirk(const URL& url) const
 {
     QUIRKS_EARLY_RETURN_IF_DISABLED_WITH_VALUE(false);
 
-    static bool wasLoggedOnce { false };
-    URL lowercaseURL { url.string().foldCase() };
     if (!m_document->settings().consistentQueryParameterFilteringQuirkEnabled())
         return false;
+
+    static bool wasLoggedOnce { false };
+    URL lowercaseURL { url.string().foldCase() };
 
     if (lowercaseURL.host() == "bundle-file"_s || RegistrableDomain { lowercaseURL } == "consistentqueryparameterfiltering.internal"_s)
         return true;
