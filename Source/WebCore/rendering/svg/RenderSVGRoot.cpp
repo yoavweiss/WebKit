@@ -157,7 +157,7 @@ bool RenderSVGRoot::isEmbeddedThroughFrameContainingSVGDocument() const
     return frame().document()->isSVGDocument();
 }
 
-LayoutUnit RenderSVGRoot::computeReplacedLogicalWidth(ShouldComputePreferred shouldComputePreferred) const
+LayoutUnit RenderSVGRoot::computeReplacedLogicalWidth(IsComputingIntrinsicSize isComputingIntrinsicSize) const
 {
     // When we're embedded through SVGImage (border-image/background-image/<html:img>/...) we're forced to resize to a specific size.
     if (!m_containerSize.isEmpty())
@@ -176,13 +176,13 @@ LayoutUnit RenderSVGRoot::computeReplacedLogicalWidth(ShouldComputePreferred sho
             if (!viewBoxSize.isEmpty()) {
                 float height = element->hasIntrinsicHeight() ? element->intrinsicHeight() : defaultHeight;
                 double ratio = viewBoxSize.width() / viewBoxSize.height();
-                return computeReplacedLogicalWidthRespectingMinMaxWidth(LayoutUnit(height * ratio), shouldComputePreferred);
+                return computeReplacedLogicalWidthRespectingMinMaxWidth(LayoutUnit(height * ratio), isComputingIntrinsicSize);
             }
         }
     }
 
     // Standalone SVG / SVG embedded via SVGImage (background-image/border-image/etc) / Inline SVG.
-    auto result = RenderReplaced::computeReplacedLogicalWidth(shouldComputePreferred);
+    auto result = RenderReplaced::computeReplacedLogicalWidth(isComputingIntrinsicSize);
     if (protect(svgSVGElement())->hasIntrinsicWidth())
         return result;
 

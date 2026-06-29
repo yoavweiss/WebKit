@@ -52,7 +52,7 @@ public:
     LayoutUnit computeReplacedLogicalHeightUsing(const Style::MinimumSize& logicalHeight) const;
     LayoutUnit computeReplacedLogicalHeightUsing(const Style::MaximumSize& logicalHeight) const;
 
-    virtual LayoutUnit computeReplacedLogicalWidth(ShouldComputePreferred  = ShouldComputePreferred::ComputeActual) const;
+    virtual LayoutUnit computeReplacedLogicalWidth(IsComputingIntrinsicSize  = IsComputingIntrinsicSize::No) const;
     virtual LayoutUnit computeReplacedLogicalHeight(std::optional<LayoutUnit> estimatedUsedWidth = std::nullopt) const;
 
     bool replacedMinLogicalHeightComputesAsNone() const;
@@ -92,8 +92,8 @@ protected:
 
     virtual void layoutShadowContent(const LayoutSize&);
 
-    LayoutUnit computeReplacedLogicalWidthRespectingMinMaxWidth(LayoutUnit logicalWidth, ShouldComputePreferred = ShouldComputePreferred::ComputeActual) const;
-    template<typename T> LayoutUnit computeReplacedLogicalWidthRespectingMinMaxWidth(T logicalWidth, ShouldComputePreferred shouldComputePreferred = ShouldComputePreferred::ComputeActual) const { return computeReplacedLogicalWidthRespectingMinMaxWidth(LayoutUnit(logicalWidth), shouldComputePreferred); }
+    LayoutUnit computeReplacedLogicalWidthRespectingMinMaxWidth(LayoutUnit logicalWidth, IsComputingIntrinsicSize = IsComputingIntrinsicSize::No) const;
+    template<typename T> LayoutUnit computeReplacedLogicalWidthRespectingMinMaxWidth(T logicalWidth, IsComputingIntrinsicSize isComputingIntrinsicSize = IsComputingIntrinsicSize::No) const { return computeReplacedLogicalWidthRespectingMinMaxWidth(LayoutUnit(logicalWidth), isComputingIntrinsicSize); }
 
     LayoutUnit computeReplacedLogicalHeightRespectingMinMaxHeight(LayoutUnit logicalHeight) const;
     template<typename T> LayoutUnit computeReplacedLogicalHeightRespectingMinMaxHeight(T logicalHeight) const { return computeReplacedLogicalHeightRespectingMinMaxHeight(LayoutUnit(logicalHeight)); }

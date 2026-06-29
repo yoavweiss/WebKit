@@ -291,11 +291,11 @@ bool RenderImage::shouldCollapseToEmpty() const
     return document().inNoQuirksMode() || (style().logicalWidth().isAuto() && style().logicalHeight().isAuto());
 }
 
-LayoutUnit RenderImage::computeReplacedLogicalWidth(ShouldComputePreferred shouldComputePreferred) const
+LayoutUnit RenderImage::computeReplacedLogicalWidth(IsComputingIntrinsicSize isComputingIntrinsicSize) const
 {
     if (shouldCollapseToEmpty())
         return { };
-    return RenderReplaced::computeReplacedLogicalWidth(shouldComputePreferred);
+    return RenderReplaced::computeReplacedLogicalWidth(isComputingIntrinsicSize);
 }
 
 LayoutUnit RenderImage::computeReplacedLogicalHeight(std::optional<LayoutUnit> estimatedUsedWidth) const

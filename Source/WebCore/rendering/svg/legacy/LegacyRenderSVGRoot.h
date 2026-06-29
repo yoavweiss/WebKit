@@ -79,7 +79,7 @@ private:
     // Intentionally left 'RenderSVGRoot' instead of 'LegacyRenderSVGRoot', to avoid breaking layout tests.
     ASCIILiteral renderName() const override { return "RenderSVGRoot"_s; }
 
-    LayoutUnit computeReplacedLogicalWidth(ShouldComputePreferred  = ShouldComputePreferred::ComputeActual) const override;
+    LayoutUnit computeReplacedLogicalWidth(IsComputingIntrinsicSize  = IsComputingIntrinsicSize::No) const override;
     LayoutUnit computeReplacedLogicalHeight(std::optional<LayoutUnit> estimatedUsedWidth = std::nullopt) const override;
     void layout() override;
     void paintReplaced(PaintInfo&, const LayoutPoint&) override;
