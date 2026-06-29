@@ -3149,7 +3149,7 @@ def check_auto_with_adopt(clean_lines, line_number, file_state, error):
 
     line = clean_lines.elided[line_number]  # Get rid of comments and strings.
 
-    matched = search(r'\bauto\b\s+\w+\s*=\s*adopt(NS|CF|GDIObject|OSObject|Ref)\b', line)
+    matched = search(r'\bauto\b\s+\w+\s*=\s*adopt(NS|CF|GDIObject|OSObject|Ref|GRef)\b', line)
     if matched:
         adopt_func = 'adopt' + matched.group(1)
         type_map = {
@@ -3158,6 +3158,7 @@ def check_auto_with_adopt(clean_lines, line_number, file_state, error):
             'adoptGDIObject': 'GDIObject',
             'adoptOSObject': 'OSObjectPtr',
             'adoptRef': 'Ref/RefPtr',
+            'adoptGRef': 'GRefPtr',
         }
         smart_ptr = type_map.get(adopt_func, 'the appropriate smart pointer type')
         error(line_number, 'runtime/auto_with_adopt', 4, "Use '%s' instead of 'auto' with '%s()'." % (smart_ptr, adopt_func))

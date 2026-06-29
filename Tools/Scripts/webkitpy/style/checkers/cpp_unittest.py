@@ -6197,7 +6197,15 @@ class WebKitStyleTest(CppStyleTestBase):
             'auto x = someOtherFunction();',
             '',
             'foo.cpp')
-
+        self.assert_lint(
+            'GRefPtr caps = adoptGRef(gst_caps_new_empty_simple("bleh"));',
+            '',
+            'foo.cpp')
+        self.assert_lint(
+            'auto caps = adoptGRef(gst_caps_new_empty_simple("bleh"));',
+            "Use 'GRefPtr' instead of 'auto' with 'adoptGRef()'."
+            "  [runtime/auto_with_adopt] [4]",
+            'foo.cpp')
 
     def test_wtf_make_unique(self):
         self.assert_lint(
