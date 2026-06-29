@@ -221,7 +221,8 @@ WI.DOMNodeStyles = class DOMNodeStyles extends WI.Object
             this._pseudoElements.clear();
             for (let {pseudoId, matches} of pseudoElementRulesPayload) {
                 let pseudoElementRules = parseRuleMatchArrayPayload(matches, this._node, false, pseudoId);
-                this._pseudoElements.set(pseudoId, {matchedRules: pseudoElementRules});
+                let pseudoElementOrderedStyles = this._collectStylesInCascadeOrder(pseudoElementRules, null, null);
+                this._pseudoElements.set(pseudoId, WI.DOMNodeStyles.uniqueOrderedStyles(pseudoElementOrderedStyles));
             }
 
             this._inheritedRules = [];
@@ -836,10 +837,9 @@ WI.DOMNodeStyles = class DOMNodeStyles extends WI.Object
         this._markOverriddenProperties(cascadeOrderedStyleDeclarations, this._propertyNameToEffectivePropertyMap);
         this._collectCSSVariables(cascadeOrderedStyleDeclarations);
 
-        for (let pseudoElementInfo of this._pseudoElements.values()) {
-            pseudoElementInfo.orderedStyles = this._collectStylesInCascadeOrder(pseudoElementInfo.matchedRules, null, null);
-            this._associateRelatedProperties(pseudoElementInfo.orderedStyles);
-            this._markOverriddenProperties(pseudoElementInfo.orderedStyles);
+        for (let pseudoElementOrderedStyles of this._pseudoElements.values()) {
+            this._associateRelatedProperties(pseudoElementOrderedStyles);
+            this._markOverriddenProperties(pseudoElementOrderedStyles);
         }
     }
 
