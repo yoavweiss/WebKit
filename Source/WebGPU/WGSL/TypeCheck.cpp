@@ -321,6 +321,9 @@ Result<void> TypeChecker::declareBuiltins()
                     TYPE_ERROR(type.arguments()[2].span(), "only pointers in <storage> address space may specify an access mode"_s);
 
                 UNWRAP_ASSIGN(accessMode, this->accessMode(type.arguments()[2]));
+
+                if (accessMode == AccessMode::Write) [[unlikely]]
+                    TYPE_ERROR(type.arguments()[2].span(), "access mode 'write' is not valid for the <storage> address space"_s);
             } else {
                 switch (addressSpace) {
                 case AddressSpace::Function:

@@ -643,6 +643,9 @@ TEST(WGSLTypeCheckingTests, PointerAsConstant)
 TEST(WGSLTypeCheckingTests, PointerAccessMode)
 {
     expectTypeError("fn f1(x: ptr<function, i32, read>) { }"_s, "only pointers in <storage> address space may specify an access mode"_s);
+    expectTypeError("alias T = ptr<storage, u32, write>;"_s, "access mode 'write' is not valid for the <storage> address space"_s);
+    expectNoError("alias T = ptr<storage, u32, read>;"_s);
+    expectNoError("alias T = ptr<storage, u32, read_write>;"_s);
 }
 
 TEST(WGSLTypeCheckingTests, Redeclaration)
