@@ -717,7 +717,7 @@ void WebInspectorUIProxy::platformSave(Vector<InspectorFrontendClient::SaveData>
 void WebInspectorUIProxy::platformLoad(const String& path, CompletionHandler<void(const String&)>&& completionHandler)
 {
     if (auto contents = FileSystem::readEntireFile(path))
-        completionHandler(String { byteCast<Latin1Character>(contents->span()) });
+        completionHandler(String::fromUTF8ReplacingInvalidSequences(byteCast<Latin1Character>(contents->span())));
     else
         completionHandler(nullString());
 }
