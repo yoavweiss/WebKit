@@ -174,7 +174,7 @@ static const int testFooterBannerHeight = 58;
 
     // FIXME: <webkit.org/b/317881> Remove this protocol check once the CMake port builds WKWebView+RefreshControl.swift.
 #if __MAC_OS_X_VERSION_MIN_REQUIRED >= 270000
-    Protocol *refreshControlHosting = NSProtocolFromString(@"NSRefreshControlHosting");
+    Protocol *refreshControlHosting = NSProtocolFromString(@"AppKit.NSRefreshControlHosting");
     if (refreshControlHosting && [_webView conformsToProtocol:refreshControlHosting]) {
         _refreshController = [[NSRefreshController alloc] init];
         _refreshController.target = self;
