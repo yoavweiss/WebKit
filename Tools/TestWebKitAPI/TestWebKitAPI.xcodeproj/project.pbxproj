@@ -671,6 +671,7 @@
 				WebCore/cocoa/AudioStreamDescriptionCocoa.mm,
 				WebCore/cocoa/AudioVideoRendererAVFObjCTests.mm,
 				WebCore/cocoa/AVFoundationSoftLinkTest.mm,
+				WebCore/cocoa/AttributedStringFontCache.mm,
 				WebCore/cocoa/BifurcatedGraphicsContextTestsCG.cpp,
 				WebCore/cocoa/CaptionPreferencesTests.mm,
 				WebCore/cocoa/CoreMediaUtilities.mm,
