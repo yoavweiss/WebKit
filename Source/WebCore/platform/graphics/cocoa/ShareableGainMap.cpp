@@ -32,7 +32,6 @@
 #include <pal/spi/cg/ImageIOSPI.h>
 
 #include "CoreVideoSoftLink.h"
-#include "VideoToolboxSoftLink.h"
 
 namespace WebCore {
 
@@ -67,12 +66,21 @@ ShareableGainMap::ShareableGainMap(RetainPtr<CFDataRef>&& metadata, Ref<Shareabl
 {
 }
 
+static void setDictionaryValue(CFMutableDictionaryRef theDict, const void *key, unsigned value)
+{
+    RetainPtr number = adoptCF(CFNumberCreate(nullptr,  kCFNumberIntType,  &value));
+    CFDictionarySetValue(theDict, key, number);
+}
+
+static void setDictionaryValue(CFMutableDictionaryRef theDict, const void *key, float value)
+{
+    RetainPtr number = adoptCF(CFNumberCreate(nullptr,  kCFNumberFloatType,  &value));
+    CFDictionarySetValue(theDict, key, number);
+}
+
 PlatformImagePtr ShareableGainMap::applyGainMapToBaseImage(PlatformImagePtr basePlatformImage) const
 {
     if (!basePlatformImage)
-        return nullptr;
-
-    if (!canLoad_VideoToolbox_VTCreateCGImageFromCVPixelBuffer())
         return nullptr;
 
     RetainPtr baseImagePixelBuffer = createMetalCompatibleCVPixelBufferFromImage(basePlatformImage);
@@ -87,20 +95,63 @@ PlatformImagePtr ShareableGainMap::applyGainMapToBaseImage(PlatformImagePtr base
         return nullptr;
     }
 
-    RetainPtr outputColorSpace = adoptCF(CGColorSpaceCreateWithName(kCGColorSpaceDisplayP3_PQ));
-    RetainPtr outputImagePixelBuffer = createScratchMetalCompatibleCVPixelBuffer(baseImagePixelBuffer, outputColorSpace);
-    if (!outputImagePixelBuffer) {
-        RELEASE_LOG_ERROR(Images, "ShareableGainMap::%s: Failed to create outputImagePixelBuffer", __FUNCTION__);
+    RetainPtr metadata = adoptCF(CGImageMetadataCreateFromXMPData(m_metadata));
+    if (!metadata) {
+        RELEASE_LOG_ERROR(Images, "ShareableGainMap::%s: CGImageMetadataCreateFromXMPData() failed", __FUNCTION__);
         return nullptr;
     }
 
-    RetainPtr metadata = adoptCF(CGImageMetadataCreateFromXMPData(m_metadata));
+    RetainPtr targetColorSpace = adoptCF(CGColorSpaceCreateWithName(kCGColorSpaceDisplayP3_PQ));
+    float targetHeadroom = CGImageGetHDRGainMapHeadroom(metadata, nullptr);
 
-    RetainPtr options = adoptCF(CFDictionaryCreateMutable(nullptr, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks));
-    CFDictionarySetValue(options, kCGImageAuxiliaryDataInfoMetadata, metadata);
-    CFDictionarySetValue(options, kCGImageAuxiliaryDataInfoColorSpace, m_colorSpace ? m_colorSpace->platformColorSpace() : nullptr);
+    unsigned width = CVPixelBufferGetWidth(baseImagePixelBuffer);
+    unsigned height = CVPixelBufferGetHeight(baseImagePixelBuffer);
+    unsigned inputPixelFormatType = CVPixelBufferGetPixelFormatType(baseImagePixelBuffer);
+    RetainPtr inputColorSpace = CGImageGetColorSpace(basePlatformImage);
 
-    auto status = CGImageApplyHDRGainMap(baseImagePixelBuffer, gainMapPixelBuffer, outputImagePixelBuffer, options);
+    // MARK: - Get the target CVPixelBuffer attributes.
+    RetainPtr inputAttributes = adoptCF(CFDictionaryCreateMutable(nullptr, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks));
+    setDictionaryValue(inputAttributes, kCVPixelBufferWidthKey, width);
+    setDictionaryValue(inputAttributes, kCVPixelBufferHeightKey, height);
+    setDictionaryValue(inputAttributes, kCVPixelBufferPixelFormatTypeKey, inputPixelFormatType);
+    CFDictionarySetValue(inputAttributes, kCVImageBufferCGColorSpaceKey, inputColorSpace);
+
+    RetainPtr attributesOptions = adoptCF(CFDictionaryCreateMutable(nullptr, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks));
+    setDictionaryValue(attributesOptions, kCGTargetPixelFormat, static_cast<unsigned>(kCVPixelFormatType_64RGBAHalf));
+    setDictionaryValue(attributesOptions, kCGTargetHeadroom, targetHeadroom);
+    CFDictionarySetValue(attributesOptions, kCGFlexRangeAlternateColorSpace, targetColorSpace);
+    CFDictionarySetValue(attributesOptions, kCGTargetColorSpace, kCGColorSpaceDisplayP3_PQ);
+
+    CFDictionaryRef outputAttributesRef = nullptr;
+    CGImageCreatePixelBufferAttributesForHDRTarget(kCGImageHDRTargetHDR, inputAttributes, attributesOptions, &outputAttributesRef);
+
+    RetainPtr outputAttributes = outputAttributesRef;
+    if (!outputAttributes) {
+        RELEASE_LOG_ERROR(Images, "ShareableGainMap::%s: CGImageCreatePixelBufferAttributesForHDRTarget() failed", __FUNCTION__);
+        return nullptr;
+    }
+
+    RetainPtr targetAttributes = adoptCF(CFDictionaryCreateMutableCopy(nullptr, 0, outputAttributes));
+    RetainPtr surfaceProperties = adoptCF(CFDictionaryCreateMutable(nullptr, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks));
+    CFDictionarySetValue(targetAttributes, kCVPixelBufferIOSurfacePropertiesKey, surfaceProperties);
+    CFDictionarySetValue(targetAttributes, kCVPixelBufferMetalCompatibilityKey, kCFBooleanTrue);
+
+    RetainPtr pixelFormatNumber = dynamic_cf_cast<CFNumberRef>(CFDictionaryGetValue(targetAttributes, kCVPixelBufferPixelFormatTypeKey));
+    OSType targtePixelFormat;
+    CFNumberGetValue(pixelFormatNumber, kCFNumberSInt32Type, &targtePixelFormat);
+
+    // MARK: - Create the target CVPixelBuffer.
+    RetainPtr targetImagePixelBuffer = createScratchCVPixelBuffer(width, height, targtePixelFormat, targetAttributes, targetColorSpace, targetHeadroom);
+    if (!targetImagePixelBuffer) {
+        RELEASE_LOG_ERROR(Images, "ShareableGainMap::%s: Failed to create targetImagePixelBuffer", __FUNCTION__);
+        return nullptr;
+    }
+
+    RetainPtr applyGainMapOptions = adoptCF(CFDictionaryCreateMutable(nullptr, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks));
+    CFDictionarySetValue(applyGainMapOptions, kCGImageAuxiliaryDataInfoMetadata, metadata);
+    CFDictionarySetValue(applyGainMapOptions, kCGImageAuxiliaryDataInfoColorSpace, m_colorSpace ? m_colorSpace->platformColorSpace() : nullptr);
+
+    auto status = CGImageApplyHDRGainMap(baseImagePixelBuffer, gainMapPixelBuffer, targetImagePixelBuffer, applyGainMapOptions);
     if (status != kCVReturnSuccess) {
         RELEASE_LOG_ERROR(Images, "ShareableGainMap::%s: CGImageApplyHDRGainMap() failed with status=%d", __FUNCTION__, static_cast<int>(status));
         return nullptr;
@@ -109,17 +160,23 @@ PlatformImagePtr ShareableGainMap::applyGainMapToBaseImage(PlatformImagePtr base
 #if ENABLE(DUMP_GAIN_MAP_IMAGES)
     CVPixelBufferDumpToFile(baseImagePixelBuffer, "*/base-image.cvpb"_s);
     CVPixelBufferDumpToFile(gainMapPixelBuffer, "*/gainmap-image.cvpb"_s);
-    CVPixelBufferDumpToFile(outputImagePixelBuffer, "*/output-image.cvpb"_s);
+    CVPixelBufferDumpToFile(targetImagePixelBuffer, "*/output-image.cvpb"_s);
 #endif
 
-    CGImageRef outputPlatformImage = nullptr;
-    status = VTCreateCGImageFromCVPixelBuffer(outputImagePixelBuffer, nullptr, &outputPlatformImage);
-    if (status != kCVReturnSuccess) {
-        RELEASE_LOG_ERROR(Images, "ShareableGainMap::%s: VTCreateCGImageFromCVPixelBuffer() failed with status=%d", __FUNCTION__, static_cast<int>(status));
+    // MARK: - Get a CGImage from the target CVPixelBuffer.
+    RetainPtr surface = CVPixelBufferGetIOSurface(targetImagePixelBuffer);
+    if (!surface) {
+        RELEASE_LOG_ERROR(Images, "ShareableGainMap::%s: CVPixelBufferGetIOSurface() failed", __FUNCTION__);
         return nullptr;
     }
 
-    return adoptCF(outputPlatformImage);
+    RetainPtr targetPlatformImage = adoptCF(CGImageCreateFromIOSurface(surface, nullptr));
+    if (!targetPlatformImage) {
+        RELEASE_LOG_ERROR(Images, "ShareableGainMap::%s: CGImageCreateFromIOSurface() failed", __FUNCTION__);
+        return nullptr;
+    }
+
+    return targetPlatformImage;
 }
 
 } // namespace WebCore

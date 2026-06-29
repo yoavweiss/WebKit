@@ -35,7 +35,7 @@ namespace WebCore {
 
 class ShareableCVPixelBuffer;
 
-RetainPtr<CVPixelBufferRef> createScratchCVPixelBuffer(unsigned width, unsigned height, OSType pixelFormat, CFDictionaryRef = nullptr, CGColorSpaceRef = nullptr);
+RetainPtr<CVPixelBufferRef> createScratchCVPixelBuffer(unsigned width, unsigned height, OSType pixelFormat, CFDictionaryRef = nullptr, CGColorSpaceRef = nullptr, float headroom = 1.0);
 
 RetainPtr<CVPixelBufferRef> createScratchMetalCompatibleCVPixelBuffer(unsigned width, unsigned height, OSType pixelFormat, CGColorSpaceRef = nullptr);
 

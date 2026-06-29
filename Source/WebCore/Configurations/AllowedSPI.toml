@@ -101,9 +101,16 @@ cleanup = "rdar://175714562"
 symbols = [
     "CGImageApplyHDRGainMap",
     "CGImageSourceCopyAuxiliaryDataInfoAtIndexWithOptions",
+    "CGImageCreateFromIOSurface",
+    "CGImageCreatePixelBufferAttributesForHDRTarget",
+    "CGImageGetHDRGainMapHeadroom",
     "kCGImageAuxiliaryDataInfoPixelBuffer",
     "kCGImageAuxiliaryDataRepresentation",
     "kCGImageAuxiliaryDataRepresentationPixelBuffer",
+    "kCGFlexRangeAlternateColorSpace",
+    "kCGTargetColorSpace",
+    "kCGTargetHeadroom",
+    "kCGTargetPixelFormat",
 ]
 
 [[not-web-essential]]

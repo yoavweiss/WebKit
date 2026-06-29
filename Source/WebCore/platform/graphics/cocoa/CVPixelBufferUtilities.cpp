@@ -40,7 +40,7 @@
 
 namespace WebCore {
 
-RetainPtr<CVPixelBufferRef> createScratchCVPixelBuffer(unsigned width, unsigned height, OSType pixelFormat, CFDictionaryRef attributes, CGColorSpaceRef colorSpace)
+RetainPtr<CVPixelBufferRef> createScratchCVPixelBuffer(unsigned width, unsigned height, OSType pixelFormat, CFDictionaryRef attributes, CGColorSpaceRef colorSpace, float headroom)
 {
     CVPixelBufferRef pixelBuffer = nullptr;
     auto status = CVPixelBufferCreate(kCFAllocatorDefault, width, height, pixelFormat, attributes, &pixelBuffer);
@@ -52,6 +52,13 @@ RetainPtr<CVPixelBufferRef> createScratchCVPixelBuffer(unsigned width, unsigned 
 
     if (colorSpace)
         CVBufferSetAttachment(pixelBuffer, kCVImageBufferCGColorSpaceKey, colorSpace, kCVAttachmentMode_ShouldPropagate);
+
+    if (headroom > 1.0) {
+#if HAVE(SUPPORT_HDR_DISPLAY)
+        RetainPtr headroomNumber = adoptCF(CFNumberCreate(nullptr,  kCFNumberFloatType,  &headroom));
+        CVBufferSetAttachment(pixelBuffer, kIOSurfaceContentHeadroom, headroomNumber, kCVAttachmentMode_ShouldPropagate);
+#endif
+    }
 
     return adoptCF(pixelBuffer);
 }

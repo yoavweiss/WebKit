@@ -40,6 +40,14 @@ DECLARE_SYSTEM_HEADER
 
 #else
 
+typedef CF_CLOSED_ENUM(uint32_t, CGImageHDRTarget)
+{
+    kCGImageHDRTargetUndefined = 0,
+    kCGImageHDRTargetSDR, // e.g. HDR -> SDR
+    kCGImageHDRTargetHDR, // e.g. M+ -> HDR
+    kCGImageHDRTargetGainMap, // e.g. HDR -> M+
+};
+
 typedef struct CF_BRIDGED_TYPE(id) __CVBuffer* CVPixelBufferRef;
 
 IMAGEIO_EXTERN const CFStringRef kCGImageAuxiliaryDataInfoColorSpace;
@@ -53,6 +61,10 @@ IMAGEIO_EXTERN const CFStringRef kCGImageSourceShouldPreferRGB32;
 IMAGEIO_EXTERN const CFStringRef kCGImageSourceSkipMetadata;
 IMAGEIO_EXTERN const CFStringRef kCGImageSourceSubsampleFactor;
 IMAGEIO_EXTERN const CFStringRef kCGImageSourceUseHardwareAcceleration;
+IMAGEIO_EXTERN const CFStringRef kCGTargetPixelFormat;
+IMAGEIO_EXTERN const CFStringRef kCGTargetHeadroom;
+IMAGEIO_EXTERN const CFStringRef kCGTargetColorSpace;
+IMAGEIO_EXTERN const CFStringRef kCGFlexRangeAlternateColorSpace;
 
 WTF_EXTERN_C_BEGIN
 
@@ -67,6 +79,12 @@ IMAGEIO_EXTERN uint16_t CGImageGetContentAverageLightLevelNits(CGImageRef);
 IMAGEIO_EXTERN CFDictionaryRef CGImageSourceCopyAuxiliaryDataInfoAtIndexWithOptions(CGImageSourceRef, size_t index, CFStringRef auxiliaryDataType, CFDictionaryRef options);
 
 IMAGEIO_EXTERN OSStatus CGImageApplyHDRGainMap(CVPixelBufferRef inputImage, CVPixelBufferRef inputGainmap, CVPixelBufferRef outputImage, CFDictionaryRef options);
+
+IMAGEIO_EXTERN CGFloat CGImageGetHDRGainMapHeadroom(CGImageMetadataRef gainMapMetadata, CFDictionaryRef options);
+
+IMAGEIO_EXTERN CGImageRef CGImageCreateFromIOSurface(IOSurfaceRef, CFDictionaryRef options);
+
+IMAGEIO_EXTERN OSStatus CGImageCreatePixelBufferAttributesForHDRTarget(CGImageHDRTarget hdrType, CFDictionaryRef attributes, CFDictionaryRef options, CFDictionaryRef* attributesOut);
 
 WTF_EXTERN_C_END
 
