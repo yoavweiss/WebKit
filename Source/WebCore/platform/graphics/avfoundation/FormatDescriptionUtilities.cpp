@@ -162,7 +162,7 @@ std::optional<PlatformVideoColorSpace> colorSpaceFromFormatDescription(CMFormatD
             colorSpace.matrix = PlatformVideoMatrixCoefficients::Smpte240m;
     }
 
-    if (RetainPtr fullRange = static_cast<CFBooleanRef>(PAL::CMFormatDescriptionGetExtension(formatDescription, PAL::kCMFormatDescriptionExtension_FullRangeVideo)))
+    if (RetainPtr fullRange = dynamic_cf_cast<CFBooleanRef>(PAL::CMFormatDescriptionGetExtension(formatDescription, PAL::kCMFormatDescriptionExtension_FullRangeVideo)))
         colorSpace.fullRange = CFBooleanGetValue(fullRange.get());
 
     return colorSpace;
