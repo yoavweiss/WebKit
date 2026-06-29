@@ -217,7 +217,18 @@ public:
 
         UserGestureIndicator gestureIndicator { userGestureToForward() };
 
-        bool refresh = equalIgnoringFragmentIdentifier(protect(localFrame->document())->url(), url());
+        // A refresh whose target only adds or changes the fragment identifier is a same-document
+        // navigation, not a reload: forcing ReloadIgnoringCacheData would turn it into a full network
+        // load that resets the referrer. This only applies when the target URL itself carries a
+        // fragment that differs from the current one. A target without a fragment (e.g. a bare
+        // <meta http-equiv="refresh"> with no url=) is always a reload, even if the user has since
+        // navigated the document to a fragment.
+        // https://html.spec.whatwg.org/multipage/browsing-the-web.html#navigate-fragid-step
+        URL currentURL = protect(localFrame->document())->url();
+        bool isSameDocumentFragmentChange = equalIgnoringFragmentIdentifier(currentURL, url())
+            && url().hasFragmentIdentifier()
+            && currentURL.fragmentIdentifier() != url().fragmentIdentifier();
+        bool refresh = equalIgnoringFragmentIdentifier(currentURL, url()) && !isSameDocumentFragmentChange;
         ResourceRequest resourceRequest { URL { url() }, String { referrer() }, refresh ? ResourceRequestCachePolicy::ReloadIgnoringCacheData : ResourceRequestCachePolicy::UseProtocolCachePolicy };
         if (initiatedByMainFrame() == InitiatedByMainFrame::Yes)
             resourceRequest.setRequester(ResourceRequestRequester::Main);
