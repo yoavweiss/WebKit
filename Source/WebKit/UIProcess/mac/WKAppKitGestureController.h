@@ -48,15 +48,11 @@ struct InteractionInformationAtPosition;
 }
 
 OBJC_CLASS NSPanGestureRecognizer;
-OBJC_CLASS WKWebView;
 
 #if __has_include(<WebKitAdditions/WKAppKitGestureControllerAdditionsBefore.mm>)
 #import <WebKitAdditions/WKAppKitGestureControllerAdditionsBefore.mm>
 #endif
 
-NS_HEADER_AUDIT_BEGIN(nullability, sendability)
-
-NS_SWIFT_UI_ACTOR
 @interface WKAppKitGestureController : NSObject <NSGestureRecognizerDelegate>
 
 - (instancetype)initWithPage:(std::reference_wrapper<WebKit::WebPageProxy>)page viewImpl:(std::reference_wrapper<WebKit::WebViewImpl>)viewImpl;
@@ -83,22 +79,8 @@ NS_SWIFT_UI_ACTOR
 - (void)didHandleClickAsHover;
 - (void)didNotHandleClickAsClick:(const WebCore::IntPoint&)point;
 
-#endif // ENABLE(TWO_PHASE_CLICKS)
-
-// Exposed for Swift
-@property (nonatomic, readonly, nullable) WKWebView *webView;
-@property (nonatomic, strong, nullable) NSPanGestureRecognizer *panGestureRecognizer;
-- (void)configureForScrolling:(NSPanGestureRecognizer *)gesture;
-- (void)panGestureRecognized:(NSGestureRecognizer *)gesture;
+#endif
 
 @end
-
-@interface WKAppKitGestureController (Swift)
-
-- (void)setUpPanGestureRecognizer;
-
-@end
-
-NS_HEADER_AUDIT_END(nullability, sendability)
 
 #endif // HAVE(APPKIT_GESTURES_SUPPORT)
