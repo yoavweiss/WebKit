@@ -592,10 +592,15 @@ template<typename CharacterType> bool ContentSecurityPolicySourceList::parseNonc
 
     auto beginNonceValue = buffer.span();
     skipWhile<isNonceCharacter>(buffer);
-    if (buffer.atEnd() || buffer.position() == beginNonceValue.data() || *buffer != '\'')
+    if (buffer.position() == beginNonceValue.data())
+        return false;
+    auto nonceValue = beginNonceValue.first(buffer.position() - beginNonceValue.data());
+    // The closing quote must be the last character of the source expression;
+    // any trailing characters make this an invalid nonce-source.
+    if (!skipExactly(buffer, '\'') || !buffer.atEnd())
         return false;
     if (extensionModeAllowsKeywordsForDirective(m_contentSecurityPolicyModeForExtension, m_directiveName))
-        m_nonces.add(beginNonceValue.first(buffer.position() - beginNonceValue.data()));
+        m_nonces.add(nonceValue);
     return true;
 }
 
@@ -614,7 +619,9 @@ template<typename CharacterType> bool ContentSecurityPolicySourceList::parseHash
     if (!digest)
         return false;
 
-    if (buffer.atEnd() || *buffer != '\'')
+    // The closing quote must be the last character of the source expression;
+    // any trailing characters make this an invalid hash-source.
+    if (!skipExactly(buffer, '\'') || !buffer.atEnd())
         return false;
 
     if (digest->value.size() > ContentSecurityPolicyHash::maximumDigestLength)
