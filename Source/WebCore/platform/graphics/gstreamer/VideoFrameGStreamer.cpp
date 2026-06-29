@@ -114,27 +114,33 @@ static std::optional<uint32_t> videoFormatToDRMFourcc(GstVideoFormat format)
 VideoFrameGStreamer::Info VideoFrameGStreamer::infoFromCaps(const GRefPtr<GstCaps>& caps)
 {
     GstVideoInfo videoInfo;
-    gst_video_info_from_caps(&videoInfo, caps.get());
 
-    std::optional<DMABufFormat> dmabufFormat;
 #if USE(GBM)
+    std::optional<DMABufFormat> dmabufFormat;
 #if GST_CHECK_VERSION(1, 24, 0)
     if (gst_video_is_dma_drm_caps(caps.get())) {
         GstVideoInfoDmaDrm drmVideoInfo;
-        if (!gst_video_info_dma_drm_from_caps(&drmVideoInfo, caps.get()))
+        if (!gst_video_info_dma_drm_from_caps(&drmVideoInfo, caps.get())) {
+            gst_video_info_from_caps(&videoInfo, caps.get());
             return { videoInfo, std::nullopt };
-
-        if (!gst_video_info_dma_drm_to_video_info(&drmVideoInfo, &videoInfo))
+        }
+        if (!gst_video_info_dma_drm_to_video_info(&drmVideoInfo, &videoInfo)) {
+            gst_video_info_from_caps(&videoInfo, caps.get());
             return { videoInfo, std::nullopt };
-
+        }
         dmabufFormat = { drmVideoInfo.drm_fourcc, drmVideoInfo.drm_modifier };
+        return { videoInfo, dmabufFormat };
     }
 #else
+    gst_video_info_from_caps(&videoInfo, caps.get());
     if (auto fourccFromFormat = videoFormatToDRMFourcc(GST_VIDEO_INFO_FORMAT(&videoInfo)))
         dmabufFormat = { *fourccFromFormat, DRM_FORMAT_MOD_INVALID };
+    return { videoInfo, dmabufFormat };
 #endif // GST_CHECK_VERSION(1, 24, 0)
 #endif // USE(GBM)
-    return { videoInfo, dmabufFormat };
+
+    gst_video_info_from_caps(&videoInfo, caps.get());
+    return { videoInfo, { } };
 }
 
 RefPtr<VideoFrame> VideoFrame::createFromPixelBuffer(Ref<PixelBuffer>&& pixelBuffer, PlatformVideoColorSpace&& colorSpace)

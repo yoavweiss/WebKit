@@ -39,8 +39,6 @@
 #include "VideoSinkGStreamer.h"
 #include "WebKitAudioSinkGStreamer.h"
 #include <fnmatch.h>
-#include <gst/audio/audio-info.h>
-#include <gst/gst.h>
 #include <mutex>
 #include <wtf/FileSystem.h>
 #include <wtf/HashMap.h>
@@ -150,11 +148,20 @@ bool getVideoSizeAndFormatFromCaps(const GstCaps* caps, WebCore::IntSize& size, 
         return false;
     }
 
+    GstVideoInfo info;
+    gst_video_info_init(&info);
+
+#if GST_CHECK_VERSION(1, 24, 0)
+    if (gst_video_is_dma_drm_caps(caps)) {
+        GstVideoInfoDmaDrm drmVideoInfo;
+        if (!gst_video_info_dma_drm_from_caps(&drmVideoInfo, caps) || !gst_video_info_dma_drm_to_video_info(&drmVideoInfo, &info))
+            return false;
+    }
+#endif
+
     GstStructure* structure = gst_caps_get_structure(caps, 0);
     if (!areEncryptedCaps(caps) && (!gst_structure_has_name(structure, "video/x-raw") || gst_structure_has_field(structure, "format"))) {
-        GstVideoInfo info;
-        gst_video_info_init(&info);
-        if (!gst_video_info_from_caps(&info, caps))
+        if (!GST_VIDEO_INFO_WIDTH(&info) && !gst_video_info_from_caps(&info, caps))
             return false;
 
         if (GST_VIDEO_INFO_FPS_N(&info))
@@ -209,11 +216,19 @@ std::optional<FloatSize> getVideoResolutionFromCaps(const GstCaps* caps)
     int width = 0, height = 0;
     int pixelAspectRatioNumerator = 1, pixelAspectRatioDenominator = 1;
 
+    GstVideoInfo info;
+    gst_video_info_init(&info);
+
+#if GST_CHECK_VERSION(1, 24, 0)
+    if (gst_video_is_dma_drm_caps(caps)) {
+        GstVideoInfoDmaDrm drmVideoInfo;
+        if (!gst_video_info_dma_drm_from_caps(&drmVideoInfo, caps) || !gst_video_info_dma_drm_to_video_info(&drmVideoInfo, &info))
+            return std::nullopt;
+    }
+#endif
     GstStructure* structure = gst_caps_get_structure(caps, 0);
     if (!areEncryptedCaps(caps) && (gst_structure_has_name(structure, "video/x-raw") || gst_structure_has_field(structure, "format"))) {
-        GstVideoInfo info;
-        gst_video_info_init(&info);
-        if (!gst_video_info_from_caps(&info, caps))
+        if (!GST_VIDEO_INFO_WIDTH(&info) && !gst_video_info_from_caps(&info, caps))
             return std::nullopt;
 
         width = GST_VIDEO_INFO_WIDTH(&info);
@@ -242,18 +257,24 @@ std::optional<FloatSize> getVideoResolutionFromCaps(const GstCaps* caps)
 
 bool getSampleVideoInfo(GstSample* sample, GstVideoInfo& videoInfo)
 {
-    if (!GST_IS_SAMPLE(sample))
+    if (!GST_IS_SAMPLE(sample)) [[unlikely]]
         return false;
 
     GstCaps* caps = gst_sample_get_caps(sample);
-    if (!caps)
+    if (!caps) [[unlikely]]
         return false;
+
+#if GST_CHECK_VERSION(1, 24, 0)
+    if (gst_video_is_dma_drm_caps(caps)) {
+        GstVideoInfoDmaDrm drmVideoInfo;
+        if (!gst_video_info_dma_drm_from_caps(&drmVideoInfo, caps))
+            return false;
+        return gst_video_info_dma_drm_to_video_info(&drmVideoInfo, &videoInfo);
+    }
+#endif
 
     gst_video_info_init(&videoInfo);
-    if (!gst_video_info_from_caps(&videoInfo, caps))
-        return false;
-
-    return true;
+    return gst_video_info_from_caps(&videoInfo, caps);
 }
 
 std::optional<WebCore::IntSize> getDisplaySize(WebCore::IntSize originalSize, int pixelAspectRatioNumerator, int pixelAspectRatioDenominator)
@@ -839,7 +860,7 @@ GstMappedFrame::GstMappedFrame(GstMappedFrame&& other)
 GstMappedFrame::GstMappedFrame(const GRefPtr<GstSample>& sample, GstMapFlags flags)
 {
     GstVideoInfo info;
-    if (!gst_video_info_from_caps(&info, gst_sample_get_caps(sample.get())))
+    if (!getSampleVideoInfo(sample.get(), info))
         return;
 
     if (!gst_video_frame_map(&m_frame, &info, gst_sample_get_buffer(sample.get()), flags))
@@ -1629,6 +1650,18 @@ GstClockTime webkitGstInitTime()
 
 PlatformVideoColorSpace videoColorSpaceFromCaps(const GstCaps* caps)
 {
+#if GST_CHECK_VERSION(1, 24, 0)
+    if (gst_video_is_dma_drm_caps(caps)) {
+        GstVideoInfoDmaDrm drmInfo;
+        if (!gst_video_info_dma_drm_from_caps(&drmInfo, caps))
+            return { };
+
+        GstVideoInfo info;
+        if (!gst_video_info_dma_drm_to_video_info(&drmInfo, &info))
+            return { };
+        return videoColorSpaceFromInfo(info);
+    }
+#endif
     GstVideoInfo info;
     if (!gst_video_info_from_caps(&info, caps))
         return { };
