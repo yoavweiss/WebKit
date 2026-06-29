@@ -1075,10 +1075,15 @@ void LocalFrameViewLayoutContext::removeScrollerFromAnchorScrollAdjusters(const 
     if (!renderView() || renderView()->renderTreeBeingDestroyed())
         m_anchorScrollAdjusters.clear();
     else {
+        // Collect the anchored boxes to unregister first: unregisterAnchorScrollAdjusterFor()
+        // mutates m_anchorScrollAdjusters, which would invalidate this iteration.
+        Vector<CheckedPtr<RenderBox>> anchoredToUnregister;
         for (auto& adjuster : m_anchorScrollAdjusters) {
             if (adjuster.invalidateForScroller(scroller))
-                unregisterAnchorScrollAdjusterFor(*adjuster.anchored());
+                anchoredToUnregister.append(adjuster.anchored());
         }
+        for (auto& anchored : anchoredToUnregister)
+            unregisterAnchorScrollAdjusterFor(*anchored);
     }
 }
 
