@@ -190,8 +190,6 @@ void RemoteScrollingTreeMac::startPendingScrollAnimations()
 
 void RemoteScrollingTreeMac::hasNodeWithAnimatedScrollChanged(bool hasNodeWithAnimatedScroll)
 {
-    ASSERT(ScrollingThread::isCurrentThread());
-
     RunLoop::mainSingleton().dispatch([protectedThis = Ref { *this }, hasNodeWithAnimatedScroll] {
         if (CheckedPtr scrollingCoordinatorProxy = protectedThis->scrollingCoordinatorProxy())
             scrollingCoordinatorProxy->hasNodeWithAnimatedScrollChanged(hasNodeWithAnimatedScroll);
