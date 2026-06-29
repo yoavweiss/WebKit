@@ -505,11 +505,8 @@ void RenderLayerScrollableArea::updateMarqueePosition()
     if (!m_marquee)
         return;
 
-    // FIXME: would like to use SetForScope<> but it doesn't work with bitfields.
-    bool oldUpdatingMarqueePosition = m_updatingMarqueePosition;
-    m_updatingMarqueePosition = true;
+    SetForScope updatingMarqueePosition(m_updatingMarqueePosition, true);
     m_marquee->updateMarqueePosition();
-    m_updatingMarqueePosition = oldUpdatingMarqueePosition;
 }
 
 void RenderLayerScrollableArea::createOrDestroyMarquee()
