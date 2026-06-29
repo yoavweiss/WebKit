@@ -31,6 +31,7 @@
 #include "CSSPrimitiveValue.h"
 #include "CSSPropertyNames.h"
 #include "CSSPropertyParser.h"
+#include "CSSPropertyParserConsumer+Ident.h"
 #include "CSSPropertyParserConsumer+Primitives.h"
 #include "CSSRegisteredCustomProperty.h"
 #include "CSSSelectorParser.h"
@@ -41,6 +42,7 @@
 #include "CSSUnits.h"
 #include "CSSValueKeywords.h"
 #include "CSSVariableData.h"
+#include "CSSWideKeyword.h"
 #include "ConstantPropertyMap.h"
 #include "CustomFunctionRegistry.h"
 #include "Document.h"
@@ -199,22 +201,31 @@ RefPtr<MutableStyleProperties> SubstitutionResolver::resolveAndRegisterDashedFun
         if (!argumentData)
             return nullptr;
 
-        auto value = CSSCustomPropertyValue::createSyntaxAll(parameter.name, argumentData.releaseNonNull());
+        // A bare CSS-wide keyword argument/default (e.g. a parameter defaulting to `inherit`) must keep
+        // its keyword semantics so it resolves against the calling context, rather than being treated as
+        // a literal universal value. https://drafts.csswg.org/css-mixins/#evaluating-custom-functions
+        auto value = [&] -> Ref<CSSCustomPropertyValue> {
+            auto tokens = argumentData->tokenRange();
+            tokens.consumeWhitespace();
+            if (auto keyword = CSSPropertyParserHelpers::consumeCSSWideKeyword(tokens); keyword && tokens.atEnd())
+                return CSSCustomPropertyValue::createWithCSSWideKeyword(parameter.name, *keyword);
+            return CSSCustomPropertyValue::createSyntaxAll(parameter.name, argumentData.releaseNonNull());
+        }();
         argumentRule->addParsedProperty({ CSSPropertyCustom, WTF::move(value) });
     }
 
     // "Resolve function styles using custom function, argument rule, registrations, and calling context."
-    Ref parentMatchResult = m_styleBuilder.matchResult();
-
+    // The hypothetical element acts as a child of the calling element, inheriting its computed custom
+    // properties on demand, so defaults like `var(--caller-prop)` or `inherit` resolve against it.
     auto argumentMatchResult = MatchResult::create();
-    argumentMatchResult->copyDeclarationsFrom(parentMatchResult);
     argumentMatchResult->authorDeclarations.append({ WTF::move(argumentRule) });
 
     auto builderContext = BuilderContext {
         .document = m_styleBuilder.state().document(),
         .parentStyle = &m_styleBuilder.state().renderStyle(),
         .element = m_styleBuilder.state().element(),
-        .localPropertyRegistry = &argumentRegistrations
+        .localPropertyRegistry = &argumentRegistrations,
+        .callingContextBuilder = &m_styleBuilder
     };
 
     auto argumentStyles = Style::ComputedStyle::createPtr();
@@ -228,7 +239,6 @@ RefPtr<MutableStyleProperties> SubstitutionResolver::resolveAndRegisterDashedFun
     auto resolvedArgumentProperties = MutableStyleProperties::create();
     for (auto& parameter : parameters) {
         RefPtr resolvedValue = argumentStyles->customPropertyValue(parameter.name);
-
         registrations.add({
             .name = AtomString { parameter.name },
             .syntax = CSSCustomPropertySyntax::universal(),
@@ -313,19 +323,19 @@ bool SubstitutionResolver::substituteDashedFunction(StringView functionName, CSS
     }
 
     // "Let body rule be the function body."
-    Ref parentMatchResult = m_styleBuilder.matchResult();
-
     auto bodyMatchResult = MatchResult::create();
-    bodyMatchResult->copyDeclarationsFrom(parentMatchResult);
     bodyMatchResult->authorDeclarations.append({ *resolvedArgumentProperties });
     bodyMatchResult->authorDeclarations.append({ customFunction->properties });
 
     // "Resolve function styles using custom function, body rule, registrations, and calling context."
+    // The hypothetical element acts as a child of the calling element, inheriting its computed custom
+    // properties on demand via the calling context's builder (https://drafts.csswg.org/css-mixins/#evaluating-custom-functions).
     auto builderContext = BuilderContext {
         .document = m_styleBuilder.state().document(),
         .parentStyle = &m_styleBuilder.state().renderStyle(),
         .element = m_styleBuilder.state().element(),
-        .localPropertyRegistry = &registrations
+        .localPropertyRegistry = &registrations,
+        .callingContextBuilder = &m_styleBuilder
     };
 
     auto bodyStyles = Style::ComputedStyle::createPtr();
@@ -333,6 +343,7 @@ bool SubstitutionResolver::substituteDashedFunction(StringView functionName, CSS
     bodyBuilder.state().addGuardedFunctionContexts(m_styleBuilder.state());
 
     // "Return the value of the result property in body styles."
+    // Body custom properties are applied lazily as result's var() references reach them.
     auto resolvedResult = bodyBuilder.resolveFunctionResult(*resultValue);
     if (!resolvedResult)
         return false;
@@ -341,10 +352,26 @@ bool SubstitutionResolver::substituteDashedFunction(StringView functionName, CSS
     if (guard.isCyclicContext())
         return false;
 
-    // Tokens reference resolvedResult's string backing; keep it alive until CSSVariableData re-captures.
-    tokens.appendVector(resolvedResult->tokens());
-    m_intermediateCustomProperties.append(WTF::move(resolvedResult));
-    return true;
+    return WTF::switchOn(*resolvedResult,
+        [&](const Ref<const CustomProperty>& result) {
+            // https://drafts.csswg.org/css-values-5/#attr-security
+            // Propagate attr()-taint from the function result into the calling context.
+            propagateAttrTaint(result->isAttrTainted(), result->tokens());
+            // Tokens reference result's string backing; keep it alive until CSSVariableData re-captures.
+            tokens.appendVector(result->tokens());
+            m_intermediateCustomProperties.append(result.copyRef());
+            return true;
+        },
+        [&](CSSWideKeyword keyword) {
+            // https://drafts.csswg.org/css-mixins/#evaluating-custom-functions
+            // CSS-wide keywords are left unresolved on result: the function evaluates to the keyword
+            // itself (e.g. result: inherit makes the dashed-function evaluate to the inherit keyword).
+            // A declared (typed) return type cannot be a CSS-wide keyword, so it is invalid then.
+            if (!customFunction->returnType.isUniversal())
+                return false;
+            tokens.append(CSSParserToken { IdentToken, nameLiteral(toValueID(keyword)) });
+            return true;
+        });
 }
 
 auto SubstitutionResolver::substituteAttrArgumentGrammar(CSSParserTokenRange range, const CSSParserContext& context) -> std::optional<AttrArgumentGrammarSubstitution>

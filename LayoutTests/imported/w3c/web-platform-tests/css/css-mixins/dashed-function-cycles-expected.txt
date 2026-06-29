@@ -2,8 +2,8 @@
 PASS Local with self-cycle
 PASS Cycle reference without fallback makes result invalid
 FAIL Local with self-cycle in unused fallback assert_equals: expected "PASS" but got "FAIL"
-FAIL Local shadowing cyclic property --x assert_equals: expected "PASS" but got ""
-FAIL Local shadowing cyclic outer local --x assert_equals: expected "PASS" but got ""
+PASS Local shadowing cyclic property --x
+PASS Local shadowing cyclic outer local --x
 PASS Argument shadowing cyclic outer local --x
 PASS Arguments shadowing cyclic properties
 PASS Observing property cycle locally

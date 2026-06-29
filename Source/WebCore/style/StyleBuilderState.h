@@ -53,6 +53,7 @@ struct RandomCachingKey;
 namespace Style {
 
 class BuilderState;
+class Builder;
 class CustomPropertyRegistry;
 class Image;
 class LocalPropertyRegistry;
@@ -99,6 +100,9 @@ struct BuilderContext {
     CheckedPtr<TreeResolutionState> treeResolutionState { };
     std::optional<BuilderPositionTryFallback> positionTryFallback { };
     const LocalPropertyRegistry* localPropertyRegistry { nullptr };
+    // For a custom function's hypothetical element: the builder of the calling context, used to
+    // resolve inherited custom properties on demand. https://drafts.csswg.org/css-mixins/#evaluating-custom-functions
+    Builder* callingContextBuilder { nullptr };
 };
 
 class BuilderState : public CanMakeCheckedPtr<BuilderState> {
@@ -126,6 +130,8 @@ public:
 
     const ComputedStyle& parentStyle() const { return *m_context.parentStyle; }
     const Style::ComputedStyle& parentRenderStyle() const LIFETIME_BOUND { return *m_context.parentStyle; }
+
+    Builder* callingContextBuilder() const { return m_context.callingContextBuilder; }
 
     const ComputedStyle* rootElementStyle() const { return m_context.rootElementStyle; }
     const Style::ComputedStyle* rootElementRenderStyle() const LIFETIME_BOUND { return m_context.rootElementStyle; }
