@@ -164,7 +164,7 @@ GRefPtr<GSource> agentSourceNew(GThreadSafeWeakPtr<WebKitGstIceAgent>&& agent)
         GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "webkitwebrtcricegio", 0, "webkitwebrtcricegio");
     });
 
-    auto source = adoptGRef(g_source_new(&agentEventSourceFuncs, sizeof(AgentSource)));
+    GRefPtr source = adoptGRef(g_source_new(&agentEventSourceFuncs, sizeof(AgentSource)));
     g_source_set_priority(source.get(), RunLoopSourcePriority::AsyncIONetwork);
     g_source_set_name(source.get(), "[WebKit] ICE Agent loop");
 

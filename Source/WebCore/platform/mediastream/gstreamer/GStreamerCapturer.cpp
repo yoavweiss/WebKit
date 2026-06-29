@@ -165,7 +165,7 @@ GstElement* GStreamerCapturer::createSource() WTF_IGNORES_THREAD_SAFETY_ANALYSIS
     GST_DEBUG_OBJECT(m_pipeline.get(), "Source element created: %" GST_PTR_FORMAT " (factory: %" GST_PTR_FORMAT ")", m_src.get(), gst_element_get_factory(m_src.get()));
 
     if (gstElementFactoryEquals(m_src.get(), "pipewiresrc"_s)) {
-        auto srcPad = adoptGRef(gst_element_get_static_pad(m_src.get(), "src"));
+        GRefPtr srcPad = adoptGRef(gst_element_get_static_pad(m_src.get(), "src"));
         m_pipewireProbe = PadProbeHandle<GStreamerCapturer>::create(*this, WTF::move(srcPad), GST_PAD_PROBE_TYPE_EVENT_DOWNSTREAM, [](const auto& self, const auto&, auto info) -> GstPadProbeReturn {
             auto event = gst_pad_probe_info_get_event(info);
             if (GST_EVENT_TYPE(event) != GST_EVENT_CAPS)
@@ -190,7 +190,7 @@ GstElement* GStreamerCapturer::createSource() WTF_IGNORES_THREAD_SAFETY_ANALYSIS
         g_object_set(m_src.get(), "use-bufferpool", FALSE, nullptr);
 
     if (m_deviceType == CaptureDevice::DeviceType::Camera) {
-        auto srcPad = adoptGRef(gst_element_get_static_pad(m_src.get(), "src"));
+        GRefPtr srcPad = adoptGRef(gst_element_get_static_pad(m_src.get(), "src"));
         gst_pad_add_probe(srcPad.get(), static_cast<GstPadProbeType>(GST_PAD_PROBE_TYPE_PUSH | GST_PAD_PROBE_TYPE_BUFFER), [](GstPad*, GstPadProbeInfo* info, gpointer) -> GstPadProbeReturn {
             VideoFrameTimeMetadata metadata;
             metadata.captureTime = MonotonicTime::now().secondsSinceEpoch();
@@ -223,7 +223,7 @@ void GStreamerCapturer::setupPipeline()
     }
 
     m_pipeline = makeElement("pipeline"_s);
-    auto clock = adoptGRef(gst_system_clock_obtain());
+    GRefPtr clock = adoptGRef(gst_system_clock_obtain());
     gst_pipeline_use_clock(GST_PIPELINE(m_pipeline.get()), clock.get());
     gst_element_set_base_time(m_pipeline.get(), 0);
     gst_element_set_start_time(m_pipeline.get(), GST_CLOCK_TIME_NONE);

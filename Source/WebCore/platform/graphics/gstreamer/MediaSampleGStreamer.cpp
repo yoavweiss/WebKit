@@ -135,7 +135,7 @@ void MediaSampleGStreamer::updateSampleTimestamps([[maybe_unused]] const String&
         GST_TIME_ARGS(newPts), GST_TIME_ARGS(GST_BUFFER_PTS(buffer.get())),
         GST_TIME_ARGS(newDts), GST_TIME_ARGS(GST_BUFFER_DTS(buffer.get())));
 
-    auto writableBuffer = adoptGRef(gst_buffer_make_writable(buffer.leakRef()));
+    GRefPtr writableBuffer = adoptGRef(gst_buffer_make_writable(buffer.leakRef()));
     GST_BUFFER_PTS(writableBuffer.get()) = newPts;
     GST_BUFFER_DTS(writableBuffer.get()) = newDts;
     m_sample = adoptGRef(gst_sample_make_writable(m_sample.leakRef()));
@@ -182,11 +182,11 @@ Ref<MediaSample> MediaSampleGStreamer::createNonDisplayingCopy() const
     if (!m_sample)
         return createFakeSample(nullptr, m_pts, m_dts, m_duration, m_presentationSize, m_trackId);
 
-    auto sample = adoptGRef(gst_sample_copy(m_sample.get()));
+    GRefPtr sample = adoptGRef(gst_sample_copy(m_sample.get()));
 
     GRefPtr buffer = gst_sample_get_buffer(sample.get());
     RELEASE_ASSERT(buffer);
-    auto writableBuffer = adoptGRef(gst_buffer_make_writable(buffer.leakRef()));
+    GRefPtr writableBuffer = adoptGRef(gst_buffer_make_writable(buffer.leakRef()));
 
     GST_BUFFER_FLAG_SET(writableBuffer.get(), GST_BUFFER_FLAG_DECODE_ONLY);
     sample = adoptGRef(gst_sample_make_writable(sample.leakRef()));
@@ -212,7 +212,7 @@ Ref<MediaSample> MediaSampleGStreamer::createCopyWithAdjustedStartTime(const Med
     if (!buffer) [[unlikely]]
         return createFakeSample(nullptr, newPresentationTime, newDecodeTime, adjustedDuration, m_presentationSize, m_trackId);
 
-    auto newBuffer = adoptGRef(gst_buffer_make_writable(buffer.leakRef()));
+    GRefPtr newBuffer = adoptGRef(gst_buffer_make_writable(buffer.leakRef()));
     GST_BUFFER_PTS(newBuffer.get()) = toGstClockTime(newPresentationTime);
     GST_BUFFER_DTS(newBuffer.get()) = toGstClockTime(newDecodeTime);
     GST_BUFFER_DURATION(newBuffer.get()) = toGstClockTime(adjustedDuration);

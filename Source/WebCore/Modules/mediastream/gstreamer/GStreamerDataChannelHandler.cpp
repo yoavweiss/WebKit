@@ -218,7 +218,7 @@ bool GStreamerDataChannelHandler::sendRawData(std::span<const uint8_t> data)
 {
     DC_DEBUG("Sending raw data of length: %zu", data.size());
     DC_MEMDUMP("Sending raw data", data.data(), data.size());
-    auto bytes = adoptGRef(g_bytes_new(data.data(), data.size()));
+    GRefPtr bytes = adoptGRef(g_bytes_new(data.data(), data.size()));
 #if GST_CHECK_VERSION(1, 22, 0)
     GUniqueOutPtr<GError> error;
     // https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/1958

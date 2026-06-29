@@ -837,7 +837,7 @@ static GstStateChangeReturn webKitMediaSrcChangeState(GstElement* element, GstSt
 
 static gboolean webKitMediaSrcSendEvent(GstElement* element, GstEvent* eventTransferFull)
 {
-    auto event = adoptGRef(eventTransferFull);
+    GRefPtr event = adoptGRef(eventTransferFull);
     switch (GST_EVENT_TYPE(event.get())) {
     case GST_EVENT_SEEK: {
         double rate;

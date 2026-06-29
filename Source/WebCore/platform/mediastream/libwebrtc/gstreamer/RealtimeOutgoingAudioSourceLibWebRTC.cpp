@@ -87,8 +87,8 @@ void RealtimeOutgoingAudioSourceLibWebRTC::audioSamplesAvailable(const MediaTime
         m_inputStreamDescription = desc.getInfo();
         m_outputStreamDescription = libwebrtcAudioFormat(LibWebRTCAudioFormat::sampleRate, desc.numberOfChannels());
 #ifndef GST_DISABLE_GST_DEBUG
-        auto inputCaps = adoptGRef(gst_audio_info_to_caps(&m_inputStreamDescription));
-        auto outputCaps = adoptGRef(gst_audio_info_to_caps(&m_outputStreamDescription));
+        GRefPtr inputCaps = adoptGRef(gst_audio_info_to_caps(&m_inputStreamDescription));
+        GRefPtr outputCaps = adoptGRef(gst_audio_info_to_caps(&m_outputStreamDescription));
         GST_TRACE("Converting from %" GST_PTR_FORMAT " to %" GST_PTR_FORMAT, inputCaps.get(), outputCaps.get());
 #endif
         m_sampleConverter.reset(gst_audio_converter_new(GST_AUDIO_CONVERTER_FLAG_IN_WRITABLE, &m_inputStreamDescription,
@@ -121,7 +121,7 @@ void RealtimeOutgoingAudioSourceLibWebRTC::pullAudioData()
     size_t inBufferSize = inChunkSampleCount * m_inputStreamDescription.bpf;
 
     while (gst_adapter_available(m_adapter.get()) > inBufferSize) {
-        auto inBuffer = adoptGRef(gst_adapter_take_buffer(m_adapter.get(), inBufferSize));
+        GRefPtr inBuffer = adoptGRef(gst_adapter_take_buffer(m_adapter.get(), inBufferSize));
         m_audioBuffer.grow(outBufferSize);
         if (isSilenced()) {
             GST_TRACE("Audio buffer will contain silence");

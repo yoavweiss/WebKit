@@ -219,7 +219,7 @@ GStreamerInternalAudioDecoder::GStreamerInternalAudioDecoder(const String& codec
     GRefPtr<GstElement> harnessedElement = gst_bin_new(binName.ascii().data());
     auto audioconvert = gst_element_factory_make("audioconvert", nullptr);
     auto outputCapsFilter = gst_element_factory_make("capsfilter", nullptr);
-    auto outputCaps = adoptGRef(gst_caps_new_simple("audio/x-raw", "format", G_TYPE_STRING, "F32LE", nullptr));
+    GRefPtr outputCaps = adoptGRef(gst_caps_new_simple("audio/x-raw", "format", G_TYPE_STRING, "F32LE", nullptr));
     g_object_set(outputCapsFilter, "caps", outputCaps.get(), nullptr);
     gst_bin_add_many(GST_BIN_CAST(harnessedElement.get()), audioconvert, outputCapsFilter, element.get(), nullptr);
 
@@ -240,7 +240,7 @@ GStreamerInternalAudioDecoder::GStreamerInternalAudioDecoder(const String& codec
 
     gst_element_link_many(head.get(), audioconvert, outputCapsFilter, nullptr);
 
-    auto pad = adoptGRef(gst_element_get_static_pad(head.get(), "sink"));
+    GRefPtr pad = adoptGRef(gst_element_get_static_pad(head.get(), "sink"));
     gst_element_add_pad(harnessedElement.get(), gst_ghost_pad_new("sink", pad.get()));
 
     pad = adoptGRef(gst_element_get_static_pad(outputCapsFilter, "src"));
@@ -316,7 +316,7 @@ void GStreamerInternalAudioDecoder::flush()
     }
 
     GST_DEBUG_OBJECT(m_harness->element(), "Pushing an empty buffer with discont flag");
-    auto buffer = adoptGRef(gst_buffer_new());
+    GRefPtr buffer = adoptGRef(gst_buffer_new());
     GST_BUFFER_FLAG_SET(buffer.get(), GST_BUFFER_FLAG_DISCONT);
     m_harness->pushBuffer(WTF::move(buffer));
 

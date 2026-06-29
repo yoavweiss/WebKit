@@ -307,7 +307,7 @@ static Vector<GRefPtr<GstElementFactory>> findCompatibleFactories(GList* list, c
             if (capsTemplate->direction != direction)
                 continue;
 
-            auto templateCaps = adoptGRef(gst_static_caps_get(&capsTemplate->static_caps));
+            GRefPtr templateCaps = adoptGRef(gst_static_caps_get(&capsTemplate->static_caps));
             if (gst_caps_is_any(templateCaps.get()) || !gst_caps_can_intersect(caps.get(), templateCaps.get()))
                 continue;
 
@@ -819,7 +819,7 @@ void GStreamerRegistryScanner::initializeEncoders(const GStreamerRegistryScanner
 
 GStreamerRegistryScanner::CodecLookupResult GStreamerRegistryScanner::isHEVCCodecSupported(Configuration configuration, const String& codec, bool shouldCheckForHardwareUse) const
 {
-    auto h265Caps = adoptGRef(gst_caps_new_empty_simple("video/x-h265"));
+    GRefPtr h265Caps = adoptGRef(gst_caps_new_empty_simple("video/x-h265"));
     if (codec.find('.') == notFound) {
         GST_DEBUG("Codec has no profile/level, falling back to unconstrained caps");
         return areCapsSupported(configuration, h265Caps, shouldCheckForHardwareUse);
@@ -942,14 +942,14 @@ MediaPlayerEnums::SupportsType GStreamerRegistryScanner::isContentTypeSupported(
                 else if (mimeCodec == "av1"_s)
                     mimeCodec = "av01"_s;
             }
-            auto codecCaps = adoptGRef(gst_codec_utils_caps_from_mime_codec(mimeCodec.ascii().data()));
+            GRefPtr codecCaps = adoptGRef(gst_codec_utils_caps_from_mime_codec(mimeCodec.ascii().data()));
             if (!codecCaps) {
                 GST_WARNING("Unable to convert codec %s to caps", mimeCodec.ascii().data());
                 continue;
             }
             auto structure = gst_caps_get_structure(codecCaps.get(), 0);
             auto name = gstStructureGetName(structure);
-            auto caps = adoptGRef(gst_caps_new_simple("application/x-webm-enc", "original-media-type", G_TYPE_STRING, name.utf8(), nullptr));
+            GRefPtr caps = adoptGRef(gst_caps_new_simple("application/x-webm-enc", "original-media-type", G_TYPE_STRING, name.utf8(), nullptr));
             if (!factories.hasElementForCaps(ElementFactories::Type::Decryptor, caps))
                 return SupportsType::IsNotSupported;
         }
@@ -1021,7 +1021,7 @@ GStreamerRegistryScanner::CodecLookupResult GStreamerRegistryScanner::areCapsSup
 
 GStreamerRegistryScanner::CodecLookupResult GStreamerRegistryScanner::isAVC1CodecSupported(Configuration configuration, const String& codec, bool shouldCheckForHardwareUse) const
 {
-    auto h264Caps = adoptGRef(gst_caps_new_empty_simple("video/x-h264"));
+    GRefPtr h264Caps = adoptGRef(gst_caps_new_empty_simple("video/x-h264"));
     if (codec.find('.') == notFound) {
         GST_DEBUG("Codec has no profile/level, falling back to unconstrained caps");
         return areCapsSupported(configuration, h264Caps, shouldCheckForHardwareUse);
@@ -1208,7 +1208,7 @@ static inline Vector<RTCRtpCapabilities::HeaderExtensionCapability> probeRtpExte
 {
     Vector<RTCRtpCapabilities::HeaderExtensionCapability> extensions;
     for (const auto& uri : candidates) {
-        if (auto extension = adoptGRef(gst_rtp_header_extension_create_from_uri(uri.characters())))
+        if (GRefPtr extension = adoptGRef(gst_rtp_header_extension_create_from_uri(uri.characters())))
             extensions.append(String(byteCast<char8_t>(unsafeSpan(uri))));
     }
     return extensions;
@@ -1246,7 +1246,7 @@ void GStreamerRegistryScanner::fillAudioRtpCapabilities(Configuration configurat
 
     bool hasDtmfSupport = false;
     if (configuration == Configuration::Encoding) {
-        if (auto factory = adoptGRef(gst_element_factory_find("rtpdtmfsrc")))
+        if (GRefPtr factory = adoptGRef(gst_element_factory_find("rtpdtmfsrc")))
             hasDtmfSupport = true;
     } else
         hasDtmfSupport = factories.hasElementForMediaType(rtpElement, "audio/x-raw, format=(string)S16LE"_s);
@@ -1303,7 +1303,7 @@ void GStreamerRegistryScanner::fillVideoRtpCapabilities(Configuration configurat
                     sps[1] = (spsAsInteger >> 8) & 0xff;
                     sps[2] = spsAsInteger & 0xff;
 
-                    auto caps = adoptGRef(gst_caps_new_empty_simple("video/x-h264"));
+                    GRefPtr caps = adoptGRef(gst_caps_new_empty_simple("video/x-h264"));
                     gst_codec_utils_h264_caps_set_level_and_profile(caps.get(), sps.data(), 3);
                     if (!gst_element_factory_can_sink_any_caps(gst_element_get_factory(element.get()), caps.get()))
                         continue;

@@ -191,7 +191,7 @@ std::unique_ptr<MediaSessionGLib> MediaSessionGLib::create(MediaSessionManagerGL
         m_dBusAddressFailed = true;
         return nullptr;
     }
-    auto connection = adoptGRef(reinterpret_cast<GDBusConnection*>(g_object_new(G_TYPE_DBUS_CONNECTION,
+    GRefPtr connection = adoptGRef(reinterpret_cast<GDBusConnection*>(g_object_new(G_TYPE_DBUS_CONNECTION,
         "address", address.get(),
         "flags", G_DBUS_CONNECTION_FLAGS_AUTHENTICATION_CLIENT | G_DBUS_CONNECTION_FLAGS_MESSAGE_BUS_CONNECTION,
         "exit-on-close", TRUE, nullptr)));

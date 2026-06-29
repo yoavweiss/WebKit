@@ -152,7 +152,7 @@ SpielSpeechWrapper::~SpielSpeechWrapper()
 
 String SpielSpeechWrapper::generateVoiceURI(const GRefPtr<SpielVoice>& voice, const String& language)
 {
-    auto provider = adoptGRef(spiel_voice_get_provider(voice.get()));
+    GRefPtr provider = adoptGRef(spiel_voice_get_provider(voice.get()));
     return makeString(URI_PREFIX, unsafeSpan(spiel_provider_get_well_known_name(provider.get())), '#', unsafeSpan(spiel_voice_get_identifier(voice.get())), '#', language);
 }
 
@@ -218,7 +218,7 @@ void SpielSpeechWrapper::speakUtterance(RefPtr<PlatformSpeechSynthesisUtterance>
 
     // TODO: Detect whether the utterance text is XML and enable SSML if that is the case.
     auto voice = m_voices.get(uri);
-    auto spielUtterance = adoptGRef(spiel_utterance_new(utterance->text().utf8().data()));
+    GRefPtr spielUtterance = adoptGRef(spiel_utterance_new(utterance->text().utf8().data()));
     spiel_utterance_set_language(spielUtterance.get(), utterance->lang().utf8().data());
     spiel_utterance_set_voice(spielUtterance.get(), voice);
     spiel_utterance_set_volume(spielUtterance.get(), utterance->volume());

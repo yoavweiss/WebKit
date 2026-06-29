@@ -215,7 +215,7 @@ void webKitVideoSinkDisconnectSignalHandlers(GstElement* appSink, const WebKitVi
     g_signal_handler_disconnect(appSink, identifiers.newPreroll);
     g_signal_handler_disconnect(appSink, identifiers.newSample);
 
-    auto pad = adoptGRef(gst_element_get_static_pad(appSink, "sink"));
+    GRefPtr pad = adoptGRef(gst_element_get_static_pad(appSink, "sink"));
     if (identifiers.notifyCaps)
         g_signal_handler_disconnect(pad.get(), identifiers.notifyCaps);
 }

@@ -274,7 +274,7 @@ AppendPipeline::AppendPipeline(SourceBufferPrivateGStreamer& sourceBufferPrivate
     registerActivePipeline(m_pipeline);
     connectSimpleBusMessageCallback(m_pipeline.get());
 
-    auto bus = adoptGRef(gst_pipeline_get_bus(GST_PIPELINE(m_pipeline.get())));
+    GRefPtr bus = adoptGRef(gst_pipeline_get_bus(GST_PIPELINE(m_pipeline.get())));
     gst_bus_enable_sync_message_emission(bus.get());
 
     g_signal_connect(bus.get(), "sync-message::error", G_CALLBACK(+[](GstBus*, GstMessage* message, AppendPipeline* appendPipeline) {
@@ -299,7 +299,7 @@ AppendPipeline::~AppendPipeline()
     // when changing the pipeline state.
 
     if (m_pipeline) {
-        auto bus = adoptGRef(gst_pipeline_get_bus(GST_PIPELINE(m_pipeline.get())));
+        GRefPtr bus = adoptGRef(gst_pipeline_get_bus(GST_PIPELINE(m_pipeline.get())));
         ASSERT(bus);
         g_signal_handlers_disconnect_by_data(bus.get(), this);
         gst_bus_disable_sync_message_emission(bus.get());
@@ -380,11 +380,11 @@ GstPadProbeReturn AppendPipeline::appsrcEndOfAppendCheckerProbe(GstPadProbeInfo*
 
 void AppendPipeline::removeParserForDemuxerPad(const GRefPtr<GstPad>& pad)
 {
-    auto peer = adoptGRef(gst_pad_get_peer(pad.get()));
+    GRefPtr peer = adoptGRef(gst_pad_get_peer(pad.get()));
     if (!peer)
         return;
 
-    auto parser = adoptGRef(gst_pad_get_parent_element(peer.get()));
+    GRefPtr parser = adoptGRef(gst_pad_get_parent_element(peer.get()));
     if (!parser) [[unlikely]]
         return;
 
@@ -398,11 +398,11 @@ void AppendPipeline::removeParserForDemuxerPad(const GRefPtr<GstPad>& pad)
     if (!matchingTrack)
         return;
 
-    auto srcPad = adoptGRef(gst_element_get_static_pad(parser.get(), "src"));
+    GRefPtr srcPad = adoptGRef(gst_element_get_static_pad(parser.get(), "src"));
     if (!srcPad) [[unlikely]]
         return;
 
-    auto parserPeerPad = adoptGRef(gst_pad_get_peer(srcPad.get()));
+    GRefPtr parserPeerPad = adoptGRef(gst_pad_get_peer(srcPad.get()));
     if (!parserPeerPad) [[unlikely]]
         return;
 
@@ -942,9 +942,9 @@ static GRefPtr<GstCaps> aacSbrForceImplicitSignalling([[maybe_unused]] GstPad* p
     ASSERT_WITH_MESSAGE(writeResult, "AAC channels write failed");
 
     auto newCodecData = gst_bit_writer_get_data(&writer);
-    auto newCaps = adoptGRef(gst_caps_copy(caps));
+    GRefPtr newCaps = adoptGRef(gst_caps_copy(caps));
     gst_codec_utils_aac_caps_set_level_and_profile(newCaps.get(), newCodecData, 2);
-    auto newCodecDataBuffer = adoptGRef(gst_buffer_new_and_alloc(2));
+    GRefPtr newCodecDataBuffer = adoptGRef(gst_buffer_new_and_alloc(2));
     gst_buffer_fill(newCodecDataBuffer.get(), 0, newCodecData, 2);
     gst_caps_set_simple(newCaps.get(), "codec_data", GST_TYPE_BUFFER, newCodecDataBuffer.get(), nullptr);
     return newCaps;
@@ -1195,7 +1195,7 @@ bool AppendPipeline::recycleTrackForPad(GstPad* demuxerSrcPad)
         linkPadWithTrack(demuxerSrcPad, *matchingTrack);
     else {
         // Unlink from old track and link to new track.
-        auto peer = adoptGRef(gst_pad_get_peer(matchingTrack->entryPad.get()));
+        GRefPtr peer = adoptGRef(gst_pad_get_peer(matchingTrack->entryPad.get()));
         if (peer.get() != demuxerSrcPad) {
             if (peer) {
                 GST_DEBUG_OBJECT(peer.get(), "Unlinking from track %" PRIu64 "", matchingTrack->trackId);

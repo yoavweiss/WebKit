@@ -119,7 +119,7 @@ CaptureSourceOrError GStreamerDisplayCaptureDeviceManager::createDisplayCaptureS
         // The portal interface allows multiple streams but we care only about the first one.
         GUniqueOutPtr<GVariantIter> iter;
         if (g_variant_lookup(responseData.get(), "streams", "a(ua{sv})", &iter.outPtr())) {
-            auto variant = adoptGRef(g_variant_iter_next_value(iter.get()));
+            GRefPtr variant = adoptGRef(g_variant_iter_next_value(iter.get()));
             if (!variant) {
                 WTFLogAlways("Stream list is empty");
                 return;

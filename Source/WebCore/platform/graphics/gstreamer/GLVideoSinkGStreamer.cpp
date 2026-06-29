@@ -151,11 +151,11 @@ static void webKitGLVideoSinkConstructed(GObject* object)
         gst_caps_append(caps.get(), buildDMABufCaps().leakRef());
 #endif
 
-    auto glCaps = adoptGRef(gst_caps_from_string("video/x-raw, format = (string) " GST_GL_CAPS_FORMAT));
+    GRefPtr glCaps = adoptGRef(gst_caps_from_string("video/x-raw, format = (string) " GST_GL_CAPS_FORMAT));
     gst_caps_set_features(glCaps.get(), 0, gst_caps_features_new(GST_CAPS_FEATURE_MEMORY_GL_MEMORY, nullptr));
     gst_caps_append(caps.get(), glCaps.leakRef());
 
-    auto sinkPad = adoptGRef(gst_element_get_static_pad(sink->priv->queue.get(), "sink"));
+    GRefPtr sinkPad = adoptGRef(gst_element_get_static_pad(sink->priv->queue.get(), "sink"));
 
     if (!quirkGLCaps) {
         auto upload = makeGStreamerElement("glupload"_s);
@@ -168,7 +168,7 @@ static void webKitGLVideoSinkConstructed(GObject* object)
         sinkPad = adoptGRef(gst_element_get_static_pad(upload, "sink"));
 
         GstElement* imxVideoConvert = nullptr;
-        if (auto imxVideoConvertFactory = adoptGRef(gst_element_factory_find("imxvideoconvert_g2d"))) {
+        if (GRefPtr imxVideoConvertFactory = adoptGRef(gst_element_factory_find("imxvideoconvert_g2d"))) {
             imxVideoConvert = gst_element_factory_create(imxVideoConvertFactory.get(), nullptr);
             gst_bin_add(GST_BIN_CAST(sink), imxVideoConvert);
             gst_element_link(imxVideoConvert, upload);
@@ -206,15 +206,15 @@ static void webKitGLVideoSinkConstructed(GObject* object)
             RELEASE_ASSERT(upload);
             RELEASE_ASSERT(colorconvert);
 
-            auto sinkPad = adoptGRef(gst_element_get_static_pad(sink.get(), "sink"));
+            GRefPtr sinkPad = adoptGRef(gst_element_get_static_pad(sink.get(), "sink"));
             gst_ghost_pad_set_target(GST_GHOST_PAD_CAST(sinkPad.get()), nullptr);
 
             gst_bin_add_many(GST_BIN_CAST(sink.get()), upload, colorconvert, nullptr);
             gst_element_link_many(upload, colorconvert, priv->queue.get(), nullptr);
-            auto target = adoptGRef(gst_element_get_static_pad(upload, "sink"));
+            GRefPtr target = adoptGRef(gst_element_get_static_pad(upload, "sink"));
 
             GstElement* imxVideoConvert = nullptr;
-            if (auto imxVideoConvertFactory = adoptGRef(gst_element_factory_find("imxvideoconvert_g2d"))) {
+            if (GRefPtr imxVideoConvertFactory = adoptGRef(gst_element_factory_find("imxvideoconvert_g2d"))) {
                 imxVideoConvert = gst_element_factory_create(imxVideoConvertFactory.get(), nullptr);
                 gst_bin_add(GST_BIN_CAST(sink.get()), imxVideoConvert);
                 gst_element_link(imxVideoConvert, upload);

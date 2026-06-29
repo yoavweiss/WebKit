@@ -49,7 +49,7 @@ void GStreamerIncomingTrackProcessor::configure(ThreadSafeWeakPtr<GStreamerMedia
     m_endPoint = WTF::move(endPoint);
     m_pad = WTF::move(pad);
 
-    auto caps = adoptGRef(gst_pad_get_current_caps(m_pad.get()));
+    GRefPtr caps = adoptGRef(gst_pad_get_current_caps(m_pad.get()));
     if (!caps)
         caps = adoptGRef(gst_pad_query_caps(m_pad.get(), nullptr));
 
@@ -111,13 +111,13 @@ void GStreamerIncomingTrackProcessor::configure(ThreadSafeWeakPtr<GStreamerMedia
     gst_bin_add_many(GST_BIN_CAST(m_bin.get()), trackProcessor.get(), queue, m_sink.get(), nullptr);
     gst_element_link(queue, m_sink.get());
 
-    auto sinkPad = adoptGRef(gst_element_get_static_pad(trackProcessor.get(), "sink"));
+    GRefPtr sinkPad = adoptGRef(gst_element_get_static_pad(trackProcessor.get(), "sink"));
     gst_element_add_pad(m_bin.get(), gst_ghost_pad_new("sink", sinkPad.get()));
 
     if (m_data.type != RealtimeMediaSource::Type::Video || !m_isDecoding)
         return;
 
-    auto sinkSinkPad = adoptGRef(gst_element_get_static_pad(m_sink.get(), "sink"));
+    GRefPtr sinkSinkPad = adoptGRef(gst_element_get_static_pad(m_sink.get(), "sink"));
     gst_pad_add_probe(sinkSinkPad.get(), GST_PAD_PROBE_TYPE_QUERY_DOWNSTREAM, reinterpret_cast<GstPadProbeCallback>(+[](GstPad*, GstPadProbeInfo* info, gpointer) -> GstPadProbeReturn {
         auto query = GST_PAD_PROBE_INFO_QUERY(info);
         if (GST_QUERY_TYPE(query) != GST_QUERY_ALLOCATION)
@@ -200,7 +200,7 @@ GRefPtr<GstElement> GStreamerIncomingTrackProcessor::incomingTrackProcessor()
         ASSERT(gst_structure_has_name(structure, "application/x-rtp"));
         auto encodingName = gstStructureGetString(structure, "encoding-name"_s);
         auto mediaType = makeString("video/x-"_s, String(encodingName.span()).convertToASCIILowercase());
-        auto codecCaps = adoptGRef(gst_caps_new_empty_simple(mediaType.ascii().data()));
+        GRefPtr codecCaps = adoptGRef(gst_caps_new_empty_simple(mediaType.ascii().data()));
 
         auto& scanner = GStreamerRegistryScanner::singleton();
         if (scanner.areCapsSupported(GStreamerRegistryScanner::Configuration::Decoding, codecCaps, true)) {
@@ -224,7 +224,7 @@ GRefPtr<GstElement> GStreamerIncomingTrackProcessor::incomingTrackProcessor()
             return;
 
         configureVideoRTPDepayloader(element);
-        auto pad = adoptGRef(gst_element_get_static_pad(element, "sink"));
+        GRefPtr pad = adoptGRef(gst_element_get_static_pad(element, "sink"));
         self->installRtpBufferPadProbe(pad);
     }), new ThreadSafeWeakPtr { *this }, [](gpointer data, GClosure*) {
         delete static_cast<ThreadSafeWeakPtr<GStreamerIncomingTrackProcessor>*>(data);
@@ -243,7 +243,7 @@ GRefPtr<GstElement> GStreamerIncomingTrackProcessor::incomingTrackProcessor()
         self->m_videoDecoderName = configureMediaStreamVideoDecoder(element);
         webkitGstTraceProcessingTimeForElement(element);
 
-        auto sinkPad = adoptGRef(gst_element_get_static_pad(element, "sink"));
+        GRefPtr sinkPad = adoptGRef(gst_element_get_static_pad(element, "sink"));
         gst_pad_add_probe(sinkPad.get(), static_cast<GstPadProbeType>(GST_PAD_PROBE_TYPE_BUFFER), [](GstPad*, GstPadProbeInfo* info, gpointer userData) -> GstPadProbeReturn {
             RefPtr self = reinterpret_cast<ThreadSafeWeakPtr<GStreamerIncomingTrackProcessor>*>(userData)->get();
             if (!self)
@@ -255,7 +255,7 @@ GRefPtr<GstElement> GStreamerIncomingTrackProcessor::incomingTrackProcessor()
             return GST_PAD_PROBE_OK;
         }, userData, nullptr);
 
-        auto pad = adoptGRef(gst_element_get_static_pad(element, "src"));
+        GRefPtr pad = adoptGRef(gst_element_get_static_pad(element, "src"));
         gst_pad_add_probe(pad.get(), static_cast<GstPadProbeType>(GST_PAD_PROBE_TYPE_BUFFER | GST_PAD_PROBE_TYPE_EVENT_DOWNSTREAM), [](GstPad* pad, GstPadProbeInfo* info, gpointer userData) -> GstPadProbeReturn {
             RefPtr self = reinterpret_cast<ThreadSafeWeakPtr<GStreamerIncomingTrackProcessor>*>(userData)->get();
             if (!self)
@@ -280,7 +280,7 @@ GRefPtr<GstElement> GStreamerIncomingTrackProcessor::incomingTrackProcessor()
 
             self->m_decodedVideoFrames++;
 
-            auto decoder = adoptGRef(gst_pad_get_parent_element(pad));
+            GRefPtr decoder = adoptGRef(gst_pad_get_parent_element(pad));
             auto processingTime = webkitGstBufferGetProcessingTime(gst_pad_probe_info_get_buffer(info), decoder.get());
             if (processingTime.isInvalid())
                 return GST_PAD_PROBE_OK;
@@ -297,8 +297,8 @@ GRefPtr<GstElement> GStreamerIncomingTrackProcessor::incomingTrackProcessor()
         if (!self)
             return;
 
-        auto queue = adoptGRef(gst_bin_get_by_name(GST_BIN_CAST(self->m_bin.get()), "queue"));
-        auto sinkPad = adoptGRef(gst_element_get_static_pad(queue.get(), "sink"));
+        GRefPtr queue = adoptGRef(gst_bin_get_by_name(GST_BIN_CAST(self->m_bin.get()), "queue"));
+        GRefPtr sinkPad = adoptGRef(gst_element_get_static_pad(queue.get(), "sink"));
         gst_pad_link(pad, sinkPad.get());
         self->trackReady();
     }), new ThreadSafeWeakPtr { *this }, [](gpointer data, GClosure*) {
@@ -322,7 +322,7 @@ GRefPtr<GstElement> GStreamerIncomingTrackProcessor::createParser()
             return;
 
         configureVideoRTPDepayloader(element);
-        auto pad = adoptGRef(gst_element_get_static_pad(element, "sink"));
+        GRefPtr pad = adoptGRef(gst_element_get_static_pad(element, "sink"));
         self->installRtpBufferPadProbe(pad);
     }), new ThreadSafeWeakPtr { *this }, [](gpointer data, GClosure*) {
         delete static_cast<ThreadSafeWeakPtr<GStreamerIncomingTrackProcessor>*>(data);
@@ -348,8 +348,8 @@ GRefPtr<GstElement> GStreamerIncomingTrackProcessor::createParser()
         RefPtr self = reinterpret_cast<ThreadSafeWeakPtr<GStreamerIncomingTrackProcessor>*>(userData)->get();
         if (!self)
             return;
-        auto queue = adoptGRef(gst_bin_get_by_name(GST_BIN_CAST(self->m_bin.get()), "queue"));
-        auto sinkPad = adoptGRef(gst_element_get_static_pad(queue.get(), "sink"));
+        GRefPtr queue = adoptGRef(gst_bin_get_by_name(GST_BIN_CAST(self->m_bin.get()), "queue"));
+        GRefPtr sinkPad = adoptGRef(gst_element_get_static_pad(queue.get(), "sink"));
         gst_pad_link(pad, sinkPad.get());
         self->trackReady();
     }), new ThreadSafeWeakPtr { *this }, [](gpointer data, GClosure*) {

@@ -250,7 +250,7 @@ public:
             int framerateNumerator, framerateDenominator;
             gst_util_double_to_fraction(*m_frameRate, &framerateNumerator, &framerateDenominator);
             GRefPtr caps = gst_sample_get_caps(sample.get());
-            auto writableCaps = adoptGRef(gst_caps_make_writable(caps.leakRef()));
+            GRefPtr writableCaps = adoptGRef(gst_caps_make_writable(caps.leakRef()));
 
             sample = adoptGRef(gst_sample_make_writable(sample.leakRef()));
             gst_caps_set_simple(writableCaps.get(), "framerate", GST_TYPE_FRACTION, framerateNumerator, framerateDenominator, nullptr);

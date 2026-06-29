@@ -82,7 +82,7 @@ static GstFlowReturn iceTransportHandleSample(WebKitGstIceTransport* self, GstAp
         return GST_FLOW_ERROR;
 
     const auto& riceStream = webkitGstWebRTCIceStreamGetRiceStream(stream.get());
-    auto component = adoptGRef(rice_stream_get_component(riceStream.get(), 1));
+    GRefPtr component = adoptGRef(rice_stream_get_component(riceStream.get(), 1));
     if (!component)
         return GST_FLOW_ERROR;
 

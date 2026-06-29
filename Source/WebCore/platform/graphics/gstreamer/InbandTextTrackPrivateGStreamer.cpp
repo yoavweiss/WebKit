@@ -62,7 +62,7 @@ InbandTextTrackPrivateGStreamer::InbandTextTrackPrivateGStreamer(unsigned index,
     GST_INFO("Track %" PRIu64 " got stream start. GStreamer stream-id: %s", m_data->m_id, m_data->m_gstStreamId.utf8().data());
 
     GST_DEBUG("Stream %" GST_PTR_FORMAT, m_data->m_stream.get());
-    auto caps = adoptGRef(gst_stream_get_caps(m_data->m_stream.get()));
+    GRefPtr caps = adoptGRef(gst_stream_get_caps(m_data->m_stream.get()));
     m_kind = doCapsHaveType(caps.get(), "closedcaption/"_s) ? Kind::Captions : Kind::Subtitles;
 }
 

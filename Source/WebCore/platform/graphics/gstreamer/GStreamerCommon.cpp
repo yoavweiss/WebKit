@@ -533,7 +533,7 @@ bool ensureGStreamerInitialized()
 static bool registerInternalVideoEncoder()
 {
 #if ENABLE(VIDEO)
-    if (auto factory = adoptGRef(gst_element_factory_find("webkitvideoencoder")))
+    if (GRefPtr factory = adoptGRef(gst_element_factory_find("webkitvideoencoder")))
         return false;
     return gst_element_register(nullptr, "webkitvideoencoder", GST_RANK_PRIMARY + 100, WEBKIT_TYPE_VIDEO_ENCODER);
 #endif
@@ -597,7 +597,7 @@ void registerWebKitGStreamerElements()
         // to fallback to MSE when this happens.
         auto hlsSupport = CStringView::unsafeFromUTF8(g_getenv("WEBKIT_GST_ENABLE_HLS_SUPPORT"));
         if (!hlsSupport || hlsSupport == "0"_s) {
-            if (auto factory = adoptGRef(gst_element_factory_find("hlsdemux")))
+            if (GRefPtr factory = adoptGRef(gst_element_factory_find("hlsdemux")))
                 gst_plugin_feature_set_rank(GST_PLUGIN_FEATURE_CAST(factory.get()), GST_RANK_NONE);
         }
 
@@ -605,7 +605,7 @@ void registerWebKitGStreamerElements()
         // to fallback to MSE when this happens.
         auto dashSupport = CStringView::unsafeFromUTF8(g_getenv("WEBKIT_GST_ENABLE_DASH_SUPPORT"));
         if (!dashSupport || dashSupport == "0"_s) {
-            if (auto factory = adoptGRef(gst_element_factory_find("dashdemux")))
+            if (GRefPtr factory = adoptGRef(gst_element_factory_find("dashdemux")))
                 gst_plugin_feature_set_rank(GST_PLUGIN_FEATURE_CAST(factory.get()), GST_RANK_NONE);
         }
 
@@ -615,13 +615,13 @@ void registerWebKitGStreamerElements()
         if (gst_check_version(1, 22, 0)) {
             std::array<ASCIILiteral, 3> elementNames = { "dashdemux2"_s, "hlsdemux2"_s, "mssdemux2"_s };
             for (auto& elementName : elementNames) {
-                if (auto factory = adoptGRef(gst_element_factory_find(elementName)))
+                if (GRefPtr factory = adoptGRef(gst_element_factory_find(elementName)))
                     gst_plugin_feature_set_rank(GST_PLUGIN_FEATURE_CAST(factory.get()), GST_RANK_NONE);
             }
         }
 
         // Make sure isofmp4mux is auto-plugged in transcodebin pipelines.
-        if (auto factory = adoptGRef(gst_element_factory_find("isofmp4mux")))
+        if (GRefPtr factory = adoptGRef(gst_element_factory_find("isofmp4mux")))
             gst_plugin_feature_set_rank(GST_PLUGIN_FEATURE_CAST(factory.get()), GST_RANK_PRIMARY + 1);
 
         // The VAAPI plugin is not much maintained anymore and prone to rendering issues. In the
@@ -630,14 +630,14 @@ void registerWebKitGStreamerElements()
         auto enableLegacyVAAPIPlugin = CStringView::unsafeFromUTF8(g_getenv("WEBKIT_GST_ENABLE_LEGACY_VAAPI"));
         if (enableLegacyVAAPIPlugin.isEmpty() || enableLegacyVAAPIPlugin == "0"_s) {
             auto* registry = gst_registry_get();
-            if (auto vaapiPlugin = adoptGRef(gst_registry_find_plugin(registry, "vaapi")))
+            if (GRefPtr vaapiPlugin = adoptGRef(gst_registry_find_plugin(registry, "vaapi")))
                 gst_registry_remove_plugin(registry, vaapiPlugin.get());
         }
 
         // Disable the pipewire device provider, usually the pulseaudio and v4l2 device providers would
         // be preferred anyway and pipewiresink is currently prone to deadlocks:
         // https://gitlab.freedesktop.org/pipewire/pipewire/-/issues/5171
-        if (auto pipewireDeviceProviderFactory = adoptGRef(gst_device_provider_factory_find("pipewiredeviceprovider")))
+        if (GRefPtr pipewireDeviceProviderFactory = adoptGRef(gst_device_provider_factory_find("pipewiredeviceprovider")))
             gst_plugin_feature_set_rank(GST_PLUGIN_FEATURE_CAST(pipewireDeviceProviderFactory.get()), GST_RANK_NONE);
 
         // Make sure the quirks are created as early as possible.
@@ -757,7 +757,7 @@ void deinitializeGStreamer()
     bool isLeaksTracerActive = false;
     auto activeTracers = gst_tracing_get_active_tracers();
     while (activeTracers) {
-        auto tracer = adoptGRef(GST_TRACER_CAST(activeTracers->data));
+        GRefPtr tracer = adoptGRef(GST_TRACER_CAST(activeTracers->data));
         if (!isLeaksTracerActive && equal(unsafeSpan(G_OBJECT_TYPE_NAME(G_OBJECT(tracer.get()))), "GstLeaksTracer"_s))
             isLeaksTracerActive = true;
         activeTracers = g_list_delete_link(activeTracers, activeTracers);
@@ -1068,7 +1068,7 @@ void disconnectSimpleBusMessageCallback(GstElement* pipeline)
     if (!handler)
         return;
 
-    auto bus = adoptGRef(gst_pipeline_get_bus(GST_PIPELINE(pipeline)));
+    GRefPtr bus = adoptGRef(gst_pipeline_get_bus(GST_PIPELINE(pipeline)));
     g_signal_handler_disconnect(bus.get(), handler);
     gst_bus_remove_signal_watch(bus.get());
     g_object_set_qdata(G_OBJECT(pipeline), customMessageHandlerQuark(), nullptr);
@@ -1103,7 +1103,7 @@ static void dumpPipeline(const GRefPtr<GstElement>& pipeline, String&& dotFileNa
 
 void connectSimpleBusMessageCallback(GstElement* pipeline, Function<void(GstMessage*)>&& customHandler, AsynchronousPipelineDumping asynchronousPipelineDumping)
 {
-    auto bus = adoptGRef(gst_pipeline_get_bus(GST_PIPELINE(pipeline)));
+    GRefPtr bus = adoptGRef(gst_pipeline_get_bus(GST_PIPELINE(pipeline)));
     gst_bus_add_signal_watch_full(bus.get(), RunLoopSourcePriority::RunLoopDispatcher);
 
     auto data = createMessageBusData();
@@ -1237,7 +1237,7 @@ bool webkitGstSetElementStateSynchronously(GstElement* pipeline, GstState target
         return true;
     }
 
-    auto bus = adoptGRef(gst_pipeline_get_bus(GST_PIPELINE(pipeline)));
+    GRefPtr bus = adoptGRef(gst_pipeline_get_bus(GST_PIPELINE(pipeline)));
     gst_bus_enable_sync_message_emission(bus.get());
 
     auto cleanup = makeScopeExit([bus = GRefPtr<GstBus>(bus), pipeline, targetState] {
@@ -1257,7 +1257,7 @@ bool webkitGstSetElementStateSynchronously(GstElement* pipeline, GstState target
         return false;
 
     if (result == GST_STATE_CHANGE_ASYNC) {
-        while (auto message = adoptGRef(gst_bus_timed_pop_filtered(bus.get(), GST_CLOCK_TIME_NONE, GST_MESSAGE_STATE_CHANGED))) {
+        while (GRefPtr message = adoptGRef(gst_bus_timed_pop_filtered(bus.get(), GST_CLOCK_TIME_NONE, GST_MESSAGE_STATE_CHANGED))) {
             if (!messageHandler(message.get()))
                 return false;
 
@@ -2042,7 +2042,7 @@ GRefPtr<GstBuffer> wrapSpanData(const std::span<const uint8_t>& span)
     Vector<uint8_t> data { span };
     auto bufferSize = data.size();
     auto bufferData = data.mutableSpan().data();
-    auto buffer = adoptGRef(gst_buffer_new_wrapped_full(GST_MEMORY_FLAG_READONLY, bufferData, bufferSize, 0, bufferSize, new Vector<uint8_t>(WTF::move(data)), [](gpointer data) {
+    GRefPtr buffer = adoptGRef(gst_buffer_new_wrapped_full(GST_MEMORY_FLAG_READONLY, bufferData, bufferSize, 0, bufferSize, new Vector<uint8_t>(WTF::move(data)), [](gpointer data) {
         delete static_cast<Vector<uint8_t>*>(data);
     }));
     return buffer;
@@ -2259,7 +2259,7 @@ bool setGstElementGLContext(GstElement* element, ASCIILiteral contextType)
 
 GstStateChangeReturn gstElementLockAndSetState(GstElement* element, GstState state)
 {
-    auto parent = adoptGRef(gst_element_get_parent(element));
+    GRefPtr parent = adoptGRef(gst_element_get_parent(element));
     if (parent)
         GST_STATE_LOCK(parent.get());
 
@@ -2302,7 +2302,7 @@ GRefPtr<GstElement> createVideoConvertScaleElement(const String& name)
     gst_bin_add_many(GST_BIN_CAST(bin.get()), videoScale, videoConvert, nullptr);
     gst_element_link(videoScale, videoConvert);
 
-    auto pad = adoptGRef(gst_element_get_static_pad(videoScale, "sink"));
+    GRefPtr pad = adoptGRef(gst_element_get_static_pad(videoScale, "sink"));
     gst_element_add_pad(bin.get(), gst_ghost_pad_new("sink", pad.get()));
     pad = adoptGRef(gst_element_get_static_pad(videoConvert, "src"));
     gst_element_add_pad(bin.get(), gst_ghost_pad_new("src", pad.get()));

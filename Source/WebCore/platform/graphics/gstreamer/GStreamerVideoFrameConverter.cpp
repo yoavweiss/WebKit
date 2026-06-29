@@ -106,7 +106,7 @@ GRefPtr<GstSample> GStreamerVideoFrameConverter::Pipeline::run(const GRefPtr<Gst
 #endif
 
     unsigned capsSize = gst_caps_get_size(destinationCaps);
-    auto newCaps = adoptGRef(gst_caps_new_empty());
+    GRefPtr newCaps = adoptGRef(gst_caps_new_empty());
     for (unsigned i = 0; i < capsSize; i++) {
         auto structure = gst_caps_get_structure(destinationCaps, i);
         auto modifiedStructure = gst_structure_copy(structure);
@@ -124,8 +124,8 @@ GRefPtr<GstSample> GStreamerVideoFrameConverter::Pipeline::run(const GRefPtr<Gst
     gst_element_set_state(m_pipeline.get(), GST_STATE_PAUSED);
     gst_app_src_push_sample(GST_APP_SRC_CAST(m_src.get()), sample.get());
 
-    auto bus = adoptGRef(gst_element_get_bus(m_pipeline.get()));
-    auto message = adoptGRef(gst_bus_timed_pop_filtered(bus.get(), 400 * GST_MSECOND, static_cast<GstMessageType>(GST_MESSAGE_ERROR | GST_MESSAGE_ASYNC_DONE)));
+    GRefPtr bus = adoptGRef(gst_element_get_bus(m_pipeline.get()));
+    GRefPtr message = adoptGRef(gst_bus_timed_pop_filtered(bus.get(), 400 * GST_MSECOND, static_cast<GstMessageType>(GST_MESSAGE_ERROR | GST_MESSAGE_ASYNC_DONE)));
     if (!message) {
         GST_ERROR_OBJECT(m_pipeline.get(), "Video frame conversion 400ms timeout expired.");
         return nullptr;
@@ -197,12 +197,12 @@ GRefPtr<GstSample> GStreamerVideoFrameConverter::convert(const GRefPtr<GstSample
     if (!outputSample)
         return nullptr;
 
-    auto convertedSample = adoptGRef(gst_sample_make_writable(outputSample.leakRef()));
+    GRefPtr convertedSample = adoptGRef(gst_sample_make_writable(outputSample.leakRef()));
     gst_sample_set_caps(convertedSample.get(), destinationCaps.get());
 
     GRefPtr buffer = gst_sample_get_buffer(convertedSample.get());
 IGNORE_WARNINGS_BEGIN("cast-align")
-    auto writableBuffer = adoptGRef(gst_buffer_make_writable(buffer.leakRef()));
+    GRefPtr writableBuffer = adoptGRef(gst_buffer_make_writable(buffer.leakRef()));
 IGNORE_WARNINGS_END
 
     if (auto meta = gst_buffer_get_video_meta(writableBuffer.get()))

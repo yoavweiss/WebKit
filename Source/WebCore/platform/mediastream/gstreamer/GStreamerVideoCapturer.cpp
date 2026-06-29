@@ -83,13 +83,13 @@ void GStreamerVideoCapturer::setSinkVideoFrameCallback(SinkVideoFrameCallback&& 
     }
     m_sinkVideoFrameCallback.second = WTF::move(callback);
     m_sinkVideoFrameCallback.first.newSampleSignalId = g_signal_connect_swapped(sink(), "new-sample", G_CALLBACK(+[](GStreamerVideoCapturer* capturer, GstElement* sink) -> GstFlowReturn {
-        auto sample = adoptGRef(gst_app_sink_pull_sample(GST_APP_SINK(sink)));
+        GRefPtr sample = adoptGRef(gst_app_sink_pull_sample(GST_APP_SINK(sink)));
         capturer->handleSample(WTF::move(sample));
         return GST_FLOW_OK;
     }), this);
 
     m_sinkVideoFrameCallback.first.prerollSignalId = g_signal_connect_swapped(sink(), "new-preroll", G_CALLBACK(+[](GStreamerVideoCapturer* capturer, GstElement* sink) -> GstFlowReturn {
-        auto sample = adoptGRef(gst_app_sink_pull_preroll(GST_APP_SINK(sink)));
+        GRefPtr sample = adoptGRef(gst_app_sink_pull_preroll(GST_APP_SINK(sink)));
         capturer->handleSample(WTF::move(sample));
         return GST_FLOW_OK;
     }), this);
@@ -116,7 +116,7 @@ void GStreamerVideoCapturer::setupPipeline()
     if (isCapturingDisplay() && gstElementMatchesFactoryAndHasProperty(m_src.get(), "pipewiresrc"_s, "use-bufferpool"_s))
         g_object_set(m_src.get(), "use-bufferpool", TRUE, nullptr);
 
-    auto pad = adoptGRef(gst_element_get_static_pad(m_sink.get(), "sink"));
+    GRefPtr pad = adoptGRef(gst_element_get_static_pad(m_sink.get(), "sink"));
     gst_pad_add_probe(pad.get(), GST_PAD_PROBE_TYPE_QUERY_DOWNSTREAM, reinterpret_cast<GstPadProbeCallback>(+[](GstPad*, GstPadProbeInfo* info, gpointer) -> GstPadProbeReturn {
         if (GST_QUERY_TYPE(GST_PAD_PROBE_INFO_QUERY(info)) == GST_QUERY_ALLOCATION)
             gst_query_add_allocation_meta(GST_PAD_PROBE_INFO_QUERY(info), GST_VIDEO_META_API_TYPE, nullptr);
@@ -147,14 +147,14 @@ GstElement* GStreamerVideoCapturer::createConverter()
 
     m_videoSrcMIMETypeFilter = gst_element_factory_make("capsfilter", "mimetype-filter");
 
-    auto caps = adoptGRef(gst_caps_new_empty_simple("video/x-raw"));
+    GRefPtr caps = adoptGRef(gst_caps_new_empty_simple("video/x-raw"));
     g_object_set(m_videoSrcMIMETypeFilter.get(), "caps", caps.get(), nullptr);
 
     auto* decodebin = makeGStreamerElement("decodebin3"_s);
     gst_bin_add_many(GST_BIN_CAST(bin), m_videoSrcMIMETypeFilter.get(), decodebin, nullptr);
     gst_element_link(m_videoSrcMIMETypeFilter.get(), decodebin);
 
-    auto sinkPad = adoptGRef(gst_element_get_static_pad(videoConvert.get(), "sink"));
+    GRefPtr sinkPad = adoptGRef(gst_element_get_static_pad(videoConvert.get(), "sink"));
 
     g_signal_connect_data(decodebin, "pad-added", G_CALLBACK(+[](GstElement*, GstPad* srcPad, GstPad* sinkPad) {
         RELEASE_ASSERT(!gst_pad_is_linked(sinkPad));
@@ -168,7 +168,7 @@ GstElement* GStreamerVideoCapturer::createConverter()
     sinkPad = adoptGRef(gst_element_get_static_pad(m_videoSrcMIMETypeFilter.get(), "sink"));
     gst_element_add_pad(bin, gst_ghost_pad_new("sink", sinkPad.get()));
 
-    auto srcPad = adoptGRef(gst_element_get_static_pad(videorate, "src"));
+    GRefPtr srcPad = adoptGRef(gst_element_get_static_pad(videorate, "src"));
     gst_element_add_pad(bin, gst_ghost_pad_new("src", srcPad.get()));
 
     return bin;
@@ -198,7 +198,7 @@ bool GStreamerVideoCapturer::setSize(const IntSize& size)
         return false;
 
     m_size = size;
-    auto modifiedCaps = adoptGRef(gst_caps_make_writable(m_caps.leakRef()));
+    GRefPtr modifiedCaps = adoptGRef(gst_caps_make_writable(m_caps.leakRef()));
     gst_caps_set_simple(modifiedCaps.get(), "width", G_TYPE_INT, width, "height", G_TYPE_INT, height, nullptr);
     gst_caps_take(&m_caps.outPtr(), modifiedCaps.leakRef());
 
@@ -230,7 +230,7 @@ bool GStreamerVideoCapturer::setFrameRate(double frameRate)
     if (!m_capsfilter) [[unlikely]]
         return false;
 
-    auto modifiedCaps = adoptGRef(gst_caps_make_writable(m_caps.leakRef()));
+    GRefPtr modifiedCaps = adoptGRef(gst_caps_make_writable(m_caps.leakRef()));
     gst_caps_set_simple(modifiedCaps.get(), "framerate", GST_TYPE_FRACTION, numerator, denominator, nullptr);
     gst_caps_take(&m_caps.outPtr(), modifiedCaps.leakRef());
 
@@ -407,7 +407,7 @@ void GStreamerVideoCapturer::reconfigure()
             return TRUE;
         }), &selector);
 
-    auto caps = adoptGRef(gst_caps_new_simple(selector.mimeType.ascii().data(), "width", G_TYPE_INT, selector.maxWidth,
+    GRefPtr caps = adoptGRef(gst_caps_new_simple(selector.mimeType.ascii().data(), "width", G_TYPE_INT, selector.maxWidth,
         "height", G_TYPE_INT, selector.maxHeight, nullptr));
 
     GST_INFO_OBJECT(m_pipeline.get(), "Setting video capture device caps to %" GST_PTR_FORMAT, caps.get());

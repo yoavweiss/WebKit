@@ -204,7 +204,7 @@ static gboolean webkitGstWebRTCIceStreamGatherCandidates(GstWebRTCICEStream* ice
 
     auto turnConfigDataStorage = turnConfigValues.releaseBuffer();
 
-    auto component = adoptGRef(rice_stream_get_component(stream->priv->riceStream.get(), 1));
+    GRefPtr component = adoptGRef(rice_stream_get_component(stream->priv->riceStream.get(), 1));
     auto error = rice_component_gather_candidates(component.get(), riceAddressValues.size(), addressDataStorage.data(), riceTransportStorage.data(), turnAddressDataStorage.size(), turnAddressDataStorage.data(), turnConfigDataStorage.span().data());
     webkitGstWebRTCIceAgentWakeup(agent.get());
     return (error == RICE_ERROR_SUCCESS || error == RICE_ERROR_ALREADY_IN_PROGRESS);
@@ -250,7 +250,7 @@ void webkitGstWebRTCIceStreamHandleIncomingData(const WebKitGstIceStream* stream
     if (result.data.size && result.data.ptr) {
         // Forward any non-STUN data to the pipeline for handling.
         if (auto transport = stream->priv->rtpTransport.get()) {
-            auto buffer = adoptGRef(gst_buffer_new_memdup(result.data.ptr, result.data.size));
+            GRefPtr buffer = adoptGRef(gst_buffer_new_memdup(result.data.ptr, result.data.size));
             webkitGstWebRTCIceTransportHandleIncomingData(WEBKIT_GST_WEBRTC_ICE_TRANSPORT(transport.get()), WTF::move(buffer));
         } else
             GST_WARNING_OBJECT(stream, "No RTP transport found for stream %u", stream->priv->streamId);
@@ -262,13 +262,13 @@ void webkitGstWebRTCIceStreamHandleIncomingData(const WebKitGstIceStream* stream
     gsize dataSize;
     auto recvData = rice_stream_poll_recv(stream->priv->riceStream.get(), &componentId, &dataSize);
     while (recvData) {
-        auto transport = adoptGRef(webkitGstWebRTCIceStreamFindTransport(GST_WEBRTC_ICE_STREAM(stream), static_cast<GstWebRTCICEComponent>(componentId)));
+        GRefPtr transport = adoptGRef(webkitGstWebRTCIceStreamFindTransport(GST_WEBRTC_ICE_STREAM(stream), static_cast<GstWebRTCICEComponent>(componentId)));
         if (!transport) [[unlikely]] {
             rice_free_data(recvData);
             break;
         }
 
-        auto buffer = adoptGRef(gst_buffer_new_wrapped_full(static_cast<GstMemoryFlags>(0), recvData, dataSize, 0, dataSize,
+        GRefPtr buffer = adoptGRef(gst_buffer_new_wrapped_full(static_cast<GstMemoryFlags>(0), recvData, dataSize, 0, dataSize,
             recvData, reinterpret_cast<GDestroyNotify>(rice_free_data)));
         webkitGstWebRTCIceTransportHandleIncomingData(WEBKIT_GST_WEBRTC_ICE_TRANSPORT(transport.get()), WTF::move(buffer));
 

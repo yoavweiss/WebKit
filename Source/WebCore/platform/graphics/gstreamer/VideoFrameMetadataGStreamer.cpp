@@ -71,7 +71,7 @@ static std::pair<GRefPtr<GstBuffer>, VideoFrameMetadataGStreamer*> ensureVideoFr
         return { WTF::move(buffer), meta };
 
     IGNORE_WARNINGS_BEGIN("cast-align");
-    auto modifiedBuffer = adoptGRef(gst_buffer_make_writable(buffer.leakRef()));
+    GRefPtr modifiedBuffer = adoptGRef(gst_buffer_make_writable(buffer.leakRef()));
     IGNORE_WARNINGS_END;
     meta = VIDEO_FRAME_METADATA_CAST(gst_buffer_add_meta(modifiedBuffer.get(), videoFrameMetadataGetInfo(), nullptr));
     return { WTF::move(modifiedBuffer), meta };
@@ -142,7 +142,7 @@ void webkitGstBufferAddVideoFrameMetadata(GstBuffer* buffer, std::optional<WebCo
 GRefPtr<GstBuffer> webkitGstBufferSetVideoFrameMetadata(GRefPtr<GstBuffer>&& buffer, std::optional<WebCore::VideoFrameTimeMetadata> metadata, VideoFrame::Rotation rotation, bool isMirrored, VideoFrameContentHint hint)
 {
     IGNORE_WARNINGS_BEGIN("cast-align");
-    auto modifiedBuffer = adoptGRef(gst_buffer_make_writable(buffer.leakRef()));
+    GRefPtr modifiedBuffer = adoptGRef(gst_buffer_make_writable(buffer.leakRef()));
     IGNORE_WARNINGS_END;
     webkitGstBufferAddVideoFrameMetadata(modifiedBuffer.get(), metadata, rotation, isMirrored, hint);
     return modifiedBuffer;
@@ -155,8 +155,8 @@ void webkitGstTraceProcessingTimeForElement(GstElement* element)
         GST_DEBUG_CATEGORY_INIT(webkit_video_frame_meta_debug, "webkitvideoframemeta", 0, "Video frame processing metrics");
     });
 
-    auto sinkPad = adoptGRef(gst_element_get_static_pad(element, "sink"));
-    auto srcPad = adoptGRef(gst_element_get_static_pad(element, "src"));
+    GRefPtr sinkPad = adoptGRef(gst_element_get_static_pad(element, "sink"));
+    GRefPtr srcPad = adoptGRef(gst_element_get_static_pad(element, "src"));
     if (!sinkPad || !srcPad) {
         GST_WARNING("Can't add the processing time probes for %s", GST_OBJECT_NAME(element));
         ASSERT_NOT_REACHED();
@@ -170,7 +170,7 @@ void webkitGstTraceProcessingTimeForElement(GstElement* element)
     static auto probeType = static_cast<GstPadProbeType>(GST_PAD_PROBE_TYPE_PUSH | GST_PAD_PROBE_TYPE_BUFFER);
 
     gst_pad_add_probe(sinkPad.get(), probeType, [](GstPad* pad, GstPadProbeInfo* info, gpointer) -> GstPadProbeReturn {
-        auto element = adoptGRef(gst_pad_get_parent_element(pad));
+        GRefPtr element = adoptGRef(gst_pad_get_parent_element(pad));
         if (!element) [[unlikely]]
             return GST_PAD_PROBE_REMOVE;
 
@@ -183,7 +183,7 @@ void webkitGstTraceProcessingTimeForElement(GstElement* element)
     }, nullptr, nullptr);
 
     gst_pad_add_probe(srcPad.get(), probeType, [](GstPad* pad, GstPadProbeInfo* info, gpointer) -> GstPadProbeReturn {
-        auto element = adoptGRef(gst_pad_get_parent_element(pad));
+        GRefPtr element = adoptGRef(gst_pad_get_parent_element(pad));
         if (!element) [[unlikely]]
             return GST_PAD_PROBE_REMOVE;
 

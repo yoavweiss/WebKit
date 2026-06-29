@@ -130,7 +130,7 @@ bool GStreamerRtpTransceiverBackend::stopped() const
     const auto codecName = components[1];
 
     int payloadType = payloadTypeForEncodingName(codecName).value_or(dynamicPayloadType++);
-    auto caps = adoptGRef(gst_caps_new_simple("application/x-rtp", "media", G_TYPE_STRING, mediaType.ascii().data(), "encoding-name", G_TYPE_STRING, codecName.ascii().data(), "clock-rate", G_TYPE_INT, codec.clockRate, "payload", G_TYPE_INT, payloadType, nullptr));
+    GRefPtr caps = adoptGRef(gst_caps_new_simple("application/x-rtp", "media", G_TYPE_STRING, mediaType.ascii().data(), "encoding-name", G_TYPE_STRING, codecName.ascii().data(), "clock-rate", G_TYPE_INT, codec.clockRate, "payload", G_TYPE_INT, payloadType, nullptr));
     if (codec.channels)
         gst_caps_set_simple(caps.get(), "channels", G_TYPE_INT, *codec.channels, nullptr);
 
@@ -178,7 +178,7 @@ ExceptionOr<void> GStreamerRtpTransceiverBackend::setCodecPreferences(const Vect
         });
     }
 
-    auto gstCodecs = adoptGRef(gst_caps_new_empty());
+    GRefPtr gstCodecs = adoptGRef(gst_caps_new_empty());
     int dynamicPayloadType = 96;
     for (auto& codec : codecs) {
         auto result = toRtpCodecCapability(codec, dynamicPayloadType, msid);

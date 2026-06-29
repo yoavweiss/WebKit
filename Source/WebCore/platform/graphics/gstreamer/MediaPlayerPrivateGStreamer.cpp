@@ -272,7 +272,7 @@ void MediaPlayerPrivateGStreamer::tearDown(bool clearMediaPlayer)
         unregisterPipeline(m_originalPipelineName);
         gst_element_set_state(m_pipeline.get(), GST_STATE_NULL);
 
-        auto bus = adoptGRef(gst_pipeline_get_bus(GST_PIPELINE(m_pipeline.get())));
+        GRefPtr bus = adoptGRef(gst_pipeline_get_bus(GST_PIPELINE(m_pipeline.get())));
         gst_bus_disable_sync_message_emission(bus.get());
         disconnectSimpleBusMessageCallback(m_pipeline.get());
         g_signal_handlers_disconnect_matched(m_pipeline.get(), G_SIGNAL_MATCH_DATA, 0, 0, nullptr, nullptr, this);
@@ -648,7 +648,7 @@ bool MediaPlayerPrivateGStreamer::doSeek(const SeekTarget& target, float rate, b
 
     auto seekStart = toGstClockTime(startTime);
     auto seekStop = toGstClockTime(endTime);
-    auto event = adoptGRef(gst_event_new_seek(rate, GST_FORMAT_TIME, seekFlags, GST_SEEK_TYPE_SET, seekStart, GST_SEEK_TYPE_SET, seekStop));
+    GRefPtr event = adoptGRef(gst_event_new_seek(rate, GST_FORMAT_TIME, seekFlags, GST_SEEK_TYPE_SET, seekStart, GST_SEEK_TYPE_SET, seekStop));
 
     GST_DEBUG_OBJECT(pipeline(), "[Seek] Performing actual seek to %" GST_TIMEP_FORMAT " (endTime: %" GST_TIMEP_FORMAT ") at rate %f", &seekStart, &seekStop, rate);
 
@@ -1881,7 +1881,7 @@ void MediaPlayerPrivateGStreamer::updateTracks([[maybe_unused]] const GRefPtr<Gs
         RELEASE_ASSERT(stream);
         auto streamId = getStreamIdFromStream(stream).value_or(0);
         auto type = gst_stream_get_stream_type(stream.get());
-        auto caps = adoptGRef(gst_stream_get_caps(stream.get()));
+        GRefPtr caps = adoptGRef(gst_stream_get_caps(stream.get()));
 
         GST_DEBUG_OBJECT(pipeline(), "#%u %s track with ID %" PRIu64 ": %" GST_PTR_FORMAT, i, gst_stream_type_get_name(type), streamId, stream.get());
 
@@ -1943,7 +1943,7 @@ bool MediaPlayerPrivateGStreamer::handleNeedContextMessage(GstMessage* message)
     GST_DEBUG_OBJECT(pipeline(), "Handling %s need-context message for %s", contextType.utf8(), GST_MESSAGE_SRC_NAME(message));
 
     if (contextType == WEBKIT_WEB_SRC_RESOURCE_LOADER_CONTEXT_TYPE_NAME) {
-        auto context = adoptGRef(gst_context_new(WEBKIT_WEB_SRC_RESOURCE_LOADER_CONTEXT_TYPE_NAME.characters(), FALSE));
+        GRefPtr context = adoptGRef(gst_context_new(WEBKIT_WEB_SRC_RESOURCE_LOADER_CONTEXT_TYPE_NAME.characters(), FALSE));
         GstStructure* contextStructure = gst_context_writable_structure(context.get());
 
         gst_structure_set(contextStructure, "loader", G_TYPE_POINTER, m_loader.ptr(), nullptr);
@@ -2414,7 +2414,7 @@ void MediaPlayerPrivateGStreamer::handleMessage(GstMessage* message)
         GST_DEBUG_OBJECT(m_pipeline.get(), "Received STREAMS_SELECTED message selecting the following streams:");
         unsigned numStreams = gst_message_streams_selected_get_size(message);
         for (unsigned i = 0; i < numStreams; i++) {
-            auto stream = adoptGRef(gst_message_streams_selected_get_stream(message, i));
+            GRefPtr stream = adoptGRef(gst_message_streams_selected_get_stream(message, i));
             GST_DEBUG_OBJECT(pipeline(), "#%u %s %s", i, gst_stream_type_get_name(gst_stream_get_stream_type(stream.get())), gst_stream_get_stream_id(stream.get()));
         }
 #endif
@@ -3515,7 +3515,7 @@ void MediaPlayerPrivateGStreamer::createGSTPlayBin(const URL& url)
     registerActivePipeline(m_pipeline, m_originalPipelineName);
 
     if (isMediaStream) {
-        auto clock = adoptGRef(gst_system_clock_obtain());
+        GRefPtr clock = adoptGRef(gst_system_clock_obtain());
         gst_pipeline_use_clock(GST_PIPELINE(m_pipeline.get()), clock.get());
         gst_element_set_base_time(m_pipeline.get(), 0);
         gst_element_set_start_time(m_pipeline.get(), GST_CLOCK_TIME_NONE);
@@ -3543,7 +3543,7 @@ void MediaPlayerPrivateGStreamer::createGSTPlayBin(const URL& url)
     setPlaybackFlags(isMediaStream);
 
     // Let also other listeners subscribe to (application) messages in this bus.
-    auto bus = adoptGRef(gst_pipeline_get_bus(GST_PIPELINE(m_pipeline.get())));
+    GRefPtr bus = adoptGRef(gst_pipeline_get_bus(GST_PIPELINE(m_pipeline.get())));
     gst_bus_enable_sync_message_emission(bus.get());
     connectSimpleBusMessageCallback(m_pipeline.get(), [weakThis = ThreadSafeWeakPtr { *this }](GstMessage* message) {
         RefPtr player = weakThis.get();
@@ -3581,7 +3581,7 @@ void MediaPlayerPrivateGStreamer::createGSTPlayBin(const URL& url)
 
     // From GStreamer 1.22.0, uridecodebin3 is created in playbin3's _init(), so "element-setup" isn't called with it.
     if (!m_isLegacyPlaybin && gst_check_version(1, 22, 0)) {
-        if (auto uriDecodeBin3 = adoptGRef(gst_bin_get_by_name(GST_BIN_CAST(m_pipeline.get()), "uridecodebin3")))
+        if (GRefPtr uriDecodeBin3 = adoptGRef(gst_bin_get_by_name(GST_BIN_CAST(m_pipeline.get()), "uridecodebin3")))
             configureElement(uriDecodeBin3.get());
     }
 
@@ -3619,7 +3619,7 @@ void MediaPlayerPrivateGStreamer::createGSTPlayBin(const URL& url)
 void MediaPlayerPrivateGStreamer::setupCodecProbe(GstElement* element)
 {
 #if GST_CHECK_VERSION(1, 20, 0)
-    auto sinkPad = adoptGRef(gst_element_get_static_pad(element, "sink"));
+    GRefPtr sinkPad = adoptGRef(gst_element_get_static_pad(element, "sink"));
     auto probe = PadProbeHandle<MediaPlayerPrivateGStreamer>::create(*this, WTF::move(sinkPad), GST_PAD_PROBE_TYPE_EVENT_DOWNSTREAM, [](const auto& player, const auto& pad, auto info) -> GstPadProbeReturn {
         auto* event = gst_pad_probe_info_get_event(info);
         if (GST_EVENT_TYPE(event) != GST_EVENT_CAPS)
@@ -3695,7 +3695,7 @@ void MediaPlayerPrivateGStreamer::configureVideoDecoder(GstElement* decoder)
     m_videoDecoderName = configureMediaStreamVideoDecoder(decoder);
 
     Locker locker { m_decoderConfigurationLock };
-    auto sinkPad = adoptGRef(gst_element_get_static_pad(decoder, "sink"));
+    GRefPtr sinkPad = adoptGRef(gst_element_get_static_pad(decoder, "sink"));
     m_videoFrameInputProbe = PadProbeHandle<MediaPlayerPrivateGStreamer>::create(*this, WTF::move(sinkPad), GST_PAD_PROBE_TYPE_BUFFER, [](const auto& player, const auto&, auto info) -> GstPadProbeReturn {
         auto buffer = GST_PAD_PROBE_INFO_BUFFER(info);
         if (!GST_BUFFER_FLAG_IS_SET(buffer, GST_BUFFER_FLAG_DELTA_UNIT))
@@ -3704,7 +3704,7 @@ void MediaPlayerPrivateGStreamer::configureVideoDecoder(GstElement* decoder)
         return GST_PAD_PROBE_OK;
     });
 
-    auto pad = adoptGRef(gst_element_get_static_pad(decoder, "src"));
+    GRefPtr pad = adoptGRef(gst_element_get_static_pad(decoder, "src"));
     if (!pad) {
         GST_INFO_OBJECT(pipeline(), "the decoder %s does not have a src pad, probably because it's a hardware decoder sink, can't get decoder stats", name.utf8());
         return;
@@ -3714,7 +3714,7 @@ void MediaPlayerPrivateGStreamer::configureVideoDecoder(GstElement* decoder)
         if (GST_PAD_PROBE_INFO_TYPE(info) & GST_PAD_PROBE_TYPE_BUFFER) {
             player->incrementDecodedVideoFramesCount();
 
-            auto decoder = adoptGRef(gst_pad_get_parent_element(pad.get()));
+            GRefPtr decoder = adoptGRef(gst_pad_get_parent_element(pad.get()));
             auto processingTime = webkitGstBufferGetProcessingTime(gst_pad_probe_info_get_buffer(info), decoder.get());
             if (processingTime.isInvalid())
                 return GST_PAD_PROBE_OK;
@@ -3942,9 +3942,9 @@ void MediaPlayerPrivateGStreamer::updateVideoSizeAndOrientationFromCaps(const Gs
         return;
     }
 
-    auto pad = adoptGRef(gst_element_get_static_pad(m_videoSink.get(), "sink"));
+    GRefPtr pad = adoptGRef(gst_element_get_static_pad(m_videoSink.get(), "sink"));
     ASSERT(pad);
-    auto tagsEvent = adoptGRef(gst_pad_get_sticky_event(pad.get(), GST_EVENT_TAG, 0));
+    GRefPtr tagsEvent = adoptGRef(gst_pad_get_sticky_event(pad.get(), GST_EVENT_TAG, 0));
     auto orientation = ImageOrientation::Orientation::None;
     if (tagsEvent) {
         GstTagList* tagList;
@@ -4126,7 +4126,7 @@ void MediaPlayerPrivateGStreamer::flushCurrentBuffer()
         // necessary because the sample might have been allocated by a hardware decoder and memory
         // might have to be reclaimed by a non-sysmem buffer pool.
         const GstStructure* info = gst_sample_get_info(m_sample.get());
-        auto buffer = adoptGRef(gst_buffer_copy_deep(gst_sample_get_buffer(m_sample.get())));
+        GRefPtr buffer = adoptGRef(gst_buffer_copy_deep(gst_sample_get_buffer(m_sample.get())));
         if (!buffer)
             GST_DEBUG_OBJECT(pipeline(), "Buffer couldn't be deep-copied on this platform, setting null buffer on the sample instead");
         m_sample = adoptGRef(gst_sample_new(buffer.get(), gst_sample_get_caps(m_sample.get()),
@@ -4459,7 +4459,7 @@ GstElement* MediaPlayerPrivateGStreamer::createVideoSink()
         }), this);
         g_signal_connect_swapped(m_videoSink.get(), "repaint-cancelled", G_CALLBACK(repaintCancelledCallback), this);
 
-        auto pad = adoptGRef(gst_element_get_static_pad(m_videoSink.get(), "sink"));
+        GRefPtr pad = adoptGRef(gst_element_get_static_pad(m_videoSink.get(), "sink"));
         g_signal_connect(pad.get(), "notify::caps", G_CALLBACK(+[](GstPad* videoSinkPad, GParamSpec*, MediaPlayerPrivateGStreamer* player) {
             player->videoSinkCapsChanged(videoSinkPad);
         }), this);
@@ -4647,7 +4647,7 @@ void MediaPlayerPrivateGStreamer::cdmInstanceDetached(CDMInstance& instance)
     GST_DEBUG_OBJECT(m_pipeline.get(), "detaching CDM instance %p, setting empty context", m_cdmInstance.get());
     m_cdmInstance = nullptr;
     m_cdmContext = nullptr;
-    auto emptyContext = adoptGRef(gst_context_new("drm-cdm-proxy", TRUE));
+    GRefPtr emptyContext = adoptGRef(gst_context_new("drm-cdm-proxy", TRUE));
     gst_element_set_context(GST_ELEMENT(m_pipeline.get()), emptyContext.get());
 }
 

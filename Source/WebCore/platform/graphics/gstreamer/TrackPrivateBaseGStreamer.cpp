@@ -44,7 +44,7 @@ namespace WebCore {
 
 static GRefPtr<GstTagList> getAllTags(const GRefPtr<GstPad>& pad)
 {
-    auto allTags = adoptGRef(gst_tag_list_new_empty());
+    GRefPtr allTags = adoptGRef(gst_tag_list_new_empty());
     GstTagList* taglist = nullptr;
     for (unsigned i = 0;; i++) {
         GRefPtr<GstEvent> tagsEvent = adoptGRef(gst_pad_get_sticky_event(pad.get(), GST_EVENT_TAG, i));
@@ -427,7 +427,7 @@ void TrackDataHolder::installUpdateConfigurationHandlers()
                 return;
             if (!holder->m_pad)
                 return;
-            auto caps = adoptGRef(gst_pad_get_current_caps(holder->m_pad.get()));
+            GRefPtr caps = adoptGRef(gst_pad_get_current_caps(holder->m_pad.get()));
             // We will receive a synchronous notification for caps being unset during pipeline teardown.
             if (!caps)
                 return;
@@ -465,7 +465,7 @@ void TrackDataHolder::installUpdateConfigurationHandlers()
                 auto holder = weakHolder.get();
                 if (!holder)
                     return;
-                auto caps = adoptGRef(gst_stream_get_caps(holder->m_stream.get()));
+                GRefPtr caps = adoptGRef(gst_stream_get_caps(holder->m_stream.get()));
                 holder->m_track.capsChanged(getStreamIdFromStream(holder->m_stream.get()).value_or(holder->m_index), WTF::move(caps));
             });
         }), new ThreadSafeWeakPtr<TrackDataHolder> { this }, [](gpointer data, GClosure*) {
@@ -480,7 +480,7 @@ void TrackDataHolder::installUpdateConfigurationHandlers()
             if (!holder)
                 return;
             if (isMainThread()) {
-                auto tags = adoptGRef(gst_stream_get_tags(holder->m_stream.get()));
+                GRefPtr tags = adoptGRef(gst_stream_get_tags(holder->m_stream.get()));
                 holder->m_track.updateConfigurationFromTags(WTF::move(tags));
                 return;
             }
@@ -488,7 +488,7 @@ void TrackDataHolder::installUpdateConfigurationHandlers()
                 auto holder = weakHolder.get();
                 if (!holder)
                     return;
-                auto tags = adoptGRef(gst_stream_get_tags(holder->m_stream.get()));
+                GRefPtr tags = adoptGRef(gst_stream_get_tags(holder->m_stream.get()));
                 holder->m_track.updateConfigurationFromTags(WTF::move(tags));
             });
         }), new ThreadSafeWeakPtr<TrackDataHolder> { this }, [](gpointer data, GClosure*) {

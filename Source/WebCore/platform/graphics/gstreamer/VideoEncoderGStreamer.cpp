@@ -221,7 +221,7 @@ GStreamerInternalVideoEncoder::GStreamerInternalVideoEncoder(const VideoEncoder:
 {
     GRefPtr<GstElement> element = gst_element_factory_make("webkitvideoencoder", nullptr);
 
-    auto pad = adoptGRef(gst_element_get_static_pad(element.get(), "src"));
+    GRefPtr pad = adoptGRef(gst_element_get_static_pad(element.get(), "src"));
     g_signal_connect_data(pad.get(), "notify::caps", G_CALLBACK(+[](GObject* pad, GParamSpec*, gpointer userData) {
         auto weakEncoder = static_cast<ThreadSafeWeakPtr<GStreamerInternalVideoEncoder>*>(userData);
         auto encoder = weakEncoder->get();
@@ -288,7 +288,7 @@ GStreamerInternalVideoEncoder::~GStreamerInternalVideoEncoder()
     if (!m_harness)
         return;
 
-    auto pad = adoptGRef(gst_element_get_static_pad(m_harness->element(), "src"));
+    GRefPtr pad = adoptGRef(gst_element_get_static_pad(m_harness->element(), "src"));
     g_signal_handlers_disconnect_by_data(pad.get(), this);
 }
 
@@ -327,8 +327,8 @@ bool GStreamerInternalVideoEncoder::encode(VideoEncoder::RawFrame&& rawFrame, bo
     if (orientation != m_orientation) {
         auto orientationCString = orientation.utf8();
         GST_DEBUG_OBJECT(m_harness->element(), "New orientation: %s", orientationCString.data());
-        auto tags = adoptGRef(gst_tag_list_new(GST_TAG_IMAGE_ORIENTATION, orientationCString.data(), nullptr));
-        auto event = adoptGRef(gst_event_new_tag(tags.leakRef()));
+        GRefPtr tags = adoptGRef(gst_tag_list_new(GST_TAG_IMAGE_ORIENTATION, orientationCString.data(), nullptr));
+        GRefPtr event = adoptGRef(gst_event_new_tag(tags.leakRef()));
         m_harness->storeStickyEvent(event);
         m_orientation = WTF::move(orientation);
     }

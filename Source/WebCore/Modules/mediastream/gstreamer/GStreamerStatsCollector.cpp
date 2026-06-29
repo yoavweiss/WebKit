@@ -559,7 +559,7 @@ void GStreamerStatsCollector::gatherStats(StatsCallback&& callback, const GRefPt
     holder->preprocessCallback = WTF::move(preprocessCallback);
     holder->pad = pad;
     g_signal_emit_by_name(webrtcBin.get(), "get-stats", pad.get(), gst_promise_new_with_change_func([](GstPromise* rawPromise, gpointer userData) mutable {
-        auto promise = adoptGRef(rawPromise);
+        GRefPtr promise = adoptGRef(rawPromise);
         auto* holder = static_cast<CallbackHolder*>(userData);
         if (gst_promise_wait(promise.get()) != GST_PROMISE_RESULT_REPLIED) {
             holder->callback(nullptr);

@@ -386,12 +386,12 @@ static GstWebRTCICEStream* webkitGstWebRTCIceAgentAddStream(GstWebRTCICE* ice, g
         return nullptr;
     }
 
-    auto riceStream = adoptGRef(rice_agent_add_stream(backend->priv->agent.get()));
+    GRefPtr riceStream = adoptGRef(rice_agent_add_stream(backend->priv->agent.get()));
     auto streamId = static_cast<unsigned>(rice_stream_get_id(riceStream.get()));
-    [[maybe_unused]] auto component = adoptGRef(rice_stream_add_component(riceStream.get()));
+    [[maybe_unused]] GRefPtr component = adoptGRef(rice_stream_add_component(riceStream.get()));
     GST_DEBUG_OBJECT(ice, "Component %zu added for stream %u", rice_component_get_id(component.get()), streamId);
 
-    auto stream = adoptGRef(GST_WEBRTC_ICE_STREAM(webkitGstWebRTCCreateIceStream(backend, WTF::move(riceStream))));
+    GRefPtr stream = adoptGRef(GST_WEBRTC_ICE_STREAM(webkitGstWebRTCCreateIceStream(backend, WTF::move(riceStream))));
     backend->priv->streams.add(sessionId, WTF::makeUnique<WebKitGstRiceStream>(streamId, WTF::move(stream)));
     auto item = backend->priv->streams.find(sessionId);
 

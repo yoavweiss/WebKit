@@ -66,10 +66,10 @@ AudioTrackPrivateGStreamer::AudioTrackPrivateGStreamer(ThreadSafeWeakPtr<MediaPl
 {
     ensureDebugCategoryInitialized();
 
-    auto caps = adoptGRef(gst_stream_get_caps(m_data->m_stream.get()));
+    GRefPtr caps = adoptGRef(gst_stream_get_caps(m_data->m_stream.get()));
     updateConfigurationFromCaps(WTF::move(caps));
 
-    auto tags = adoptGRef(gst_stream_get_tags(m_data->m_stream.get()));
+    GRefPtr tags = adoptGRef(gst_stream_get_tags(m_data->m_stream.get()));
     updateConfigurationFromTags(WTF::move(tags));
 }
 

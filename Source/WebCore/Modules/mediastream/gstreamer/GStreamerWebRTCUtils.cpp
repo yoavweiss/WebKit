@@ -561,7 +561,7 @@ std::optional<int> payloadTypeForEncodingName(const String& encodingName)
 
 GRefPtr<GstCaps> capsFromRtpCapabilities(const RTPHeaderExtensionMapping& extensionMapping, const RTCRtpCapabilities& capabilities, Function<void(GstStructure*)> supplementCapsCallback)
 {
-    auto caps = adoptGRef(gst_caps_new_empty());
+    GRefPtr caps = adoptGRef(gst_caps_new_empty());
     for (unsigned index = 0; auto& codec : capabilities.codecs) {
         auto components = codec.mimeType.split('/');
         auto* codecStructure = gst_structure_new("application/x-rtp", "media", G_TYPE_STRING, components[0].ascii().data(),
@@ -620,7 +620,7 @@ GRefPtr<GstCaps> capsFromSDPMedia(const GstSDPMedia* media)
 {
     ensureDebugCategoryInitialized();
     unsigned numberOfFormats = gst_sdp_media_formats_len(media);
-    auto caps = adoptGRef(gst_caps_new_empty());
+    GRefPtr caps = adoptGRef(gst_caps_new_empty());
     for (unsigned i = 0; i < numberOfFormats; i++) {
         auto rtpMap = CStringView::unsafeFromUTF8(gst_sdp_media_get_attribute_val_n(media, "rtpmap", i));
         if (!rtpMap) {
@@ -978,7 +978,7 @@ GRefPtr<GstCaps> extractMidAndRidFromRTPBuffer(const GstMappedRtpBuffer& buffer,
     GST_DEBUG("Looking for mid and rid ext ids in %u SDP medias", totalMedias);
     for (unsigned i = 0; i < totalMedias; i++) {
         const auto media = gst_sdp_message_get_media(sdp, i);
-        auto mediaCaps = adoptGRef(gst_caps_new_empty_simple("application/x-rtp"));
+        GRefPtr mediaCaps = adoptGRef(gst_caps_new_empty_simple("application/x-rtp"));
         uint8_t midExtID = 0;
         uint8_t ridExtID = 0;
 
@@ -1013,7 +1013,7 @@ GRefPtr<GstCaps> extractMidAndRidFromRTPBuffer(const GstMappedRtpBuffer& buffer,
         GST_DEBUG("Probed midExtID %u and ridExtID %u from SDP", midExtID, ridExtID);
 
         uint16_t bits;
-        auto bytes = adoptGRef(gst_rtp_buffer_get_extension_bytes(buffer.mappedData(), &bits));
+        GRefPtr bytes = adoptGRef(gst_rtp_buffer_get_extension_bytes(buffer.mappedData(), &bits));
         if (!bytes)
             continue;
 
