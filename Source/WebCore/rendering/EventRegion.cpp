@@ -642,7 +642,7 @@ OptionSet<EventListenerRegionType> touchEventTypes =
     , EventListenerRegionType::PointerUp, EventListenerRegionType::NonPassivePointerUp
     , EventListenerRegionType::MouseMove, EventListenerRegionType::NonPassiveMouseMove
     , EventListenerRegionType::MouseDown, EventListenerRegionType::NonPassiveMouseDown
-    , EventListenerRegionType::MouseMove, EventListenerRegionType::NonPassiveMouseMove
+    , EventListenerRegionType::MouseUp, EventListenerRegionType::NonPassiveMouseUp
     , EventListenerRegionType::GestureChange, EventListenerRegionType::NonPassiveGestureChange
     , EventListenerRegionType::GestureEnd, EventListenerRegionType::NonPassiveGestureEnd
     , EventListenerRegionType::GestureStart, EventListenerRegionType::NonPassiveGestureStart
