@@ -474,7 +474,7 @@ static EnumSet<GridAvoidanceReason> gridLayoutAvoidanceReason(const RenderGrid& 
 
         auto gridItemHasMargins = [&] {
             return gridItemStyle->marginBox().anyOf([](const Style::MarginEdge& marginEdge) {
-                return !marginEdge.isPossiblyZero();
+                return marginEdge.isAuto() || marginEdge.isCalculated() || !marginEdge.isPossiblyZero();
             });
         };
         if (gridItemHasMargins())
