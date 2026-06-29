@@ -254,6 +254,16 @@ typedef NS_ENUM(NSInteger, _WKNavigatorWebDriverActivePolicy) {
 
 @end
 
+#if TARGET_OS_IPHONE
+
+@interface WKPreferences ()
+
+@property (nonatomic) BOOL tabFocusesLinks WK_API_AVAILABLE(ios(26.0), visionos(26.0));
+
+@end
+
+#endif // TARGET_OS_IPHONE
+
 @interface WKPreferences (WKPrivateDeprecated)
 
 @property (nonatomic, setter=_setShouldAllowDesignSystemUIFonts:) BOOL _shouldAllowDesignSystemUIFonts WK_API_DEPRECATED("Design system UI fonts are always enabled", macos(10.15, 15.0), ios(13.0, 18.0), visionos(1.0, 2.0));
