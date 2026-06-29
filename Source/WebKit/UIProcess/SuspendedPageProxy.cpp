@@ -205,9 +205,13 @@ void SuspendedPageProxy::teardown()
     allSuspendedPages().remove(*this);
 
     if (RefPtr page = m_page.get()) {
-        if (hasSuspensionStarted()) {
+        if (hasSuspensionStarted() && m_suspendedFrameItemID) {
             m_browsingContextGroup->forEachRemotePage(*page, [suspendedPage = Ref { *this }](auto& remotePage) {
-                protect(remotePage.siteIsolatedProcess())->removeSuspendedPageProxy(suspendedPage);
+                Ref process = remotePage.siteIsolatedProcess();
+                // Mirror the suspendSubframeProcesses() filter: only processes that received addSuspendedPageProxy() need the matching remove.
+                if (!suspendedPage->hasSubframeInProcess(process->coreProcessIdentifier()))
+                    return;
+                process->removeSuspendedPageProxy(suspendedPage);
             });
         }
         if (m_suspensionState != SuspensionState::Resumed)
