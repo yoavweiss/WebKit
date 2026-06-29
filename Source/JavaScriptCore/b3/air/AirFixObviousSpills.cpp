@@ -29,9 +29,12 @@
 #if ENABLE(B3_JIT)
 
 #include "AirArgInlines.h"
+#include "AirCFG.h"
 #include "AirCode.h"
 #include "AirInstInlines.h"
 #include "AirPhaseScope.h"
+#include "Options.h"
+#include <wtf/GraphOrdering.h>
 #include <wtf/IndexMap.h>
 #include <wtf/ListDump.h>
 
@@ -48,8 +51,6 @@ public:
     FixObviousSpills(Code& code)
         : m_code(code)
         , m_atHead(code.size())
-        , m_notBottom(code.size())
-        , m_shouldVisit(code.size())
     {
     }
 
@@ -63,48 +64,61 @@ public:
 private:
     void computeAliases()
     {
-        m_notBottom.quickSet(0);
-        m_shouldVisit.quickSet(0);
-        
-        bool changed = true;
-        while (changed) {
-            changed = false;
-            
-            for (unsigned blockIndex : m_shouldVisit) {
-                m_shouldVisit.quickClear(blockIndex);
-                BasicBlock* block = m_code[blockIndex];
-                ASSERT(m_notBottom.quickGet(blockIndex));
-                m_block = block;
-                m_state = m_atHead[block];
+        Vector<BasicBlock*, 32> reversePostOrder;
+        appendNodesInOrder(m_code.cfg(), GraphOrder::PostOrder, reversePostOrder);
+        reversePostOrder.reverse();
 
-                dataLogLnIf(AirFixObviousSpillsInternal::verbose, "Executing block ", *m_block, ": ", m_state);
-                for (m_instIndex = 0; m_instIndex < block->size(); ++m_instIndex) {
-                    dataLogLnIf(AirFixObviousSpillsInternal::verbose, "    Executing ", m_block->at(m_instIndex), ": ", m_state);
-                    clobberEarlyDefs();
-                    clobberLateDefs();
-                    addInstAliases();
-                }
+        size_t numInOrder = reversePostOrder.size();
+        IndexMap<BasicBlock*, unsigned> rpoNumber(m_code.size());
+        for (size_t i = 0; i < numInOrder; ++i)
+            rpoNumber[reversePostOrder[i]] = i;
 
-                // Before we call merge we must make sure that the two states are sorted.
-                m_state.sort();
+        // shouldVisit is keyed by RPO position here (not block index). Position
+        // 0 is the entry block, which is where the dataflow seeds.
+        BitVector shouldVisit(m_code.size());
+        BitVector notBottom(m_code.size());
+        shouldVisit.quickSet(0);
+        notBottom.quickSet(reversePostOrder[0]->index());
 
-                for (BasicBlock* successor : block->successorBlocks()) {
-                    unsigned successorIndex = successor->index();
-                    State& toState = m_atHead[successor];
-                    if (m_notBottom.quickGet(successorIndex)) {
-                        bool changedAtSuccessorHead = toState.merge(m_state);
-                        if (changedAtSuccessorHead) {
-                            changed = true;
-                            m_shouldVisit.quickSet(successorIndex);
-                        }
-                    } else { // The state at head of successor is bottom
-                        toState = m_state;
-                        changed = true;
-                        m_notBottom.quickSet(successorIndex);
-                        m_shouldVisit.quickSet(successorIndex);
+        unsigned cursor = 0;
+        while ((cursor = shouldVisit.findBit(cursor, true)) < numInOrder) {
+            shouldVisit.quickClear(cursor);
+            BasicBlock* block = reversePostOrder[cursor];
+            ASSERT(notBottom.quickGet(block->index()));
+            m_block = block;
+            m_state = m_atHead[block];
+
+            dataLogLnIf(AirFixObviousSpillsInternal::verbose, "Executing block ", *m_block, ": ", m_state);
+            for (m_instIndex = 0; m_instIndex < block->size(); ++m_instIndex) {
+                dataLogLnIf(AirFixObviousSpillsInternal::verbose, "    Executing ", m_block->at(m_instIndex), ": ", m_state);
+                clobberAllDefs();
+                addInstAliases();
+            }
+
+            // Before we call merge we must make sure that the two states are sorted.
+            m_state.sort();
+
+            // Default to advancing forward. If a back-edge re-activates an earlier
+            // block, rewind the cursor so findBit picks it up on the next step.
+            unsigned nextCursor = cursor + 1;
+            for (BasicBlock* successor : block->successorBlocks()) {
+                unsigned successorIndex = successor->index();
+                unsigned successorPosition = rpoNumber[successor];
+                State& toState = m_atHead[successor];
+                if (notBottom.quickGet(successorIndex)) {
+                    bool changedAtSuccessorHead = toState.merge(m_state);
+                    if (changedAtSuccessorHead) {
+                        shouldVisit.quickSet(successorPosition);
+                        nextCursor = std::min(nextCursor, successorPosition);
                     }
+                } else { // The state at head of successor is bottom
+                    toState = m_state;
+                    notBottom.quickSet(successorIndex);
+                    shouldVisit.quickSet(successorPosition);
+                    nextCursor = std::min(nextCursor, successorPosition);
                 }
             }
+            cursor = nextCursor;
         }
     }
 
@@ -113,7 +127,6 @@ private:
         for (BasicBlock* block : m_code) {
             m_block = block;
             m_state = m_atHead[block];
-            RELEASE_ASSERT(m_notBottom.quickGet(block->index()));
 
             for (m_instIndex = 0; m_instIndex < block->size(); ++m_instIndex) {
                 clobberEarlyDefs();
@@ -123,7 +136,7 @@ private:
             }
         }
     }
-    
+
     template<typename Func>
     void forAllAliases(const Func& func)
     {
@@ -185,17 +198,38 @@ private:
 
     void clobberDefs(Inst* prevInst, Inst* nextInst)
     {
-        Inst::forEachDefWithExtraClobberedRegs<Reg>(prevInst, nextInst,
-            [&] (const Reg& reg, Arg::Role, Bank, Width, PreservedWidth) {
-                dataLogLnIf(AirFixObviousSpillsInternal::verbose, "        Clobbering ", reg);
-                m_state.clobber(reg);
+        auto walk = [&] (Inst* inst, auto isWhichDef) {
+            if (!inst)
+                return;
+            inst->forEachArg([&](Arg& arg, Arg::Role role, Bank bank, Width width) {
+                // Only clobber spilled StackSlot since this phase's State only cares spilled StackSlots.
+                if (isWhichDef(role) && arg.isStack() && arg.stackSlot()->isSpill()) {
+                    dataLogLnIf(AirFixObviousSpillsInternal::verbose, "        Clobbering ", *arg.stackSlot());
+                    m_state.clobber(arg.stackSlot());
+                }
+                arg.forEachTmp(role, bank, width,
+                    [&](Tmp& tmp, Arg::Role refinedRole, Bank, Width) {
+                        if (isWhichDef(refinedRole) && tmp.isReg()) {
+                            dataLogLnIf(AirFixObviousSpillsInternal::verbose, "        Clobbering ", tmp.reg());
+                            m_state.clobber(tmp.reg());
+                        }
+                    });
             });
+        };
+        walk(prevInst, [] (Arg::Role role) { return Arg::isLateDef(role); });
+        walk(nextInst, [] (Arg::Role role) { return Arg::isEarlyDef(role); });
 
-        Inst::forEachDef<StackSlot*>(prevInst, nextInst,
-            [&] (StackSlot* slot, Arg::Role, Bank, Width) {
-                dataLogLnIf(AirFixObviousSpillsInternal::verbose, "        Clobbering ", *slot);
-                m_state.clobber(slot);
-            });
+        // Patch's extra-clobbered registers aren't represented as args. Late
+        // extras live on prevInst, early extras on nextInst — matching
+        // forEachDefWithExtraClobberedRegs.
+        if (prevInst && prevInst->kind.opcode == Patch) [[unlikely]] {
+            prevInst->extraClobberedRegs().forEachWithWidthAndPreserved(
+                [&](Reg reg, Width, PreservedWidth) { m_state.clobber(reg); });
+        }
+        if (nextInst && nextInst->kind.opcode == Patch) [[unlikely]] {
+            nextInst->extraEarlyClobberedRegs().forEachWithWidthAndPreserved(
+                [&](Reg reg, Width, PreservedWidth) { m_state.clobber(reg); });
+        }
     }
 
     void clobberEarlyDefs()
@@ -206,6 +240,28 @@ private:
     void clobberLateDefs()
     {
         clobberDefs(&m_block->at(m_instIndex), nullptr);
+    }
+
+    void clobberAllDefs()
+    {
+        Inst& inst = m_block->at(m_instIndex);
+        inst.forEachArg([&](Arg& arg, Arg::Role role, Bank bank, Width width) {
+            if (Arg::isAnyDef(role) && arg.isStack() && arg.stackSlot()->isSpill())
+                m_state.clobber(arg.stackSlot());
+            arg.forEachTmp(role, bank, width,
+                [&](Tmp& tmp, Arg::Role refinedRole, Bank, Width) {
+                    if (Arg::isAnyDef(refinedRole) && tmp.isReg())
+                        m_state.clobber(tmp.reg());
+                });
+        });
+
+        // Patch ops have extra-clobbered registers that aren't represented as
+        // args. Both early and late extras clobber the same state here.
+        if (inst.kind.opcode == Patch) [[unlikely]] {
+            auto reportReg = [&](Reg reg, Width, PreservedWidth) { m_state.clobber(reg); };
+            inst.extraEarlyClobberedRegs().forEachWithWidthAndPreserved(reportReg);
+            inst.extraClobberedRegs().forEachWithWidthAndPreserved(reportReg);
+        }
     }
 
     void addInstAliases()
@@ -251,11 +307,18 @@ private:
                     uint64_t delta = myValue - otherValue;
                     
                     if (Arg::isValidImmForm(delta)) {
-                        inst.kind = Add64;
-                        inst.args.resize(3);
-                        inst.args[0] = Arg::imm(delta);
-                        inst.args[1] = Tmp(regConst.reg);
-                        inst.args[2] = Tmp(myDest);
+                        if (delta) {
+                            inst.kind = Add64;
+                            inst.args.resize(3);
+                            inst.args[0] = Arg::imm(delta);
+                            inst.args[1] = Tmp(regConst.reg);
+                            inst.args[2] = Tmp(myDest);
+                        } else {
+                            inst.kind = Move;
+                            inst.args.resize(2);
+                            inst.args[0] = Tmp(regConst.reg);
+                            inst.args[1] = Tmp(myDest);
+                        }
                         return;
                     }
                 }
@@ -653,8 +716,6 @@ private:
     Code& m_code;
     IndexMap<BasicBlock*, State> m_atHead;
     State m_state;
-    BitVector m_notBottom;
-    BitVector m_shouldVisit;
     BasicBlock* m_block { nullptr };
     unsigned m_instIndex { 0 };
 };
