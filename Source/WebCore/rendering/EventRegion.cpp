@@ -264,7 +264,7 @@ bool EventRegionContext::shouldConsolidateInteractionRegion(const RenderObject& 
     return false;
 }
 
-void EventRegionContext::convertGuardContainersToInterationIfNeeded(float minimumCornerRadius)
+void EventRegionContext::convertGuardContainersToInteractionIfNeeded(float minimumCornerRadius)
 {
     for (auto& region : m_interactionRegions) {
         if (region.type != InteractionRegion::Type::Guard)
@@ -415,7 +415,7 @@ void EventRegionContext::removeSuperfluousInteractionRegions()
 
 void EventRegionContext::copyInteractionRegionsToEventRegion(float minimumCornerRadius)
 {
-    convertGuardContainersToInterationIfNeeded(minimumCornerRadius);
+    convertGuardContainersToInteractionIfNeeded(minimumCornerRadius);
     removeSuperfluousInteractionRegions();
     shrinkWrapInteractionRegions();
     m_eventRegion.appendInteractionRegions(m_interactionRegions);

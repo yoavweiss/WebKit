@@ -183,7 +183,7 @@ public:
         else if (outOfFlowDescendant.isFixedPositioned() || isInTopLayerOrBackdrop(outOfFlowDescendant.style(), outOfFlowDescendant.element()))
             isNewEntry = descendants->appendOrMoveToLast(outOfFlowDescendant).isNewEntry;
         else {
-            auto ensureLayoutDepentBoxPosition = [&] {
+            auto ensureLayoutDependentBoxPosition = [&] {
                 // RenderView is a special containing block as it may hold both absolute and fixed positioned containing blocks.
                 // When a fixed positioned box is also a descendant of an absolute positioned box anchored to the RenderView,
                 // we have to make sure that the absolute positioned box is inserted before the fixed box to follow
@@ -196,7 +196,7 @@ public:
                 }
                 isNewEntry = descendants->appendOrMoveToLast(outOfFlowDescendant).isNewEntry;
             };
-            ensureLayoutDepentBoxPosition();
+            ensureLayoutDependentBoxPosition();
         }
 
         if (!isNewEntry) {
@@ -330,7 +330,7 @@ bool RenderBlock::contentBoxLogicalWidthChanged(const Style::ComputedStyle& oldS
         || scrollbarWidthDidChange(oldStyle, newStyle, ScrollbarOrientation::Horizontal);
 }
 
-bool RenderBlock::paddingBoxLogicaHeightChanged(const Style::ComputedStyle& oldStyle, const Style::ComputedStyle& newStyle)
+bool RenderBlock::paddingBoxLogicalHeightChanged(const Style::ComputedStyle& oldStyle, const Style::ComputedStyle& newStyle)
 {
     auto scrollbarHeightDidChange = [&] (auto orientation) {
         return (orientation == ScrollbarOrientation::Vertical ? includeVerticalScrollbarSize() : includeHorizontalScrollbarSize()) && oldStyle.scrollbarWidth() != newStyle.scrollbarWidth();
@@ -354,7 +354,7 @@ void RenderBlock::styleDidChange(Style::Difference diff, const Style::ComputedSt
     auto shouldForceRelayoutChildren = false;
     if (oldStyle && diff == Style::DifferenceResult::Layout && needsLayout()) {
         // Out-of-flow boxes anchored to the padding box.
-        shouldForceRelayoutChildren = contentBoxLogicalWidthChanged(*oldStyle, style()) || (outOfFlowBoxes() && paddingBoxLogicaHeightChanged(*oldStyle, style()));
+        shouldForceRelayoutChildren = contentBoxLogicalWidthChanged(*oldStyle, style()) || (outOfFlowBoxes() && paddingBoxLogicalHeightChanged(*oldStyle, style()));
     }
     setShouldForceRelayoutChildren(shouldForceRelayoutChildren);
 }
@@ -1084,12 +1084,12 @@ void RenderBlock::paintContents(PaintInfo& paintInfo, const LayoutPoint& paintOf
     if (childrenInline())
         paintInlineChildren(paintInfo, paintOffset);
     else {
-        PaintInfo paintInfoForChildred = paintInfoForBlockChildren(paintInfo);
+        PaintInfo paintInfoForChildren = paintInfoForBlockChildren(paintInfo);
 
         // FIXME: Paint-time pagination is obsolete and is now only used by embedded WebViews inside AppKit
         // NSViews. Do not add any more code for this.
         bool usePrintRect = !view().printRect().isEmpty();
-        paintChildren(paintInfo, paintOffset, paintInfoForChildred, usePrintRect);
+        paintChildren(paintInfo, paintOffset, paintInfoForChildren, usePrintRect);
     }
 }
 

@@ -69,7 +69,7 @@ public:
 #if ENABLE(INTERACTION_REGIONS_IN_EVENT_REGION)
     void uniteInteractionRegions(const RenderObject&, const FloatRect&, const FloatSize&, const std::optional<AffineTransform>&);
     bool shouldConsolidateInteractionRegion(const RenderObject&, const IntRect&, const NodeIdentifier&);
-    void convertGuardContainersToInterationIfNeeded(float minimumCornerRadius);
+    void convertGuardContainersToInteractionIfNeeded(float minimumCornerRadius);
     void removeSuperfluousInteractionRegions();
     void shrinkWrapInteractionRegions();
     void copyInteractionRegionsToEventRegion(float minimumCornerRadius);

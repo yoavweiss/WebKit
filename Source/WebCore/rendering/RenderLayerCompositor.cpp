@@ -4194,7 +4194,7 @@ IndirectCompositingReason RenderLayerCompositor::computeIndirectCompositingReaso
     // If this layer scrolls independently from the layer that it would paint into, it needs to get composited.
     if (!paintsIntoProvidedBacking && layer.hasCompositedScrollingAncestor()) {
         CheckedPtr paintDestination = layer.paintOrderParent();
-        if (paintDestination && layerScrollBehahaviorRelativeToCompositedAncestor(layer, *paintDestination) != ScrollPositioningBehavior::None)
+        if (paintDestination && layerScrollBehaviorRelativeToCompositedAncestor(layer, *paintDestination) != ScrollPositioningBehavior::None)
             return IndirectCompositingReason::OverflowScrollPositioning;
     }
 
@@ -4332,7 +4332,7 @@ bool RenderLayerCompositor::useCoordinatedScrollingForLayer(const RenderLayer& l
     return false;
 }
 
-ScrollPositioningBehavior RenderLayerCompositor::layerScrollBehahaviorRelativeToCompositedAncestor(const RenderLayer& layer, const RenderLayer& compositedAncestor)
+ScrollPositioningBehavior RenderLayerCompositor::layerScrollBehaviorRelativeToCompositedAncestor(const RenderLayer& layer, const RenderLayer& compositedAncestor)
 {
     if (!layer.hasCompositedScrollingAncestor())
         return ScrollPositioningBehavior::None;
@@ -4412,7 +4412,7 @@ ScrollPositioningBehavior RenderLayerCompositor::computeCoordinatedPositioningFo
         return ScrollPositioningBehavior::None;
     }
 
-    return layerScrollBehahaviorRelativeToCompositedAncestor(layer, *compositedAncestor);
+    return layerScrollBehaviorRelativeToCompositedAncestor(layer, *compositedAncestor);
 }
 
 static Vector<ScrollingNodeID> collectRelatedCoordinatedScrollingNodes(const RenderLayer& layer, ScrollPositioningBehavior positioningBehavior)

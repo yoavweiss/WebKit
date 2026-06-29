@@ -201,8 +201,8 @@ IntRect RenderSelection::collectBounds(ClipToVisibleContent clipToVisibleContent
 
     // Now create a single bounding box rect that encloses the whole selection.
     LayoutRect selectionRect;
-    for (auto slectionEntry : renderers) {
-        auto* selectionGeometry = slectionEntry.value.get();
+    for (auto selectionEntry : renderers) {
+        auto* selectionGeometry = selectionEntry.value.get();
         // RenderSelectionGeometry::rect() is in the coordinates of the repaintContainer, so map to page coordinates.
         LayoutRect currentRect = selectionGeometry->rect();
         if (currentRect.isEmpty())

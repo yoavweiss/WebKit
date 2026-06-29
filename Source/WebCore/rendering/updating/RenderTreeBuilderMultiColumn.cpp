@@ -465,4 +465,4 @@ void RenderTreeBuilder::MultiColumn::handleSpannerRemoval(RenderMultiColumnFlow&
     }
 }
 
-} // namespace Webcore
+} // namespace WebCore

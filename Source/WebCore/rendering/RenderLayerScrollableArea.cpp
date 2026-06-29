@@ -1431,9 +1431,9 @@ void RenderLayerScrollableArea::paintOverflowControls(GraphicsContext& context, 
         // It's not necessary to do the second pass if the scrollbars paint into layers.
         if ((m_hBar && layerForHorizontalScrollbar()) || (m_vBar && layerForVerticalScrollbar()))
             return;
-        IntRect localDamgeRect = damageRect;
-        localDamgeRect.moveBy(-paintOffset);
-        if (!overflowControlsIntersectRect(localDamgeRect))
+        IntRect localDamageRect = damageRect;
+        localDamageRect.moveBy(-paintOffset);
+        if (!overflowControlsIntersectRect(localDamageRect))
             return;
 
         CheckedPtr paintingRoot = m_layer.enclosingCompositingLayer();

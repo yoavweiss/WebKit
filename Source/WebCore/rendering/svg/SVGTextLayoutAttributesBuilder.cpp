@@ -53,7 +53,7 @@ void SVGTextLayoutAttributesBuilder::buildLayoutAttributesForTextRenderer(Render
     m_metricsBuilder.buildMetricsAndLayoutAttributes(*textRoot, &text, m_characterDataMap);
 }
 
-bool SVGTextLayoutAttributesBuilder::buildLayoutAttributesForForSubtree(RenderSVGText& textRoot)
+bool SVGTextLayoutAttributesBuilder::buildLayoutAttributesForSubtree(RenderSVGText& textRoot)
 {
     m_characterDataMap.clear();
 

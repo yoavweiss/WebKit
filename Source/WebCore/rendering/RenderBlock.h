@@ -401,7 +401,7 @@ private:
     void paintDebugBoxShadowIfApplicable(GraphicsContext&, const LayoutRect&) const;
 
     bool contentBoxLogicalWidthChanged(const Style::ComputedStyle&, const Style::ComputedStyle&);
-    bool paddingBoxLogicaHeightChanged(const Style::ComputedStyle& oldStyle, const Style::ComputedStyle& newStyle);
+    bool paddingBoxLogicalHeightChanged(const Style::ComputedStyle& oldStyle, const Style::ComputedStyle& newStyle);
     bool scrollbarWidthDidChange(const Style::ComputedStyle&, const Style::ComputedStyle&, ScrollbarOrientation);
 
 private:

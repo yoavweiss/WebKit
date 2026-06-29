@@ -4906,8 +4906,8 @@ static inline std::optional<std::pair<const RenderText&, const RenderText&>> tra
         }
         return { };
     };
-    auto* lastCHild = lastInlineChildOfRubyBase();
-    if (!lastCHild || !is<RenderText>(*lastCHild))
+    auto* lastChild = lastInlineChildOfRubyBase();
+    if (!lastChild || !is<RenderText>(*lastChild))
         return { };
 
     auto firstInlineAfterRubyBase = [&]() -> RenderObject* {
@@ -4921,7 +4921,7 @@ static inline std::optional<std::pair<const RenderText&, const RenderText&>> tra
     if (!firstSibling || !is<RenderText>(*firstSibling))
         return { };
 
-    return { std::pair<const RenderText&, const RenderText&> { downcast<RenderText>(*lastCHild), downcast<RenderText>(*firstSibling) } };
+    return { std::pair<const RenderText&, const RenderText&> { downcast<RenderText>(*lastChild), downcast<RenderText>(*firstSibling) } };
 }
 
 static inline bool hasTrailingSoftWrapOpportunity(const RenderInline& rubyBase, const RenderBlockFlow& blockContainer)

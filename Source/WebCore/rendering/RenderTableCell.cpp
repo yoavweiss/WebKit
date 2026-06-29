@@ -366,12 +366,12 @@ LayoutUnit RenderTableCell::logicalHeightForRowSizing() const
     auto specifiedSize = !isOrthogonal() ? style().logicalHeight() : style().logicalWidth();
     if (!specifiedSize.isSpecified())
         return usedLogicalSize;
-    auto computedLogicaSize = Style::evaluate<LayoutUnit>(specifiedSize, 0_lu, style().usedZoomForLength());
+    auto computedLogicalSize = Style::evaluate<LayoutUnit>(specifiedSize, 0_lu, style().usedZoomForLength());
     // In strict mode, box-sizing: content-box do the right thing and actually add in the border and padding.
     // Call computedCSSPadding* directly to avoid including implicitPadding.
     if (!document().inQuirksMode() && style().boxSizing() != BoxSizing::BorderBox)
-        computedLogicaSize += computedCSSPaddingBefore() + computedCSSPaddingAfter() + borderBefore() + borderAfter();
-    return std::max(computedLogicaSize, usedLogicalSize);
+        computedLogicalSize += computedCSSPaddingBefore() + computedCSSPaddingAfter() + borderBefore() + borderAfter();
+    return std::max(computedLogicalSize, usedLogicalSize);
 }
 
 void RenderTableCell::setCellLogicalWidth(LayoutUnit logicalWidthInTableDirection)
@@ -1445,12 +1445,12 @@ void RenderTableCell::paintCollapsedBorders(PaintInfo& paintInfo, const LayoutPo
     float deviceScaleFactor = protect(document())->deviceScaleFactor();
     LayoutUnit leftHalfCollapsedBorder = CollapsedBorderValue::adjustedCollapsedBorderWidth(leftWidth , deviceScaleFactor, false);
     LayoutUnit topHalfCollapsedBorder = CollapsedBorderValue::adjustedCollapsedBorderWidth(topWidth, deviceScaleFactor, false);
-    LayoutUnit righHalftCollapsedBorder = CollapsedBorderValue::adjustedCollapsedBorderWidth(rightWidth, deviceScaleFactor, true);
+    LayoutUnit rightHalfCollapsedBorder = CollapsedBorderValue::adjustedCollapsedBorderWidth(rightWidth, deviceScaleFactor, true);
     LayoutUnit bottomHalfCollapsedBorder = CollapsedBorderValue::adjustedCollapsedBorderWidth(bottomWidth, deviceScaleFactor, true);
     
     LayoutRect borderRect = LayoutRect(paintRect.x() - leftHalfCollapsedBorder,
         paintRect.y() - topHalfCollapsedBorder,
-        paintRect.width() + leftHalfCollapsedBorder + righHalftCollapsedBorder,
+        paintRect.width() + leftHalfCollapsedBorder + rightHalfCollapsedBorder,
         paintRect.height() + topHalfCollapsedBorder + bottomHalfCollapsedBorder);
 
     BorderStyle topStyle = collapsedBorderStyle(topVal.style());

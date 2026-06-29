@@ -350,7 +350,7 @@ void RenderSVGText::layout()
         ASSERT(m_layoutAttributes.isEmpty());
         collectLayoutAttributes(this, m_layoutAttributes);
         updateFontInAllDescendants(*this);
-        m_layoutAttributesBuilder.buildLayoutAttributesForForSubtree(*this);
+        m_layoutAttributesBuilder.buildLayoutAttributesForSubtree(*this);
 
         m_needsReordering = true;
         m_needsTextMetricsUpdate = false;
@@ -361,7 +361,7 @@ void RenderSVGText::layout()
         // update the on-screen font objects as well in all descendants.
         if (m_needsTextMetricsUpdate)
             updateFontInAllDescendants(*this);
-        m_layoutAttributesBuilder.buildLayoutAttributesForForSubtree(*this);
+        m_layoutAttributesBuilder.buildLayoutAttributesForSubtree(*this);
         m_needsReordering = true;
         m_needsTextMetricsUpdate = false;
         m_needsPositioningValuesUpdate = false;

@@ -106,15 +106,15 @@ void RenderTableRow::styleDidChange(Style::Difference diff, const Style::Compute
             // If the border width changes on a row, we need to make sure the cells in the row know to lay out again.
             // This only happens when borders are collapsed, since they end up affecting the border sides of the cell
             // itself.
-            auto propagageNeedsLayoutOnBorderSizeChange = [&] (auto& row) {
+            auto propagateNeedsLayoutOnBorderSizeChange = [&] (auto& row) {
                 for (auto* cell = row.firstCell(); cell; cell = cell->nextCell())
                     cell->setNeedsLayoutAndInvalidateContentLogicalWidths();
             };
-            propagageNeedsLayoutOnBorderSizeChange(*this);
+            propagateNeedsLayoutOnBorderSizeChange(*this);
             if (auto* previousRow = this->previousRow())
-                propagageNeedsLayoutOnBorderSizeChange(*previousRow);
+                propagateNeedsLayoutOnBorderSizeChange(*previousRow);
             if (auto* nextRow = this->nextRow())
-                propagageNeedsLayoutOnBorderSizeChange(*nextRow);
+                propagateNeedsLayoutOnBorderSizeChange(*nextRow);
         }
     }
 }
