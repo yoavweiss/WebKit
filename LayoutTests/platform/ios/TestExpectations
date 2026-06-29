@@ -8474,8 +8474,6 @@ webkit.org/b/316446 imported/w3c/web-platform-tests/css/css-borders/border-width
 
 webkit.org/b/316830 fast/forms/datalist/datalist-textinput-suggestions-order.html [ Pass Timeout ]
 
-webkit.org/b/317667 imported/w3c/web-platform-tests/css/css-view-transitions/navigation/with-types/at-rule-with-types-parsing.html [ Skip ]
-
 webkit.org/b/317753 imported/w3c/web-platform-tests/content-security-policy/sandbox/meta-element.sub.html [ Skip ]
 
 webkit.org/b/317756 imported/w3c/web-platform-tests/css/selectors/user-valid.html [ Skip ]
