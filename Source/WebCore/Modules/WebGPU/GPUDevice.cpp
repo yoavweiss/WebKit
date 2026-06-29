@@ -74,6 +74,7 @@
 #include "JSGPUUncapturedErrorEvent.h"
 #include "JSGPUValidationError.h"
 #include "RequestAnimationFrameCallback.h"
+#include "SecurityOrigin.h"
 #include "WebGPUXRBinding.h"
 #include "XRGPUBinding.h"
 #include <wtf/TZoneMallocInlines.h>
@@ -394,6 +395,15 @@ private:
 
 ExceptionOr<Ref<GPUExternalTexture>> GPUDevice::importExternalTexture(GPUExternalTextureDescriptor&& externalTextureDescriptor)
 {
+#if ENABLE(VIDEO)
+    auto checkVideoElementOriginTaint = [this](const HTMLVideoElement& videoElement) -> std::optional<Exception> {
+        RefPtr context = scriptExecutionContext();
+        if (RefPtr securityOrigin = context ? context->securityOrigin() : nullptr; securityOrigin && videoElement.taintsOrigin(*securityOrigin))
+            return Exception { ExceptionCode::SecurityError, "GPUDevice.importExternalTexture: Cross origin external videos are not allowed in WebGPU"_s };
+        return std::nullopt;
+    };
+#endif
+
 #if ENABLE(VIDEO) && PLATFORM(COCOA)
     if (RefPtr externalTexture = externalTextureForDescriptor(externalTextureDescriptor)) {
         externalTexture->undestroy();
@@ -402,6 +412,9 @@ ExceptionOr<Ref<GPUExternalTexture>> GPUDevice::importExternalTexture(GPUExterna
 #else
         Ref videoElementRef = externalTextureDescriptor.source;
 #endif
+        if (auto exception = checkVideoElementOriginTaint(videoElementRef))
+            return WTF::move(*exception);
+
         m_videoElementToExternalTextureMap.remove(videoElementRef);
         if (auto optionalMediaIdentifier = externalTextureDescriptor.mediaIdentifier()) {
             m_backing->updateExternalTexture(externalTexture->backing(), *optionalMediaIdentifier);
@@ -425,6 +438,9 @@ ExceptionOr<Ref<GPUExternalTexture>> GPUDevice::importExternalTexture(GPUExterna
 #else
     Ref videoElementRef = externalTextureDescriptor.source;
 #endif
+    if (auto exception = checkVideoElementOriginTaint(videoElementRef))
+        return WTF::move(*exception);
+
     WeakPtr videoElementPtr = videoElementRef.ptr();
     m_videoElementToExternalTextureMap.set(videoElementRef, externalTexture.get());
     m_previouslyImportedExternalTexture.first = videoElementRef.ptr();
