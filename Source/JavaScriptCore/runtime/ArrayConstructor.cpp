@@ -295,6 +295,9 @@ static ALWAYS_INLINE JSArray* tryCreateArrayFromArguments(JSGlobalObject* global
     if (!length)
         RELEASE_AND_RETURN(scope, constructEmptyArray(globalObject, nullptr));
 
+    if (length > MAX_STORAGE_VECTOR_LENGTH) [[unlikely]]
+        return nullptr;
+
     IndexingType indexingType = IsArray;
     forEachArgumentsElement(globalObject, arguments, length, [&](JSValue value, unsigned) {
         indexingType = leastUpperBoundOfIndexingTypeAndValue(indexingType, value);
