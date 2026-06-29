@@ -120,7 +120,7 @@ RefPtr<ImageBuffer> ImageBuffer::create(const FloatSize& size, RenderingMode ren
 }
 
 ImageBuffer::ImageBuffer(Parameters parameters, const ImageBufferBackend::Info& backendInfo, const WebCore::ImageBufferCreationContext&, std::unique_ptr<ImageBufferBackend>&& backend, RenderingResourceIdentifier renderingResourceIdentifier)
-    : m_parameters(parameters)
+    : m_parameters(WTF::move(parameters))
     , m_backendInfo(backendInfo)
     , m_backend(WTF::move(backend))
     , m_renderingResourceIdentifier(renderingResourceIdentifier)
