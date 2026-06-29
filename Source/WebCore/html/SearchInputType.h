@@ -51,8 +51,8 @@ public:
     }
 
     // PopupMenuClient ref-counting (disambiguating from InputType)
-    void ref() const final { BaseTextInputType::ref(); }
-    void deref() const final { BaseTextInputType::deref(); }
+    void ref() const final { InputType::ref(); }
+    void deref() const final { InputType::deref(); }
 
     // PopupMenuClient methods
     void valueChanged(unsigned listIndex, bool fireEvents = true) override;

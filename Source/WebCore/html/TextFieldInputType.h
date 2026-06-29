@@ -54,6 +54,9 @@ class TextFieldInputType : public InputType, protected SpinButtonOwner, protecte
 public:
     bool valueMissing(StringView) const final;
 
+    void ref() const override { InputType::ref(); }
+    void deref() const override { InputType::deref(); }
+
 protected:
     explicit TextFieldInputType(Type, HTMLInputElement&);
     virtual ~TextFieldInputType();
@@ -151,7 +154,7 @@ private:
     RefPtr<HTMLElement> m_placeholder;
     RefPtr<SpinButtonElement> m_innerSpinButton;
     RefPtr<HTMLElement> m_capsLockIndicator;
-    RefPtr<HTMLElement> m_autoFillButton;
+    RefPtr<AutoFillButtonElement> m_autoFillButton;
 };
 
 } // namespace WebCore
