@@ -333,3 +333,5 @@ webkit.org/b/317144 TestWebKitAPI.WKHTTPCookieStore.WebSocketCookiesThroughRedir
 webkit.org/b/317783 [ ios ] TestWebKitAPI.SiteIsolation.FindStringSelectionSameOriginFrameBeforeWrap [ Skip ]
 
 webkit.org/b/317891 [ ios ] TestWebKitAPI.WebAuthenticationPanel.GetAssertionPinProtocol2 [ Skip ]
+
+webkit.org/b/318155 [ ios ] TestWebKitAPI.PasteHTML.DoesNotTransformColorsOfLightContent [ Skip ]
