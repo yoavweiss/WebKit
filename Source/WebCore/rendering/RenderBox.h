@@ -113,7 +113,6 @@ public:
     inline LayoutRect marginBoxRect() const;
     LayoutRect borderBoxRect() const { return LayoutRect(LayoutPoint(), borderBoxSize()); }
     LayoutRect borderBoundingBox() const final { return borderBoxRect(); }
-    inline LayoutSize borderBoxLogicalSize() const;
 
     // Don't use this; it doesn't make sense in a future world with corner-shape. Use BorderShape instead.
     WEBCORE_EXPORT LayoutRoundedRectRadii borderRadii() const;

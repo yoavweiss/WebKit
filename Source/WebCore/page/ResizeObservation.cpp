@@ -83,7 +83,7 @@ auto ResizeObservation::computeObservedSizes() const -> std::optional<BoxSizes>
             return { {
                 Style::adjustLayoutSizeForAbsoluteZoom(box->contentBoxSize(), *box),
                 Style::adjustLayoutSizeForAbsoluteZoom(box->contentBoxLogicalSize(), *box),
-                Style::adjustLayoutSizeForAbsoluteZoom(box->borderBoxLogicalSize(), *box)
+                Style::adjustLayoutSizeForAbsoluteZoom(box->logicalSize(), *box)
             } };
         }
     }
