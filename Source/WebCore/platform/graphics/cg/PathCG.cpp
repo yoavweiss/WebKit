@@ -606,6 +606,9 @@ bool PathCG::strokeContains(const FloatPoint& point, NOESCAPE const Function<voi
 {
     ASSERT(strokeStyleApplier);
 
+    static Lock scratchContextLock;
+    Locker locker { scratchContextLock };
+
     CGContextRef context = scratchContext();
 
     CGContextSaveGState(context);
@@ -641,6 +644,9 @@ FloatRect PathCG::boundingRect() const
 
 FloatRect PathCG::strokeBoundingRect(NOESCAPE const Function<void(GraphicsContext&)>& strokeStyleApplier) const
 {
+    static Lock scratchContextLock;
+    Locker locker { scratchContextLock };
+
     CGContextRef context = scratchContext();
 
     CGContextSaveGState(context);
