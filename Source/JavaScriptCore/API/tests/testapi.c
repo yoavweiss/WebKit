@@ -83,6 +83,7 @@ WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
 void testObjectiveCAPI(const char*);
 #endif
 
+void initializeWTFForTesting(void);
 void configureJSCForTesting(void);
 int testLaunchJSCFromNonMainThread(const char* filter);
 int testCAPIViaCpp(const char* filter);
@@ -1603,6 +1604,7 @@ int main(int argc, char* argv[])
     SetErrorMode(0);
 #endif
 
+    initializeWTFForTesting();
     configureJSCForTesting();
 
 #if !OS(WINDOWS)
