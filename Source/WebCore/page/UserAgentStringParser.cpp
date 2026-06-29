@@ -259,7 +259,7 @@ void UserAgentStringParser::populateUserAgentData()
                 return;
             }
             if (p.name == "Safari") {
-                browsersSeen.firefoxVersion = p.version;
+                browsersSeen.safariVersion = p.version;
                 browsersSeen.safari = true;
                 return;
             }

@@ -782,6 +782,7 @@
 				WebCore/TransformationMatrix.cpp,
 				WebCore/U2fCommandConstructorTest.cpp,
 				WebCore/URLParserTextEncoding.cpp,
+				WebCore/UserAgentStringParser.cpp,
 				WebCore/WritingModeTests.cpp,
 				WebCore/XRCompositionLayer.cpp,
 				WebCore/YouTubePluginReplacement.cpp,
