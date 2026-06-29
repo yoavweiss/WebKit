@@ -6686,13 +6686,13 @@ GetByOffsetMethod ByteCodeParser::planLoad(const ObjectPropertyCondition& condit
     //    Hence this results in zero code and we won't jettison this compilation if the object
     //    transitions, even if the structure is watchable right now.
     //
-    // 2) Need to emit a load, and the current structure of the base is going to be watched by the
-    //    DFG anyway (i.e. dfgShouldWatch). Watch the structure and emit the load. Don't watch the
+    // 2) Need to emit a load, and the current structure of the base may be watched by the
+    //    DFG anyway (i.e. dfgMayWatch). Watch the structure and emit the load. Don't watch the
     //    condition, since the act of turning the base into a constant in IR will cause the DFG to
     //    watch the structure anyway and doing so would subsume watching the condition.
     //
     // 3) Need to emit a load, and the current structure of the base is watchable but not by the
-    //    DFG (i.e. transitionWatchpointSetIsStillValid() and !dfgShouldWatchIfPossible()). Watch
+    //    DFG (i.e. transitionWatchpointSetIsStillValid() and !dfgMayWatchIfPossible()). Watch
     //    the condition, and emit a load.
     //
     // 4) Need to emit a load, and the current structure of the base is not watchable. Emit a
@@ -6719,9 +6719,9 @@ GetByOffsetMethod ByteCodeParser::planLoad(const ObjectPropertyCondition& condit
     if (!condition.structureEnsuresValidity(Concurrency::ConcurrentThread, structure))
         return GetByOffsetMethod();
     
-    // If the structure is watched by the DFG already, then just use this fact to emit the load.
+    // If the structure may be watched by the DFG, then watch it and use this fact to emit the load.
     // This is case (2) above.
-    if (structure->dfgShouldWatch())
+    if (m_graph.tryWatch(structure))
         return m_graph.promoteToConstant(GetByOffsetMethod::loadFromPrototype(base, condition.offset()));
     
     // If we can watch the condition right now, then we can emit the load after watching it. This
@@ -6867,7 +6867,7 @@ Node* ByteCodeParser::load(
         // Try to optimize away the structure check. Note that it's not worth doing anything about this
         // if the base's structure is watched.
         Structure* structure = unwrapped->constant()->structure();
-        if (!structure->dfgShouldWatch()) {
+        if (!m_graph.tryWatch(structure)) {
             if (!variant.conditionSet().isEmpty()) {
                 // This means that we're loading from a prototype or we have a property miss. We expect
                 // the base not to have the property. We can only use ObjectPropertyCondition if all of

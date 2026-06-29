@@ -700,7 +700,7 @@ public:
         return m_transitionWatchpointSet.isStillValid();
     }
     
-    bool dfgShouldWatchIfPossible() const
+    bool dfgMayWatchIfPossible() const
     {
         // FIXME: We would like to not watch things that are unprofitable to watch, like
         // dictionaries. Unfortunately, we can't do such things: a dictionary could get flattened,
@@ -721,14 +721,14 @@ public:
         return true;
     }
     
-    bool dfgShouldWatch() const
+    bool dfgMayWatch() const
     {
-        return dfgShouldWatchIfPossible() && transitionWatchpointSetIsStillValid();
+        return dfgMayWatchIfPossible() && transitionWatchpointSetIsStillValid();
     }
 
-    bool propertyNameEnumeratorShouldWatch() const
+    bool propertyNameEnumeratorMayWatch() const
     {
-        return dfgShouldWatch() && !hasPolyProto();
+        return dfgMayWatch() && !hasPolyProto();
     }
         
     inline void addTransitionWatchpoint(Watchpoint* watchpoint) const; // Defined in StructureInlinesLight.h

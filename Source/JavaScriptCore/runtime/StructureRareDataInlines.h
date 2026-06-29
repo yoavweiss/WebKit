@@ -205,7 +205,7 @@ inline bool StructureRareData::tryCachePropertyNameEnumeratorViaWatchpoint(VM&, 
         ++size;
         StructureID structureID = *current;
         Structure* structure = structureID.decode();
-        if (!structure->propertyNameEnumeratorShouldWatch())
+        if (!structure->propertyNameEnumeratorMayWatch())
             return false;
     }
     m_cachedPropertyNameEnumeratorWatchpoints = FixedVector<StructureChainInvalidationWatchpoint>(size);

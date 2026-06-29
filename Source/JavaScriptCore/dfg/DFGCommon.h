@@ -152,8 +152,6 @@ enum PredictionPass {
 
 enum StructureRegistrationState { HaveNotStartedRegistering, AllStructuresAreRegistered };
 
-enum StructureRegistrationResult { StructureRegisteredNormally, StructureRegisteredAndWatched };
-
 enum OptimizationFixpointState { BeforeFixpoint, FixpointNotConverged, FixpointConverged };
 
 // Describes the form you can expect the entire graph to be in.

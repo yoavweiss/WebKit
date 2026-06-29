@@ -2446,9 +2446,7 @@ private:
     void addStructureTransitionCheck(NodeOrigin origin, unsigned indexInBlock, JSCell* cell, Structure* structure)
     {
         {
-            StructureRegistrationResult result;
-            m_graph.registerStructure(cell->structure(), result);
-            if (result == StructureRegisteredAndWatched)
+            if (m_graph.tryWatch(cell->structure()))
                 return;
         }
         

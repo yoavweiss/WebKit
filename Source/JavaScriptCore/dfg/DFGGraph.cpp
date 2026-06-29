@@ -1134,7 +1134,7 @@ bool Graph::isSafeToLoad(JSObject* base, PropertyOffset offset)
 GetByOffsetMethod Graph::promoteToConstant(GetByOffsetMethod method)
 {
     if (method.kind() == GetByOffsetMethod::LoadFromPrototype
-        && method.prototype()->structure()->dfgShouldWatch()) {
+        && tryWatch(method.prototype()->structure())) {
         if (JSValue constant = tryGetConstantProperty(method.prototype()->value(), method.prototype()->structure(), method.offset()))
             return GetByOffsetMethod::constant(freeze(constant));
     }
@@ -1366,16 +1366,19 @@ JSValue Graph::tryGetConstantProperty(
 
     // If all structures are watched, we don't need to consider whether object transitions and changes the value.
     // If the object gets transition while compiling, then it invalidates the code.
-    bool allAreWatched = true;
+    bool allAreWatchable = true;
     for (unsigned i = structureSet.size(); i--;) {
         RegisteredStructure structure = structureSet[i];
-        if (!structure->dfgShouldWatch()) {
-            allAreWatched = false;
+        if (!structure->dfgMayWatch()) {
+            allAreWatchable = false;
             break;
         }
     }
-    if (allAreWatched)
+    if (allAreWatchable) {
+        for (unsigned i = structureSet.size(); i--;)
+            watch(structureSet[i].get());
         return result;
+    }
 
     // However, if structures transitions are not watched, then object can get to the one of the structures transitively while it is changing the value.
     // But we can still optimize it if StructureSet is only one: in that case, there is no way to fulfill Structure requirement while changing the property
@@ -1689,20 +1692,38 @@ FrozenValue* Graph::bottomValueMatchingSpeculation(SpeculatedType prediction)
     return freeze(JSValue());
 }
 
-RegisteredStructure Graph::registerStructure(Structure* structure, StructureRegistrationResult& result)
+RegisteredStructure Graph::registerStructure(Structure* structure)
 {
-    m_plan.weakReferences().addLazily(structure);
-    if (m_plan.watchpoints().consider(structure))
-        result = StructureRegisteredAndWatched;
-    else
-        result = StructureRegisteredNormally;
+    if (!isWatched(structure)) {
+        m_plan.weakReferences().addLazily(structure);
+        m_plan.watchpoints().addRegisteredNotWatched(structure);
+    }
     return RegisteredStructure::createPrivate(structure);
 }
 
-void Graph::registerAndWatchStructureTransition(Structure* structure)
+bool Graph::tryWatch(Structure* structure)
 {
+    if (!structure->dfgMayWatch())
+        return false;
+    watch(structure);
+    return true;
+}
+
+void Graph::watch(Structure* structure)
+{
+    if (Options::verboseDFGFailure() && !structure->dfgMayWatch()) [[unlikely]] {
+        dataLogLn("DFG: Graph::watch on a non-watchable structure ", RawPointer(structure),
+            "; could be caused by race in which mutator fired watchpoint after deciding to watch"
+            " or might indicate that we're incorrectly deciding to watch.");
+    }
     m_plan.weakReferences().addLazily(structure);
+    m_plan.watchpoints().takeRegisteredNotWatched(structure);
     m_plan.watchpoints().addLazily(structure->transitionWatchpointSet());
+}
+
+bool Graph::isWatched(Structure* structure)
+{
+    return m_plan.watchpoints().isWatched(structure->transitionWatchpointSet());
 }
 
 void Graph::assertIsRegistered(Structure* structure)
@@ -1713,11 +1734,13 @@ void Graph::assertIsRegistered(Structure* structure)
 
     DFG_ASSERT(*this, nullptr, m_plan.weakReferences().contains(structure));
 
-    if (!structure->dfgShouldWatch())
+    if (!structure->dfgMayWatch())
         return;
-    if (watchpoints().isWatched(structure->transitionWatchpointSet()))
+    if (isWatched(structure))
         return;
-    
+    if (m_plan.watchpoints().isRegisteredNotWatched(structure))
+        return;
+
     DFG_CRASH(*this, nullptr, toCString("Structure ", pointerDump(structure), " is watchable but isn't being watched.").data());
 }
 

@@ -290,13 +290,11 @@ public:
     // https://bugs.webkit.org/show_bug.cgi?id=210627
     FrozenValue* bottomValueMatchingSpeculation(SpeculatedType);
     
-    RegisteredStructure registerStructure(Structure* structure)
-    {
-        StructureRegistrationResult ignored;
-        return registerStructure(structure, ignored);
-    }
-    RegisteredStructure registerStructure(Structure*, StructureRegistrationResult&);
-    void registerAndWatchStructureTransition(Structure*);
+    RegisteredStructure registerStructure(Structure*);
+    bool tryWatch(Structure*);
+    void watch(Structure*);
+    bool isWatched(Structure*);
+
     void assertIsRegistered(Structure* structure);
     
     // CodeBlock is optional, but may allow additional information to be dumped (e.g. Identifier names).
