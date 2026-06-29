@@ -214,6 +214,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface PKPaymentAuthorizationController ()
 + (void)paymentServicesMerchantURLForAPIType:(PKPaymentRequestAPIType)APIType completion:(void(^)(NSURL *merchantURL, NSError *error))completion;
+#if HAVE(PASSKIT_PAYMENT_SERVICES_MERCHANT_URL_IS_DELEGATED)
++ (void)paymentServicesMerchantURLForAPIType:(PKPaymentRequestAPIType)APIType isDelegated:(BOOL)isDelegated completion:(void(^)(NSURL *merchantURL, NSError *error))completion;
+#endif
 @property (nonatomic, assign, nullable) id<PKPaymentAuthorizationControllerPrivateDelegate> privateDelegate;
 @end
 
@@ -302,6 +305,9 @@ typedef NS_OPTIONS(NSInteger, PKPaymentSetupFeatureSupportedOptions) {
 @interface PKPaymentAuthorizationViewController ()
 + (void)paymentServicesMerchantURL:(void(^)(NSURL *merchantURL, NSError *error))completion;
 + (void)paymentServicesMerchantURLForAPIType:(PKPaymentRequestAPIType)APIType completion:(void(^)(NSURL *merchantURL, NSError *error))completion;
+#if HAVE(PASSKIT_PAYMENT_SERVICES_MERCHANT_URL_IS_DELEGATED)
++ (void)paymentServicesMerchantURLForAPIType:(PKPaymentRequestAPIType)APIType isDelegated:(BOOL)isDelegated completion:(void(^)(NSURL *merchantURL, NSError *error))completion;
+#endif
 @property (nonatomic, assign, nullable) id<PKPaymentAuthorizationViewControllerPrivateDelegate> privateDelegate;
 @end
 

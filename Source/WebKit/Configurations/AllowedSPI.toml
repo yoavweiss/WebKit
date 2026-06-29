@@ -278,6 +278,14 @@ selectors = [
 requires = ["ENABLE_WRITING_TOOLS_EXTENDED_PROOFREADING"]
 
 [[not-web-essential]]
+request = "rdar://178257869"
+selectors = [
+    { name = "paymentServicesMerchantURLForAPIType:isDelegated:completion:", class = "PKPaymentAuthorizationController" },
+    { name = "paymentServicesMerchantURLForAPIType:isDelegated:completion:", class = "PKPaymentAuthorizationViewController" },
+]
+requires = ["HAVE_PASSKIT_PAYMENT_SERVICES_MERCHANT_URL_IS_DELEGATED"]
+
+[[not-web-essential]]
 request = "rdar://165006869"
 selectors = [
     { name = "_setDecelerationTrackingBehavior:", class = "UIScrollView" },

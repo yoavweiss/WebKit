@@ -74,6 +74,12 @@ selectors = [
 requires = [ "!HAVE_WK_SECURE_CODING_PKPAYMENT" ]
 
 [[legacy]]
+selectors = [
+    { name = "paymentServicesMerchantURLForAPIType:completion:", class = "?" },
+]
+requires = [ "!HAVE_PASSKIT_PAYMENT_SERVICES_MERCHANT_URL_IS_DELEGATED" ]
+
+[[legacy]]
 classes = [
     "AKAuthorizationController",
     "AMSEngagementRequest",
@@ -455,7 +461,6 @@ selectors = [
     { name = "pageLayout", class = "?" },
     { name = "paragraphs", class = "?" },
     { name = "passwordField", class = "?" },
-    { name = "paymentServicesMerchantURLForAPIType:completion:", class = "?" },
     { name = "paymentSetupFeaturesForConfiguration:completion:", class = "?" },
     { name = "performAction:fromAlertController:interactionDelegate:", class = "?" },
     { name = "performAuthorizationRequestsForContext:withCompletionHandler:", class = "?" },
