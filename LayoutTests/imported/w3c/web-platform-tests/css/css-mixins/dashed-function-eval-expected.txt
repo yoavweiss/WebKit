@@ -79,11 +79,13 @@ FAIL Default with inherit keyword (nested) assert_equals: expected "PASS1 PASS2"
 PASS Local with the unset keyword
 PASS Local with the revert keyword
 PASS Local with the revert-layer keyword
+PASS Local with the revert-rule keyword
 PASS initial keyword left unresolved on result descriptor
 FAIL inherit keyword left unresolved on result descriptor assert_equals: expected "PASS" but got "FAIL"
 FAIL unset keyword left unresolved on result descriptor assert_equals: expected "PASS" but got "FAIL"
 FAIL revert keyword left unresolved on result descriptor assert_equals: expected "PASS" but got "FAIL"
 FAIL revert-layer keyword left unresolved on result descriptor assert_equals: expected "PASS" but got "FAIL"
+FAIL revert-rule keyword left unresolved on result descriptor assert_equals: expected "PASS" but got "FAIL"
 FAIL Keyword can be returned from function into local variable assert_equals: expected "PASS" but got "FAIL2"
 PASS Can not return CSS-wide keyword as length
 
