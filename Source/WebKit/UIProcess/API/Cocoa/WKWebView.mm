@@ -7155,16 +7155,26 @@ static Vector<Ref<API::TargetedElementInfo>> elementsFromWKElements(NSArray<_WKT
 #endif
 }
 
-static HashMap<String, String> extractReplacementStrings(_WKTextExtractionConfiguration *configuration)
+static Vector<std::pair<String, String>> extractReplacementStrings(_WKTextExtractionConfiguration *configuration)
 {
-    HashMap<String, String> result;
+    Vector<std::pair<String, String>> result;
     RetainPtr replacementStrings = [configuration replacementStrings];
     for (NSString *replacement in replacementStrings.get()) {
         if (!replacement.length)
             continue;
 
-        result.set(String { replacement }, String { [replacementStrings objectForKey:replacement] });
+        auto foldedKey = WebKit::foldTextForReplacement(String { replacement });
+        if (foldedKey.isEmpty())
+            continue;
+
+        result.append({ WTF::move(foldedKey), String { [replacementStrings objectForKey:replacement] } });
     }
+
+    std::ranges::sort(result, [](auto& a, auto& b) {
+        if (a.first.length() != b.first.length())
+            return a.first.length() > b.first.length();
+        return codePointCompareLessThan(a.first, b.first);
+    });
     return result;
 }
 

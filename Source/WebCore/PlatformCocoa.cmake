@@ -1035,8 +1035,6 @@ list(APPEND WebCore_PRIVATE_FRAMEWORK_HEADERS
     dom/EventLoop.h
     dom/WindowEventLoop.h
 
-    editing/ICUSearcher.h
-
     editing/cocoa/AlternativeTextContextController.h
     editing/cocoa/AlternativeTextUIController.h
     editing/cocoa/AttributedString.h

@@ -27,6 +27,7 @@
 #include "TextExtractionToStringConversion.h"
 
 #include <WebCore/HTMLNames.h>
+#include <WebCore/ICUSearcher.h>
 #include <WebCore/TextExtractionTypes.h>
 #include <wtf/EnumSet.h>
 #include <wtf/JSONValues.h>
@@ -34,6 +35,9 @@
 #include <wtf/Scope.h>
 #include <wtf/TZoneMallocInlines.h>
 #include <unicode/ubrk.h>
+#include <unicode/uchar.h>
+#include <unicode/unorm2.h>
+#include <unicode/utf16.h>
 #include <wtf/text/CharacterProperties.h>
 #include <wtf/text/MakeString.h>
 #include <wtf/text/StringBuilder.h>
@@ -413,6 +417,88 @@ enum class HasAdjacentLinkAfter : bool { No, Yes };
 
 static String lineWithoutNodeIdentifier(const String&, const std::optional<String>&);
 
+struct FoldedTextResult {
+    String text;
+    Vector<unsigned> sourceOffsetByFoldedIndex;
+};
+
+static FoldedTextResult foldForReplacement(const String& source)
+{
+    auto quoteFolded = foldQuoteMarks(source);
+
+    UErrorCode status = U_ZERO_ERROR;
+    auto* normalizer = unorm2_getNFDInstance(&status);
+    ASSERT(U_SUCCESS(status));
+
+    StringBuilder builder;
+    builder.reserveCapacity(quoteFolded.length());
+    Vector<unsigned> sourceOffsetByFoldedIndex;
+    sourceOffsetByFoldedIndex.reserveCapacity(quoteFolded.length() + 1);
+
+    auto appendCodePoint = [&](StringView chunk, unsigned originalStart) {
+        auto folded = chunk.toString().foldCase();
+        if (folded.containsOnlyASCII()) {
+            for (unsigned i = 0; i < folded.length(); ++i) {
+                builder.append(folded[i]);
+                sourceOffsetByFoldedIndex.append(originalStart);
+            }
+            return;
+        }
+
+        auto upconverted = StringView { folded }.upconvertedCharacters();
+        auto foldedSpan = upconverted.span();
+
+        std::array<char16_t, 16> stackBuffer;
+        Vector<char16_t> heapBuffer;
+        std::span<const char16_t> decomposed;
+        status = U_ZERO_ERROR;
+        int32_t needed = unorm2_normalize(normalizer, foldedSpan.data(), foldedSpan.size(), stackBuffer.data(), stackBuffer.size(), &status);
+        if (U_SUCCESS(status))
+            decomposed = std::span { stackBuffer }.first(static_cast<size_t>(needed));
+        else {
+            ASSERT(status == U_BUFFER_OVERFLOW_ERROR);
+            heapBuffer.grow(needed);
+            status = U_ZERO_ERROR;
+            unorm2_normalize(normalizer, foldedSpan.data(), foldedSpan.size(), heapBuffer.mutableSpan().data(), heapBuffer.size(), &status);
+            ASSERT(U_SUCCESS(status));
+            decomposed = heapBuffer.span();
+        }
+
+        for (size_t i = 0; i < decomposed.size();) {
+            char32_t codePoint = 0;
+            U16_NEXT(decomposed, i, decomposed.size(), codePoint);
+            if (u_charType(codePoint) == U_NON_SPACING_MARK)
+                continue;
+
+            if (U_IS_BMP(codePoint)) {
+                builder.append(static_cast<char16_t>(codePoint));
+                sourceOffsetByFoldedIndex.append(originalStart);
+            } else {
+                builder.append(U16_LEAD(codePoint));
+                sourceOffsetByFoldedIndex.append(originalStart);
+                builder.append(U16_TRAIL(codePoint));
+                sourceOffsetByFoldedIndex.append(originalStart);
+            }
+        }
+    };
+
+    auto quoteFoldedView = StringView { quoteFolded };
+    for (unsigned i = 0; i < quoteFoldedView.length();) {
+        unsigned start = i;
+        char32_t codePoint;
+        U16_NEXT(quoteFoldedView, i, quoteFoldedView.length(), codePoint);
+        appendCodePoint(quoteFoldedView.substring(start, i - start), start);
+    }
+    sourceOffsetByFoldedIndex.append(quoteFolded.length());
+
+    return { builder.toString(), WTF::move(sourceOffsetByFoldedIndex) };
+}
+
+String foldTextForReplacement(const String& source)
+{
+    return foldForReplacement(source).text;
+}
+
 class TextExtractionAggregator : public RefCounted<TextExtractionAggregator> {
     WTF_MAKE_NONCOPYABLE(TextExtractionAggregator);
     WTF_MAKE_TZONE_ALLOCATED(TextExtractionAggregator);
@@ -630,9 +716,38 @@ public:
 
     void applyReplacements(String& text)
     {
-        for (auto& [original, replacement] : m_options.replacementStrings)
-            text = makeStringByReplacingAll(text, original, replacement);
+        if (m_options.replacementStrings.isEmpty())
+            return;
+
+        auto folded = foldForReplacement(text);
+        StringBuilder result;
+        result.reserveCapacity(text.length());
+        unsigned cursor = 0;
+        while (cursor < folded.text.length()) {
+            bool matched = false;
+            for (auto& [foldedKey, replacement] : m_options.replacementStrings) {
+                if (foldedKey.length() > folded.text.length() - cursor)
+                    continue;
+                if (StringView { folded.text }.substring(cursor, foldedKey.length()) != foldedKey)
+                    continue;
+
+                result.append(replacement);
+                cursor += foldedKey.length();
+                matched = true;
+                break;
+            }
+
+            if (matched)
+                continue;
+
+            unsigned originalStart = folded.sourceOffsetByFoldedIndex[cursor];
+            unsigned originalEnd = folded.sourceOffsetByFoldedIndex[cursor + 1];
+            result.append(StringView { text }.substring(originalStart, originalEnd - originalStart));
+            ++cursor;
+        }
+        text = result.toString();
     }
+
 
     void truncateTextByWordLimitIfNeeded(String& text, const Vector<CharacterRange>& linkCharacterRanges = { }, HasAdjacentLinkAfter hasAdjacentLinkAfter = HasAdjacentLinkAfter::No)
     {

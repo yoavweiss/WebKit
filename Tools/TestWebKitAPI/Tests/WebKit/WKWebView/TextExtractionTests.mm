@@ -550,6 +550,74 @@ TEST(TextExtractionTests, ReplacementStrings)
     EXPECT_TRUE([debugTextWithReplacements containsString:@"The quick brown cat jumped over the  mouse"]);
 }
 
+TEST(TextExtractionTests, ReplacementStringsLongestMatchWins)
+{
+    RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 800, 600) configuration:^{
+        RetainPtr configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
+        [[configuration preferences] _setTextExtractionEnabled:YES];
+        return configuration.autorelease();
+    }()]);
+    [webView synchronouslyLoadHTMLString:@"<p>John Appleseed met John.</p>"];
+
+    RetainPtr debugText = [webView synchronouslyGetDebugText:^{
+        RetainPtr configuration = adoptNS([_WKTextExtractionConfiguration new]);
+        [configuration setReplacementStrings:@{
+            @"John": @"<redacted-name>",
+            @"John Appleseed": @"<redacted-full-name>",
+        }];
+        return configuration.autorelease();
+    }()];
+
+    EXPECT_TRUE([debugText containsString:@"<redacted-full-name> met <redacted-name>."]);
+    EXPECT_FALSE([debugText containsString:@"<redacted-name> Appleseed"]);
+}
+
+TEST(TextExtractionTests, ReplacementStringsCaseAndQuoteInsensitive)
+{
+    RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 800, 600) configuration:^{
+        RetainPtr configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
+        [[configuration preferences] _setTextExtractionEnabled:YES];
+        return configuration.autorelease();
+    }()]);
+    [webView synchronouslyLoadHTMLString:@"<p>Hello WORLD. It’s a test.</p>"];
+
+    RetainPtr debugText = [webView synchronouslyGetDebugText:^{
+        RetainPtr configuration = adoptNS([_WKTextExtractionConfiguration new]);
+        [configuration setReplacementStrings:@{
+            @"hello world": @"<greeting>",
+            @"it's": @"<contraction>",
+        }];
+        return configuration.autorelease();
+    }()];
+
+    EXPECT_TRUE([debugText containsString:@"<greeting>"]);
+    EXPECT_TRUE([debugText containsString:@"<contraction>"]);
+    EXPECT_FALSE([debugText containsString:@"Hello WORLD"]);
+    EXPECT_FALSE([debugText containsString:@"It’s"]);
+}
+
+TEST(TextExtractionTests, ReplacementStringsDiacriticInsensitive)
+{
+    RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 800, 600) configuration:^{
+        RetainPtr configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
+        [[configuration preferences] _setTextExtractionEnabled:YES];
+        return configuration.autorelease();
+    }()]);
+    [webView synchronouslyLoadHTMLString:@"<p>Visited café in Zürich.</p>"];
+
+    RetainPtr debugText = [webView synchronouslyGetDebugText:^{
+        RetainPtr configuration = adoptNS([_WKTextExtractionConfiguration new]);
+        [configuration setReplacementStrings:@{
+            @"cafe": @"<spot>",
+        }];
+        return configuration.autorelease();
+    }()];
+
+    EXPECT_TRUE([debugText containsString:@"Visited <spot> in Zürich."]);
+    EXPECT_FALSE([debugText containsString:@"café"]);
+    EXPECT_FALSE([debugText containsString:@"Zurich"]);
+}
+
 TEST(TextExtractionTests, VisibleTextOnly)
 {
     RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 800, 600) configuration:^{

@@ -213,7 +213,8 @@ WK_CLASS_AVAILABLE(macos(26.4), ios(26.4), visionos(26.4))
 /*!
  A mapping of strings to replace in text extraction output.
  Each key represents a string that should be replaced, and the corresponding
- value represents the string to replace it with.
+ value represents the string to replace it with. Replacements are applied with
+ case- and diacritic-insensitivity, and with quote marks folded.
  The default value is `nil`.
  */
 @property (nonatomic, copy, nullable) NSDictionary<NSString *, NSString *> *replacementStrings;
