@@ -61,6 +61,7 @@ ExceptionOr<String> FileReaderSync::readAsText(ScriptExecutionContext& scriptExe
 {
     Ref loader = FileReaderLoader::create(FileReaderLoader::ReadAsText, nullptr);
     loader->setEncoding(encoding);
+    loader->setDataType(blob.type());
     return startLoadingString(scriptExecutionContext, loader, blob);
 }
 
