@@ -201,23 +201,16 @@ DragImageRef createDragImageForImage(LocalFrame& frame, Node& node, IntRect& ima
 {
     ScopedNodeDragEnabler enableDrag(frame, node);
 
-    CheckedPtr renderer = node.renderer();
-    if (!renderer)
+    if (!node.renderer())
         return nullptr;
-
-    // Calculate image and element metrics for the client, then create drag image.
-    LayoutRect topLevelRect;
-    IntRect paintingRect = snappedIntRect(renderer->paintingRootRect(topLevelRect));
-
-    if (paintingRect.isEmpty())
-        return nullptr;
-
-    elementRect = snappedIntRect(topLevelRect);
-    imageRect = paintingRect;
 
     SnapshotOptions options { { SnapshotFlags::DraggableElement }, PixelFormat::BGRA8, DestinationColorSpace::SRGB() };
 
-    return createDragImageFromSnapshot(snapshotNode(frame, node, WTF::move(options)), &node);
+    RefPtr snapshot = snapshotNode(frame, node, WTF::move(options), &imageRect, &elementRect);
+    if (imageRect.isEmpty())
+        return nullptr;
+
+    return createDragImageFromSnapshot(WTF::move(snapshot), &node);
 }
 
 #if !PLATFORM(IOS_FAMILY) || !ENABLE(DRAG_SUPPORT)

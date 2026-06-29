@@ -809,6 +809,54 @@ TEST(WKWebView, SnapshotNodeByJSHandle)
     }
 }
 
+TEST(WKWebView, SnapshotNodeWithTransform)
+{
+    RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 400, 400)]);
+    [webView synchronouslyLoadTestPageNamed:@"node-snapshotting"];
+
+    RetainPtr worldConfiguration = adoptNS([_WKContentWorldConfiguration new]);
+    [worldConfiguration setAllowJSHandleCreation:YES];
+
+    RetainPtr world = [WKContentWorld _worldWithConfiguration:worldConfiguration.get()];
+    auto querySelector = [&](ASCIILiteral selector) -> RetainPtr<_WKJSHandle> {
+        return [webView querySelector:@(selector.characters()) frame:nil world:world];
+    };
+
+    {
+        auto [image, error] = [webView takeSnapshotOfNode:querySelector(".translated-box"_s).get()];
+        EXPECT_NULL(error);
+
+        CGImagePixelReader reader { Util::convertToCGImage(image.get()).get() };
+        EXPECT_WK_STREQ("rgb(0, 0, 255)", reader.cssColorAt(2, 2));
+        EXPECT_WK_STREQ("rgb(0, 0, 255)", reader.cssColorAt(reader.width() - 2, reader.height() - 2));
+    }
+
+    {
+        auto [image, error] = [webView takeSnapshotOfNode:querySelector(".rotated-box"_s).get()];
+        EXPECT_NULL(error);
+
+        CGImagePixelReader reader { Util::convertToCGImage(image.get()).get() };
+
+        // Image is rotated 45deg.
+        EXPECT_WK_STREQ("rgb(0, 255, 0)", reader.cssColorAt(reader.width() / 2, 10));
+        EXPECT_WK_STREQ("rgb(0, 255, 0)", reader.cssColorAt(10, reader.height() / 2));
+        EXPECT_TRUE(reader.isTransparentBlack(2, 2));
+        EXPECT_TRUE(reader.isTransparentBlack(reader.width() - 2, reader.height() - 2));
+    }
+
+    {
+        auto [image, error] = [webView takeSnapshotOfNode:querySelector(".child-box"_s).get()];
+        EXPECT_NULL(error);
+
+        CGImagePixelReader reader { Util::convertToCGImage(image.get()).get() };
+        // Image is rotated 20deg.
+        EXPECT_WK_STREQ("rgb(0, 255, 255)", reader.cssColorAt(55, 10));
+        EXPECT_WK_STREQ("rgb(0, 255, 255)", reader.cssColorAt(reader.width() - 10, 55));
+        EXPECT_TRUE(reader.isTransparentBlack(2, 2));
+        EXPECT_TRUE(reader.isTransparentBlack(reader.width() - 2, reader.height() - 2));
+    }
+}
+
 // FIXME: Make this test work on iOS.
 #if PLATFORM(MAC)
 static void enableRemoteSnapshotting(WKWebViewConfiguration *configuration)

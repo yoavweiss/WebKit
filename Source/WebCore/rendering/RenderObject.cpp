@@ -858,27 +858,26 @@ void RenderObject::absoluteFocusRingQuads(Vector<FloatQuad>& quads)
     }
 }
 
-void RenderObject::addAbsoluteRectForLayer(LayoutRect& result)
+void RenderObject::addAbsoluteRectForLayer(LayoutRect& result, RespectTransforms respectTransforms)
 {
     if (hasLayer())
-        result.unite(absoluteBoundingBoxRectIgnoringTransforms());
+        result.unite(absoluteBoundingBoxRect(respectTransforms == RespectTransforms::Yes));
 
     auto* renderElement = dynamicDowncast<RenderElement>(*this);
     if (!renderElement)
         return;
 
     for (CheckedRef child : childrenOfType<RenderObject>(*renderElement))
-        child->addAbsoluteRectForLayer(result);
+        child->addAbsoluteRectForLayer(result, respectTransforms);
 }
 
-// FIXME: change this to use the subtreePaint terminology
-LayoutRect RenderObject::paintingRootRect(LayoutRect& topLevelRect)
+LayoutRect RenderObject::subtreePaintRootRect(LayoutRect& topLevelRect, RespectTransforms respectTransforms)
 {
-    LayoutRect result = absoluteBoundingBoxRectIgnoringTransforms();
+    LayoutRect result = absoluteBoundingBoxRect(respectTransforms == RespectTransforms::Yes);
     topLevelRect = result;
     if (auto* renderElement = dynamicDowncast<RenderElement>(*this)) {
         for (CheckedRef child : childrenOfType<RenderObject>(*renderElement))
-            child->addAbsoluteRectForLayer(result);
+            child->addAbsoluteRectForLayer(result, respectTransforms);
     }
     return result;
 }

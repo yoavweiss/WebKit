@@ -3385,7 +3385,7 @@ void WebPage::setFooterBannerHeight(int height)
 RefPtr<ShareableBitmap> WebPage::shareableBitmapSnapshotForNode(Node& node)
 {
     // Ensure that the image contains at most 600K pixels, so that it is not too big.
-    if (auto snapshot = snapshotNode(node, SnapshotOption::Shareable, 600 * 1024))
+    if (RefPtr snapshot = snapshotNode(node, SnapshotOption::Shareable, 600 * 1024))
         return snapshot->bitmap();
     return nullptr;
 }
@@ -3650,7 +3650,7 @@ RefPtr<WebImage> WebPage::snapshotNode(WebCore::Node& node, SnapshotOptions opti
         return nullptr;
 
     LayoutRect topLevelRect;
-    IntRect snapshotRect = snappedIntRect(protect(node.renderer())->paintingRootRect(topLevelRect));
+    IntRect snapshotRect = snappedIntRect(protect(node.renderer())->subtreePaintRootRect(topLevelRect, WebCore::RenderObject::RespectTransforms::Yes));
     if (snapshotRect.isEmpty())
         return nullptr;
 

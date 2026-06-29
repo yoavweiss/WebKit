@@ -1720,6 +1720,10 @@ TEST(DragAndDropTests, DragLiftPreviewDataTransferSetDragImage)
     // Perform a normal drag on an image.
     [simulator runFrom:CGPointMake(50, 450) to:CGPointMake(250, 450)];
     checkCGRectIsEqualToCGRectWithLogging({{0, 400}, {215, 174}}, [simulator liftPreviews][0].view.frame);
+
+    // Test dragging a transformed element.
+    [simulator runFrom:CGPointMake(200, 450) to:CGPointMake(400, 450)];
+    checkCGRectIsEqualToCGRectWithLogging({{115, 365}, {170, 170}}, [simulator liftPreviews][0].view.frame);
 }
 
 static NSData *testIconImageData()

@@ -21,6 +21,33 @@
                 height: 100px;
                 background: red;
             }
+
+            div.translated-box {
+                width: 100px;
+                height: 100px;
+                background: blue;
+                transform: translate(150px, 30px);
+            }
+
+            div.rotated-box {
+                width: 100px;
+                height: 100px;
+                background: lime;
+                transform: rotate(45deg);
+            }
+            
+            .transformed {
+                position: absolute;
+                padding: 20px;
+                border: 1px solid black;
+                transform: translate(120px, 30px) rotate(20deg) scale(1.5);
+            }
+            
+            .child-box {
+                width: 100px;
+                height: 100px;
+                background: cyan;
+            }
         </style>
     </head>
     <body>
@@ -28,5 +55,10 @@
         <br>
         <img src="icon.png" />
         <div class="red-box"></div>
+        <div class="translated-box"></div>
+        <div class="rotated-box"></div>
+        <div class="transformed">
+            <div class="child-box"></div>
+        </div>
     </body>
 </html>

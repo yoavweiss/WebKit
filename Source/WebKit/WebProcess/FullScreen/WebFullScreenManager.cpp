@@ -90,7 +90,7 @@ static WebCore::IntRect screenRectOfContents(WebCore::Element& element)
     IntRect contentsRect = renderer->absoluteBoundingBoxRect();
     if (contentsRect.height() <= 1 || contentsRect.width() <= 1) {
         LayoutRect topLevelRect;
-        contentsRect = snappedIntRect(renderer->paintingRootRect(topLevelRect));
+        contentsRect = snappedIntRect(renderer->subtreePaintRootRect(topLevelRect));
     }
 
     if (contentsRect.isEmpty())

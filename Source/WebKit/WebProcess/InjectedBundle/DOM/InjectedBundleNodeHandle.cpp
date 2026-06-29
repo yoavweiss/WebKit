@@ -227,7 +227,7 @@ RefPtr<WebImage> InjectedBundleNodeHandle::renderedImage(SnapshotOptions options
         paintingRect = renderer->absoluteBoundingBoxRectIgnoringTransforms();
     else {
         LayoutRect topLevelRect;
-        paintingRect = snappedIntRect(renderer->paintingRootRect(topLevelRect));
+        paintingRect = snappedIntRect(renderer->subtreePaintRootRect(topLevelRect));
     }
 
     return imageForRect(frameView.get(), m_node.get(), paintingRect, bitmapWidth, options);

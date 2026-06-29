@@ -4852,8 +4852,7 @@ bool EventHandler::handleDrag(const MouseEventWithHitTestResults& event, CheckDr
         if (RefPtr draggedElement = this->draggedElement(); draggedElement && dragState().type == DragSourceAction::DHTML && !dragState().dataTransfer->hasDragImage()) {
             protect(draggedElement->document())->updateStyleIfNeeded();
             if (CheckedPtr renderer = draggedElement->renderer()) {
-                auto absolutePosition = renderer->localToAbsolute();
-                auto delta = m_mouseDownContentsPosition - roundedIntPoint(absolutePosition);
+                auto delta = m_mouseDownContentsPosition - renderer->absoluteBoundingBoxRect().location();
                 protect(dragState().dataTransfer)->setDragImage(draggedElement.releaseNonNull(), delta.width(), delta.height());
             } else {
                 dispatchEventToDragSourceElement(eventNames().dragendEvent, event.event());

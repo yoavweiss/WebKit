@@ -858,8 +858,9 @@ public:
     WEBCORE_EXPORT static Vector<FloatRect> absoluteBorderAndTextRects(const SimpleRange&, OptionSet<BoundingRectBehavior> = { });
     static Vector<FloatRect> clientBorderAndTextRects(const SimpleRange&);
 
-    // the rect that will be painted if this object is passed as the paintingRoot
-    WEBCORE_EXPORT LayoutRect paintingRootRect(LayoutRect& topLevelRect);
+    // the rect that will be painted if this object is passed as the subtree paint root
+    enum class RespectTransforms : bool { No, Yes };
+    WEBCORE_EXPORT LayoutRect subtreePaintRootRect(LayoutRect& topLevelRect, RespectTransforms = RespectTransforms::No);
 
     inline const Style::ComputedStyle& style() const LIFETIME_BOUND; // Defined in RenderObjectStyle.h.
     inline CheckedRef<const Style::ComputedStyle> firstLineStyle() const LIFETIME_BOUND;
@@ -1161,7 +1162,7 @@ private:
 
     virtual RepaintRects localRectsForRepaint(RepaintOutlineBounds) const;
 
-    void addAbsoluteRectForLayer(LayoutRect& result);
+    void addAbsoluteRectForLayer(LayoutRect& result, RespectTransforms = RespectTransforms::No);
     void NODELETE setLayerNeedsFullRepaint();
     void NODELETE setLayerNeedsFullRepaintForOutOfFlowMovementLayout();
 

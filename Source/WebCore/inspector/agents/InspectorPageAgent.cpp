@@ -950,7 +950,7 @@ Inspector::Protocol::ErrorStringOr<String> InspectorPageAgent::snapshotNode(Insp
     if (!localMainFrame)
         return makeUnexpected("Main frame isn't local"_s);
 
-    auto snapshot = WebCore::snapshotNode(*localMainFrame, *node, { { }, PixelFormat::BGRA8, DestinationColorSpace::SRGB() });
+    RefPtr snapshot = WebCore::snapshotNode(*localMainFrame, *node, { { }, PixelFormat::BGRA8, DestinationColorSpace::SRGB() });
     if (!snapshot)
         return makeUnexpected("Could not capture snapshot"_s);
     return encodeDataURL(WTF::move(snapshot), "image/png"_s);
@@ -966,7 +966,7 @@ Inspector::Protocol::ErrorStringOr<String> InspectorPageAgent::snapshotRect(int 
     RefPtr localMainFrame = m_inspectedPage->localMainFrame();
     if (!localMainFrame)
         return makeUnexpected("Main frame isn't local"_s);
-    auto snapshot = snapshotFrameRect(*localMainFrame, rectangle, WTF::move(options));
+    RefPtr snapshot = snapshotFrameRect(*localMainFrame, rectangle, WTF::move(options));
 
     if (!snapshot)
         return makeUnexpected("Could not capture snapshot"_s);

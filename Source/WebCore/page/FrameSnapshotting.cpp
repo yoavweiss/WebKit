@@ -167,7 +167,7 @@ RefPtr<ImageBuffer> snapshotSelection(LocalFrame& frame, SnapshotOptions&& optio
     return snapshotFrameRect(frame, enclosingIntRect(selectionBounds), WTF::move(options));
 }
 
-RefPtr<ImageBuffer> snapshotNode(LocalFrame& frame, Node& node, SnapshotOptions&& options)
+RefPtr<ImageBuffer> snapshotNode(LocalFrame& frame, Node& node, SnapshotOptions&& options, IntRect* outPaintingRect, IntRect* outElementRect)
 {
     if (!node.renderer())
         return nullptr;
@@ -176,8 +176,14 @@ RefPtr<ImageBuffer> snapshotNode(LocalFrame& frame, Node& node, SnapshotOptions&
 
     protect(frame.view())->setBaseBackgroundColor(Color::transparentBlack);
 
-    LayoutRect topLevelRect;
-    return snapshotFrameRect(frame, snappedIntRect(node.renderer()->paintingRootRect(topLevelRect)), WTF::move(options), &node);
+    LayoutRect elementRect;
+    auto paintingRect = snappedIntRect(node.renderer()->subtreePaintRootRect(elementRect, RenderObject::RespectTransforms::Yes));
+    if (outPaintingRect)
+        *outPaintingRect = paintingRect;
+    if (outElementRect)
+        *outElementRect = snappedIntRect(elementRect);
+
+    return snapshotFrameRect(frame, paintingRect, WTF::move(options), &node);
 }
 
 static bool styleContainsComplexBackground(const Style::ComputedStyle& style)

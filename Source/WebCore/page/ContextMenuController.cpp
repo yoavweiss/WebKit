@@ -214,7 +214,7 @@ static void prepareContextForQRCode(ContextMenuContext& context)
     if (!frame)
         return;
 
-    auto nodeSnapshotImageBuffer = snapshotNode(*frame, *element, { { }, PixelFormat::BGRA8, DestinationColorSpace::SRGB() });
+    RefPtr nodeSnapshotImageBuffer = snapshotNode(*frame, *element, { { }, PixelFormat::BGRA8, DestinationColorSpace::SRGB() });
     RefPtr nodeSnapshotImage = BitmapImage::create(ImageBuffer::sinkIntoNativeImage(WTF::move(nodeSnapshotImageBuffer)));
     context.setPotentialQRCodeNodeSnapshotImage(nodeSnapshotImage.get());
 

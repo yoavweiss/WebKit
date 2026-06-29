@@ -548,6 +548,19 @@ TEST(DragAndDropTests, DragPreviewOriginForImage)
     EXPECT_LT(previewOrigin.y, dragStart.y);
 }
 
+TEST(DragAndDropTests, DragPreviewOriginForTransformedElement)
+{
+    RetainPtr simulator = adoptNS([[DragAndDropSimulator alloc] initWithWebViewFrame:NSMakeRect(0, 0, 600, 600)]);
+    RetainPtr webView = [simulator webView];
+    [webView synchronouslyLoadTestPageNamed:@"DataTransfer-setDragImage"];
+
+    [simulator runFrom:NSMakePoint(200, 450) to:NSMakePoint(300, 450)];
+
+    CGPoint dragLocation = [simulator initialDragImageLocationInView];
+    EXPECT_NEAR(dragLocation.x, 115, 1);
+    EXPECT_NEAR(dragLocation.y, 365, 1);
+}
+
 TEST(DragAndDropTests, DragEnterAndLeaveRelatedTarget)
 {
     RetainPtr simulator = adoptNS([[DragAndDropSimulator alloc] initWithWebViewFrame:NSMakeRect(0, 0, 320, 500)]);
