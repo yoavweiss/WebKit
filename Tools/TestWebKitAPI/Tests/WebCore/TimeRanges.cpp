@@ -288,6 +288,21 @@ TEST(TimeRanges, IntersectWith_Gaps3)
     ASSERT_RANGE("{ [1,5) [6,9) }", rangesB);
 }
 
+TEST(TimeRanges, Nearest)
+{
+    RefPtr<TimeRanges> ranges = TimeRanges::create();
+    ranges->add(0, 2);
+    ranges->add(5, 7);
+
+    EXPECT_EQ(0, ranges->nearest(0));
+    EXPECT_EQ(1, ranges->nearest(1));
+    EXPECT_EQ(2, ranges->nearest(2));
+    EXPECT_EQ(2, ranges->nearest(3));
+    EXPECT_EQ(5, ranges->nearest(4));
+    EXPECT_EQ(5, ranges->nearest(5));
+    EXPECT_EQ(7, ranges->nearest(8));
+}
+
 TEST(TimeRanges, Add_SmallGaps)
 {
     RefPtr<TimeRanges> ranges = TimeRanges::create();
