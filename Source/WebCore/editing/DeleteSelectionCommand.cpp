@@ -894,7 +894,7 @@ void DeleteSelectionCommand::removePreviouslySelectedEmptyTableRows()
         }
     }
 
-    RefPtr endTableRow = m_startTableRow;
+    RefPtr endTableRow = m_endTableRow;
     if (endTableRow && endTableRow->isConnected() && endTableRow != m_startTableRow) {
         if (isTableRowEmpty(*endTableRow)) {
             // Don't remove m_endTableRow if it's where we're putting the ending selection.
