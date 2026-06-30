@@ -95,6 +95,8 @@ void CachedMatchFinder::performSearch(StringView buffer, unsigned startOffset, c
             if (!matchStartCandidate)
                 break;
             size_t matchLength = static_cast<size_t>(icuSearcher.matchedLength());
+            if (!matchLength)
+                break;
             if (!isMatch(*matchStartCandidate, matchLength))
                 continue;
             if (callback(*matchStartCandidate, *matchStartCandidate + matchLength) == SearchShouldContinue::No)
@@ -108,6 +110,8 @@ void CachedMatchFinder::performSearch(StringView buffer, unsigned startOffset, c
             if (!matchStartCandidate || *matchStartCandidate >= startOffset)
                 break;
             size_t matchLength = static_cast<size_t>(icuSearcher.matchedLength());
+            if (!matchLength)
+                break;
             if (!isMatch(*matchStartCandidate, matchLength))
                 continue;
             matches.append({ *matchStartCandidate, *matchStartCandidate + matchLength });
@@ -124,6 +128,8 @@ void CachedMatchFinder::performSearch(StringView buffer, unsigned startOffset, c
             if (!matchStartCandidate)
                 break;
             size_t matchLength = icuSearcher.matchedLength();
+            if (!matchLength)
+                break;
             if (!isMatch(*matchStartCandidate, matchLength))
                 continue;
             if (callback(*matchStartCandidate, *matchStartCandidate + matchLength) == SearchShouldContinue::No)
