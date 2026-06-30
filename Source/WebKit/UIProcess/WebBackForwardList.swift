@@ -895,6 +895,7 @@ final class WebBackForwardList {
     func findFrameStateInItem(
         itemID: WebCore.BackForwardItemIdentifier,
         parentFrameID: WebCore.FrameIdentifier,
+        childFrameID: WebCore.FrameIdentifier,
         childFrameIndex: UInt64
     ) -> WebKit.FrameState? {
         guard let targetItem = itemForID(identifier: itemID) else {
@@ -906,7 +907,12 @@ final class WebBackForwardList {
         // This only works correctly for direct children of the main frame; nested frames
         // (e.g., subframe > nestedframe) will get the wrong FrameState.
         let parentFrameItem = targetItem.mainFrameItem().childItemForFrameID(parentFrameID) ?? targetItem.mainFrameItem()
-        guard let childFrameItem = parentFrameItem.childItemAtIndex(childFrameIndex) else {
+        var childFrameItem = parentFrameItem.childItemForFrameID(childFrameID)
+        if childFrameItem == nil {
+            // The identifier is absent after session restore or cross-site child-frame recreation; fall back to position.
+            childFrameItem = parentFrameItem.childItemAtIndex(childFrameIndex)
+        }
+        guard let childFrameItem else {
             return nil
         }
         return getFrameState(childFrameItem)
