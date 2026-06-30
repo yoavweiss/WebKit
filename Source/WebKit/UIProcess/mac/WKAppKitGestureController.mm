@@ -606,6 +606,19 @@ ALLOW_NEW_API_WITHOUT_GUARDS_END
 
     case NSGestureRecognizerStateChanged: {
         if (!_mouseTrackingHasSentMouseDown) {
+            // Either the synthetic single-click path or this mouse-tracking path delivers a mouse
+            // down for a given interaction, but never both. An event that stays within the single-click
+            // gesture's allowable movement is a click: that gesture stays alive and, when it ends, the
+            // synthetic click path delivers the mouse down, mouse up, and click (plus pointer events).
+            // Only once the event moves past that threshold — at which point the single-click gesture
+            // cancels and this becomes a drag — does mouse tracking take over event delivery. Sending a
+            // mouse down here for a stationary click would deliver a second mouse down to the content,
+            // which should be avoided.
+            auto movementInWindow = locationInWindow - _mouseTrackingStartLocationInWindow;
+            auto allowableMovement = [_singleClickGestureRecognizer allowableMovement];
+            if (std::abs(movementInWindow.width()) <= allowableMovement && std::abs(movementInWindow.height()) <= allowableMovement)
+                break;
+
             RetainPtr mouseDown = [NSEvent mouseEventWithType:NSEventTypeLeftMouseDown
                 location:_mouseTrackingStartLocationInWindow
                 modifierFlags:modifierFlags
