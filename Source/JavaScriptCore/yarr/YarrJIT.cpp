@@ -1140,16 +1140,28 @@ class YarrGenerator final : public YarrJITInfo {
             return;
         }
 
-        if (m_charSize == CharSize::Char8 && charClass->m_latin1Table) {
-            const auto* table = m_boyerMooreData->addLatin1Table(*charClass->m_latin1Table);
-            if (matchTargets.hasFailedTarget()) {
+        if (charClass->m_latin1Table) {
+            bool pureLatin1 = charClass->m_matches32.isEmpty() && charClass->m_ranges32.isEmpty();
+            if (m_charSize == CharSize::Char8 || pureLatin1) {
+                const auto* table = m_boyerMooreData->addLatin1Table(*charClass->m_latin1Table);
+                bool needsHighGuard = m_charSize != CharSize::Char8;
+                if (matchTargets.hasFailedTarget()) {
+                    if (needsHighGuard)
+                        matchTargets.appendFailed(m_jit.branch32(MacroAssembler::AboveOrEqual, character, MacroAssembler::TrustedImm32(0x100)));
+                    MacroAssembler::ExtendedAddress tableEntry(character, reinterpret_cast<intptr_t>(table));
+                    matchTargets.appendFailed(m_jit.branchTest8(MacroAssembler::Zero, tableEntry));
+                    return;
+                }
+
+                MacroAssembler::Jump isHigh;
+                if (needsHighGuard)
+                    isHigh = m_jit.branch32(MacroAssembler::AboveOrEqual, character, MacroAssembler::TrustedImm32(0x100));
                 MacroAssembler::ExtendedAddress tableEntry(character, reinterpret_cast<intptr_t>(table));
-                matchTargets.appendFailed(m_jit.branchTest8(MacroAssembler::Zero, tableEntry));
+                matchTargets.appendSucceeded(m_jit.branchTest8(MacroAssembler::NonZero, tableEntry));
+                if (isHigh.isSet())
+                    isHigh.link(&m_jit);
                 return;
             }
-            MacroAssembler::ExtendedAddress tableEntry(character, reinterpret_cast<intptr_t>(table));
-            matchTargets.appendSucceeded(m_jit.branchTest8(MacroAssembler::NonZero, tableEntry));
-            return;
         }
 
         Vector<char32_t, 32> unifiedMatches;
