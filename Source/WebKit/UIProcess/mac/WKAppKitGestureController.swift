@@ -43,6 +43,7 @@ final class WKPanGestureRecognizer: NSPanGestureRecognizer {
         super.init(coder: coder)
     }
 
+    #if canImport(AppKit, _version: "2759")
     // swift-format-ignore: NoLeadingUnderscores
     override func _shouldRecognize(forDelta delta: NSPoint) -> NSPanShouldRecognizeResponse {
         guard let webView, let page = webView._protectedPage().get() else {
@@ -78,6 +79,7 @@ final class WKPanGestureRecognizer: NSPanGestureRecognizer {
 
         return .recognize
     }
+    #endif // canImport(AppKit, _version: "2759")
 }
 
 @objc(Swift)
