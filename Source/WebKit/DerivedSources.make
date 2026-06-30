@@ -1111,7 +1111,7 @@ ifeq ($(USE_INTERNAL_SDK),YES)
 WEBKIT_ADDITIONS_SWIFT_FILES = \
 	TestWebKitAPILibraryAdditions.swift \
 	UIWindowScene+Extras.swift \
-	WKDeferringGestureRecognizerExtras.swift \
+	AppKitGesturesExtras.swift \
 	WKWebView+SystemTextExtraction.swift \
 	WKSExperienceController+Transitions.swift \
 #
