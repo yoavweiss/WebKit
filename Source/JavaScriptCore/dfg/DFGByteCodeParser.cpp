@@ -6992,8 +6992,6 @@ void ByteCodeParser::handleGetById(
     NodeType getById;
     if (type == AccessType::GetById)
         getById = getByStatus.makesCalls() ? GetByIdFlush : GetById;
-    else if (type == AccessType::TryGetById)
-        getById = TryGetById;
     else
         getById = getByStatus.makesCalls() ? GetByIdDirectFlush : GetByIdDirect;
     auto* data = m_graph.m_getByIdData.add(GetByIdData { identifier, getByStatus.preferredCacheType() });
@@ -7821,9 +7819,7 @@ void ByteCodeParser::parseGetById(const JSInstruction* currentInstruction, unsig
     Node* base = get(bytecode.m_base);
     
     AccessType type = AccessType::GetById;
-    if constexpr (Op::opcodeID == op_try_get_by_id)
-        type = AccessType::TryGetById;
-    else if constexpr (Op::opcodeID == op_get_by_id_direct)
+    if constexpr (Op::opcodeID == op_get_by_id_direct)
         type = AccessType::GetByIdDirect;
     
     GetByStatus getByStatus = GetByStatus::computeFor(
@@ -8564,9 +8560,8 @@ void ByteCodeParser::parseBlock(unsigned limit)
                 SpeculatedType prediction = getPrediction();
                 auto* hasInstanceImpl = m_vm->propertyNames->hasInstanceSymbol.impl();
                 unsigned identifierNumber = m_graph.identifiers().ensure(hasInstanceImpl);
-                AccessType type = AccessType::GetById;
 
-                handleGetById(bytecode.m_hasInstanceOrPrototype, prediction, get(bytecode.m_constructor), CacheableIdentifier::createFromImmortalIdentifier(hasInstanceImpl), identifierNumber, getByStatus, type, nextCheckpoint());
+                handleGetById(bytecode.m_hasInstanceOrPrototype, prediction, get(bytecode.m_constructor), CacheableIdentifier::createFromImmortalIdentifier(hasInstanceImpl), identifierNumber, getByStatus, AccessType::GetById, nextCheckpoint());
                 itermediateIndex = progressToNextCheckpoint();
 
                 // 2. Get Prototype
@@ -8637,9 +8632,8 @@ void ByteCodeParser::parseBlock(unsigned limit)
                 SpeculatedType prediction = getPrediction();
                 auto* prototypeImpl = m_vm->propertyNames->prototype.impl();
                 unsigned identifierNumber = m_graph.identifiers().ensure(prototypeImpl);
-                AccessType type = AccessType::GetById;
 
-                handleGetById(bytecode.m_hasInstanceOrPrototype, prediction, get(bytecode.m_constructor), CacheableIdentifier::createFromImmortalIdentifier(prototypeImpl), identifierNumber, getByStatus, type, nextCheckpoint());
+                handleGetById(bytecode.m_hasInstanceOrPrototype, prediction, get(bytecode.m_constructor), CacheableIdentifier::createFromImmortalIdentifier(prototypeImpl), identifierNumber, getByStatus, AccessType::GetById, nextCheckpoint());
                 progressToNextCheckpoint();
 
                 // 3. Do value instanceof prototype.
@@ -9237,14 +9231,6 @@ void ByteCodeParser::parseBlock(unsigned limit)
             auto identifier = CacheableIdentifier::createFromIdentifierOwnedByCodeBlock(m_inlineStackTop->m_profiledBlock, uid);
             parseGetById<OpGetByIdDirect>(currentInstruction, identifierNumber, identifier);
             NEXT_OPCODE(op_get_by_id_direct);
-        }
-        case op_try_get_by_id: {
-            auto bytecode = currentInstruction->as<OpTryGetById>();
-            unsigned identifierNumber = m_inlineStackTop->m_identifierRemap[bytecode.m_property];
-            UniquedStringImpl* uid = m_graph.identifiers()[identifierNumber];
-            auto identifier = CacheableIdentifier::createFromIdentifierOwnedByCodeBlock(m_inlineStackTop->m_profiledBlock, uid);
-            parseGetById<OpTryGetById>(currentInstruction, identifierNumber, identifier);
-            NEXT_OPCODE(op_try_get_by_id);
         }
         case op_get_by_id: {
             auto bytecode = currentInstruction->as<OpGetById>();
@@ -12144,15 +12130,12 @@ void ByteCodeParser::handleIteratorOpen(const JSInstruction* currentInstruction,
             auto* nextImpl = m_vm->propertyNames->next.impl();
             unsigned identifierNumber = m_graph.identifiers().ensure(nextImpl);
 
-            AccessType type = AccessType::GetById;
-
             GetByStatus getByStatus = GetByStatus::computeFor(
                 m_inlineStackTop->m_profiledBlock,
                 m_inlineStackTop->m_baselineMap, m_icContextStack,
                 currentCodeOrigin());
 
-
-            handleGetById(bytecode.m_next, prediction, base, CacheableIdentifier::createFromImmortalIdentifier(nextImpl), identifierNumber, getByStatus, type, osrExitIndex);
+            handleGetById(bytecode.m_next, prediction, base, CacheableIdentifier::createFromImmortalIdentifier(nextImpl), identifierNumber, getByStatus, AccessType::GetById, osrExitIndex);
 
             // Do our set locals. We don't want to run our get_by_id again so we move to the next bytecode.
             m_currentIndex = osrExitIndex;
@@ -12793,14 +12776,12 @@ void ByteCodeParser::handleIteratorNext(const JSInstruction* currentInstruction,
             auto* doneImpl = m_vm->propertyNames->done.impl();
             unsigned identifierNumber = m_graph.identifiers().ensure(doneImpl);
 
-            AccessType type = AccessType::GetById;
-
             GetByStatus getByStatus = GetByStatus::computeFor(
                 m_inlineStackTop->m_profiledBlock,
                 m_inlineStackTop->m_baselineMap, m_icContextStack,
                 currentCodeOrigin());
 
-            handleGetById(bytecode.m_done, prediction, base, CacheableIdentifier::createFromImmortalIdentifier(doneImpl), identifierNumber, getByStatus, type, nextCheckpoint());
+            handleGetById(bytecode.m_done, prediction, base, CacheableIdentifier::createFromImmortalIdentifier(doneImpl), identifierNumber, getByStatus, AccessType::GetById, nextCheckpoint());
             // Set a value for m_value so we don't exit on it differing from what we expected.
             set(bytecode.m_value, jsConstant(m_graph.bottomValueMatchingSpeculation(valuePredicition)));
             progressToNextCheckpoint();
@@ -12820,14 +12801,12 @@ void ByteCodeParser::handleIteratorNext(const JSInstruction* currentInstruction,
             auto* valueImpl = m_vm->propertyNames->value.impl();
             unsigned identifierNumber = m_graph.identifiers().ensure(valueImpl);
 
-            AccessType type = AccessType::GetById;
-
             GetByStatus getByStatus = GetByStatus::computeFor(
                 m_inlineStackTop->m_profiledBlock,
                 m_inlineStackTop->m_baselineMap, m_icContextStack,
                 currentCodeOrigin());
 
-            handleGetById(bytecode.m_value, valuePredicition, base, CacheableIdentifier::createFromImmortalIdentifier(valueImpl), identifierNumber, getByStatus, type, osrExitIndex);
+            handleGetById(bytecode.m_value, valuePredicition, base, CacheableIdentifier::createFromImmortalIdentifier(valueImpl), identifierNumber, getByStatus, AccessType::GetById, osrExitIndex);
 
             // We're done, exit forwards.
             m_currentIndex = osrExitIndex;
