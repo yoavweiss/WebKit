@@ -651,14 +651,15 @@ private:
         case WasmAddress: {
             WasmAddressValue* wasmAddress = address->as<WasmAddressValue>();
             Value* pointer = wasmAddress->child(0);
-            // Why don't we need to check m_locked here? WasmAddressValue is purely used for address computation,
+            // Why don't we need to check m_locked for the WasmAddressValue itself? It is purely used for address computation,
             // which is different from the other operations. And we already know that numUses(address) is below the threshold.
             // If we ensure that all use of WasmAddress gets indexArg form, we do not need to have WasmAddressValue's instruction actually.
             if (!Arg::isValidIndexForm(1, offset, width))
                 return fallback();
 
             Tmp base = Tmp(wasmAddress->pinnedGPR());
-            if (std::optional<unsigned> scale = scaleForShl(pointer, offset, width))
+            std::optional<unsigned> scale = scaleForShl(pointer, offset, width);
+            if (scale && !m_locked.contains(pointer->child(0)))
                 return indexArg(base, pointer->child(0), *scale, offset);
 
             return indexArg(base, pointer, 1, offset);
