@@ -3134,7 +3134,6 @@ webkit.org/b/148650 fast/repaint/add-table-overpaint.html [ Pass Failure ]
 
 # Initial failures on the import of css-content
 
-imported/w3c/web-platform-tests/css/css-content/element-replacement-gradient.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-content/element-replacement-on-replaced-element.tentative.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-content/quotes-001.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-content/quotes-006.html [ ImageOnlyFailure ]
