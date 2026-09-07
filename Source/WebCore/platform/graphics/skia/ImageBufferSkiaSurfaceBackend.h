@@ -54,6 +54,9 @@ protected:
     unsigned bytesPerRow() const final;
     bool canMapBackingStore() const final;
 
+    void getPixelBuffer(const IntRect&, PixelBuffer&) override;
+    void putPixelBuffer(const PixelBufferSourceView&, const IntRect& srcRect, const IntPoint& destPoint, AlphaPremultiplication destFormat) override;
+
     sk_sp<SkSurface> m_surface;
     GraphicsContextSkia m_context;
 };
