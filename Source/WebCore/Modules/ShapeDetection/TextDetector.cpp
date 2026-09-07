@@ -87,8 +87,8 @@ void TextDetector::detect(ScriptExecutionContext& scriptExecutionContext, ImageB
         }
 
         backing->detect(*image, [promise = WTF::move(promise)](Vector<ShapeDetection::DetectedText>&& detectedText) mutable {
-            promise.resolve(detectedText.map([](const auto& detectedText) {
-                return convertFromBacking(detectedText);
+            promise.resolve(WTF::map(WTF::move(detectedText), [](ShapeDetection::DetectedText&& detectedText) {
+                return convertFromBacking(WTF::move(detectedText));
             }));
         });
     });

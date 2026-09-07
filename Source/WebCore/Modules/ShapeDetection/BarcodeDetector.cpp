@@ -115,8 +115,8 @@ void BarcodeDetector::detect(ScriptExecutionContext& scriptExecutionContext, Ima
         }
 
         backing->detect(image.releaseNonNull(), [promise = WTF::move(promise)](Vector<ShapeDetection::DetectedBarcode>&& detectedBarcodes) mutable {
-            promise.resolve(detectedBarcodes.map([](const auto& detectedBarcode) {
-                return convertFromBacking(detectedBarcode);
+            promise.resolve(WTF::map(WTF::move(detectedBarcodes), [](ShapeDetection::DetectedBarcode&& detectedBarcode) {
+                return convertFromBacking(WTF::move(detectedBarcode));
             }));
         });
     });
