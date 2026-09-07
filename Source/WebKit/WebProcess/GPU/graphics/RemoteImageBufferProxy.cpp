@@ -125,7 +125,7 @@ WTF_MAKE_TZONE_ALLOCATED_IMPL(RemoteImageBufferProxyFlusher);
 
 RemoteImageBufferProxy::RemoteImageBufferProxy(Parameters parameters, const ImageBufferBackend::Info& info, RemoteRenderingBackendProxy& renderingBackend)
     : ImageBuffer(parameters, info, { }, nullptr)
-    , m_context(ImageBuffer::colorSpace(), ImageBuffer::renderingMode() , { { }, ImageBuffer::logicalSize() }, ImageBuffer::baseTransform(), renderingBackend)
+    , m_context({ { }, ImageBuffer::logicalSize() }, ImageBuffer::baseTransform(), ImageBuffer::colorSpace(), ImageBuffer::renderingMode(), renderingBackend)
     , m_renderingBackend(renderingBackend)
 {
     m_context.setClient(*this);
