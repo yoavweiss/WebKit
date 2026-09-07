@@ -1394,7 +1394,7 @@ void WebChromeClient::contentRuleListNotification(const URL& url, const ContentR
 #endif
 }
 
-#if ENABLE(WK_WEB_EXTENSIONS) && ENABLE(CONTENT_EXTENSIONS)
+#if ENABLE(WK_WEB_EXTENSIONS) && ENABLE(CONTENT_EXTENSIONS) && PLATFORM(COCOA)
 static ResourceLoadInfo::Type toResourceLoadInfoType(OptionSet<WebCore::ContentExtensions::ResourceType> type)
 {
     using WebCore::ContentExtensions::ResourceType;
